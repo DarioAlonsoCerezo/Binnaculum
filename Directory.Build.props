@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	<NoWarn>CS1572,CS1587,FS3511,IL2040,CA1416</NoWarn>
+  </PropertyGroup>
+</Project>
