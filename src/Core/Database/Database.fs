@@ -14,8 +14,21 @@ module internal Do =
         init.Mode <- SqliteOpenMode.ReadWriteCreate
         init.ToString()
 
-    //TODO: Here I need to setup all the tables
-    let private tablesSQL: string list =  []
+    let private tablesSQL: string list =  [
+        Binnaculum.Core.SQL.BrokerQuery.createTable
+        Binnaculum.Core.SQL.BrokerAccountQuery.createTable
+        Binnaculum.Core.SQL.CurrencyQuery.createTable
+        Binnaculum.Core.SQL.MovementQuery.createTable
+        Binnaculum.Core.SQL.TickersQuery.createTable
+        Binnaculum.Core.SQL.TradesQuery.createTable
+        Binnaculum.Core.SQL.DividendsQuery.createTable
+        Binnaculum.Core.SQL.DividendTaxesQuery.createTable
+        Binnaculum.Core.SQL.OptionsQuery.createTable
+        Binnaculum.Core.SQL.BankAccountsQuery.createTable
+        Binnaculum.Core.SQL.BankAccountBalancesQuery.createTable
+        Binnaculum.Core.SQL.BankAccountInterestsQuery.createTable
+        Binnaculum.Core.SQL.BankAccountFeesQuery.createTable
+    ]
 
     let private connect() = task {
         if connection = null then
