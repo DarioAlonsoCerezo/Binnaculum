@@ -1,12 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="Library.fs" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" />
+		<PackageReference Include="ReactiveUI" />
+		<PackageReference Include="Microsoft.Maui.Essentials" />
+		<PackageReference Include="FSharp.Core" />
+		<PackageReference Include="DynamicData" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="SQL\BrokerQuery.fs" />
+		<Compile Include="SQL\BrokerAccountQuery.fs" />
+		<Compile Include="SQL\CurrencyQuery.fs" />
+		<Compile Include="SQL\MovementQuery.fs" />
+		<Compile Include="SQL\TickersQuery.fs" />
+		<Compile Include="SQL\TradesQuery.fs" />
+		<Compile Include="SQL\DividendsQuery.fs" />
+		<Compile Include="SQL\DividendTaxesQuery.fs" />
+		<Compile Include="SQL\OptionsQuery.fs" />
+		<Compile Include="SQL\BankAccountsQuery.fs" />
+		<Compile Include="SQL\BankAccountBalancesQuery.fs" />
+		<Compile Include="SQL\BankAccountInterestsQuery.fs" />
+		<Compile Include="SQL\BankAccountFeesQuery.fs" />
+		<Compile Include="Database\Database.fs" />
+		<Compile Include="Database\DatabaseModel.fs" />
+		<Compile Include="Database\TypeParser.fs" />
+		<Compile Include="Models\Models.fs" />
+	</ItemGroup>
 
 </Project>
