@@ -4,12 +4,30 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Binnaculum"
-    Shell.FlyoutBehavior="Flyout"
-    Title="Binnaculum">
+    xmlns:pages="clr-namespace:Binnaculum.Pages">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <ShellContent
+            Title="Overview"
+            Icon="overview"
+            ContentTemplate="{DataTemplate pages:OverviewPage}" />
+
+        <ShellContent
+            Title="Movements"
+            Icon="movements"
+            ContentTemplate="{DataTemplate pages:MovementsPage}" />
+        <ShellContent
+            Title="Tickers"
+            Icon="tickers"
+            ContentTemplate="{DataTemplate pages:TickersPage}" />
+        <ShellContent
+            Title="Statements"
+            Icon="statements"
+            ContentTemplate="{DataTemplate pages:StatementsPage}" />
+        <ShellContent
+            Title="Settings"
+            Icon="settings"
+            ContentTemplate="{DataTemplate pages:SettingsPage}" />
+    </TabBar>
 
 </Shell>
