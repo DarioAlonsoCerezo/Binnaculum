@@ -20,6 +20,31 @@ module Models =
         | Call
         | Put
 
+    type TradeCode = 
+        | BuyToOpen
+        | SellToOpen
+        | BuyToClose
+        | SellToClose
+
+    type TradeType =
+        | Long
+        | Short
+
+    type DividendCode =
+        | ExDividendDate
+        | PayDividendDate
+
+    type MovementType =
+        | Deposit
+        | Withdrawal
+        | Fee
+        | InterestsGained
+        | Lending
+        | ACATMoneyTransfer
+        | ACATSecuritiesTransfer
+        | InterestsPaid
+        | Conversion
+
     type Broker = {
         Id: int
         Name: string
@@ -31,19 +56,30 @@ module Models =
         Broker: Broker
         AccountNumber: string
     }
-
+    
     type Currency = {
         Id: int;
         Name: string;
         Code: string;
         Symbol: string;
     }
+
+    type Movement = {
+        Id: int
+        TimeStamp: DateTime
+        Amount: decimal
+        Currency: Currency
+        BrokerAccount: BrokerAccount
+        Commissions: decimal
+        Fees: decimal
+        MovementType: MovementType
+    }
     
     type Ticker = {
         Id: int
-        Ticker: string
+        Symbol: string
     }
-
+    
     type Trade = {
         Id: int
         TimeStamp: DateTime
@@ -55,23 +91,82 @@ module Models =
         Price: decimal
         Commissions: decimal
         Fees: decimal
-        IsBuy: bool
+        TradeCode: TradeCode
+        TradeType: TradeType
+        Notes: string option
     }
 
-    type Option = {
+    type Dividend = {
         Id: int
-        TimeStamp: string
-        ExpirationDate: string
-        Premium: string
-        NetAmount: string
+        TimeStamp: DateTime
+        Amount: decimal
+        Ticker: Ticker
+        Currency: Currency
+        BrokerAccount: BrokerAccount
+    }
+
+    type DividendTax = {
+        Id: int
+        TimeStamp: DateTime
+        Amount: decimal
+        Ticker: Ticker
+        Currency: Currency
+        BrokerAccount: BrokerAccount
+    }
+
+    type DividendDate = {
+        Id: int
+        Amount: DateTime
+        TimeStamp: DateTime
+        Ticker: Ticker
+        DividendCode: DividendCode
+    }
+
+    type OptionTrade = {
+        Id: int
+        TimeStamp: DateTime
+        ExpirationDate: DateTime
+        Premium: decimal
+        NetPremium: decimal
         Ticker: Ticker
         BrokerAccount: BrokerAccount
         Currency: Currency
         OptionType: OptionType
         Code: OptionCode
-        Strike: string
-        Commissions: string
-        Fees: string
+        Strike: decimal
+        Commissions: decimal
+        Fees: decimal
         IsOpen: bool
         ClosedWith: int option
+    }
+
+    type BankAccount = {
+        Id: int
+        Name: string
+        Description: int
+        Currency: Currency
+    }
+
+    type BankAccountBalance = {
+        Id: int
+        TimeStamp: DateTime
+        Amount: decimal
+        BankAccount: BankAccount
+        Currency: Currency
+    }
+
+    type BankAccountInterest = {
+        Id: int
+        TimeStamp: DateTime
+        Amount: decimal
+        BankAccount: BankAccount
+        Currency: Currency
+    }
+
+    type BankAccountFee = {
+        Id: int
+        TimeStamp: DateTime
+        Amount: decimal
+        BankAccount: BankAccount
+        Currency: Currency
     }
