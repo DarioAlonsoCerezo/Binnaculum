@@ -3,9 +3,7 @@
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 		<MauiVersion>9.0.50</MauiVersion>
 		<ReactiveUiVersion>20.2.45</ReactiveUiVersion>
-		<AppCenterVersion>5.0.3</AppCenterVersion>
 	</PropertyGroup>
-	<!-- packages referenced by projects -->
 	<!-- MAUI -->
 	<ItemGroup>
 		<PackageVersion Include="Microsoft.Maui.Core" Version="$(MauiVersion)" />
@@ -24,29 +22,31 @@
 		<PackageVersion Include="FSharp.Core" Version="9.0.201" />
 	</ItemGroup>
 
+	<!-- SQLite -->
 	<ItemGroup>
 		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="9.0.3" />
-		<PackageVersion Include="Dapper" Version="2.1.35" />
 		<PackageVersion Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
+	</ItemGroup>
+	
+	<!-- ReactiveUI -->
+	<ItemGroup>
 		<PackageVersion Include="ReactiveUI" Version="$(ReactiveUiVersion)" />
 		<PackageVersion Include="ReactiveUI.Maui" Version="$(ReactiveUiVersion)" />
-		<PackageVersion Include="ReactiveUI.Fody" Version="19.5.1" />
 		<PackageVersion Include="DynamicData" Version="9.2.1" />
-		<PackageVersion Include="Splat.Microsoft.Extensions.DependencyInjection" Version="14.7.1" />
-		<PackageVersion Include="CommunityToolkit.Maui" Version="11.1.0" />
+	</ItemGroup>
+	
+	<!-- Microfost extensions -->
+	<ItemGroup>
 		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.3" />
-		<PackageVersion Include="Microsoft.AppCenter" Version="$(AppCenterVersion)" />
-		<PackageVersion Include="Microsoft.AppCenter.Analytics" Version="$(AppCenterVersion)" />
-		<PackageVersion Include="Microsoft.AppCenter.Crashes" Version="$(AppCenterVersion)" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.3" />				
+	</ItemGroup>
+	
+	<!-- Testing -->
+	<ItemGroup>
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0-release-23468-02" />
 		<PackageVersion Include="NUnit" Version="3.13.3" />
 		<PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
 		<PackageVersion Include="NUnit.Analyzers" Version="3.8.0" />
 		<PackageVersion Include="coverlet.collector" Version="6.0.0" />
-		<PackageVersion Include="Plugin.Maui.Calendar" Version="1.2.6" />
-		<PackageVersion Include="Microcharts.Maui" Version="1.0.0" />
-		<PackageVersion Include="SkiaSharp.Views.Maui.Controls" Version="2.88.9" />
-		<PackageVersion Include="Sentry.Maui" Version="5.4.0" />
 	</ItemGroup>
 </Project>
