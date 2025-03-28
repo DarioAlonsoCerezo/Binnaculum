@@ -4,65 +4,61 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:local="clr-namespace:Binnaculum"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
     <ScrollView>
-        <Grid
-            Padding="24,8"
-            ColumnDefinitions="1*,60"
-            RowDefinitions="60, Auto,1*"
-            VerticalOptions="Start">
+        <VerticalStackLayout
+            Padding="24"
+            Spacing="16">
+            <VerticalStackLayout.Resources>
+                <ResourceDictionary>
+                    <Style TargetType="Grid">
+                        <Setter Property="Margin" Value="24,16" />
+                        <Setter Property="ColumnDefinitions" Value="1*,30" />
+                    </Style>
+
+                    <Style TargetType="Image">
+                        <Setter Property="HorizontalOptions" Value="Start" />
+                        <Setter Property="WidthRequest" Value="20" />
+                        <Style.Behaviors>
+                            <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                        </Style.Behaviors>
+                    </Style>
+
+                    <Style TargetType="Label">
+                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                        <Setter Property="Padding" Value="32,0,0,0" />
+                        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                        <Setter Property="VerticalOptions" Value="Center" />
+
+                    </Style>
+
+                    <Style TargetType="RadioButton">
+                        <Setter Property="Grid.Column" Value="1" />
+                        <Setter Property="GroupName" Value="ThemeGroup" />
+                        <Setter Property="BackgroundColor" Value="Transparent" />
+                    </Style>
+
+                    <Style TargetType="Line">
+                        <Setter Property="StrokeThickness" Value="2" />
+                        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+                        <Setter Property="VerticalOptions" Value="End" />
+                        <Setter Property="X2" Value="{Binding Width, Source={RelativeSource Self}}" />
+                    </Style>
+                </ResourceDictionary>
+            </VerticalStackLayout.Resources>
             <Label
-                Margin="0,0,0,16"
-                Text="Theme Setting"
+                Padding="0"
+                Text="{local:Translate SettingsThemeTitle}"
                 FontFamily="OpenSansBold"
                 VerticalOptions="End" />
 
-            <Border
-                Grid.Row="1"
-                Grid.Column="0"
-                Grid.ColumnSpan="2">
+            <Border>
                 <VerticalStackLayout Spacing="0">
-                    <VerticalStackLayout.Resources>
-                        <ResourceDictionary>
-                            <Style TargetType="Grid">
-                                <Setter Property="Margin" Value="24,16" />
-                                <Setter Property="ColumnDefinitions" Value="1*,30" />
-                            </Style>
-
-                            <Style TargetType="Image">
-                                <Setter Property="HorizontalOptions" Value="Start" />
-                                <Setter Property="WidthRequest" Value="20" />
-                                <Style.Behaviors>
-                                    <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-                                </Style.Behaviors>
-                            </Style>
-
-                            <Style TargetType="Label">
-                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-                                <Setter Property="Padding" Value="32,0,0,0" />
-                                <Setter Property="FontFamily" Value="OpenSansSemibold" />
-                                <Setter Property="VerticalOptions" Value="Center" />
-
-                            </Style>
-
-                            <Style TargetType="RadioButton">
-                                <Setter Property="Grid.Column" Value="1" />
-                                <Setter Property="GroupName" Value="ThemeGroup" />
-                                <Setter Property="BackgroundColor" Value="Transparent" />
-                            </Style>
-
-                            <Style TargetType="Line">
-                                <Setter Property="StrokeThickness" Value="2" />
-                                <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
-                                <Setter Property="VerticalOptions" Value="End" />
-                                <Setter Property="X2" Value="{Binding Width, Source={RelativeSource Self}}" />
-                            </Style>
-                        </ResourceDictionary>
-                    </VerticalStackLayout.Resources>
                     <Grid>
                         <Image Source="light" />
-                        <Label Text="Light" />
+                        <Label Text="{local:Translate SettingsThemeLight}" />
                         <RadioButton
                             x:Name="LightRadioButton"
                             CheckedChanged="LightRadioButton_CheckedChanged" />
@@ -72,7 +68,7 @@
 
                     <Grid>
                         <Image Source="dark" />
-                        <Label Text="Dark" />
+                        <Label Text="{local:Translate SettingsThemeDark}" />
                         <RadioButton
                             x:Name="DarkRadioButton"
                             CheckedChanged="DarkRadioButton_CheckedChanged" />
@@ -82,7 +78,7 @@
 
                     <Grid>
                         <Image Source="device" />
-                        <Label Text="Device" />
+                        <Label Text="{local:Translate SettingsThemeDevice}" />
                         <RadioButton
                             x:Name="DeviceRadioButton"
                             CheckedChanged="DeviceRadioButton_CheckedChanged" />
@@ -93,6 +89,23 @@
                 </Border.StrokeShape>
             </Border>
 
-        </Grid>
+            <Label
+                Margin="0,16,0,0"
+                Padding="0"
+                Text="{local:Translate SettingsLanguageTitle}"
+                FontFamily="OpenSansBold"
+                VerticalOptions="End" />
+
+            <Border>
+                <Grid>
+                    <Image Source="language" />
+                    <Label Text="{local:Translate SettingsLanguageCurrent}" />
+                </Grid>
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="24" />
+                </Border.StrokeShape>
+            </Border>
+
+        </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
