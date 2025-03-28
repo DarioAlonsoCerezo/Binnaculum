@@ -14,9 +14,10 @@
     </Style>
 
     <Style TargetType="Border">
-        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+        <Setter Property="Stroke" Value="Transparent" />
         <Setter Property="StrokeShape" Value="Rectangle" />
         <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Black}}" />
     </Style>
 
     <Style TargetType="BoxView">
@@ -240,13 +241,13 @@
     </Style>
 
     <Style TargetType="RadioButton">
-        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Black}}" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
         <Setter Property="FontFamily" Value="OpenSansRegular" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="MinimumHeightRequest" Value="44" />
         <Setter Property="MinimumWidthRequest" Value="44" />
-        <Setter Property="VisualStateManager.VisualStateGroups">
+        <!--<Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
                     <VisualState x:Name="Normal" />
@@ -257,7 +258,7 @@
                     </VisualState>
                 </VisualStateGroup>
             </VisualStateGroupList>
-        </Setter>
+        </Setter>-->
     </Style>
 
     <Style TargetType="RefreshView">

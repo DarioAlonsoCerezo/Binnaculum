@@ -3,12 +3,96 @@
     x:Class="Binnaculum.Pages.SettingsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
-    <VerticalStackLayout>
-        <Label
-            Text="Welcome to Settings!"
-            VerticalOptions="Center"
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <ScrollView>
+        <Grid
+            Padding="24,8"
+            ColumnDefinitions="1*,60"
+            RowDefinitions="60, Auto,1*"
+            VerticalOptions="Start">
+            <Label
+                Margin="0,0,0,16"
+                Text="Theme Setting"
+                FontFamily="OpenSansBold"
+                VerticalOptions="End" />
+
+            <Border
+                Grid.Row="1"
+                Grid.Column="0"
+                Grid.ColumnSpan="2">
+                <VerticalStackLayout Spacing="0">
+                    <VerticalStackLayout.Resources>
+                        <ResourceDictionary>
+                            <Style TargetType="Grid">
+                                <Setter Property="Margin" Value="24,16" />
+                                <Setter Property="ColumnDefinitions" Value="1*,30" />
+                            </Style>
+
+                            <Style TargetType="Image">
+                                <Setter Property="HorizontalOptions" Value="Start" />
+                                <Setter Property="WidthRequest" Value="20" />
+                                <Style.Behaviors>
+                                    <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                                </Style.Behaviors>
+                            </Style>
+
+                            <Style TargetType="Label">
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+                                <Setter Property="Padding" Value="32,0,0,0" />
+                                <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                                <Setter Property="VerticalOptions" Value="Center" />
+
+                            </Style>
+
+                            <Style TargetType="RadioButton">
+                                <Setter Property="Grid.Column" Value="1" />
+                                <Setter Property="GroupName" Value="ThemeGroup" />
+                                <Setter Property="BackgroundColor" Value="Transparent" />
+                            </Style>
+
+                            <Style TargetType="Line">
+                                <Setter Property="StrokeThickness" Value="2" />
+                                <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+                                <Setter Property="VerticalOptions" Value="End" />
+                                <Setter Property="X2" Value="{Binding Width, Source={RelativeSource Self}}" />
+                            </Style>
+                        </ResourceDictionary>
+                    </VerticalStackLayout.Resources>
+                    <Grid>
+                        <Image Source="light" />
+                        <Label Text="Light" />
+                        <RadioButton
+                            x:Name="LightRadioButton"
+                            CheckedChanged="LightRadioButton_CheckedChanged" />
+                    </Grid>
+
+                    <Line />
+
+                    <Grid>
+                        <Image Source="dark" />
+                        <Label Text="Dark" />
+                        <RadioButton
+                            x:Name="DarkRadioButton"
+                            CheckedChanged="DarkRadioButton_CheckedChanged" />
+                    </Grid>
+
+                    <Line />
+
+                    <Grid>
+                        <Image Source="device" />
+                        <Label Text="Device" />
+                        <RadioButton
+                            x:Name="DeviceRadioButton"
+                            CheckedChanged="DeviceRadioButton_CheckedChanged" />
+                    </Grid>
+                </VerticalStackLayout>
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="24" />
+                </Border.StrokeShape>
+            </Border>
+
+        </Grid>
+    </ScrollView>
 </ContentPage>

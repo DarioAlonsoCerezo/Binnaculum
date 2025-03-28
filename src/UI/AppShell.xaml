@@ -21,9 +21,9 @@
             Icon="tickers"
             ContentTemplate="{DataTemplate pages:TickersPage}" />
         <ShellContent
-            Title="Statements"
-            Icon="statements"
-            ContentTemplate="{DataTemplate pages:StatementsPage}" />
+            Title="Calendar"
+            Icon="calendar"
+            ContentTemplate="{DataTemplate pages:CalendarPage}" />
         <ShellContent
             Title="Settings"
             Icon="settings"

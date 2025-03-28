@@ -49,4 +49,9 @@
 		<PackageVersion Include="NUnit.Analyzers" Version="3.8.0" />
 		<PackageVersion Include="coverlet.collector" Version="6.0.0" />
 	</ItemGroup>
+	
+	<!-- Others-->
+	<ItemGroup>
+		<PackageVersion Include="CommunityToolkit.Maui" Version="11.1.0" />
+	</ItemGroup>
 </Project>
