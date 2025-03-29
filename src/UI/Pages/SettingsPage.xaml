@@ -36,7 +36,6 @@
 
                     <Style TargetType="RadioButton">
                         <Setter Property="Grid.Column" Value="1" />
-                        <Setter Property="GroupName" Value="ThemeGroup" />
                         <Setter Property="BackgroundColor" Value="Transparent" />
                     </Style>
 
@@ -46,6 +45,8 @@
                         <Setter Property="VerticalOptions" Value="End" />
                         <Setter Property="X2" Value="{Binding Width, Source={RelativeSource Self}}" />
                     </Style>
+
+                    <Style TargetType="Border" />
                 </ResourceDictionary>
             </VerticalStackLayout.Resources>
             <Label
@@ -54,13 +55,14 @@
                 FontFamily="OpenSansBold"
                 VerticalOptions="End" />
 
-            <Border>
+            <Border Style="{StaticResource Settings}">
                 <VerticalStackLayout Spacing="0">
                     <Grid>
                         <Image Source="light" />
                         <Label Text="{local:Translate SettingsThemeLight}" />
                         <RadioButton
                             x:Name="LightRadioButton"
+                            GroupName="ThemeGroup"
                             CheckedChanged="LightRadioButton_CheckedChanged" />
                     </Grid>
 
@@ -71,6 +73,7 @@
                         <Label Text="{local:Translate SettingsThemeDark}" />
                         <RadioButton
                             x:Name="DarkRadioButton"
+                            GroupName="ThemeGroup"
                             CheckedChanged="DarkRadioButton_CheckedChanged" />
                     </Grid>
 
@@ -81,12 +84,10 @@
                         <Label Text="{local:Translate SettingsThemeDevice}" />
                         <RadioButton
                             x:Name="DeviceRadioButton"
+                            GroupName="ThemeGroup"
                             CheckedChanged="DeviceRadioButton_CheckedChanged" />
                     </Grid>
                 </VerticalStackLayout>
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="24" />
-                </Border.StrokeShape>
             </Border>
 
             <Label
@@ -96,14 +97,23 @@
                 FontFamily="OpenSansBold"
                 VerticalOptions="End" />
 
-            <Border>
-                <Grid>
-                    <Image Source="language" />
-                    <Label Text="{local:Translate SettingsLanguageCurrent}" />
-                </Grid>
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="24" />
-                </Border.StrokeShape>
+            <Border Style="{StaticResource Settings}">
+                <VerticalStackLayout>
+                    <Grid>
+                        <Label Text="{local:Translate SettingsLanguageEnglish}" />
+                        <RadioButton
+                            x:Name="LanguageEnglishRadioButton"
+                            GroupName="LanguageGroup"
+                            CheckedChanged="LanguageEnglishRadioButton_CheckedChanged" />
+                    </Grid>
+                    <Grid>
+                        <Label Text="{local:Translate SettingsLanguageSpanish}" />
+                        <RadioButton
+                            x:Name="LanguageSpanishRadioButton"
+                            GroupName="LanguageGroup"
+                            CheckedChanged="LanguageSpanishRadioButton_CheckedChanged" />
+                    </Grid>
+                </VerticalStackLayout>
             </Border>
 
         </VerticalStackLayout>

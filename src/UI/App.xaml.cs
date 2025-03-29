@@ -1,26 +1,28 @@
-﻿namespace Binnaculum
+﻿namespace Binnaculum;
+
+public partial class App : Application
 {
-    public partial class App : Application
+    public App()
     {
-        public App()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        protected override Window CreateWindow(IActivationState? activationState)
-        {
-            Application.Current!.UserAppTheme = (AppTheme)Preferences.Get("AppTheme", (int)AppTheme.Unspecified);
-            return new Window(new AppShell());
-        }
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        //Restore the theme and language settings
+        Current!.UserAppTheme = (AppTheme)Preferences.Get("AppTheme", (int)AppTheme.Unspecified);
+        LocalizationResourceManager.Instance.SetCulture(new CultureInfo(Preferences.Get("Language", "en")));
+        
+        return new Window(new AppShell());
+    }
 
-        protected override void OnStart()
-        {
-            base.OnStart();
-        }
+    protected override void OnStart()
+    {
+        base.OnStart();
+    }
 
-        protected override void OnResume()
-        {
-            base.OnResume();
-        }
+    protected override void OnResume()
+    {
+        base.OnResume();
     }
 }

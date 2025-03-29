@@ -63,9 +63,18 @@ namespace Binnaculum.Resources.Languages {
         /// <summary>
         ///   Looks up a localized string similar to English.
         /// </summary>
-        internal static string SettingsLanguageCurrent {
+        internal static string SettingsLanguageEnglish {
             get {
-                return ResourceManager.GetString("SettingsLanguageCurrent", resourceCulture);
+                return ResourceManager.GetString("SettingsLanguageEnglish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spanish.
+        /// </summary>
+        internal static string SettingsLanguageSpanish {
+            get {
+                return ResourceManager.GetString("SettingsLanguageSpanish", resourceCulture);
             }
         }
         
