@@ -74,6 +74,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" />
 
 		<PackageReference Include="CommunityToolkit.Maui" />
+		<PackageReference Include="Plugin.Maui.Calendar" />
 	</ItemGroup>
 
 	<ItemGroup>

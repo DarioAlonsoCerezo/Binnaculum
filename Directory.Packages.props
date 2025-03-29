@@ -52,6 +52,7 @@
 	
 	<!-- Others-->
 	<ItemGroup>
-		<PackageVersion Include="CommunityToolkit.Maui" Version="11.1.0" />
+		<PackageVersion Include="CommunityToolkit.Maui" Version="11.2.0" />
+		<PackageVersion Include="Plugin.Maui.Calendar" Version="1.2.6" />
 	</ItemGroup>
 </Project>
