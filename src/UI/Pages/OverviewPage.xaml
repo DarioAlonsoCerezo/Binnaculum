@@ -5,12 +5,47 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
-    <ScrollView>
-        <Grid>
-            <Label
-                Text="Let's go"
-                VerticalOptions="Center"
-                HorizontalOptions="Center" />
+    <Grid>
+        <Label
+            Margin="24,24,0,0"
+            Text="My accounts"
+            Style="{StaticResource SubHeadline}"
+            HorizontalOptions="Start"
+            FontFamily="OpenSansSemibold" />
+
+        <Grid x:Name="HistoryContainer">
+            <Grid
+                x:Name="HistoryBackground"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Black},
+                                                  Dark={StaticResource White}}"
+                Opacity="0.6"
+                IsVisible="False" />
+            <Border
+                x:Name="History"
+                BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                                  Dark={StaticResource Black}}">
+                <Grid>
+                    <Grid
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                                          Dark={StaticResource Black}}"
+                        VerticalOptions="Start"
+                        HeightRequest="64">
+                        <BoxView
+                            Margin="0,16,0,0"
+                            WidthRequest="40"
+                            HeightRequest="4"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
+                                                              Dark={StaticResource OffBlack}}" />
+                        <Grid.GestureRecognizers>
+                            <PanGestureRecognizer x:Name="HistoryGestured" />
+                        </Grid.GestureRecognizers>
+                    </Grid>
+
+                </Grid>
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="48,48,0,0" />
+                </Border.StrokeShape>
+            </Border>
         </Grid>
-    </ScrollView>
+    </Grid>
 </ContentPage>

@@ -7,6 +7,7 @@ public static class EventsExtensions
 {
     public static RxBindableObjectEvents Events(this BindableObject data) => new(data);
     public static RxTapGestureRecognizerEvents Events(this TapGestureRecognizer data) => new(data);
+    public static RxPanGestureRecognizerEvents Events(this PanGestureRecognizer data) => new(data);
     public static RxEntryEvents Events(this Entry item) => new(item);
     public static RxInputViewEvents Events(this InputView item) => new(item);
     public static RxImageEvents Events(this Image item) => new(item);
@@ -75,6 +76,20 @@ public class RxTapGestureRecognizerEvents : RxGestureRecognizerEvents
                 (eventHandler => (_, e) => eventHandler(e)),
                 x => _data.Tapped += x,
                 x => _data.Tapped -= x);
+}
+
+public class RxPanGestureRecognizerEvents : RxGestureRecognizerEvents
+{
+    private readonly PanGestureRecognizer _data;
+
+    public RxPanGestureRecognizerEvents(PanGestureRecognizer data) : base(data) => _data = data;
+
+    public IObservable<PanUpdatedEventArgs> PanUpdated
+        => Observable
+            .FromEvent((Func<Action<PanUpdatedEventArgs>, EventHandler<PanUpdatedEventArgs>>)
+                (eventHandler => (_, e) => eventHandler(e)),
+                x => _data.PanUpdated += x,
+                x => _data.PanUpdated -= x);
 }
 
 public class RxElementEvents : RxBindableObjectEvents
