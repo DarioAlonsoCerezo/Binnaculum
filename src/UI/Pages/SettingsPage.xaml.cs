@@ -1,42 +1,54 @@
-
-
-using Binnaculum.Resources.Languages;
-
 namespace Binnaculum.Pages;
 
 public partial class SettingsPage : ContentPage
 {
-	public SettingsPage()
+    private readonly CompositeDisposable Disposables;
+    public SettingsPage()
 	{
 		InitializeComponent();
-	}
 
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
+        Disposables = new CompositeDisposable();
 
-        SetupThemeRadioButtons();
-        SetupLanguageRadioButtons();
+        this.Events().Appearing
+            .Do(_ => SetupThemeRadioButtons())
+            .Do(_ => SetupLanguageRadioButtons())
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        SetupEvents();
     }
 
-    
-
-    private void LightRadioButton_CheckedChanged(object sender, CheckedChangedEventArgs e)
+    private void SetupEvents()
     {
-        if (e.Value)
-            SetupTheme(AppTheme.Light);
-    }
+        LightRadioButton.Events().CheckedChanged
+            .Where(x => x.Value)
+            .Do(_ => SetupTheme(AppTheme.Light))
+            .Subscribe()
+            .DisposeWith(Disposables);
 
-    private void DarkRadioButton_CheckedChanged(object sender, CheckedChangedEventArgs e)
-    {
-        if(e.Value)
-            SetupTheme(AppTheme.Dark);
-    }
+        DarkRadioButton.Events().CheckedChanged
+            .Where(x => x.Value)
+            .Do(_ => SetupTheme(AppTheme.Dark))
+            .Subscribe()
+            .DisposeWith(Disposables);
 
-    private void DeviceRadioButton_CheckedChanged(object sender, CheckedChangedEventArgs e)
-    {
-        if (e.Value)
-            SetupTheme(AppTheme.Unspecified);
+        DeviceRadioButton.Events().CheckedChanged
+            .Where(x => x.Value)
+            .Do(_ => SetupTheme(AppTheme.Unspecified))
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        LanguageEnglishRadioButton.Events().CheckedChanged
+            .Where(x => x.Value)
+            .Do(_ => SetupLanguage("en"))
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        LanguageSpanishRadioButton.Events().CheckedChanged
+            .Where(x => x.Value)
+            .Do(_ => SetupLanguage("es"))
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 
     private void SetupTheme(AppTheme theme)
@@ -54,18 +66,6 @@ public partial class SettingsPage : ContentPage
         LightRadioButton.IsChecked = Application.Current!.UserAppTheme == AppTheme.Light;
         DarkRadioButton.IsChecked = Application.Current.UserAppTheme == AppTheme.Dark;
         DeviceRadioButton.IsChecked = Application.Current.UserAppTheme == AppTheme.Unspecified;
-    }
-
-    private void LanguageEnglishRadioButton_CheckedChanged(object sender, CheckedChangedEventArgs e)
-    {
-        if(e.Value)
-            SetupLanguage("en");
-    }
-
-    private void LanguageSpanishRadioButton_CheckedChanged(object sender, CheckedChangedEventArgs e)
-    {
-        if (e.Value)
-            SetupLanguage("es");
     }
 
     private void SetupLanguage(string code)

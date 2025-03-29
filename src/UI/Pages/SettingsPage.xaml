@@ -62,8 +62,7 @@
                         <Label Text="{local:Translate SettingsThemeLight}" />
                         <RadioButton
                             x:Name="LightRadioButton"
-                            GroupName="ThemeGroup"
-                            CheckedChanged="LightRadioButton_CheckedChanged" />
+                            GroupName="ThemeGroup" />
                     </Grid>
 
                     <Line />
@@ -73,8 +72,7 @@
                         <Label Text="{local:Translate SettingsThemeDark}" />
                         <RadioButton
                             x:Name="DarkRadioButton"
-                            GroupName="ThemeGroup"
-                            CheckedChanged="DarkRadioButton_CheckedChanged" />
+                            GroupName="ThemeGroup" />
                     </Grid>
 
                     <Line />
@@ -84,8 +82,7 @@
                         <Label Text="{local:Translate SettingsThemeDevice}" />
                         <RadioButton
                             x:Name="DeviceRadioButton"
-                            GroupName="ThemeGroup"
-                            CheckedChanged="DeviceRadioButton_CheckedChanged" />
+                            GroupName="ThemeGroup" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>
@@ -103,15 +100,13 @@
                         <Label Text="{local:Translate SettingsLanguageEnglish}" />
                         <RadioButton
                             x:Name="LanguageEnglishRadioButton"
-                            GroupName="LanguageGroup"
-                            CheckedChanged="LanguageEnglishRadioButton_CheckedChanged" />
+                            GroupName="LanguageGroup" />
                     </Grid>
                     <Grid>
                         <Label Text="{local:Translate SettingsLanguageSpanish}" />
                         <RadioButton
                             x:Name="LanguageSpanishRadioButton"
-                            GroupName="LanguageGroup"
-                            CheckedChanged="LanguageSpanishRadioButton_CheckedChanged" />
+                            GroupName="LanguageGroup" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>
