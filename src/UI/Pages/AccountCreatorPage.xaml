@@ -13,32 +13,30 @@
             <VerticalStackLayout Spacing="16">
                 <Label
                     Style="{StaticResource LabelSettingsTitle}"
-                    Text="Create:" />
-                <Border Style="{StaticResource Settings}">
-                    <VerticalStackLayout>
-                        <Grid Style="{StaticResource GridSettingsGroup}">
-                            <Label
-                                Text="Broker"
-                                Style="{StaticResource LabelSettingsGroup}" />
-                            <RadioButton
-                                x:Name="LanguageEnglishRadioButton"
-                                Style="{StaticResource RadioButtonSettingsGroup}"
-                                GroupName="LanguageGroup" />
-                        </Grid>
+                    Text="Broker:" />
 
-                        <Line Style="{StaticResource LineSettingsGroup}" />
-
-                        <Grid Style="{StaticResource GridSettingsGroup}">
-                            <Label
-                                Text="Bank account"
-                                Style="{StaticResource LabelSettingsGroup}" />
-                            <RadioButton
-                                x:Name="LanguageSpanishRadioButton"
-                                Style="{StaticResource RadioButtonSettingsGroup}"
-                                GroupName="LanguageGroup" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
+                <Label
+                    x:Name="BrokerSelectorLabel"
+                    Text="Select a broker"
+                    TextDecorations="Underline">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer x:Name="BrokerSelector" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Grid x:Name="SelectedBroker">
+                    <Image
+                        x:Name="SelectedBrokerImage"
+                        HorizontalOptions="Start"
+                        WidthRequest="48"
+                        HeightRequest="48"
+                        Source="ibkr.png" />
+                    <Label
+                        x:Name="SelectedBrokerName"
+                        Padding="64,0"
+                        Text="Interactive Brokers"
+                        Style="{StaticResource LabelSettingsGroup}" />
+                </Grid>
+                <Entry Placeholder="Account number/Alias" />
             </VerticalStackLayout>
 
             <VerticalStackLayout
