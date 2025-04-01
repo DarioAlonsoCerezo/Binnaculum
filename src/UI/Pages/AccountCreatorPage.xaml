@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
     NavigationPage.HasNavigationBar="False">
     <ScrollView>
         <Grid
@@ -36,7 +37,7 @@
                         Text="Interactive Brokers"
                         Style="{StaticResource LabelSettingsGroup}" />
                 </Grid>
-                <Entry Placeholder="Account number/Alias" />
+                <controls:EntryView Placeholder="Account number/Alias" />
             </VerticalStackLayout>
 
             <VerticalStackLayout

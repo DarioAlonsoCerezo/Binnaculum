@@ -1,4 +1,7 @@
-﻿namespace Binnaculum;
+﻿using Binnaculum.Controls;
+using Binnaculum.Handlers;
+
+namespace Binnaculum;
 
 public static class MauiProgram
 {
@@ -14,10 +17,18 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Light.ttf", "OpenSansLight");
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            })
+            .ConfigureMauiHandlers(handlers =>
+            {
+                handlers.AddHandler<BorderlessDatePicker, BorderlessDatePickerHandler>();
+                handlers.AddHandler<BorderlessEditor, BorderlessEditorHandler>();
+                handlers.AddHandler<BorderlessEntry, BorderlessEntryHandler>();                
+                handlers.AddHandler<BorderlessPicker, BorderlessPickerHandler>();
+                handlers.AddHandler<BorderlessTimePicker, BorderlessTimePickerHandler>();
             });
 
 #if DEBUG
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
         return builder.Build();
