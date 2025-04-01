@@ -12,76 +12,54 @@
             Padding="24"
             Spacing="16">
             <VerticalStackLayout.Resources>
-                <ResourceDictionary>
-                    <Style TargetType="Grid">
-                        <Setter Property="Margin" Value="24,16" />
-                        <Setter Property="ColumnDefinitions" Value="1*,30" />
-                    </Style>
-
-                    <Style TargetType="Image">
-                        <Setter Property="HorizontalOptions" Value="Start" />
-                        <Setter Property="WidthRequest" Value="20" />
-                        <Style.Behaviors>
-                            <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-                        </Style.Behaviors>
-                    </Style>
-
-                    <Style TargetType="Label">
-                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-                        <Setter Property="Padding" Value="32,0,0,0" />
-                        <Setter Property="FontFamily" Value="OpenSansSemibold" />
-                        <Setter Property="VerticalOptions" Value="Center" />
-
-                    </Style>
-
-                    <Style TargetType="RadioButton">
-                        <Setter Property="Grid.Column" Value="1" />
-                        <Setter Property="BackgroundColor" Value="Transparent" />
-                    </Style>
-
-                    <Style TargetType="Line">
-                        <Setter Property="StrokeThickness" Value="1" />
-                        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
-                        <Setter Property="VerticalOptions" Value="End" />
-                        <Setter Property="X2" Value="{Binding Width, Source={RelativeSource Self}}" />
-                    </Style>
-
-                    <Style TargetType="Border" />
-                </ResourceDictionary>
+                <ResourceDictionary />
             </VerticalStackLayout.Resources>
             <Label
-                Padding="0"
-                Text="{local:Translate SettingsThemeTitle}"
-                FontFamily="OpenSansBold"
-                VerticalOptions="End" />
+                Style="{StaticResource LabelSettingsTitle}"
+                Text="{local:Translate SettingsThemeTitle}" />
 
             <Border Style="{StaticResource Settings}">
                 <VerticalStackLayout Spacing="0">
-                    <Grid>
-                        <Image Source="light" />
-                        <Label Text="{local:Translate SettingsThemeLight}" />
+                    <Grid Style="{StaticResource GridSettingsGroup}">
+                        <Image
+                            Source="light"
+                            Style="{StaticResource ImageSettingsGroup}" />
+                        <Label
+                            Text="{local:Translate SettingsThemeLight}"
+                            Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="LightRadioButton"
+                            Style="{StaticResource RadioButtonSettingsGroup}"
                             GroupName="ThemeGroup" />
                     </Grid>
 
-                    <Line />
+                    <Line Style="{StaticResource LineSettingsGroup}" />
 
-                    <Grid>
-                        <Image Source="dark" />
-                        <Label Text="{local:Translate SettingsThemeDark}" />
+                    <Grid Style="{StaticResource GridSettingsGroup}">
+                        <Image
+                            Source="dark"
+                            Style="{StaticResource ImageSettingsGroup}" />
+                        <Label
+                            Text="{local:Translate SettingsThemeDark}"
+                            Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="DarkRadioButton"
+                            Style="{StaticResource RadioButtonSettingsGroup}"
                             GroupName="ThemeGroup" />
                     </Grid>
 
-                    <Line />
+                    <Line Style="{StaticResource LineSettingsGroup}" />
 
-                    <Grid>
-                        <Image Source="device" />
-                        <Label Text="{local:Translate SettingsThemeDevice}" />
+                    <Grid Style="{StaticResource GridSettingsGroup}">
+                        <Image
+                            Source="device"
+                            Style="{StaticResource ImageSettingsGroup}" />
+                        <Label
+                            Text="{local:Translate SettingsThemeDevice}"
+                            Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="DeviceRadioButton"
+                            Style="{StaticResource RadioButtonSettingsGroup}"
                             GroupName="ThemeGroup" />
                     </Grid>
                 </VerticalStackLayout>
@@ -89,26 +67,30 @@
 
             <Label
                 Margin="0,16,0,0"
-                Padding="0"
-                Text="{local:Translate SettingsLanguageTitle}"
-                FontFamily="OpenSansBold"
-                VerticalOptions="End" />
+                Style="{StaticResource LabelSettingsTitle}"
+                Text="{local:Translate SettingsLanguageTitle}" />
 
             <Border Style="{StaticResource Settings}">
                 <VerticalStackLayout>
-                    <Grid>
-                        <Label Text="{local:Translate SettingsLanguageEnglish}" />
+                    <Grid Style="{StaticResource GridSettingsGroup}">
+                        <Label
+                            Text="{local:Translate SettingsLanguageEnglish}"
+                            Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="LanguageEnglishRadioButton"
+                            Style="{StaticResource RadioButtonSettingsGroup}"
                             GroupName="LanguageGroup" />
                     </Grid>
 
-                    <Line />
+                    <Line Style="{StaticResource LineSettingsGroup}" />
 
-                    <Grid>
-                        <Label Text="{local:Translate SettingsLanguageSpanish}" />
+                    <Grid Style="{StaticResource GridSettingsGroup}">
+                        <Label
+                            Text="{local:Translate SettingsLanguageSpanish}"
+                            Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="LanguageSpanishRadioButton"
+                            Style="{StaticResource RadioButtonSettingsGroup}"
                             GroupName="LanguageGroup" />
                     </Grid>
                 </VerticalStackLayout>

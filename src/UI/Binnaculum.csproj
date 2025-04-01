@@ -54,6 +54,7 @@
 		<MauiImage Include="Resources\Images\*" />
 
 		<MauiImage Include="Resources\Images\TabIcons\*" BaseSize="20,20" />
+		<MauiImage Include="Resources\Images\Brokers\*" BaseSize="48,48" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -75,29 +76,5 @@
 
 		<PackageReference Include="CommunityToolkit.Maui" />
 		<PackageReference Include="Plugin.Maui.Calendar" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Properties\Resources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
-	  <Compile Update="Resources\Languages\AppResources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>AppResources.resx</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
-	  <EmbeddedResource Update="Resources\Languages\AppResources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>AppResources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
 	</ItemGroup>
 </Project>

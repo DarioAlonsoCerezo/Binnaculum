@@ -13,7 +13,7 @@ public partial class App : Application
         Current!.UserAppTheme = (AppTheme)Preferences.Get("AppTheme", (int)AppTheme.Unspecified);
         LocalizationResourceManager.Instance.SetCulture(new CultureInfo(Preferences.Get("Language", "en")));
         
-        return new Window(new AppShell());
+        return new Window(new NavigationPage(new AppShell()));
     }
 
     protected override void OnStart()

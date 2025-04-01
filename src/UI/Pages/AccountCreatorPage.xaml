@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Binnaculum.Pages.AccountCreatorPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    NavigationPage.HasNavigationBar="False">
+    <ScrollView>
+        <Grid
+            Padding="24"
+            RowDefinitions="Auto, 1*"
+            RowSpacing="32">
+            <VerticalStackLayout Spacing="16">
+                <Label
+                    Style="{StaticResource LabelSettingsTitle}"
+                    Text="Create:" />
+                <Border Style="{StaticResource Settings}">
+                    <VerticalStackLayout>
+                        <Grid Style="{StaticResource GridSettingsGroup}">
+                            <Label
+                                Text="Broker"
+                                Style="{StaticResource LabelSettingsGroup}" />
+                            <RadioButton
+                                x:Name="LanguageEnglishRadioButton"
+                                Style="{StaticResource RadioButtonSettingsGroup}"
+                                GroupName="LanguageGroup" />
+                        </Grid>
+
+                        <Line Style="{StaticResource LineSettingsGroup}" />
+
+                        <Grid Style="{StaticResource GridSettingsGroup}">
+                            <Label
+                                Text="Bank account"
+                                Style="{StaticResource LabelSettingsGroup}" />
+                            <RadioButton
+                                x:Name="LanguageSpanishRadioButton"
+                                Style="{StaticResource RadioButtonSettingsGroup}"
+                                GroupName="LanguageGroup" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout
+                Grid.Row="1"
+                Spacing="24"
+                VerticalOptions="End">
+
+                <Button
+                    x:Name="SaveButton"
+                    IsEnabled="False"
+                    Text="Save" />
+                <Label
+                    Text="Discard"
+                    HorizontalTextAlignment="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer x:Name="DiscardLabel" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>

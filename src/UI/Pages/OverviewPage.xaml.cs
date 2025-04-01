@@ -1,4 +1,6 @@
 
+using Binnaculum.Popups;
+using CommunityToolkit.Maui.Views;
 using ReactiveUI;
 
 namespace Binnaculum.Pages;
@@ -28,6 +30,7 @@ public partial class OverviewPage
             }).Subscribe();
 
         HistoryGestured.Events().PanUpdated
+            .Where(x => !HistoryBackground.IsVisible)
             .Where(args => args.StatusType == GestureStatus.Running)
             .Do(args => 
             {
@@ -42,18 +45,41 @@ public partial class OverviewPage
             .Subscribe();
 
         HistoryGestured.Events().PanUpdated
+            .Where(x => HistoryBackground.IsVisible)
+            .Where(args => args.StatusType == GestureStatus.Running)
+            .Do(args =>
+            {
+                var marginTop = History.Margin.Top + args.TotalY;
+                if (marginTop < 64)
+                    marginTop = 64;
+                if (marginTop > _minMargin)
+                    marginTop = _minMargin;
+
+                History.Margin = new Thickness(0, marginTop, 0, 0);
+            })
+            .Subscribe();
+
+        HistoryGestured.Events().PanUpdated
             .Where(x => x.StatusType == GestureStatus.Completed)
-            .Select(_ => HistoryContainer.Margin.Top / (Height * 0.5) * 100)
+            .Select(_ => GetPercentage(HistoryBackground.IsVisible 
+                ? History.Margin.Top 
+                : HistoryContainer.Margin.Top))
             .Subscribe(x =>
             {
                 _animateHistoryMarginDisposable?.Dispose();
 
                 _hiding = x > 50;
-                _animateHistoryMarginDisposable = animateHistoryMaring();
+                _animateHistoryMarginDisposable = AnimateHistoryMaring();
             });
+
+        AddAccount.Events().Tapped
+            .Select(async _ => await Navigation.PushModalAsync(new AccountCreatorPage()))
+            .Subscribe();
     }
 
-    private IDisposable animateHistoryMaring() => Observable.Interval(TimeSpan.FromMilliseconds(16))
+    private double GetPercentage(double reference) => reference / (Height * 0.5) * 100;
+
+    private IDisposable AnimateHistoryMaring() => Observable.Interval(TimeSpan.FromMilliseconds(16))
         .ObserveOn(RxApp.MainThreadScheduler)
         .Subscribe(x =>
         {
@@ -84,6 +110,7 @@ public partial class OverviewPage
                 if (containerMarginTop < _minMargin)
                 {
                     containerMarginTop = _minMargin;
+                    historyMarginTop = 0;
                     shouldDispose = true;
                 }                
                 if(historyMarginTop < 0)

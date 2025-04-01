@@ -2,7 +2,8 @@
 <?xaml-comp compile="true" ?>
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
 
     <Style TargetType="ActivityIndicator">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
@@ -24,14 +25,20 @@
         x:Key="Settings"
         TargetType="Border">
         <Setter Property="Stroke" Value="Transparent" />
-        <Setter Property="StrokeShape" Value="Rectangle" />
-        <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Black}}" />
         <Setter Property="StrokeShape">
             <Setter.Value>
                 <RoundRectangle CornerRadius="24" />
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style
+        x:Key="Popup"
+        TargetType="Border"
+        BasedOn="{StaticResource Settings}">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+        <Setter Property="Padding" Value="16,32" />
     </Style>
 
     <Style TargetType="BoxView">
@@ -438,6 +445,57 @@
         <Setter Property="BarTextColor" Value="{AppThemeBinding Light={StaticResource Magenta}, Dark={StaticResource White}}" />
         <Setter Property="UnselectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
+    </Style>
+
+    <Style
+        x:Key="GridSettingsGroup"
+        TargetType="Grid">
+        <Setter Property="Margin" Value="24,12" />
+        <Setter Property="ColumnDefinitions" Value="1*,30" />
+    </Style>
+
+    <Style
+        x:Key="ImageSettingsGroup"
+        TargetType="Image">
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="WidthRequest" Value="20" />
+        <Style.Behaviors>
+            <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        </Style.Behaviors>
+    </Style>
+
+    <Style
+        x:Key="LabelSettingsGroup"
+        TargetType="Label">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        <Setter Property="Padding" Value="32,0,0,0" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style
+        x:Key="LabelSettingsTitle"
+        TargetType="Label"
+        BasedOn="{StaticResource LabelSettingsGroup}">
+        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalOptions" Value="End" />
+    </Style>
+
+    <Style
+        x:Key="RadioButtonSettingsGroup"
+        TargetType="RadioButton">
+        <Setter Property="Grid.Column" Value="1" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <Style
+        x:Key="LineSettingsGroup"
+        TargetType="Line">
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+        <Setter Property="VerticalOptions" Value="End" />
+        <Setter Property="X2" Value="{Binding Width, Source={RelativeSource Self}}" />
     </Style>
 
 </ResourceDictionary>
