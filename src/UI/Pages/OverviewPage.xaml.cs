@@ -1,8 +1,3 @@
-
-using Binnaculum.Popups;
-using CommunityToolkit.Maui.Views;
-using ReactiveUI;
-
 namespace Binnaculum.Pages;
 
 public partial class OverviewPage
@@ -72,9 +67,7 @@ public partial class OverviewPage
                 _animateHistoryMarginDisposable = AnimateHistoryMaring();
             });
 
-        AddAccount.Events().Tapped
-            .Select(async _ => await Navigation.PushModalAsync(new AccountCreatorPage()))
-            .Subscribe();
+        AddAccount.AddAction = async () => await Navigation.PushModalAsync(new AccountCreatorPage());
     }
 
     private double GetPercentage(double reference) => reference / (Height * 0.5) * 100;

@@ -37,7 +37,7 @@
                         Text="Interactive Brokers"
                         Style="{StaticResource LabelSettingsGroup}" />
                 </Grid>
-                <controls:EntryView Placeholder="Account number/Alias" />
+                <controls:BorderlessEntry Placeholder="Account number/Alias" />
             </VerticalStackLayout>
 
             <VerticalStackLayout

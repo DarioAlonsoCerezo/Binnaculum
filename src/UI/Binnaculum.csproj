@@ -77,4 +77,10 @@
 		<PackageReference Include="CommunityToolkit.Maui" />
 		<PackageReference Include="Plugin.Maui.Calendar" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Controls\AddButton.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
 </Project>

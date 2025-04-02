@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
+
 #if IOS || MACCATALYST
 using UIKit;
 #endif

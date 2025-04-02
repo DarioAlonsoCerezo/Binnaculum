@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
     <Grid
@@ -22,41 +23,9 @@
             Grid.Row="1"
             Margin="0,0,0,96"
             ColumnDefinitions="1*,2*">
-            <Border
-                WidthRequest="64"
-                HeightRequest="64"
-                HorizontalOptions="Center"
-                VerticalOptions="Center"
-                BackgroundColor="Transparent"
-                Stroke="{AppThemeBinding Light={StaticResource Gray200},
-                                         Dark={StaticResource Primary}}"
-                StrokeThickness="2"
-                StrokeDashArray="4,4">
-                <Grid>
-                    <BoxView
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        HeightRequest="2.5"
-                        WidthRequest="20"
-                        CornerRadius="2"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
-                                                          Dark={StaticResource Primary}}" />
-                    <BoxView
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        WidthRequest="2.5"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
-                                                          Dark={StaticResource Primary}}"
-                        HeightRequest="20"
-                        CornerRadius="2" />
-                </Grid>
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="20" />
-                </Border.StrokeShape>
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer x:Name="AddAccount" />
-                </Border.GestureRecognizers>
-            </Border>
+            <controls:AddButton
+                x:Name="AddAccount"
+                Scale="0.64" />
         </Grid>
 
         <Grid
