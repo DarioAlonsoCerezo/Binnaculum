@@ -47,6 +47,7 @@ module internal DatabaseModel =
     type Broker = {
         Id: int
         Name: string
+        Image: string
         SupportedBroker: SupportedBroker
     }
 

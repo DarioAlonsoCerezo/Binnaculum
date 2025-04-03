@@ -48,6 +48,7 @@ module Models =
     type Broker = {
         Id: int
         Name: string
+        Image: string
         SupportedBroker: SupportedBroker
     }
 

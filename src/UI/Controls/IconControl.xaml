@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.IconControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Binnaculum.Controls">
+    <Border
+        WidthRequest="48"
+        BackgroundColor="Transparent"
+        Stroke="{AppThemeBinding Light={StaticResource Gray100},
+                                 Dark={StaticResource Black}}"
+        StrokeThickness="1"
+        HeightRequest="48">
+        <Grid>
+            <Image x:Name="IconImage" />
+            <Label
+                x:Name="IconPlaceholder"
+                Text="IBKR"
+                HorizontalTextAlignment="Center"
+                VerticalTextAlignment="Center"
+                Style="{StaticResource IconText}" />
+        </Grid>
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="4" />
+        </Border.StrokeShape>
+    </Border>
+    <controls:BaseContentView.GestureRecognizers>
+        <TapGestureRecognizer x:Name="ContentGesture" />
+    </controls:BaseContentView.GestureRecognizers>
+</controls:BaseContentView>

@@ -25,12 +25,9 @@
                     </Label.GestureRecognizers>
                 </Label>
                 <Grid x:Name="SelectedBroker">
-                    <Image
-                        x:Name="SelectedBrokerImage"
-                        HorizontalOptions="Start"
-                        WidthRequest="48"
-                        HeightRequest="48"
-                        Source="ibkr.png" />
+                    <controls:IconControl
+                        ImagePath="ibkr"
+                        HorizontalOptions="Start" />
                     <Label
                         x:Name="SelectedBrokerName"
                         Padding="64,0"

@@ -7,6 +7,7 @@ module internal BrokerQuery =
             (
                 Id INTEGER PRIMARY KEY,
                 Name TEXT NOT NULL,
+                Image TEXT NOT NULL,
                 SupportedBroker TEXT NOT NULL
             )
         "
@@ -16,11 +17,13 @@ module internal BrokerQuery =
             INSERT INTO Brokers
             (
                 Name,
+                Image,
                 SupportedBroker
             )
             VALUES
             (
                 @Name,
+                @Image,
                 @SupportedBroker
             )
         "
@@ -30,6 +33,7 @@ module internal BrokerQuery =
             UPDATE Brokers
             SET
                 Name = @Name,
+                Image = @Image,
                 SupportedBroker = @SupportedBroker
             WHERE
                 Id = @Id
@@ -47,7 +51,8 @@ module internal BrokerQuery =
             SELECT * FROM Brokers
         "
 
-    let getById =         @"
+    let getById =         
+        @"
             SELECT * FROM Brokers
             WHERE
                 Id = @Id

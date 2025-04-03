@@ -483,6 +483,16 @@
     </Style>
 
     <Style
+        x:Key="IconText"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        <Setter Property="VerticalTextAlignment" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="TextTransform" Value="Uppercase" />
+    </Style>
+
+    <Style
         x:Key="RadioButtonSettingsGroup"
         TargetType="RadioButton">
         <Setter Property="Grid.Column" Value="1" />
