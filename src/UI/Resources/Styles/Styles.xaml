@@ -483,6 +483,13 @@
     </Style>
 
     <Style
+        x:Key="SelectableItem"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style
         x:Key="IconText"
         TargetType="Label">
         <Setter Property="FontFamily" Value="OpenSansBold" />

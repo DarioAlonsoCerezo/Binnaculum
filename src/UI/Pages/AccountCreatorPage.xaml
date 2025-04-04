@@ -24,7 +24,9 @@
                         <TapGestureRecognizer x:Name="BrokerSelector" />
                     </Label.GestureRecognizers>
                 </Label>
-                <Grid x:Name="SelectedBroker">
+                <Grid
+                    x:Name="SelectedBroker"
+                    IsVisible="False">
                     <controls:IconControl
                         ImagePath="ibkr"
                         HorizontalOptions="Start" />
@@ -34,6 +36,7 @@
                         Text="Interactive Brokers"
                         Style="{StaticResource LabelSettingsGroup}" />
                 </Grid>
+                <controls:SelectableBrokerControl x:Name="SelectableBroker" />
                 <controls:BorderlessEntry Placeholder="Account number/Alias" />
             </VerticalStackLayout>
 

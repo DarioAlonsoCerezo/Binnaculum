@@ -15,6 +15,8 @@ public partial class AccountCreatorPage : ContentPage
 		DiscardLabel.Events().Tapped
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe();
+
+        SelectableBroker.Broker = new Core.Models.Broker(0, "Tastytrade", "tastytrade", Core.Models.SupportedBroker.Tastytrade);
     }
 
     protected override bool OnBackButtonPressed()

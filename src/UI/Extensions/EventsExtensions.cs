@@ -1,4 +1,5 @@
-﻿using PropertyChangingEventArgs = Microsoft.Maui.Controls.PropertyChangingEventArgs;
+﻿using Binnaculum.Controls;
+using PropertyChangingEventArgs = Microsoft.Maui.Controls.PropertyChangingEventArgs;
 using PropertyChangingEventHandler = Microsoft.Maui.Controls.PropertyChangingEventHandler;
 
 namespace Binnaculum.Extensions;
@@ -26,6 +27,7 @@ public static class EventsExtensions
     public static RxPickerEvents Events(this Picker item) => new(item);
     public static RxRefreshViewEvents Events(this RefreshView item) => new(item);
     public static RxRadioButtonEvents Events(this RadioButton item) => new(item);
+    public static RxSelectableBrokerEvents Events(this SelectableBrokerControl item) => new(item);
 }
 
 public class RxBindableObjectEvents
@@ -589,4 +591,19 @@ public class RxRadioButtonEvents : RxVisualElementEvents
                 eventHandler => (_, e) => eventHandler(e),
                 handler => _data.CheckedChanged += handler,
                 handler => _data.CheckedChanged -= handler);
+}
+
+public class RxSelectableBrokerEvents : RxBindableObjectEvents
+{
+    private readonly SelectableBrokerControl _data;
+    public RxSelectableBrokerEvents(SelectableBrokerControl data) : base(data)
+    {
+        _data = data;
+    }
+    public IObservable<Core.Models.Broker> BrokerSelected
+        => Observable
+            .FromEvent<EventHandler<Core.Models.Broker>, Core.Models.Broker>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.BrokerSelected += handler,
+                handler => _data.BrokerSelected -= handler);
 }
