@@ -179,7 +179,27 @@ module Models =
         Currency: Currency
     }
 
+    type Transaction = {
+        TimeStamp: DateTime
+        Amount: decimal
+        Image: string
+        Description: string
+        Currency: Currency
+        BrokerAccount: BrokerAccount option
+        BankAccount: BankAccount option
+        Trade: Trade option
+        Dividend: Dividend option
+        DividendTax: DividendTax option
+        DividendDate: DividendDate option
+        OptionTrade: OptionTrade option
+        Movement: Movement option
+        BankAccountBalance: BankAccountBalance option
+        BankAccountInterest: BankAccountInterest option
+        BankAccountFee: BankAccountFee option
+    }
+
     type Home = {
         BrokerAccounts: BrokerAccount list
         BankAccounts: BankAccount list
+        Transactions: Transaction list
     }
