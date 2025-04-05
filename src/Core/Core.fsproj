@@ -24,6 +24,7 @@
 		<Compile Include="SQL\DividendsQuery.fs" />
 		<Compile Include="SQL\DividendTaxesQuery.fs" />
 		<Compile Include="SQL\OptionsQuery.fs" />
+		<Compile Include="SQL\BankQuery.fs" />
 		<Compile Include="SQL\BankAccountsQuery.fs" />
 		<Compile Include="SQL\BankAccountBalancesQuery.fs" />
 		<Compile Include="SQL\BankAccountInterestsQuery.fs" />
@@ -32,6 +33,9 @@
 		<Compile Include="Database\DatabaseModel.fs" />
 		<Compile Include="Database\TypeParser.fs" />
 		<Compile Include="Models\Models.fs" />
+		<Compile Include="Storage\Keys.fs" />
+		<Compile Include="Storage\Storage.fs" />
+		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>
 
 </Project>
