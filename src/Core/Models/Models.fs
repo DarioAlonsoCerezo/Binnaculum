@@ -198,6 +198,13 @@ module Models =
         BankAccountFee: BankAccountFee option
     }
 
+    //This model should allow us to save and load data quickly until we have the database connected
+    //To achive this goal, we should simplify the weight as much as we can
+    //Once we have the database connected, this model could load more data
+    //and we could use the database to load the data and load dinamically the data we need to show
+    //By default, we don't want to load all transactions for a broker or bank at the same time
+    //We should delay until the user request to check more in detail and load under demand
+    //As this model is subscribed from the UI, we should be careful with the amount of data we load
     type Home = {
         BrokerAccounts: BrokerAccount list
         BankAccounts: BankAccount list
