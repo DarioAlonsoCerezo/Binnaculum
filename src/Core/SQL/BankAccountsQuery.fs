@@ -6,6 +6,7 @@ module internal BankAccountsQuery =
             CREATE TABLE IF NOT EXISTS BankAccounts
             (
                 Id INTEGER PRIMARY KEY,
+                BankId INTEGER NOT NULL,
                 Name TEXT NOT NULL,
                 Description TEXT NOT NULL,
                 CurrencyId INTEGER NOT NULL
@@ -17,12 +18,14 @@ module internal BankAccountsQuery =
             INSERT INTO BankAccounts
             (
                 Name,
+                BankId,
                 Description,
                 CurrencyId
             )
             VALUES
             (
                 @Name,
+                @BankId,
                 @Description,
                 @CurrencyId
             )
@@ -33,6 +36,7 @@ module internal BankAccountsQuery =
             UPDATE BankAccounts
             SET
                 Name = @Name,
+                BankId = @BankId,
                 Description = @Description,
                 CurrencyId = @CurrencyId
             WHERE

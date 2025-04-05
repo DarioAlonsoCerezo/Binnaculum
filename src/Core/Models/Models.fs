@@ -141,8 +141,15 @@ module Models =
         ClosedWith: int option
     }
 
+    type Bank = {
+        Id: int
+        Name: string
+        Image: string
+    }
+
     type BankAccount = {
         Id: int
+        Bank: Bank
         Name: string
         Description: int
         Currency: Currency
@@ -170,4 +177,9 @@ module Models =
         Amount: decimal
         BankAccount: BankAccount
         Currency: Currency
+    }
+
+    type Home = {
+        BrokerAccounts: BrokerAccount list
+        BankAccounts: BankAccount list
     }

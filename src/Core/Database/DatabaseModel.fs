@@ -140,8 +140,15 @@ module internal DatabaseModel =
         ClosedWith: int option
     }
 
+    type Bank = {
+        Id: int
+        Name: string
+        Image: string
+    }
+
     type BankAccount = {
         Id: int
+        BankId: int
         Name: string
         Description: int
         CurrencyId: int
