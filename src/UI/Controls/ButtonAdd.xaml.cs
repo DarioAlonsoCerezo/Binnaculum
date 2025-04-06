@@ -1,10 +1,10 @@
 namespace Binnaculum.Controls;
 
-public partial class AddButton
+public partial class ButtonAdd
 {
     public Action? AddAction { get; set; }
     
-    public AddButton()
+    public ButtonAdd()
 	{
 		InitializeComponent();
 	}
