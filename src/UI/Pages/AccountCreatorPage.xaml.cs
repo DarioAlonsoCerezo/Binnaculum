@@ -12,7 +12,7 @@ public partial class AccountCreatorPage : ContentPage
 			.Select(async _ => await Navigation.PopModalAsync())
 			.Subscribe();
 
-		DiscardLabel.Events().Tapped
+		ButtonDiscard.Events().DiscardClicked
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe();
 

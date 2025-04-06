@@ -46,13 +46,7 @@
                 VerticalOptions="End">
 
                 <controls:ButtonSave x:Name="ButtonSave" />
-                <Label
-                    Text="Discard"
-                    HorizontalTextAlignment="Center">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer x:Name="DiscardLabel" />
-                    </Label.GestureRecognizers>
-                </Label>
+                <controls:ButtonDiscard x:Name="ButtonDiscard" />
             </VerticalStackLayout>
         </Grid>
     </ScrollView>

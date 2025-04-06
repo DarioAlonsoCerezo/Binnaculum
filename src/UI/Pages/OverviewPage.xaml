@@ -23,7 +23,7 @@
             Grid.Row="1"
             Margin="0,0,0,96"
             ColumnDefinitions="1*,2*">
-            <controls:AddButton
+            <controls:ButtonAdd
                 x:Name="AddAccount"
                 Scale="0.64" />
         </Grid>
