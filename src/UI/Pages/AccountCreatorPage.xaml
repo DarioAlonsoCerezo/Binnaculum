@@ -45,10 +45,7 @@
                 Spacing="24"
                 VerticalOptions="End">
 
-                <Button
-                    x:Name="SaveButton"
-                    IsEnabled="False"
-                    Text="Save" />
+                <controls:ButtonSave x:Name="ButtonSave" />
                 <Label
                     Text="Discard"
                     HorizontalTextAlignment="Center">

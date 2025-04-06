@@ -8,7 +8,7 @@ public partial class AccountCreatorPage : ContentPage
 	{
 		InitializeComponent();
 
-		SaveButton.Events().Clicked
+		ButtonSave.Events().SaveClicked
 			.Select(async _ => await Navigation.PopModalAsync())
 			.Subscribe();
 
