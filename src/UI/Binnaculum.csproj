@@ -82,16 +82,4 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Core\Core.fsproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiXaml Update="Controls\AddButton.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Controls\IconControl.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Controls\SelectableBrokerControl.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	</ItemGroup>
 </Project>
