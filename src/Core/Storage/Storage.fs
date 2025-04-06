@@ -9,8 +9,7 @@ open System.Text.Json
 module internal Storage =
     
     let defaulHomeData = {
-        BrokerAccounts = []
-        BankAccounts = []
+        Accounts = []
         Transactions = []
     }
 

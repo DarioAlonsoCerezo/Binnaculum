@@ -65,7 +65,7 @@ module Models =
         Symbol: string;
     }
 
-    type Movement = {
+    type BrokerMovement = {
         Id: int
         TimeStamp: DateTime
         Amount: decimal
@@ -179,23 +179,29 @@ module Models =
         Currency: Currency
     }
 
+    type Account = 
+        | BrokerAccount of BrokerAccount
+        | BankAccount of BankAccount
+
+    type Movement =
+        | Trade of Trade
+        | Dividend of Dividend
+        | DividendTax of DividendTax
+        | DividendDate of DividendDate
+        | OptionTrade of OptionTrade
+        | BrokerMovement of BrokerMovement
+        | BankAccountBalance of BankAccountBalance
+        | BankAccountInterest of BankAccountInterest
+        | BankAccountFee of BankAccountFee
+
     type Transaction = {
         TimeStamp: DateTime
         Amount: decimal
         Image: string
         Description: string
         Currency: Currency
-        BrokerAccount: BrokerAccount option
-        BankAccount: BankAccount option
-        Trade: Trade option
-        Dividend: Dividend option
-        DividendTax: DividendTax option
-        DividendDate: DividendDate option
-        OptionTrade: OptionTrade option
-        Movement: Movement option
-        BankAccountBalance: BankAccountBalance option
-        BankAccountInterest: BankAccountInterest option
-        BankAccountFee: BankAccountFee option
+        Account: Account
+        Movement: Movement
     }
 
     //This model should allow us to save and load data quickly until we have the database connected
@@ -206,7 +212,6 @@ module Models =
     //We should delay until the user request to check more in detail and load under demand
     //As this model is subscribed from the UI, we should be careful with the amount of data we load
     type Home = {
-        BrokerAccounts: BrokerAccount list
-        BankAccounts: BankAccount list
+        Accounts: Account list
         Transactions: Transaction list
     }
