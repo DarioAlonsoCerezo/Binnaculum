@@ -81,6 +81,13 @@ module internal Do =
         command.Dispose()
     }
 
+    let executeExcalar(command: SqliteCommand) = task {
+        do! connect() |> Async.AwaitTask |> Async.Ignore
+        let! result = command.ExecuteScalarAsync() |> Async.AwaitTask
+        command.Dispose()
+        return result
+    }
+
     let cleanTable(table: string) = task {
         let! command = createCommand()
         command.CommandText <- $"DELETE FROM {table}"
