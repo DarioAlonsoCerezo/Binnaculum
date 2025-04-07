@@ -10,6 +10,8 @@ module internal CurrencyQuery =
              Symbol TEXT NOT NULL
          )"
 
+    let getCounted = @"SELECT COUNT(*) FROM Currency"
+
     let insert =
         @"
             INSERT INTO Currency 

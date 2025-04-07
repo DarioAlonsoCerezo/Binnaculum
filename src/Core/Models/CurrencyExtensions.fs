@@ -214,3 +214,25 @@ open Binnaculum.Core.SQL
                 { Id = 0; Name = "Zambian kwacha"; Code = "ZMK"; Symbol = "ZK" };
                 { Id = 0; Name = "Zimbabwean dollar"; Code = "ZWR"; Symbol = "Z$" }
             ]
+
+        static member isCurrencyTableEmpty() = task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- CurrencyQuery.getCounted
+            let! result = Database.Do.executeExcalar command |> Async.AwaitTask
+            command.Dispose()
+            return (result :?> int64) = 0L
+        }
+
+        static member insertDefaultValues() = task {
+            let! isEmpty = Do.isCurrencyTableEmpty()
+            if isEmpty then
+                let currencies = Do.currencyList()
+                currencies
+                |> List.map(fun currency -> async {
+                    let task = currency.save()
+                    return! task |> Async.AwaitTask |> Async.Ignore
+                    })
+                |> Async.Sequential
+                |> Async.Ignore
+                |> Async.RunSynchronously
+        }
