@@ -16,7 +16,6 @@ public partial class ButtonSave
             .DisposeWith(Disposables);
 
         SaveButton.Events().Clicked
-            .ObserveOn(UiThread)
             .Subscribe(_ => SaveClicked?.Invoke(this, EventArgs.Empty))
             .DisposeWith(Disposables);
     }

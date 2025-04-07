@@ -8,11 +8,11 @@ public partial class AccountCreatorPage : ContentPage
 	{
 		InitializeComponent();
 
-		ButtonSave.Events().SaveClicked
+		ButtonSaveOrDiscard.Events().SaveClicked
 			.Select(async _ => await Navigation.PopModalAsync())
 			.Subscribe();
 
-		ButtonDiscard.Events().DiscardClicked
+        ButtonSaveOrDiscard.Events().DiscardClicked
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe();
 

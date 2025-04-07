@@ -40,14 +40,10 @@
                 <controls:BorderlessEntry Placeholder="Account number/Alias" />
             </VerticalStackLayout>
 
-            <VerticalStackLayout
+            <controls:ButtonSaveOrDiscard
+                x:Name="ButtonSaveOrDiscard"
                 Grid.Row="1"
-                Spacing="24"
-                VerticalOptions="End">
-
-                <controls:ButtonSave x:Name="ButtonSave" />
-                <controls:ButtonDiscard x:Name="ButtonDiscard" />
-            </VerticalStackLayout>
+                VerticalOptions="End" />
         </Grid>
     </ScrollView>
 </ContentPage>

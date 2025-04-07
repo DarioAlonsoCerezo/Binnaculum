@@ -16,11 +16,7 @@ public partial class ButtonDiscard
             .DisposeWith(Disposables);
 
         DiscardTapped.Events().Tapped
-            .ObserveOn(UiThread)
-            .Subscribe(_ =>
-            {
-                DiscardClicked?.Invoke(this, EventArgs.Empty);
-            })
+            .Subscribe(_ => DiscardClicked?.Invoke(this, EventArgs.Empty))
             .DisposeWith(Disposables);
     }
 }
