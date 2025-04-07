@@ -15,6 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Compile Include="Keys\Keys.fs" />
 		<Compile Include="SQL\BrokerQuery.fs" />
 		<Compile Include="SQL\BrokerAccountQuery.fs" />
 		<Compile Include="SQL\CurrencyQuery.fs" />
@@ -33,7 +34,7 @@
 		<Compile Include="Database\DatabaseModel.fs" />
 		<Compile Include="Database\TypeParser.fs" />
 		<Compile Include="Models\Models.fs" />
-		<Compile Include="Storage\Keys.fs" />
+		<Compile Include="Models\CurrencyExtensions.fs" />
 		<Compile Include="Storage\Storage.fs" />
 		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>
