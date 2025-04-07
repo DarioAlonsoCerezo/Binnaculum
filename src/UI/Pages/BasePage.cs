@@ -47,3 +47,11 @@ public abstract class BasePage : ContentPage, IDisposable
         Disposables?.Dispose();
     }
 }
+
+public abstract class NonDismissablePage : BasePage
+{
+    protected override bool OnBackButtonPressed()
+    {
+        return true;
+    }
+}
