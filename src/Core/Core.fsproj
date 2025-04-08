@@ -36,8 +36,8 @@
 		<Compile Include="Models\Models.fs" />
 		<Compile Include="Models\BrokerExtensions.fs" />
 		<Compile Include="Models\BrokerAccountExtensions.fs" />
-		<Compile Include="Models\BrokerMovementExtensions.fs" />
 		<Compile Include="Models\CurrencyExtensions.fs" />
+		<Compile Include="Models\BrokerMovementExtensions.fs" />
 		<Compile Include="Storage\Storage.fs" />
 		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>
