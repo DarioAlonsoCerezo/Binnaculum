@@ -56,8 +56,8 @@ open Binnaculum.Core.SQL
         //This list contains all supported brokers
         static member brokerList() =
             [
-                { Id = 0; Name = "Interactive Brokers"; Image = "ibkr"; SupportedBroker = SupportedBroker.IBKR }
-                { Id = 0; Name = "Tastytrade"; Image = "tastytrade"; SupportedBroker = SupportedBroker.Tastytrade }
+                { Id = 0; Name = Keys.Broker_IBKR; Image = Keys.Broker_Image_IBKR; SupportedBroker = SupportedBroker.IBKR }
+                { Id = 0; Name = Keys.Broker_Tastytrade; Image = Keys.Broker_Image_Tastytrade; SupportedBroker = SupportedBroker.Tastytrade }
             ]
 
         // Check if a broker exists by name
