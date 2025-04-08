@@ -93,3 +93,10 @@ module internal Do =
         command.CommandText <- $"DELETE FROM {table}"
         do! executeNonQuery command |> Async.AwaitTask |> Async.Ignore
     }
+
+    let getStringOrDefault(reader: SqliteDataReader, columnName: string) =
+        let ordinal = reader.GetOrdinal(columnName)
+        if reader.IsDBNull(ordinal) then
+            None
+        else
+            Some(reader.GetString(ordinal))
