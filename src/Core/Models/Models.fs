@@ -80,6 +80,7 @@ module Models =
         Id: int
         Symbol: string
         Image: string option
+        Name: string option
     }
     
     type Trade = {

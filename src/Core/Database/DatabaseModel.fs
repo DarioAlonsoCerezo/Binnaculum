@@ -79,6 +79,7 @@ module internal DatabaseModel =
         Id: int
         Symbol: string
         Image: string option
+        Name: string option
     }
     
     type Trade = {

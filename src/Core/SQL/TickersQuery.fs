@@ -7,7 +7,8 @@ module internal TickersQuery =
             (
                 Id INTEGER PRIMARY KEY,
                 Symbol TEXT NOT NULL,
-                Image TEXT
+                Image TEXT,
+                Name TEXT
             )
         "
 
@@ -16,12 +17,14 @@ module internal TickersQuery =
             INSERT INTO Tickers
             (
                 Symbol,
-                Image
+                Image,
+                Name
             )
             VALUES
             (
                 @Symbol,
-                @Image
+                @Image,
+                @Name
             )
         "
 
@@ -31,6 +34,7 @@ module internal TickersQuery =
             SET
                 Symbol = @Symbol
                 Image = @Image
+                Name = @Name
             WHERE
                 Id = @Id
         "
