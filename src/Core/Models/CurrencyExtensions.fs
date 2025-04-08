@@ -1,7 +1,7 @@
 ﻿module internal CurrencyExtensions
 
 open System.Runtime.CompilerServices
-open Binnaculum.Core.Models
+open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
