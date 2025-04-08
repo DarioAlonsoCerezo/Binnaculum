@@ -79,6 +79,7 @@ module Models =
     type Ticker = {
         Id: int
         Symbol: string
+        Image: string option
     }
     
     type Trade = {

@@ -78,6 +78,7 @@ module internal DatabaseModel =
     type Ticker = {
         Id: int
         Symbol: string
+        Image: string option
     }
     
     type Trade = {
