@@ -3,7 +3,7 @@
 module internal BrokerMovementQuery =
     let createTable =
         @"
-            CREATE TABLE IF NOT EXISTS BrokerMovement
+            CREATE TABLE IF NOT EXISTS BrokerMovements
             (
                 Id INTEGER PRIMARY KEY,
                 TimeStamp TEXT NOT NULL,
@@ -18,7 +18,7 @@ module internal BrokerMovementQuery =
 
     let insert =
         @"
-            INSERT INTO BrokerMovement
+            INSERT INTO BrokerMovements
             (
                 TimeStamp,
                 Amount,
@@ -42,7 +42,7 @@ module internal BrokerMovementQuery =
 
     let update =
         @"
-            UPDATE BrokerMovement
+            UPDATE BrokerMovements
             SET
                 TimeStamp = @TimeStamp,
                 Amount = @Amount,
@@ -57,19 +57,19 @@ module internal BrokerMovementQuery =
 
     let delete = 
         @"
-            DELETE FROM BrokerMovement
+            DELETE FROM BrokerMovements
             WHERE
                 Id = @Id
         "
 
     let getAll =
         @"
-            SELECT * FROM BrokerMovement
+            SELECT * FROM BrokerMovements
         "
 
     let getById =
         @"
-            SELECT * FROM BrokerMovement
+            SELECT * FROM BrokerMovements
             WHERE
                 Id = @Id
             LIMIT 1
