@@ -1,19 +1,20 @@
 ﻿namespace Binnaculum.Core.Database
 
 open DatabaseModel
+open Binnaculum.Core
 
 module internal TypeParser =
     
     let fromDatabaseToSupportedBroker (value: string) =
         match value with
-        | "IBKR" -> SupportedBroker.IBKR
-        | "Tastytrade" -> SupportedBroker.Tastytrade
+        | Keys.Broker_IBKR -> SupportedBroker.IBKR
+        | Keys.Broker_Tastytrade -> SupportedBroker.Tastytrade
         | _ -> failwith "Unsupported broker"
 
     let fromSupportedBrokerToDatabase (value: SupportedBroker) =
         match value with
-        | SupportedBroker.IBKR -> "IBKR"
-        | SupportedBroker.Tastytrade -> "Tastytrade"
+        | SupportedBroker.IBKR -> Keys.Broker_IBKR
+        | SupportedBroker.Tastytrade -> Keys.Broker_Tastytrade
     
     let fromTextToOptionCode(code: string) =
         match code with
