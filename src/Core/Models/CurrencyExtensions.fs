@@ -18,7 +18,7 @@ open Binnaculum.Core.SQL
             command
         
         [<Extension>]
-        static member readCurrency(reader: SqliteDataReader) =
+        static member read(reader: SqliteDataReader) =
             let id = reader.GetInt32(reader.GetOrdinal("Id"))
             let name = reader.GetString(reader.GetOrdinal("Name"))
             let code = reader.GetString(reader.GetOrdinal("Code"))
@@ -31,17 +31,17 @@ open Binnaculum.Core.SQL
             }
 
         [<Extension>]
-        static member readAllCurrencies(reader: SqliteDataReader) =
+        static member readAll(reader: SqliteDataReader) =
             let mutable resultList = []
             while reader.Read() do
-                let currency = Do.readCurrency reader
+                let currency = Do.read reader
                 resultList <- currency :: resultList
             resultList
 
         static member getAll() = task {
             let! command = Database.Do.createCommand()
             command.CommandText <- CurrencyQuery.getAll
-            let! currencies = Database.Do.readAll<Currency>(command, Do.readCurrency)
+            let! currencies = Database.Do.readAll<Currency>(command, Do.read)
             return currencies
         }
 
