@@ -1,16 +1,16 @@
 ﻿namespace Binnaculum.Core.SQL
 
-module internal MovementQuery =
+module internal BrokerMovementQuery =
     let createTable =
         @"
-            CREATE TABLE IF NOT EXISTS Movements
+            CREATE TABLE IF NOT EXISTS BrokerMovement
             (
                 Id INTEGER PRIMARY KEY,
                 TimeStamp TEXT NOT NULL,
                 Amount TEXT NOT NULL,
                 CurrencyId INTEGER NOT NULL,
-                BankAccountId INTEGER NOT NULL,
-                Commisions TEXT NOT NULL,
+                BrokerAccountId INTEGER NOT NULL,
+                Commissions TEXT NOT NULL,
                 Fees TEXT NOT NULL,
                 MovementType TEXT NOT NULL
             )
@@ -18,13 +18,13 @@ module internal MovementQuery =
 
     let insert =
         @"
-            INSERT INTO Movements
+            INSERT INTO BrokerMovement
             (
                 TimeStamp,
                 Amount,
                 CurrencyId,
-                BankAccountId,
-                Commisions,
+                BrokerAccountId,
+                Commissions,
                 Fees,
                 MovementType
             )
@@ -33,8 +33,8 @@ module internal MovementQuery =
                 @TimeStamp,
                 @Amount,
                 @CurrencyId,
-                @BankAccountId,
-                @Commisions,
+                @BrokerAccountId,
+                @Commissions,
                 @Fees,
                 @MovementType
             )
@@ -42,13 +42,13 @@ module internal MovementQuery =
 
     let update =
         @"
-            UPDATE Movements
+            UPDATE BrokerMovement
             SET
                 TimeStamp = @TimeStamp,
                 Amount = @Amount,
                 CurrencyId = @Currency
-                BankAccountId = @BankAccountId,
-                Commisions = @Commisions,
+                BrokerAccountId = @BrokerAccountId,
+                Commissions = @Commissions,
                 Fees = @Fees,
                 MovementType = @MovementType
             WHERE
@@ -57,19 +57,19 @@ module internal MovementQuery =
 
     let delete = 
         @"
-            DELETE FROM Movements
+            DELETE FROM BrokerMovement
             WHERE
                 Id = @Id
         "
 
     let getAll =
         @"
-            SELECT * FROM Movements
+            SELECT * FROM BrokerMovement
         "
 
     let getById =
         @"
-            SELECT * FROM Movements
+            SELECT * FROM BrokerMovement
             WHERE
                 Id = @Id
             LIMIT 1

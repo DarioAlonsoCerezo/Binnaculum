@@ -33,7 +33,7 @@ module internal DatabaseModel =
         | ExDividendDate
         | PayDividendDate
 
-    type MovementType =
+    type BrokerMovementType =
         | Deposit
         | Withdrawal
         | Fee
@@ -64,7 +64,7 @@ module internal DatabaseModel =
         Symbol: string;
     }
 
-    type Movement = {
+    type BrokerMovement = {
         Id: int
         TimeStamp: DateTime
         Amount: decimal
@@ -72,7 +72,7 @@ module internal DatabaseModel =
         BrokerAccountId: int
         Commissions: decimal
         Fees: decimal
-        MovementType: MovementType
+        MovementType: BrokerMovementType
     }
     
     type Ticker = {

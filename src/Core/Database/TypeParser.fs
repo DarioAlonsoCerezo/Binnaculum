@@ -81,25 +81,25 @@ module internal TypeParser =
 
     let fromDataseToMovementType(value: string) =
         match value with
-        | "DEPOSIT" -> MovementType.Deposit
-        | "WITHDRAWAL" -> MovementType.Withdrawal
-        | "FEE" -> MovementType.Fee
-        | "INTERESTS_GAINED" -> MovementType.InterestsGained
-        | "LENDING" -> MovementType.Lending
-        | "ACAT_MONEY_TRANSFER" -> MovementType.ACATMoneyTransfer
-        | "ACAT_SECURITIES_TRANSFER" -> MovementType.ACATSecuritiesTransfer
-        | "INTERESTS_PAID" -> MovementType.InterestsPaid
-        | "CONVERSION" -> MovementType.Conversion
+        | "DEPOSIT" -> BrokerMovementType.Deposit
+        | "WITHDRAWAL" -> BrokerMovementType.Withdrawal
+        | "FEE" -> BrokerMovementType.Fee
+        | "INTERESTS_GAINED" -> BrokerMovementType.InterestsGained
+        | "LENDING" -> BrokerMovementType.Lending
+        | "ACAT_MONEY_TRANSFER" -> BrokerMovementType.ACATMoneyTransfer
+        | "ACAT_SECURITIES_TRANSFER" -> BrokerMovementType.ACATSecuritiesTransfer
+        | "INTERESTS_PAID" -> BrokerMovementType.InterestsPaid
+        | "CONVERSION" -> BrokerMovementType.Conversion
         | _ -> failwith $"Invalid Movement Type: {value}"
 
-    let fromMovementTypeToDatabase(value: MovementType) =
+    let fromMovementTypeToDatabase(value: BrokerMovementType) =
         match value with
-        | MovementType.Deposit -> "DEPOSIT"
-        | MovementType.Withdrawal -> "WITHDRAWAL"
-        | MovementType.Fee -> "FEE"
-        | MovementType.InterestsGained -> "INTERESTS_GAINED"
-        | MovementType.Lending -> "LENDING"
-        | MovementType.ACATMoneyTransfer -> "ACAT_MONEY_TRANSFER"
-        | MovementType.ACATSecuritiesTransfer -> "ACAT_SECURITIES_TRANSFER"
-        | MovementType.InterestsPaid -> "INTERESTS_PAID"
-        | MovementType.Conversion -> "CONVERSION"
+        | BrokerMovementType.Deposit -> "DEPOSIT"
+        | BrokerMovementType.Withdrawal -> "WITHDRAWAL"
+        | BrokerMovementType.Fee -> "FEE"
+        | BrokerMovementType.InterestsGained -> "INTERESTS_GAINED"
+        | BrokerMovementType.Lending -> "LENDING"
+        | BrokerMovementType.ACATMoneyTransfer -> "ACAT_MONEY_TRANSFER"
+        | BrokerMovementType.ACATSecuritiesTransfer -> "ACAT_SECURITIES_TRANSFER"
+        | BrokerMovementType.InterestsPaid -> "INTERESTS_PAID"
+        | BrokerMovementType.Conversion -> "CONVERSION"
