@@ -48,10 +48,7 @@ open Binnaculum.Core.SQL
         [<Extension>]
         static member save(currency: Currency) = task {
             let! command = Database.Do.createCommand()
-            command.CommandText <- 
-                match currency.Id with
-                | 0 -> CurrencyQuery.insert
-                | _ -> CurrencyQuery.update
+            command.CommandText <- CurrencyQuery.insert
             do! Database.Do.executeNonQuery(currency.fill command) |> Async.AwaitTask |> Async.Ignore
         }
 
