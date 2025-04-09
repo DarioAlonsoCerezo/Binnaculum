@@ -103,3 +103,14 @@ module internal TypeParser =
         | BrokerMovementType.ACATSecuritiesTransfer -> "ACAT_SECURITIES_TRANSFER"
         | BrokerMovementType.InterestsPaid -> "INTERESTS_PAID"
         | BrokerMovementType.Conversion -> "CONVERSION"
+
+    let fromDividendDateCodeToDatabase(value: DividendCode) =
+        match value with
+        | DividendCode.ExDividendDate -> "EX_DIVIDEND_DATE"
+        | DividendCode.PayDividendDate -> "PAY_DIVIDEND_DATE"
+
+    let fromDatabaseToDividendDateCode(value: string) =
+        match value with
+        | "EX_DIVIDEND_DATE" -> DividendCode.ExDividendDate
+        | "PAY_DIVIDEND_DATE" -> DividendCode.PayDividendDate
+        | _ -> failwith $"Invalid Dividend Code: {value}"

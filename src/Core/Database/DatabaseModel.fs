@@ -117,9 +117,11 @@ module internal DatabaseModel =
 
     type DividendDate = {
         Id: int
-        Amount: DateTime
         TimeStamp: DateTime
+        Amount: decimal
         TickerId: int
+        CurrencyId: int
+        BrokerAccountId: int
         DividendCode: DividendCode
     }
 

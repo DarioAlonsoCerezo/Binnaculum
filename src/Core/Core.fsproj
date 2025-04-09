@@ -24,6 +24,7 @@
 		<Compile Include="SQL\TradesQuery.fs" />
 		<Compile Include="SQL\DividendsQuery.fs" />
 		<Compile Include="SQL\DividendTaxesQuery.fs" />
+		<Compile Include="SQL\DividendDateQuery.fs" />
 		<Compile Include="SQL\OptionsQuery.fs" />
 		<Compile Include="SQL\BankQuery.fs" />
 		<Compile Include="SQL\BankAccountsQuery.fs" />
@@ -42,6 +43,7 @@
 		<Compile Include="Models\TradeExtensions.fs" />
 		<Compile Include="Models\DividendExtensions.fs" />
 		<Compile Include="Models\DividendTaxExtensions.fs" />
+		<Compile Include="Models\DividendDateExtensions.fs" />
 		<Compile Include="Storage\Storage.fs" />
 		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>
