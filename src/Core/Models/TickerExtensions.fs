@@ -31,14 +31,6 @@ open Binnaculum.Core.SQL
             }
 
         [<Extension>]
-        static member readAll(reader: SqliteDataReader) =
-            let mutable resultList = []
-            while reader.Read() do
-                let ticker = Do.read(reader)
-                resultList <- ticker :: resultList
-            resultList
-
-        [<Extension>]
         static member save(ticker: Ticker) = task {
             let! command = Database.Do.createCommand()
             command.CommandText <- 
@@ -59,8 +51,8 @@ open Binnaculum.Core.SQL
         static member getAll() = task {
             let! command = Database.Do.createCommand()
             command.CommandText <- TickersQuery.getAll
-            let! reader = command.ExecuteReaderAsync() |> Async.AwaitTask
-            return Do.readAll(reader)
+            let! tickers = Database.Do.readAll<Ticker>(command, Do.read)
+            return tickers
         }
 
         static member getById(id: int) = task {
