@@ -32,26 +32,18 @@ open Binnaculum.Core.SQL
             }
 
         [<Extension>]
-        static member readAll(reader: SqliteDataReader) =
-            let mutable resultList = []
-            while reader.Read() do
-                let broker = Do.read reader
-                resultList <- broker :: resultList
-            resultList
-
+        static member save(broker: Broker) = task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- BrokerQuery.insert
+            do! command.ExecuteNonQueryAsync() |> Async.AwaitTask |> Async.Ignore
+        }
+        
         static member getAll() = task {
             let! command = Database.Do.createCommand()
             command.CommandText <- BrokerQuery.getAll
             let! brokers = Database.Do.readAll<Broker>(command, Do.read)
             return brokers
         }
-
-        [<Extension>]
-        static member save(broker: Broker) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- BrokerQuery.insert
-            do! command.ExecuteNonQueryAsync() |> Async.AwaitTask |> Async.Ignore
-        } 
 
         //This list contains all supported brokers
         static member brokerList() =
