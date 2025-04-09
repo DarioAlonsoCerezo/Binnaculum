@@ -7,7 +7,7 @@ module internal DividendsQuery =
             (
                 Id INTEGER PRIMARY KEY,
                 TimeStamp TEXT NOT NULL,
-                Amount TEXT NOT NULL,
+                DividendAmount TEXT NOT NULL,
                 TickerId INTEGER NOT NULL,
                 CurrencyId INTEGER NOT,
                 BrokerAccountId INTEGER NOT NULL
@@ -19,7 +19,7 @@ module internal DividendsQuery =
             INSERT INTO Dividends
             (
                 TimeStamp,
-                Amount,
+                DividendAmount,
                 TickerId,
                 CurrencyId,
                 BrokerAccountId
@@ -27,7 +27,7 @@ module internal DividendsQuery =
             VALUES
             (
                 @TimeStamp,
-                @Amount,
+                @DividendAmount,
                 @TickerId,
                 @CurrencyId,
                 @BrokerAccountId
@@ -39,7 +39,7 @@ module internal DividendsQuery =
             UPDATE Dividends
             SET
                 TimeStamp = @TimeStamp,
-                Amount = @Amount,
+                DividendAmount = @DividendAmount,
                 TickerId = @TickerId,
                 CurrencyId = @CurrencyId,
                 BrokerAccountId = @BrokerAccountId

@@ -100,7 +100,7 @@ module internal DatabaseModel =
     type Dividend = {
         Id: int
         TimeStamp: DateTime
-        Amount: decimal
+        DividendAmount: decimal
         TickerId: int
         CurrencyId: int
         BrokerAccountId: int
