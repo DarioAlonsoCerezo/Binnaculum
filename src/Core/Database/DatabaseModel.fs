@@ -85,7 +85,6 @@ module internal DatabaseModel =
     type Trade = {
         Id: int
         TimeStamp: DateTime
-        TotalInvestedAmount: decimal
         TickerId: int
         BrokerAccountId: int
         CurrencyId: int

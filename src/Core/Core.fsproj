@@ -39,6 +39,7 @@
 		<Compile Include="Models\CurrencyExtensions.fs" />
 		<Compile Include="Models\BrokerMovementExtensions.fs" />
 		<Compile Include="Models\TickerExtensions.fs" />
+		<Compile Include="Models\TradeExtensions.fs" />
 		<Compile Include="Storage\Storage.fs" />
 		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>
