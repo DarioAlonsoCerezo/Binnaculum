@@ -28,14 +28,6 @@ open Binnaculum.Core.SQL
             }
 
         [<Extension>]
-        static member readAll(reader: SqliteDataReader) =
-            let mutable resultList = []
-            while reader.Read() do
-                let brokerAccount = Do.read reader
-                resultList <- brokerAccount :: resultList
-            resultList
-
-        [<Extension>]
         static member save(account: BrokerAccount) = task {
             let! command = Database.Do.createCommand()
             command.CommandText <- 
