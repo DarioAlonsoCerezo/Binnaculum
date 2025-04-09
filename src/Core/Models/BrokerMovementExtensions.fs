@@ -43,14 +43,6 @@ open Binnaculum.Core.Database.TypeParser
             }
 
         [<Extension>]
-        static member readAll(reader: SqliteDataReader) =
-            let mutable resultList = []
-            while reader.Read() do
-                let brokerMovement = Do.read reader
-                resultList <- brokerMovement :: resultList
-            resultList
-
-        [<Extension>]
         static member save(brokerMovement: BrokerMovement) = task {
             let! command = Database.Do.createCommand()
             command.CommandText <- 
