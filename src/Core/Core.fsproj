@@ -41,6 +41,7 @@
 		<Compile Include="Models\TickerExtensions.fs" />
 		<Compile Include="Models\TradeExtensions.fs" />
 		<Compile Include="Models\DividendExtensions.fs" />
+		<Compile Include="Models\DividendTaxExtensions.fs" />
 		<Compile Include="Storage\Storage.fs" />
 		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>
