@@ -1,8 +1,4 @@
-﻿
-
-
-
-module internal DataReaderExtensions
+﻿module internal DataReaderExtensions
 
 open System.Runtime.CompilerServices
 open Microsoft.Data.Sqlite

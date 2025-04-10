@@ -6,6 +6,7 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core.Database.TypeParser
 open Binnaculum.Core
 open Binnaculum.Core.SQL
+open DataReaderExtensions
 
     [<Extension>]
     type Do() =
@@ -20,11 +21,11 @@ open Binnaculum.Core.SQL
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
-            { 
-                Id = reader.GetInt32(reader.GetOrdinal("Id")) 
-                Name = reader.GetString(reader.GetOrdinal("Name")) 
-                Image = reader.GetString(reader.GetOrdinal("Image")) 
-                SupportedBroker = reader.GetString(reader.GetOrdinal("SupportedBroker")) |> fromDatabaseToSupportedBroker 
+            {
+                Id = reader.getInt32 "Id"
+                Name = reader.getString "Name"
+                Image = reader.getString "Image"
+                SupportedBroker = reader.getString "SupportedBroker" |> fromDatabaseToSupportedBroker
             }
 
         [<Extension>]
