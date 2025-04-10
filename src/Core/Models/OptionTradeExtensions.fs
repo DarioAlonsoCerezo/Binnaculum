@@ -33,21 +33,21 @@ open DataReaderExtensions
         [<Extension>]
         static member read(reader: SqliteDataReader) =
             { 
-                Id = reader.GetInt32(reader.GetOrdinal("Id")) 
-                TimeStamp = reader.GetDateTime(reader.GetOrdinal("TimeStamp")) 
-                ExpirationDate = reader.GetDateTime(reader.GetOrdinal("ExpirationDate")) 
-                Premium = reader.GetDecimal(reader.GetOrdinal("Premium")) 
-                NetPremium = reader.GetDecimal(reader.GetOrdinal("NetPremium")) 
-                TickerId = reader.GetInt32(reader.GetOrdinal("TickerId")) 
-                BrokerAccountId = reader.GetInt32(reader.GetOrdinal("BrokerAccountId")) 
-                CurrencyId = reader.GetInt32(reader.GetOrdinal("CurrencyId")) 
-                OptionType = reader.GetString(reader.GetOrdinal("OptionType")) |> fromDatabaseToOptionType
-                Code = reader.GetString(reader.GetOrdinal("Code")) |> fromDatabaseToOptionCode 
-                Strike = reader.GetDecimal(reader.GetOrdinal("Strike")) 
-                Commissions = reader.GetDecimal(reader.GetOrdinal("Commissions")) 
-                Fees = reader.GetDecimal(reader.GetOrdinal("Fees")) 
-                IsOpen = reader.GetBoolean(reader.GetOrdinal("IsOpen")) 
-                ClosedWith = reader.getIntOrNone("ClosedWith")
+                Id = reader.getInt32 "Id" 
+                TimeStamp = reader.getDateTime "TimeStamp"
+                ExpirationDate = reader.getDateTime "ExpirationDate"
+                Premium = reader.getDecimal "Premium"
+                NetPremium = reader.getDecimal "NetPremium"
+                TickerId = reader.getInt32 "TickerId"
+                BrokerAccountId = reader.getInt32 "BrokerAccountId"
+                CurrencyId = reader.getInt32 "CurrencyId"
+                OptionType = reader.getString "OptionType" |> fromDatabaseToOptionType
+                Code = reader.getString "Code" |> fromDatabaseToOptionCode
+                Strike = reader.getDecimal "Strike"
+                Commissions = reader.getDecimal "Commissions"
+                Fees = reader.getDecimal "Fees"
+                IsOpen = reader.getBoolean "IsOpen"
+                ClosedWith = reader.getIntOrNone "ClosedWith"
             }
 
         [<Extension>]

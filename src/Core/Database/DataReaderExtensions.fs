@@ -26,6 +26,10 @@ open Microsoft.Data.Sqlite
             reader.GetString(reader.GetOrdinal(columnName))
 
         [<Extension>]
+        static member getBoolean(reader: SqliteDataReader, columnName: string) =
+            reader.GetBoolean(reader.GetOrdinal(columnName))
+
+        [<Extension>]
         static member getStringOrNone(reader: SqliteDataReader, columName: string) =
             let ordinal = reader.GetOrdinal(columName)
             if reader.IsDBNull(ordinal) then
