@@ -7,17 +7,20 @@ open Binnaculum.Core.Database.TypeParser
 open Binnaculum.Core
 open Binnaculum.Core.SQL
 open DataReaderExtensions
+open CommandExtensions
 
     [<Extension>]
     type Do() =
         
         [<Extension>]
         static member fill(broker: Broker, command: SqliteCommand) =
-            command.Parameters.AddWithValue("@Id", broker.Id) |> ignore
-            command.Parameters.AddWithValue("@Name", broker.Name) |> ignore
-            command.Parameters.AddWithValue("@Image", broker.Image) |> ignore
-            command.Parameters.AddWithValue("@SupportedBroker", fromSupportedBrokerToDatabase broker.SupportedBroker) |> ignore
-            command
+            command.fillParameters(
+                [
+                    ("@Id", broker.Id);
+                    ("@Name", broker.Name);
+                    ("@Image", broker.Image);
+                    ("@SupportedBroker", fromSupportedBrokerToDatabase broker.SupportedBroker);
+                ])
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
@@ -32,7 +35,7 @@ open DataReaderExtensions
         static member save(broker: Broker) = task {
             let! command = Database.Do.createCommand()
             command.CommandText <- BrokerQuery.insert
-            do! command.ExecuteNonQueryAsync() |> Async.AwaitTask |> Async.Ignore
+            do! Database.Do.executeNonQuery(broker.fill command) |> Async.AwaitTask |> Async.Ignore
         }
         
         static member getAll() = task {

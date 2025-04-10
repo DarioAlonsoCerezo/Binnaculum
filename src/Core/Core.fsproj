@@ -33,6 +33,7 @@
 		<Compile Include="SQL\BankAccountFeesQuery.fs" />
 		<Compile Include="Database\Database.fs" />
 		<Compile Include="Database\DataReaderExtensions.fs" />
+		<Compile Include="Database\CommandExtensions.fs" />
 		<Compile Include="Database\DatabaseModel.fs" />
 		<Compile Include="Database\TypeParser.fs" />
 		<Compile Include="Models\Models.fs" />
