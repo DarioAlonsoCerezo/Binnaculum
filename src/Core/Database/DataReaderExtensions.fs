@@ -14,6 +14,14 @@ open Microsoft.Data.Sqlite
             reader.GetInt32(reader.GetOrdinal(columnName))
 
         [<Extension>]
+        static member getDateTime(reader: SqliteDataReader, columnName: string) =
+            reader.GetDateTime(reader.GetOrdinal(columnName))
+
+        [<Extension>]
+        static member getDecimal(reader: SqliteDataReader, columnName: string) =
+            reader.GetDecimal(reader.GetOrdinal(columnName))
+
+        [<Extension>]
         static member getStringOrNone(reader: SqliteDataReader, columName: string) =
             let ordinal = reader.GetOrdinal(columName)
             if reader.IsDBNull(ordinal) then

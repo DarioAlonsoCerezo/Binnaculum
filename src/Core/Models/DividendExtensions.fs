@@ -5,6 +5,7 @@ open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
+open DataReaderExtensions
 
     [<Extension>]
     type Do() =
@@ -21,19 +22,13 @@ open Binnaculum.Core.SQL
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
-            let id = reader.GetInt32(reader.GetOrdinal("Id"))
-            let timeStamp = reader.GetDateTime(reader.GetOrdinal("TimeStamp"))
-            let amount = reader.GetDecimal(reader.GetOrdinal("DividendAmount"))
-            let tickerId = reader.GetInt32(reader.GetOrdinal("TickerId"))
-            let currencyId = reader.GetInt32(reader.GetOrdinal("CurrencyId"))
-            let brokerAccountId = reader.GetInt32(reader.GetOrdinal("BrokerAccountId"))
             {
-                Id = id
-                TimeStamp = timeStamp
-                DividendAmount = amount
-                TickerId = tickerId
-                CurrencyId = currencyId
-                BrokerAccountId = brokerAccountId
+                Id = reader.getInt32 "Id"
+                TimeStamp = reader.getDateTime "TimeStamp"
+                DividendAmount = reader.getDecimal "DividendAmount"
+                TickerId = reader.getInt32 "TickerId"
+                CurrencyId = reader.getInt32 "CurrencyId"
+                BrokerAccountId = reader.getInt32 "BrokerAccountId"
             }
 
         [<Extension>]
