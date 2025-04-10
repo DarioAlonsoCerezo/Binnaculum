@@ -1,6 +1,8 @@
 ﻿namespace Binnaculum.Core.Database
 
 open System
+open Binnaculum.Core.Database
+open Do
 
 module internal DatabaseModel =
     type SupportedBroker =
@@ -80,8 +82,10 @@ module internal DatabaseModel =
         Symbol: string
         Image: string option
         Name: string option
-    }
-    
+    } with
+        interface IEntity with
+            member this.Id = this.Id
+            
     type Trade = {
         Id: int
         TimeStamp: DateTime

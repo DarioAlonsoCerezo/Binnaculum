@@ -6,6 +6,9 @@ open Microsoft.Maui.Storage
 open System.Data
 
 module internal Do =
+    type IEntity =
+        abstract member Id: int
+
     let mutable private connection: SqliteConnection = null
 
     let private getConnectionString() =
@@ -80,6 +83,15 @@ module internal Do =
         do! connect() |> Async.AwaitTask |> Async.Ignore
         do! command.ExecuteNonQueryAsync() |> Async.AwaitTask |> Async.Ignore
         command.Dispose()
+    }
+
+    let saveEntity<'T when 'T :> IEntity> (entity: 'T) (fill: 'T -> SqliteCommand -> SqliteCommand) (insertQuery: string) (updateQuery: string) = task {
+        let! command = createCommand()
+        command.CommandText <- 
+            match entity.Id with
+            | 0 -> insertQuery
+            | _ -> updateQuery
+        do! executeNonQuery(fill entity command) |> Async.AwaitTask |> Async.Ignore
     }
 
     let executeExcalar(command: SqliteCommand) = task {

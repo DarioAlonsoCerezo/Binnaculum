@@ -28,14 +28,8 @@ open DataReaderExtensions
             }
 
         [<Extension>]
-        static member save(ticker: Ticker) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- 
-                match ticker.Id with
-                | 0 -> TickersQuery.insert
-                | _ -> TickersQuery.update
-            do! Database.Do.executeNonQuery(ticker.fill command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member save(ticker: Ticker) =
+            Database.Do.saveEntity ticker (fun t c -> t.fill c) TickersQuery.insert TickersQuery.update
 
         [<Extension>]
         static member delete(ticker: Ticker) = task {
