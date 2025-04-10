@@ -20,11 +20,11 @@ open DataReaderExtensions
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
-            { 
-                Id = reader.GetInt32(reader.GetOrdinal("Id")) 
-                Symbol = reader.GetString(reader.GetOrdinal("Symbol")) 
-                Image = reader.getStringOrNone "Image"  
-                Name = reader.getStringOrNone "Name" 
+            {
+                Id = reader.getInt32 "Id"
+                Symbol = reader.getString "Symbol"
+                Image = reader.getStringOrNone "Image"
+                Name = reader.getStringOrNone "Name"
             }
 
         [<Extension>]
