@@ -18,13 +18,10 @@ open Binnaculum.Core.SQL
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
-            let id = reader.GetInt32(reader.GetOrdinal("Id"))
-            let brokerId = reader.GetInt32(reader.GetOrdinal("BrokerId"))
-            let accountNumber = reader.GetString(reader.GetOrdinal("AccountNumber"))
             { 
-                Id = id 
-                BrokerId = brokerId 
-                AccountNumber = accountNumber 
+                Id = reader.GetInt32(reader.GetOrdinal("Id")) 
+                BrokerId = reader.GetInt32(reader.GetOrdinal("BrokerId")) 
+                AccountNumber = reader.GetString(reader.GetOrdinal("AccountNumber")) 
             }
 
         [<Extension>]
