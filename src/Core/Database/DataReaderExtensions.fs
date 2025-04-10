@@ -9,6 +9,9 @@ open Microsoft.Data.Sqlite
 
     [<Extension>]
     type Do() =
+        [<Extension>]
+        static member getInt32(reader: SqliteDataReader, columnName: string) =
+            reader.GetInt32(reader.GetOrdinal(columnName))
 
         [<Extension>]
         static member getStringOrNone(reader: SqliteDataReader, columName: string) =

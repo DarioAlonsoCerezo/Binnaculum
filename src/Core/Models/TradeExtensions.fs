@@ -30,31 +30,19 @@ open DataReaderExtensions
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
-            let id = reader.GetInt32(reader.GetOrdinal("Id"))
-            let timeStamp = reader.GetDateTime(reader.GetOrdinal("TimeStamp"))
-            let tickerId = reader.GetInt32(reader.GetOrdinal("TickerId"))
-            let brokerAccountId = reader.GetInt32(reader.GetOrdinal("BrokerAccountId"))
-            let currencyId = reader.GetInt32(reader.GetOrdinal("CurrencyId"))
-            let quantity = reader.GetDecimal(reader.GetOrdinal("Quantity"))
-            let price = reader.GetDecimal(reader.GetOrdinal("Price"))
-            let commissions = reader.GetDecimal(reader.GetOrdinal("Commissions"))
-            let fees = reader.GetDecimal(reader.GetOrdinal("Fees"))
-            let tradeCode = reader.GetString(reader.GetOrdinal("TradeCode")) |> fromDatabaseToTradeCode
-            let tradeType = reader.GetString(reader.GetOrdinal("TradeType")) |> fromDatabaseToTradeType
-            let notes = reader.getStringOrNone "Notes"
             {
-                Id = id
-                TimeStamp = timeStamp
-                TickerId = tickerId
-                BrokerAccountId = brokerAccountId
-                CurrencyId = currencyId
-                Quantity = quantity
-                Price = price
-                Commissions = commissions
-                Fees = fees
-                TradeCode = tradeCode
-                TradeType = tradeType
-                Notes = notes
+                Id = reader.getInt32 "Id"
+                TimeStamp = reader.GetDateTime(reader.GetOrdinal("TimeStamp"))
+                TickerId = reader.getInt32 "TickerId"
+                BrokerAccountId = reader.getInt32 "BrokerAccountId"
+                CurrencyId = reader.getInt32 "CurrencyId"
+                Quantity = reader.GetDecimal(reader.GetOrdinal("Quantity"))
+                Price = reader.GetDecimal(reader.GetOrdinal("Price"))
+                Commissions = reader.GetDecimal(reader.GetOrdinal("Commissions"))
+                Fees = reader.GetDecimal(reader.GetOrdinal("Fees"))
+                TradeCode = reader.GetString(reader.GetOrdinal("TradeCode")) |> fromDatabaseToTradeCode
+                TradeType = reader.GetString(reader.GetOrdinal("TradeType")) |> fromDatabaseToTradeType
+                Notes = reader.getStringOrNone "Notes"
             }
 
         [<Extension>]
