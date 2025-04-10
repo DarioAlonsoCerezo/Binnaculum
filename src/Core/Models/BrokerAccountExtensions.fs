@@ -5,6 +5,7 @@ open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
+open DataReaderExtensions
 
     [<Extension>]
     type Do() =
@@ -18,10 +19,10 @@ open Binnaculum.Core.SQL
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
-            { 
-                Id = reader.GetInt32(reader.GetOrdinal("Id")) 
-                BrokerId = reader.GetInt32(reader.GetOrdinal("BrokerId")) 
-                AccountNumber = reader.GetString(reader.GetOrdinal("AccountNumber")) 
+            {
+                Id = reader.getInt32 "Id"
+                BrokerId = reader.getInt32 "BrokerId"
+                AccountNumber = reader.getString "AccountNumber"
             }
 
         [<Extension>]
