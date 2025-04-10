@@ -32,14 +32,14 @@ open DataReaderExtensions
         static member read(reader: SqliteDataReader) =
             {
                 Id = reader.getInt32 "Id"
-                TimeStamp = reader.GetDateTime(reader.GetOrdinal("TimeStamp"))
+                TimeStamp = reader.getDateTime "TimeStamp"
                 TickerId = reader.getInt32 "TickerId"
                 BrokerAccountId = reader.getInt32 "BrokerAccountId"
                 CurrencyId = reader.getInt32 "CurrencyId"
-                Quantity = reader.GetDecimal(reader.GetOrdinal("Quantity"))
-                Price = reader.GetDecimal(reader.GetOrdinal("Price"))
-                Commissions = reader.GetDecimal(reader.GetOrdinal("Commissions"))
-                Fees = reader.GetDecimal(reader.GetOrdinal("Fees"))
+                Quantity = reader.getDecimal "Quantity"
+                Price = reader.getDecimal "Price"
+                Commissions = reader.getDecimal "Commissions"
+                Fees = reader.getDecimal "Fees"
                 TradeCode = reader.GetString(reader.GetOrdinal("TradeCode")) |> fromDatabaseToTradeCode
                 TradeType = reader.GetString(reader.GetOrdinal("TradeType")) |> fromDatabaseToTradeType
                 Notes = reader.getStringOrNone "Notes"
