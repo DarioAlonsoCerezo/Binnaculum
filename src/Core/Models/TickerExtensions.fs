@@ -6,17 +6,19 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
 open DataReaderExtensions
+open CommandExtensions
 
     [<Extension>]
     type Do() =
         
         [<Extension>]
         static member fill(ticker: Ticker, command: SqliteCommand) =
-            command.Parameters.AddWithValue("@Id", ticker.Id) |> ignore
-            command.Parameters.AddWithValue("@Symbol", ticker.Symbol) |> ignore
-            command.Parameters.AddWithValue("@Image", ticker.Image) |> ignore
-            command.Parameters.AddWithValue("@Name", ticker.Name) |> ignore
-            command
+            command.fillParameters([
+                ("@Id", ticker.Id);
+                ("@Symbol", ticker.Symbol);
+                ("@Image", ticker.Image);
+                ("@Name", ticker.Name));
+            ])
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
@@ -32,24 +34,11 @@ open DataReaderExtensions
             Database.Do.saveEntity ticker (fun t c -> t.fill c) TickersQuery.insert TickersQuery.update
 
         [<Extension>]
-        static member delete(ticker: Ticker) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- TickersQuery.delete
-            command.Parameters.AddWithValue("@Id", ticker.Id) |> ignore
-            do! Database.Do.executeNonQuery(command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member delete(ticker: Ticker) = 
+            Database.Do.deleteEntity ticker TickersQuery.delete
 
-        static member getAll() = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- TickersQuery.getAll
-            let! tickers = Database.Do.readAll<Ticker>(command, Do.read)
-            return tickers
-        }
+        static member getAll() = 
+            Database.Do.getAllEntities TickersQuery.getAll Do.read
 
-        static member getById(id: int) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- TickersQuery.getById
-            command.Parameters.AddWithValue("@Id", id) |> ignore
-            let! tikers = Database.Do.readAll<Ticker>(command, Do.read)
-            return tikers |> List.tryHead
-        }
+        static member getById(id: int) = 
+            Database.Do.getById id TickersQuery.getById Do.read

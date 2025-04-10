@@ -94,6 +94,28 @@ module internal Do =
         do! executeNonQuery(fill entity command) |> Async.AwaitTask |> Async.Ignore
     }
 
+    let deleteEntity<'T when 'T :> IEntity> (entity: 'T) (deleteQuery: string) = task {
+        let! command = createCommand()
+        command.CommandText <- deleteQuery
+        command.Parameters.AddWithValue("@Id", entity.Id) |> ignore
+        do! executeNonQuery(command) |> Async.AwaitTask |> Async.Ignore
+    }
+
+    let getAllEntities<'T> (getAllQuery: string) (map: SqliteDataReader -> 'T) = task {
+        let! command = createCommand()
+        command.CommandText <- getAllQuery
+        let! entities = readAll<'T>(command, map)
+        return entities
+    }
+
+    let getById<'T when 'T :> IEntity>(id: int) (getByIdQuery: string) (map: SqliteDataReader -> 'T) = task {
+        let! command = createCommand()
+        command.CommandText <- getByIdQuery
+        command.Parameters.AddWithValue("@Id", id) |> ignore
+        let! entities = readAll<'T>(command, map)
+        return entities |> List.tryHead
+    }
+
     let executeExcalar(command: SqliteCommand) = task {
         do! connect() |> Async.AwaitTask |> Async.Ignore
         let! result = command.ExecuteScalarAsync() |> Async.AwaitTask
