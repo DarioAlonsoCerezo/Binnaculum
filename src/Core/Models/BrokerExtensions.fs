@@ -20,15 +20,11 @@ open Binnaculum.Core.SQL
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
-            let id = reader.GetInt32(reader.GetOrdinal("Id"))
-            let name = reader.GetString(reader.GetOrdinal("Name"))
-            let image = reader.GetString(reader.GetOrdinal("Image"))
-            let supportedBroker = reader.GetString(reader.GetOrdinal("SupportedBroker")) |> fromDatabaseToSupportedBroker
             { 
-                Id = id 
-                Name = name 
-                Image = image 
-                SupportedBroker = supportedBroker 
+                Id = reader.GetInt32(reader.GetOrdinal("Id")) 
+                Name = reader.GetString(reader.GetOrdinal("Name")) 
+                Image = reader.GetString(reader.GetOrdinal("Image")) 
+                SupportedBroker = reader.GetString(reader.GetOrdinal("SupportedBroker")) |> fromDatabaseToSupportedBroker 
             }
 
         [<Extension>]
