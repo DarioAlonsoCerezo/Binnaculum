@@ -42,6 +42,16 @@ module internal TypeParser =
         | OptionCode.Expired -> "EXPIRED"
         | OptionCode.Assigned -> "ASSIGNED"
 
+    let fromDatabaseToOptionCode(code: string) =
+        match code with
+        | "BUY_TO_OPEN" -> OptionCode.BuyToOpen
+        | "SELL_TO_OPEN" -> OptionCode.SellToOpen
+        | "BUY_TO_CLOSE" -> OptionCode.BuyToClose
+        | "SELL_TO_CLOSE" -> OptionCode.SellToClose
+        | "EXPIRED" -> OptionCode.Expired
+        | "ASSIGNED" -> OptionCode.Assigned
+        | _ -> failwith $"Invalid Option Code: {code}"
+
     let fromOptionTypeToDatabase(optionType: OptionType) =
         match optionType with
         | OptionType.Call -> "CALL"

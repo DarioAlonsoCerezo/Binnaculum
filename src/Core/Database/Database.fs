@@ -18,11 +18,12 @@ module internal Do =
         Binnaculum.Core.SQL.BrokerQuery.createTable
         Binnaculum.Core.SQL.BrokerAccountQuery.createTable
         Binnaculum.Core.SQL.CurrencyQuery.createTable
-        Binnaculum.Core.SQL.MovementQuery.createTable
+        Binnaculum.Core.SQL.BrokerMovementQuery.createTable
         Binnaculum.Core.SQL.TickersQuery.createTable
         Binnaculum.Core.SQL.TradesQuery.createTable
         Binnaculum.Core.SQL.DividendsQuery.createTable
         Binnaculum.Core.SQL.DividendTaxesQuery.createTable
+        Binnaculum.Core.SQL.DividendDateQuery.createTable
         Binnaculum.Core.SQL.OptionsQuery.createTable
         Binnaculum.Core.SQL.BankAccountsQuery.createTable
         Binnaculum.Core.SQL.BankAccountBalancesQuery.createTable
@@ -93,10 +94,3 @@ module internal Do =
         command.CommandText <- $"DELETE FROM {table}"
         do! executeNonQuery command |> Async.AwaitTask |> Async.Ignore
     }
-
-    let getStringOrDefault(reader: SqliteDataReader, columnName: string) =
-        let ordinal = reader.GetOrdinal(columnName)
-        if reader.IsDBNull(ordinal) then
-            None
-        else
-            Some(reader.GetString(ordinal))

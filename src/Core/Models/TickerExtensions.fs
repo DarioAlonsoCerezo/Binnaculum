@@ -5,6 +5,7 @@ open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
+open DataReaderExtensions
 
     [<Extension>]
     type Do() =
@@ -21,8 +22,8 @@ open Binnaculum.Core.SQL
         static member read(reader: SqliteDataReader) =
             let id = reader.GetInt32(reader.GetOrdinal("Id"))
             let symbol = reader.GetString(reader.GetOrdinal("Symbol"))
-            let image = Database.Do.getStringOrDefault(reader, "Image") 
-            let name = Database.Do.getStringOrDefault(reader, "Name")
+            let image = reader.getStringOrNone "Image" 
+            let name = reader.getStringOrNone "Name"
             { 
                 Id = id 
                 Symbol = symbol 

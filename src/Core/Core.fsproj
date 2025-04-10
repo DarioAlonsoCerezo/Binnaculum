@@ -32,6 +32,7 @@
 		<Compile Include="SQL\BankAccountInterestsQuery.fs" />
 		<Compile Include="SQL\BankAccountFeesQuery.fs" />
 		<Compile Include="Database\Database.fs" />
+		<Compile Include="Database\DataReaderExtensions.fs" />
 		<Compile Include="Database\DatabaseModel.fs" />
 		<Compile Include="Database\TypeParser.fs" />
 		<Compile Include="Models\Models.fs" />
@@ -44,6 +45,7 @@
 		<Compile Include="Models\DividendExtensions.fs" />
 		<Compile Include="Models\DividendTaxExtensions.fs" />
 		<Compile Include="Models\DividendDateExtensions.fs" />
+		<Compile Include="Models\OptionTradeExtensions.fs" />
 		<Compile Include="Storage\Storage.fs" />
 		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>

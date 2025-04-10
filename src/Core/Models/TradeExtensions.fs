@@ -6,6 +6,7 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
 open Binnaculum.Core.Database.TypeParser
+open DataReaderExtensions
 
     [<Extension>]
     type Do() =
@@ -40,7 +41,7 @@ open Binnaculum.Core.Database.TypeParser
             let fees = reader.GetDecimal(reader.GetOrdinal("Fees"))
             let tradeCode = reader.GetString(reader.GetOrdinal("TradeCode")) |> fromDatabaseToTradeCode
             let tradeType = reader.GetString(reader.GetOrdinal("TradeType")) |> fromDatabaseToTradeType
-            let notes = Database.Do.getStringOrDefault(reader, "Notes")
+            let notes = reader.getStringOrNone "Notes"
             {
                 Id = id
                 TimeStamp = timeStamp
