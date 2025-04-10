@@ -23,23 +23,15 @@ open Binnaculum.Core.Database.TypeParser
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
-            let id = reader.GetInt32(reader.GetOrdinal("Id"))
-            let timeStamp = reader.GetDateTime(reader.GetOrdinal("TimeStamp"))
-            let amount = reader.GetDecimal(reader.GetOrdinal("Amount"))
-            let currencyId = reader.GetInt32(reader.GetOrdinal("CurrencyId"))
-            let bankAccountId = reader.GetInt32(reader.GetOrdinal("BrokerAccountId"))
-            let commissions = reader.GetDecimal(reader.GetOrdinal("Commissions"))
-            let fees = reader.GetDecimal(reader.GetOrdinal("Fees"))
-            let movementType = reader.GetString(reader.GetOrdinal("MovementType")) |> fromDataseToMovementType
             {
-                Id = id
-                TimeStamp = timeStamp
-                Amount = amount
-                CurrencyId = currencyId
-                BrokerAccountId = bankAccountId
-                Commissions = commissions
-                Fees = fees
-                MovementType = movementType
+                Id = reader.GetInt32(reader.GetOrdinal("Id"))
+                TimeStamp = reader.GetDateTime(reader.GetOrdinal("TimeStamp"))
+                Amount = reader.GetDecimal(reader.GetOrdinal("Amount"))
+                CurrencyId = reader.GetInt32(reader.GetOrdinal("CurrencyId"))
+                BrokerAccountId = reader.GetInt32(reader.GetOrdinal("BrokerAccountId"))
+                Commissions = reader.GetDecimal(reader.GetOrdinal("Commissions"))
+                Fees = reader.GetDecimal(reader.GetOrdinal("Fees"))
+                MovementType = reader.GetString(reader.GetOrdinal("MovementType")) |> fromDataseToMovementType
             }
 
         [<Extension>]
