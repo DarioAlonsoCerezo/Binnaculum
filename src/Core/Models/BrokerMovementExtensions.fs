@@ -6,6 +6,7 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
 open Binnaculum.Core.Database.TypeParser
+open DataReaderExtensions
 
     [<Extension>]
     type Do() =
@@ -24,14 +25,14 @@ open Binnaculum.Core.Database.TypeParser
         [<Extension>]
         static member read(reader: SqliteDataReader) =
             {
-                Id = reader.GetInt32(reader.GetOrdinal("Id"))
-                TimeStamp = reader.GetDateTime(reader.GetOrdinal("TimeStamp"))
-                Amount = reader.GetDecimal(reader.GetOrdinal("Amount"))
-                CurrencyId = reader.GetInt32(reader.GetOrdinal("CurrencyId"))
-                BrokerAccountId = reader.GetInt32(reader.GetOrdinal("BrokerAccountId"))
-                Commissions = reader.GetDecimal(reader.GetOrdinal("Commissions"))
-                Fees = reader.GetDecimal(reader.GetOrdinal("Fees"))
-                MovementType = reader.GetString(reader.GetOrdinal("MovementType")) |> fromDataseToMovementType
+                Id = reader.getInt32 "Id"
+                TimeStamp = reader.getDateTime "TimeStamp"
+                Amount = reader.getDecimal "Amount"
+                CurrencyId = reader.getInt32 "CurrencyId"
+                BrokerAccountId = reader.getInt32 "BrokerAccountId"
+                Commissions = reader.getDecimal "Commissions"
+                Fees = reader.getDecimal "Fees"
+                MovementType = reader.getString "MovementType" |> fromDataseToMovementType
             }
 
         [<Extension>]
