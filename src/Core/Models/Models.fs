@@ -119,9 +119,11 @@ module Models =
 
     type DividendDate = {
         Id: int
-        Amount: DateTime
         TimeStamp: DateTime
+        Amount: decimal
         Ticker: Ticker
+        Currency: Currency
+        BrokerAccount: BrokerAccount
         DividendCode: DividendCode
     }
 
