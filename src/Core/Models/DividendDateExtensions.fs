@@ -6,6 +6,7 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
 open Binnaculum.Core.Database.TypeParser
+open DataReaderExtensions
 
     [<Extension>]
     type Do() =
@@ -22,21 +23,14 @@ open Binnaculum.Core.Database.TypeParser
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
-            let id = reader.GetInt32(reader.GetOrdinal("Id"))
-            let timeStamp = reader.GetDateTime(reader.GetOrdinal("TimeStamp"))
-            let amount = reader.GetDecimal(reader.GetOrdinal("Amount"))
-            let tickerId = reader.GetInt32(reader.GetOrdinal("TickerId"))
-            let currencyId = reader.GetInt32(reader.GetOrdinal("CurrencyId"))
-            let brokerAccountId = reader.GetInt32(reader.GetOrdinal("BrokerAccountId"))
-            let dividendCode = reader.GetString(reader.GetOrdinal("DividendCode")) |> fromDatabaseToDividendDateCode
             {
-                Id = id
-                TimeStamp = timeStamp
-                Amount = amount
-                TickerId = tickerId
-                CurrencyId = currencyId
-                BrokerAccountId = brokerAccountId
-                DividendCode = dividendCode
+                Id = reader.getInt32 "Id"
+                TimeStamp = reader.getDateTime "TimeStamp"
+                Amount = reader.getDecimal "Amount"
+                TickerId = reader.getInt32 "TickerId"
+                CurrencyId = reader.getInt32 "CurrencyId"
+                BrokerAccountId = reader.getInt32 "BrokerAccountId"
+                DividendCode = reader.getString "DividendCode" |> fromDatabaseToDividendDateCode
             }
 
         [<Extension>]

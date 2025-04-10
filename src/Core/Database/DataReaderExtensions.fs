@@ -22,6 +22,10 @@ open Microsoft.Data.Sqlite
             reader.GetDecimal(reader.GetOrdinal(columnName))
 
         [<Extension>]
+        static member getString(reader: SqliteDataReader, columnName: string) =
+            reader.GetString(reader.GetOrdinal(columnName))
+
+        [<Extension>]
         static member getStringOrNone(reader: SqliteDataReader, columName: string) =
             let ordinal = reader.GetOrdinal(columName)
             if reader.IsDBNull(ordinal) then
