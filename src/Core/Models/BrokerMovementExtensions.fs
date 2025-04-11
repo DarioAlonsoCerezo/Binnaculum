@@ -16,26 +16,30 @@ open CommandExtensions
             command.fillParameters(
                 [
                     ("@Id", brokerMovement.Id);
-                    ("@TimeStamp", brokerMovement.TimeStamp);
-                    ("@Amount", brokerMovement.Amount);
+                    ("@TimeStamp", brokerMovement.TimeStamp.ToString());
+                    ("@Amount", brokerMovement.Amount.ToCents());
                     ("@CurrencyId", brokerMovement.CurrencyId);
                     ("@BrokerAccountId", brokerMovement.BrokerAccountId);
-                    ("@Commissions", brokerMovement.Commissions);
-                    ("@Fees", brokerMovement.Fees);
+                    ("@Commissions", brokerMovement.Commissions.ToCents());
+                    ("@Fees", brokerMovement.Fees.ToCents());
                     ("@MovementType", fromMovementTypeToDatabase brokerMovement.MovementType);
+                    ("@CreatedAt", brokerMovement.CreatedAt);
+                    ("@UpdatedAt", brokerMovement.UpdatedAt);
                 ])
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
             {
                 Id = reader.getInt32 "Id"
-                TimeStamp = reader.getDateTime "TimeStamp"
-                Amount = reader.getDecimal "Amount"
+                TimeStamp = reader.getDateTimePattern "TimeStamp"
+                Amount = reader.getMoney "Amount"
                 CurrencyId = reader.getInt32 "CurrencyId"
                 BrokerAccountId = reader.getInt32 "BrokerAccountId"
-                Commissions = reader.getDecimal "Commissions"
-                Fees = reader.getDecimal "Fees"
+                Commissions = reader.getMoney "Commissions"
+                Fees = reader.getMoney "Fees"
                 MovementType = reader.getString "MovementType" |> fromDataseToMovementType
+                CreatedAt = reader.getDataTimeOrNone "CreatedAt"
+                UpdatedAt = reader.getDataTimeOrNone "UpdatedAt"
             }
 
         [<Extension>]

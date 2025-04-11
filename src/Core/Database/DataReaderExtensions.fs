@@ -2,6 +2,7 @@
 
 open System.Runtime.CompilerServices
 open Microsoft.Data.Sqlite
+open Binnaculum.Core.Patterns
 
     [<Extension>]
     type Do() =
@@ -26,6 +27,15 @@ open Microsoft.Data.Sqlite
             reader.GetBoolean(reader.GetOrdinal(columnName))
 
         [<Extension>]
+        static member getDateTimePattern(reader: SqliteDataReader, columName: string) =
+            DateTimePattern.Parse(reader.GetString(reader.GetOrdinal(columName)))
+
+        [<Extension>]
+        static member getMoney(reader: SqliteDataReader, columName: string) =
+            let value = reader.GetInt32(reader.GetOrdinal(columName))
+            Money.FromCents(int value)
+
+        [<Extension>]
         static member getStringOrNone(reader: SqliteDataReader, columName: string) =
             let ordinal = reader.GetOrdinal(columName)
             if reader.IsDBNull(ordinal) then
@@ -40,3 +50,13 @@ open Microsoft.Data.Sqlite
                 None
             else
                 Some(reader.GetInt32(ordinal))
+
+        [<Extension>]
+        static member getDataTimeOrNone(reader: SqliteDataReader, columName: string) =
+            let ordinal = reader.GetOrdinal(columName)
+            if reader.IsDBNull(ordinal) then
+                None
+            else
+                Some(reader.GetDateTime(ordinal))
+
+        

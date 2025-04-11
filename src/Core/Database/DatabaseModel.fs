@@ -4,6 +4,7 @@ open System
 open Binnaculum.Core.Database
 open Do
 open Binnaculum.Core.SQL
+open Binnaculum.Core.Patterns
 
 module internal DatabaseModel =
     type SupportedBroker =
@@ -95,13 +96,15 @@ module internal DatabaseModel =
 
     type BrokerMovement = {
         Id: int
-        TimeStamp: DateTime
-        Amount: decimal
+        TimeStamp: DateTimePattern
+        Amount: Money
         CurrencyId: int
         BrokerAccountId: int
-        Commissions: decimal
-        Fees: decimal
+        Commissions: Money
+        Fees: Money
         MovementType: BrokerMovementType
+        CreatedAt: DateTime option
+        UpdatedAt: DateTime option
     } with
         interface IEntity with
             member this.Id = this.Id

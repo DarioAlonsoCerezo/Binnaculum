@@ -16,6 +16,7 @@
 
 	<ItemGroup>
 		<Compile Include="Keys\Keys.fs" />
+		<Compile Include="Keys\Pattern.fs" />
 		<Compile Include="SQL\BrokerQuery.fs" />
 		<Compile Include="SQL\BrokerAccountQuery.fs" />
 		<Compile Include="SQL\CurrencyQuery.fs" />
