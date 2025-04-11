@@ -6,17 +6,20 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
 open DataReaderExtensions
+open CommandExtensions
 
     [<Extension>]
     type Do() =
         
         [<Extension>]
         static member fill(currency: Currency, command: SqliteCommand) =
-            command.Parameters.AddWithValue("@Id", currency.Id) |> ignore
-            command.Parameters.AddWithValue("@Name", currency.Name) |> ignore
-            command.Parameters.AddWithValue("@Code", currency.Code) |> ignore
-            command.Parameters.AddWithValue("@Symbol", currency.Symbol) |> ignore
-            command
+            command.fillParameters(
+                [
+                    ("@Id", currency.Id);
+                    ("@Name", currency.Name);
+                    ("@Code", currency.Code);
+                    ("@Symbol", currency.Symbol);
+                ])
         
         [<Extension>]
         static member read(reader: SqliteDataReader) =
@@ -28,18 +31,21 @@ open DataReaderExtensions
             }
 
         [<Extension>]
-        static member save(currency: Currency) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- CurrencyQuery.insert
-            do! Database.Do.executeNonQuery(currency.fill command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member save(currency: Currency) = 
+            Database.Do.saveEntity 
+                currency 
+                (fun c cmd -> c.fill cmd) 
+                CurrencyQuery.insert CurrencyQuery.update
 
-        static member getAll() = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- CurrencyQuery.getAll
-            let! currencies = Database.Do.readAll<Currency>(command, Do.read)
-            return currencies
-        }
+        [<Extension>]
+        static member delete(currency: Currency) = 
+            Database.Do.deleteEntity currency CurrencyQuery.delete
+
+        static member getAll() = 
+            Database.Do.getAllEntities CurrencyQuery.getAll Do.read
+
+        static member getById(id: int) = 
+            Database.Do.getById id CurrencyQuery.getById Do.read
 
         static member currencyList() =
             [

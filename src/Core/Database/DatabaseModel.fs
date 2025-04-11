@@ -73,7 +73,9 @@ module internal DatabaseModel =
         Name: string;
         Code: string;
         Symbol: string;
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Id
 
     type BrokerMovement = {
         Id: int

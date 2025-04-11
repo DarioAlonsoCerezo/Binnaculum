@@ -28,6 +28,24 @@ module internal CurrencyQuery =
             )
         "
 
+    let update =
+        @"
+            UPDATE Currency
+            SET
+                Name = @Name,
+                Code = @Code,
+                Symbol = @Symbol
+            WHERE
+                Id = @Id
+        "
+
+    let delete =
+        @"
+            DELETE FROM Currency
+            WHERE
+                Id = @Id
+        "
+
     let getAll = "SELECT * FROM Currency"
 
     let getById = 
