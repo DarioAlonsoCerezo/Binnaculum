@@ -29,9 +29,7 @@ module internal Do =
         Binnaculum.Core.SQL.DividendDateQuery.createTable
         Binnaculum.Core.SQL.OptionsQuery.createTable
         Binnaculum.Core.SQL.BankAccountsQuery.createTable
-        Binnaculum.Core.SQL.BankAccountBalancesQuery.createTable
-        Binnaculum.Core.SQL.BankAccountInterestsQuery.createTable
-        Binnaculum.Core.SQL.BankAccountFeesQuery.createTable
+        Binnaculum.Core.SQL.BankAccountMovementsQuery.createTable
     ]
 
     let private connect() = task {

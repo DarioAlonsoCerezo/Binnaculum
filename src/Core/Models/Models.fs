@@ -44,6 +44,11 @@ module Models =
         | ACATSecuritiesTransfer
         | InterestsPaid
         | Conversion
+        
+    type BankAccountMovementType =
+        | Balance
+        | Interest
+        | Fee
 
     type Broker = {
         Id: int
@@ -159,28 +164,13 @@ module Models =
         Currency: Currency
     }
 
-    type BankAccountBalance = {
+    type BankAccountMovement = {
         Id: int
         TimeStamp: DateTime
         Amount: decimal
         BankAccount: BankAccount
         Currency: Currency
-    }
-
-    type BankAccountInterest = {
-        Id: int
-        TimeStamp: DateTime
-        Amount: decimal
-        BankAccount: BankAccount
-        Currency: Currency
-    }
-
-    type BankAccountFee = {
-        Id: int
-        TimeStamp: DateTime
-        Amount: decimal
-        BankAccount: BankAccount
-        Currency: Currency
+        MovementType: BankAccountMovementType
     }
 
     type Account = 
@@ -194,9 +184,7 @@ module Models =
         | DividendDate of DividendDate
         | OptionTrade of OptionTrade
         | BrokerMovement of BrokerMovement
-        | BankAccountBalance of BankAccountBalance
-        | BankAccountInterest of BankAccountInterest
-        | BankAccountFee of BankAccountFee
+        | BankAccountMovement of BankAccountMovement
 
     type Transaction = {
         TimeStamp: DateTime

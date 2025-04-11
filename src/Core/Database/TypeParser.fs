@@ -124,3 +124,16 @@ module internal TypeParser =
         | "EX_DIVIDEND_DATE" -> DividendCode.ExDividendDate
         | "PAY_DIVIDEND_DATE" -> DividendCode.PayDividendDate
         | _ -> failwith $"Invalid Dividend Code: {value}"
+
+    let fromDatabaseToBankMovementType(value: string) =
+        match value with
+        | "BALANCE" -> BankAccountMovementType.Balance
+        | "INTEREST" -> BankAccountMovementType.Interest
+        | "FEE" -> BankAccountMovementType.Fee
+        | _ -> failwith $"Invalid Bank Movement Type: {value}"
+
+    let fromBankMovementTypeToDatabase(value: BankAccountMovementType) =
+        match value with
+        | BankAccountMovementType.Balance -> "BALANCE"
+        | BankAccountMovementType.Interest -> "INTEREST"
+        | BankAccountMovementType.Fee -> "FEE"

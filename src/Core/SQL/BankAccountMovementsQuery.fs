@@ -1,63 +1,67 @@
 ﻿namespace Binnaculum.Core.SQL
 
-module internal BankAccountFeesQuery =
+module internal BankAccountMovementsQuery =
     let createTable =
         @"
-            CREATE TABLE IF NOT EXISTS BankAccountFees
+            CREATE TABLE IF NOT EXISTS BankAccountMovements
             (
                 Id INTEGER PRIMARY KEY,
                 TimeStamp TEXT NOT NULL,
                 Amount TEXT NOT NULL,
                 BankAccountId INTEGER NOT NULL,
-                CurrencyId INTEGER NOT NULL
+                CurrencyId INTEGER NOT NULL,
+                MovementType TEXT NOT NULL
             )
         "
 
     let insert =
         @"
-            INSERT INTO BankAccountFees
+            INSERT INTO BankAccountMovements
             (
                 TimeStamp,
                 Amount,
                 BankAccountId,
-                CurrencyId
+                CurrencyId,
+                MovementType
             )
             VALUES
             (
                 @TimeStamp,
                 @Amount,
                 @BankAccountId,
-                @CurrencyId
+                @CurrencyId,
+                @MovementType
             )
         "
 
     let update =
         @"
-            UPDATE BankAccountFees
+            UPDATE BankAccountMovements
             SET
                 TimeStamp = @TimeStamp,
                 Amount = @Amount,
                 BankAccountId = @BankAccountId,
-                CurrencyId = @Currency
+                CurrencyId = @Currency,
+                MovementType = @MovementType
             WHERE
                 Id = @Id
         "
 
-    let delete = 
+    let delete =
         @"
-            DELETE FROM BankAccountFees
+            DELETE FROM BankAccountMovements
             WHERE
                 Id = @Id
         "
 
     let getAll =
         @"
-            SELECT * FROM BankAccountFees
+            SELECT * FROM BankAccountMovements
         "
 
     let getById =
         @"
-            SELECT * FROM BankAccountFees
+            SELECT * FROM BankAccountMovements
             WHERE
                 Id = @Id
             LIMIT 1

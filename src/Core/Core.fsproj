@@ -28,9 +28,7 @@
 		<Compile Include="SQL\OptionsQuery.fs" />
 		<Compile Include="SQL\BankQuery.fs" />
 		<Compile Include="SQL\BankAccountsQuery.fs" />
-		<Compile Include="SQL\BankAccountBalancesQuery.fs" />
-		<Compile Include="SQL\BankAccountInterestsQuery.fs" />
-		<Compile Include="SQL\BankAccountFeesQuery.fs" />
+		<Compile Include="SQL\BankAccountMovementsQuery.fs" />
 		<Compile Include="Database\Database.fs" />
 		<Compile Include="Database\DataReaderExtensions.fs" />
 		<Compile Include="Database\CommandExtensions.fs" />
@@ -49,6 +47,7 @@
 		<Compile Include="Models\OptionTradeExtensions.fs" />
 		<Compile Include="Models\BankExtensions.fs" />
 		<Compile Include="Models\BankAccountExtensions.fs" />
+		<Compile Include="Models\BankAccountMovementExtensions.fs" />
 		<Compile Include="Storage\Storage.fs" />
 		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>

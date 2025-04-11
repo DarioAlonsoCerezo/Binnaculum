@@ -46,6 +46,11 @@ module internal DatabaseModel =
         | InterestsPaid
         | Conversion
 
+    type BankAccountMovementType =
+        | Balance
+        | Interest
+        | Fee
+
     type Broker = {
         Id: int
         Name: string
@@ -165,26 +170,13 @@ module internal DatabaseModel =
         interface IEntity with
             member this.Id = this.Id
 
-    type BankAccountBalance = {
+    type BankAccountMovement = {
         Id: int
         TimeStamp: DateTime
         Amount: decimal
         BankAccountId: int
         CurrencyId: int
-    }
-
-    type BankAccountInterest = {
-        Id: int
-        TimeStamp: DateTime
-        Amount: decimal
-        BankAccountId: int
-        CurrencyId: int
-    }
-
-    type BankAccountFee = {
-        Id: int
-        TimeStamp: DateTime
-        Amount: decimal
-        BankAccountId: int
-        CurrencyId: int
-    }
+        MovementType: BankAccountMovementType
+    } with
+        interface IEntity with
+            member this.Id = this.Id
