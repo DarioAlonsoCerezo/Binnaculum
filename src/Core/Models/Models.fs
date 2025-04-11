@@ -155,7 +155,7 @@ module Models =
         Id: int
         Bank: Bank
         Name: string
-        Description: int
+        Description: string option
         Currency: Currency
     }
 

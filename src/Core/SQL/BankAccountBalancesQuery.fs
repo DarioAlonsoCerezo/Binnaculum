@@ -9,7 +9,7 @@ module internal BankAccountBalancesQuery =
                 TimeStamp TEXT NOT NULL,
                 Amount TEXT NOT NULL,
                 BankAccountId INTEGER NOT NULL,
-                CurrencyId INTEGER NOT
+                CurrencyId INTEGER NOT NULL
             )
         "
 
@@ -39,6 +39,13 @@ module internal BankAccountBalancesQuery =
                 Amount = @Amount,
                 BankAccountId = @BankAccountId,
                 CurrencyId = @Currency
+            WHERE
+                Id = @Id
+        "
+
+    let delete =
+        @"
+            DELETE FROM BankAccountBalances
             WHERE
                 Id = @Id
         "

@@ -8,7 +8,7 @@ module internal BankAccountsQuery =
                 Id INTEGER PRIMARY KEY,
                 BankId INTEGER NOT NULL,
                 Name TEXT NOT NULL,
-                Description TEXT NOT NULL,
+                Description TEXT,
                 CurrencyId INTEGER NOT NULL
             )
         "
@@ -39,6 +39,13 @@ module internal BankAccountsQuery =
                 BankId = @BankId,
                 Description = @Description,
                 CurrencyId = @CurrencyId
+            WHERE
+                Id = @Id
+        "
+
+    let delete =
+        @"
+            DELETE FROM BankAccounts
             WHERE
                 Id = @Id
         "

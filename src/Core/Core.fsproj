@@ -48,6 +48,7 @@
 		<Compile Include="Models\DividendDateExtensions.fs" />
 		<Compile Include="Models\OptionTradeExtensions.fs" />
 		<Compile Include="Models\BankExtensions.fs" />
+		<Compile Include="Models\BankAccountExtensions.fs" />
 		<Compile Include="Storage\Storage.fs" />
 		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>

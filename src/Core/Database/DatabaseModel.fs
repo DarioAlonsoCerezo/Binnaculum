@@ -159,9 +159,11 @@ module internal DatabaseModel =
         Id: int
         BankId: int
         Name: string
-        Description: int
+        Description: string option
         CurrencyId: int
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Id
 
     type BankAccountBalance = {
         Id: int
