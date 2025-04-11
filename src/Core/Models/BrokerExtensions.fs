@@ -32,21 +32,14 @@ open CommandExtensions
             }
 
         [<Extension>]
-        static member save(broker: Broker) = 
-            Database.Do.saveEntity 
-                broker 
-                (fun b c -> b.fill c) 
-                BrokerQuery.insert BrokerQuery.update
+        static member save(broker: Broker) = Database.Do.saveEntity broker (fun b c -> b.fill c) 
 
         [<Extension>]
-        static member delete(broker: Broker) = 
-            Database.Do.deleteEntity broker BrokerQuery.delete
+        static member delete(broker: Broker) = Database.Do.deleteEntity broker 
         
-        static member getAll() = 
-            Database.Do.getAllEntities BrokerQuery.getAll Do.read
+        static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = 
-            Database.Do.getById id BrokerQuery.getById Do.read
+        static member getById(id: int) = Database.Do.getById id Do.read
 
         //This list contains all supported brokers
         static member brokerList() =

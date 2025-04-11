@@ -4,7 +4,6 @@ open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
-open Binnaculum.Core.SQL
 open DataReaderExtensions
 open CommandExtensions
 
@@ -31,15 +30,11 @@ open CommandExtensions
             }
 
         [<Extension>]
-        static member save(ticker: Ticker) =
-            Database.Do.saveEntity ticker (fun t c -> t.fill c) TickersQuery.insert TickersQuery.update
+        static member save(ticker: Ticker) = Database.Do.saveEntity ticker (fun t c -> t.fill c)
 
         [<Extension>]
-        static member delete(ticker: Ticker) = 
-            Database.Do.deleteEntity ticker TickersQuery.delete
+        static member delete(ticker: Ticker) = Database.Do.deleteEntity ticker
 
-        static member getAll() = 
-            Database.Do.getAllEntities TickersQuery.getAll Do.read
+        static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = 
-            Database.Do.getById id TickersQuery.getById Do.read
+        static member getById(id: int) = Database.Do.getById id Do.read

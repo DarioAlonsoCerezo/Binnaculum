@@ -31,21 +31,14 @@ open CommandExtensions
             }
 
         [<Extension>]
-        static member save(currency: Currency) = 
-            Database.Do.saveEntity 
-                currency 
-                (fun c cmd -> c.fill cmd) 
-                CurrencyQuery.insert CurrencyQuery.update
+        static member save(currency: Currency) = Database.Do.saveEntity currency (fun c cmd -> c.fill cmd) 
 
         [<Extension>]
-        static member delete(currency: Currency) = 
-            Database.Do.deleteEntity currency CurrencyQuery.delete
+        static member delete(currency: Currency) = Database.Do.deleteEntity currency
 
-        static member getAll() = 
-            Database.Do.getAllEntities CurrencyQuery.getAll Do.read
+        static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = 
-            Database.Do.getById id CurrencyQuery.getById Do.read
+        static member getById(id: int) = Database.Do.getById id Do.read
 
         static member currencyList() =
             [

@@ -4,7 +4,6 @@ open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
-open Binnaculum.Core.SQL
 open DataReaderExtensions
 open CommandExtensions
 
@@ -33,15 +32,11 @@ open CommandExtensions
             }
 
         [<Extension>]
-        static member save(bankAccount: BankAccount) =
-            Database.Do.saveEntity bankAccount (fun t c -> t.fill c) BankAccountsQuery.insert BankAccountsQuery.update
+        static member save(bankAccount: BankAccount) = Database.Do.saveEntity bankAccount (fun t c -> t.fill c) 
         
         [<Extension>]
-        static member delete(bankAccount: BankAccount) = 
-            Database.Do.deleteEntity bankAccount BankAccountsQuery.delete
+        static member delete(bankAccount: BankAccount) = Database.Do.deleteEntity bankAccount
 
-        static member getAll() = 
-            Database.Do.getAllEntities BankAccountsQuery.getAll Do.read
+        static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = 
-            Database.Do.getById id BankAccountsQuery.getById Do.read
+        static member getById(id: int) = Database.Do.getById id Do.read

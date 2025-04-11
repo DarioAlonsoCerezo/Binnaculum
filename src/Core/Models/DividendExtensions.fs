@@ -4,7 +4,6 @@ open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
-open Binnaculum.Core.SQL
 open DataReaderExtensions
 open CommandExtensions
 
@@ -36,17 +35,11 @@ open CommandExtensions
 
         [<Extension>]
         static member save(dividend: Dividend) = 
-            Database.Do.saveEntity 
-                dividend 
-                (fun t c -> t.fill c) 
-                DividendsQuery.insert DividendsQuery.update
+            Database.Do.saveEntity dividend (fun t c -> t.fill c) 
 
         [<Extension>]
-        static member delete(dividend: Dividend) = 
-            Database.Do.deleteEntity dividend DividendsQuery.delete
+        static member delete(dividend: Dividend) = Database.Do.deleteEntity dividend
 
-        static member getAll() = 
-            Database.Do.getAllEntities DividendsQuery.getAll Do.read
+        static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = 
-            Database.Do.getById id DividendsQuery.getById Do.read
+        static member getById(id: int) = Database.Do.getById id Do.read

@@ -91,7 +91,7 @@ module internal Do =
         command.Dispose()
     }
 
-    let saveEntity<'T when 'T :> IEntity> (entity: 'T) (fill: 'T -> SqliteCommand -> SqliteCommand) (insertQuery: string) (updateQuery: string) = task {
+    let saveEntity<'T when 'T :> IEntity> (entity: 'T) (fill: 'T -> SqliteCommand -> SqliteCommand) = task {
         let! command = createCommand()
         command.CommandText <- 
             match entity.Id with
@@ -100,21 +100,21 @@ module internal Do =
         do! executeNonQuery(fill entity command) |> Async.AwaitTask |> Async.Ignore
     }
 
-    let deleteEntity<'T when 'T :> IEntity> (entity: 'T) (deleteQuery: string) = task {
+    let deleteEntity<'T when 'T :> IEntity> (entity: 'T) = task {
         let! command = createCommand()
         command.CommandText <- entity.DeleteSQL
         command.Parameters.AddWithValue("@Id", entity.Id) |> ignore
         do! executeNonQuery(command) |> Async.AwaitTask |> Async.Ignore
     }
 
-    let getAllEntities<'T when 'T :> IEntity> (getAllQuery: string) (map: SqliteDataReader -> 'T) = task {
+    let getAllEntities<'T when 'T :> IEntity> (map: SqliteDataReader -> 'T) = task {
         let! command = createCommand()
         command.CommandText <- Unchecked.defaultof<'T>.GetAllSQL
         let! entities = readAll<'T>(command, map)
         return entities
     }
 
-    let getById<'T when 'T :> IEntity>(id: int) (getByIdQuery: string) (map: SqliteDataReader -> 'T) = task {
+    let getById<'T when 'T :> IEntity>(id: int) (map: SqliteDataReader -> 'T) = task {
         let! command = createCommand()
         command.CommandText <- Unchecked.defaultof<'T>.GetByIdSQL 
         command.Parameters.AddWithValue("@Id", id) |> ignore

@@ -4,7 +4,6 @@ open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
-open Binnaculum.Core.SQL
 open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
 open CommandExtensions
@@ -48,18 +47,11 @@ open CommandExtensions
             }
 
         [<Extension>]
-        static member save(trade: Trade) = 
-            Database.Do.saveEntity 
-                trade 
-                (fun t c -> t.fill c) 
-                TradesQuery.insert TradesQuery.update
+        static member save(trade: Trade) = Database.Do.saveEntity trade (fun t c -> t.fill c) 
 
         [<Extension>]
-        static member delete(trade: Trade) = 
-            Database.Do.deleteEntity trade TradesQuery.delete
+        static member delete(trade: Trade) = Database.Do.deleteEntity trade
 
-        static member getAll() = 
-            Database.Do.getAllEntities TradesQuery.getAll Do.read
+        static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = 
-            Database.Do.getById id TradesQuery.getById Do.read
+        static member getById(id: int) = Database.Do.getById id Do.read
