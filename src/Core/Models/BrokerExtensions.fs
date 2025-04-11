@@ -32,18 +32,21 @@ open CommandExtensions
             }
 
         [<Extension>]
-        static member save(broker: Broker) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- BrokerQuery.insert
-            do! Database.Do.executeNonQuery(broker.fill command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member save(broker: Broker) = 
+            Database.Do.saveEntity 
+                broker 
+                (fun b c -> b.fill c) 
+                BrokerQuery.insert BrokerQuery.update
+
+        [<Extension>]
+        static member delete(broker: Broker) = 
+            Database.Do.deleteEntity broker BrokerQuery.delete
         
-        static member getAll() = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- BrokerQuery.getAll
-            let! brokers = Database.Do.readAll<Broker>(command, Do.read)
-            return brokers
-        }
+        static member getAll() = 
+            Database.Do.getAllEntities BrokerQuery.getAll Do.read
+
+        static member getById(id: int) = 
+            Database.Do.getById id BrokerQuery.getById Do.read
 
         //This list contains all supported brokers
         static member brokerList() =

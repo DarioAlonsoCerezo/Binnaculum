@@ -56,7 +56,9 @@ module internal DatabaseModel =
         Name: string
         Image: string
         SupportedBroker: SupportedBroker
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Id
 
     type BrokerAccount = {
         Id: int

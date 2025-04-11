@@ -28,6 +28,24 @@ module internal BrokerQuery =
             )
         "
 
+    let update =
+        @"
+            UPDATE Brokers
+            SET
+                Name = @Name,
+                Image = @Image,
+                SupportedBroker = @SupportedBroker
+            WHERE
+                Id = @Id
+        "
+
+    let delete =         
+        @"
+            DELETE FROM Brokers
+            WHERE
+                Id = @Id
+        "
+
     let getAll =
         @"
             SELECT * FROM Brokers

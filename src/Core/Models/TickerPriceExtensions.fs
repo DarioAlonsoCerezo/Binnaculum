@@ -34,7 +34,10 @@ open CommandExtensions
 
         [<Extension>]
         static member save(tickerPrice: TickerPrice) =
-            Database.Do.saveEntity tickerPrice (fun t c -> t.fill c) TickerPriceQuery.insert TickerPriceQuery.update
+            Database.Do.saveEntity 
+                tickerPrice 
+                (fun t c -> t.fill c) 
+                TickerPriceQuery.insert TickerPriceQuery.update
         
         [<Extension>]
         static member delete(tickerPrice: TickerPrice) = 
