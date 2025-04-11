@@ -90,6 +90,15 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+
+    type TickerSplit = {
+        Id: int
+        SplitDate: DateTime
+        TickerId: int
+        SplitFactor: decimal
+    } with
+        interface IEntity with
+            member this.Id = this.Id
             
     type Trade = {
         Id: int

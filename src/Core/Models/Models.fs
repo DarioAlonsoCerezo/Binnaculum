@@ -87,6 +87,13 @@ module Models =
         Image: string option
         Name: string option
     }
+
+    type TickerSplit = {
+        Id: int
+        SplitDate: DateTime
+        Ticker: Ticker
+        SplitFactor: decimal
+    }
     
     type Trade = {
         Id: int
