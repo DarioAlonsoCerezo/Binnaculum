@@ -131,7 +131,9 @@ module internal DatabaseModel =
         TradeCode: TradeCode
         TradeType: TradeType
         Notes: string option
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Id
 
     type Dividend = {
         Id: int

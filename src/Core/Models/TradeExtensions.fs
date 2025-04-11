@@ -7,26 +7,28 @@ open Binnaculum.Core
 open Binnaculum.Core.SQL
 open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
+open CommandExtensions
 
     [<Extension>]
     type Do() =
 
         [<Extension>]
         static member fill(trade: Trade, command: SqliteCommand) =
-            command.Parameters.AddWithValue("@Id", trade.Id) |> ignore
-            command.Parameters.AddWithValue("@TimeStamp", trade.TimeStamp) |> ignore
-            command.Parameters.AddWithValue("@TickerId", trade.TickerId) |> ignore
-            command.Parameters.AddWithValue("@BrokerAccountId", trade.BrokerAccountId) |> ignore
-            command.Parameters.AddWithValue("@CurrencyId", trade.CurrencyId) |> ignore
-            command.Parameters.AddWithValue("@Quantity", trade.Quantity) |> ignore
-            command.Parameters.AddWithValue("@Price", trade.Price) |> ignore
-            command.Parameters.AddWithValue("@Commission", trade.Commissions) |> ignore
-            command.Parameters.AddWithValue("@Fees", trade.Fees) |> ignore
-            command.Parameters.AddWithValue("@TradeCode", fromTradeCodeToDatabase trade.TradeCode) |> ignore
-            command.Parameters.AddWithValue("@TradeType", fromTradeTypeToDatabase trade.TradeType) |> ignore
-            command.Parameters.AddWithValue("@Notes", trade.Notes) |> ignore
-            command
-
+            command.fillParameters(
+                [
+                    ("@Id", trade.Id);
+                    ("@TimeStamp", trade.TimeStamp);
+                    ("@TickerId", trade.TickerId);
+                    ("@BrokerAccountId", trade.BrokerAccountId);
+                    ("@CurrencyId", trade.CurrencyId);
+                    ("@Quantity", trade.Quantity);
+                    ("@Price", trade.Price);
+                    ("@Commission", trade.Commissions);
+                    ("@Fees", trade.Fees);
+                    ("@TradeCode", fromTradeCodeToDatabase trade.TradeCode);
+                    ("@TradeType", fromTradeTypeToDatabase trade.TradeType);
+                    ("@Notes", trade.Notes)
+                ])
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
@@ -46,34 +48,18 @@ open DataReaderExtensions
             }
 
         [<Extension>]
-        static member save(trade: Trade) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <-
-                match trade.Id with
-                | 0 -> TradesQuery.insert
-                | _ -> TradesQuery.update
-            do! Database.Do.executeNonQuery(trade.fill command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member save(trade: Trade) = 
+            Database.Do.saveEntity 
+                trade 
+                (fun t c -> t.fill c) 
+                TradesQuery.insert TradesQuery.update
 
         [<Extension>]
-        static member delete(trade: Trade) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- TradesQuery.delete
-            command.Parameters.AddWithValue("@Id", trade.Id) |> ignore
-            do! Database.Do.executeNonQuery(command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member delete(trade: Trade) = 
+            Database.Do.deleteEntity trade TradesQuery.delete
 
-        static member getAll() = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- TradesQuery.getAll
-            let! trades = Database.Do.readAll<Trade>(command, Do.read)
-            return trades
-        }
+        static member getAll() = 
+            Database.Do.getAllEntities TradesQuery.getAll Do.read
 
-        static member getById(id: int) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- TradesQuery.getById
-            command.Parameters.AddWithValue("@Id", id) |> ignore
-            let! trades = Database.Do.readAll<Trade>(command, Do.read)
-            return trades |> List.tryHead
-        }
+        static member getById(id: int) = 
+            Database.Do.getById id TradesQuery.getById Do.read
