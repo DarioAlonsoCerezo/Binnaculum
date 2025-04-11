@@ -24,6 +24,7 @@ module internal Do =
         Binnaculum.Core.SQL.BrokerMovementQuery.createTable
         Binnaculum.Core.SQL.TickersQuery.createTable
         Binnaculum.Core.SQL.TickerSplitQuery.createTable
+        Binnaculum.Core.SQL.TickerPriceQuery.createTable
         Binnaculum.Core.SQL.TradesQuery.createTable
         Binnaculum.Core.SQL.DividendsQuery.createTable
         Binnaculum.Core.SQL.DividendTaxesQuery.createTable

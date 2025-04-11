@@ -94,6 +94,14 @@ module Models =
         Ticker: Ticker
         SplitFactor: decimal
     }
+
+    type TickerPrice = {
+        Id: int
+        PriceDate: DateTime
+        Ticker: Ticker
+        Price: decimal
+        Currency: Currency
+    }
     
     type Trade = {
         Id: int

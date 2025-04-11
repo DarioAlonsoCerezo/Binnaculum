@@ -21,6 +21,7 @@
 		<Compile Include="SQL\CurrencyQuery.fs" />
 		<Compile Include="SQL\BrokerMovementQuery.fs" />
 		<Compile Include="SQL\TickersQuery.fs" />
+		<Compile Include="SQL\TickerPriceQuery.fs" />
 		<Compile Include="SQL\TickerSplitQuery.fs" />
 		<Compile Include="SQL\TradesQuery.fs" />
 		<Compile Include="SQL\DividendsQuery.fs" />
@@ -41,6 +42,7 @@
 		<Compile Include="Models\CurrencyExtensions.fs" />
 		<Compile Include="Models\BrokerMovementExtensions.fs" />
 		<Compile Include="Models\TickerExtensions.fs" />
+		<Compile Include="Models\TickerPriceExtensions.fs" />
 		<Compile Include="Models\TickerSplitExtensions.fs" />
 		<Compile Include="Models\TradeExtensions.fs" />
 		<Compile Include="Models\DividendExtensions.fs" />

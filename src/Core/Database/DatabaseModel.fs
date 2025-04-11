@@ -99,6 +99,16 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+
+    type TickerPrice = {
+        Id: int
+        PriceDate: DateTime
+        TickerId: int
+        Price: decimal
+        CurrencyId: int
+    } with
+        interface IEntity with
+            member this.Id = this.Id
             
     type Trade = {
         Id: int
