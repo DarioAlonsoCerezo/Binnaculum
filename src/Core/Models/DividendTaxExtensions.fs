@@ -4,22 +4,24 @@ open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
-open Binnaculum.Core.SQL
 open DataReaderExtensions
+open CommandExtensions
 
     [<Extension>]
     type Do() =
 
         [<Extension>]
         static member fill(dividendTax: DividendTax, command: SqliteCommand) =
-            command.Parameters.AddWithValue("@Id", dividendTax.Id) |> ignore
-            command.Parameters.AddWithValue("@TimeStamp", dividendTax.TimeStamp) |> ignore
-            command.Parameters.AddWithValue("@Amount", dividendTax.Amount) |> ignore
-            command.Parameters.AddWithValue("@TickerId", dividendTax.TickerId) |> ignore
-            command.Parameters.AddWithValue("@CurrencyId", dividendTax.CurrencyId) |> ignore
-            command.Parameters.AddWithValue("@BrokerAccountId", dividendTax.BrokerAccountId) |> ignore
-            command
-
+            command.fillParameters(
+                [
+                    ("@Id", dividendTax.Id);
+                    ("@TimeStamp", dividendTax.TimeStamp);
+                    ("@Amount", dividendTax.Amount);
+                    ("@TickerId", dividendTax.TickerId);
+                    ("@CurrencyId", dividendTax.CurrencyId);
+                    ("@BrokerAccountId", dividendTax.BrokerAccountId);
+                ])
+            
         [<Extension>]
         static member read(reader: SqliteDataReader) =
             {
@@ -32,34 +34,11 @@ open DataReaderExtensions
             }
 
         [<Extension>]
-        static member save(dividendTax: DividendTax) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <-
-                match dividendTax.Id with
-                | 0 -> DividendTaxesQuery.insert
-                | _ -> DividendTaxesQuery.update
-            do! Database.Do.executeNonQuery(dividendTax.fill command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member save(dividendTax: DividendTax) = Database.Do.saveEntity dividendTax (fun t c -> t.fill c) 
 
         [<Extension>]
-        static member delete(dividendTax: DividendTax) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- DividendTaxesQuery.delete
-            command.Parameters.AddWithValue("@Id", dividendTax.Id) |> ignore
-            do! Database.Do.executeNonQuery(command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member delete(dividendTax: DividendTax) = Database.Do.deleteEntity dividendTax
 
-        static member getAll() = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- DividendTaxesQuery.getAll
-            let! dividendTaxes = Database.Do.readAll<DividendTax>(command, Do.read)
-            return dividendTaxes
-        }
+        static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- DividendTaxesQuery.getById
-            command.Parameters.AddWithValue("@Id", id) |> ignore
-            let! dividendTax = Database.Do.readAll<DividendTax>(command, Do.read)
-            return dividendTax |> List.tryHead
-        }
+        static member getById(id: int) = Database.Do.getById id Do.read
