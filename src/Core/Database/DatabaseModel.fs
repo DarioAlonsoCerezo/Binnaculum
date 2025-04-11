@@ -64,7 +64,9 @@ module internal DatabaseModel =
         Id: int
         BrokerId: int
         AccountNumber: string
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Id
     
     type Currency = {
         Id: int;
