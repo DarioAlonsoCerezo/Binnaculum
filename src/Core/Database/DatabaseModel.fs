@@ -142,7 +142,9 @@ module internal DatabaseModel =
         TickerId: int
         CurrencyId: int
         BrokerAccountId: int
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Id
 
     type DividendTax = {
         Id: int
@@ -151,7 +153,7 @@ module internal DatabaseModel =
         TickerId: int
         CurrencyId: int
         BrokerAccountId: int
-    }
+    } 
 
     type DividendDate = {
         Id: int

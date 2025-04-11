@@ -6,20 +6,23 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open Binnaculum.Core.SQL
 open DataReaderExtensions
+open CommandExtensions
 
     [<Extension>]
     type Do() =
         
         [<Extension>]
         static member fill(dividend: Dividend, command: SqliteCommand) =
-            command.Parameters.AddWithValue("@Id", dividend.Id) |> ignore
-            command.Parameters.AddWithValue("@TimeStamp", dividend.TimeStamp) |> ignore
-            command.Parameters.AddWithValue("@DividendAmount", dividend.DividendAmount) |> ignore
-            command.Parameters.AddWithValue("@TickerId", dividend.TickerId) |> ignore
-            command.Parameters.AddWithValue("@CurrencyId", dividend.CurrencyId) |> ignore
-            command.Parameters.AddWithValue("@BrokerAccountId", dividend.BrokerAccountId) |> ignore
-            command
-
+            command.fillParameters(
+                [
+                    ("@Id", dividend.Id);
+                    ("@TimeStamp", dividend.TimeStamp);
+                    ("@DividendAmount", dividend.DividendAmount);
+                    ("@TickerId", dividend.TickerId);
+                    ("@CurrencyId", dividend.CurrencyId);
+                    ("@BrokerAccountId", dividend.BrokerAccountId);
+                ])
+            
         [<Extension>]
         static member read(reader: SqliteDataReader) =
             {
@@ -32,34 +35,18 @@ open DataReaderExtensions
             }
 
         [<Extension>]
-        static member save(dividend: Dividend) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- 
-                match dividend.Id with
-                | 0 -> DividendsQuery.insert
-                | _ -> DividendsQuery.update
-            do! Database.Do.executeNonQuery(dividend.fill command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member save(dividend: Dividend) = 
+            Database.Do.saveEntity 
+                dividend 
+                (fun t c -> t.fill c) 
+                DividendsQuery.insert DividendsQuery.update
 
         [<Extension>]
-        static member delete(dividend: Dividend) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- DividendsQuery.delete
-            command.Parameters.AddWithValue("@Id", dividend.Id) |> ignore
-            do! Database.Do.executeNonQuery(command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member delete(dividend: Dividend) = 
+            Database.Do.deleteEntity dividend DividendsQuery.delete
 
-        static member getAll() = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- DividendsQuery.getAll
-            let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
-            return dividends
-        }
+        static member getAll() = 
+            Database.Do.getAllEntities DividendsQuery.getAll Do.read
 
-        static member getById(id: int) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- DividendsQuery.getAll
-            command.Parameters.AddWithValue("@Id", id) |> ignore
-            let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
-            return dividends |> List.tryHead
-        }
+        static member getById(id: int) = 
+            Database.Do.getById id DividendsQuery.getById Do.read
