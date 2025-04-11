@@ -8,6 +8,11 @@ open System.Data
 module internal Do =
     type IEntity =
         abstract member Id: int
+        abstract member InsertSQL: string
+        abstract member UpdateSQL: string
+        abstract member DeleteSQL: string
+        abstract member GetAllSQL: string
+        abstract member GetByIdSQL: string
 
     let mutable private connection: SqliteConnection = null
 

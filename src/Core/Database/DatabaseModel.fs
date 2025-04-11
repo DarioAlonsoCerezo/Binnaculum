@@ -3,6 +3,7 @@
 open System
 open Binnaculum.Core.Database
 open Do
+open Binnaculum.Core.SQL
 
 module internal DatabaseModel =
     type SupportedBroker =
@@ -59,6 +60,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = BrokerQuery.insert
+            member this.UpdateSQL = BrokerQuery.update
+            member this.DeleteSQL = BrokerQuery.delete
+            member this.GetAllSQL = BrokerQuery.getAll
+            member this.GetByIdSQL = BrokerQuery.getById
 
     type BrokerAccount = {
         Id: int
@@ -67,6 +73,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = BrokerAccountQuery.insert
+            member this.UpdateSQL = BrokerAccountQuery.update
+            member this.DeleteSQL = BrokerAccountQuery.delete
+            member this.GetAllSQL = BrokerAccountQuery.getAll
+            member this.GetByIdSQL = BrokerAccountQuery.getById
     
     type Currency = {
         Id: int;
@@ -76,6 +87,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = CurrencyQuery.insert
+            member this.UpdateSQL = CurrencyQuery.update
+            member this.DeleteSQL = CurrencyQuery.delete
+            member this.GetAllSQL = CurrencyQuery.getAll
+            member this.GetByIdSQL = CurrencyQuery.getById
 
     type BrokerMovement = {
         Id: int
@@ -89,6 +105,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = BrokerMovementQuery.insert
+            member this.UpdateSQL = BrokerMovementQuery.update
+            member this.DeleteSQL = BrokerMovementQuery.delete
+            member this.GetAllSQL = BrokerMovementQuery.getAll
+            member this.GetByIdSQL = BrokerMovementQuery.getById
     
     type Ticker = {
         Id: int
@@ -98,6 +119,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = TickersQuery.insert
+            member this.UpdateSQL = TickersQuery.update
+            member this.DeleteSQL = TickersQuery.delete
+            member this.GetAllSQL = TickersQuery.getAll
+            member this.GetByIdSQL = TickersQuery.getById
 
     type TickerSplit = {
         Id: int
@@ -107,6 +133,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = TickerSplitQuery.insert
+            member this.UpdateSQL = TickerSplitQuery.update
+            member this.DeleteSQL = TickerSplitQuery.delete
+            member this.GetAllSQL = TickerSplitQuery.getAll
+            member this.GetByIdSQL = TickerSplitQuery.getById
 
     type TickerPrice = {
         Id: int
@@ -117,6 +148,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = TickerPriceQuery.insert
+            member this.UpdateSQL = TickerPriceQuery.update
+            member this.DeleteSQL = TickerPriceQuery.delete
+            member this.GetAllSQL = TickerPriceQuery.getAll
+            member this.GetByIdSQL = TickerPriceQuery.getById
             
     type Trade = {
         Id: int
@@ -134,6 +170,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = TradesQuery.insert
+            member this.UpdateSQL = TradesQuery.update
+            member this.DeleteSQL = TradesQuery.delete
+            member this.GetAllSQL = TradesQuery.getAll
+            member this.GetByIdSQL = TradesQuery.getById
 
     type Dividend = {
         Id: int
@@ -145,6 +186,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = DividendsQuery.insert
+            member this.UpdateSQL = DividendsQuery.update
+            member this.DeleteSQL = DividendsQuery.delete
+            member this.GetAllSQL = DividendsQuery.getAll
+            member this.GetByIdSQL = DividendsQuery.getById
 
     type DividendTax = {
         Id: int
@@ -190,6 +236,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = BankQuery.insert
+            member this.UpdateSQL = BankQuery.update
+            member this.DeleteSQL = BankQuery.delete
+            member this.GetAllSQL = BankQuery.getAll
+            member this.GetByIdSQL = BankQuery.getById
 
     type BankAccount = {
         Id: int
@@ -200,6 +251,11 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = BankAccountsQuery.insert
+            member this.UpdateSQL = BankAccountsQuery.update
+            member this.DeleteSQL = BankAccountsQuery.delete
+            member this.GetAllSQL = BankAccountsQuery.getAll
+            member this.GetByIdSQL = BankAccountsQuery.getById
 
     type BankAccountMovement = {
         Id: int
@@ -211,3 +267,8 @@ module internal DatabaseModel =
     } with
         interface IEntity with
             member this.Id = this.Id
+            member this.InsertSQL = BankAccountMovementsQuery.insert
+            member this.UpdateSQL = BankAccountMovementsQuery.update
+            member this.DeleteSQL = BankAccountMovementsQuery.delete
+            member this.GetAllSQL = BankAccountMovementsQuery.getAll
+            member this.GetByIdSQL = BankAccountMovementsQuery.getById
