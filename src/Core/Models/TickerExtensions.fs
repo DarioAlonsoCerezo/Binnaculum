@@ -13,12 +13,13 @@ open CommandExtensions
         
         [<Extension>]
         static member fill(ticker: Ticker, command: SqliteCommand) =
-            command.fillParameters([
-                ("@Id", ticker.Id);
-                ("@Symbol", ticker.Symbol);
-                ("@Image", ticker.Image);
-                ("@Name", ticker.Name));
-            ])
+            command.fillParameters(
+                [
+                    ("@Id", ticker.Id);
+                    ("@Symbol", ticker.Symbol);
+                    ("@Image", ticker.Image);
+                    ("@Name", ticker.Name);
+                ])
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
