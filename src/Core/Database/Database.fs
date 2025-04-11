@@ -30,6 +30,7 @@ module internal Do =
         Binnaculum.Core.SQL.DividendTaxesQuery.createTable
         Binnaculum.Core.SQL.DividendDateQuery.createTable
         Binnaculum.Core.SQL.OptionsQuery.createTable
+        Binnaculum.Core.SQL.BankQuery.createTable
         Binnaculum.Core.SQL.BankAccountsQuery.createTable
         Binnaculum.Core.SQL.BankAccountMovementsQuery.createTable
     ]
