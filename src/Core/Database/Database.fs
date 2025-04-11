@@ -95,28 +95,28 @@ module internal Do =
         let! command = createCommand()
         command.CommandText <- 
             match entity.Id with
-            | 0 -> insertQuery
-            | _ -> updateQuery
+            | 0 -> entity.InsertSQL
+            | _ -> entity.UpdateSQL
         do! executeNonQuery(fill entity command) |> Async.AwaitTask |> Async.Ignore
     }
 
     let deleteEntity<'T when 'T :> IEntity> (entity: 'T) (deleteQuery: string) = task {
         let! command = createCommand()
-        command.CommandText <- deleteQuery
+        command.CommandText <- entity.DeleteSQL
         command.Parameters.AddWithValue("@Id", entity.Id) |> ignore
         do! executeNonQuery(command) |> Async.AwaitTask |> Async.Ignore
     }
 
-    let getAllEntities<'T> (getAllQuery: string) (map: SqliteDataReader -> 'T) = task {
+    let getAllEntities<'T when 'T :> IEntity> (getAllQuery: string) (map: SqliteDataReader -> 'T) = task {
         let! command = createCommand()
-        command.CommandText <- getAllQuery
+        command.CommandText <- Unchecked.defaultof<'T>.GetAllSQL
         let! entities = readAll<'T>(command, map)
         return entities
     }
 
     let getById<'T when 'T :> IEntity>(id: int) (getByIdQuery: string) (map: SqliteDataReader -> 'T) = task {
         let! command = createCommand()
-        command.CommandText <- getByIdQuery
+        command.CommandText <- Unchecked.defaultof<'T>.GetByIdSQL 
         command.Parameters.AddWithValue("@Id", id) |> ignore
         let! entities = readAll<'T>(command, map)
         return entities |> List.tryHead

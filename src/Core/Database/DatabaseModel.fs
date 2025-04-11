@@ -199,7 +199,14 @@ module internal DatabaseModel =
         TickerId: int
         CurrencyId: int
         BrokerAccountId: int
-    } 
+    } with
+        interface IEntity with
+            member this.Id = this.Id
+            member this.InsertSQL = DividendTaxesQuery.insert
+            member this.UpdateSQL = DividendTaxesQuery.update
+            member this.DeleteSQL = DividendTaxesQuery.delete
+            member this.GetAllSQL = DividendTaxesQuery.getAll
+            member this.GetByIdSQL = DividendTaxesQuery.getById
 
     type DividendDate = {
         Id: int
@@ -209,7 +216,14 @@ module internal DatabaseModel =
         CurrencyId: int
         BrokerAccountId: int
         DividendCode: DividendCode
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Id
+            member this.InsertSQL = DividendDateQuery.insert
+            member this.UpdateSQL = DividendDateQuery.update
+            member this.DeleteSQL = DividendDateQuery.delete
+            member this.GetAllSQL = DividendDateQuery.getAll
+            member this.GetByIdSQL = DividendDateQuery.getById
 
     type OptionTrade = {
         Id: int
@@ -227,7 +241,14 @@ module internal DatabaseModel =
         Fees: decimal
         IsOpen: bool
         ClosedWith: int option
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Id
+            member this.InsertSQL = OptionsQuery.insert
+            member this.UpdateSQL = OptionsQuery.update
+            member this.DeleteSQL = OptionsQuery.delete
+            member this.GetAllSQL = OptionsQuery.getAll
+            member this.GetByIdSQL = OptionsQuery.getById
 
     type Bank = {
         Id: int
