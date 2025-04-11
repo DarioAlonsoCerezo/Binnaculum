@@ -86,7 +86,9 @@ module internal DatabaseModel =
         Commissions: decimal
         Fees: decimal
         MovementType: BrokerMovementType
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Id
     
     type Ticker = {
         Id: int
