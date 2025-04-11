@@ -150,8 +150,10 @@ module internal DatabaseModel =
     type Bank = {
         Id: int
         Name: string
-        Image: string
-    }
+        Image: string option
+    } with
+        interface IEntity with
+            member this.Id = this.Id
 
     type BankAccount = {
         Id: int

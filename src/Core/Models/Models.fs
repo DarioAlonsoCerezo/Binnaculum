@@ -148,7 +148,7 @@ module Models =
     type Bank = {
         Id: int
         Name: string
-        Image: string
+        Image: string option
     }
 
     type BankAccount = {

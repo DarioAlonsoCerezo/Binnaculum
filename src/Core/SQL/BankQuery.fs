@@ -7,7 +7,7 @@ module internal BankQuery =
             (
                 Id INTEGER PRIMARY KEY,
                 Name TEXT NOT NULL,
-                Image TEXT NOT NULL
+                Image TEXT
             )
         "
 
@@ -31,6 +31,13 @@ module internal BankQuery =
             SET
                 Name = @Name,
                 Image = @Image
+            WHERE
+                Id = @Id
+        "
+
+    let delete =
+        @"
+            DELETE FROM Banks
             WHERE
                 Id = @Id
         "
