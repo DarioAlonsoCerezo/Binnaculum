@@ -4,23 +4,26 @@ open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
-open Binnaculum.Core.SQL
 open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
+open CommandExtensions
 
     [<Extension>]
     type Do() =
 
         [<Extension>]
         static member fill(dividendDate: DividendDate, command: SqliteCommand) =
-            command.Parameters.AddWithValue("@TimeStamp", dividendDate.TimeStamp) |> ignore
-            command.Parameters.AddWithValue("@Amount", dividendDate.Amount) |> ignore
-            command.Parameters.AddWithValue("@TickerId", dividendDate.TickerId) |> ignore
-            command.Parameters.AddWithValue("@CurrencyId", dividendDate.CurrencyId) |> ignore
-            command.Parameters.AddWithValue("@BrokerAccountId", dividendDate.BrokerAccountId) |> ignore
-            command.Parameters.AddWithValue("@DividendCode", fromDividendDateCodeToDatabase dividendDate.DividendCode) |> ignore
-            command
-
+            command.fillParameters(
+                [
+                    ("@Id", dividendDate.Id);
+                    ("@TimeStamp", dividendDate.TimeStamp);
+                    ("@Amount", dividendDate.Amount);
+                    ("@TickerId", dividendDate.TickerId);
+                    ("@CurrencyId", dividendDate.CurrencyId);
+                    ("@BrokerAccountId", dividendDate.BrokerAccountId);
+                    ("@DividendCode", fromDividendDateCodeToDatabase dividendDate.DividendCode);
+                ])
+            
         [<Extension>]
         static member read(reader: SqliteDataReader) =
             {
@@ -34,34 +37,11 @@ open DataReaderExtensions
             }
 
         [<Extension>]
-        static member save(dividendDate: DividendDate) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <-
-                match dividendDate.Id with
-                | 0 -> DividendDateQuery.insert
-                | _ -> DividendDateQuery.update
-            do! Database.Do.executeNonQuery(dividendDate.fill command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member save(dividendDate: DividendDate) = Database.Do.saveEntity dividendDate (fun t c -> t.fill c) 
 
         [<Extension>]
-        static member delete(dividendDate: DividendDate) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- DividendDateQuery.delete
-            command.Parameters.AddWithValue("@Id", dividendDate.Id) |> ignore
-            do! Database.Do.executeNonQuery(command) |> Async.AwaitTask |> Async.Ignore
-        }
+        static member delete(dividendDate: DividendDate) = Database.Do.deleteEntity dividendDate
 
-        static member getAll() = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- DividendDateQuery.getAll
-            let! dividendDates = Database.Do.readAll<DividendDate>(command, Do.read)
-            return dividendDates
-        }
+        static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = task {
-            let! command = Database.Do.createCommand()
-            command.CommandText <- DividendDateQuery.getById
-            command.Parameters.AddWithValue("@Id", id) |> ignore
-            let! dividendDate = Database.Do.readAll<DividendDate>(command, Do.read)
-            return dividendDate |> List.tryHead
-        }
+        static member getById(id: int) = Database.Do.getById id Do.read
