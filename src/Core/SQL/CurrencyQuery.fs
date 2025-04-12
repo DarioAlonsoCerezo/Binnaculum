@@ -1,57 +1,61 @@
 ﻿namespace Binnaculum.Core.SQL
 
+open Binnaculum.Core.Keys
+
 module internal CurrencyQuery =
     let createTable =
-        @"CREATE TABLE IF NOT EXISTS Currency
-         (
-             Id INTEGER PRIMARY KEY,
-             Name TEXT NOT NULL,
-             Code TEXT NOT NULL,
-             Symbol TEXT NOT NULL
-         )"
+        $"""
+        CREATE TABLE IF NOT EXISTS {TableName_Currencies}
+        (
+            Id INTEGER PRIMARY KEY,
+            Name TEXT NOT NULL,
+            Code TEXT NOT NULL,
+            Symbol TEXT NOT NULL
+        )
+        """
 
-    let getCounted = @"SELECT COUNT(*) FROM Currency"
+    let getCounted = $"""SELECT COUNT(*) FROM {TableName_Currencies}"""
 
     let insert =
-        @"
-            INSERT INTO Currency 
-            (
-                Name, 
-                Code, 
-                Symbol
-            )
-            VALUES 
-            (
-                @Name, 
-                @Code, 
-                @Symbol
-            )
-        "
+        $"""
+        INSERT INTO {TableName_Currencies}
+        (
+            Name, 
+            Code, 
+            Symbol
+        )
+        VALUES 
+        (
+            @Name, 
+            @Code, 
+            @Symbol
+        )
+        """
 
     let update =
-        @"
-            UPDATE Currency
-            SET
-                Name = @Name,
-                Code = @Code,
-                Symbol = @Symbol
-            WHERE
-                Id = @Id
-        "
+        $"""
+        UPDATE {TableName_Currencies}
+        SET
+            Name = @Name,
+            Code = @Code,
+            Symbol = @Symbol
+        WHERE
+            Id = @Id
+        """
 
     let delete =
-        @"
-            DELETE FROM Currency
-            WHERE
-                Id = @Id
-        "
+        $"""
+        DELETE FROM {TableName_Currencies}
+        WHERE
+            Id = @Id
+        """
 
-    let getAll = "SELECT * FROM Currency"
+    let getAll = $"""SELECT * FROM {TableName_Currencies}"""
 
     let getById = 
-        @"
-            SELECT * FROM Currency
-            WHERE
-                Id = @Id
-            LIMIT 1
-        "
+        $"""
+        SELECT * FROM {TableName_Currencies}
+        WHERE
+            Id = @Id
+        LIMIT 1
+        """
