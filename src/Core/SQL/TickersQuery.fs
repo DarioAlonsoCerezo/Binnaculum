@@ -12,8 +12,20 @@ module internal TickersQuery =
             {Id} INTEGER PRIMARY KEY,
             {Symbol} TEXT NOT NULL,
             {Image} TEXT,
-            {Name} TEXT
-        )
+            {Name} TEXT,
+            {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
+            {UpdatedAt} TEXT
+        );
+
+        -- Trigger to automatically update the UpdatedAt column on row update
+        CREATE TRIGGER IF NOT EXISTS trg_Tickers_UpdatedAt
+        AFTER UPDATE ON {Tickers}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {Tickers}
+            SET {UpdatedAt} = datetime('now')
+            WHERE {Id} = OLD.{Id};
+        END;
         """
 
     let insert = 
@@ -22,13 +34,17 @@ module internal TickersQuery =
         (
             {Symbol},
             {Image},
-            {Name}
+            {Name},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
             {SQLParameterName.Symbol},
             {SQLParameterName.Image},
-            {SQLParameterName.Name}
+            {SQLParameterName.Name},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -38,7 +54,9 @@ module internal TickersQuery =
         SET
             {Symbol} = {SQLParameterName.Symbol},
             {Image} = {SQLParameterName.Image},
-            {Name} = {SQLParameterName.Name}
+            {Name} = {SQLParameterName.Name},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
+            {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
             {Id} = {SQLParameterName.Id}
         """

@@ -121,6 +121,8 @@ module internal DatabaseModel =
         Symbol: string
         Image: string option
         Name: string option
+        CreatedAt: DateTimePattern option
+        UpdatedAt: DateTimePattern option
     } with
         interface IEntity with
             member this.Id = this.Id
