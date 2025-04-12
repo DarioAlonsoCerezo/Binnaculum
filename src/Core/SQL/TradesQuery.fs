@@ -1,11 +1,11 @@
 ﻿namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.Keys
+open Binnaculum.Core.TableName
 
 module internal TradesQuery =
     let createTable =
         $"""
-        CREATE TABLE IF NOT EXISTS {TableName_Trades}
+        CREATE TABLE IF NOT EXISTS {Trades}
         (
             Id INTEGER PRIMARY KEY,
             TimeStamp TEXT NOT NULL,
@@ -24,7 +24,7 @@ module internal TradesQuery =
 
     let insert =
         $"""
-        INSERT INTO {TableName_Trades}
+        INSERT INTO {Trades}
         (
             TimeStamp,
             TickerId,
@@ -56,7 +56,7 @@ module internal TradesQuery =
 
     let update =
         $"""
-        UPDATE {TableName_Trades}
+        UPDATE {Trades}
         SET
             TimeStamp = @TimeStamp,
             TickerId = @TickerId,
@@ -75,19 +75,19 @@ module internal TradesQuery =
 
     let delete =
         $"""
-        DELETE FROM {TableName_Trades}
+        DELETE FROM {Trades}
         WHERE
             Id = @Id
         """
 
     let getAll =
         $"""
-        SELECT * FROM {TableName_Trades}
+        SELECT * FROM {Trades}
         """
 
     let getById =
         $"""
-        SELECT * FROM {TableName_Trades}
+        SELECT * FROM {Trades}
         WHERE
             Id = @Id
         LIMIT 1

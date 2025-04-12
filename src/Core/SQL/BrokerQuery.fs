@@ -1,12 +1,12 @@
 ﻿namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.Keys
+open Binnaculum.Core.TableName
 
 module internal BrokerQuery =
     /// Creates the Brokers table if it does not already exist.
     let createTable =
         $"""
-        CREATE TABLE IF NOT EXISTS {TableName_Brokers}
+        CREATE TABLE IF NOT EXISTS {Brokers}
         (
             Id INTEGER PRIMARY KEY,
             Name TEXT NOT NULL,
@@ -19,7 +19,7 @@ module internal BrokerQuery =
     /// Inserts a new broker into the Brokers table.
     let insert =
         $"""
-        INSERT INTO {TableName_Brokers}
+        INSERT INTO {Brokers}
         (
             Name,
             Image,
@@ -36,7 +36,7 @@ module internal BrokerQuery =
     /// Updates an existing broker in the Brokers table.
     let update =
         $"""
-        UPDATE {TableName_Brokers}
+        UPDATE {Brokers}
         SET
             Name = @Name,
             Image = @Image,
@@ -47,20 +47,20 @@ module internal BrokerQuery =
     /// Deletes a broker from the Brokers table by Id.
     let delete =
         $"""
-        DELETE FROM {TableName_Brokers}
+        DELETE FROM {Brokers}
         WHERE Id = @Id
         """
 
     /// Retrieves all brokers from the Brokers table.
     let getAll =
         $"""
-        SELECT * FROM {TableName_Brokers}
+        SELECT * FROM {Brokers}
         """
 
     /// Retrieves a broker by Id from the Brokers table.
     let getById =
         $"""
-        SELECT * FROM {TableName_Brokers}
+        SELECT * FROM {Brokers}
         WHERE Id = @Id
         LIMIT 1
         """
@@ -68,7 +68,7 @@ module internal BrokerQuery =
     /// Checks if a broker with the given Name exists in the Brokers table.
     let getByName =
         $"""
-        SELECT 1 FROM {TableName_Brokers}
+        SELECT 1 FROM {Brokers}
         WHERE Name = @Name
         LIMIT 1
         """

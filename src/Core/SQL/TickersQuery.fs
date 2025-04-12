@@ -1,11 +1,11 @@
 ﻿namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.Keys
+open Binnaculum.Core.TableName
 
 module internal TickersQuery =
     let createTable =
         $"""
-        CREATE TABLE IF NOT EXISTS {TableName_Tickers}
+        CREATE TABLE IF NOT EXISTS {Tickers}
         (
             Id INTEGER PRIMARY KEY,
             Symbol TEXT NOT NULL,
@@ -16,7 +16,7 @@ module internal TickersQuery =
 
     let insert = 
         $"""
-        INSERT INTO {TableName_Tickers}
+        INSERT INTO {Tickers}
         (
             Symbol,
             Image,
@@ -32,7 +32,7 @@ module internal TickersQuery =
 
     let update =
         $"""
-        UPDATE {TableName_Tickers}
+        UPDATE {Tickers}
         SET
             Symbol = @Symbol,
             Image = @Image,
@@ -43,19 +43,19 @@ module internal TickersQuery =
 
     let delete =
         $"""
-        DELETE FROM {TableName_Tickers}
+        DELETE FROM {Tickers}
         WHERE
             Id = @Id
         """
 
     let getAll =
         $"""
-        SELECT * FROM {TableName_Tickers}
+        SELECT * FROM {Tickers}
         """
 
     let getByTicker =
         $"""
-        SELECT * FROM {TableName_Tickers}
+        SELECT * FROM {Tickers}
         WHERE
             Symbol = @Symbol
         LIMIT 1
@@ -63,7 +63,7 @@ module internal TickersQuery =
 
     let getById =
         $"""
-        SELECT * FROM {TableName_Tickers}
+        SELECT * FROM {Tickers}
         WHERE
             Id = @Id
         LIMIT 1

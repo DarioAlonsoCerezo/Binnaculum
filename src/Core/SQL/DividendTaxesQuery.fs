@@ -1,11 +1,11 @@
 ﻿namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.Keys
+open Binnaculum.Core.TableName
 
 module internal DividendTaxesQuery =
     let createTable =
         $"""
-        CREATE TABLE IF NOT EXISTS {TableName_DividendTaxes}
+        CREATE TABLE IF NOT EXISTS {DividendTaxes}
         (
             Id INTEGER PRIMARY KEY,
             TimeStamp TEXT NOT NULL,
@@ -18,7 +18,7 @@ module internal DividendTaxesQuery =
 
     let insert =
         $"""
-        INSERT INTO {TableName_DividendTaxes}
+        INSERT INTO {DividendTaxes}
         (
             TimeStamp,
             Amount,
@@ -38,7 +38,7 @@ module internal DividendTaxesQuery =
 
     let update =
         $"""
-        UPDATE {TableName_DividendTaxes}
+        UPDATE {DividendTaxes}
         SET
             TimeStamp = @TimeStamp,
             Amount = @Amount,
@@ -51,19 +51,19 @@ module internal DividendTaxesQuery =
 
     let delete =
         $"""
-        DELETE FROM {TableName_DividendTaxes}
+        DELETE FROM {DividendTaxes}
         WHERE
             Id = @Id
         """
 
     let getAll =
         $"""
-        SELECT * FROM {TableName_DividendTaxes}
+        SELECT * FROM {DividendTaxes}
         """
 
     let getById =
         $"""
-        SELECT * FROM {TableName_DividendTaxes}
+        SELECT * FROM {DividendTaxes}
         WHERE
             Id = @Id
         LIMIT 1

@@ -1,11 +1,11 @@
 ﻿namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.Keys
+open Binnaculum.Core.TableName
 
 module internal TickerPriceQuery =
     let createTable =
         $"""
-        CREATE TABLE IF NOT EXISTS {TableName_TickerPrices}
+        CREATE TABLE IF NOT EXISTS {TickerPrices}
         (
             Id INTEGER PRIMARY KEY,
             PriceDate TEXT NOT NULL,
@@ -17,7 +17,7 @@ module internal TickerPriceQuery =
 
     let insert = 
         $"""
-        INSERT INTO {TableName_TickerPrices}
+        INSERT INTO {TickerPrices}
         (
             PriceDate,
             TickerId,
@@ -35,7 +35,7 @@ module internal TickerPriceQuery =
 
     let update = 
         $"""
-        UPDATE {TableName_TickerPrices}
+        UPDATE {TickerPrices}
         SET
             PriceDate = @PriceDate,
             TickerId = @TickerId,
@@ -47,19 +47,19 @@ module internal TickerPriceQuery =
 
     let delete = 
         $"""
-        DELETE FROM {TableName_TickerPrices}
+        DELETE FROM {TickerPrices}
         WHERE
             Id = @Id
         """
 
     let getAll = 
         $"""
-        SELECT * FROM {TableName_TickerPrices}
+        SELECT * FROM {TickerPrices}
         """
 
     let getById = 
         $"""
-        SELECT * FROM {TableName_TickerPrices}
+        SELECT * FROM {TickerPrices}
         WHERE
             Id = @Id
         """

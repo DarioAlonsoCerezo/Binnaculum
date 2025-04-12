@@ -1,11 +1,11 @@
 ﻿namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.Keys
+open Binnaculum.Core.TableName
 
 module internal OptionsQuery =
     let createTable =
         $"""
-        CREATE TABLE IF NOT EXISTS {TableName_Options}
+        CREATE TABLE IF NOT EXISTS {Options}
         (
             Id INTEGER PRIMARY KEY,
             TimeStamp TEXT NOT NULL,
@@ -27,7 +27,7 @@ module internal OptionsQuery =
 
     let insert =
         $"""
-        INSERT INTO {TableName_Options}
+        INSERT INTO {Options}
         (
             TimeStamp,
             ExpirationDate,
@@ -65,7 +65,7 @@ module internal OptionsQuery =
 
     let update =
         $"""
-        UPDATE {TableName_Options}
+        UPDATE {Options}
         SET
             TimeStamp = @TimeStamp,
             ExpirationDate = @ExpirationDate,
@@ -87,19 +87,19 @@ module internal OptionsQuery =
 
     let delete = 
         $"""
-        DELETE FROM {TableName_Options}
+        DELETE FROM {Options}
         WHERE
             Id = @Id
         """
 
     let getAll =
         $"""
-        SELECT * FROM {TableName_Options}
+        SELECT * FROM {Options}
         """
 
     let getById =
         $"""
-        SELECT * FROM {TableName_Options}
+        SELECT * FROM {Options}
         WHERE
             Id = @Id
         LIMIT 1

@@ -1,11 +1,11 @@
 ﻿namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.Keys
+open Binnaculum.Core.TableName
 
 module internal BankAccountsQuery =
     let createTable =
         $"""
-        CREATE TABLE IF NOT EXISTS {TableName_BankAccounts}
+        CREATE TABLE IF NOT EXISTS {BankAccounts}
         (
             Id INTEGER PRIMARY KEY,
             BankId INTEGER NOT NULL,
@@ -17,7 +17,7 @@ module internal BankAccountsQuery =
 
     let insert =
         $"""
-        INSERT INTO {TableName_BankAccounts}
+        INSERT INTO {BankAccounts}
         (
             Name,
             BankId,
@@ -35,7 +35,7 @@ module internal BankAccountsQuery =
 
     let update =
         $"""
-        UPDATE {TableName_BankAccounts}
+        UPDATE {BankAccounts}
         SET
             Name = @Name,
             BankId = @BankId,
@@ -47,19 +47,19 @@ module internal BankAccountsQuery =
 
     let delete =
         $"""
-        DELETE FROM {TableName_BankAccounts}
+        DELETE FROM {BankAccounts}
         WHERE
             Id = @Id
         """
 
     let getAll = 
         $"""
-        SELECT * FROM {TableName_BankAccounts}
+        SELECT * FROM {BankAccounts}
         """
 
     let getById =
         $"""
-        SELECT * FROM {TableName_BankAccounts}
+        SELECT * FROM {BankAccounts}
         WHERE
             Id = @Id
         LIMIT 1

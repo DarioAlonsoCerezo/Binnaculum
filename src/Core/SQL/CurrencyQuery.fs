@@ -1,11 +1,11 @@
 ﻿namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.Keys
+open Binnaculum.Core.TableName
 
 module internal CurrencyQuery =
     let createTable =
         $"""
-        CREATE TABLE IF NOT EXISTS {TableName_Currencies}
+        CREATE TABLE IF NOT EXISTS {Currencies}
         (
             Id INTEGER PRIMARY KEY,
             Name TEXT NOT NULL,
@@ -14,11 +14,11 @@ module internal CurrencyQuery =
         )
         """
 
-    let getCounted = $"""SELECT COUNT(*) FROM {TableName_Currencies}"""
+    let getCounted = $"""SELECT COUNT(*) FROM {Currencies}"""
 
     let insert =
         $"""
-        INSERT INTO {TableName_Currencies}
+        INSERT INTO {Currencies}
         (
             Name, 
             Code, 
@@ -34,7 +34,7 @@ module internal CurrencyQuery =
 
     let update =
         $"""
-        UPDATE {TableName_Currencies}
+        UPDATE {Currencies}
         SET
             Name = @Name,
             Code = @Code,
@@ -45,16 +45,16 @@ module internal CurrencyQuery =
 
     let delete =
         $"""
-        DELETE FROM {TableName_Currencies}
+        DELETE FROM {Currencies}
         WHERE
             Id = @Id
         """
 
-    let getAll = $"""SELECT * FROM {TableName_Currencies}"""
+    let getAll = $"""SELECT * FROM {Currencies}"""
 
     let getById = 
         $"""
-        SELECT * FROM {TableName_Currencies}
+        SELECT * FROM {Currencies}
         WHERE
             Id = @Id
         LIMIT 1

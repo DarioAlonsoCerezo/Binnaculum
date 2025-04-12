@@ -1,13 +1,13 @@
 ﻿namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.Keys
+open Binnaculum.Core.TableName
 
 module internal BrokerAccountQuery =
 
     // SQL to create the table
     let createTable =
         $"""
-        CREATE TABLE IF NOT EXISTS {TableName_BrokerAccount}
+        CREATE TABLE IF NOT EXISTS {BrokerAccounts}
         (
             Id INTEGER PRIMARY KEY,
             BrokerId INTEGER NOT NULL,
@@ -18,7 +18,7 @@ module internal BrokerAccountQuery =
     // SQL to insert a new record
     let insert =
         $"""
-        INSERT INTO {TableName_BrokerAccount}
+        INSERT INTO {BrokerAccounts}
         (
             BrokerId,
             AccountNumber
@@ -33,7 +33,7 @@ module internal BrokerAccountQuery =
     // SQL to update an existing record
     let update = 
         $"""
-        UPDATE {TableName_BrokerAccount}
+        UPDATE {BrokerAccounts}
         SET
             BrokerId = @BrokerId,
             AccountNumber = @AccountNumber
@@ -44,7 +44,7 @@ module internal BrokerAccountQuery =
     // SQL to delete a record by Id
     let delete =
         $"""
-        DELETE FROM {TableName_BrokerAccount}
+        DELETE FROM {BrokerAccounts}
         WHERE
             Id = @Id
         """
@@ -52,13 +52,13 @@ module internal BrokerAccountQuery =
     // SQL to retrieve all records
     let getAll = 
         $"""
-        SELECT * FROM {TableName_BrokerAccount}
+        SELECT * FROM {BrokerAccounts}
         """
 
     // SQL to retrieve a record by Id
     let getById =
         $"""
-        SELECT * FROM {TableName_BrokerAccount}
+        SELECT * FROM {BrokerAccounts}
         WHERE
             Id = @Id
         LIMIT 1
