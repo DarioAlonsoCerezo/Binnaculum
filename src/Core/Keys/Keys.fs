@@ -22,6 +22,30 @@ module internal Keys =
 
     [<Literal>]
     let TableName_TickerSplits = "TickerSplits"
+
+    [<Literal>]
+    let TableName_Trades = "Trades"
+
+    [<Literal>]
+    let TableName_Dividends = "Dividends"
+
+    [<Literal>]
+    let TableName_DividendTaxes = "DividendTaxes"
+
+    [<Literal>]
+    let TableName_DividendDates = "DividendDates"
+
+    [<Literal>]
+    let TableName_Options = "Options"
+
+    [<Literal>]
+    let TableName_Banks = "Banks"
+
+    [<Literal>]
+    let TableName_BankAccounts = "BankAccounts"
+
+    [<Literal>]
+    let TableName_BankAccountMovements = "BankAccountMovements"
         
     [<Literal>]
     let Broker_Tastytrade = "Tastytrade"
