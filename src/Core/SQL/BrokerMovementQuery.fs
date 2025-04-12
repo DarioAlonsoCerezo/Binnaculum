@@ -23,10 +23,16 @@ module internal BrokerMovementQuery =
             FOREIGN KEY ({BrokerAccountId}) REFERENCES {BrokerAccounts}({Id})
         );
 
+        -- Index to optimize queries filtering by TimeStamp
         CREATE INDEX IF NOT EXISTS idx_BrokerMovements_TimeStamp ON {BrokerMovements}({TimeStamp});
+        
+        -- Index to optimize queries filtering by CurrencyId
         CREATE INDEX IF NOT EXISTS idx_BrokerMovements_CurrencyId ON {BrokerMovements}({CurrencyId});
+        
+        -- Index to optimize queries filtering by BrokerAccountId
         CREATE INDEX IF NOT EXISTS idx_BrokerMovements_BrokerAccountId ON {BrokerMovements}({BrokerAccountId});
 
+        -- Trigger to automatically update the UpdatedAt column whenever a row is updated
         CREATE TRIGGER IF NOT EXISTS trg_BrokerMovements_UpdatedAt
         AFTER UPDATE ON {BrokerMovements}
         FOR EACH ROW
