@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal TickersQuery =
     let createTable =
@@ -25,9 +26,9 @@ module internal TickersQuery =
         )
         VALUES
         (
-            @Symbol,
-            @Image,
-            @Name
+            {SQLParameterName.Symbol},
+            {SQLParameterName.Image},
+            {SQLParameterName.Name}
         )
         """
 
@@ -35,18 +36,18 @@ module internal TickersQuery =
         $"""
         UPDATE {Tickers}
         SET
-            {Symbol} = @Symbol,
-            {Image} = @Image,
-            {Name} = @Name
+            {Symbol} = {SQLParameterName.Symbol},
+            {Image} = {SQLParameterName.Image},
+            {Name} = {SQLParameterName.Name}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete =
         $"""
         DELETE FROM {Tickers}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll =
@@ -58,7 +59,7 @@ module internal TickersQuery =
         $"""
         SELECT * FROM {Tickers}
         WHERE
-            {Symbol} = @Symbol
+            {Symbol} = {SQLParameterName.Symbol}
         LIMIT 1
         """
 
@@ -66,6 +67,6 @@ module internal TickersQuery =
         $"""
         SELECT * FROM {Tickers}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         LIMIT 1
         """

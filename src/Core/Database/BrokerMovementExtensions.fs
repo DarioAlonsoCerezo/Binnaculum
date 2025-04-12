@@ -8,47 +8,46 @@ open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
 open CommandExtensions
 
+[<Extension>]
+type Do() =
+    
     [<Extension>]
-    type Do() =
-        
-        [<Extension>]
-        static member fill(brokerMovement: BrokerMovement, command: SqliteCommand) =
-            command.fillParameters(
-                [
-                    ("@Id", brokerMovement.Id);
-                    ("@TimeStamp", brokerMovement.TimeStamp.ToString());
-                    ("@Amount", brokerMovement.Amount);
-                    ("@CurrencyId", brokerMovement.CurrencyId);
-                    ("@BrokerAccountId", brokerMovement.BrokerAccountId);
-                    ("@Commissions", brokerMovement.Commissions);
-                    ("@Fees", brokerMovement.Fees);
-                    ("@MovementType", fromMovementTypeToDatabase brokerMovement.MovementType);
-                    ("@CreatedAt", brokerMovement.CreatedAt);
-                    ("@UpdatedAt", brokerMovement.UpdatedAt);
-                ])
+    static member fill(brokerMovement: BrokerMovement, command: SqliteCommand) =
+        command.fillParameters(
+            [
+                (SQLParameterName.Id, brokerMovement.Id);
+                (SQLParameterName.TimeStamp, brokerMovement.TimeStamp.ToString());
+                (SQLParameterName.Amount, brokerMovement.Amount);
+                (SQLParameterName.CurrencyId, brokerMovement.CurrencyId);
+                (SQLParameterName.BrokerAccountId, brokerMovement.BrokerAccountId);
+                (SQLParameterName.Commissions, brokerMovement.Commissions);
+                (SQLParameterName.Fees, brokerMovement.Fees);
+                (SQLParameterName.MovementType, fromMovementTypeToDatabase brokerMovement.MovementType);
+                (SQLParameterName.CreatedAt, brokerMovement.CreatedAt);
+                (SQLParameterName.UpdatedAt, brokerMovement.UpdatedAt);
+            ])
 
-        [<Extension>]
-        static member read(reader: SqliteDataReader) =
-            {
-                Id = reader.getInt32 "Id"
-                TimeStamp = reader.getDateTimePattern "TimeStamp"
-                Amount = reader.getMoney "Amount"
-                CurrencyId = reader.getInt32 "CurrencyId"
-                BrokerAccountId = reader.getInt32 "BrokerAccountId"
-                Commissions = reader.getMoney "Commissions"
-                Fees = reader.getMoney "Fees"
-                MovementType = reader.getString "MovementType" |> fromDataseToMovementType
-                CreatedAt = reader.getDataTimeOrNone "CreatedAt"
-                UpdatedAt = reader.getDataTimeOrNone "UpdatedAt"
-            }
+    [<Extension>]
+    static member read(reader: SqliteDataReader) =
+        {
+            Id = reader.getInt32 FieldName.Id
+            TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
+            Amount = reader.getMoney FieldName.Amount
+            CurrencyId = reader.getInt32 FieldName.CurrencyId
+            BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
+            Commissions = reader.getMoney FieldName.Commissions
+            Fees = reader.getMoney FieldName.Fees
+            MovementType = reader.getString FieldName.MovementType |> fromDataseToMovementType
+            CreatedAt = reader.getDataTimeOrNone FieldName.CreatedAt
+            UpdatedAt = reader.getDataTimeOrNone FieldName.UpdatedAt
+        }
 
-        [<Extension>]
-        static member save(brokerMovement: BrokerMovement) = Database.Do.saveEntity brokerMovement (fun t c -> t.fill c) 
+    [<Extension>]
+    static member save(brokerMovement: BrokerMovement) = Database.Do.saveEntity brokerMovement (fun t c -> t.fill c) 
 
-        [<Extension>]
-        static member delete(brokerMovement: BrokerMovement) = Database.Do.deleteEntity brokerMovement
+    [<Extension>]
+    static member delete(brokerMovement: BrokerMovement) = Database.Do.deleteEntity brokerMovement
 
-        static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = Database.Do.getById id Do.read
-
+    static member getById(id: int) = Database.Do.getById id Do.read

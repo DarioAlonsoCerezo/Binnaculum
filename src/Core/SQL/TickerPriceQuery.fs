@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal TickerPriceQuery =
     let createTable =
@@ -27,10 +28,10 @@ module internal TickerPriceQuery =
         )
         VALUES
         (
-            @PriceDate,
-            @TickerId,
-            @Price,
-            @CurrencyId
+            {SQLParameterName.PriceDate},
+            {SQLParameterName.TickerId},
+            {SQLParameterName.Price},
+            {SQLParameterName.CurrencyId}
         )
         """
 
@@ -38,19 +39,19 @@ module internal TickerPriceQuery =
         $"""
         UPDATE {TickerPrices}
         SET
-            {PriceDate} = @PriceDate,
-            {TickerId} = @TickerId,
-            {Price} = @Price,
-            {CurrencyId} = @CurrencyId
+            {PriceDate} = {SQLParameterName.PriceDate},
+            {TickerId} = {SQLParameterName.TickerId},
+            {Price} = {SQLParameterName.Price},
+            {CurrencyId} = {SQLParameterName.CurrencyId}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete = 
         $"""
         DELETE FROM {TickerPrices}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll = 
@@ -62,5 +63,5 @@ module internal TickerPriceQuery =
         $"""
         SELECT * FROM {TickerPrices}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """

@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal BankAccountsQuery =
     let createTable =
@@ -27,10 +28,10 @@ module internal BankAccountsQuery =
         )
         VALUES
         (
-            @Name,
-            @BankId,
-            @Description,
-            @CurrencyId
+            {SQLParameterName.Name},
+            {SQLParameterName.BankId},
+            {SQLParameterName.Description},
+            {SQLParameterName.CurrencyId}
         )
         """
 
@@ -38,19 +39,19 @@ module internal BankAccountsQuery =
         $"""
         UPDATE {BankAccounts}
         SET
-            {Name} = @Name,
-            {BankId} = @BankId,
-            {Description} = @Description,
-            {CurrencyId} = @CurrencyId
+            {Name} = {SQLParameterName.Name},
+            {BankId} = {SQLParameterName.BankId},
+            {Description} = {SQLParameterName.Description},
+            {CurrencyId} = {SQLParameterName.CurrencyId}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete =
         $"""
         DELETE FROM {BankAccounts}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll = 
@@ -62,6 +63,6 @@ module internal BankAccountsQuery =
         $"""
         SELECT * FROM {BankAccounts}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         LIMIT 1
         """

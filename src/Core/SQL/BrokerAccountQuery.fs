@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal BrokerAccountQuery =
 
@@ -26,8 +27,8 @@ module internal BrokerAccountQuery =
         )
         VALUES
         (
-            @BrokerId,
-            @AccountNumber
+            {SQLParameterName.BrokerId},
+            {SQLParameterName.AccountNumber}
         )
         """
 
@@ -36,10 +37,10 @@ module internal BrokerAccountQuery =
         $"""
         UPDATE {BrokerAccounts}
         SET
-            {BrokerId} = @BrokerId,
-            {AccountNumber} = @AccountNumber
+            {BrokerId} = {SQLParameterName.BrokerId},
+            {AccountNumber} = {SQLParameterName.AccountNumber}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     // SQL to delete a record by Id
@@ -47,7 +48,7 @@ module internal BrokerAccountQuery =
         $"""
         DELETE FROM {BrokerAccounts}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     // SQL to retrieve all records
@@ -61,6 +62,6 @@ module internal BrokerAccountQuery =
         $"""
         SELECT * FROM {BrokerAccounts}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         LIMIT 1
         """

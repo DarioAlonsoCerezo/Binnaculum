@@ -8,40 +8,40 @@ open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
 open CommandExtensions
 
+[<Extension>]
+type Do() =
+
     [<Extension>]
-    type Do() =
+    static member fill(dividendDate: DividendDate, command: SqliteCommand) =
+        command.fillParameters(
+            [
+                (SQLParameterName.Id, dividendDate.Id);
+                (SQLParameterName.TimeStamp, dividendDate.TimeStamp);
+                (SQLParameterName.Amount, dividendDate.Amount);
+                (SQLParameterName.TickerId, dividendDate.TickerId);
+                (SQLParameterName.CurrencyId, dividendDate.CurrencyId);
+                (SQLParameterName.BrokerAccountId, dividendDate.BrokerAccountId);
+                (SQLParameterName.DividendCode, fromDividendDateCodeToDatabase dividendDate.DividendCode);
+            ])
+        
+    [<Extension>]
+    static member read(reader: SqliteDataReader) =
+        {
+            Id = reader.getInt32 FieldName.Id
+            TimeStamp = reader.getDateTime FieldName.TimeStamp
+            Amount = reader.getDecimal FieldName.Amount
+            TickerId = reader.getInt32 FieldName.TickerId
+            CurrencyId = reader.getInt32 FieldName.CurrencyId
+            BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
+            DividendCode = reader.getString FieldName.DividendCode |> fromDatabaseToDividendDateCode
+        }
 
-        [<Extension>]
-        static member fill(dividendDate: DividendDate, command: SqliteCommand) =
-            command.fillParameters(
-                [
-                    ("@Id", dividendDate.Id);
-                    ("@TimeStamp", dividendDate.TimeStamp);
-                    ("@Amount", dividendDate.Amount);
-                    ("@TickerId", dividendDate.TickerId);
-                    ("@CurrencyId", dividendDate.CurrencyId);
-                    ("@BrokerAccountId", dividendDate.BrokerAccountId);
-                    ("@DividendCode", fromDividendDateCodeToDatabase dividendDate.DividendCode);
-                ])
-            
-        [<Extension>]
-        static member read(reader: SqliteDataReader) =
-            {
-                Id = reader.getInt32 "Id"
-                TimeStamp = reader.getDateTime "TimeStamp"
-                Amount = reader.getDecimal "Amount"
-                TickerId = reader.getInt32 "TickerId"
-                CurrencyId = reader.getInt32 "CurrencyId"
-                BrokerAccountId = reader.getInt32 "BrokerAccountId"
-                DividendCode = reader.getString "DividendCode" |> fromDatabaseToDividendDateCode
-            }
+    [<Extension>]
+    static member save(dividendDate: DividendDate) = Database.Do.saveEntity dividendDate (fun t c -> t.fill c) 
 
-        [<Extension>]
-        static member save(dividendDate: DividendDate) = Database.Do.saveEntity dividendDate (fun t c -> t.fill c) 
+    [<Extension>]
+    static member delete(dividendDate: DividendDate) = Database.Do.deleteEntity dividendDate
 
-        [<Extension>]
-        static member delete(dividendDate: DividendDate) = Database.Do.deleteEntity dividendDate
+    static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getAll() = Database.Do.getAllEntities Do.read
-
-        static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById id Do.read

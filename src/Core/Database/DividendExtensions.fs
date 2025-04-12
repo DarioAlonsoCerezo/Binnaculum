@@ -7,39 +7,39 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 
+[<Extension>]
+type Do() =
+    
     [<Extension>]
-    type Do() =
+    static member fill(dividend: Dividend, command: SqliteCommand) =
+        command.fillParameters(
+            [
+                (SQLParameterName.Id, dividend.Id);
+                (SQLParameterName.TimeStamp, dividend.TimeStamp);
+                (SQLParameterName.DividendAmount, dividend.DividendAmount);
+                (SQLParameterName.TickerId, dividend.TickerId);
+                (SQLParameterName.CurrencyId, dividend.CurrencyId);
+                (SQLParameterName.BrokerAccountId, dividend.BrokerAccountId);
+            ])
         
-        [<Extension>]
-        static member fill(dividend: Dividend, command: SqliteCommand) =
-            command.fillParameters(
-                [
-                    ("@Id", dividend.Id);
-                    ("@TimeStamp", dividend.TimeStamp);
-                    ("@DividendAmount", dividend.DividendAmount);
-                    ("@TickerId", dividend.TickerId);
-                    ("@CurrencyId", dividend.CurrencyId);
-                    ("@BrokerAccountId", dividend.BrokerAccountId);
-                ])
-            
-        [<Extension>]
-        static member read(reader: SqliteDataReader) =
-            {
-                Id = reader.getInt32 "Id"
-                TimeStamp = reader.getDateTime "TimeStamp"
-                DividendAmount = reader.getDecimal "DividendAmount"
-                TickerId = reader.getInt32 "TickerId"
-                CurrencyId = reader.getInt32 "CurrencyId"
-                BrokerAccountId = reader.getInt32 "BrokerAccountId"
-            }
+    [<Extension>]
+    static member read(reader: SqliteDataReader) =
+        {
+            Id = reader.getInt32 FieldName.Id
+            TimeStamp = reader.getDateTime FieldName.TimeStamp
+            DividendAmount = reader.getDecimal FieldName.DividendAmount
+            TickerId = reader.getInt32 FieldName.TickerId
+            CurrencyId = reader.getInt32 FieldName.CurrencyId
+            BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
+        }
 
-        [<Extension>]
-        static member save(dividend: Dividend) = 
-            Database.Do.saveEntity dividend (fun t c -> t.fill c) 
+    [<Extension>]
+    static member save(dividend: Dividend) = 
+        Database.Do.saveEntity dividend (fun t c -> t.fill c) 
 
-        [<Extension>]
-        static member delete(dividend: Dividend) = Database.Do.deleteEntity dividend
+    [<Extension>]
+    static member delete(dividend: Dividend) = Database.Do.deleteEntity dividend
 
-        static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById id Do.read

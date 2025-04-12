@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal BrokerMovementQuery =
     let createTable =
@@ -50,13 +51,13 @@ module internal BrokerMovementQuery =
         )
         VALUES
         (
-            @TimeStamp,
-            @Amount,
-            @CurrencyId,
-            @BrokerAccountId,
-            @Commissions,
-            @Fees,
-            @MovementType
+            {SQLParameterName.TimeStamp},
+            {SQLParameterName.Amount},
+            {SQLParameterName.CurrencyId},
+            {SQLParameterName.BrokerAccountId},
+            {SQLParameterName.Commissions},
+            {SQLParameterName.Fees},
+            {SQLParameterName.MovementType}
         )
         """
 
@@ -64,22 +65,22 @@ module internal BrokerMovementQuery =
         $"""
         UPDATE {BrokerMovements}
         SET
-            {TimeStamp} = @TimeStamp,
-            {Amount} = @Amount,
-            {CurrencyId} = @Currency,
-            {BrokerAccountId} = @BrokerAccountId,
-            {Commissions} = @Commissions,
-            {Fees} = @Fees,
-            {MovementType} = @MovementType
+            {TimeStamp} = {SQLParameterName.TimeStamp},
+            {Amount} = {SQLParameterName.Amount},
+            {CurrencyId} = {SQLParameterName.CurrencyId},
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId},
+            {Commissions} = {SQLParameterName.Commissions},
+            {Fees} = {SQLParameterName.Fees},
+            {MovementType} = {SQLParameterName.MovementType}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete = 
         $"""
         DELETE FROM {BrokerMovements}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll =
@@ -91,6 +92,6 @@ module internal BrokerMovementQuery =
         $"""
         SELECT * FROM {BrokerMovements}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         LIMIT 1
         """

@@ -14,17 +14,17 @@ open CommandExtensions
         static member fill(brokerAccount: BrokerAccount, command: SqliteCommand) =
             command.fillParameters(
                 [
-                    ("@Id", brokerAccount.Id);
-                    ("@BrokerId", brokerAccount.BrokerId);
-                    ("@AccountNumber", brokerAccount.AccountNumber);
+                    (SQLParameterName.Id, brokerAccount.Id);
+                    (SQLParameterName.BrokerId, brokerAccount.BrokerId);
+                    (SQLParameterName.AccountNumber, brokerAccount.AccountNumber);
                 ])
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
             {
-                Id = reader.getInt32 "Id"
-                BrokerId = reader.getInt32 "BrokerId"
-                AccountNumber = reader.getString "AccountNumber"
+                Id = reader.getInt32 FieldName.Id
+                BrokerId = reader.getInt32 FieldName.BrokerId
+                AccountNumber = reader.getString FieldName.AccountNumber
             }
 
         [<Extension>]

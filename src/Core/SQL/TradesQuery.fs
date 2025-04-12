@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal TradesQuery =
     let createTable =
@@ -41,17 +42,17 @@ module internal TradesQuery =
         )
         VALUES
         (
-            @TimeStamp,
-            @TickerId,
-            @BrokerAccountId,
-            @CurrencyId,
-            @Quantity,
-            @Price,
-            @Commissions,
-            @Fees,
-            @TradeCode,
-            @TradeType,
-            @Notes
+            {SQLParameterName.TimeStamp},
+            {SQLParameterName.TickerId},
+            {SQLParameterName.BrokerAccountId},
+            {SQLParameterName.CurrencyId},
+            {SQLParameterName.Quantity},
+            {SQLParameterName.Price},
+            {SQLParameterName.Commissions},
+            {SQLParameterName.Fees},
+            {SQLParameterName.TradeCode},
+            {SQLParameterName.TradeType},
+            {SQLParameterName.Notes}
         )
         """
 
@@ -59,26 +60,26 @@ module internal TradesQuery =
         $"""
         UPDATE {Trades}
         SET
-            {TimeStamp} = @TimeStamp,
-            {TickerId} = @TickerId,
-            {BrokerAccountId} = @BrokerAccountId,
-            {CurrencyId} = @Currency,
-            {Quantity} = @Quantity,
-            {Price} = @Price,
-            {Commissions} = @Commissions,
-            {Fees} = @Fees,   
-            {TradeCode} = @TradeCode,
-            {TradeType} = @TradeType,
-            {Notes} = @Notes
+            {TimeStamp} = {SQLParameterName.TimeStamp},
+            {TickerId} = {SQLParameterName.TickerId},
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId},
+            {CurrencyId} = {SQLParameterName.CurrencyId},
+            {Quantity} = {SQLParameterName.Quantity},
+            {Price} = {SQLParameterName.Price},
+            {Commissions} = {SQLParameterName.Commissions},
+            {Fees} = {SQLParameterName.Fees},   
+            {TradeCode} = {SQLParameterName.TradeCode},
+            {TradeType} = {SQLParameterName.TradeType},
+            {Notes} = {SQLParameterName.Notes}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete =
         $"""
         DELETE FROM {Trades}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll =
@@ -90,6 +91,6 @@ module internal TradesQuery =
         $"""
         SELECT * FROM {Trades}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         LIMIT 1
         """

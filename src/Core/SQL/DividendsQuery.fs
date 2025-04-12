@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal DividendsQuery =
     let createTable =
@@ -29,11 +30,11 @@ module internal DividendsQuery =
         )
         VALUES
         (
-            @TimeStamp,
-            @DividendAmount,
-            @TickerId,
-            @CurrencyId,
-            @BrokerAccountId
+            {SQLParameterName.TimeStamp},
+            {SQLParameterName.DividendAmount},
+            {SQLParameterName.TickerId},
+            {SQLParameterName.CurrencyId},
+            {SQLParameterName.BrokerAccountId}
         )
         """
 
@@ -41,20 +42,20 @@ module internal DividendsQuery =
         $"""
         UPDATE {Dividends}
         SET
-            {TimeStamp} = @TimeStamp,
-            {DividendAmount} = @DividendAmount,
-            {TickerId} = @TickerId,
-            {CurrencyId} = @CurrencyId,
-            {BrokerAccountId} = @BrokerAccountId
+            {TimeStamp} = {SQLParameterName.TimeStamp},
+            {DividendAmount} = {SQLParameterName.DividendAmount},
+            {TickerId} = {SQLParameterName.TickerId},
+            {CurrencyId} = {SQLParameterName.CurrencyId},
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete =
         $"""
         DELETE FROM {Dividends}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll =
@@ -66,6 +67,6 @@ module internal DividendsQuery =
         $"""
         SELECT * FROM {Dividends}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         LIMIT 1
         """

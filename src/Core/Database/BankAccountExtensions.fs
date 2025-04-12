@@ -7,36 +7,36 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 
+[<Extension>]
+type Do() =
+    
     [<Extension>]
-    type Do() =
-        
-        [<Extension>]
-        static member fill(bankAccount: BankAccount, command: SqliteCommand) =
-            command.fillParameters(
-                [
-                    ("@Id", bankAccount.Id);
-                    ("@BankId", bankAccount.BankId);
-                    ("@Name", bankAccount.Name);
-                    ("@Description", bankAccount.Description);
-                    ("@CurrencyId", bankAccount.CurrencyId);
-                ])
+    static member fill(bankAccount: BankAccount, command: SqliteCommand) =
+        command.fillParameters(
+            [
+                (SQLParameterName.Id, bankAccount.Id);
+                (SQLParameterName.BankId, bankAccount.BankId);
+                (SQLParameterName.Name, bankAccount.Name);
+                (SQLParameterName.Description, bankAccount.Description);
+                (SQLParameterName.CurrencyId, bankAccount.CurrencyId);
+            ])
 
-        [<Extension>]
-        static member read(reader: SqliteDataReader) =
-            {
-                Id = reader.getInt32 "Id"
-                BankId = reader.getInt32 "BankId"
-                Name = reader.getString "Name"
-                Description = reader.getStringOrNone "Description"
-                CurrencyId = reader.getInt32 "CurrencyId"
-            }
+    [<Extension>]
+    static member read(reader: SqliteDataReader) =
+        {
+            Id = reader.getInt32 FieldName.Id
+            BankId = reader.getInt32 FieldName.BankId
+            Name = reader.getString FieldName.Name
+            Description = reader.getStringOrNone FieldName.Description
+            CurrencyId = reader.getInt32 FieldName.CurrencyId
+        }
 
-        [<Extension>]
-        static member save(bankAccount: BankAccount) = Database.Do.saveEntity bankAccount (fun t c -> t.fill c) 
-        
-        [<Extension>]
-        static member delete(bankAccount: BankAccount) = Database.Do.deleteEntity bankAccount
+    [<Extension>]
+    static member save(bankAccount: BankAccount) = Database.Do.saveEntity bankAccount (fun t c -> t.fill c) 
+    
+    [<Extension>]
+    static member delete(bankAccount: BankAccount) = Database.Do.deleteEntity bankAccount
 
-        static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById id Do.read

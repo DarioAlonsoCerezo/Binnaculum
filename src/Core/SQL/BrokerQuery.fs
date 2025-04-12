@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal BrokerQuery =
     /// Creates the Brokers table if it does not already exist.
@@ -28,9 +29,9 @@ module internal BrokerQuery =
         )
         VALUES
         (
-            @Name,
-            @Image,
-            @SupportedBroker
+            {SQLParameterName.Name},
+            {SQLParameterName.Image},
+            {SQLParameterName.SupportedBroker}
         )
         """
 
@@ -39,17 +40,17 @@ module internal BrokerQuery =
         $"""
         UPDATE {Brokers}
         SET
-            {Name} = @Name,
-            {Image} = @Image,
-            {SupportedBroker} = @SupportedBroker
-        WHERE {Id} = @Id
+            {Name} = {SQLParameterName.Name},
+            {Image} = {SQLParameterName.Image},
+            {SupportedBroker} = {SQLParameterName.SupportedBroker}
+        WHERE {Id} = {SQLParameterName.Id}
         """
 
     /// Deletes a broker from the Brokers table by Id.
     let delete =
         $"""
         DELETE FROM {Brokers}
-        WHERE {Id} = @Id
+        WHERE {Id} = {SQLParameterName.Id}
         """
 
     /// Retrieves all brokers from the Brokers table.
@@ -62,7 +63,7 @@ module internal BrokerQuery =
     let getById =
         $"""
         SELECT * FROM {Brokers}
-        WHERE {Id} = @Id
+        WHERE {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
 
@@ -70,6 +71,6 @@ module internal BrokerQuery =
     let getByName =
         $"""
         SELECT 1 FROM {Brokers}
-        WHERE {Name} = @Name
+        WHERE {Name} = {SQLParameterName.Name}
         LIMIT 1
         """

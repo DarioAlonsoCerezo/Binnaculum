@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal BankAccountMovementsQuery =
     let createTable =
@@ -29,11 +30,11 @@ module internal BankAccountMovementsQuery =
         )
         VALUES
         (
-            @TimeStamp,
-            @Amount,
-            @BankAccountId,
-            @CurrencyId,
-            @MovementType
+            {SQLParameterName.TimeStamp},
+            {SQLParameterName.Amount},
+            {SQLParameterName.BankAccountId},
+            {SQLParameterName.CurrencyId},
+            {SQLParameterName.MovementType}
         )
         """
 
@@ -41,20 +42,20 @@ module internal BankAccountMovementsQuery =
         $"""
         UPDATE {BankAccountMovements}
         SET
-            {TimeStamp} = @TimeStamp,
-            {Amount} = @Amount,
-            {BankAccountId} = @BankAccountId,
-            {CurrencyId} = @Currency,
-            {MovementType} = @MovementType
+            {TimeStamp} = {SQLParameterName.TimeStamp},
+            {Amount} = {SQLParameterName.Amount},
+            {BankAccountId} = {SQLParameterName.BankAccountId},
+            {CurrencyId} = {SQLParameterName.CurrencyId},
+            {MovementType} = {SQLParameterName.MovementType}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete =
         $"""
         DELETE FROM {BankAccountMovements}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll =
@@ -66,6 +67,6 @@ module internal BankAccountMovementsQuery =
         $"""
         SELECT * FROM {BankAccountMovements}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         LIMIT 1
         """

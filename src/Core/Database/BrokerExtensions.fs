@@ -16,19 +16,19 @@ open CommandExtensions
         static member fill(broker: Broker, command: SqliteCommand) =
             command.fillParameters(
                 [
-                    ("@Id", broker.Id);
-                    ("@Name", broker.Name);
-                    ("@Image", broker.Image);
-                    ("@SupportedBroker", fromSupportedBrokerToDatabase broker.SupportedBroker);
+                    (SQLParameterName.Id, broker.Id);
+                    (SQLParameterName.Name, broker.Name);
+                    (SQLParameterName.Image, broker.Image);
+                    (SQLParameterName.SupportedBroker, fromSupportedBrokerToDatabase broker.SupportedBroker);
                 ])
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
             {
-                Id = reader.getInt32 "Id"
-                Name = reader.getString "Name"
-                Image = reader.getString "Image"
-                SupportedBroker = reader.getString "SupportedBroker" |> fromDatabaseToSupportedBroker
+                Id = reader.getInt32 FieldName.Id
+                Name = reader.getString FieldName.Name
+                Image = reader.getString FieldName.Image
+                SupportedBroker = reader.getString FieldName.SupportedBroker |> fromDatabaseToSupportedBroker
             }
 
         [<Extension>]
@@ -52,7 +52,7 @@ open CommandExtensions
         static member exists(name: string) = task {
             let! command = Database.Do.createCommand()
             command.CommandText <- BrokerQuery.getByName
-            command.Parameters.AddWithValue("@Name", name) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.Name, name) |> ignore
             let! result = command.ExecuteScalarAsync() |> Async.AwaitTask
             return result <> null
         }

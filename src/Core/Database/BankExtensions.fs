@@ -7,33 +7,32 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 
+[<Extension>]
+type Do() =
+    
     [<Extension>]
-    type Do() =
-        
-        [<Extension>]
-        static member fill(bank: Bank, command: SqliteCommand) =
-            command.fillParameters(
-                [
-                    ("@Id", bank.Id);
-                    ("@Name", bank.Name);
-                    ("@Image", bank.Image);
-                ])
+    static member fill(bank: Bank, command: SqliteCommand) =
+        command.fillParameters(
+            [
+                (SQLParameterName.Id, bank.Id);
+                (SQLParameterName.Name, bank.Name);
+                (SQLParameterName.Image, bank.Image);
+            ])
 
-        [<Extension>]
-        static member read(reader: SqliteDataReader) =
-            {
-                Id = reader.getInt32 "Id"
-                Name = reader.getString "Name"
-                Image = reader.getStringOrNone "Image"
-            }
+    [<Extension>]
+    static member read(reader: SqliteDataReader) =
+        {
+            Id = reader.getInt32 FieldName.Id
+            Name = reader.getString FieldName.Name
+            Image = reader.getStringOrNone FieldName.Image
+        }
 
-        [<Extension>]
-        static member save(bank: Bank) = Database.Do.saveEntity bank (fun b c -> b.fill c)
+    [<Extension>]
+    static member save(bank: Bank) = Database.Do.saveEntity bank (fun b c -> b.fill c)
 
-        [<Extension>]
-        static member delete(bank: Bank) = Database.Do.deleteEntity bank
+    [<Extension>]
+    static member delete(bank: Bank) = Database.Do.deleteEntity bank
 
-        static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = Database.Do.getById id Do.read
-        
+    static member getById(id: int) = Database.Do.getById id Do.read

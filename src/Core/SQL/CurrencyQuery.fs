@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal CurrencyQuery =
     let createTable =
@@ -27,9 +28,9 @@ module internal CurrencyQuery =
         )
         VALUES 
         (
-            @Name, 
-            @Code, 
-            @Symbol
+            {SQLParameterName.Name}, 
+            {SQLParameterName.Code}, 
+            {SQLParameterName.Symbol}
         )
         """
 
@@ -37,18 +38,18 @@ module internal CurrencyQuery =
         $"""
         UPDATE {Currencies}
         SET
-            {Name} = @Name,
-            {Code} = @Code,
-            {Symbol} = @Symbol
+            {Name} = {SQLParameterName.Name},
+            {Code} = {SQLParameterName.Code},
+            {Symbol} = {SQLParameterName.Symbol}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete =
         $"""
         DELETE FROM {Currencies}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll = $"""SELECT * FROM {Currencies}"""
@@ -57,6 +58,6 @@ module internal CurrencyQuery =
         $"""
         SELECT * FROM {Currencies}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         LIMIT 1
         """

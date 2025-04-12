@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal TickerSplitQuery =
     let createTable =
@@ -25,9 +26,9 @@ module internal TickerSplitQuery =
         )
         VALUES
         (
-            @SplitDate,
-            @TickerId,
-            @SplitFactor
+            {SQLParameterName.SplitDate},
+            {SQLParameterName.TickerId},
+            {SQLParameterName.SplitFactor}
         )
         """
 
@@ -35,18 +36,18 @@ module internal TickerSplitQuery =
         $"""
         UPDATE {TickerSplits}
         SET
-            {SplitDate} = @SplitDate,
-            {TickerId} = @TickerId,
-            {SplitFactor} = @SplitFactor
+            {SplitDate} = {SQLParameterName.SplitDate},
+            {TickerId} = {SQLParameterName.TickerId},
+            {SplitFactor} = {SQLParameterName.SplitFactor}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete = 
         $"""
         DELETE FROM {TickerSplits}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll =
@@ -58,5 +59,5 @@ module internal TickerSplitQuery =
         $"""
         SELECT * FROM {TickerSplits}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """

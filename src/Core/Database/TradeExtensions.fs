@@ -8,50 +8,50 @@ open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
 open CommandExtensions
 
+[<Extension>]
+type Do() =
+
     [<Extension>]
-    type Do() =
+    static member fill(trade: Trade, command: SqliteCommand) =
+        command.fillParameters(
+            [
+                (SQLParameterName.Id, trade.Id);
+                (SQLParameterName.TimeStamp, trade.TimeStamp);
+                (SQLParameterName.TickerId, trade.TickerId);
+                (SQLParameterName.BrokerAccountId, trade.BrokerAccountId);
+                (SQLParameterName.CurrencyId, trade.CurrencyId);
+                (SQLParameterName.Quantity, trade.Quantity);
+                (SQLParameterName.Price, trade.Price);
+                (SQLParameterName.Commissions, trade.Commissions);
+                (SQLParameterName.Fees, trade.Fees);
+                (SQLParameterName.TradeCode, fromTradeCodeToDatabase trade.TradeCode);
+                (SQLParameterName.TradeType, fromTradeTypeToDatabase trade.TradeType);
+                (SQLParameterName.Notes, trade.Notes)
+            ])
 
-        [<Extension>]
-        static member fill(trade: Trade, command: SqliteCommand) =
-            command.fillParameters(
-                [
-                    ("@Id", trade.Id);
-                    ("@TimeStamp", trade.TimeStamp);
-                    ("@TickerId", trade.TickerId);
-                    ("@BrokerAccountId", trade.BrokerAccountId);
-                    ("@CurrencyId", trade.CurrencyId);
-                    ("@Quantity", trade.Quantity);
-                    ("@Price", trade.Price);
-                    ("@Commission", trade.Commissions);
-                    ("@Fees", trade.Fees);
-                    ("@TradeCode", fromTradeCodeToDatabase trade.TradeCode);
-                    ("@TradeType", fromTradeTypeToDatabase trade.TradeType);
-                    ("@Notes", trade.Notes)
-                ])
+    [<Extension>]
+    static member read(reader: SqliteDataReader) =
+        {
+            Id = reader.getInt32 FieldName.Id
+            TimeStamp = reader.getDateTime FieldName.TimeStamp
+            TickerId = reader.getInt32 FieldName.TickerId
+            BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
+            CurrencyId = reader.getInt32 FieldName.CurrencyId
+            Quantity = reader.getDecimal FieldName.Quantity
+            Price = reader.getDecimal FieldName.Price
+            Commissions = reader.getDecimal FieldName.Commissions
+            Fees = reader.getDecimal FieldName.Fees
+            TradeCode = reader.GetString(reader.GetOrdinal(FieldName.TradeCode)) |> fromDatabaseToTradeCode
+            TradeType = reader.GetString(reader.GetOrdinal(FieldName.TradeType)) |> fromDatabaseToTradeType
+            Notes = reader.getStringOrNone FieldName.Notes
+        }
 
-        [<Extension>]
-        static member read(reader: SqliteDataReader) =
-            {
-                Id = reader.getInt32 "Id"
-                TimeStamp = reader.getDateTime "TimeStamp"
-                TickerId = reader.getInt32 "TickerId"
-                BrokerAccountId = reader.getInt32 "BrokerAccountId"
-                CurrencyId = reader.getInt32 "CurrencyId"
-                Quantity = reader.getDecimal "Quantity"
-                Price = reader.getDecimal "Price"
-                Commissions = reader.getDecimal "Commissions"
-                Fees = reader.getDecimal "Fees"
-                TradeCode = reader.GetString(reader.GetOrdinal("TradeCode")) |> fromDatabaseToTradeCode
-                TradeType = reader.GetString(reader.GetOrdinal("TradeType")) |> fromDatabaseToTradeType
-                Notes = reader.getStringOrNone "Notes"
-            }
+    [<Extension>]
+    static member save(trade: Trade) = Database.Do.saveEntity trade (fun t c -> t.fill c) 
 
-        [<Extension>]
-        static member save(trade: Trade) = Database.Do.saveEntity trade (fun t c -> t.fill c) 
+    [<Extension>]
+    static member delete(trade: Trade) = Database.Do.deleteEntity trade
 
-        [<Extension>]
-        static member delete(trade: Trade) = Database.Do.deleteEntity trade
+    static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getAll() = Database.Do.getAllEntities Do.read
-
-        static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById id Do.read

@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.TableName
 open Binnaculum.Core.FieldName
+open Binnaculum.Core // Added to access SQLParameterName
 
 module internal OptionsQuery =
     let createTable =
@@ -47,20 +48,20 @@ module internal OptionsQuery =
         )
         VALUES
         (
-            @TimeStamp,
-            @ExpirationDate,
-            @Premium,
-            @NetPremium,
-            @TickerId,
-            @BrokerAccountId,
-            @CurrencyId,
-            @OptionType,
-            @Code,
-            @Strike,
-            @Commissions,
-            @Fees,
-            @IsOpen,
-            @ClosedWith
+            {SQLParameterName.TimeStamp},
+            {SQLParameterName.ExpirationDate},
+            {SQLParameterName.Premium},
+            {SQLParameterName.NetPremium},
+            {SQLParameterName.TickerId},
+            {SQLParameterName.BrokerAccountId},
+            {SQLParameterName.CurrencyId},
+            {SQLParameterName.OptionType},
+            {SQLParameterName.Code},
+            {SQLParameterName.Strike},
+            {SQLParameterName.Commissions},
+            {SQLParameterName.Fees},
+            {SQLParameterName.IsOpen},
+            {SQLParameterName.ClosedWith}
         )
         """
 
@@ -68,29 +69,29 @@ module internal OptionsQuery =
         $"""
         UPDATE {Options}
         SET
-            {TimeStamp} = @TimeStamp,
-            {ExpirationDate} = @ExpirationDate,
-            {Premium} = @Premium,
-            {NetPremium} = @NetPremium,
-            {TickerId} = @TickerId,
-            {BrokerAccountId} = @BrokerAccountId,
-            {CurrencyId} = @Currency,
-            {OptionType} = @OptionType,
-            {Code} = @Code,
-            {Strike} = @Strike,
-            {Commissions} = @Commissions,
-            {Fees} = @Fees,
-            {IsOpen} = @IsOpen,
-            {ClosedWith} = @ClosedWith
+            {TimeStamp} = {SQLParameterName.TimeStamp},
+            {ExpirationDate} = {SQLParameterName.ExpirationDate},
+            {Premium} = {SQLParameterName.Premium},
+            {NetPremium} = {SQLParameterName.NetPremium},
+            {TickerId} = {SQLParameterName.TickerId},
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId},
+            {CurrencyId} = {SQLParameterName.CurrencyId},
+            {OptionType} = {SQLParameterName.OptionType},
+            {Code} = {SQLParameterName.Code},
+            {Strike} = {SQLParameterName.Strike},
+            {Commissions} = {SQLParameterName.Commissions},
+            {Fees} = {SQLParameterName.Fees},
+            {IsOpen} = {SQLParameterName.IsOpen},
+            {ClosedWith} = {SQLParameterName.ClosedWith}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let delete = 
         $"""
         DELETE FROM {Options}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         """
 
     let getAll =
@@ -102,6 +103,6 @@ module internal OptionsQuery =
         $"""
         SELECT * FROM {Options}
         WHERE
-            {Id} = @Id
+            {Id} = {SQLParameterName.Id}
         LIMIT 1
         """

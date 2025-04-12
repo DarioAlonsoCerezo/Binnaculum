@@ -15,19 +15,19 @@ open CommandExtensions
         static member fill(currency: Currency, command: SqliteCommand) =
             command.fillParameters(
                 [
-                    ("@Id", currency.Id);
-                    ("@Name", currency.Name);
-                    ("@Code", currency.Code);
-                    ("@Symbol", currency.Symbol);
+                    (SQLParameterName.Id, currency.Id);
+                    (SQLParameterName.Name, currency.Name);
+                    (SQLParameterName.Code, currency.Code);
+                    (SQLParameterName.Symbol, currency.Symbol);
                 ])
         
         [<Extension>]
         static member read(reader: SqliteDataReader) =
             {
-                Id = reader.getInt32 "Id"
-                Name = reader.getString "Name"
-                Code = reader.getString "Code"
-                Symbol = reader.getString "Symbol"
+                Id = reader.getInt32 FieldName.Id
+                Name = reader.getString FieldName.Name
+                Code = reader.getString FieldName.Code
+                Symbol = reader.getString FieldName.Symbol
             }
 
         [<Extension>]

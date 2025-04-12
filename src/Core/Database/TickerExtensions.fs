@@ -7,34 +7,34 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 
+[<Extension>]
+type Do() =
+    
     [<Extension>]
-    type Do() =
-        
-        [<Extension>]
-        static member fill(ticker: Ticker, command: SqliteCommand) =
-            command.fillParameters(
-                [
-                    ("@Id", ticker.Id);
-                    ("@Symbol", ticker.Symbol);
-                    ("@Image", ticker.Image);
-                    ("@Name", ticker.Name);
-                ])
+    static member fill(ticker: Ticker, command: SqliteCommand) =
+        command.fillParameters(
+            [
+                (SQLParameterName.Id, ticker.Id);
+                (SQLParameterName.Symbol, ticker.Symbol);
+                (SQLParameterName.Image, ticker.Image);
+                (SQLParameterName.Name, ticker.Name);
+            ])
 
-        [<Extension>]
-        static member read(reader: SqliteDataReader) =
-            {
-                Id = reader.getInt32 "Id"
-                Symbol = reader.getString "Symbol"
-                Image = reader.getStringOrNone "Image"
-                Name = reader.getStringOrNone "Name"
-            }
+    [<Extension>]
+    static member read(reader: SqliteDataReader) =
+        {
+            Id = reader.getInt32 FieldName.Id
+            Symbol = reader.getString FieldName.Symbol
+            Image = reader.getStringOrNone FieldName.Image
+            Name = reader.getStringOrNone FieldName.Name
+        }
 
-        [<Extension>]
-        static member save(ticker: Ticker) = Database.Do.saveEntity ticker (fun t c -> t.fill c)
+    [<Extension>]
+    static member save(ticker: Ticker) = Database.Do.saveEntity ticker (fun t c -> t.fill c)
 
-        [<Extension>]
-        static member delete(ticker: Ticker) = Database.Do.deleteEntity ticker
+    [<Extension>]
+    static member delete(ticker: Ticker) = Database.Do.deleteEntity ticker
 
-        static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read
 
-        static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById id Do.read
