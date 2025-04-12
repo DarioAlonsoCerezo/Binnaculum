@@ -109,8 +109,7 @@ module internal DatabaseModel =
         Commissions: Money
         Fees: Money
         MovementType: BrokerMovementType
-        CreatedAt: DateTimePattern option
-        UpdatedAt: DateTimePattern option
+        Audit: AuditableEntity
     } with
         interface IEntity with
             member this.Id = this.Id
