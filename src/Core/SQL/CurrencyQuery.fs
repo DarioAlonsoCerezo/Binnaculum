@@ -1,16 +1,17 @@
 ﻿namespace Binnaculum.Core.SQL
 
 open Binnaculum.Core.TableName
+open Binnaculum.Core.FieldName
 
 module internal CurrencyQuery =
     let createTable =
         $"""
         CREATE TABLE IF NOT EXISTS {Currencies}
         (
-            Id INTEGER PRIMARY KEY,
-            Name TEXT NOT NULL,
-            Code TEXT NOT NULL,
-            Symbol TEXT NOT NULL
+            {Id} INTEGER PRIMARY KEY,
+            {Name} TEXT NOT NULL,
+            {Code} TEXT NOT NULL,
+            {Symbol} TEXT NOT NULL
         )
         """
 
@@ -20,9 +21,9 @@ module internal CurrencyQuery =
         $"""
         INSERT INTO {Currencies}
         (
-            Name, 
-            Code, 
-            Symbol
+            {Name}, 
+            {Code}, 
+            {Symbol}
         )
         VALUES 
         (
@@ -36,18 +37,18 @@ module internal CurrencyQuery =
         $"""
         UPDATE {Currencies}
         SET
-            Name = @Name,
-            Code = @Code,
-            Symbol = @Symbol
+            {Name} = @Name,
+            {Code} = @Code,
+            {Symbol} = @Symbol
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     let delete =
         $"""
         DELETE FROM {Currencies}
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     let getAll = $"""SELECT * FROM {Currencies}"""
@@ -56,6 +57,6 @@ module internal CurrencyQuery =
         $"""
         SELECT * FROM {Currencies}
         WHERE
-            Id = @Id
+            {Id} = @Id
         LIMIT 1
         """

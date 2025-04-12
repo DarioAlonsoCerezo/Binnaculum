@@ -1,18 +1,19 @@
 ﻿namespace Binnaculum.Core.SQL
 
 open Binnaculum.Core.TableName
+open Binnaculum.Core.FieldName
 
 module internal DividendTaxesQuery =
     let createTable =
         $"""
         CREATE TABLE IF NOT EXISTS {DividendTaxes}
         (
-            Id INTEGER PRIMARY KEY,
-            TimeStamp TEXT NOT NULL,
-            Amount TEXT NOT NULL,
-            TickerId INTEGER NOT NULL,
-            CurrencyId INTEGER NOT NULL,
-            BrokerAccountId INTEGER NOT NULL
+            {Id} INTEGER PRIMARY KEY,
+            {TimeStamp} TEXT NOT NULL,
+            {Amount} TEXT NOT NULL,
+            {TickerId} INTEGER NOT NULL,
+            {CurrencyId} INTEGER NOT NULL,
+            {BrokerAccountId} INTEGER NOT NULL
         )
         """
 
@@ -20,11 +21,11 @@ module internal DividendTaxesQuery =
         $"""
         INSERT INTO {DividendTaxes}
         (
-            TimeStamp,
-            Amount,
-            TickerId,
-            CurrencyId,
-            BrokerAccountId
+            {TimeStamp},
+            {Amount},
+            {TickerId},
+            {CurrencyId},
+            {BrokerAccountId}
         )
         VALUES
         (
@@ -40,20 +41,20 @@ module internal DividendTaxesQuery =
         $"""
         UPDATE {DividendTaxes}
         SET
-            TimeStamp = @TimeStamp,
-            Amount = @Amount,
-            TickerId = @TickerId,
-            CurrencyId = @CurrencyId,
-            BrokerAccountId = @BrokerAccountId
+            {TimeStamp} = @TimeStamp,
+            {Amount} = @Amount,
+            {TickerId} = @TickerId,
+            {CurrencyId} = @CurrencyId,
+            {BrokerAccountId} = @BrokerAccountId
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     let delete =
         $"""
         DELETE FROM {DividendTaxes}
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     let getAll =
@@ -65,6 +66,6 @@ module internal DividendTaxesQuery =
         $"""
         SELECT * FROM {DividendTaxes}
         WHERE
-            Id = @Id
+            {Id} = @Id
         LIMIT 1
         """

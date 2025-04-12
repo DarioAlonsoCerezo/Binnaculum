@@ -1,18 +1,19 @@
 ﻿namespace Binnaculum.Core.SQL
 
 open Binnaculum.Core.TableName
+open Binnaculum.Core.FieldName
 
 module internal DividendsQuery =
     let createTable =
         $"""
         CREATE TABLE IF NOT EXISTS {Dividends}
         (
-            Id INTEGER PRIMARY KEY,
-            TimeStamp TEXT NOT NULL,
-            DividendAmount TEXT NOT NULL,
-            TickerId INTEGER NOT NULL,
-            CurrencyId INTEGER NOT NULL,
-            BrokerAccountId INTEGER NOT NULL
+            {Id} INTEGER PRIMARY KEY,
+            {TimeStamp} TEXT NOT NULL,
+            {DividendAmount} TEXT NOT NULL,
+            {TickerId} INTEGER NOT NULL,
+            {CurrencyId} INTEGER NOT NULL,
+            {BrokerAccountId} INTEGER NOT NULL
         )
         """
 
@@ -20,11 +21,11 @@ module internal DividendsQuery =
         $"""
         INSERT INTO {Dividends}
         (
-            TimeStamp,
-            DividendAmount,
-            TickerId,
-            CurrencyId,
-            BrokerAccountId
+            {TimeStamp},
+            {DividendAmount},
+            {TickerId},
+            {CurrencyId},
+            {BrokerAccountId}
         )
         VALUES
         (
@@ -40,20 +41,20 @@ module internal DividendsQuery =
         $"""
         UPDATE {Dividends}
         SET
-            TimeStamp = @TimeStamp,
-            DividendAmount = @DividendAmount,
-            TickerId = @TickerId,
-            CurrencyId = @CurrencyId,
-            BrokerAccountId = @BrokerAccountId
+            {TimeStamp} = @TimeStamp,
+            {DividendAmount} = @DividendAmount,
+            {TickerId} = @TickerId,
+            {CurrencyId} = @CurrencyId,
+            {BrokerAccountId} = @BrokerAccountId
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     let delete =
         $"""
         DELETE FROM {Dividends}
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     let getAll =
@@ -65,6 +66,6 @@ module internal DividendsQuery =
         $"""
         SELECT * FROM {Dividends}
         WHERE
-            Id = @Id
+            {Id} = @Id
         LIMIT 1
         """

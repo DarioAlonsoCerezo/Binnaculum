@@ -1,6 +1,7 @@
 ﻿namespace Binnaculum.Core.SQL
 
 open Binnaculum.Core.TableName
+open Binnaculum.Core.FieldName
 
 module internal BrokerQuery =
     /// Creates the Brokers table if it does not already exist.
@@ -8,11 +9,11 @@ module internal BrokerQuery =
         $"""
         CREATE TABLE IF NOT EXISTS {Brokers}
         (
-            Id INTEGER PRIMARY KEY,
-            Name TEXT NOT NULL,
-            Image TEXT NOT NULL,
-            SupportedBroker TEXT NOT NULL,
-            UNIQUE(Name) -- Ensures Name is unique and implicitly indexed
+            {Id} INTEGER PRIMARY KEY,
+            {Name} TEXT NOT NULL,
+            {Image} TEXT NOT NULL,
+            {SupportedBroker} TEXT NOT NULL,
+            UNIQUE({Name}) -- Ensures Name is unique and implicitly indexed
         )
         """
 
@@ -21,9 +22,9 @@ module internal BrokerQuery =
         $"""
         INSERT INTO {Brokers}
         (
-            Name,
-            Image,
-            SupportedBroker
+            {Name},
+            {Image},
+            {SupportedBroker}
         )
         VALUES
         (
@@ -38,17 +39,17 @@ module internal BrokerQuery =
         $"""
         UPDATE {Brokers}
         SET
-            Name = @Name,
-            Image = @Image,
-            SupportedBroker = @SupportedBroker
-        WHERE Id = @Id
+            {Name} = @Name,
+            {Image} = @Image,
+            {SupportedBroker} = @SupportedBroker
+        WHERE {Id} = @Id
         """
 
     /// Deletes a broker from the Brokers table by Id.
     let delete =
         $"""
         DELETE FROM {Brokers}
-        WHERE Id = @Id
+        WHERE {Id} = @Id
         """
 
     /// Retrieves all brokers from the Brokers table.
@@ -61,7 +62,7 @@ module internal BrokerQuery =
     let getById =
         $"""
         SELECT * FROM {Brokers}
-        WHERE Id = @Id
+        WHERE {Id} = @Id
         LIMIT 1
         """
 
@@ -69,6 +70,6 @@ module internal BrokerQuery =
     let getByName =
         $"""
         SELECT 1 FROM {Brokers}
-        WHERE Name = @Name
+        WHERE {Name} = @Name
         LIMIT 1
         """

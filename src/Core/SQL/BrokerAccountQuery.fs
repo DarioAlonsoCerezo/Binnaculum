@@ -1,6 +1,7 @@
 ﻿namespace Binnaculum.Core.SQL
 
 open Binnaculum.Core.TableName
+open Binnaculum.Core.FieldName
 
 module internal BrokerAccountQuery =
 
@@ -9,9 +10,9 @@ module internal BrokerAccountQuery =
         $"""
         CREATE TABLE IF NOT EXISTS {BrokerAccounts}
         (
-            Id INTEGER PRIMARY KEY,
-            BrokerId INTEGER NOT NULL,
-            AccountNumber TEXT NOT NULL
+            {Id} INTEGER PRIMARY KEY,
+            {BrokerId} INTEGER NOT NULL,
+            {AccountNumber} TEXT NOT NULL
         )
         """
 
@@ -20,8 +21,8 @@ module internal BrokerAccountQuery =
         $"""
         INSERT INTO {BrokerAccounts}
         (
-            BrokerId,
-            AccountNumber
+            {BrokerId},
+            {AccountNumber}
         )
         VALUES
         (
@@ -35,10 +36,10 @@ module internal BrokerAccountQuery =
         $"""
         UPDATE {BrokerAccounts}
         SET
-            BrokerId = @BrokerId,
-            AccountNumber = @AccountNumber
+            {BrokerId} = @BrokerId,
+            {AccountNumber} = @AccountNumber
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     // SQL to delete a record by Id
@@ -46,7 +47,7 @@ module internal BrokerAccountQuery =
         $"""
         DELETE FROM {BrokerAccounts}
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     // SQL to retrieve all records
@@ -60,6 +61,6 @@ module internal BrokerAccountQuery =
         $"""
         SELECT * FROM {BrokerAccounts}
         WHERE
-            Id = @Id
+            {Id} = @Id
         LIMIT 1
         """

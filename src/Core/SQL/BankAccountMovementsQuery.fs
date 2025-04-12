@@ -1,18 +1,19 @@
 ﻿namespace Binnaculum.Core.SQL
 
 open Binnaculum.Core.TableName
+open Binnaculum.Core.FieldName
 
 module internal BankAccountMovementsQuery =
     let createTable =
         $"""
         CREATE TABLE IF NOT EXISTS {BankAccountMovements}
         (
-            Id INTEGER PRIMARY KEY,
-            TimeStamp TEXT NOT NULL,
-            Amount TEXT NOT NULL,
-            BankAccountId INTEGER NOT NULL,
-            CurrencyId INTEGER NOT NULL,
-            MovementType TEXT NOT NULL
+            {Id} INTEGER PRIMARY KEY,
+            {TimeStamp} TEXT NOT NULL,
+            {Amount} TEXT NOT NULL,
+            {BankAccountId} INTEGER NOT NULL,
+            {CurrencyId} INTEGER NOT NULL,
+            {MovementType} TEXT NOT NULL
         )
         """
 
@@ -20,11 +21,11 @@ module internal BankAccountMovementsQuery =
         $"""
         INSERT INTO {BankAccountMovements}
         (
-            TimeStamp,
-            Amount,
-            BankAccountId,
-            CurrencyId,
-            MovementType
+            {TimeStamp},
+            {Amount},
+            {BankAccountId},
+            {CurrencyId},
+            {MovementType}
         )
         VALUES
         (
@@ -40,20 +41,20 @@ module internal BankAccountMovementsQuery =
         $"""
         UPDATE {BankAccountMovements}
         SET
-            TimeStamp = @TimeStamp,
-            Amount = @Amount,
-            BankAccountId = @BankAccountId,
-            CurrencyId = @Currency,
-            MovementType = @MovementType
+            {TimeStamp} = @TimeStamp,
+            {Amount} = @Amount,
+            {BankAccountId} = @BankAccountId,
+            {CurrencyId} = @Currency,
+            {MovementType} = @MovementType
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     let delete =
         $"""
         DELETE FROM {BankAccountMovements}
         WHERE
-            Id = @Id
+            {Id} = @Id
         """
 
     let getAll =
@@ -65,6 +66,6 @@ module internal BankAccountMovementsQuery =
         $"""
         SELECT * FROM {BankAccountMovements}
         WHERE
-            Id = @Id
+            {Id} = @Id
         LIMIT 1
         """
