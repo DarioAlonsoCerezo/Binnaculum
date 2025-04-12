@@ -10,7 +10,7 @@ module internal TickerPriceQuery =
         CREATE TABLE IF NOT EXISTS {TickerPrices}
         (
             {Id} INTEGER PRIMARY KEY,
-            {PriceDate} TEXT NOT NULL CHECK ({TimeStamp} GLOB '____-__-__T__:__:__'),
+            {PriceDate} TEXT NOT NULL,
             {TickerId} INTEGER NOT NULL,
             {Price} TEXT NOT NULL DEFAULT '0',
             {CurrencyId} INTEGER NOT NULL,

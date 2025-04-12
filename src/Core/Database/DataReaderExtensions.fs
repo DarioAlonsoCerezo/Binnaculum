@@ -59,4 +59,11 @@ open Binnaculum.Core.Patterns
             else
                 Some(reader.GetDateTime(ordinal))
 
+        [<Extension>]
+        static member getDateTimePatternOrNone(reader: SqliteDataReader, columName: string) =
+            let ordinal = reader.GetOrdinal(columName)
+            if reader.IsDBNull(ordinal) then
+                None
+            else
+                Some(DateTimePattern.Parse(reader.GetString(ordinal)))
         

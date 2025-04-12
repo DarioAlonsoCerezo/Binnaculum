@@ -103,8 +103,8 @@ module internal DatabaseModel =
         Commissions: Money
         Fees: Money
         MovementType: BrokerMovementType
-        CreatedAt: DateTime option
-        UpdatedAt: DateTime option
+        CreatedAt: DateTimePattern option
+        UpdatedAt: DateTimePattern option
     } with
         interface IEntity with
             member this.Id = this.Id
@@ -130,7 +130,7 @@ module internal DatabaseModel =
 
     type TickerSplit = {
         Id: int
-        SplitDate: DateTime
+        SplitDate: DateTimePattern
         TickerId: int
         SplitFactor: decimal
     } with
@@ -148,6 +148,8 @@ module internal DatabaseModel =
         TickerId: int
         Price: Money
         CurrencyId: int
+        CreatedAt: DateTimePattern option
+        UpdatedAt: DateTimePattern option
     } with
         interface IEntity with
             member this.Id = this.Id

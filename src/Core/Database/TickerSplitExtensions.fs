@@ -24,7 +24,7 @@ type Do() =
     static member read(reader: SqliteDataReader) =
         {
             Id = reader.getInt32 FieldName.Id
-            SplitDate = reader.getDateTime FieldName.SplitDate
+            SplitDate = reader.getDateTimePattern FieldName.SplitDate
             TickerId = reader.getInt32 FieldName.TickerId
             SplitFactor = reader.getDecimal FieldName.SplitFactor
         }

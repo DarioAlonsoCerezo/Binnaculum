@@ -38,8 +38,8 @@ type Do() =
             Commissions = reader.getMoney FieldName.Commissions
             Fees = reader.getMoney FieldName.Fees
             MovementType = reader.getString FieldName.MovementType |> fromDataseToMovementType
-            CreatedAt = reader.getDataTimeOrNone FieldName.CreatedAt
-            UpdatedAt = reader.getDataTimeOrNone FieldName.UpdatedAt
+            CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
+            UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
         }
 
     [<Extension>]

@@ -19,6 +19,8 @@ type Do() =
                 (SQLParameterName.TickerId, tickerPrice.TickerId);
                 (SQLParameterName.Price, tickerPrice.Price);
                 (SQLParameterName.CurrencyId, tickerPrice.CurrencyId);
+                (SQLParameterName.CreatedAt, tickerPrice.CreatedAt);
+                (SQLParameterName.UpdatedAt, tickerPrice.UpdatedAt);
             ])
 
     [<Extension>]
@@ -29,6 +31,8 @@ type Do() =
             TickerId = reader.getInt32 FieldName.TickerId
             Price = reader.getMoney FieldName.Price
             CurrencyId = reader.getInt32 FieldName.CurrencyId
+            CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
+            UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
         }
 
     [<Extension>]

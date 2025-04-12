@@ -10,7 +10,7 @@ module internal BrokerMovementQuery =
         CREATE TABLE IF NOT EXISTS {BrokerMovements}
         (
             {Id} INTEGER PRIMARY KEY,
-            {TimeStamp} TEXT NOT NULL CHECK ({TimeStamp} GLOB '____-__-__T__:__:__'),
+            {TimeStamp} TEXT NOT NULL,
             {Amount} TEXT NOT NULL DEFAULT '0',
             {CurrencyId} INTEGER NOT NULL,
             {BrokerAccountId} INTEGER NOT NULL,
