@@ -35,15 +35,11 @@ module internal Patterns =
                 dateTime
 
     type Money =
-        private | Money of int
+        private | Money of decimal
         with
-            /// Creates a Money instance from an integer (cents)
-            static member FromCents(cents: int) =
-                Money cents
-
-            /// Creates a Money instance from a decimal (dollars)
-            static member FromAmount(dollars: decimal) =
-                Money (int (Math.Round(dollars * 100M)))
+            /// Creates a Money instance from a decimal value
+            static member FromAmount(amount: decimal) =
+                Money amount
 
             /// Parses a string into a Money instance, respecting the given culture
             static member Parse(value: string, culture: CultureInfo) =
@@ -57,37 +53,7 @@ module internal Patterns =
                 | true, parsedDecimal -> Some(Money.FromAmount(parsedDecimal))
                 | false, _ -> None
 
-            /// Converts the Money instance to cents
-            member this.ToCents() =
-                let (Money cents) = this
-                cents
-
-            /// Converts the Money instance to dollars
-            member this.ToAmount() =
-                let (Money cents) = this
-                decimal cents / 100M
-
-            /// Formats the Money instance as a string in the given culture
-            member this.ToString(culture: CultureInfo) =
-                let dollars = this.ToAmount()
-                dollars.ToString("N2", culture)
-
-            /// Adds two Money instances
-            static member (+) (Money a, Money b) =
-                Money (a + b)
-
-            /// Subtracts one Money instance from another
-            static member (-) (Money a, Money b) =
-                Money (a - b)
-
-            /// Multiplies a Money instance by a scalar
-            static member (*) (Money a, multiplier: int) =
-                Money (a * multiplier)
-
-            /// Divides a Money instance by a scalar
-            static member (/) (Money a, divisor: int) =
-                Money (a / divisor)
-
-            /// Default string representation (uses invariant culture)
-            override this.ToString() =
-                this.ToString(CultureInfo.InvariantCulture)
+            /// Gets the raw decimal value
+            member this.Value =
+                let (Money amount) = this
+                amount

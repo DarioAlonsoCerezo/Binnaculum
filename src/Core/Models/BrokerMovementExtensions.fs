@@ -17,11 +17,11 @@ open CommandExtensions
                 [
                     ("@Id", brokerMovement.Id);
                     ("@TimeStamp", brokerMovement.TimeStamp.ToString());
-                    ("@Amount", brokerMovement.Amount.ToCents());
+                    ("@Amount", brokerMovement.Amount);
                     ("@CurrencyId", brokerMovement.CurrencyId);
                     ("@BrokerAccountId", brokerMovement.BrokerAccountId);
-                    ("@Commissions", brokerMovement.Commissions.ToCents());
-                    ("@Fees", brokerMovement.Fees.ToCents());
+                    ("@Commissions", brokerMovement.Commissions);
+                    ("@Fees", brokerMovement.Fees);
                     ("@MovementType", fromMovementTypeToDatabase brokerMovement.MovementType);
                     ("@CreatedAt", brokerMovement.CreatedAt);
                     ("@UpdatedAt", brokerMovement.UpdatedAt);

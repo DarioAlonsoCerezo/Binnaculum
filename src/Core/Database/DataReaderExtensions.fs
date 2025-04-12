@@ -32,8 +32,8 @@ open Binnaculum.Core.Patterns
 
         [<Extension>]
         static member getMoney(reader: SqliteDataReader, columName: string) =
-            let value = reader.GetInt32(reader.GetOrdinal(columName))
-            Money.FromCents(int value)
+            let value = reader.getDecimal columName
+            Money.FromAmount(decimal value)
 
         [<Extension>]
         static member getStringOrNone(reader: SqliteDataReader, columName: string) =
