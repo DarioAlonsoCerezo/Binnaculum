@@ -16,7 +16,7 @@ module internal BrokerMovementQuery =
             {BrokerAccountId} INTEGER NOT NULL,
             {Commissions} TEXT NOT NULL DEFAULT '0',
             {Fees} TEXT NOT NULL DEFAULT '0',
-            {MovementType} TEXT NOT NULL CHECK ({MovementType} IN ('DEPOSIT', 'WITHDRAWAL', 'FEE', 'INTERESTS_GAINED', 'LENDING', 'ACAT_MONEY_TRANSFER', 'ACAT_SECURITIES_TRANSFER', 'INTERESTS_PAID', 'CONVERSION')),
+            {MovementType} TEXT NOT NULL CHECK ({MovementType} IN ('{SQLConstants.Deposit}', '{SQLConstants.Withdrawal}', '{SQLConstants.Fee}', '{SQLConstants.InterestsGained}', '{SQLConstants.Lending}', '{SQLConstants.AcatMoneyTransfer}', '{SQLConstants.AcatSecuritiesTransfer}', '{SQLConstants.InterestsPaid}', '{SQLConstants.Conversion}')),
             {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
             {UpdatedAt} TEXT,
             FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}),

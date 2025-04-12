@@ -19,6 +19,7 @@
 		<Compile Include="Keys\TableName.fs" />
 		<Compile Include="Keys\FieldName.fs" />
 		<Compile Include="Keys\SQLParameterName.fs" />
+		<Compile Include="Keys\SQLConstants.fs" />
 		<Compile Include="Keys\Pattern.fs" />
 		<Compile Include="SQL\BrokerQuery.fs" />
 		<Compile Include="SQL\BrokerAccountQuery.fs" />
