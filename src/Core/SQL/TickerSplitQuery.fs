@@ -10,10 +10,26 @@ module internal TickerSplitQuery =
         CREATE TABLE IF NOT EXISTS {TickerSplits}
         (
             {Id} INTEGER PRIMARY KEY,
-            {SplitDate} TEXT NOT NULL CHECK ({TimeStamp} GLOB '____-__-__T__:__:__'),
+            {SplitDate} TEXT NOT NULL CHECK,
             {TickerId} INTEGER NOT NULL,
-            {SplitFactor} TEXT NOT NULL
-        )
+            {SplitFactor} TEXT NOT NULL,
+            {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
+            {UpdatedAt} TEXT,
+            FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        -- Index to optimize queries filtering by TickerId
+        CREATE INDEX IF NOT EXISTS idx_TickerSplits_TickerId ON {TickerSplits}({TickerId});
+
+        -- Trigger to automatically update the UpdatedAt column on row update
+        CREATE TRIGGER IF NOT EXISTS trg_TickerSplits_UpdatedAt
+        AFTER UPDATE ON {TickerSplits}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {TickerSplits}
+            SET {UpdatedAt} = datetime('now')
+            WHERE {Id} = OLD.{Id};
+        END;
         """
 
     let insert =
@@ -22,13 +38,17 @@ module internal TickerSplitQuery =
         (
             {SplitDate},
             {TickerId},
-            {SplitFactor}
+            {SplitFactor},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
             {SQLParameterName.SplitDate},
             {SQLParameterName.TickerId},
-            {SQLParameterName.SplitFactor}
+            {SQLParameterName.SplitFactor},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -38,7 +58,9 @@ module internal TickerSplitQuery =
         SET
             {SplitDate} = {SQLParameterName.SplitDate},
             {TickerId} = {SQLParameterName.TickerId},
-            {SplitFactor} = {SQLParameterName.SplitFactor}
+            {SplitFactor} = {SQLParameterName.SplitFactor},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
+            {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
             {Id} = {SQLParameterName.Id}
         """

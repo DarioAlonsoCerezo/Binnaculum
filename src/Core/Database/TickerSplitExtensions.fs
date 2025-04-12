@@ -18,6 +18,8 @@ type Do() =
                 (SQLParameterName.SplitDate, tickerSplit.SplitDate);
                 (SQLParameterName.TickerId, tickerSplit.TickerId);
                 (SQLParameterName.SplitFactor, tickerSplit.SplitFactor);
+                (SQLParameterName.CreatedAt, tickerSplit.CreatedAt);
+                (SQLParameterName.UpdatedAt, tickerSplit.UpdatedAt);
             ])
 
     [<Extension>]
@@ -27,6 +29,8 @@ type Do() =
             SplitDate = reader.getDateTimePattern FieldName.SplitDate
             TickerId = reader.getInt32 FieldName.TickerId
             SplitFactor = reader.getDecimal FieldName.SplitFactor
+            CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
+            UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
         }
 
     [<Extension>]
