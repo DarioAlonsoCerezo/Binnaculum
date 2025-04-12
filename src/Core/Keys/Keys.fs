@@ -1,6 +1,13 @@
 ﻿namespace Binnaculum.Core
 
 module internal Keys =
+
+    [<Literal>]
+    let TableName_Brokers = "Brokers"
+
+    [<Literal>]
+    let TableName_BrokerAccount = "BrokerAccounts"
+        
     [<Literal>]
     let Broker_Tastytrade = "Tastytrade"
 

@@ -1,56 +1,65 @@
 ﻿namespace Binnaculum.Core.SQL
 
+open Binnaculum.Core.Keys
+
 module internal BrokerAccountQuery =
+
+    // SQL to create the table
     let createTable =
-        @"
-            CREATE TABLE IF NOT EXISTS BrokerAccounts
-            (
-                Id INTEGER PRIMARY KEY,
-                BrokerId INTEGER NOT NULL,
-                AccountNumber TEXT NOT NULL,
-            )
-        "
+        $"""
+        CREATE TABLE IF NOT EXISTS {TableName_BrokerAccount}
+        (
+            Id INTEGER PRIMARY KEY,
+            BrokerId INTEGER NOT NULL,
+            AccountNumber TEXT NOT NULL
+        )
+        """
 
+    // SQL to insert a new record
     let insert =
-        @"
-            INSERT INTO BrokerAccounts
-            (
-                BrokerId,
-                AccountNumber
-            )
-            VALUES
-            (
-                @BrokerId,
-                @AccountNumber
-            )
-        "
+        $"""
+        INSERT INTO {TableName_BrokerAccount}
+        (
+            BrokerId,
+            AccountNumber
+        )
+        VALUES
+        (
+            @BrokerId,
+            @AccountNumber
+        )
+        """
 
+    // SQL to update an existing record
     let update = 
-        @"
-            UPDATE BrokerAccounts
-            SET
-                BrokerId = @BrokerId,
-                AccountNumber = @AccountNumber
-            WHERE
-                Id = @Id
-        "
+        $"""
+        UPDATE {TableName_BrokerAccount}
+        SET
+            BrokerId = @BrokerId,
+            AccountNumber = @AccountNumber
+        WHERE
+            Id = @Id
+        """
 
+    // SQL to delete a record by Id
     let delete =
-        @"
-            DELETE FROM BrokerAccounts
-            WHERE
-                Id = @Id
-        "
+        $"""
+        DELETE FROM {TableName_BrokerAccount}
+        WHERE
+            Id = @Id
+        """
 
+    // SQL to retrieve all records
     let getAll = 
-        @"
-            SELECT * FROM BrokerAccounts
-        "
+        $"""
+        SELECT * FROM {TableName_BrokerAccount}
+        """
 
+    // SQL to retrieve a record by Id
     let getById =
-        @"
-            SELECT * FROM BrokerAccounts
-            WHERE
-                Id = @Id
-            LIMIT 1
-        "
+        $"""
+        SELECT * FROM {TableName_BrokerAccount}
+        WHERE
+            Id = @Id
+        LIMIT 1
+        """
