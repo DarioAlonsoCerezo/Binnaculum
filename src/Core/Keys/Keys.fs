@@ -13,6 +13,9 @@ module internal Keys =
 
     [<Literal>]
     let TableName_BrokerMovements = "BrokerMovements"
+
+    [<Literal>]
+    let TableName_Tickers = "Tickers"
         
     [<Literal>]
     let Broker_Tastytrade = "Tastytrade"
