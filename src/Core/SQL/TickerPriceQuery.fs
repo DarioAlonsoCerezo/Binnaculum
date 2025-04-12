@@ -16,14 +16,22 @@ module internal TickerPriceQuery =
             {CurrencyId} INTEGER NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
             {UpdatedAt} TEXT,
+            -- Foreign key to ensure TickerId references a valid Ticker in the Tickers table
             FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure CurrencyId references a valid Currency in the Currencies table
             FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
         );
 
+        -- Index to optimize queries filtering by PriceDate
         CREATE INDEX IF NOT EXISTS idx_TickerPrices_PriceDate ON {TickerPrices}({PriceDate});
+        
+        -- Index to optimize queries filtering by TickerId
         CREATE INDEX IF NOT EXISTS idx_TickerPrices_TickerId ON {TickerPrices}({TickerId});
+        
+        -- Index to optimize queries filtering by CurrencyId
         CREATE INDEX IF NOT EXISTS idx_TickerPrices_CurrencyId ON {TickerPrices}({CurrencyId});
 
+        -- Trigger to automatically update the UpdatedAt column on row update
         CREATE TRIGGER IF NOT EXISTS trg_TickerPrices_UpdatedAt
         AFTER UPDATE ON {TickerPrices}
         FOR EACH ROW
