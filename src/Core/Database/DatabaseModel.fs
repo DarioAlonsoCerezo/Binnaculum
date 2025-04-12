@@ -144,9 +144,9 @@ module internal DatabaseModel =
 
     type TickerPrice = {
         Id: int
-        PriceDate: DateTime
+        PriceDate: DateTimePattern
         TickerId: int
-        Price: decimal
+        Price: Money
         CurrencyId: int
     } with
         interface IEntity with

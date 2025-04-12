@@ -47,7 +47,9 @@ module internal BrokerMovementQuery =
             {BrokerAccountId},
             {Commissions},
             {Fees},
-            {MovementType}
+            {MovementType},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
@@ -57,7 +59,9 @@ module internal BrokerMovementQuery =
             {SQLParameterName.BrokerAccountId},
             {SQLParameterName.Commissions},
             {SQLParameterName.Fees},
-            {SQLParameterName.MovementType}
+            {SQLParameterName.MovementType},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -71,7 +75,9 @@ module internal BrokerMovementQuery =
             {BrokerAccountId} = {SQLParameterName.BrokerAccountId},
             {Commissions} = {SQLParameterName.Commissions},
             {Fees} = {SQLParameterName.Fees},
-            {MovementType} = {SQLParameterName.MovementType}
+            {MovementType} = {SQLParameterName.MovementType},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
+            {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
             {Id} = {SQLParameterName.Id}
         """

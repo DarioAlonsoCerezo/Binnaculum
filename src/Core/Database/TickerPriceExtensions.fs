@@ -25,9 +25,9 @@ type Do() =
     static member read(reader: SqliteDataReader) =
         {
             Id = reader.getInt32 FieldName.Id
-            PriceDate = reader.getDateTime FieldName.PriceDate
+            PriceDate = reader.getDateTimePattern FieldName.PriceDate
             TickerId = reader.getInt32 FieldName.TickerId
-            Price = reader.getDecimal FieldName.Price
+            Price = reader.getMoney FieldName.Price
             CurrencyId = reader.getInt32 FieldName.CurrencyId
         }
 

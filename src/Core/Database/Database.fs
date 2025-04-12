@@ -44,6 +44,14 @@ module internal Do =
         if connection = null then
             connection <- new SqliteConnection(getConnectionString())
             do! connection.OpenAsync() |> Async.AwaitTask |> Async.Ignore
+
+            // Enable foreign key constraints
+            let pragmaCommand = connection.CreateCommand()
+            pragmaCommand.CommandText <- "PRAGMA foreign_keys = ON;"
+            do! pragmaCommand.ExecuteNonQueryAsync() |> Async.AwaitTask |> Async.Ignore
+            pragmaCommand.Dispose()
+
+            // Create tables if they do not exist
             let command = connection.CreateCommand()
             tablesSQL
             |> List.map(fun sqlQuery -> async {
