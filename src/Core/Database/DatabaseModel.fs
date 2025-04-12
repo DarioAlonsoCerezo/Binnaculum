@@ -7,6 +7,11 @@ open Binnaculum.Core.SQL
 open Binnaculum.Core.Patterns
 
 module internal DatabaseModel =
+    type AuditableEntity = {
+        CreatedAt: DateTimePattern option
+        UpdatedAt: DateTimePattern option
+    }
+
     type SupportedBroker =
         | IBKR
         | Tastytrade
@@ -71,8 +76,7 @@ module internal DatabaseModel =
         Id: int
         BrokerId: int
         AccountNumber: string
-        CreatedAt: DateTimePattern option
-        UpdatedAt: DateTimePattern option
+        Audit: AuditableEntity
     } with
         interface IEntity with
             member this.Id = this.Id
@@ -167,7 +171,7 @@ module internal DatabaseModel =
             
     type Trade = {
         Id: int
-        TimeStamp: DateTime
+        TimeStamp: DateTimePattern
         TickerId: int
         BrokerAccountId: int
         CurrencyId: int
@@ -178,6 +182,8 @@ module internal DatabaseModel =
         TradeCode: TradeCode
         TradeType: TradeType
         Notes: string option
+        CreatedAt: DateTimePattern option
+        UpdatedAt: DateTimePattern option
     } with
         interface IEntity with
             member this.Id = this.Id
