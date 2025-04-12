@@ -27,13 +27,15 @@ type Do() =
                 (SQLParameterName.TradeCode, fromTradeCodeToDatabase trade.TradeCode);
                 (SQLParameterName.TradeType, fromTradeTypeToDatabase trade.TradeType);
                 (SQLParameterName.Notes, trade.Notes)
+                (SQLParameterName.CreatedAt, trade.CreatedAt);
+                (SQLParameterName.UpdatedAt, trade.UpdatedAt);
             ])
 
     [<Extension>]
     static member read(reader: SqliteDataReader) =
         {
             Id = reader.getInt32 FieldName.Id
-            TimeStamp = reader.getDateTime FieldName.TimeStamp
+            TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
             TickerId = reader.getInt32 FieldName.TickerId
             BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
             CurrencyId = reader.getInt32 FieldName.CurrencyId
@@ -44,6 +46,8 @@ type Do() =
             TradeCode = reader.GetString(reader.GetOrdinal(FieldName.TradeCode)) |> fromDatabaseToTradeCode
             TradeType = reader.GetString(reader.GetOrdinal(FieldName.TradeType)) |> fromDatabaseToTradeType
             Notes = reader.getStringOrNone FieldName.Notes
+            CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
+            UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
         }
 
     [<Extension>]

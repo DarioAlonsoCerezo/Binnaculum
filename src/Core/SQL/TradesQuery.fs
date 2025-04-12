@@ -20,8 +20,38 @@ module internal TradesQuery =
             {Fees} TEXT NOT NULL,
             {TradeCode} TEXT NOT NULL,
             {TradeType} TEXT NOT NULL,
-            {Notes} TEXT
-        )
+            {Notes} TEXT,
+            {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
+            {UpdatedAt} TEXT,
+            -- Foreign key to ensure TickerId references a valid Ticker in the Tickers table
+            FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure BrokerAccountId references a valid BrokerAccount in the BrokerAccounts table
+            FOREIGN KEY ({BrokerAccountId}) REFERENCES {BrokerAccounts}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure CurrencyId references a valid Currency in the Currencies table
+            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        -- Index to optimize queries filtering by TimeStamp
+        CREATE INDEX IF NOT EXISTS idx_Trades_TimeStamp ON {Trades}({TimeStamp});
+
+        -- Index to optimize queries filtering by TickerId
+        CREATE INDEX IF NOT EXISTS idx_Trades_TickerId ON {Trades}({TickerId});
+
+        -- Index to optimize queries filtering by BrokerAccountId
+        CREATE INDEX IF NOT EXISTS idx_Trades_BrokerAccountId ON {Trades}({BrokerAccountId});
+
+        -- Index to optimize queries filtering by CurrencyId
+        CREATE INDEX IF NOT EXISTS idx_Trades_CurrencyId ON {Trades}({CurrencyId});
+
+        -- Trigger to automatically update the UpdatedAt column on row update
+        CREATE TRIGGER IF NOT EXISTS trg_Trades_UpdatedAt
+        AFTER UPDATE ON {Trades}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {Trades}
+            SET {UpdatedAt} = datetime('now')
+            WHERE {Id} = OLD.{Id};
+        END;
         """
 
     let insert =
@@ -38,7 +68,9 @@ module internal TradesQuery =
             {Fees},
             {TradeCode},
             {TradeType},
-            {Notes}
+            {Notes},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
@@ -52,7 +84,9 @@ module internal TradesQuery =
             {SQLParameterName.Fees},
             {SQLParameterName.TradeCode},
             {SQLParameterName.TradeType},
-            {SQLParameterName.Notes}
+            {SQLParameterName.Notes},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -70,7 +104,9 @@ module internal TradesQuery =
             {Fees} = {SQLParameterName.Fees},   
             {TradeCode} = {SQLParameterName.TradeCode},
             {TradeType} = {SQLParameterName.TradeType},
-            {Notes} = {SQLParameterName.Notes}
+            {Notes} = {SQLParameterName.Notes},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
+            {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
             {Id} = {SQLParameterName.Id}
         """
