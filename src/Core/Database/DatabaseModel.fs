@@ -71,6 +71,8 @@ module internal DatabaseModel =
         Id: int
         BrokerId: int
         AccountNumber: string
+        CreatedAt: DateTimePattern option
+        UpdatedAt: DateTimePattern option
     } with
         interface IEntity with
             member this.Id = this.Id

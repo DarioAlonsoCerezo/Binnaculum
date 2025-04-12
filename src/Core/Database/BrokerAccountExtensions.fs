@@ -17,6 +17,8 @@ open CommandExtensions
                     (SQLParameterName.Id, brokerAccount.Id);
                     (SQLParameterName.BrokerId, brokerAccount.BrokerId);
                     (SQLParameterName.AccountNumber, brokerAccount.AccountNumber);
+                    (SQLParameterName.CreatedAt, brokerAccount.CreatedAt);
+                    (SQLParameterName.UpdatedAt, brokerAccount.UpdatedAt);
                 ])
 
         [<Extension>]
@@ -25,6 +27,8 @@ open CommandExtensions
                 Id = reader.getInt32 FieldName.Id
                 BrokerId = reader.getInt32 FieldName.BrokerId
                 AccountNumber = reader.getString FieldName.AccountNumber
+                CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
+                UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
             }
 
         [<Extension>]

@@ -13,8 +13,27 @@ module internal BrokerAccountQuery =
         (
             {Id} INTEGER PRIMARY KEY,
             {BrokerId} INTEGER NOT NULL,
-            {AccountNumber} TEXT NOT NULL
-        )
+            {AccountNumber} TEXT NOT NULL,
+            {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
+            {UpdatedAt} TEXT,
+            FOREIGN KEY ({BrokerId}) REFERENCES {Brokers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        -- Index on BrokerId for faster lookups
+        CREATE INDEX IF NOT EXISTS idx_BrokerAccounts_BrokerId ON {BrokerAccounts}({BrokerId});
+
+        -- Index on AccountNumber for faster lookups
+        CREATE INDEX IF NOT EXISTS idx_BrokerAccounts_AccountNumber ON {BrokerAccounts}({AccountNumber});
+
+        -- Trigger to update UpdatedAt column on row update
+        CREATE TRIGGER IF NOT EXISTS trg_BrokerAccounts_UpdatedAt
+        AFTER UPDATE ON {BrokerAccounts}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {BrokerAccounts}
+            SET {UpdatedAt} = datetime('now')
+            WHERE {Id} = OLD.{Id};
+        END;
         """
 
     // SQL to insert a new record
@@ -23,12 +42,16 @@ module internal BrokerAccountQuery =
         INSERT INTO {BrokerAccounts}
         (
             {BrokerId},
-            {AccountNumber}
+            {AccountNumber},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
             {SQLParameterName.BrokerId},
-            {SQLParameterName.AccountNumber}
+            {SQLParameterName.AccountNumber},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -38,7 +61,9 @@ module internal BrokerAccountQuery =
         UPDATE {BrokerAccounts}
         SET
             {BrokerId} = {SQLParameterName.BrokerId},
-            {AccountNumber} = {SQLParameterName.AccountNumber}
+            {AccountNumber} = {SQLParameterName.AccountNumber},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
+            {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
             {Id} = {SQLParameterName.Id}
         """
