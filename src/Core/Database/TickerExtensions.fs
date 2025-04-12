@@ -18,8 +18,8 @@ type Do() =
                 (SQLParameterName.Symbol, ticker.Symbol);
                 (SQLParameterName.Image, ticker.Image);
                 (SQLParameterName.Name, ticker.Name);
-                (SQLParameterName.CreatedAt, ticker.CreatedAt);
-                (SQLParameterName.UpdatedAt, ticker.UpdatedAt);
+                (SQLParameterName.CreatedAt, ticker.Audit.CreatedAt);
+                (SQLParameterName.UpdatedAt, ticker.Audit.UpdatedAt);
             ])
 
     [<Extension>]
@@ -29,8 +29,11 @@ type Do() =
             Symbol = reader.getString FieldName.Symbol
             Image = reader.getStringOrNone FieldName.Image
             Name = reader.getStringOrNone FieldName.Name
-            CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
-            UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
+            Audit = 
+                {
+                    CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
+                    UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
+                }
         }
 
     [<Extension>]
