@@ -146,3 +146,7 @@ module internal Do =
         command.CommandText <- $"DELETE FROM {table}"
         do! executeNonQuery command |> Async.AwaitTask |> Async.Ignore
     }
+
+    let init() = task {
+        return connect() |> Async.AwaitTask |> Async.Ignore
+    }
