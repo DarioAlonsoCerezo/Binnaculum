@@ -14,8 +14,33 @@ module internal BankAccountMovementsQuery =
             {Amount} TEXT NOT NULL,
             {BankAccountId} INTEGER NOT NULL,
             {CurrencyId} INTEGER NOT NULL,
-            {MovementType} TEXT NOT NULL
-        )
+            {MovementType} TEXT NOT NULL,
+            {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
+            {UpdatedAt} TEXT,
+            -- Foreign key to ensure BankAccountId references a valid BankAccount in the BankAccounts table
+            FOREIGN KEY ({BankAccountId}) REFERENCES {BankAccounts}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure CurrencyId references a valid Currency in the Currencies table
+            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        -- Index to optimize queries filtering by BankAccountId
+        CREATE INDEX IF NOT EXISTS idx_BankAccountMovements_BankAccountId ON {BankAccountMovements}({BankAccountId});
+
+        -- Index to optimize queries filtering by CurrencyId
+        CREATE INDEX IF NOT EXISTS idx_BankAccountMovements_CurrencyId ON {BankAccountMovements}({CurrencyId});
+
+        -- Index to optimize queries filtering by TimeStamp
+        CREATE INDEX IF NOT EXISTS idx_BankAccountMovements_TimeStamp ON {BankAccountMovements}({TimeStamp});
+
+        -- Trigger to automatically update the UpdatedAt column on row update
+        CREATE TRIGGER IF NOT EXISTS trg_BankAccountMovements_UpdatedAt
+        AFTER UPDATE ON {BankAccountMovements}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {BankAccountMovements}
+            SET {UpdatedAt} = DATETIME('now')
+            WHERE {Id} = OLD.{Id};
+        END;
         """
 
     let insert =
@@ -26,7 +51,9 @@ module internal BankAccountMovementsQuery =
             {Amount},
             {BankAccountId},
             {CurrencyId},
-            {MovementType}
+            {MovementType},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
@@ -34,7 +61,9 @@ module internal BankAccountMovementsQuery =
             {SQLParameterName.Amount},
             {SQLParameterName.BankAccountId},
             {SQLParameterName.CurrencyId},
-            {SQLParameterName.MovementType}
+            {SQLParameterName.MovementType},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -46,7 +75,9 @@ module internal BankAccountMovementsQuery =
             {Amount} = {SQLParameterName.Amount},
             {BankAccountId} = {SQLParameterName.BankAccountId},
             {CurrencyId} = {SQLParameterName.CurrencyId},
-            {MovementType} = {SQLParameterName.MovementType}
+            {MovementType} = {SQLParameterName.MovementType},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
+            {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
             {Id} = {SQLParameterName.Id}
         """

@@ -335,11 +335,12 @@ module internal DatabaseModel =
 
     type BankAccountMovement = {
         Id: int
-        TimeStamp: DateTime
-        Amount: decimal
+        TimeStamp: DateTimePattern
+        Amount: Money
         BankAccountId: int
         CurrencyId: int
         MovementType: BankAccountMovementType
+        Audit: AuditableEntity
     } with
         interface IEntity with
             member this.Id = this.Id
@@ -348,3 +349,6 @@ module internal DatabaseModel =
             member this.DeleteSQL = BankAccountMovementsQuery.delete
             member this.GetAllSQL = BankAccountMovementsQuery.getAll
             member this.GetByIdSQL = BankAccountMovementsQuery.getById
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt

@@ -13,9 +13,8 @@ type Do() =
     
     [<Extension>]
     static member fill(bankAccountBalance: BankAccountMovement, command: SqliteCommand) =
-        command.fillParameters(
+        command.fillEntityAuditable<BankAccountMovement>(
             [
-                (SQLParameterName.Id, bankAccountBalance.Id);
                 (SQLParameterName.TimeStamp, bankAccountBalance.TimeStamp);
                 (SQLParameterName.Amount, bankAccountBalance.Amount);
                 (SQLParameterName.BankAccountId, bankAccountBalance.BankAccountId);
@@ -27,11 +26,12 @@ type Do() =
     static member read(reader: SqliteDataReader) =
         {
             Id = reader.getInt32 FieldName.Id
-            TimeStamp = reader.getDateTime FieldName.TimeStamp
-            Amount = reader.getDecimal FieldName.Amount
+            TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
+            Amount = reader.getMoney FieldName.Amount
             BankAccountId = reader.getInt32 FieldName.BankAccountId
             CurrencyId = reader.getInt32 FieldName.CurrencyId
             MovementType = fromDatabaseToBankMovementType (reader.getString FieldName.MovementType)
+            Audit = reader.getAudit()
         }
 
     [<Extension>]
