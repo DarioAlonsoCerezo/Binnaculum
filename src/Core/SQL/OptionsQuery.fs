@@ -23,8 +23,38 @@ module internal OptionsQuery =
             {Commissions} TEXT NOT NULL,
             {Fees} TEXT NOT NULL,
             {IsOpen} INTEGER NOT NULL,
-            {ClosedWith} INTEGER
-        )
+            {ClosedWith} INTEGER,
+            {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
+            {UpdatedAt} TEXT,
+            -- Foreign key to ensure TickerId references a valid Ticker in the Tickers table
+            FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure BrokerAccountId references a valid BrokerAccount in the BrokerAccounts table
+            FOREIGN KEY ({BrokerAccountId}) REFERENCES {BrokerAccounts}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure CurrencyId references a valid Currency in the Currencies table
+            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        -- Index to optimize queries filtering by TimeStamp
+        CREATE INDEX IF NOT EXISTS idx_Options_TimeStamp ON {Options}({TimeStamp});
+
+        -- Index to optimize queries filtering by TickerId
+        CREATE INDEX IF NOT EXISTS idx_Options_TickerId ON {Options}({TickerId});
+
+        -- Index to optimize queries filtering by BrokerAccountId
+        CREATE INDEX IF NOT EXISTS idx_Options_BrokerAccountId ON {Options}({BrokerAccountId});
+
+        -- Index to optimize queries filtering by CurrencyId
+        CREATE INDEX IF NOT EXISTS idx_Options_CurrencyId ON {Options}({CurrencyId});
+
+        -- Trigger to automatically update the UpdatedAt column on row update
+        CREATE TRIGGER IF NOT EXISTS trg_Options_UpdatedAt
+        AFTER UPDATE ON {Options}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {Options}
+            SET {UpdatedAt} = DATETIME('now')
+            WHERE {Id} = OLD.{Id};
+        END;
         """
 
     let insert =
@@ -44,7 +74,9 @@ module internal OptionsQuery =
             {Commissions},
             {Fees},
             {IsOpen},
-            {ClosedWith}
+            {ClosedWith},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
@@ -61,7 +93,9 @@ module internal OptionsQuery =
             {SQLParameterName.Commissions},
             {SQLParameterName.Fees},
             {SQLParameterName.IsOpen},
-            {SQLParameterName.ClosedWith}
+            {SQLParameterName.ClosedWith},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -82,7 +116,9 @@ module internal OptionsQuery =
             {Commissions} = {SQLParameterName.Commissions},
             {Fees} = {SQLParameterName.Fees},
             {IsOpen} = {SQLParameterName.IsOpen},
-            {ClosedWith} = {SQLParameterName.ClosedWith}
+            {ClosedWith} = {SQLParameterName.ClosedWith},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
+            {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
             {Id} = {SQLParameterName.Id}
         """

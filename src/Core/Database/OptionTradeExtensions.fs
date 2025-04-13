@@ -13,9 +13,8 @@ type Do() =
 
     [<Extension>]
     static member fill(optionTrade: OptionTrade, command: SqliteCommand) =
-        command.fillParameters(
+        command.fillEntityAuditable<OptionTrade>(
             [
-                (SQLParameterName.Id, optionTrade.Id);
                 (SQLParameterName.TimeStamp, optionTrade.TimeStamp);
                 (SQLParameterName.ExpirationDate, optionTrade.ExpirationDate);
                 (SQLParameterName.Premium, optionTrade.Premium);
@@ -36,20 +35,21 @@ type Do() =
     static member read(reader: SqliteDataReader) =
         { 
             Id = reader.getInt32 FieldName.Id 
-            TimeStamp = reader.getDateTime FieldName.TimeStamp
-            ExpirationDate = reader.getDateTime FieldName.ExpirationDate
-            Premium = reader.getDecimal FieldName.Premium
-            NetPremium = reader.getDecimal FieldName.NetPremium
+            TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
+            ExpirationDate = reader.getDateTimePattern FieldName.ExpirationDate
+            Premium = reader.getMoney FieldName.Premium
+            NetPremium = reader.getMoney FieldName.NetPremium
             TickerId = reader.getInt32 FieldName.TickerId
             BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
             CurrencyId = reader.getInt32 FieldName.CurrencyId
             OptionType = reader.getString FieldName.OptionType |> fromDatabaseToOptionType
             Code = reader.getString FieldName.Code |> fromDatabaseToOptionCode
-            Strike = reader.getDecimal FieldName.Strike
-            Commissions = reader.getDecimal FieldName.Commissions
-            Fees = reader.getDecimal FieldName.Fees
+            Strike = reader.getMoney FieldName.Strike
+            Commissions = reader.getMoney FieldName.Commissions
+            Fees = reader.getMoney FieldName.Fees
             IsOpen = reader.getBoolean FieldName.IsOpen
             ClosedWith = reader.getIntOrNone FieldName.ClosedWith
+            Audit = reader.getAudit()
         }
 
     [<Extension>]

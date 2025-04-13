@@ -270,20 +270,21 @@ module internal DatabaseModel =
 
     type OptionTrade = {
         Id: int
-        TimeStamp: DateTime
-        ExpirationDate: DateTime
-        Premium: decimal
-        NetPremium: decimal
+        TimeStamp: DateTimePattern
+        ExpirationDate: DateTimePattern
+        Premium: Money
+        NetPremium: Money
         TickerId: int
         BrokerAccountId: int
         CurrencyId: int
         OptionType: OptionType
         Code: OptionCode
-        Strike: decimal
-        Commissions: decimal
-        Fees: decimal
+        Strike: Money
+        Commissions: Money
+        Fees: Money
         IsOpen: bool
         ClosedWith: int option
+        Audit: AuditableEntity
     } with
         interface IEntity with
             member this.Id = this.Id
@@ -292,6 +293,9 @@ module internal DatabaseModel =
             member this.DeleteSQL = OptionsQuery.delete
             member this.GetAllSQL = OptionsQuery.getAll
             member this.GetByIdSQL = OptionsQuery.getById
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
 
     type Bank = {
         Id: int
