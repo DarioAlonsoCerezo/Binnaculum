@@ -11,8 +11,6 @@ module internal Do =
         abstract member InsertSQL: string
         abstract member UpdateSQL: string
         abstract member DeleteSQL: string
-        abstract member GetAllSQL: string
-        abstract member GetByIdSQL: string
 
     type IAuditEntity =
         abstract member CreatedAt: Binnaculum.Core.Patterns.DateTimePattern option

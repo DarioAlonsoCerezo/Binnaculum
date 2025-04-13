@@ -69,8 +69,6 @@ module internal DatabaseModel =
             member this.InsertSQL = BrokerQuery.insert
             member this.UpdateSQL = BrokerQuery.update
             member this.DeleteSQL = BrokerQuery.delete
-            member this.GetAllSQL = BrokerQuery.getAll
-            member this.GetByIdSQL = BrokerQuery.getById
 
     type BrokerAccount = {
         Id: int
@@ -83,8 +81,6 @@ module internal DatabaseModel =
             member this.InsertSQL = BrokerAccountQuery.insert
             member this.UpdateSQL = BrokerAccountQuery.update
             member this.DeleteSQL = BrokerAccountQuery.delete
-            member this.GetAllSQL = BrokerAccountQuery.getAll
-            member this.GetByIdSQL = BrokerAccountQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -100,8 +96,6 @@ module internal DatabaseModel =
             member this.InsertSQL = CurrencyQuery.insert
             member this.UpdateSQL = CurrencyQuery.update
             member this.DeleteSQL = CurrencyQuery.delete
-            member this.GetAllSQL = CurrencyQuery.getAll
-            member this.GetByIdSQL = CurrencyQuery.getById
 
     type BrokerMovement = {
         Id: int
@@ -119,8 +113,6 @@ module internal DatabaseModel =
             member this.InsertSQL = BrokerMovementQuery.insert
             member this.UpdateSQL = BrokerMovementQuery.update
             member this.DeleteSQL = BrokerMovementQuery.delete
-            member this.GetAllSQL = BrokerMovementQuery.getAll
-            member this.GetByIdSQL = BrokerMovementQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -137,8 +129,6 @@ module internal DatabaseModel =
             member this.InsertSQL = TickersQuery.insert
             member this.UpdateSQL = TickersQuery.update
             member this.DeleteSQL = TickersQuery.delete
-            member this.GetAllSQL = TickersQuery.getAll
-            member this.GetByIdSQL = TickersQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -155,8 +145,6 @@ module internal DatabaseModel =
             member this.InsertSQL = TickerSplitQuery.insert
             member this.UpdateSQL = TickerSplitQuery.update
             member this.DeleteSQL = TickerSplitQuery.delete
-            member this.GetAllSQL = TickerSplitQuery.getAll
-            member this.GetByIdSQL = TickerSplitQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -174,8 +162,6 @@ module internal DatabaseModel =
             member this.InsertSQL = TickerPriceQuery.insert
             member this.UpdateSQL = TickerPriceQuery.update
             member this.DeleteSQL = TickerPriceQuery.delete
-            member this.GetAllSQL = TickerPriceQuery.getAll
-            member this.GetByIdSQL = TickerPriceQuery.getById
 
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
@@ -201,8 +187,6 @@ module internal DatabaseModel =
             member this.InsertSQL = TradesQuery.insert
             member this.UpdateSQL = TradesQuery.update
             member this.DeleteSQL = TradesQuery.delete
-            member this.GetAllSQL = TradesQuery.getAll
-            member this.GetByIdSQL = TradesQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -221,8 +205,6 @@ module internal DatabaseModel =
             member this.InsertSQL = DividendsQuery.insert
             member this.UpdateSQL = DividendsQuery.update
             member this.DeleteSQL = DividendsQuery.delete
-            member this.GetAllSQL = DividendsQuery.getAll
-            member this.GetByIdSQL = DividendsQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -241,8 +223,6 @@ module internal DatabaseModel =
             member this.InsertSQL = DividendTaxesQuery.insert
             member this.UpdateSQL = DividendTaxesQuery.update
             member this.DeleteSQL = DividendTaxesQuery.delete
-            member this.GetAllSQL = DividendTaxesQuery.getAll
-            member this.GetByIdSQL = DividendTaxesQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -262,8 +242,6 @@ module internal DatabaseModel =
             member this.InsertSQL = DividendDateQuery.insert
             member this.UpdateSQL = DividendDateQuery.update
             member this.DeleteSQL = DividendDateQuery.delete
-            member this.GetAllSQL = DividendDateQuery.getAll
-            member this.GetByIdSQL = DividendDateQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -291,8 +269,6 @@ module internal DatabaseModel =
             member this.InsertSQL = OptionsQuery.insert
             member this.UpdateSQL = OptionsQuery.update
             member this.DeleteSQL = OptionsQuery.delete
-            member this.GetAllSQL = OptionsQuery.getAll
-            member this.GetByIdSQL = OptionsQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -308,8 +284,6 @@ module internal DatabaseModel =
             member this.InsertSQL = BankQuery.insert
             member this.UpdateSQL = BankQuery.update
             member this.DeleteSQL = BankQuery.delete
-            member this.GetAllSQL = BankQuery.getAll
-            member this.GetByIdSQL = BankQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -327,8 +301,6 @@ module internal DatabaseModel =
             member this.InsertSQL = BankAccountsQuery.insert
             member this.UpdateSQL = BankAccountsQuery.update
             member this.DeleteSQL = BankAccountsQuery.delete
-            member this.GetAllSQL = BankAccountsQuery.getAll
-            member this.GetByIdSQL = BankAccountsQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
@@ -347,8 +319,6 @@ module internal DatabaseModel =
             member this.InsertSQL = BankAccountMovementsQuery.insert
             member this.UpdateSQL = BankAccountMovementsQuery.update
             member this.DeleteSQL = BankAccountMovementsQuery.delete
-            member this.GetAllSQL = BankAccountMovementsQuery.getAll
-            member this.GetByIdSQL = BankAccountMovementsQuery.getById
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
