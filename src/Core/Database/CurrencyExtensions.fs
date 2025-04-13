@@ -13,9 +13,8 @@ open CommandExtensions
         
         [<Extension>]
         static member fill(currency: Currency, command: SqliteCommand) =
-            command.fillParameters(
+            command.fillEntity<Currency>(
                 [
-                    (SQLParameterName.Id, currency.Id);
                     (SQLParameterName.Name, currency.Name);
                     (SQLParameterName.Code, currency.Code);
                     (SQLParameterName.Symbol, currency.Symbol);
