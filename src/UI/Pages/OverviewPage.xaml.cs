@@ -69,14 +69,11 @@ public partial class OverviewPage
 
         AddAccount.AddAction = async () => await Navigation.PushModalAsync(new AccountCreatorPage());
 
-        Observable.FromAsync(() => Task.Run(Core.UI.Overview.InitDatabase))
-            .Subscribe(
-                _ => { /* Handle success if needed */ },
-                ex =>
-                {
-                    // Handle the error here, for example, log it and/or show an error message.
-                    System.Diagnostics.Debug.WriteLine($"Error initializing the database: {ex.Message}");
-                });
+        HistoryContainer.Events().Loaded
+            .Do(x => App.LogStartupTime())
+            .Throttle(TimeSpan.FromMilliseconds(250))
+            .Select(async x => await Core.UI.Overview.InitDatabase())
+            .Subscribe();
     }
 
     private double GetPercentage(double reference) => reference / (Height * 0.5) * 100;
