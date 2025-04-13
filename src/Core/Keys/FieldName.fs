@@ -16,6 +16,9 @@ module internal FieldName =
     let DividendAmount = "DividendAmount"
 
     [<Literal>]
+    let DividendTaxAmount = "DividendTaxAmount"
+
+    [<Literal>]
     let BrokerAccountId = "BrokerAccountId"
 
     // Dividend Taxes

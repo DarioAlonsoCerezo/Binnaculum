@@ -19,9 +19,11 @@ module internal SQLParameterName =
     [<Literal>]
     let BrokerAccountId = "@BrokerAccountId"
 
-    // Dividend Taxes
     [<Literal>]
     let Amount = "@Amount"
+
+    [<Literal>]
+    let DividendTaxAmount = "@DividendTaxAmount"
 
     // Dividend Dates
     [<Literal>]

@@ -12,11 +12,10 @@ type Do() =
 
     [<Extension>]
     static member fill(dividendTax: DividendTax, command: SqliteCommand) =
-        command.fillParameters(
+        command.fillEntityAuditable<DividendTax>(
             [
-                (SQLParameterName.Id, dividendTax.Id);
                 (SQLParameterName.TimeStamp, dividendTax.TimeStamp);
-                (SQLParameterName.Amount, dividendTax.Amount);
+                (SQLParameterName.Amount, dividendTax.DividendTaxAmount);
                 (SQLParameterName.TickerId, dividendTax.TickerId);
                 (SQLParameterName.CurrencyId, dividendTax.CurrencyId);
                 (SQLParameterName.BrokerAccountId, dividendTax.BrokerAccountId);
@@ -26,11 +25,12 @@ type Do() =
     static member read(reader: SqliteDataReader) =
         {
             Id = reader.getInt32 FieldName.Id
-            TimeStamp = reader.getDateTime FieldName.TimeStamp
-            Amount = reader.getDecimal FieldName.Amount
+            TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
+            DividendTaxAmount = reader.getMoney FieldName.Amount
             TickerId = reader.getInt32 FieldName.TickerId
             CurrencyId = reader.getInt32 FieldName.CurrencyId
             BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
+            Audit = reader.getAudit()
         }
 
     [<Extension>]
