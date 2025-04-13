@@ -194,8 +194,7 @@ module internal DatabaseModel =
         TradeCode: TradeCode
         TradeType: TradeType
         Notes: string option
-        CreatedAt: DateTimePattern option
-        UpdatedAt: DateTimePattern option
+        Audit: AuditableEntity
     } with
         interface IEntity with
             member this.Id = this.Id
@@ -204,6 +203,9 @@ module internal DatabaseModel =
             member this.DeleteSQL = TradesQuery.delete
             member this.GetAllSQL = TradesQuery.getAll
             member this.GetByIdSQL = TradesQuery.getById
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
 
     type Dividend = {
         Id: int

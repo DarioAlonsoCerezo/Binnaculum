@@ -13,9 +13,8 @@ type Do() =
 
     [<Extension>]
     static member fill(trade: Trade, command: SqliteCommand) =
-        command.fillParameters(
+        command.fillEntityAuditable<Trade>(
             [
-                (SQLParameterName.Id, trade.Id);
                 (SQLParameterName.TimeStamp, trade.TimeStamp);
                 (SQLParameterName.TickerId, trade.TickerId);
                 (SQLParameterName.BrokerAccountId, trade.BrokerAccountId);
@@ -27,8 +26,6 @@ type Do() =
                 (SQLParameterName.TradeCode, fromTradeCodeToDatabase trade.TradeCode);
                 (SQLParameterName.TradeType, fromTradeTypeToDatabase trade.TradeType);
                 (SQLParameterName.Notes, trade.Notes)
-                (SQLParameterName.CreatedAt, trade.CreatedAt);
-                (SQLParameterName.UpdatedAt, trade.UpdatedAt);
             ])
 
     [<Extension>]
@@ -46,8 +43,7 @@ type Do() =
             TradeCode = reader.GetString(reader.GetOrdinal(FieldName.TradeCode)) |> fromDatabaseToTradeCode
             TradeType = reader.GetString(reader.GetOrdinal(FieldName.TradeType)) |> fromDatabaseToTradeType
             Notes = reader.getStringOrNone FieldName.Notes
-            CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
-            UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
+            Audit = reader.getAudit()
         }
 
     [<Extension>]
