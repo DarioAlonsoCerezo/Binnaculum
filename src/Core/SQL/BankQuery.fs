@@ -11,8 +11,23 @@ module internal BankQuery =
         (
             {Id} INTEGER PRIMARY KEY,
             {Name} TEXT NOT NULL,
-            {Image} TEXT
-        )
+            {Image} TEXT,
+            {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
+            {UpdatedAt} TEXT
+        );
+
+        -- Index to optimize queries filtering by Name
+        CREATE INDEX IF NOT EXISTS idx_Banks_Name ON {Banks}({Name});
+
+        -- Trigger to automatically update the UpdatedAt column on row update
+        CREATE TRIGGER IF NOT EXISTS trg_Banks_UpdatedAt
+        AFTER UPDATE ON {Banks}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {Banks}
+            SET {UpdatedAt} = DATETIME('now')
+            WHERE {Id} = OLD.{Id};
+        END;
         """
 
     let insert =
@@ -20,12 +35,16 @@ module internal BankQuery =
         INSERT INTO {Banks}
         (
             {Name},
-            {Image}
+            {Image},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
             {SQLParameterName.Name},
-            {SQLParameterName.Image}
+            {SQLParameterName.Image},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -34,7 +53,8 @@ module internal BankQuery =
         UPDATE {Banks}
         SET
             {Name} = {SQLParameterName.Name},
-            {Image} = {SQLParameterName.Image}
+            {Image} = {SQLParameterName.Image},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
         WHERE
             {Id} = {SQLParameterName.Id}
         """

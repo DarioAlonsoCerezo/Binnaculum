@@ -12,9 +12,8 @@ type Do() =
     
     [<Extension>]
     static member fill(bank: Bank, command: SqliteCommand) =
-        command.fillParameters(
+        command.fillEntityAuditable<Bank>(
             [
-                (SQLParameterName.Id, bank.Id);
                 (SQLParameterName.Name, bank.Name);
                 (SQLParameterName.Image, bank.Image);
             ])
@@ -25,6 +24,7 @@ type Do() =
             Id = reader.getInt32 FieldName.Id
             Name = reader.getString FieldName.Name
             Image = reader.getStringOrNone FieldName.Image
+            Audit = reader.getAudit()
         }
 
     [<Extension>]
