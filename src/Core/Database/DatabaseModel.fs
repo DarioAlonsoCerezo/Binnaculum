@@ -85,6 +85,9 @@ module internal DatabaseModel =
             member this.DeleteSQL = BrokerAccountQuery.delete
             member this.GetAllSQL = BrokerAccountQuery.getAll
             member this.GetByIdSQL = BrokerAccountQuery.getById
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
     
     type Currency = {
         Id: int;
