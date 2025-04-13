@@ -167,8 +167,7 @@ module internal DatabaseModel =
         TickerId: int
         Price: Money
         CurrencyId: int
-        CreatedAt: DateTimePattern option
-        UpdatedAt: DateTimePattern option
+        Audit: AuditableEntity
     } with
         interface IEntity with
             member this.Id = this.Id
@@ -177,6 +176,10 @@ module internal DatabaseModel =
             member this.DeleteSQL = TickerPriceQuery.delete
             member this.GetAllSQL = TickerPriceQuery.getAll
             member this.GetByIdSQL = TickerPriceQuery.getById
+
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
             
     type Trade = {
         Id: int
