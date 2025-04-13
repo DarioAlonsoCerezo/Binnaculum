@@ -12,14 +12,11 @@ type Do() =
     
     [<Extension>]
     static member fill(tickerSplit: TickerSplit, command: SqliteCommand) =
-        command.fillParameters(
+        command.fillEntityAuditable<TickerSplit>(
             [
-                (SQLParameterName.Id, tickerSplit.Id);
                 (SQLParameterName.SplitDate, tickerSplit.SplitDate);
                 (SQLParameterName.TickerId, tickerSplit.TickerId);
                 (SQLParameterName.SplitFactor, tickerSplit.SplitFactor);
-                (SQLParameterName.CreatedAt, tickerSplit.CreatedAt);
-                (SQLParameterName.UpdatedAt, tickerSplit.UpdatedAt);
             ])
 
     [<Extension>]
@@ -29,8 +26,7 @@ type Do() =
             SplitDate = reader.getDateTimePattern FieldName.SplitDate
             TickerId = reader.getInt32 FieldName.TickerId
             SplitFactor = reader.getDecimal FieldName.SplitFactor
-            CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
-            UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
+            Audit = reader.getAudit()
         }
 
     [<Extension>]

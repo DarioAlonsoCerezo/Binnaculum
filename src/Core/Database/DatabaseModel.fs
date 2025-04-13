@@ -148,8 +148,7 @@ module internal DatabaseModel =
         SplitDate: DateTimePattern
         TickerId: int
         SplitFactor: decimal
-        CreatedAt: DateTimePattern option
-        UpdatedAt: DateTimePattern option
+        Audit: AuditableEntity
     } with
         interface IEntity with
             member this.Id = this.Id
@@ -158,6 +157,9 @@ module internal DatabaseModel =
             member this.DeleteSQL = TickerSplitQuery.delete
             member this.GetAllSQL = TickerSplitQuery.getAll
             member this.GetByIdSQL = TickerSplitQuery.getById
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
 
     type TickerPrice = {
         Id: int
