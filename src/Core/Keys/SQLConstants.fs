@@ -28,3 +28,9 @@ module internal SQLConstants =
     
     [<Literal>]
     let Conversion = "CONVERSION"
+
+    [<Literal>]
+    let ExDividendDate = "EX_DIVIDEND_DATE"
+    
+    [<Literal>]
+    let PayDividendDate = "PAY_DIVIDEND_DATE"

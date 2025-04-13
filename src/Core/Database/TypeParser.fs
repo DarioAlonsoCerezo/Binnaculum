@@ -116,13 +116,13 @@ module internal TypeParser =
 
     let fromDividendDateCodeToDatabase(value: DividendCode) =
         match value with
-        | DividendCode.ExDividendDate -> "EX_DIVIDEND_DATE"
-        | DividendCode.PayDividendDate -> "PAY_DIVIDEND_DATE"
+        | DividendCode.ExDividendDate -> SQLConstants.ExDividendDate
+        | DividendCode.PayDividendDate -> SQLConstants.PayDividendDate
 
     let fromDatabaseToDividendDateCode(value: string) =
         match value with
-        | "EX_DIVIDEND_DATE" -> DividendCode.ExDividendDate
-        | "PAY_DIVIDEND_DATE" -> DividendCode.PayDividendDate
+        | SQLConstants.ExDividendDate -> DividendCode.ExDividendDate
+        | SQLConstants.PayDividendDate -> DividendCode.PayDividendDate
         | _ -> failwith $"Invalid Dividend Code: {value}"
 
     let fromDatabaseToBankMovementType(value: string) =

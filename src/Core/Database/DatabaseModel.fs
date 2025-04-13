@@ -249,12 +249,13 @@ module internal DatabaseModel =
 
     type DividendDate = {
         Id: int
-        TimeStamp: DateTime
-        Amount: decimal
+        TimeStamp: DateTimePattern
+        Amount: Money
         TickerId: int
         CurrencyId: int
         BrokerAccountId: int
         DividendCode: DividendCode
+        Audit: AuditableEntity
     } with
         interface IEntity with
             member this.Id = this.Id
@@ -263,6 +264,9 @@ module internal DatabaseModel =
             member this.DeleteSQL = DividendDateQuery.delete
             member this.GetAllSQL = DividendDateQuery.getAll
             member this.GetByIdSQL = DividendDateQuery.getById
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
 
     type OptionTrade = {
         Id: int
