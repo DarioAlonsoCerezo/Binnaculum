@@ -14,8 +14,38 @@ module internal DividendsQuery =
             {DividendAmount} TEXT NOT NULL,
             {TickerId} INTEGER NOT NULL,
             {CurrencyId} INTEGER NOT NULL,
-            {BrokerAccountId} INTEGER NOT NULL
-        )
+            {BrokerAccountId} INTEGER NOT NULL,
+            {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
+            {UpdatedAt} TEXT,
+            -- Foreign key to ensure TickerId references a valid Ticker in the Tickers table
+            FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure CurrencyId references a valid Currency in the Currencies table
+            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure BrokerAccountId references a valid BrokerAccount in the BrokerAccounts table
+            FOREIGN KEY ({BrokerAccountId}) REFERENCES {BrokerAccounts}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        -- Index to optimize queries filtering by TimeStamp
+        CREATE INDEX IF NOT EXISTS idx_Dividends_TimeStamp ON {Dividends}({TimeStamp});
+
+        -- Index to optimize queries filtering by TickerId
+        CREATE INDEX IF NOT EXISTS idx_Dividends_TickerId ON {Dividends}({TickerId});
+
+        -- Index to optimize queries filtering by CurrencyId
+        CREATE INDEX IF NOT EXISTS idx_Dividends_CurrencyId ON {Dividends}({CurrencyId});
+
+        -- Index to optimize queries filtering by BrokerAccountId
+        CREATE INDEX IF NOT EXISTS idx_Dividends_BrokerAccountId ON {Dividends}({BrokerAccountId});
+
+        -- Trigger to automatically update the UpdatedAt column on row update
+        CREATE TRIGGER IF NOT EXISTS trg_Dividends_UpdatedAt
+        AFTER UPDATE ON {Dividends}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {Dividends}
+            SET {UpdatedAt} = DATETIME('now')
+            WHERE {Id} = OLD.{Id};
+        END;
         """
 
     let insert =
@@ -26,7 +56,9 @@ module internal DividendsQuery =
             {DividendAmount},
             {TickerId},
             {CurrencyId},
-            {BrokerAccountId}
+            {BrokerAccountId},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
@@ -34,7 +66,9 @@ module internal DividendsQuery =
             {SQLParameterName.DividendAmount},
             {SQLParameterName.TickerId},
             {SQLParameterName.CurrencyId},
-            {SQLParameterName.BrokerAccountId}
+            {SQLParameterName.BrokerAccountId},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -46,7 +80,8 @@ module internal DividendsQuery =
             {DividendAmount} = {SQLParameterName.DividendAmount},
             {TickerId} = {SQLParameterName.TickerId},
             {CurrencyId} = {SQLParameterName.CurrencyId},
-            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
         WHERE
             {Id} = {SQLParameterName.Id}
         """
