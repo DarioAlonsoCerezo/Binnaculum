@@ -69,7 +69,7 @@ public partial class OverviewPage
 
         AddAccount.AddAction = async () => await Navigation.PushModalAsync(new AccountCreatorPage());
 
-        Observable.FromAsync(Core.UI.Overview.InitDatabase)
+        Observable.FromAsync(() => Task.Run(Core.UI.Overview.InitDatabase))
             .Subscribe(
                 _ => { /* Handle success if needed */ },
                 ex =>
