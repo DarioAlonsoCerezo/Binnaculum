@@ -320,6 +320,7 @@ module internal DatabaseModel =
         Name: string
         Description: string option
         CurrencyId: int
+        Audit: AuditableEntity
     } with
         interface IEntity with
             member this.Id = this.Id
@@ -328,6 +329,9 @@ module internal DatabaseModel =
             member this.DeleteSQL = BankAccountsQuery.delete
             member this.GetAllSQL = BankAccountsQuery.getAll
             member this.GetByIdSQL = BankAccountsQuery.getById
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
 
     type BankAccountMovement = {
         Id: int

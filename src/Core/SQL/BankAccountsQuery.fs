@@ -13,8 +13,30 @@ module internal BankAccountsQuery =
             {BankId} INTEGER NOT NULL,
             {Name} TEXT NOT NULL,
             {Description} TEXT,
-            {CurrencyId} INTEGER NOT NULL
-        )
+            {CurrencyId} INTEGER NOT NULL,
+            {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
+            {UpdatedAt} TEXT,
+            -- Foreign key to ensure BankId references a valid Bank in the Banks table
+            FOREIGN KEY ({BankId}) REFERENCES {Banks}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure CurrencyId references a valid Currency in the Currencies table
+            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+        );
+
+        -- Index to optimize queries filtering by BankId
+        CREATE INDEX IF NOT EXISTS idx_BankAccounts_BankId ON {BankAccounts}({BankId});
+
+        -- Index to optimize queries filtering by CurrencyId
+        CREATE INDEX IF NOT EXISTS idx_BankAccounts_CurrencyId ON {BankAccounts}({CurrencyId});
+
+        -- Trigger to automatically update the UpdatedAt column on row update
+        CREATE TRIGGER IF NOT EXISTS trg_BankAccounts_UpdatedAt
+        AFTER UPDATE ON {BankAccounts}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {BankAccounts}
+            SET {UpdatedAt} = DATETIME('now')
+            WHERE {Id} = OLD.{Id};
+        END;
         """
 
     let insert =
@@ -24,14 +46,18 @@ module internal BankAccountsQuery =
             {Name},
             {BankId},
             {Description},
-            {CurrencyId}
+            {CurrencyId},
+            {CreatedAt},
+            {UpdatedAt}
         )
         VALUES
         (
             {SQLParameterName.Name},
             {SQLParameterName.BankId},
             {SQLParameterName.Description},
-            {SQLParameterName.CurrencyId}
+            {SQLParameterName.CurrencyId},
+            {SQLParameterName.CreatedAt},
+            {SQLParameterName.UpdatedAt}
         )
         """
 
@@ -42,7 +68,9 @@ module internal BankAccountsQuery =
             {Name} = {SQLParameterName.Name},
             {BankId} = {SQLParameterName.BankId},
             {Description} = {SQLParameterName.Description},
-            {CurrencyId} = {SQLParameterName.CurrencyId}
+            {CurrencyId} = {SQLParameterName.CurrencyId},
+            {CreatedAt} = {SQLParameterName.CreatedAt},
+            {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
             {Id} = {SQLParameterName.Id}
         """
