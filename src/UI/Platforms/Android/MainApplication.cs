@@ -11,5 +11,15 @@ public class MainApplication : MauiApplication
     {
     }
 
-    protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+    protected override MauiApp CreateMauiApp()
+    {
+        var app = MauiProgram.CreateMauiApp();
+        var service = app.Services.GetService(typeof(Microsoft.Maui.IApplication));
+        if (service is Binnaculum.App binnaculum)
+        {
+            Binnaculum.App.IniLogStartupTime();
+        }
+
+        return app;
+    }
 }
