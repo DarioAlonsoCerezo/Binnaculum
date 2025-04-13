@@ -188,9 +188,9 @@ module internal DatabaseModel =
         BrokerAccountId: int
         CurrencyId: int
         Quantity: decimal
-        Price: decimal
-        Commissions: decimal
-        Fees: decimal
+        Price: Money
+        Commissions: Money
+        Fees: Money
         TradeCode: TradeCode
         TradeType: TradeType
         Notes: string option
