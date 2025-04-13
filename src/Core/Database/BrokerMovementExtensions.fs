@@ -13,9 +13,8 @@ type Do() =
     
     [<Extension>]
     static member fill(brokerMovement: BrokerMovement, command: SqliteCommand) =
-        command.fillParameters(
+        command.fillEntityAuditable<BrokerMovement>(
             [
-                (SQLParameterName.Id, brokerMovement.Id);
                 (SQLParameterName.TimeStamp, brokerMovement.TimeStamp.ToString());
                 (SQLParameterName.Amount, brokerMovement.Amount);
                 (SQLParameterName.CurrencyId, brokerMovement.CurrencyId);
@@ -23,8 +22,6 @@ type Do() =
                 (SQLParameterName.Commissions, brokerMovement.Commissions);
                 (SQLParameterName.Fees, brokerMovement.Fees);
                 (SQLParameterName.MovementType, fromMovementTypeToDatabase brokerMovement.MovementType);
-                (SQLParameterName.CreatedAt, brokerMovement.Audit.CreatedAt);
-                (SQLParameterName.UpdatedAt, brokerMovement.Audit.UpdatedAt);
             ])
 
     [<Extension>]
@@ -38,11 +35,7 @@ type Do() =
             Commissions = reader.getMoney FieldName.Commissions
             Fees = reader.getMoney FieldName.Fees
             MovementType = reader.getString FieldName.MovementType |> fromDataseToMovementType
-            Audit = 
-                {
-                    CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
-                    UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
-                }           
+            Audit = reader.getAudit()        
         }
 
     [<Extension>]

@@ -14,6 +14,10 @@ module internal Do =
         abstract member GetAllSQL: string
         abstract member GetByIdSQL: string
 
+    type IAuditEntity =
+        abstract member CreatedAt: Binnaculum.Core.Patterns.DateTimePattern option
+        abstract member UpdatedAt: Binnaculum.Core.Patterns.DateTimePattern option
+
     let mutable private connection: SqliteConnection = null
 
     let private getConnectionString() =

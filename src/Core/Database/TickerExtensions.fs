@@ -12,14 +12,11 @@ type Do() =
     
     [<Extension>]
     static member fill(ticker: Ticker, command: SqliteCommand) =
-        command.fillParameters(
+        command.fillEntityAuditable<Ticker>(
             [
-                (SQLParameterName.Id, ticker.Id);
                 (SQLParameterName.Symbol, ticker.Symbol);
                 (SQLParameterName.Image, ticker.Image);
                 (SQLParameterName.Name, ticker.Name);
-                (SQLParameterName.CreatedAt, ticker.Audit.CreatedAt);
-                (SQLParameterName.UpdatedAt, ticker.Audit.UpdatedAt);
             ])
 
     [<Extension>]
@@ -29,11 +26,7 @@ type Do() =
             Symbol = reader.getString FieldName.Symbol
             Image = reader.getStringOrNone FieldName.Image
             Name = reader.getStringOrNone FieldName.Name
-            Audit = 
-                {
-                    CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
-                    UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
-                }
+            Audit = reader.getAudit()
         }
 
     [<Extension>]

@@ -118,6 +118,9 @@ module internal DatabaseModel =
             member this.DeleteSQL = BrokerMovementQuery.delete
             member this.GetAllSQL = BrokerMovementQuery.getAll
             member this.GetByIdSQL = BrokerMovementQuery.getById
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
     
     type Ticker = {
         Id: int
@@ -133,6 +136,9 @@ module internal DatabaseModel =
             member this.DeleteSQL = TickersQuery.delete
             member this.GetAllSQL = TickersQuery.getAll
             member this.GetByIdSQL = TickersQuery.getById
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
 
     type TickerSplit = {
         Id: int

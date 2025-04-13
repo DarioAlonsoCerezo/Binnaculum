@@ -3,6 +3,8 @@
 open System.Runtime.CompilerServices
 open Microsoft.Data.Sqlite
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Database.DatabaseModel
+open Binnaculum.Core
 
     [<Extension>]
     type Do() =
@@ -66,4 +68,11 @@ open Binnaculum.Core.Patterns
                 None
             else
                 Some(DateTimePattern.Parse(reader.GetString(ordinal)))
+
+        [<Extension>]
+        static member getAudit(reader: SqliteDataReader) =
+            {
+                CreatedAt = reader.getDateTimePatternOrNone FieldName.CreatedAt
+                UpdatedAt = reader.getDateTimePatternOrNone FieldName.UpdatedAt
+            }
         
