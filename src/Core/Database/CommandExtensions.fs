@@ -21,25 +21,25 @@ open Binnaculum.Core
         /// Fills the command with parameters from a list of tuples, and adds an Id parameter.
         /// </summary>
         [<Extension>]
-        static member fillEntity<'a when 'a :> IEntity>(command: SqliteCommand, parameters: (string * obj) list) =
+        static member fillEntity<'a when 'a :> IEntity>(command: SqliteCommand, parameters: (string * obj) list, entity: 'a) =
             command.fillParameters(parameters)
-            |> fun c -> c.Parameters.AddWithValue(SQLParameterName.Id, box Unchecked.defaultof<'a>.Id) |> ignore
+            |> fun c -> c.Parameters.AddWithValue(SQLParameterName.Id, box entity.Id) |> ignore
             command
 
         /// <summary>
         /// Fills the command with parameters from a list of tuples, and adds CreatedAt and UpdatedAt parameters.
         /// </summary>
         [<Extension>]
-        static member fillAuditable<'T when 'T :> IAuditEntity>(command: SqliteCommand, parameters: (string * obj) list) =
+        static member fillAuditable<'a when 'a :> IAuditEntity>(command: SqliteCommand, parameters: (string * obj) list, entity: 'a) =
             let filled = command.fillParameters(parameters)
-            filled.Parameters.AddWithValue(SQLParameterName.CreatedAt, box Unchecked.defaultof<'T>.CreatedAt) |> ignore
-            filled.Parameters.AddWithValue(SQLParameterName.UpdatedAt, box Unchecked.defaultof<'T>.UpdatedAt) |> ignore
+            filled.Parameters.AddWithValue(SQLParameterName.CreatedAt, box entity.CreatedAt) |> ignore
+            filled.Parameters.AddWithValue(SQLParameterName.UpdatedAt, box entity.UpdatedAt) |> ignore
             filled
 
         /// <summary>
         /// Fills the command with parameters from a list of tuples, and adds CreatedAt, UpdatedAt, and Id parameters.
         /// </summary>
         [<Extension>]
-        static member fillEntityAuditable<'a when 'a :> IEntity and 'a :> IAuditEntity>(command: SqliteCommand, parameters: (string * obj) list) =
-            command.fillEntity<'a>(parameters)
-            |> fun c -> c.fillAuditable<'a>(parameters)
+        static member fillEntityAuditable<'a when 'a :> IEntity and 'a :> IAuditEntity>(command: SqliteCommand, parameters: (string * obj) list, entity: 'a) =
+            command.fillEntity<'a>(parameters, entity)
+            |> fun c -> c.fillAuditable<'a>(parameters, entity)

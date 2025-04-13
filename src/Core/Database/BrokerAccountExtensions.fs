@@ -6,6 +6,7 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
+open Binnaculum.Core.SQL
 
     [<Extension>]
     type Do() =
@@ -16,7 +17,7 @@ open CommandExtensions
                 [
                     (SQLParameterName.BrokerId, brokerAccount.BrokerId);
                     (SQLParameterName.AccountNumber, brokerAccount.AccountNumber);
-                ])
+                ], brokerAccount)
 
         [<Extension>]
         static member read(reader: SqliteDataReader) =
@@ -33,6 +34,6 @@ open CommandExtensions
         [<Extension>]
         static member delete(account: BrokerAccount) = Database.Do.deleteEntity account
 
-        static member getAll() = Database.Do.getAllEntities Do.read
+        static member getAll() = Database.Do.getAllEntities Do.read BrokerAccountQuery.getAll
 
-        static member getById(id: int) = Database.Do.getById id Do.read
+        static member getById(id: int) = Database.Do.getById Do.read id BrokerAccountQuery.getById

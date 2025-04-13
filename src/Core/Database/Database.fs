@@ -119,16 +119,16 @@ module internal Do =
         do! executeNonQuery(command) |> Async.AwaitTask |> Async.Ignore
     }
 
-    let getAllEntities<'T when 'T :> IEntity> (map: SqliteDataReader -> 'T) = task {
+    let getAllEntities<'T when 'T :> IEntity> (map: SqliteDataReader -> 'T) (sql: string) = task {
         let! command = createCommand()
-        command.CommandText <- Unchecked.defaultof<'T>.GetAllSQL
+        command.CommandText <- sql
         let! entities = readAll<'T>(command, map)
         return entities
     }
 
-    let getById<'T when 'T :> IEntity>(id: int) (map: SqliteDataReader -> 'T) = task {
+    let getById<'T when 'T :> IEntity>(map: SqliteDataReader -> 'T) (id: int) (sql: string) = task {
         let! command = createCommand()
-        command.CommandText <- Unchecked.defaultof<'T>.GetByIdSQL 
+        command.CommandText <- sql
         command.Parameters.AddWithValue("@Id", id) |> ignore
         let! entities = readAll<'T>(command, map)
         return entities |> List.tryHead

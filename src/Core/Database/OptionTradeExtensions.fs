@@ -7,6 +7,7 @@ open Binnaculum.Core.Database.TypeParser
 open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
+open Binnaculum.Core.SQL
 
 [<Extension>]
 type Do() =
@@ -29,7 +30,7 @@ type Do() =
                 (SQLParameterName.Fees, optionTrade.Fees);
                 (SQLParameterName.IsOpen, optionTrade.IsOpen);
                 (SQLParameterName.ClosedWith, optionTrade.ClosedWith)
-            ])
+            ], optionTrade)
             
     [<Extension>]
     static member read(reader: SqliteDataReader) =
@@ -58,6 +59,6 @@ type Do() =
     [<Extension>]
     static member delete(optionTrade: OptionTrade) = Database.Do.deleteEntity optionTrade
 
-    static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read OptionsQuery.getAll
 
-    static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById Do.read id OptionsQuery.getById

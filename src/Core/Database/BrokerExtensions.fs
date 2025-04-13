@@ -37,9 +37,9 @@ open CommandExtensions
         [<Extension>]
         static member delete(broker: Broker) = Database.Do.deleteEntity broker 
         
-        static member getAll() = Database.Do.getAllEntities Do.read
-
-        static member getById(id: int) = Database.Do.getById id Do.read
+        static member getAll() = Database.Do.getAllEntities Do.read BrokerQuery.getAll
+        
+        static member getById(id: int) = Database.Do.getById Do.read id BrokerQuery.getById
 
         //This list contains all supported brokers
         static member brokerList() =

@@ -7,6 +7,7 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.Database.TypeParser
+open Binnaculum.Core.SQL
 
 [<Extension>]
 type Do() =
@@ -20,7 +21,7 @@ type Do() =
                 (SQLParameterName.BankAccountId, bankAccountBalance.BankAccountId);
                 (SQLParameterName.CurrencyId, bankAccountBalance.CurrencyId);
                 (SQLParameterName.MovementType, fromBankMovementTypeToDatabase bankAccountBalance.MovementType);
-            ])
+            ], bankAccountBalance)
 
     [<Extension>]
     static member read(reader: SqliteDataReader) =
@@ -40,6 +41,6 @@ type Do() =
     [<Extension>]
     static member delete(bankAccountBalance: BankAccountMovement) = Database.Do.deleteEntity bankAccountBalance
 
-    static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read BankAccountMovementsQuery.getAll
 
-    static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById Do.read id BankAccountMovementsQuery.getById

@@ -6,6 +6,7 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
+open Binnaculum.Core.SQL
 
 [<Extension>]
 type Do() =
@@ -17,7 +18,7 @@ type Do() =
                 (SQLParameterName.SplitDate, tickerSplit.SplitDate);
                 (SQLParameterName.TickerId, tickerSplit.TickerId);
                 (SQLParameterName.SplitFactor, tickerSplit.SplitFactor);
-            ])
+            ], tickerSplit)
 
     [<Extension>]
     static member read(reader: SqliteDataReader) =
@@ -36,6 +37,6 @@ type Do() =
     [<Extension>]
     static member delete(tickerSplit: TickerSplit) = Database.Do.deleteEntity tickerSplit
 
-    static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read TickerSplitQuery.getAll
 
-    static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById Do.read id TickerSplitQuery.getById

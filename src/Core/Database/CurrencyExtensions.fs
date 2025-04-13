@@ -18,7 +18,7 @@ open CommandExtensions
                     (SQLParameterName.Name, currency.Name);
                     (SQLParameterName.Code, currency.Code);
                     (SQLParameterName.Symbol, currency.Symbol);
-                ])
+                ], currency)
         
         [<Extension>]
         static member read(reader: SqliteDataReader) =
@@ -35,9 +35,9 @@ open CommandExtensions
         [<Extension>]
         static member delete(currency: Currency) = Database.Do.deleteEntity currency
 
-        static member getAll() = Database.Do.getAllEntities Do.read
+        static member getAll() = Database.Do.getAllEntities Do.read CurrencyQuery.getAll
 
-        static member getById(id: int) = Database.Do.getById id Do.read
+        static member getById(id: int) = Database.Do.getById Do.read id CurrencyQuery.getById
 
         static member currencyList() =
             [

@@ -18,3 +18,17 @@ module Overview =
     let Init () =
         let data = Storage.load<Models.Home> Keys.HomeData Storage.defaulHomeData
         Data.OnNext data
+
+    let InitDatabase() = task {
+        do! Database.Do.init() |> Async.AwaitTask |> Async.Ignore
+        do! BrokerExtensions.Do.insertIfNotExists() |> Async.AwaitTask |> Async.Ignore
+        do! CurrencyExtensions.Do.insertDefaultValues() |> Async.AwaitTask |> Async.Ignore
+        
+        let! currencies = CurrencyExtensions.Do.getAll() |> Async.AwaitTask
+        let databaseCurrencies = currencies
+
+        let! brokers = BrokerExtensions.Do.getAll() |> Async.AwaitTask
+        let databaseBrokers = brokers
+        
+        return()
+    }

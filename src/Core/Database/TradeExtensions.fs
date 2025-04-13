@@ -7,6 +7,7 @@ open Binnaculum.Core
 open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
 open CommandExtensions
+open Binnaculum.Core.SQL
 
 [<Extension>]
 type Do() =
@@ -26,7 +27,7 @@ type Do() =
                 (SQLParameterName.TradeCode, fromTradeCodeToDatabase trade.TradeCode);
                 (SQLParameterName.TradeType, fromTradeTypeToDatabase trade.TradeType);
                 (SQLParameterName.Notes, trade.Notes)
-            ])
+            ], trade)
 
     [<Extension>]
     static member read(reader: SqliteDataReader) =
@@ -52,6 +53,6 @@ type Do() =
     [<Extension>]
     static member delete(trade: Trade) = Database.Do.deleteEntity trade
 
-    static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read TradesQuery.getAll
 
-    static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById Do.read id TradesQuery.getById

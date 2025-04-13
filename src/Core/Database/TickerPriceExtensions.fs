@@ -6,6 +6,7 @@ open Microsoft.Data.Sqlite
 open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
+open Binnaculum.Core.SQL
 
 [<Extension>]
 type Do() =
@@ -18,7 +19,7 @@ type Do() =
                 (SQLParameterName.TickerId, tickerPrice.TickerId);
                 (SQLParameterName.Price, tickerPrice.Price);
                 (SQLParameterName.CurrencyId, tickerPrice.CurrencyId);
-            ])
+            ], tickerPrice)
 
     [<Extension>]
     static member read(reader: SqliteDataReader) =
@@ -38,6 +39,6 @@ type Do() =
     [<Extension>]
     static member delete(tickerPrice: TickerPrice) = Database.Do.deleteEntity tickerPrice 
 
-    static member getAll() = Database.Do.getAllEntities Do.read
+    static member getAll() = Database.Do.getAllEntities Do.read TickerPriceQuery.getAll
 
-    static member getById(id: int) = Database.Do.getById id Do.read
+    static member getById(id: int) = Database.Do.getById Do.read id TickerPriceQuery.getById
