@@ -188,11 +188,6 @@ module Models =
         MovementType: BankAccountMovementType
     }
 
-    type Account = 
-        | BrokerAccount of BrokerAccount
-        | BankAccount of BankAccount
-        | EmptyAccount
-
     type Movement =
         | Trade of Trade
         | Dividend of Dividend
@@ -210,6 +205,19 @@ module Models =
         Image: string
         Description: string
         Currency: Currency
-        Account: Account
         Movement: Movement
+    }
+
+    type AccountType = 
+        | BrokerAccount of BrokerAccount
+        | BankAccount of BankAccount
+        | EmptyAccount
+
+    type Account = {
+        Type: AccountType
+        Transactions: Transaction list 
+    }
+
+    type OverviewUI = {
+        Accounts: Account list    
     }

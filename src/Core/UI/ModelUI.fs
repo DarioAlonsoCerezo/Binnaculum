@@ -68,3 +68,8 @@ module internal ModelUI =
         do! loadBrokers() |> Async.AwaitTask |> Async.Ignore
         do! loadBanks() |> Async.AwaitTask |> Async.Ignore
     }
+
+    let defaultOverviewUI() =
+        {
+            Accounts = []
+        }
