@@ -73,3 +73,10 @@ module internal ModelUI =
         {
             Accounts = []
         }
+
+    let initializeOverview() = task {
+        return 
+            {
+                Accounts = []
+            }
+    }

@@ -7,4 +7,8 @@ module Overview =
 
     let Data = new BehaviorSubject<OverviewUI>(ModelUI.defaultOverviewUI());
 
-    let InitDatabase() = ModelUI.initialize()
+    let InitDatabase() = task {
+        do! ModelUI.initialize()
+        let! data = ModelUI.initializeOverview() 
+        Data.OnNext data
+    }
