@@ -11,7 +11,12 @@ App based in .NET MAUI to track your investments
 - [License](#license)
 
 # Overview
-Binnaculum is a cross-platform application built with .NET MAUI to help users track and manage their investments efficiently. It provides features like portfolio tracking, dividend management, and more.
+Binnaculum is a cross-platform application built with .NET MAUI to help users track and manage their investments efficiently. It provides features like portfolio tracking, dividend management, and bank account monitoring.
+
+With Binnaculum, you can:
+- Track your investment portfolio performance.
+- Manage dividend payouts and important financial dates.
+- Monitor your bank accounts by tracking balances over time and calculating interest earned in specific currencies, without the need to log every transaction. This feature is designed to help you follow your financial growth and gain insights into your earnings from interest.
 
 # Resources
 [.NET MAUI](https://github.com/dotnet/maui)

@@ -46,10 +46,25 @@ module internal ModelUI =
         Collections.Brokers.EditDiff brokers
     }
 
+    let private loadBanks() = task {
+        let! databaseBanks = BankExtensions.Do.getAll() |> Async.AwaitTask
+        let banks =
+            databaseBanks 
+            |> List.map (fun b -> 
+            { 
+                Id = b.Id; 
+                Name = b.Name; 
+                Image = b.Image; 
+            })
+
+        Collections.Banks.EditDiff banks
+    }
+
     let initialize() = task {
         do! Database.Do.init() |> Async.AwaitTask |> Async.Ignore
         do! BrokerExtensions.Do.insertIfNotExists() |> Async.AwaitTask |> Async.Ignore
         do! CurrencyExtensions.Do.insertDefaultValues() |> Async.AwaitTask |> Async.Ignore
         do! loadCurrencies() |> Async.AwaitTask |> Async.Ignore
         do! loadBrokers() |> Async.AwaitTask |> Async.Ignore
+        do! loadBanks() |> Async.AwaitTask |> Async.Ignore
     }
