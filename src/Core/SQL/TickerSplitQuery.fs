@@ -10,7 +10,7 @@ module internal TickerSplitQuery =
         CREATE TABLE IF NOT EXISTS {TickerSplits}
         (
             {Id} INTEGER PRIMARY KEY,
-            {SplitDate} TEXT NOT NULL CHECK,
+            {SplitDate} TEXT NOT NULL,
             {TickerId} INTEGER NOT NULL,
             {SplitFactor} TEXT NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
