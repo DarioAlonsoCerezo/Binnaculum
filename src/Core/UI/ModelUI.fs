@@ -48,6 +48,8 @@ module internal ModelUI =
 
     let private loadBanks() = task {
         let! databaseBanks = BankExtensions.Do.getAll() |> Async.AwaitTask
+        if databaseBanks.IsEmpty then
+            return ()
         let banks =
             databaseBanks 
             |> List.map (fun b -> 
@@ -60,23 +62,23 @@ module internal ModelUI =
         Collections.Banks.EditDiff banks
     }
 
-    let initialize() = task {
+    let initialize(overview: OverviewUI) = task {
         do! Database.Do.init() |> Async.AwaitTask |> Async.Ignore
         do! BrokerExtensions.Do.insertIfNotExists() |> Async.AwaitTask |> Async.Ignore
         do! CurrencyExtensions.Do.insertDefaultValues() |> Async.AwaitTask |> Async.Ignore
         do! loadCurrencies() |> Async.AwaitTask |> Async.Ignore
         do! loadBrokers() |> Async.AwaitTask |> Async.Ignore
         do! loadBanks() |> Async.AwaitTask |> Async.Ignore
+        return { overview with IsDatabaseInitialized = true; }
     }
 
-    let defaultOverviewUI() =
-        {
-            Accounts = []
-        }
+    let loadData(overview: OverviewUI) = task {
+        let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
+        let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
 
-    let initializeOverview() = task {
-        return 
-            {
-                Accounts = []
-            }
+        if databaseBrokerAccounts.IsEmpty && databaseBankAccounts.IsEmpty then
+            Collections.OverviewAccounts.Add(AccountType.EmptyAccount "")
+            Collections.OverviewMovements.Add(Movement.EmptyMovement "")
+
+        return { overview with TransactionsLoaded = true; }
     }

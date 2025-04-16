@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<pages:BasePage
     x:Class="Binnaculum.Pages.OverviewPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Binnaculum"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:pages="clr-namespace:Binnaculum.Pages"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
     <Grid
@@ -66,4 +67,4 @@
             </Border>
         </Grid>
     </Grid>
-</ContentPage>
+</pages:BasePage>

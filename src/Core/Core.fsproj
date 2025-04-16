@@ -57,13 +57,10 @@
 		<Compile Include="Database\BankExtensions.fs" />
 		<Compile Include="Database\BankAccountExtensions.fs" />
 		<Compile Include="Database\BankAccountMovementExtensions.fs" />
+		<Compile Include="Storage\ModelParser.fs" />
 		<Compile Include="UI\Collections.fs" />
 		<Compile Include="UI\ModelUI.fs" />
 		<Compile Include="UI\Overview.fs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Storage\" />
 	</ItemGroup>
 
 </Project>

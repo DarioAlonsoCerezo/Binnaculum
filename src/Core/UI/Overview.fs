@@ -5,10 +5,14 @@ open Binnaculum.Core.Models
 
 module Overview = 
 
-    let Data = new BehaviorSubject<OverviewUI>(ModelUI.defaultOverviewUI());
+    let Data = new BehaviorSubject<OverviewUI>({ IsDatabaseInitialized = false; TransactionsLoaded = false});
 
     let InitDatabase() = task {
-        do! ModelUI.initialize()
-        let! data = ModelUI.initializeOverview() 
-        Data.OnNext data
+        let! overview = ModelUI.initialize(Data.Value)
+        Data.OnNext overview
+    }
+
+    let LoadData() = task {
+        let! overview = ModelUI.loadData(Data.Value)
+        Data.OnNext overview
     }

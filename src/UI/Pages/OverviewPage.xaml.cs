@@ -1,3 +1,6 @@
+using DynamicData;
+using System.Collections.ObjectModel;
+
 namespace Binnaculum.Pages;
 
 public partial class OverviewPage
@@ -6,10 +9,40 @@ public partial class OverviewPage
     private IDisposable? _animateHistoryMarginDisposable;
     private bool _hiding;
 
-    public OverviewPage()
-	{
-		InitializeComponent();
+    private ReadOnlyObservableCollection<Core.Models.AccountType> _accounts;
+    public ReadOnlyObservableCollection<Core.Models.AccountType> Accounts => _accounts;
 
+    public OverviewPage()
+    {
+		InitializeComponent();
+        SetupHistory();
+    }
+
+    protected override void StartLoad()
+    {
+        AddAccount.AddAction = async () => await Navigation.PushModalAsync(new AccountCreatorPage());
+
+        var data = Core.UI.Overview.Data;
+
+        //Here we initialize the database
+        data.Where(x => !x.IsDatabaseInitialized)
+            .Subscribe(_ => Task.Run(Core.UI.Overview.InitDatabase)).DisposeWith(Disposables);
+
+        //Here we load the data from the database
+        data.Where(x => !x.TransactionsLoaded && x.IsDatabaseInitialized)
+            .Subscribe(_ => Task.Run(Core.UI.Overview.LoadData)).DisposeWith(Disposables);
+
+        Core.UI.Collections.Accounts.Connect()
+            .ObserveOn(UiThread)
+            .Bind(out _accounts)
+            .Subscribe(x =>
+            {
+
+            });
+    }
+
+    private void SetupHistory()
+    {
         this.Events().SizeChanged
             .Do(_ =>
             {
@@ -27,7 +60,7 @@ public partial class OverviewPage
         HistoryGestured.Events().PanUpdated
             .Where(x => !HistoryBackground.IsVisible)
             .Where(args => args.StatusType == GestureStatus.Running)
-            .Do(args => 
+            .Do(args =>
             {
                 var marginTop = HistoryContainer.Margin.Top + args.TotalY;
                 if (marginTop < 0)
@@ -56,8 +89,8 @@ public partial class OverviewPage
 
         HistoryGestured.Events().PanUpdated
             .Where(x => x.StatusType == GestureStatus.Completed)
-            .Select(_ => GetPercentage(HistoryBackground.IsVisible 
-                ? History.Margin.Top 
+            .Select(_ => GetPercentage(HistoryBackground.IsVisible
+                ? History.Margin.Top
                 : HistoryContainer.Margin.Top))
             .Subscribe(x =>
             {
@@ -66,14 +99,6 @@ public partial class OverviewPage
                 _hiding = x > 50;
                 _animateHistoryMarginDisposable = AnimateHistoryMaring();
             });
-
-        AddAccount.AddAction = async () => await Navigation.PushModalAsync(new AccountCreatorPage());
-
-        HistoryContainer.Events().Loaded
-            .Do(x => App.LogStartupTime())
-            .Throttle(TimeSpan.FromMilliseconds(250))
-            .Select(async x => await Core.UI.Overview.InitDatabase())
-            .Subscribe();
     }
 
     private double GetPercentage(double reference) => reference / (Height * 0.5) * 100;
@@ -123,4 +148,6 @@ public partial class OverviewPage
             if (shouldDispose)
                 _animateHistoryMarginDisposable?.Dispose();
         });
+
+    
 }

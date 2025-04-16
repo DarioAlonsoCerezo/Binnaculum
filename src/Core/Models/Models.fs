@@ -1,6 +1,7 @@
 ﻿namespace Binnaculum.Core
 
 open System
+open DynamicData
 
 module Models =
     
@@ -50,20 +51,20 @@ module Models =
         | Interest
         | Fee
 
-    type Broker = {
+    type BrokerModel = {
         Id: int
         Name: string
         Image: string
         SupportedBroker: SupportedBroker
     }
 
-    type BrokerAccount = {
+    type BrokerAccountModel = {
         Id: int
-        Broker: Broker
+        Broker: BrokerModel
         AccountNumber: string
     }
     
-    type Currency = {
+    type CurrencyModel = {
         Id: int;
         Name: string;
         Code: string;
@@ -74,8 +75,8 @@ module Models =
         Id: int
         TimeStamp: DateTime
         Amount: decimal
-        Currency: Currency
-        BrokerAccount: BrokerAccount
+        Currency: CurrencyModel
+        BrokerAccount: BrokerAccountModel
         Commissions: decimal
         Fees: decimal
         MovementType: MovementType
@@ -100,7 +101,7 @@ module Models =
         PriceDate: DateTime
         Ticker: Ticker
         Price: decimal
-        Currency: Currency
+        Currency: CurrencyModel
     }
     
     type Trade = {
@@ -108,8 +109,8 @@ module Models =
         TimeStamp: DateTime
         TotalInvestedAmount: decimal
         Ticker: Ticker
-        BrokerAccount: BrokerAccount
-        Currency: Currency
+        BrokerAccount: BrokerAccountModel
+        Currency: CurrencyModel
         Quantity: decimal
         Price: decimal
         Commissions: decimal
@@ -124,8 +125,8 @@ module Models =
         TimeStamp: DateTime
         Amount: decimal
         Ticker: Ticker
-        Currency: Currency
-        BrokerAccount: BrokerAccount
+        Currency: CurrencyModel
+        BrokerAccount: BrokerAccountModel
     }
 
     type DividendTax = {
@@ -133,8 +134,8 @@ module Models =
         TimeStamp: DateTime
         Amount: decimal
         Ticker: Ticker
-        Currency: Currency
-        BrokerAccount: BrokerAccount
+        Currency: CurrencyModel
+        BrokerAccount: BrokerAccountModel
     }
 
     type DividendDate = {
@@ -142,8 +143,8 @@ module Models =
         TimeStamp: DateTime
         Amount: decimal
         Ticker: Ticker
-        Currency: Currency
-        BrokerAccount: BrokerAccount
+        Currency: CurrencyModel
+        BrokerAccount: BrokerAccountModel
         DividendCode: DividendCode
     }
 
@@ -154,8 +155,8 @@ module Models =
         Premium: decimal
         NetPremium: decimal
         Ticker: Ticker
-        BrokerAccount: BrokerAccount
-        Currency: Currency
+        BrokerAccount: BrokerAccountModel
+        Currency: CurrencyModel
         OptionType: OptionType
         Code: OptionCode
         Strike: decimal
@@ -176,7 +177,7 @@ module Models =
         Bank: Bank
         Name: string
         Description: string option
-        Currency: Currency
+        Currency: CurrencyModel
     }
 
     type BankAccountMovement = {
@@ -184,7 +185,7 @@ module Models =
         TimeStamp: DateTime
         Amount: decimal
         BankAccount: BankAccount
-        Currency: Currency
+        Currency: CurrencyModel
         MovementType: BankAccountMovementType
     }
 
@@ -197,27 +198,14 @@ module Models =
         | BrokerMovement of BrokerMovement
         | BankAccountMovement of BankAccountMovement
         | TickerSplit of TickerSplit
-        | EmptyMovement
-
-    type Transaction = {
-        TimeStamp: DateTime
-        Amount: decimal
-        Image: string
-        Description: string
-        Currency: Currency
-        Movement: Movement
-    }
+        | EmptyMovement of string    
 
     type AccountType = 
-        | BrokerAccount of BrokerAccount
+        | BrokerAccount of BrokerAccountModel
         | BankAccount of BankAccount
-        | EmptyAccount
-
-    type Account = {
-        Type: AccountType
-        Transactions: Transaction list 
-    }
+        | EmptyAccount of string
 
     type OverviewUI = {
-        Accounts: Account list    
+        IsDatabaseInitialized: bool 
+        TransactionsLoaded: bool
     }
