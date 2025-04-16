@@ -12,7 +12,7 @@ module internal ModelParser =
     let fromDatabaseCurrency (databaseCurrency: Database.DatabaseModel.Currency) =
         { 
             Id = databaseCurrency.Id
-            Name = databaseCurrency.Name
+            Title = databaseCurrency.Name
             Code = databaseCurrency.Code
             Symbol = databaseCurrency.Symbol
         }
