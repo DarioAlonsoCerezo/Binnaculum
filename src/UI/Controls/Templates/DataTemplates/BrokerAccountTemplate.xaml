@@ -4,5 +4,10 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:Binnaculum.Controls">
-    <Grid BackgroundColor="Red" />
+    <Grid BackgroundColor="Red">
+        <controls:IconControl
+            x:Name="Icon"
+            HorizontalOptions="Start"
+            VerticalOptions="Start" />
+    </Grid>
 </controls:BaseContentView>
