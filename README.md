@@ -29,6 +29,8 @@ Using icons from [Ikonate Thin Interface Icons](https://www.svgrepo.com/collecti
 
 Using flags from [Country Flags](https://github.com/lipis/flag-icons)
 
+Using font [Gravitas One](https://fonts.google.com/specimen/Gravitas+One?preview.text=binnaculum) to generate the icon
+
 # XAML Styling
 I use the [XAML Styler 2022](https://marketplace.visualstudio.com/items?itemName=TeamXavalon.XAMLStyler2022) extension to ensure consistent XAML styling across the project. The styling rules are configured in the `XAMLStylerConfiguration.json` file located in the project.
 
