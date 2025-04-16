@@ -84,7 +84,8 @@
 
                     <CollectionView
                         x:Name="MovementsCollectionView"
-                        Margin="4,64,4,0">
+                        Margin="4,64,4,0"
+                        ItemSizingStrategy="MeasureFirstItem">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Grid
