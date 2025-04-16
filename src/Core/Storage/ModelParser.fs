@@ -1,6 +1,7 @@
-﻿namespace Binnaculum.Core
+﻿namespace Binnacle.Core.Storage
 
-open Models
+open Binnaculum.Core
+open Binnaculum.Core.Models
 
 module internal ModelParser =
     let fromDatabaseSupportedBroker (databaseSupportedBroker: Database.DatabaseModel.SupportedBroker) =
