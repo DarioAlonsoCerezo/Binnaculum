@@ -30,6 +30,9 @@ module internal DataLoader =
         Collections.Banks.EditDiff banks    
     }
 
+    let private getBroker(name: string) =
+        Collections.Brokers.Items |> Seq.find (fun b -> b.Name = name)
+
     let loadBasicData() = task {
         do! getAllCurrencies() |> Async.AwaitTask |> Async.Ignore
         do! getAllBrokers() |> Async.AwaitTask |> Async.Ignore
@@ -40,42 +43,28 @@ module internal DataLoader =
         let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
         let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
         if databaseBrokerAccounts.IsEmpty && databaseBankAccounts.IsEmpty then
-            let ibkr =
+            let ibkrAccount =
                 {
                     Id = 1
-                    Name = Keys.Broker_IBKR
-                    Image = Keys.Broker_Image_IBKR
-                    SupportedBroker = Keys.Broker_IBKR
-                }
-            let brokerAccount =
-                {
-                    Id = 1
-                    Broker = ibkr
+                    Broker = getBroker Keys.Broker_IBKR
                     AccountNumber = "0123"
-                }
-
-            let tasty =
-                {
-                    Id = 2
-                    Name = Keys.Broker_Tastytrade
-                    Image = Keys.Broker_Image_Tastytrade
-                    SupportedBroker = Keys.Broker_Tastytrade
-                }
-
-            let accountBroker = 
-                {
-                    Type = AccountType.BrokerAccount
-                    Broker = Some brokerAccount
-                    Bank = None
-                }
+                }           
 
             let tastyAccount =
                 {
                     Id = 2
-                    Broker = tasty
+                    Broker = getBroker Keys.Broker_Tastytrade
                     AccountNumber = "4567"
                 }
-            let accountTasty = 
+
+            let ibkr = 
+                {
+                    Type = AccountType.BrokerAccount
+                    Broker = Some ibkrAccount
+                    Bank = None
+                }
+
+            let tasty = 
                 {
                     Type = AccountType.BrokerAccount
                     Broker = Some tastyAccount
@@ -103,9 +92,9 @@ module internal DataLoader =
                     Broker = None
                     Bank = Some bankAccount
                 }
-            Collections.Accounts.Add(accountBroker)
-            Collections.Accounts.Add(accountTasty)
-            Collections.Accounts.Add({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; })
+            Collections.Accounts.Add(ibkr)
+            Collections.Accounts.Add(tasty)
+            Collections.Accounts.Add(accountBank)
     }
 
     let loadMovementsFor(account: Account) = task {
