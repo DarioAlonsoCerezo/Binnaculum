@@ -60,7 +60,6 @@
 		<Compile Include="Memory\Collections.fs" />
 		<Compile Include="Storage\ModelParser.fs" />
 		<Compile Include="Storage\DataLoader.fs" />
-		<Compile Include="UI\ModelUI.fs" />
 		<Compile Include="UI\Overview.fs" />
 	</ItemGroup>
 

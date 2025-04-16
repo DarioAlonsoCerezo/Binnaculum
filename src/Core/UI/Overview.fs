@@ -14,6 +14,6 @@ module Overview =
     }
 
     let LoadData() = task {
-        let! overview = ModelUI.loadData(Data.Value)
-        Data.OnNext overview
+        do! DataLoader.initialization() |> Async.AwaitTask |> Async.Ignore
+        Data.OnNext { Data.Value with TransactionsLoaded = true; }
     }

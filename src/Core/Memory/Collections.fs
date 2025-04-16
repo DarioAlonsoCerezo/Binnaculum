@@ -4,6 +4,9 @@ open DynamicData
 open Binnaculum.Core.Models
 open System.Reactive.Subjects
 
+/// <summary>
+/// This module serves as a MemoryCache to connect from the UI to show data to the user
+/// </summary>
 module Collections =
     /// <summary>
     /// The Brokers list is loaded every time to ensure it reflects the most accurate and up-to-date information.

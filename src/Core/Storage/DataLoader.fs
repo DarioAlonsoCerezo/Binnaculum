@@ -36,5 +36,10 @@ module internal DataLoader =
     }
 
     let initialization() = task {
+        let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
+        let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
+        if databaseBrokerAccounts.IsEmpty && databaseBankAccounts.IsEmpty then
+            Collections.Accounts.Add(Account.EmptyAccount "")
+            Collections.Movements.Add(Movement.EmptyMovement "")
         return ()
     }
