@@ -19,9 +19,9 @@ internal class AccountTemplateSelector : DataTemplateSelector
     {
         if(item is Models.Account account)
         {
-            if (account.IsBrokerAccount)
+            if (account.Type.IsBrokerAccount)
                 return BrokerAccountTemplate;
-            if (account.IsBankAccount)
+            if (account.Type.IsBankAccount)
                 return BankAccountTemplate;
         }
 

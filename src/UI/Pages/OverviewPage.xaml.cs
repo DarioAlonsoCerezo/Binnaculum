@@ -59,7 +59,7 @@ public partial class OverviewPage
             {
                 if(x is Core.Models.Account account)
                 {
-                    if (account.IsBankAccount || account.IsBrokerAccount)
+                    if (account.Type.IsBankAccount || account.Type.IsBrokerAccount)
                         Task.Run(() => Core.UI.Overview.LoadMovements(account));
                 }
             })

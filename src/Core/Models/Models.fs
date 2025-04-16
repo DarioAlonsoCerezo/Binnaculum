@@ -196,10 +196,16 @@ module Models =
         | TickerSplit of TickerSplit
         | EmptyMovement of string    
 
-    type Account = 
-        | BrokerAccount of BrokerAccount
-        | BankAccount of BankAccount
-        | EmptyAccount of string
+    type AccountType = 
+        | BrokerAccount
+        | BankAccount
+        | EmptyAccount
+
+    type Account = {
+        Type: AccountType
+        Broker: BrokerAccount option
+        Bank: BankAccount option
+    }
 
     type OverviewUI = {
         IsDatabaseInitialized: bool 
