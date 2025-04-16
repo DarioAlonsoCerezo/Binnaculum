@@ -25,3 +25,10 @@ module internal ModelParser =
             SupportedBroker = fromDatabaseSupportedBroker databaseBroker.SupportedBroker
         }
 
+    let fromDatabaseBank (databaseBank: Database.DatabaseModel.Bank) =
+        { 
+            Id = databaseBank.Id
+            Name = databaseBank.Name
+            Image = databaseBank.Image
+        }
+

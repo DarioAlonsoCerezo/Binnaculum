@@ -54,7 +54,7 @@ module Models =
         SupportedBroker: string
     }
 
-    type BrokerAccountModel = {
+    type BrokerAccount = {
         Id: int
         Broker: Broker
         AccountNumber: string
@@ -72,7 +72,7 @@ module Models =
         TimeStamp: DateTime
         Amount: decimal
         Currency: Currency
-        BrokerAccount: BrokerAccountModel
+        BrokerAccount: BrokerAccount
         Commissions: decimal
         Fees: decimal
         MovementType: MovementType
@@ -105,7 +105,7 @@ module Models =
         TimeStamp: DateTime
         TotalInvestedAmount: decimal
         Ticker: Ticker
-        BrokerAccount: BrokerAccountModel
+        BrokerAccount: BrokerAccount
         Currency: Currency
         Quantity: decimal
         Price: decimal
@@ -122,7 +122,7 @@ module Models =
         Amount: decimal
         Ticker: Ticker
         Currency: Currency
-        BrokerAccount: BrokerAccountModel
+        BrokerAccount: BrokerAccount
     }
 
     type DividendTax = {
@@ -131,7 +131,7 @@ module Models =
         Amount: decimal
         Ticker: Ticker
         Currency: Currency
-        BrokerAccount: BrokerAccountModel
+        BrokerAccount: BrokerAccount
     }
 
     type DividendDate = {
@@ -140,7 +140,7 @@ module Models =
         Amount: decimal
         Ticker: Ticker
         Currency: Currency
-        BrokerAccount: BrokerAccountModel
+        BrokerAccount: BrokerAccount
         DividendCode: DividendCode
     }
 
@@ -151,7 +151,7 @@ module Models =
         Premium: decimal
         NetPremium: decimal
         Ticker: Ticker
-        BrokerAccount: BrokerAccountModel
+        BrokerAccount: BrokerAccount
         Currency: Currency
         OptionType: OptionType
         Code: OptionCode
@@ -197,7 +197,7 @@ module Models =
         | EmptyMovement of string    
 
     type AccountType = 
-        | BrokerAccount of BrokerAccountModel
+        | BrokerAccount of BrokerAccount
         | BankAccount of BankAccount
         | EmptyAccount of string
 
