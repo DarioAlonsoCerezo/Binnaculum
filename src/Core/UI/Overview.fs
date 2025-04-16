@@ -17,3 +17,6 @@ module Overview =
         do! DataLoader.initialization() |> Async.AwaitTask |> Async.Ignore
         Data.OnNext { Data.Value with TransactionsLoaded = true; }
     }
+
+    let LoadMovements(account: Account) = DataLoader.loadMovementsFor(account)
+    

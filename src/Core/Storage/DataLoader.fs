@@ -53,17 +53,26 @@ module internal DataLoader =
                     Broker = broker
                     AccountNumber = "0123"
                 }
-            Collections.Accounts.Add(Account.EmptyAccount "")
+            let bank = 
+                {
+                    Id = 1
+                    Name = "Wise"
+                    Image = None
+                }
+            let bankAccount =
+                {
+                    Id = 1
+                    Bank = bank
+                    Name = "Wise"
+                    Description = None
+                    Currency = Collections.Currencies.Items |> Seq.head
+                }
             Collections.Accounts.Add(Account.BrokerAccount brokerAccount)
-            Collections.Movements.Add(Movement.EmptyMovement "")
-            Collections.Movements.Add(Movement.EmptyMovement "")
-            Collections.Movements.Add(Movement.EmptyMovement "")
-            Collections.Movements.Add(Movement.EmptyMovement "")
-            Collections.Movements.Add(Movement.EmptyMovement "")
-            Collections.Movements.Add(Movement.EmptyMovement "")
-            Collections.Movements.Add(Movement.EmptyMovement "")
-            Collections.Movements.Add(Movement.EmptyMovement "")
-            Collections.Movements.Add(Movement.EmptyMovement "")
-            Collections.Movements.Add(Movement.EmptyMovement "")
+            Collections.Accounts.Add(Account.BankAccount bankAccount)
+            Collections.Accounts.Add(Account.EmptyAccount "")
+    }
+
+    let loadMovementsFor(account: Account) = task {
+        Collections.Movements.Clear()
         return ()
     }

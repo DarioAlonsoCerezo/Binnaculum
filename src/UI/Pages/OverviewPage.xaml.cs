@@ -52,8 +52,18 @@ public partial class OverviewPage
         //Here we load the data from the database
         data.Where(x => !x.TransactionsLoaded && x.IsDatabaseInitialized)
             .Subscribe(_ => Task.Run(Core.UI.Overview.LoadData)).DisposeWith(Disposables);
-
         
+        AccountsCarousel.Events().CurrentItemChanged
+            .Select(x => x.CurrentItem)
+            .Subscribe(x =>
+            {
+                if(x is Core.Models.Account account)
+                {
+                    if (account.IsBankAccount || account.IsBrokerAccount)
+                        Task.Run(() => Core.UI.Overview.LoadMovements(account));
+                }
+            })
+            .DisposeWith(Disposables);
     }
 
     private void SetupHistory()
