@@ -24,6 +24,11 @@
             Grid.Row="1"
             Margin="0,0,0,96"
             ColumnDefinitions="1*,2*">
+            <Grid.Resources>
+                <ResourceDictionary>
+                    <controls:AccountTemplateSelector x:Key="AccountTemplateSelector" />
+                </ResourceDictionary>
+            </Grid.Resources>
             <controls:ButtonAdd
                 x:Name="AddAccount"
                 Scale="0.64" />
@@ -34,14 +39,8 @@
                 HorizontalScrollBarVisibility="Never"
                 Loop="False"
                 VerticalScrollBarVisibility="Never"
+                ItemTemplate="{StaticResource AccountTemplateSelector}"
                 PeekAreaInsets="30">
-                <CarouselView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid
-                            Margin="0,24,0,0"
-                            BackgroundColor="Yellow" />
-                    </DataTemplate>
-                </CarouselView.ItemTemplate>
                 <CarouselView.ItemsLayout>
                     <LinearItemsLayout
                         ItemSpacing="8"
