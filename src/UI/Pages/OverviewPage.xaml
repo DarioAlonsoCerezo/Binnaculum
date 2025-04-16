@@ -40,7 +40,7 @@
                 Loop="False"
                 VerticalScrollBarVisibility="Never"
                 ItemTemplate="{StaticResource AccountTemplateSelector}"
-                PeekAreaInsets="30">
+                PeekAreaInsets="15">
                 <CarouselView.ItemsLayout>
                     <LinearItemsLayout
                         ItemSpacing="8"
