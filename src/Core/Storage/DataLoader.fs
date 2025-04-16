@@ -1,6 +1,7 @@
 ﻿namespace Binnacle.Core.Storage
 
 open ModelParser
+open Binnaculum.Core
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open DynamicData
@@ -39,10 +40,21 @@ module internal DataLoader =
         let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
         let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
         if databaseBrokerAccounts.IsEmpty && databaseBankAccounts.IsEmpty then
+            let broker =
+                {
+                    Id = 1
+                    Name = Keys.Broker_IBKR
+                    Image = Keys.Broker_Image_IBKR
+                    SupportedBroker = Keys.Broker_IBKR
+                }
+            let brokerAccount =
+                {
+                    Id = 1
+                    Broker = broker
+                    AccountNumber = "0123"
+                }
             Collections.Accounts.Add(Account.EmptyAccount "")
-            Collections.Accounts.Add(Account.EmptyAccount "")
-            Collections.Accounts.Add(Account.EmptyAccount "")
-            Collections.Accounts.Add(Account.EmptyAccount "")
+            Collections.Accounts.Add(Account.BrokerAccount brokerAccount)
             Collections.Movements.Add(Movement.EmptyMovement "")
             Collections.Movements.Add(Movement.EmptyMovement "")
             Collections.Movements.Add(Movement.EmptyMovement "")
