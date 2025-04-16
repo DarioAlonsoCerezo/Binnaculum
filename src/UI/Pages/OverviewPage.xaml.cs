@@ -12,10 +12,31 @@ public partial class OverviewPage
     private ReadOnlyObservableCollection<Core.Models.Account> _accounts;
     public ReadOnlyObservableCollection<Core.Models.Account> Accounts => _accounts;
 
+    private ReadOnlyObservableCollection<Core.Models.Movement> _movements;
+    public ReadOnlyObservableCollection<Core.Models.Movement> Movements => _movements;
+
     public OverviewPage()
     {
 		InitializeComponent();
         SetupHistory();
+
+        Core.UI.Collections.Accounts.Connect()
+            .ObserveOn(UiThread)
+            .Bind(out _accounts)
+            .Subscribe(x =>
+            {
+
+            });
+
+        Core.UI.Collections.Movements.Connect()
+            .ObserveOn(UiThread)
+            .Bind(out _movements)
+            .Subscribe(x =>
+            {
+            });
+
+        AccountsCarousel.ItemsSource = Accounts;
+        MovementsCollectionView.ItemsSource = Movements;
     }
 
     protected override void StartLoad()
@@ -32,13 +53,7 @@ public partial class OverviewPage
         data.Where(x => !x.TransactionsLoaded && x.IsDatabaseInitialized)
             .Subscribe(_ => Task.Run(Core.UI.Overview.LoadData)).DisposeWith(Disposables);
 
-        Core.UI.Collections.Accounts.Connect()
-            .ObserveOn(UiThread)
-            .Bind(out _accounts)
-            .Subscribe(x =>
-            {
-
-            });
+        
     }
 
     private void SetupHistory()

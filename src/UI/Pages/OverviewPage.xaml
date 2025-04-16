@@ -27,6 +27,28 @@
             <controls:ButtonAdd
                 x:Name="AddAccount"
                 Scale="0.64" />
+            <CarouselView
+                x:Name="AccountsCarousel"
+                Grid.Column="1"
+                Margin="0,32"
+                HorizontalScrollBarVisibility="Never"
+                Loop="False"
+                VerticalScrollBarVisibility="Never"
+                PeekAreaInsets="30">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid
+                            Margin="0,24,0,0"
+                            BackgroundColor="Yellow" />
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+                <CarouselView.ItemsLayout>
+                    <LinearItemsLayout
+                        ItemSpacing="8"
+                        SnapPointsType="MandatorySingle"
+                        Orientation="Horizontal" />
+                </CarouselView.ItemsLayout>
+            </CarouselView>
         </Grid>
 
         <Grid
@@ -59,6 +81,25 @@
                             <PanGestureRecognizer x:Name="HistoryGestured" />
                         </Grid.GestureRecognizers>
                     </Grid>
+
+                    <CollectionView
+                        x:Name="MovementsCollectionView"
+                        Margin="4,64,4,0">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid
+                                    BackgroundColor="Yellow"
+                                    HeightRequest="90" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout
+                                Orientation="Vertical"
+                                ItemSpacing="4"
+                                SnapPointsType="Mandatory"
+                                SnapPointsAlignment="Start" />
+                        </CollectionView.ItemsLayout>
+                    </CollectionView>
 
                 </Grid>
                 <Border.StrokeShape>
