@@ -60,9 +60,9 @@ module Models =
         AccountNumber: string
     }
     
-    type CurrencyModel = {
+    type Currency = {
         Id: int;
-        Name: string;
+        Title: string;
         Code: string;
         Symbol: string;
     }
@@ -71,7 +71,7 @@ module Models =
         Id: int
         TimeStamp: DateTime
         Amount: decimal
-        Currency: CurrencyModel
+        Currency: Currency
         BrokerAccount: BrokerAccountModel
         Commissions: decimal
         Fees: decimal
@@ -97,7 +97,7 @@ module Models =
         PriceDate: DateTime
         Ticker: Ticker
         Price: decimal
-        Currency: CurrencyModel
+        Currency: Currency
     }
     
     type Trade = {
@@ -106,7 +106,7 @@ module Models =
         TotalInvestedAmount: decimal
         Ticker: Ticker
         BrokerAccount: BrokerAccountModel
-        Currency: CurrencyModel
+        Currency: Currency
         Quantity: decimal
         Price: decimal
         Commissions: decimal
@@ -121,7 +121,7 @@ module Models =
         TimeStamp: DateTime
         Amount: decimal
         Ticker: Ticker
-        Currency: CurrencyModel
+        Currency: Currency
         BrokerAccount: BrokerAccountModel
     }
 
@@ -130,7 +130,7 @@ module Models =
         TimeStamp: DateTime
         Amount: decimal
         Ticker: Ticker
-        Currency: CurrencyModel
+        Currency: Currency
         BrokerAccount: BrokerAccountModel
     }
 
@@ -139,7 +139,7 @@ module Models =
         TimeStamp: DateTime
         Amount: decimal
         Ticker: Ticker
-        Currency: CurrencyModel
+        Currency: Currency
         BrokerAccount: BrokerAccountModel
         DividendCode: DividendCode
     }
@@ -152,7 +152,7 @@ module Models =
         NetPremium: decimal
         Ticker: Ticker
         BrokerAccount: BrokerAccountModel
-        Currency: CurrencyModel
+        Currency: Currency
         OptionType: OptionType
         Code: OptionCode
         Strike: decimal
@@ -173,7 +173,7 @@ module Models =
         Bank: Bank
         Name: string
         Description: string option
-        Currency: CurrencyModel
+        Currency: Currency
     }
 
     type BankAccountMovement = {
@@ -181,7 +181,7 @@ module Models =
         TimeStamp: DateTime
         Amount: decimal
         BankAccount: BankAccount
-        Currency: CurrencyModel
+        Currency: Currency
         MovementType: BankAccountMovementType
     }
 

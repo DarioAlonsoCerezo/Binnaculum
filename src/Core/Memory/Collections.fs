@@ -17,7 +17,7 @@ module Collections =
     /// This is necessary as the list must be accessible for creating new accounts and 
     /// should always be available for selection from the UI.
     /// </summary>
-    let Currencies = new SourceList<CurrencyModel>()
+    let Currencies = new SourceList<Currency>()
 
     /// <summary>
     /// The Banks list is loaded every time to ensure it reflects the most accurate and up-to-date information.

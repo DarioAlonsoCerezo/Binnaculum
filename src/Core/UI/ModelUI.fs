@@ -24,7 +24,7 @@ module internal ModelUI =
             |> List.map (fun c -> 
             { 
                 Id = c.Id; 
-                Name = c.Name; 
+                Title = c.Name; 
                 Code = c.Code;
                 Symbol = c.Symbol 
             })
