@@ -77,7 +77,7 @@ module internal ModelUI =
         let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
 
         if databaseBrokerAccounts.IsEmpty && databaseBankAccounts.IsEmpty then
-            Collections.OverviewAccounts.Add(AccountType.EmptyAccount "")
+            Collections.OverviewAccounts.Add(Account.EmptyAccount "")
             Collections.OverviewMovements.Add(Movement.EmptyMovement "")
 
         return { overview with TransactionsLoaded = true; }

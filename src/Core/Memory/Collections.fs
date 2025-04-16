@@ -30,7 +30,7 @@ module Collections =
     /// Accounts are loaded when Database is connected and rest of the data is loaded.
     /// This should reflect all the accounts in the Database and allow interaction from the UI
     /// </summary>
-    let OverviewAccounts = new SourceList<AccountType>()
+    let OverviewAccounts = new SourceList<Account>()
 
     /// <summary>
     /// Movements are loaded when Database is connected and rest of the data is loaded.
@@ -42,7 +42,7 @@ module Collections =
     /// <summary>
     /// This should be filled from UI interactions and populated when navigate to the account details
     /// </summary>
-    let AccountDetails = new BehaviorSubject<AccountType>(AccountType.EmptyAccount "")
+    let AccountDetails = new BehaviorSubject<Account>(Account.EmptyAccount "")
 
     /// <summary>
     /// This should be filled from UI interactions and populated when AccountDetails is updated

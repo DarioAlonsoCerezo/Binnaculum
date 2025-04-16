@@ -34,3 +34,7 @@ module internal DataLoader =
         do! getAllBrokers() |> Async.AwaitTask |> Async.Ignore
         do! getAllBanks() |> Async.AwaitTask |> Async.Ignore
     }
+
+    let initialization() = task {
+        return ()
+    }

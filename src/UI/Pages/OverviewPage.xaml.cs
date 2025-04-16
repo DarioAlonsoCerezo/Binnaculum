@@ -9,8 +9,8 @@ public partial class OverviewPage
     private IDisposable? _animateHistoryMarginDisposable;
     private bool _hiding;
 
-    private ReadOnlyObservableCollection<Core.Models.AccountType> _accounts;
-    public ReadOnlyObservableCollection<Core.Models.AccountType> Accounts => _accounts;
+    private ReadOnlyObservableCollection<Core.Models.Account> _accounts;
+    public ReadOnlyObservableCollection<Core.Models.Account> Accounts => _accounts;
 
     public OverviewPage()
     {

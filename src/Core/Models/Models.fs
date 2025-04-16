@@ -196,7 +196,7 @@ module Models =
         | TickerSplit of TickerSplit
         | EmptyMovement of string    
 
-    type AccountType = 
+    type Account = 
         | BrokerAccount of BrokerAccount
         | BankAccount of BankAccount
         | EmptyAccount of string
