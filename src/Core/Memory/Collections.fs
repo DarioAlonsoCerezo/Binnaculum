@@ -30,14 +30,14 @@ module Collections =
     /// Accounts are loaded when Database is connected and rest of the data is loaded.
     /// This should reflect all the accounts in the Database and allow interaction from the UI
     /// </summary>
-    let OverviewAccounts = new SourceList<Account>()
+    let Accounts = new SourceList<Account>()
 
     /// <summary>
     /// Movements are loaded when Database is connected and rest of the data is loaded.
     /// This should start with a minimum data loaded from the database based on UI interactions
-    /// and then be updated with the rest of the data when required
+    /// and then be updated with the rest of the data when user scrolls
     /// </summary>
-    let OverviewMovements = new SourceList<Movement>()
+    let Movements = new SourceList<Movement>()
 
     /// <summary>
     /// This should be filled from UI interactions and populated when navigate to the account details
