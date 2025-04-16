@@ -14,8 +14,8 @@ open DynamicData
 module internal ModelUI =
     let toModelSupportedBroker(databaseSupportedBroker: Database.DatabaseModel.SupportedBroker) =
         match databaseSupportedBroker with
-        | Database.DatabaseModel.SupportedBroker.IBKR -> SupportedBroker.IBKR
-        | Database.DatabaseModel.SupportedBroker.Tastytrade -> SupportedBroker.Tastytrade
+        | Database.DatabaseModel.SupportedBroker.IBKR -> Keys.Broker_IBKR
+        | Database.DatabaseModel.SupportedBroker.Tastytrade -> Keys.Broker_Tastytrade
 
     let private loadCurrencies() = task {
         let! databaseCurrencies = CurrencyExtensions.Do.getAll() |> Async.AwaitTask

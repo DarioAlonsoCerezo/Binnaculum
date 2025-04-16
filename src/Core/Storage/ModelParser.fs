@@ -5,13 +5,8 @@ open Models
 module internal ModelParser =
     let fromDatabaseSupportedBroker (databaseSupportedBroker: Database.DatabaseModel.SupportedBroker) =
         match databaseSupportedBroker with
-        | Database.DatabaseModel.SupportedBroker.IBKR -> SupportedBroker.IBKR
-        | Database.DatabaseModel.SupportedBroker.Tastytrade -> SupportedBroker.Tastytrade
-
-    let toDatabaseSupportedBroker (supportedBroker: Models.SupportedBroker) =
-        match supportedBroker with
-        | SupportedBroker.IBKR -> Database.DatabaseModel.SupportedBroker.IBKR
-        | SupportedBroker.Tastytrade -> Database.DatabaseModel.SupportedBroker.Tastytrade
+        | Database.DatabaseModel.SupportedBroker.IBKR -> Keys.Broker_IBKR
+        | Database.DatabaseModel.SupportedBroker.Tastytrade -> Keys.Broker_Tastytrade
 
     let fromDatabaseCurrency (databaseCurrency: Database.DatabaseModel.Currency) =
         { 

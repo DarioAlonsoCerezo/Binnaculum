@@ -5,10 +5,6 @@ open DynamicData
 
 module Models =
     
-    type SupportedBroker =
-        | IBKR
-        | Tastytrade
-
     type OptionCode =
         | BuyToOpen
         | SellToOpen
@@ -51,16 +47,16 @@ module Models =
         | Interest
         | Fee
 
-    type BrokerModel = {
+    type Broker = {
         Id: int
         Name: string
         Image: string
-        SupportedBroker: SupportedBroker
+        SupportedBroker: string
     }
 
     type BrokerAccountModel = {
         Id: int
-        Broker: BrokerModel
+        Broker: Broker
         AccountNumber: string
     }
     

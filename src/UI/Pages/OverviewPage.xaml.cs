@@ -32,7 +32,7 @@ public partial class OverviewPage
         data.Where(x => !x.TransactionsLoaded && x.IsDatabaseInitialized)
             .Subscribe(_ => Task.Run(Core.UI.Overview.LoadData)).DisposeWith(Disposables);
 
-        Core.UI.Collections.Accounts.Connect()
+        Core.UI.Collections.OverviewAccounts.Connect()
             .ObserveOn(UiThread)
             .Bind(out _accounts)
             .Subscribe(x =>
