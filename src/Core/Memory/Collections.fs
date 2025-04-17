@@ -58,4 +58,4 @@ module Collections =
     /// This should be filled from UI interactions when navigate to the movement details
     /// This should be cleared when navigate back from details
     /// </summary>
-    let MovementDetails = new BehaviorSubject<Movement>(Movement.EmptyMovement "")
+    let MovementDetails = new BehaviorSubject<Movement>(emptyMovement())

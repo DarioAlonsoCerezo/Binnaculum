@@ -43,58 +43,8 @@ module internal DataLoader =
         let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
         let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
         if databaseBrokerAccounts.IsEmpty && databaseBankAccounts.IsEmpty then
-            let ibkrAccount =
-                {
-                    Id = 1
-                    Broker = getBroker Keys.Broker_IBKR
-                    AccountNumber = "0123"
-                }           
-
-            let tastyAccount =
-                {
-                    Id = 2
-                    Broker = getBroker Keys.Broker_Tastytrade
-                    AccountNumber = "4567"
-                }
-
-            let ibkr = 
-                {
-                    Type = AccountType.BrokerAccount
-                    Broker = Some ibkrAccount
-                    Bank = None
-                }
-
-            let tasty = 
-                {
-                    Type = AccountType.BrokerAccount
-                    Broker = Some tastyAccount
-                    Bank = None
-                }
-
-            let bank = 
-                {
-                    Id = 1
-                    Name = "Wise"
-                    Image = None
-                }
-            let bankAccount =
-                {
-                    Id = 1
-                    Bank = bank
-                    Name = "Wise"
-                    Description = None
-                    Currency = Collections.Currencies.Items |> Seq.head
-                }
-
-            let accountBank = 
-                {
-                    Type = AccountType.BankAccount
-                    Broker = None
-                    Bank = Some bankAccount
-                }
-            Collections.Accounts.Add(ibkr)
-            Collections.Accounts.Add(tasty)
-            Collections.Accounts.Add(accountBank)
+            Collections.Accounts.Add({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; })
+            Collections.Movements.Add(emptyMovement())
     }
 
     let loadMovementsFor(account: Account) = task {

@@ -185,16 +185,16 @@ module Models =
         MovementType: BankAccountMovementType
     }
 
-    type Movement =
-        | Trade of Trade
-        | Dividend of Dividend
-        | DividendTax of DividendTax
-        | DividendDate of DividendDate
-        | OptionTrade of OptionTrade
-        | BrokerMovement of BrokerMovement
-        | BankAccountMovement of BankAccountMovement
-        | TickerSplit of TickerSplit
-        | EmptyMovement of string    
+    type AccountMovementType =
+        | Trade 
+        | Dividend 
+        | DividendTax 
+        | DividendDate 
+        | OptionTrade 
+        | BrokerMovement 
+        | BankAccountMovement 
+        | TickerSplit 
+        | EmptyMovement    
 
     type AccountType = 
         | BrokerAccount
@@ -207,7 +207,31 @@ module Models =
         Bank: BankAccount option
     }
 
+    type Movement = {
+        Type: AccountMovementType
+        Trade: Trade option
+        Dividend: Dividend option
+        DividendTax: DividendTax option
+        DividendDate: DividendDate option
+        OptionTrade: OptionTrade option
+        BrokerMovement: BrokerMovement option
+        BankAccountMovement: BankAccountMovement option
+        TickerSplit: TickerSplit option
+    }
+
     type OverviewUI = {
         IsDatabaseInitialized: bool 
         TransactionsLoaded: bool
+    }
+
+    let emptyMovement() = {
+        Type = AccountMovementType.EmptyMovement
+        Trade = None
+        Dividend = None
+        DividendTax = None
+        DividendDate = None
+        OptionTrade = None
+        BrokerMovement = None
+        BankAccountMovement = None
+        TickerSplit = None
     }
