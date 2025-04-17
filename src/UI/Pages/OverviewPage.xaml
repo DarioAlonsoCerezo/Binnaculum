@@ -23,7 +23,8 @@
             x:Name="AccountsContainer"
             Grid.Row="1"
             Margin="0,0,0,96"
-            ColumnDefinitions="1*,2*">
+            ColumnSpacing="0"
+            ColumnDefinitions="Auto,2*">
             <Grid.Resources>
                 <ResourceDictionary>
                     <controls:AccountTemplateSelector x:Key="AccountTemplateSelector" />
@@ -31,7 +32,7 @@
             </Grid.Resources>
             <controls:ButtonAdd
                 x:Name="AddAccount"
-                Scale="0.64" />
+                Scale="0.5" />
             <CarouselView
                 x:Name="AccountsCarousel"
                 Grid.Column="1"
@@ -44,7 +45,7 @@
                 <CarouselView.ItemsLayout>
                     <LinearItemsLayout
                         ItemSpacing="8"
-                        SnapPointsType="MandatorySingle"
+                        SnapPointsType="Mandatory"
                         Orientation="Horizontal" />
                 </CarouselView.ItemsLayout>
             </CarouselView>
