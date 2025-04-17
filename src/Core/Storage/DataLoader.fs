@@ -44,7 +44,6 @@ module internal DataLoader =
         let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
         if databaseBrokerAccounts.IsEmpty && databaseBankAccounts.IsEmpty then
             Collections.Accounts.Add({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; })
-            Collections.Movements.Add(emptyMovement())
     }
 
     let loadMovementsFor(account: Account) = task {
