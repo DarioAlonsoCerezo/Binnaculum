@@ -5,45 +5,55 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Binnaculum"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:pages="clr-namespace:Binnaculum.Pages"
     NavigationPage.HasNavigationBar="False">
     <ScrollView>
         <Grid
             Padding="24"
-            RowDefinitions="Auto, 1*"
+            RowDefinitions="1*,1*,Auto"
             RowSpacing="32">
-            <VerticalStackLayout Spacing="16">
+            <VerticalStackLayout Spacing="24">
                 <Label
-                    Style="{StaticResource LabelSettingsTitle}"
-                    Text="Broker:" />
+                    Style="{StaticResource Headline}"
+                    Text="Broker" />
+                <Border
+                    Padding="24,32"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                                      Dark={StaticResource Black}}"
+                    VerticalOptions="Start">
+                    <VerticalStackLayout>
 
-                <Label
-                    x:Name="BrokerSelectorLabel"
-                    Text="Select a broker"
-                    TextDecorations="Underline">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer x:Name="BrokerSelector" />
-                    </Label.GestureRecognizers>
-                </Label>
-                <Grid
-                    x:Name="SelectedBroker"
-                    IsVisible="False">
-                    <controls:IconControl
-                        ImagePath="ibkr"
-                        HorizontalOptions="Start" />
-                    <Label
-                        x:Name="SelectedBrokerName"
-                        Padding="64,0"
-                        Text="Interactive Brokers"
-                        Style="{StaticResource LabelSettingsGroup}" />
-                </Grid>
-                <controls:SelectableBrokerControl x:Name="SelectableBroker" />
-                <controls:BorderlessEntry Placeholder="Account number/Alias" />
+                        <toolkit:Expander x:Name="BrokerExpander">
+                            <toolkit:Expander.Header>
+                                <Grid>
+                                    <Label
+                                        x:Name="ExpanderTitle"
+                                        Margin="0,0,0,32"
+                                        VerticalTextAlignment="Center"
+                                        Text="Select Broker"
+                                        Style="{StaticResource LabelSettingsGroup}" />
+                                    <controls:SelectableBrokerControl
+                                        x:Name="SelectedBroker"
+                                        IsVisible="False" />
+                                </Grid>
+                            </toolkit:Expander.Header>
+                            <VerticalStackLayout Spacing="12">
+                                <controls:SelectableBrokerControl x:Name="IBKR" />
+                                <controls:SelectableBrokerControl x:Name="Tastytrade" />
+                            </VerticalStackLayout>
+                        </toolkit:Expander>
+                    </VerticalStackLayout>
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                </Border>
+
             </VerticalStackLayout>
 
             <controls:ButtonSaveOrDiscard
                 x:Name="ButtonSaveOrDiscard"
-                Grid.Row="1"
+                Grid.Row="2"
                 VerticalOptions="End" />
         </Grid>
     </ScrollView>
