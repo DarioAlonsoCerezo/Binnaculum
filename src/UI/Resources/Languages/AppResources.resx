@@ -162,4 +162,10 @@
   <data name="ButtonDiscard" xml:space="preserve">
     <value>Discard</value>
   </data>
+  <data name="EmptyAccountTitle" xml:space="preserve">
+    <value>Start creating an account for a broker or bak to init your binnacle.</value>
+  </data>
+  <data name="CreateAccount" xml:space="preserve">
+    <value>Create account</value>
+  </data>
 </root>

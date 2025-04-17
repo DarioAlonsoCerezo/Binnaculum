@@ -162,4 +162,10 @@
   <data name="ButtonDiscard" xml:space="preserve">
     <value>Descartar</value>
   </data>
+  <data name="EmptyAccountTitle" xml:space="preserve">
+    <value>Empieza creando una cuenta de broker o banco para iniciar tu bitácora.</value>
+  </data>
+  <data name="CreateAccount" xml:space="preserve">
+    <value>Crear cuenta</value>
+  </data>
 </root>
