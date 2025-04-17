@@ -3,6 +3,24 @@
     x:Class="Binnaculum.Controls.EmptyAccountTemplate"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
     xmlns:controls="clr-namespace:Binnaculum.Controls">
-    <Grid BackgroundColor="Yellow" />
+    <ContentView.GestureRecognizers>
+        <TapGestureRecognizer x:Name="AddTap" />
+    </ContentView.GestureRecognizers>
+    <Border
+        Padding="32,0"
+        StrokeThickness="1"
+        BackgroundColor="Transparent"
+        Stroke="{AppThemeBinding Dark={StaticResource White},
+                                 Light={StaticResource Gray200}}">
+        <Label
+            Text="{local:Translate EmptyAccountTitle}"
+            VerticalTextAlignment="Center"
+            HorizontalTextAlignment="Center" />
+
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="8,8,8,8" />
+        </Border.StrokeShape>
+    </Border>
 </controls:BaseContentView>
