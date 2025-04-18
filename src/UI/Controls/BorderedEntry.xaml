@@ -19,7 +19,7 @@
                 PlaceholderColor="{Binding PlaceholderColor}"
                 IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />
             <controls:InformationButton
-                x:Name="InformationButton"
+                x:Name="InformationMarkdownButton"
                 Text="{Binding Source={x:Reference Control}, Path=Information}"
                 IsVisible="False"
                 HorizontalOptions="End" />

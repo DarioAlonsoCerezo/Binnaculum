@@ -61,7 +61,7 @@ public partial class BorderedEntry
         this.WhenAnyValue(x => x.Information, x => x.IsEnabled)
             .Select(x => !string.IsNullOrEmpty(x.Item1) && x.Item2)
             .ObserveOn(UiThread)
-            .BindTo(InformationButton, x => x.IsVisible)
+            .BindTo(InformationMarkdownButton, x => x.IsVisible)
             .DisposeWith(Disposables);
 
         BorderlessEntry.Events().TextChanged
