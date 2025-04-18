@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.BorderedEntry"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    x:Name="Control"
+    x:DataType="controls:BorderedEntry">
+    <Border
+        Style="{StaticResource BorderedControl}"
+        IsEnabled="{Binding IsEnabled}">
+        <controls:BorderlessEntry
+            x:Name="BorderlessEntry"
+            Text="{Binding Text}"
+            Placeholder="{Binding Placeholder}"
+            PlaceholderColor="{Binding PlaceholderColor}"
+            IsEnabled="{Binding IsEnabled}" />
+    </Border>
+</controls:BaseContentView>

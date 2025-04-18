@@ -32,6 +32,7 @@ public static class EventsExtensions
     public static RxButtonDiscardEvents Events(this ButtonDiscard item) => new(item);
     public static RxButtonAddOrDiscardEvents Events(this ButtonSaveOrDiscard item) => new(item);
     public static RxCarouselViewEvents Events(this CarouselView item) => new(item);
+    public static RxBorderedEntry Events(this BorderedEntry item) => new(item);
 }
 
 public class RxBindableObjectEvents
@@ -680,4 +681,27 @@ public class RxCarouselViewEvents : RxItemsViewEvents
                 eventHandler => (_, e) => eventHandler(e),
                 handler => _data.PositionChanged += handler,
                 handler => _data.PositionChanged -= handler);
+}
+
+public class RxBorderedEntry : RxVisualElementEvents
+{
+    private readonly BorderedEntry _data;
+    public RxBorderedEntry(BorderedEntry data) : base(data)
+    {
+        _data = data;
+    }
+
+    public IObservable<TextChangedEventArgs> TextChanged
+        => Observable
+            .FromEvent<EventHandler<TextChangedEventArgs>, TextChangedEventArgs>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.TextChanged += handler,
+                handler => _data.TextChanged -= handler);
+
+    public IObservable<EventArgs> Completed
+        => Observable
+            .FromEvent<EventHandler, EventArgs>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.Completed += handler,
+                handler => _data.Completed -= handler);
 }

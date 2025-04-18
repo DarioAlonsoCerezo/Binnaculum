@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary
+    x:Class="Binnaculum.Resources.Styles.LabelsStyles"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Style
+        x:Key="LabelSettingsGroup"
+        TargetType="Label">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        <Setter Property="Padding" Value="32,0,0,0" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style
+        x:Key="LabelSettingsTitle"
+        TargetType="Label"
+        BasedOn="{StaticResource LabelSettingsGroup}">
+        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalOptions" Value="End" />
+    </Style>
+
+    <Style
+        x:Key="LabelInfo"
+        TargetType="Label"
+        BasedOn="{StaticResource LabelSettingsGroup}">
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style
+        x:Key="SelectableItem"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style
+        x:Key="IconText"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        <Setter Property="VerticalTextAlignment" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="TextTransform" Value="Uppercase" />
+    </Style>
+</ResourceDictionary>
