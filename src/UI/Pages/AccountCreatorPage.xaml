@@ -23,12 +23,11 @@
                                                       Dark={StaticResource Black}}"
                     VerticalOptions="Start">
                     <VerticalStackLayout Spacing="12">
-
                         <toolkit:Expander
                             x:Name="BrokerExpander"
                             IsExpanded="True">
                             <toolkit:Expander.Header>
-                                <VerticalStackLayout>
+                                <VerticalStackLayout Spacing="12">
                                     <Label
                                         x:Name="ExpanderTitle"
                                         Text="{local:Translate SelectBroker}"
@@ -38,7 +37,9 @@
                                         IsVisible="False" />
                                 </VerticalStackLayout>
                             </toolkit:Expander.Header>
-                            <VerticalStackLayout Spacing="12">
+                            <VerticalStackLayout
+                                Margin="0,12,0,0"
+                                Spacing="12">
                                 <controls:SelectableBrokerControl x:Name="IBKR" />
                                 <controls:SelectableBrokerControl x:Name="Tastytrade" />
                             </VerticalStackLayout>
