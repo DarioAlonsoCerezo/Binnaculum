@@ -5,7 +5,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:Binnaculum.Controls">
     <Border
-        Style="{StaticResource Information}"
         WidthRequest="32"
         HeightRequest="32"
         BackgroundColor="{StaticResource Primary}">
