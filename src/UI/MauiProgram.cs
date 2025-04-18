@@ -1,5 +1,6 @@
 ﻿using Binnaculum.Controls;
 using Binnaculum.Handlers;
+using Indiko.Maui.Controls.Markdown;
 
 namespace Binnaculum;
 
@@ -11,6 +12,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
+            .UseMarkdownView()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Bold.ttf", "OpenSansBold");
