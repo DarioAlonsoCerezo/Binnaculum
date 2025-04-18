@@ -7,13 +7,14 @@
     x:Name="Control"
     x:DataType="controls:BorderedEntry">
     <Border
+        x:Name="Container"
         Style="{StaticResource BorderedControl}"
-        IsEnabled="{Binding IsEnabled}">
+        IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}">
         <controls:BorderlessEntry
             x:Name="BorderlessEntry"
             Text="{Binding Text}"
             Placeholder="{Binding Placeholder}"
             PlaceholderColor="{Binding PlaceholderColor}"
-            IsEnabled="{Binding IsEnabled}" />
+            IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />
     </Border>
 </controls:BaseContentView>
