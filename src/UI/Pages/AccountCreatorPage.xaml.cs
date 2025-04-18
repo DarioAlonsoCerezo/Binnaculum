@@ -1,4 +1,6 @@
+using Binnaculum.Controls;
 using Binnaculum.Core.UI;
+using CommunityToolkit.Maui.Core;
 
 namespace Binnaculum.Pages;
 
@@ -37,21 +39,35 @@ public partial class AccountCreatorPage
             .DisposeWith(Disposables);
 
         SelectedBroker.Events().BrokerSelected
-            .Do(x =>
-            {
-                ExpanderTitle.IsVisible = true;
-                SelectedBroker.IsVisible = false;
-                BrokerExpander.IsExpanded = true;
-            })
+            .Do(_ => SetUnselected())
             .Subscribe()
             .DisposeWith(Disposables);
+
+        BrokerExpander.Events().ExpandedChanged
+            .Select(x => x as ExpandedChangedEventArgs)
+            .Where(x => x!.IsExpanded && SelectedBroker.IsVisible)
+            .Do(_ => SetUnselected())
+            .Subscribe()
+            .DisposeWith(Disposables);
+    }
+
+    private void SetUnselected()
+    {
+        ExpanderTitle.SetLocalizedText(ResourceKeys.SelectBroker);
+        BrokerAccountEntry.SetLocalizedText(ResourceKeys.SelectBroker, BorderedEntry.PlaceholderProperty);
+        SelectedBroker.IsVisible = false;
+        SelectedBroker.IsVisible = false;
+        BrokerExpander.IsExpanded = true;
+        BrokerAccountEntry.IsEnabled = false;
     }
 
     private void SetSelection(Core.Models.Broker broker)
     {
         SelectedBroker.Broker = broker;
-        ExpanderTitle.IsVisible = false;
+        ExpanderTitle.SetLocalizedText(ResourceKeys.CreatingAccountFor);
         SelectedBroker.IsVisible = true;
         BrokerExpander.IsExpanded = false;
+        BrokerAccountEntry.SetLocalizedText(ResourceKeys.CreatingAccountFor, BorderedEntry.PlaceholderProperty);
+        BrokerAccountEntry.IsEnabled = true;
     }
 }

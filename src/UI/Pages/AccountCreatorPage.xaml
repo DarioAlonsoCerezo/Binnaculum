@@ -23,22 +23,20 @@
                                                       Dark={StaticResource Black}}"
                     VerticalOptions="Start">
                     <VerticalStackLayout Spacing="12">
+
                         <toolkit:Expander
                             x:Name="BrokerExpander"
                             IsExpanded="True">
                             <toolkit:Expander.Header>
-                                <Grid>
+                                <VerticalStackLayout>
                                     <Label
                                         x:Name="ExpanderTitle"
-                                        Padding="0"
-                                        HorizontalTextAlignment="Start"
-                                        HorizontalOptions="Start"
-                                        Text="Opening an account for:"
+                                        Text="{local:Translate SelectBroker}"
                                         Style="{StaticResource LabelInfo}" />
                                     <controls:SelectableBrokerControl
                                         x:Name="SelectedBroker"
                                         IsVisible="False" />
-                                </Grid>
+                                </VerticalStackLayout>
                             </toolkit:Expander.Header>
                             <VerticalStackLayout Spacing="12">
                                 <controls:SelectableBrokerControl x:Name="IBKR" />
@@ -46,8 +44,9 @@
                             </VerticalStackLayout>
                         </toolkit:Expander>
                         <controls:BorderedEntry
-                            IsEnabled="True"
-                            Placeholder="Testing" />
+                            x:Name="BrokerAccountEntry"
+                            IsEnabled="False"
+                            Placeholder="{local:Translate SelectBroker}" />
                     </VerticalStackLayout>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="12" />
