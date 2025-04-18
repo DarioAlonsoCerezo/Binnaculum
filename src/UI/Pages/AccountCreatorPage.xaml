@@ -22,17 +22,19 @@
                     BackgroundColor="{AppThemeBinding Light={StaticResource White},
                                                       Dark={StaticResource Black}}"
                     VerticalOptions="Start">
-                    <VerticalStackLayout>
-
-                        <toolkit:Expander x:Name="BrokerExpander">
+                    <VerticalStackLayout Spacing="12">
+                        <toolkit:Expander
+                            x:Name="BrokerExpander"
+                            IsExpanded="True">
                             <toolkit:Expander.Header>
                                 <Grid>
                                     <Label
                                         x:Name="ExpanderTitle"
-                                        Margin="0,0,0,32"
-                                        VerticalTextAlignment="Center"
-                                        Text="Select Broker"
-                                        Style="{StaticResource LabelSettingsGroup}" />
+                                        Padding="0"
+                                        HorizontalTextAlignment="Start"
+                                        HorizontalOptions="Start"
+                                        Text="Opening an account for:"
+                                        Style="{StaticResource LabelInfo}" />
                                     <controls:SelectableBrokerControl
                                         x:Name="SelectedBroker"
                                         IsVisible="False" />
@@ -43,6 +45,9 @@
                                 <controls:SelectableBrokerControl x:Name="Tastytrade" />
                             </VerticalStackLayout>
                         </toolkit:Expander>
+                        <controls:BorderedEntry
+                            IsEnabled="True"
+                            Placeholder="Testing" />
                     </VerticalStackLayout>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="12" />
