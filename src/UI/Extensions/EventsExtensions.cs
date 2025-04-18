@@ -1,4 +1,6 @@
 ﻿using Binnaculum.Controls;
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Views;
 using PropertyChangingEventArgs = Microsoft.Maui.Controls.PropertyChangingEventArgs;
 using PropertyChangingEventHandler = Microsoft.Maui.Controls.PropertyChangingEventHandler;
 
@@ -33,6 +35,7 @@ public static class EventsExtensions
     public static RxButtonAddOrDiscardEvents Events(this ButtonSaveOrDiscard item) => new(item);
     public static RxCarouselViewEvents Events(this CarouselView item) => new(item);
     public static RxBorderedEntry Events(this BorderedEntry item) => new(item);
+    public static RxExpanderEvents Events(this Expander item) => new(item);
 }
 
 public class RxBindableObjectEvents
@@ -704,4 +707,21 @@ public class RxBorderedEntry : RxVisualElementEvents
                 eventHandler => (_, e) => eventHandler(e),
                 handler => _data.Completed += handler,
                 handler => _data.Completed -= handler);
+}
+
+public class RxExpanderEvents : RxVisualElementEvents
+{
+    private readonly Expander _data;
+
+    public RxExpanderEvents(Expander data) : base(data)
+    {
+        _data = data;
+    }
+
+    public IObservable<EventArgs> ExpandedChanged
+        => Observable
+            .FromEvent<EventHandler<ExpandedChangedEventArgs>, ExpandedChangedEventArgs>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.ExpandedChanged += handler,
+                handler => _data.ExpandedChanged -= handler);
 }
