@@ -1,8 +1,6 @@
-﻿using Binnaculum.Resources.Languages;
+﻿namespace Binnaculum;
 
-namespace Binnaculum;
-
-public class LocalizationResourceManager : INotifyPropertyChanged
+public partial class LocalizationResourceManager : INotifyPropertyChanged
 {
     private LocalizationResourceManager()
     {
@@ -20,7 +18,7 @@ public class LocalizationResourceManager : INotifyPropertyChanged
 
 [AcceptEmptyServiceProvider]
 [ContentProperty(nameof(Name))]
-public class TranslateExtension : BindableObject, IMarkupExtension<BindingBase>
+public partial class TranslateExtension : BindableObject, IMarkupExtension<BindingBase>
 {
     public string? Name { get; set; }
     public BindingBase ProvideValue(IServiceProvider serviceProvider)
@@ -35,5 +33,61 @@ public class TranslateExtension : BindableObject, IMarkupExtension<BindingBase>
     object IMarkupExtension.ProvideValue(IServiceProvider serviceProvider)
     {
         return ProvideValue(serviceProvider);
+    }
+}
+
+/// <summary>
+/// Extension methods for handling localization in code-behind
+/// </summary>
+public static partial class LocalizationExtensions
+{
+    /// <summary>
+    /// Sets a localized text on a Label using a type-safe resource key
+    /// </summary>
+    public static Label SetLocalizedText(this Label label, string resourceKey)
+    {
+        label.SetBinding(Label.TextProperty, new Binding
+        {
+            Source = LocalizationResourceManager.Instance,
+            Path = $"[{resourceKey}]",
+            Mode = BindingMode.OneWay
+        });
+
+        return label;
+    }
+
+    /// <summary>
+    /// Gets the localized string for a specific resource key
+    /// </summary>
+    public static string GetLocalizedString(string resourceKey)
+    {
+        return LocalizationResourceManager.Instance[resourceKey]?.ToString() ?? resourceKey;
+    }
+
+    /// <summary>
+    /// Sets a localized text on any BindableObject that has a Text property
+    /// </summary>
+    public static T SetLocalizedText<T>(this T control, string resourceKey, BindableProperty? textProperty = null)
+        where T : BindableObject
+    {
+        // Default to Label.TextProperty if not specified
+        var property = textProperty ?? Label.TextProperty;
+
+        control.SetBinding(property, new Binding
+        {
+            Source = LocalizationResourceManager.Instance,
+            Path = $"[{resourceKey}]",
+            Mode = BindingMode.OneWay
+        });
+
+        return control; // Return the control for method chaining
+    }
+
+    /// <summary>
+    /// Gets the localized string for a resource key
+    /// </summary>
+    public static string Localized(this string resourceKey)
+    {
+        return LocalizationResourceManager.Instance[resourceKey]?.ToString() ?? resourceKey;
     }
 }

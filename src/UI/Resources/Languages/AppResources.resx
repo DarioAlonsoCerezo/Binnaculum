@@ -168,4 +168,10 @@
   <data name="CreateAccount" xml:space="preserve">
     <value>Create account</value>
   </data>
+  <data name="SelectBroker" xml:space="preserve">
+    <value>Select a broker:</value>
+  </data>
+  <data name="CreatingAccountFor" xml:space="preserve">
+    <value>Creating account for:</value>
+  </data>
 </root>
