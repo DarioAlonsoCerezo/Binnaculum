@@ -174,4 +174,14 @@
   <data name="CreatingAccountFor" xml:space="preserve">
     <value>Creating account for:</value>
   </data>
+  <data name="Ok" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="InformationBrokerAccount" xml:space="preserve">
+    <value># Important
+
+For the broker account, you can use any name or number you wish, there is no connection with your **real account.** What you store in this application is exclusively for your tracking and monitoring.
+
+We recommend that you use a name or number that is familiar or easy for you to remember when viewing the movements and performance of your account.</value>
+  </data>
 </root>
