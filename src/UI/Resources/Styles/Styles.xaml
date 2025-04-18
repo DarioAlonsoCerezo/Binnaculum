@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:markdown="clr-namespace:Indiko.Maui.Controls.Markdown;assembly=Indiko.Maui.Controls.Markdown"
     xmlns:controls="clr-namespace:Binnaculum.Controls">
 
     <Style TargetType="ActivityIndicator">
@@ -41,10 +42,6 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
         <Setter Property="Padding" Value="16,32" />
     </Style>
-
-
-
-
 
     <Style TargetType="BoxView">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
@@ -485,6 +482,72 @@
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
         <Setter Property="VerticalOptions" Value="End" />
         <Setter Property="X2" Value="{Binding Width, Source={RelativeSource Self}}" />
+    </Style>
+
+    <Style
+        x:Key="BasicMarkdown"
+        TargetType="markdown:MarkdownView">
+        <!--  Base text styling  -->
+        <Setter Property="TextFontFace" Value="OpenSansRegular" />
+        <Setter Property="TextFontSize" Value="14" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+        <Setter Property="ParagraphSpacing" Value="1.3" />
+
+        <!--  Headings styling  -->
+        <Setter Property="H1FontSize" Value="22" />
+        <Setter Property="H1Color" Value="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}" />
+
+        <Setter Property="H2FontSize" Value="18" />
+        <Setter Property="H2Color" Value="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}" />
+
+        <Setter Property="H3FontSize" Value="16" />
+        <Setter Property="H3Color" Value="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}" />
+
+        <!--  Code block styling  -->
+        <Setter Property="CodeBlockBackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}" />
+        <Setter Property="CodeBlockTextColor" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray200}}" />
+        <Setter Property="CodeBlockBorderColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray500}}" />
+        <Setter Property="CodeBlockFontFace" Value="OpenSansRegular" />
+        <Setter Property="CodeBlockFontSize" Value="12" />
+
+        <!--  Block quote styling  -->
+        <Setter Property="BlockQuoteBackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}" />
+        <Setter Property="BlockQuoteTextColor" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray200}}" />
+        <Setter Property="BlockQuoteBorderColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+        <Setter Property="BlockQuoteFontFace" Value="OpenSansRegular" />
+
+        <!--  Table styling  -->
+        <Setter Property="TableHeaderBackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}" />
+        <Setter Property="TableHeaderFontFace" Value="OpenSansSemibold" />
+        <Setter Property="TableHeaderFontSize" Value="14" />
+        <Setter Property="TableHeaderTextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
+
+        <Setter Property="TableRowBackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray950}}" />
+        <Setter Property="TableRowFontFace" Value="OpenSansRegular" />
+        <Setter Property="TableRowFontSize" Value="12" />
+        <Setter Property="TableRowTextColor" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+
+        <!--  Other elements styling  -->
+        <Setter Property="HyperlinkColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+        <Setter Property="LineColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray500}}" />
+        <Setter Property="ImageAspect" Value="AspectFit" />
+
+        <!--  Visual states for consistent accessibility  -->
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="H1Color" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="H2Color" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="H3Color" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
 </ResourceDictionary>
