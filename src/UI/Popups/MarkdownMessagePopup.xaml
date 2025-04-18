@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<popups:BasePopup
+    x:Class="Binnaculum.Popups.MarkdownMessagePopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:markdown="clr-namespace:Indiko.Maui.Controls.Markdown;assembly=Indiko.Maui.Controls.Markdown"
+    xmlns:popups="clr-namespace:Binnaculum.Popups"
+    x:Name="Control"
+    Color="Transparent">
+    <ScrollView>
+        <Grid Padding="24,0">
+            <Border Style="{StaticResource Popup}">
+                <Grid RowDefinitions="1*,Auto">
+                    <markdown:MarkdownView
+                        Style="{StaticResource BasicMarkdown}"
+                        MarkdownText="{Binding Source={x:Reference Control}, Path=Text}" />
+                    <Button
+                        x:Name="OkButton"
+                        Grid.Row="1"
+                        Margin="0,32,0,0"
+                        Text="{local:Translate Ok}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollView>
+</popups:BasePopup>
