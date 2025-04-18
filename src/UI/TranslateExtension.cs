@@ -6,9 +6,23 @@ public partial class LocalizationResourceManager : INotifyPropertyChanged
     {
         AppResources.Culture = CultureInfo.CurrentCulture;
     }
+
     public static LocalizationResourceManager Instance { get; } = new();
+
     public object this[string resourceKey] => AppResources.ResourceManager.GetObject(resourceKey, AppResources.Culture) ?? Array.Empty<byte>();
+
+    // Add this method for formatted strings with parameters
+    public string GetString(string resourceKey, params object[] args)
+    {
+        var format = AppResources.ResourceManager.GetString(resourceKey, AppResources.Culture);
+        if (string.IsNullOrEmpty(format))
+            return resourceKey;
+
+        return string.Format(format, args);
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
+
     public void SetCulture(CultureInfo culture)
     {
         AppResources.Culture = culture;
@@ -57,11 +71,28 @@ public static partial class LocalizationExtensions
     }
 
     /// <summary>
+    /// Sets a localized text with format parameters on a Label
+    /// </summary>
+    public static Label SetLocalizedText(this Label label, string resourceKey, params object[] args)
+    {
+        label.Text = GetLocalizedString(resourceKey, args);
+        return label;
+    }
+
+    /// <summary>
     /// Gets the localized string for a specific resource key
     /// </summary>
     public static string GetLocalizedString(string resourceKey)
     {
         return LocalizationResourceManager.Instance[resourceKey]?.ToString() ?? resourceKey;
+    }
+
+    /// <summary>
+    /// Gets the localized string with format parameters for a specific resource key
+    /// </summary>
+    public static string GetLocalizedString(string resourceKey, params object[] args)
+    {
+        return LocalizationResourceManager.Instance.GetString(resourceKey, args);
     }
 
     /// <summary>
@@ -84,10 +115,32 @@ public static partial class LocalizationExtensions
     }
 
     /// <summary>
+    /// Sets a localized text with format parameters on any BindableObject that has a Text property
+    /// </summary>
+    public static T SetLocalizedText<T>(this T control, string resourceKey, BindableProperty textProperty, params object[] args)
+        where T : BindableObject
+    {
+        if (control is BindableObject bo)
+        {
+            bo.SetValue(textProperty, GetLocalizedString(resourceKey, args));
+        }
+
+        return control;
+    }
+
+    /// <summary>
     /// Gets the localized string for a resource key
     /// </summary>
     public static string Localized(this string resourceKey)
     {
         return LocalizationResourceManager.Instance[resourceKey]?.ToString() ?? resourceKey;
+    }
+
+    /// <summary>
+    /// Gets the localized string with format parameters for a resource key
+    /// </summary>
+    public static string Localized(this string resourceKey, params object[] args)
+    {
+        return LocalizationResourceManager.Instance.GetString(resourceKey, args);
     }
 }

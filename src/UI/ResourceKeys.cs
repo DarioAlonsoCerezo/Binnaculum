@@ -32,5 +32,8 @@ internal static class ResourceKeys
     // Account
     public const string CreateAccount = nameof(CreateAccount);
     public const string SelectBroker = nameof(SelectBroker);
-    public const string CreatingAccountFor = nameof(CreatingAccountFor);
+    public const string CreatingAccountForBroker = nameof(CreatingAccountForBroker);
+
+    //Information
+    public const string InformationBrokerAccount = nameof(InformationBrokerAccount);
 }

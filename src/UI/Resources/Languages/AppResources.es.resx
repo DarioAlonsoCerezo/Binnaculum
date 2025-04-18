@@ -171,8 +171,8 @@
   <data name="SelectBroker" xml:space="preserve">
     <value>Selecciona un Broker</value>
   </data>
-  <data name="CreatingAccountFor" xml:space="preserve">
-    <value>Creando cuenta para:</value>
+  <data name="CreatingAccountForBroker" xml:space="preserve">
+    <value>Creando cuenta para el broker {0}:</value>
   </data>
   <data name="Ok" xml:space="preserve">
     <value>Ok</value>
