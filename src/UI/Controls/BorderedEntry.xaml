@@ -10,11 +10,19 @@
         x:Name="Container"
         Style="{StaticResource BorderedControl}"
         IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}">
-        <controls:BorderlessEntry
-            x:Name="BorderlessEntry"
-            Text="{Binding Text}"
-            Placeholder="{Binding Placeholder}"
-            PlaceholderColor="{Binding PlaceholderColor}"
-            IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />
+        <Grid>
+            <controls:BorderlessEntry
+                x:Name="BorderlessEntry"
+                Margin="0,0,32,0"
+                Text="{Binding Text}"
+                Placeholder="{Binding Placeholder}"
+                PlaceholderColor="{Binding PlaceholderColor}"
+                IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />
+            <controls:InformationButton
+                x:Name="InformationButton"
+                Text="{Binding Source={x:Reference Control}, Path=Information}"
+                IsVisible="False"
+                HorizontalOptions="End" />
+        </Grid>
     </Border>
 </controls:BaseContentView>

@@ -42,6 +42,14 @@ public partial class BorderedEntry
         set => SetValue(PlaceholderColorProperty, value);
     }
 
+    public static readonly BindableProperty InformationProperty =
+        BindableProperty.Create(nameof(Information), typeof(string), typeof(BorderedEntry), default(string));
+
+    public string Information
+    {
+        get => (string)GetValue(InformationProperty);
+        set => SetValue(InformationProperty, value);
+    }
 
     public BorderedEntry()
 	{
@@ -50,6 +58,12 @@ public partial class BorderedEntry
 
     protected override void StartLoad()
     {
+        this.WhenAnyValue(x => x.Information, x => x.IsEnabled)
+            .Select(x => !string.IsNullOrEmpty(x.Item1) && x.Item2)
+            .ObserveOn(UiThread)
+            .BindTo(InformationButton, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
         BorderlessEntry.Events().TextChanged
             .Subscribe(e =>
             {
