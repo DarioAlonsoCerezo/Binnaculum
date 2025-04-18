@@ -46,7 +46,8 @@
                         <controls:BorderedEntry
                             x:Name="BrokerAccountEntry"
                             IsEnabled="False"
-                            Placeholder="{local:Translate SelectBroker}" />
+                            Placeholder="{local:Translate SelectBroker}"
+                            Information="{local:Translate InformationBrokerAccount}" />
                     </VerticalStackLayout>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="12" />
