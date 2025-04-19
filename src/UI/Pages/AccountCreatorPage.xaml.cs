@@ -53,8 +53,8 @@ public partial class AccountCreatorPage
 
     private void SetUnselected()
     {
-        ExpanderTitle.SetLocalizedText(ResourceKeys.SelectBroker);
-        BrokerAccountEntry.SetLocalizedText(ResourceKeys.SelectBroker, BorderedEntry.PlaceholderProperty);
+        ExpanderTitle.SetLocalizedText(ResourceKeys.AccountCreator_Select_Broker);
+        BrokerAccountEntry.SetLocalizedText(ResourceKeys.AccountCreator_Select_Broker, BorderedEntry.PlaceholderProperty);
         SelectedBroker.IsVisible = false;
         SelectedBroker.IsVisible = false;
         BrokerExpander.IsExpanded = true;
@@ -64,10 +64,10 @@ public partial class AccountCreatorPage
     private void SetSelection(Core.Models.Broker broker)
     {
         SelectedBroker.Broker = broker;
-        ExpanderTitle.SetLocalizedText(ResourceKeys.SelectBrokerChange);
+        ExpanderTitle.SetLocalizedText(ResourceKeys.AccountCreator_Change_Selection);
         SelectedBroker.IsVisible = true;
         BrokerExpander.IsExpanded = false;
-        BrokerAccountEntry.SetLocalizedText(ResourceKeys.CreatingAccountForBroker, BorderedEntry.PlaceholderProperty, broker.Name);
+        BrokerAccountEntry.SetLocalizedText(ResourceKeys.AccountCreator_Creating_Account_For_Broker, BorderedEntry.PlaceholderProperty, broker.Name);
         BrokerAccountEntry.IsEnabled = true;
     }
 }

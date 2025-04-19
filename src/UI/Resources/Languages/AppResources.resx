@@ -150,32 +150,29 @@
   <data name="EmptyAccountTitle" xml:space="preserve">
     <value>Start creating an account for a broker or bak to init your binnacle.</value>
   </data>
-  <data name="CreateAccount" xml:space="preserve">
-    <value>Create account</value>
-  </data>
-  <data name="SelectBroker" xml:space="preserve">
+  <data name="AccountCreator_Select_Broker" xml:space="preserve">
     <value>Select a broker:</value>
   </data>
-  <data name="CreatingAccountForBroker" xml:space="preserve">
+  <data name="AccountCreator_Creating_Account_For_Broker" xml:space="preserve">
     <value>Creating account for {0} broker:</value>
   </data>
   <data name="Global_Button_Ok" xml:space="preserve">
     <value>Ok</value>
   </data>
-  <data name="InformationBrokerAccount" xml:space="preserve">
+  <data name="Information_Create_Broker_Account" xml:space="preserve">
     <value># Important
 
 For the broker account, you can use any name or number you wish, there is no connection with your **real account.** What you store in this application is exclusively for your tracking and monitoring.
 
 We recommend that you use a name or number that is familiar or easy for you to remember when viewing the movements and performance of your account.</value>
   </data>
-  <data name="SelectBrokerChange" xml:space="preserve">
+  <data name="AccountCreator_Change_Selection" xml:space="preserve">
     <value>Change selection:</value>
   </data>
-  <data name="SelectBrokerTitle" xml:space="preserve">
+  <data name="Global_Title_Broker" xml:space="preserve">
     <value>Broker</value>
   </data>
-  <data name="SelectBankTitle" xml:space="preserve">
+  <data name="Global_Title_Bank" xml:space="preserve">
     <value>Bank</value>
   </data>
   <data name="Shell_Tab_Calendar" xml:space="preserve">

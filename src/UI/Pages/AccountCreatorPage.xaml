@@ -16,7 +16,7 @@
             <VerticalStackLayout Spacing="24">
                 <Label
                     Style="{StaticResource Headline}"
-                    Text="{local:Translate SelectBrokerTitle}" />
+                    Text="{local:Translate Global_Title_Broker}" />
                 <Border
                     Padding="24,32"
                     BackgroundColor="{AppThemeBinding Light={StaticResource White},
@@ -30,7 +30,7 @@
                                 <VerticalStackLayout Spacing="12">
                                     <Label
                                         x:Name="ExpanderTitle"
-                                        Text="{local:Translate SelectBroker}"
+                                        Text="{local:Translate AccountCreator_Select_Broker}"
                                         Style="{StaticResource LabelInfo}" />
                                     <controls:SelectableBrokerControl
                                         x:Name="SelectedBroker"
@@ -47,8 +47,8 @@
                         <controls:BorderedEntry
                             x:Name="BrokerAccountEntry"
                             IsEnabled="False"
-                            Placeholder="{local:Translate SelectBroker}"
-                            Information="{local:Translate InformationBrokerAccount}" />
+                            Placeholder="{local:Translate AccountCreator_Select_Broker}"
+                            Information="{local:Translate Information_Create_Broker_Account}" />
                     </VerticalStackLayout>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="12" />

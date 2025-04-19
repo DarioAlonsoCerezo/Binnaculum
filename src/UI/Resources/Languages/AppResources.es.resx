@@ -150,32 +150,29 @@
   <data name="EmptyAccountTitle" xml:space="preserve">
     <value>Empieza creando una cuenta de broker o banco para iniciar tu bitácora.</value>
   </data>
-  <data name="CreateAccount" xml:space="preserve">
-    <value>Crear cuenta</value>
-  </data>
-  <data name="SelectBroker" xml:space="preserve">
+  <data name="AccountCreator_Select_Broker" xml:space="preserve">
     <value>Selecciona un Broker:</value>
   </data>
-  <data name="CreatingAccountForBroker" xml:space="preserve">
+  <data name="AccountCreator_Creating_Account_For_Broker" xml:space="preserve">
     <value>Creando cuenta para el broker {0}:</value>
   </data>
   <data name="Global_Button_Ok" xml:space="preserve">
     <value>Ok</value>
   </data>
-  <data name="InformationBrokerAccount" xml:space="preserve">
+  <data name="Information_Create_Broker_Account" xml:space="preserve">
     <value># Importante
 	
 Para la cuenta de broker puede utilizar el nombre o número que desee, no hay una vinculación con su **cuenta real.** Lo que almacene en esta aplicación es exclusivamente para su control y seguimiento.
 
 Le recomendamos que utilice un nombre o número que le resulte familiar o fácil de recordar para cuando vea los movimientos y el rendimiento de su cuenta.</value>
   </data>
-  <data name="SelectBrokerChange" xml:space="preserve">
+  <data name="AccountCreator_Change_Selection" xml:space="preserve">
     <value>Cambiar selección:</value>
   </data>
-  <data name="SelectBrokerTitle" xml:space="preserve">
+  <data name="Global_Title_Broker" xml:space="preserve">
     <value>Broker</value>
   </data>
-  <data name="SelectBankTitle" xml:space="preserve">
+  <data name="Global_Title_Bank" xml:space="preserve">
     <value>Banco</value>
   </data>
   <data name="Shell_Tab_Calendar" xml:space="preserve">

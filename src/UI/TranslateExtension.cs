@@ -9,14 +9,54 @@ public partial class LocalizationResourceManager : INotifyPropertyChanged
 
     public static LocalizationResourceManager Instance { get; } = new();
 
-    public object this[string resourceKey] => AppResources.ResourceManager.GetObject(resourceKey, AppResources.Culture) ?? Array.Empty<byte>();
+    public object this[string resourceKey]
+    {
+        get
+        {
+            var result = AppResources.ResourceManager.GetObject(resourceKey, AppResources.Culture);
+
+            if (result == null)
+            {
+                // Resource key validation strategy:
+                // 1. In DEBUG builds: Throw KeyNotFoundException to immediately identify missing translations
+                //    during development, enabling quick detection and resolution of missing resources.
+                // 2. In RELEASE builds: Consider returning the key itself as fallback to prevent app crashes
+                //    in production while still providing some visible text.
+                // 
+                // To configure this behavior conditionally, use:
+#if DEBUG
+                throw new KeyNotFoundException($"Missing resource: '{resourceKey}'");
+#else
+                return resourceKey; // Fallback for production
+#endif
+
+            }
+
+            return result;
+        }
+    }
 
     // Add this method for formatted strings with parameters
     public string GetString(string resourceKey, params object[] args)
     {
         var format = AppResources.ResourceManager.GetString(resourceKey, AppResources.Culture);
+
         if (string.IsNullOrEmpty(format))
-            return resourceKey;
+        {
+            // Resource key validation strategy:
+            // 1. In DEBUG builds: Throw KeyNotFoundException to immediately identify missing translations
+            //    during development, enabling quick detection and resolution of missing resources.
+            // 2. In RELEASE builds: Consider returning the key itself as fallback to prevent app crashes
+            //    in production while still providing some visible text.
+            // 
+            // To configure this behavior conditionally, use:
+#if DEBUG
+            throw new KeyNotFoundException($"Missing resource: '{resourceKey}'");
+#else
+            return resourceKey; // Fallback for production
+#endif
+
+        }
 
         return string.Format(format, args);
     }
@@ -29,6 +69,7 @@ public partial class LocalizationResourceManager : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
     }
 }
+
 
 [AcceptEmptyServiceProvider]
 [ContentProperty(nameof(Name))]
