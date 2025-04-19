@@ -16,7 +16,7 @@
             <VerticalStackLayout Spacing="24">
                 <Label
                     Style="{StaticResource Headline}"
-                    Text="Broker" />
+                    Text="{local:Translate SelectBrokerTitle}" />
                 <Border
                     Padding="24,32"
                     BackgroundColor="{AppThemeBinding Light={StaticResource White},
