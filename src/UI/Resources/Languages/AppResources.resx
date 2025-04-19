@@ -120,7 +120,7 @@
   <data name="OverviewTitle" xml:space="preserve">
     <value>My accounts</value>
   </data>
-  <data name="ButtonSave" xml:space="preserve">
+  <data name="Global_Button_Save" xml:space="preserve">
     <value>Save</value>
   </data>
   <data name="Settings_Section_Language_English" xml:space="preserve">

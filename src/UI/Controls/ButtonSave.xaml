@@ -9,6 +9,6 @@
     x:DataType="controls:ButtonSave">
     <Button
         x:Name="SaveButton"
-        Text="{local:Translate ButtonSave}"
+        Text="{local:Translate Global_Button_Save}"
         IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />
 </controls:BaseContentView>
