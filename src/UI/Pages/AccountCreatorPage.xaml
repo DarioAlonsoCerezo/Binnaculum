@@ -60,6 +60,7 @@
             <controls:ButtonSaveOrDiscard
                 x:Name="ButtonSaveOrDiscard"
                 Grid.Row="2"
+                IsButtonSaveEnabled="False"
                 VerticalOptions="End" />
         </Grid>
     </ScrollView>
