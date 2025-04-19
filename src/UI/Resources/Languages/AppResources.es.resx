@@ -147,7 +147,7 @@
   <data name="Global_Button_Discard" xml:space="preserve">
     <value>Descartar</value>
   </data>
-  <data name="EmptyAccountTitle" xml:space="preserve">
+  <data name="Overview_Empty_Account_Info" xml:space="preserve">
     <value>Empieza creando una cuenta de broker o banco para iniciar tu bitácora.</value>
   </data>
   <data name="AccountCreator_Select_Broker" xml:space="preserve">
