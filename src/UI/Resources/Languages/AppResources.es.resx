@@ -169,7 +169,7 @@
     <value>Crear cuenta</value>
   </data>
   <data name="SelectBroker" xml:space="preserve">
-    <value>Selecciona un Broker</value>
+    <value>Selecciona un Broker:</value>
   </data>
   <data name="CreatingAccountForBroker" xml:space="preserve">
     <value>Creando cuenta para el broker {0}:</value>
@@ -183,5 +183,8 @@
 Para la cuenta de broker puede utilizar el nombre o número que desee, no hay una vinculación con su **cuenta real.** Lo que almacene en esta aplicación es exclusivamente para su control y seguimiento.
 
 Le recomendamos que utilice un nombre o número que le resulte familiar o fácil de recordar para cuando vea los movimientos y el rendimiento de su cuenta.</value>
+  </data>
+  <data name="SelectBrokerChange" xml:space="preserve">
+    <value>Cambiar selección:</value>
   </data>
 </root>

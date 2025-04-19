@@ -184,4 +184,7 @@ For the broker account, you can use any name or number you wish, there is no con
 
 We recommend that you use a name or number that is familiar or easy for you to remember when viewing the movements and performance of your account.</value>
   </data>
+  <data name="SelectBrokerChange" xml:space="preserve">
+    <value>Change selection:</value>
+  </data>
 </root>
