@@ -25,6 +25,8 @@ With Binnaculum, you can:
 
 [Calendar plugin](https://github.com/yurkinh/Plugin.Maui.Calendar)
 
+[Figma Design](https://www.figma.com/design/ptAOT3MDa4D8TwaXkdpcFk/Binnaculum?node-id=0-1&p=f&t=MPdVDsxPwDnkYbNy-0)
+
 Using [Indiko Markdown Controls](https://github.com/0xc3u/Indiko.Maui.Controls.Markdown) for rendering Markdown content
 
 Using icons from [Ikonate Thin Interface Icons](https://www.svgrepo.com/collection/ikonate-thin-interface-icons/)
