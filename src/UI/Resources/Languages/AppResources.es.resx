@@ -190,4 +190,7 @@ Le recomendamos que utilice un nombre o número que le resulte familiar o fácil
   <data name="SelectBrokerTitle" xml:space="preserve">
     <value>Broker</value>
   </data>
+  <data name="SelectBankTitle" xml:space="preserve">
+    <value>Banco</value>
+  </data>
 </root>

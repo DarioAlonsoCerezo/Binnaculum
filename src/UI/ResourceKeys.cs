@@ -35,6 +35,7 @@ internal static class ResourceKeys
     public const string SelectBroker = nameof(SelectBroker);
     public const string CreatingAccountForBroker = nameof(CreatingAccountForBroker);
     public const string SelectBrokerChange = nameof(SelectBrokerChange);
+    public const string SelectBankTitle = nameof(SelectBankTitle);
 
     //Information
     public const string InformationBrokerAccount = nameof(InformationBrokerAccount);

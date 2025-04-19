@@ -190,4 +190,7 @@ We recommend that you use a name or number that is familiar or easy for you to r
   <data name="SelectBrokerTitle" xml:space="preserve">
     <value>Broker</value>
   </data>
+  <data name="SelectBankTitle" xml:space="preserve">
+    <value>Bank</value>
+  </data>
 </root>
