@@ -10,7 +10,7 @@
     <Label
         x:Name="DiscardText"
         IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}"
-        Text="{local:Translate ButtonDiscard}"
+        Text="{local:Translate Global_Button_Discard}"
         HorizontalTextAlignment="Center">
         <Label.GestureRecognizers>
             <TapGestureRecognizer x:Name="DiscardTapped" />

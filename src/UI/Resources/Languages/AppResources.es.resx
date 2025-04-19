@@ -144,7 +144,7 @@
   <data name="Settings_Section_Theme_Title" xml:space="preserve">
     <value>Ajuste de tema</value>
   </data>
-  <data name="ButtonDiscard" xml:space="preserve">
+  <data name="Global_Button_Discard" xml:space="preserve">
     <value>Descartar</value>
   </data>
   <data name="EmptyAccountTitle" xml:space="preserve">
