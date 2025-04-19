@@ -144,21 +144,6 @@
   <data name="SettingsThemeTitle" xml:space="preserve">
     <value>Theme setting</value>
   </data>
-  <data name="TabCalendar" xml:space="preserve">
-    <value>Calendar</value>
-  </data>
-  <data name="TabMovements" xml:space="preserve">
-    <value>Movements</value>
-  </data>
-  <data name="TabOverview" xml:space="preserve">
-    <value>Overview</value>
-  </data>
-  <data name="TabSettings" xml:space="preserve">
-    <value>Settings</value>
-  </data>
-  <data name="TabTickers" xml:space="preserve">
-    <value>Tickers</value>
-  </data>
   <data name="ButtonDiscard" xml:space="preserve">
     <value>Discard</value>
   </data>
@@ -192,5 +177,20 @@ We recommend that you use a name or number that is familiar or easy for you to r
   </data>
   <data name="SelectBankTitle" xml:space="preserve">
     <value>Bank</value>
+  </data>
+  <data name="Shell_Tab_Calendar" xml:space="preserve">
+    <value>Calendar</value>
+  </data>
+  <data name="Shell_Tab_Movements" xml:space="preserve">
+    <value>Movements</value>
+  </data>
+  <data name="Shell_Tab_Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Shell_Tab_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Shell_Tab_Tickers" xml:space="preserve">
+    <value>Tickers</value>
   </data>
 </root>

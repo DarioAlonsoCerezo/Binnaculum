@@ -8,24 +8,24 @@
 
     <TabBar>
         <ShellContent
-            Title="{local:Translate TabOverview}"
+            Title="{local:Translate Shell_Tab_Overview}"
             Icon="overview"
             ContentTemplate="{DataTemplate pages:OverviewPage}" />
 
         <ShellContent
-            Title="{local:Translate TabMovements}"
+            Title="{local:Translate Shell_Tab_Movements}"
             Icon="movements"
             ContentTemplate="{DataTemplate pages:MovementsPage}" />
         <ShellContent
-            Title="{local:Translate TabTickers}"
+            Title="{local:Translate Shell_Tab_Tickers}"
             Icon="tickers"
             ContentTemplate="{DataTemplate pages:TickersPage}" />
         <ShellContent
-            Title="{local:Translate TabCalendar}"
+            Title="{local:Translate Shell_Tab_Calendar}"
             Icon="calendar"
             ContentTemplate="{DataTemplate pages:CalendarPage}" />
         <ShellContent
-            Title="{local:Translate TabSettings}"
+            Title="{local:Translate Shell_Tab_Settings}"
             Icon="settings"
             ContentTemplate="{DataTemplate pages:SettingsPage}" />
     </TabBar>
