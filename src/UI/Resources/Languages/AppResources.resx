@@ -159,7 +159,7 @@
   <data name="CreatingAccountForBroker" xml:space="preserve">
     <value>Creating account for {0} broker:</value>
   </data>
-  <data name="Ok" xml:space="preserve">
+  <data name="Global_Button_Ok" xml:space="preserve">
     <value>Ok</value>
   </data>
   <data name="InformationBrokerAccount" xml:space="preserve">

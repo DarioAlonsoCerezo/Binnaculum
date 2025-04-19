@@ -20,7 +20,7 @@
                         x:Name="OkButton"
                         Grid.Row="1"
                         Margin="0,32,0,0"
-                        Text="{local:Translate Ok}" />
+                        Text="{local:Translate Global_Button_Ok}" />
                 </Grid>
             </Border>
         </Grid>
