@@ -123,25 +123,25 @@
   <data name="ButtonSave" xml:space="preserve">
     <value>Guardar</value>
   </data>
-  <data name="SettingsLanguageEnglish" xml:space="preserve">
+  <data name="Settings_Section_Language_English" xml:space="preserve">
     <value>Inglés</value>
   </data>
-  <data name="SettingsLanguageSpanish" xml:space="preserve">
+  <data name="Settings_Section_Language_Spanish" xml:space="preserve">
     <value>Español</value>
   </data>
-  <data name="SettingsLanguageTitle" xml:space="preserve">
+  <data name="Settings_Section_Language_Title" xml:space="preserve">
     <value>Ajuste de idioma</value>
   </data>
-  <data name="SettingsThemeDark" xml:space="preserve">
+  <data name="Settings_Section_Theme_Dark" xml:space="preserve">
     <value>Oscuro</value>
   </data>
-  <data name="SettingsThemeDevice" xml:space="preserve">
+  <data name="Settings_Section_Theme_Device" xml:space="preserve">
     <value>Dispositivo</value>
   </data>
-  <data name="SettingsThemeLight" xml:space="preserve">
+  <data name="Settings_Section_Theme_Light" xml:space="preserve">
     <value>Claro</value>
   </data>
-  <data name="SettingsThemeTitle" xml:space="preserve">
+  <data name="Settings_Section_Theme_Title" xml:space="preserve">
     <value>Ajuste de tema</value>
   </data>
   <data name="ButtonDiscard" xml:space="preserve">

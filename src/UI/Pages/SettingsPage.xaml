@@ -16,7 +16,7 @@
             </VerticalStackLayout.Resources>
             <Label
                 Style="{StaticResource LabelSettingsTitle}"
-                Text="{local:Translate SettingsThemeTitle}" />
+                Text="{local:Translate Settings_Section_Theme_Title}" />
 
             <Border Style="{StaticResource Settings}">
                 <VerticalStackLayout Spacing="0">
@@ -25,7 +25,7 @@
                             Source="light"
                             Style="{StaticResource ImageSettingsGroup}" />
                         <Label
-                            Text="{local:Translate SettingsThemeLight}"
+                            Text="{local:Translate Settings_Section_Theme_Light}"
                             Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="LightRadioButton"
@@ -40,7 +40,7 @@
                             Source="dark"
                             Style="{StaticResource ImageSettingsGroup}" />
                         <Label
-                            Text="{local:Translate SettingsThemeDark}"
+                            Text="{local:Translate Settings_Section_Theme_Dark}"
                             Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="DarkRadioButton"
@@ -55,7 +55,7 @@
                             Source="device"
                             Style="{StaticResource ImageSettingsGroup}" />
                         <Label
-                            Text="{local:Translate SettingsThemeDevice}"
+                            Text="{local:Translate Settings_Section_Theme_Device}"
                             Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="DeviceRadioButton"
@@ -68,13 +68,13 @@
             <Label
                 Margin="0,16,0,0"
                 Style="{StaticResource LabelSettingsTitle}"
-                Text="{local:Translate SettingsLanguageTitle}" />
+                Text="{local:Translate Settings_Section_Language_Title}" />
 
             <Border Style="{StaticResource Settings}">
                 <VerticalStackLayout>
                     <Grid Style="{StaticResource GridSettingsGroup}">
                         <Label
-                            Text="{local:Translate SettingsLanguageEnglish}"
+                            Text="{local:Translate Settings_Section_Language_English}"
                             Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="LanguageEnglishRadioButton"
@@ -86,7 +86,7 @@
 
                     <Grid Style="{StaticResource GridSettingsGroup}">
                         <Label
-                            Text="{local:Translate SettingsLanguageSpanish}"
+                            Text="{local:Translate Settings_Section_Language_Spanish}"
                             Style="{StaticResource LabelSettingsGroup}" />
                         <RadioButton
                             x:Name="LanguageSpanishRadioButton"
