@@ -64,7 +64,7 @@ public partial class AccountCreatorPage
     private void SetSelection(Core.Models.Broker broker)
     {
         SelectedBroker.Broker = broker;
-        ExpanderTitle.SetLocalizedText(ResourceKeys.CreatingAccountForBroker, broker.Name);
+        ExpanderTitle.SetLocalizedText(ResourceKeys.SelectBrokerChange);
         SelectedBroker.IsVisible = true;
         BrokerExpander.IsExpanded = false;
         BrokerAccountEntry.SetLocalizedText(ResourceKeys.CreatingAccountForBroker, BorderedEntry.PlaceholderProperty, broker.Name);
