@@ -30,6 +30,7 @@ internal static class ResourceKeys
     public const string SettingsThemeDevice = nameof(SettingsThemeDevice);
 
     // Account
+    public const string SelectBrokerTitle = nameof(SelectBrokerTitle);
     public const string CreateAccount = nameof(CreateAccount);
     public const string SelectBroker = nameof(SelectBroker);
     public const string CreatingAccountForBroker = nameof(CreatingAccountForBroker);

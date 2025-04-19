@@ -187,4 +187,7 @@ We recommend that you use a name or number that is familiar or easy for you to r
   <data name="SelectBrokerChange" xml:space="preserve">
     <value>Change selection:</value>
   </data>
+  <data name="SelectBrokerTitle" xml:space="preserve">
+    <value>Broker</value>
+  </data>
 </root>
