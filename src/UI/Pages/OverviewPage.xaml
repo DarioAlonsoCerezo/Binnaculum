@@ -15,7 +15,7 @@
         <Label
             Margin="24,24,0,0"
             Text="{local:Translate Overview_Title}"
-            Style="{StaticResource SubHeadline}"
+            Style="{StaticResource CenteredSubHeadline}"
             HorizontalOptions="Start"
             FontFamily="OpenSansSemibold" />
 
