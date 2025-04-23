@@ -54,10 +54,9 @@
     </Style>
 
     <Style
-        x:Key="SubHeadline"
+        x:Key="CenteredSubHeadline"
         TargetType="Label"
-        BasedOn="{StaticResource VerticalAndHorizontalTextCentered}">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource MidnightBlue}, Dark={StaticResource White}}" />
+        BasedOn="{StaticResource CenteredHeadline}">
         <Setter Property="FontSize" Value="24" />
     </Style>
 
