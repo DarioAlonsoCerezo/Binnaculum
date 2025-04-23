@@ -15,7 +15,7 @@
             RowSpacing="32">
             <VerticalStackLayout Spacing="24">
                 <Label
-                    Style="{StaticResource Headline}"
+                    Style="{StaticResource CenteredHeadline}"
                     Text="{local:Translate Global_Title_Broker}" />
                 <Border
                     Padding="24,32"
