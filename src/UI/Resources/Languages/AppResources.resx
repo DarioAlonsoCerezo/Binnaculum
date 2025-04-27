@@ -153,9 +153,6 @@
   <data name="AccountCreator_Select_Broker" xml:space="preserve">
     <value>Select a broker:</value>
   </data>
-  <data name="AccountCreator_Creating_Account_For_Broker" xml:space="preserve">
-    <value>Creating account for {0} broker:</value>
-  </data>
   <data name="Global_Button_Ok" xml:space="preserve">
     <value>Ok</value>
   </data>
@@ -189,5 +186,14 @@ We recommend that you use a name or number that is familiar or easy for you to r
   </data>
   <data name="Shell_Tab_Tickers" xml:space="preserve">
     <value>Tickers</value>
+  </data>
+  <data name="AccountCreator_Select_Bank" xml:space="preserve">
+    <value>Select a bank:</value>
+  </data>
+  <data name="AccountCreator_Creating_Account_For_Broker" xml:space="preserve">
+    <value>Creating account for {0} broker:</value>
+  </data>
+  <data name="AccountCreator_Creating_Account_For_Bank" xml:space="preserve">
+    <value>Creating account for {0} bank:</value>
   </data>
 </root>

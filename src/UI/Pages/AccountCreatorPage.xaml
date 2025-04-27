@@ -29,7 +29,7 @@
                             <toolkit:Expander.Header>
                                 <VerticalStackLayout Spacing="12">
                                     <Label
-                                        x:Name="ExpanderTitle"
+                                        x:Name="BrokerExpanderTitle"
                                         Text="{local:Translate AccountCreator_Select_Broker}"
                                         Style="{StaticResource LabelInfo}" />
                                     <controls:SelectableBrokerControl
@@ -70,6 +70,40 @@
                     BackgroundColor="{AppThemeBinding Light={StaticResource White},
                                                       Dark={StaticResource Black}}"
                     VerticalOptions="Start">
+                    <VerticalStackLayout Spacing="12">
+                        <toolkit:Expander
+                            x:Name="BankExpander"
+                            IsExpanded="True">
+                            <toolkit:Expander.Header>
+                                <VerticalStackLayout Spacing="12">
+                                    <Label
+                                        x:Name="BankExpanderTitle"
+                                        Text="{local:Translate AccountCreator_Select_Bank}"
+                                        Style="{StaticResource LabelInfo}" />
+                                    <controls:SelectableBankControl
+                                        x:Name="SelectedBank"
+                                        IsVisible="False" />
+                                </VerticalStackLayout>
+                            </toolkit:Expander.Header>
+                            <VerticalStackLayout
+                                x:Name="BanksLayout"
+                                Margin="0,12,0,0"
+                                Spacing="12">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:SelectableBankControl
+                                            BankSelected="SelectableBankControl_BankSelected"
+                                            Bank="{Binding}" />
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </toolkit:Expander>
+                        <controls:BorderedEntry
+                            x:Name="BankAccountEntry"
+                            IsEnabled="False"
+                            Placeholder="{local:Translate AccountCreator_Select_Bank}"
+                            Information="{local:Translate Information_Create_Broker_Account}" />
+                    </VerticalStackLayout>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="12" />
                     </Border.StrokeShape>
