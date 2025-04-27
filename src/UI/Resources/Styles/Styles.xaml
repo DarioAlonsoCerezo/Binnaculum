@@ -27,7 +27,7 @@
         x:Key="Settings"
         TargetType="Border">
         <Setter Property="Stroke" Value="Transparent" />
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Black}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
         <Setter Property="StrokeShape">
             <Setter.Value>
                 <RoundRectangle CornerRadius="24" />
@@ -440,8 +440,8 @@
         x:Key="LineSettingsGroup"
         x:DataType="Line"
         TargetType="Line">
-        <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource OffWhite}, Dark={StaticResource OffBlack}}" />
         <Setter Property="VerticalOptions" Value="End" />
         <Setter Property="X2" Value="{Binding Width, Source={RelativeSource Self}}" />
     </Style>
