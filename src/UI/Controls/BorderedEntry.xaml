@@ -13,7 +13,6 @@
         <Grid>
             <controls:BorderlessEntry
                 x:Name="BorderlessEntry"
-                Margin="0,0,32,0"
                 Text="{Binding Text}"
                 Placeholder="{Binding Placeholder}"
                 PlaceholderColor="{Binding PlaceholderColor}"

@@ -58,10 +58,17 @@ public partial class BorderedEntry
 
     protected override void StartLoad()
     {
-        this.WhenAnyValue(x => x.Information, x => x.IsEnabled)
+        var isVisible = this.WhenAnyValue(x => x.Information, x => x.IsEnabled)
             .Select(x => !string.IsNullOrEmpty(x.Item1) && x.Item2)
-            .ObserveOn(UiThread)
+            .ObserveOn(UiThread);
+
+        isVisible
             .BindTo(InformationMarkdownButton, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        isVisible
+            .Select(x => x ? new Thickness(0,0,46,0) : new Thickness(0))
+            .BindTo(BorderlessEntry, x => x.Margin)
             .DisposeWith(Disposables);
 
         BorderlessEntry.Events().TextChanged
