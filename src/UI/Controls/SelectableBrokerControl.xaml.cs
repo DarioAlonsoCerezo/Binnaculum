@@ -41,10 +41,6 @@ public partial class SelectableBrokerControl
             .WhereNotNull()
             .Select(x => x.Name)
             .ObserveOn(UiThread)
-            .Do(x =>
-            {
-
-            })
             .BindTo(BrokerName, x => x.Text)
             .DisposeWith(Disposables);
     }
