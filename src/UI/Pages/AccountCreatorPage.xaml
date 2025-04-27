@@ -61,6 +61,20 @@
                     </Border.StrokeShape>
                 </Border>
 
+                <Label
+                    Style="{StaticResource CenteredHeadline}"
+                    Text="{local:Translate Global_Title_Bank}" />
+
+                <Border
+                    Padding="24,32"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                                      Dark={StaticResource Black}}"
+                    VerticalOptions="Start">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                </Border>
+
             </VerticalStackLayout>
 
             <controls:ButtonSaveOrDiscard
