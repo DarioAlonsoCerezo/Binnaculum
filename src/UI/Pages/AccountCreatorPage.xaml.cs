@@ -8,7 +8,10 @@ public partial class AccountCreatorPage
 {
     private ReadOnlyObservableCollection<Core.Models.Broker> _brokers;
     public ReadOnlyObservableCollection<Core.Models.Broker> Brokers => _brokers;
-    
+
+    private ReadOnlyObservableCollection<Core.Models.Bank> _banks;
+    public ReadOnlyObservableCollection<Core.Models.Bank> Banks => _banks;
+
     public AccountCreatorPage()
 	{
 		InitializeComponent();
@@ -19,7 +22,14 @@ public partial class AccountCreatorPage
             .Subscribe()
             .DisposeWith(Disposables);
 
+        Collections.Banks.Connect()
+            .ObserveOn(UiThread)
+            .Bind(out _banks)
+            .Subscribe()
+            .DisposeWith(Disposables);
+
         BindableLayout.SetItemsSource(BrokersLayout, Brokers);
+        BindableLayout.SetItemsSource(BanksLayout, Banks);
     }    
 
     protected override void StartLoad()
@@ -93,6 +103,9 @@ public partial class AccountCreatorPage
 
     private void SetBankSelection(Core.Models.Bank bank)
     {
+        if(bank.Id < 0)
+            return; //TODO: create flow to add new bank
+
         SelectedBank.Bank = bank;
         BankExpanderTitle.SetLocalizedText(ResourceKeys.AccountCreator_Change_Selection);
         SelectedBank.IsVisible = true;

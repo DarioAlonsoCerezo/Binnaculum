@@ -196,4 +196,10 @@ We recommend that you use a name or number that is familiar or easy for you to r
   <data name="AccountCreator_Creating_Account_For_Bank" xml:space="preserve">
     <value>Creating account for {0} bank:</value>
   </data>
+  <data name="Settings_Section_General_Title" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Settings_Section_General_Currency" xml:space="preserve">
+    <value>Currency</value>
+  </data>
 </root>

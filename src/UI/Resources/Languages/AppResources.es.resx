@@ -196,4 +196,10 @@ Le recomendamos que utilice un nombre o número que le resulte familiar o fácil
   <data name="AccountCreator_Creating_Account_For_Bank" xml:space="preserve">
     <value>Creando cuenta para el banco {0}:</value>
   </data>
+  <data name="Settings_Section_General_Title" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Settings_Section_General_Currency" xml:space="preserve">
+    <value>Divisa</value>
+  </data>
 </root>

@@ -9,6 +9,8 @@ public partial class SettingsPage : ContentPage
 
         Disposables = new CompositeDisposable();
 
+        SetupGeneral();
+
         this.Events().Appearing
             .Do(_ => SetupThemeRadioButtons())
             .Do(_ => SetupLanguageRadioButtons())
@@ -16,6 +18,11 @@ public partial class SettingsPage : ContentPage
             .DisposeWith(Disposables);
 
         SetupEvents();
+    }
+
+    private void SetupGeneral()
+    {
+        DefaultCurrency.Text = Preferences.Get("Currency", "USD");
     }
 
     private void SetupEvents()

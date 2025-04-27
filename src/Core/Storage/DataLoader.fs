@@ -27,7 +27,11 @@ module internal DataLoader =
     let private getAllBanks() = task {
         let! databaseBanks = BankExtensions.Do.getAll() |> Async.AwaitTask
         let banks = databaseBanks |> List.map (fun b -> fromDatabaseBank b)
-        Collections.Banks.EditDiff banks    
+        Collections.Banks.EditDiff banks
+
+        //TODO load an empty bank to recongnize from the UI to allow the user initialize a bank creation
+        if banks.IsEmpty then
+            Collections.Banks.Add({ Id = -1; Name = "Create a bank"; Image = Some "bank"; })
     }
 
     let private getBroker(name: string) =

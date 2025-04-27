@@ -32,7 +32,14 @@ public partial class SelectableBankControl
 
         this.WhenAnyValue(x => x.Bank)
             .WhereNotNull()
-            .Select(x => x.Image)
+            .Select(x =>
+            {
+                if (x.Image != null)
+                    return x.Image.Value;
+
+                return null;
+            })
+            .WhereNotNull()
             .ObserveOn(UiThread)
             .BindTo(BankImage, x => x.ImagePath)
             .DisposeWith(Disposables);

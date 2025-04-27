@@ -15,6 +15,54 @@
                 <ResourceDictionary />
             </VerticalStackLayout.Resources>
             <Label
+                Margin="0,16,0,0"
+                Style="{StaticResource LabelSettingsTitle}"
+                Text="{local:Translate Settings_Section_General_Title}" />
+            <Border Style="{StaticResource Settings}">
+                <Grid Style="{StaticResource GridSettingsGroup}">
+                    <Label
+                        Text="{local:Translate Settings_Section_General_Currency}"
+                        Style="{StaticResource LabelSettingsGroup}" />
+                    <Label
+                        x:Name="DefaultCurrency"
+                        Grid.Column="1"
+                        Padding="0"
+                        Style="{StaticResource LabelSettingsGroup}" />
+                </Grid>
+            </Border>
+
+            <Label
+                Margin="0,16,0,0"
+                Style="{StaticResource LabelSettingsTitle}"
+                Text="{local:Translate Settings_Section_Language_Title}" />
+
+            <Border Style="{StaticResource Settings}">
+                <VerticalStackLayout>
+                    <Grid Style="{StaticResource GridSettingsGroup}">
+                        <Label
+                            Text="{local:Translate Settings_Section_Language_English}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <RadioButton
+                            x:Name="LanguageEnglishRadioButton"
+                            Style="{StaticResource RadioButtonSettingsGroup}"
+                            GroupName="LanguageGroup" />
+                    </Grid>
+
+                    <Line Style="{StaticResource LineSettingsGroup}" />
+
+                    <Grid Style="{StaticResource GridSettingsGroup}">
+                        <Label
+                            Text="{local:Translate Settings_Section_Language_Spanish}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <RadioButton
+                            x:Name="LanguageSpanishRadioButton"
+                            Style="{StaticResource RadioButtonSettingsGroup}"
+                            GroupName="LanguageGroup" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label
                 Style="{StaticResource LabelSettingsTitle}"
                 Text="{local:Translate Settings_Section_Theme_Title}" />
 
@@ -65,36 +113,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Label
-                Margin="0,16,0,0"
-                Style="{StaticResource LabelSettingsTitle}"
-                Text="{local:Translate Settings_Section_Language_Title}" />
 
-            <Border Style="{StaticResource Settings}">
-                <VerticalStackLayout>
-                    <Grid Style="{StaticResource GridSettingsGroup}">
-                        <Label
-                            Text="{local:Translate Settings_Section_Language_English}"
-                            Style="{StaticResource LabelSettingsGroup}" />
-                        <RadioButton
-                            x:Name="LanguageEnglishRadioButton"
-                            Style="{StaticResource RadioButtonSettingsGroup}"
-                            GroupName="LanguageGroup" />
-                    </Grid>
-
-                    <Line Style="{StaticResource LineSettingsGroup}" />
-
-                    <Grid Style="{StaticResource GridSettingsGroup}">
-                        <Label
-                            Text="{local:Translate Settings_Section_Language_Spanish}"
-                            Style="{StaticResource LabelSettingsGroup}" />
-                        <RadioButton
-                            x:Name="LanguageSpanishRadioButton"
-                            Style="{StaticResource RadioButtonSettingsGroup}"
-                            GroupName="LanguageGroup" />
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
 
         </VerticalStackLayout>
     </ScrollView>
