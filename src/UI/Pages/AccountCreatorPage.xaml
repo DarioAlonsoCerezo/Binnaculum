@@ -38,10 +38,16 @@
                                 </VerticalStackLayout>
                             </toolkit:Expander.Header>
                             <VerticalStackLayout
+                                x:Name="BrokersLayout"
                                 Margin="0,12,0,0"
                                 Spacing="12">
-                                <controls:SelectableBrokerControl x:Name="IBKR" />
-                                <controls:SelectableBrokerControl x:Name="Tastytrade" />
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:SelectableBrokerControl
+                                            BrokerSelected="SelectableBrokerControl_BrokerSelected"
+                                            Broker="{Binding}" />
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
                             </VerticalStackLayout>
                         </toolkit:Expander>
                         <controls:BorderedEntry

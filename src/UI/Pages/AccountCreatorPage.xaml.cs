@@ -6,9 +6,20 @@ namespace Binnaculum.Pages;
 
 public partial class AccountCreatorPage
 {
+    private ReadOnlyObservableCollection<Core.Models.Broker> _brokers;
+    public ReadOnlyObservableCollection<Core.Models.Broker> Brokers => _brokers;
+    
     public AccountCreatorPage()
 	{
 		InitializeComponent();
+
+        Collections.Brokers.Connect()
+            .ObserveOn(UiThread)
+            .Bind(out _brokers)
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        BindableLayout.SetItemsSource(BrokersLayout, Brokers);
     }    
 
     protected override void StartLoad()
@@ -20,23 +31,6 @@ public partial class AccountCreatorPage
         ButtonSaveOrDiscard.Events().DiscardClicked
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe();
-
-        var ibkr = Collections.Brokers.Items.Single(x => x.SupportedBroker == "Interactive Brokers");
-        var tasty = Collections.Brokers.Items.Single(x => x.SupportedBroker == "Tastytrade");
-        if (ibkr != null)
-            IBKR.Broker = ibkr;
-        if (tasty != null)
-            Tastytrade.Broker = tasty;
-
-        Tastytrade.Events().BrokerSelected
-            .Do(SetSelection)
-            .Subscribe()
-            .DisposeWith(Disposables);
-
-        IBKR.Events().BrokerSelected
-            .Do(SetSelection)
-            .Subscribe()
-            .DisposeWith(Disposables);
 
         SelectedBroker.Events().BrokerSelected
             .Do(_ => SetUnselected())
@@ -50,6 +44,9 @@ public partial class AccountCreatorPage
             .Subscribe()
             .DisposeWith(Disposables);
     }
+
+    private void SelectableBrokerControl_BrokerSelected(object sender, Core.Models.Broker e)
+        => SetSelection(e);
 
     private void SetUnselected()
     {
