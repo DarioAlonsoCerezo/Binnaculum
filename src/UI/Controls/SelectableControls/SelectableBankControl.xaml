@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.SelectableBankControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Binnaculum.Controls">
+    <HorizontalStackLayout Spacing="12">
+        <controls:IconControl x:Name="BankImage" />
+        <Label
+            x:Name="BankName"
+            Style="{StaticResource SelectableItem}" />
+    </HorizontalStackLayout>
+    <ContentView.GestureRecognizers>
+        <TapGestureRecognizer x:Name="ContentGesture" />
+    </ContentView.GestureRecognizers>
+</controls:BaseContentView>
