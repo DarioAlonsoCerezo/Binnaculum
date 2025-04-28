@@ -1,3 +1,8 @@
+using Binnaculum.Core;
+using Binnaculum.Popups;
+using CommunityToolkit.Maui.Views;
+using System.Reactive;
+
 namespace Binnaculum.Pages;
 
 public partial class SettingsPage : ContentPage
@@ -56,6 +61,25 @@ public partial class SettingsPage : ContentPage
             .Do(_ => SetupLanguage("es"))
             .Subscribe()
             .DisposeWith(Disposables);
+
+        DefaultCurrencyTap.Events().Tapped
+        .SelectMany(_ => Observable.FromAsync(async () =>
+        {
+            var popup = new CurrencySelectorPopup();
+            var appMainpage = Application.Current!.Windows[0].Page!;
+            if (appMainpage is NavigationPage navigator)
+            {
+                var result = await navigator.ShowPopupAsync(popup);
+                if (result is Models.Currency currency)
+                {
+                    DefaultCurrency.Text = currency.Code;
+                    Preferences.Set("Currency", currency.Code);
+                }
+            }
+            return Unit.Default; // Return Unit.Default as a "void" equivalent
+        }))
+        .Subscribe()
+        .DisposeWith(Disposables);
     }
 
     private void SetupTheme(AppTheme theme)

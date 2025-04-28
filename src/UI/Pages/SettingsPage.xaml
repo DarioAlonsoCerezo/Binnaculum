@@ -27,7 +27,11 @@
                         x:Name="DefaultCurrency"
                         Grid.Column="1"
                         Padding="0"
-                        Style="{StaticResource LabelSettingsGroup}" />
+                        Style="{StaticResource LabelSettingsGroup}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer x:Name="DefaultCurrencyTap" />
+                        </Label.GestureRecognizers>
+                    </Label>
                 </Grid>
             </Border>
 
