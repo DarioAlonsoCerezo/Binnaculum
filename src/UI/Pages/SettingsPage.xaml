@@ -19,7 +19,9 @@
                 Style="{StaticResource LabelSettingsTitle}"
                 Text="{local:Translate Settings_Section_General_Title}" />
             <Border Style="{StaticResource Settings}">
-                <Grid Style="{StaticResource GridSettingsGroup}">
+                <Grid
+                    Style="{StaticResource GridSettingsGroup}"
+                    ColumnDefinitions="1*,Auto">
                     <Label
                         Text="{local:Translate Settings_Section_General_Currency}"
                         Style="{StaticResource LabelSettingsGroup}" />
