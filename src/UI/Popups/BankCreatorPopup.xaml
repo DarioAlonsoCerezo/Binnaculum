@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<popups:BasePopup
+    x:Class="Binnaculum.Popups.BankCreatorPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:popups="clr-namespace:Binnaculum.Popups"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:local="clr-namespace:Binnaculum"
+    CanBeDismissedByTappingOutsideOfPopup="False"
+    Color="Transparent">
+
+    <Grid
+        x:Name="Container"
+        Padding="24,0">
+        <Border Style="{StaticResource Popup}">
+            <Grid
+                RowSpacing="16"
+                RowDefinitions="Auto, 1*, Auto">
+                <controls:EditableIconControl ImagePath="bank" />
+                <controls:BorderedEntry
+                    x:Name="BankNameEntry"
+                    Grid.Row="1"
+                    Placeholder="{local:Translate AccountCreator_Create_Bank_Placeholder}"
+                    Information="{local:Translate Information_Create_Bank}" />
+                <controls:ButtonSaveOrDiscard
+                    x:Name="SaveOrDiscard"
+                    Grid.Row="2" />
+            </Grid>
+        </Border>
+    </Grid>
+</popups:BasePopup>

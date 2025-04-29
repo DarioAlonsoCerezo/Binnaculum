@@ -205,4 +205,14 @@ We recommend that you use a name or number that is familiar or easy for you to r
   <data name="AccountCreator_Create_Bank" xml:space="preserve">
     <value>Create a bank</value>
   </data>
+  <data name="Information_Create_Bank" xml:space="preserve">
+    <value># Important 
+
+When creating a bank, you can use any name or identifier you wish, as there is no connection with any **real bank.** The information you store in this application is solely for your tracking and monitoring purposes.
+
+We recommend using a name or identifier that is familiar or easy for you to recognize when associating it with your accounts and reviewing related movements.</value>
+  </data>
+  <data name="AccountCreator_Create_Bank_Placeholder" xml:space="preserve">
+    <value>Type the name</value>
+  </data>
 </root>

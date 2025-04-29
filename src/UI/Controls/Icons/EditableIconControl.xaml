@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.EditableIconControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    HorizontalOptions="Center"
+    HeightRequest="96"
+    WidthRequest="96">
+    <Grid>
+        <controls:IconControl
+            x:Name="Icon"
+            Scale="1.5"
+            ImagePath="bank" />
+        <Border
+            WidthRequest="32"
+            BackgroundColor="{StaticResource PrimaryDark}"
+            HeightRequest="32"
+            HorizontalOptions="End"
+            VerticalOptions="Start">
+            <Image
+                Margin="4"
+                Source="edit.png"
+                HorizontalOptions="Center"
+                VerticalOptions="Center">
+                <Image.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="{StaticResource White}" />
+                </Image.Behaviors>
+            </Image>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16" />
+            </Border.StrokeShape>
+        </Border>
+    </Grid>
+</controls:BaseContentView>

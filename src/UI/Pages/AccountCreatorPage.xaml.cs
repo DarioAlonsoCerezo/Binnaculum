@@ -1,6 +1,9 @@
 using Binnaculum.Controls;
+using Binnaculum.Core;
 using Binnaculum.Core.UI;
+using Binnaculum.Popups;
 using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Views;
 
 namespace Binnaculum.Pages;
 
@@ -103,9 +106,16 @@ public partial class AccountCreatorPage
 
     private void SetBankSelection(Core.Models.Bank bank)
     {
-        if(bank.Id < 0)
-            return; //TODO: create flow to add new bank
-
+        if (bank.Id < 0)
+        {
+            var popup = new BankCreatorPopup();
+            var appMainpage = Application.Current!.Windows[0].Page!;
+            if (appMainpage is NavigationPage navigator)
+            {
+                navigator.ShowPopup(popup);
+            }
+            return; 
+        }
         SelectedBank.Bank = bank;
         BankExpanderTitle.SetLocalizedText(ResourceKeys.AccountCreator_Change_Selection);
         SelectedBank.IsVisible = true;

@@ -205,4 +205,15 @@ Le recomendamos que utilice un nombre o número que le resulte familiar o fácil
   <data name="AccountCreator_Create_Bank" xml:space="preserve">
     <value>Crear un banco</value>
   </data>
+  <data name="Information_Create_Bank" xml:space="preserve">
+    <value># Importante
+
+Al crear un banco, puede utilizar cualquier nombre o identificador que desee, ya que no hay conexión con ningún **banco real.** La información que almacene en esta aplicación es exclusivamente para sus propósitos de seguimiento y monitoreo.
+
+Le recomendamos usar un nombre o identificador que sea familiar o fácil de reconocer al asociarlo con sus cuentas y al revisar los movimientos relacionados.
+</value>
+  </data>
+  <data name="AccountCreator_Create_Bank_Placeholder" xml:space="preserve">
+    <value>Escriba el nombre</value>
+  </data>
 </root>
