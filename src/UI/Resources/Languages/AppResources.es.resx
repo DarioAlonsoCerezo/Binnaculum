@@ -202,4 +202,7 @@ Le recomendamos que utilice un nombre o número que le resulte familiar o fácil
   <data name="Settings_Section_General_Currency" xml:space="preserve">
     <value>Divisa</value>
   </data>
+  <data name="AccountCreator_Create_Bank" xml:space="preserve">
+    <value>Crear un banco</value>
+  </data>
 </root>

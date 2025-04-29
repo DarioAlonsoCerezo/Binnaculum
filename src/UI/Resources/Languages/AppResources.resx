@@ -202,4 +202,7 @@ We recommend that you use a name or number that is familiar or easy for you to r
   <data name="Settings_Section_General_Currency" xml:space="preserve">
     <value>Currency</value>
   </data>
+  <data name="AccountCreator_Create_Bank" xml:space="preserve">
+    <value>Create a bank</value>
+  </data>
 </root>

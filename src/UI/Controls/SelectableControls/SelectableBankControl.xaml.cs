@@ -30,9 +30,10 @@ public partial class SelectableBankControl
                 BankSelected?.Invoke(this, Bank);
             }).DisposeWith(Disposables);
 
-        this.WhenAnyValue(x => x.Bank)
-            .WhereNotNull()
-            .Select(x =>
+        var bank = this.WhenAnyValue(x => x.Bank)
+            .WhereNotNull();
+
+        bank.Select(x =>
             {
                 if (x.Image != null)
                     return x.Image.Value;
@@ -44,10 +45,17 @@ public partial class SelectableBankControl
             .BindTo(BankImage, x => x.ImagePath)
             .DisposeWith(Disposables);
 
-        this.WhenAnyValue(x => x.Bank)
+        bank.ObserveOn(UiThread)
+            .Select(x =>
+            {
+                if(x.Id < 0)
+                {
+                    BankName.SetLocalizedText(x.Name);
+                    return null;
+                }
+                return x.Name;
+            })
             .WhereNotNull()
-            .Select(x => x.Name)
-            .ObserveOn(UiThread)
             .BindTo(BankName, x => x.Text)
             .DisposeWith(Disposables);
     }
