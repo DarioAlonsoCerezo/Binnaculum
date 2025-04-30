@@ -216,4 +216,7 @@ Le recomendamos usar un nombre o identificador que sea familiar o fácil de reco
   <data name="AccountCreator_Create_Bank_Placeholder" xml:space="preserve">
     <value>Escriba el nombre</value>
   </data>
+  <data name="FilePicker_Select_Image" xml:space="preserve">
+    <value>Selecciona una imagen</value>
+  </data>
 </root>

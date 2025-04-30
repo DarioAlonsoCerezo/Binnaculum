@@ -4,6 +4,8 @@ open System.Runtime.CompilerServices
 open Microsoft.Data.Sqlite
 open Binnaculum.Core.Database.Do
 open Binnaculum.Core
+open OptionExtensions
+open System
 
     [<Extension>]
     type Do() =
@@ -29,17 +31,30 @@ open Binnaculum.Core
         /// <summary>
         /// Fills the command with parameters from a list of tuples, and adds CreatedAt and UpdatedAt parameters.
         /// </summary>
-        [<Extension>]
-        static member fillAuditable<'a when 'a :> IAuditEntity>(command: SqliteCommand, parameters: (string * obj) list, entity: 'a) =
-            let filled = command.fillParameters(parameters)
-            filled.Parameters.AddWithValue(SQLParameterName.CreatedAt, box entity.CreatedAt) |> ignore
-            filled.Parameters.AddWithValue(SQLParameterName.UpdatedAt, box entity.UpdatedAt) |> ignore
-            filled
+        //[<Extension>]
+        //static member fillAuditable<'a when 'a :> IAuditEntity>(command: SqliteCommand, parameters: (string * obj) list, entity: 'a) =
+        //    let filled = command.fillParameters(parameters)
+        //    filled.Parameters.AddWithValue(SQLParameterName.CreatedAt, box entity.CreatedAt) |> ignore
+        //    filled.Parameters.AddWithValue(SQLParameterName.UpdatedAt, entity.UpdatedAt.ToDateTimeDbValue()) |> ignore
+        //    filled
 
         /// <summary>
         /// Fills the command with parameters from a list of tuples, and adds CreatedAt, UpdatedAt, and Id parameters.
         /// </summary>
         [<Extension>]
-        static member fillEntityAuditable<'a when 'a :> IEntity and 'a :> IAuditEntity>(command: SqliteCommand, parameters: (string * obj) list, entity: 'a) =
-            command.fillEntity<'a>(parameters, entity)
-            |> fun c -> c.fillAuditable<'a>(parameters, entity)
+        static member fillEntityAuditable<'T when 'T :> IEntity and 'T :> IAuditEntity>(command: SqliteCommand, parameters: (string * obj) list, entity: 'T) =
+            // Add existing parameters
+            parameters |> List.iter (fun (name, value) -> command.Parameters.AddWithValue(name, value) |> ignore)
+    
+            // Add audit parameters with explicit conversion
+            match entity.CreatedAt with
+            | Some createdAt -> command.Parameters.AddWithValue("@CreatedAt", createdAt.ToString()) |> ignore
+            | None -> command.Parameters.AddWithValue("@CreatedAt", DBNull.Value) |> ignore
+    
+            match entity.UpdatedAt with
+            | Some updatedAt -> command.Parameters.AddWithValue("@UpdatedAt", updatedAt.ToString()) |> ignore 
+            | None -> command.Parameters.AddWithValue("@UpdatedAt", DBNull.Value) |> ignore
+    
+            // Other parameters
+            command.Parameters.AddWithValue("@Id", entity.Id) |> ignore
+            command

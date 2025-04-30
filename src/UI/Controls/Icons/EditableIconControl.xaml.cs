@@ -2,6 +2,8 @@ namespace Binnaculum.Controls;
 
 public partial class EditableIconControl
 {
+    public event EventHandler IconClicked;
+
     public static readonly BindableProperty ImagePathProperty = BindableProperty.Create(
         nameof(ImagePath),
         typeof(string),
@@ -26,8 +28,6 @@ public partial class EditableIconControl
         set => SetValue(PlaceholderTextProperty, value);
     }
 
-    public Action? ChangeIcon { get; set; }
-
     public EditableIconControl()
 	{
 		InitializeComponent();
@@ -43,6 +43,11 @@ public partial class EditableIconControl
         this.WhenAnyValue(x => x.PlaceholderText)
             .ObserveOn(UiThread)
             .BindTo(Icon, x => x.PlaceholderText)
+            .DisposeWith(Disposables);
+
+        Icon.Events().IconClicked
+            .ObserveOn(UiThread)
+            .Subscribe(_ => IconClicked?.Invoke(this, EventArgs.Empty))
             .DisposeWith(Disposables);
     }
 }

@@ -74,6 +74,7 @@ public partial class BorderedEntry
         BorderlessEntry.Events().TextChanged
             .Subscribe(e =>
             {
+                Text = e.NewTextValue;
                 TextChanged?.Invoke(this, e);
             }).DisposeWith(Disposables);
 

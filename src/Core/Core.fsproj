@@ -37,6 +37,7 @@
 		<Compile Include="SQL\BankAccountsQuery.fs" />
 		<Compile Include="SQL\BankAccountMovementsQuery.fs" />
 		<Compile Include="Database\Database.fs" />
+		<Compile Include="Database\OptionExtensions.fs" />
 		<Compile Include="Database\DatabaseModel.fs" />
 		<Compile Include="Database\DataReaderExtensions.fs" />
 		<Compile Include="Database\CommandExtensions.fs" />
@@ -60,7 +61,9 @@
 		<Compile Include="Memory\Collections.fs" />
 		<Compile Include="Storage\ModelParser.fs" />
 		<Compile Include="Storage\DataLoader.fs" />
+		<Compile Include="Utilities\FilePickerService.fs" />
 		<Compile Include="UI\Overview.fs" />
+		<Compile Include="UI\Creator.fs" />
 	</ItemGroup>
 
 </Project>

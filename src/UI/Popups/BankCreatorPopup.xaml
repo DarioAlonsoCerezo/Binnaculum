@@ -16,7 +16,9 @@
             <Grid
                 RowSpacing="16"
                 RowDefinitions="Auto, 1*, Auto">
-                <controls:EditableIconControl ImagePath="bank" />
+                <controls:EditableIconControl
+                    x:Name="Icon"
+                    ImagePath="bank" />
                 <controls:BorderedEntry
                     x:Name="BankNameEntry"
                     Grid.Row="1"
@@ -24,7 +26,8 @@
                     Information="{local:Translate Information_Create_Bank}" />
                 <controls:ButtonSaveOrDiscard
                     x:Name="SaveOrDiscard"
-                    Grid.Row="2" />
+                    Grid.Row="2"
+                    IsButtonSaveEnabled="False" />
             </Grid>
         </Border>
     </Grid>

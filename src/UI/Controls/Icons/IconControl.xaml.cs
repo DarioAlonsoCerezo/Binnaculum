@@ -2,6 +2,8 @@ namespace Binnaculum.Controls;
 
 public partial class IconControl
 {
+    public event EventHandler IconClicked;
+
     public static readonly BindableProperty ImagePathProperty = BindableProperty.Create(
         nameof(ImagePath),
         typeof(string),
@@ -25,8 +27,6 @@ public partial class IconControl
         get => (string)GetValue(PlaceholderTextProperty);
         set => SetValue(PlaceholderTextProperty, value);
     }
-
-    public Action? ChangeIcon { get; set; }
 
     public IconControl()
     {
@@ -59,7 +59,7 @@ public partial class IconControl
 
         ContentGesture.Events().Tapped
             .ObserveOn(UiThread)
-            .Do(_ => ChangeIcon?.Invoke())
+            .Do(_ => IconClicked?.Invoke(this, EventArgs.Empty))
             .Subscribe()
             .DisposeWith(Disposables);
     }

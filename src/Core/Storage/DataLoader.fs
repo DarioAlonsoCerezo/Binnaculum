@@ -24,7 +24,7 @@ module internal DataLoader =
         Collections.Brokers.EditDiff brokers
     }
 
-    let private getAllBanks() = task {
+    let getOrRefreshBanks() = task {
         let! databaseBanks = BankExtensions.Do.getAll() |> Async.AwaitTask
         let banks = databaseBanks |> List.map (fun b -> fromDatabaseBank b)
                 
@@ -40,7 +40,7 @@ module internal DataLoader =
     let loadBasicData() = task {
         do! getAllCurrencies() |> Async.AwaitTask |> Async.Ignore
         do! getAllBrokers() |> Async.AwaitTask |> Async.Ignore
-        do! getAllBanks() |> Async.AwaitTask |> Async.Ignore
+        do! getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
     }
 
     let initialization() = task {

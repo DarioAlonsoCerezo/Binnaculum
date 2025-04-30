@@ -37,6 +37,8 @@ public static class EventsExtensions
     public static RxCarouselViewEvents Events(this CarouselView item) => new(item);
     public static RxBorderedEntry Events(this BorderedEntry item) => new(item);
     public static RxExpanderEvents Events(this Expander item) => new(item);
+    public static RxIconControlEvents Events(this IconControl item) => new(item);
+    public static RxEditableIconControlEvents Events(this EditableIconControl item) => new(item);
 }
 
 public class RxBindableObjectEvents
@@ -741,4 +743,37 @@ public class RxExpanderEvents : RxVisualElementEvents
                 eventHandler => (_, e) => eventHandler(e),
                 handler => _data.ExpandedChanged += handler,
                 handler => _data.ExpandedChanged -= handler);
+}
+
+public class RxIconControlEvents : RxVisualElementEvents
+{
+    private readonly IconControl _data;
+    
+    public RxIconControlEvents(IconControl data) : base(data)
+    {
+        _data = data;
+    }
+
+    public IObservable<EventArgs> IconClicked
+        => Observable
+            .FromEvent<EventHandler, EventArgs>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.IconClicked += handler,
+                handler => _data.IconClicked -= handler);
+}
+
+public class RxEditableIconControlEvents : RxVisualElementEvents
+{
+    private readonly EditableIconControl _data;
+
+    public RxEditableIconControlEvents(EditableIconControl data) : base(data)
+    {
+        _data = data;
+    }
+    public IObservable<EventArgs> IconClicked
+        => Observable
+            .FromEvent<EventHandler, EventArgs>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.IconClicked += handler,
+                handler => _data.IconClicked -= handler);
 }
