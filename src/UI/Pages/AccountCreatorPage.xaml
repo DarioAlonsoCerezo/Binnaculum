@@ -102,7 +102,7 @@
                             x:Name="BankAccountEntry"
                             IsEnabled="False"
                             Placeholder="{local:Translate AccountCreator_Select_Bank}"
-                            Information="{local:Translate Information_Create_Broker_Account}" />
+                            Information="{local:Translate Information_Create_Bank_Account}" />
                     </VerticalStackLayout>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="12" />

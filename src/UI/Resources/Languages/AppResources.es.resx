@@ -219,4 +219,11 @@ Le recomendamos usar un nombre o identificador que sea familiar o fácil de reco
   <data name="FilePicker_Select_Image" xml:space="preserve">
     <value>Selecciona una imagen</value>
   </data>
+  <data name="Information_Create_Bank_Account" xml:space="preserve">
+    <value># Importante
+
+Al crear una cuenta bancaria, debe saber que no está conectada a ninguna **cuenta bancaria real**. Esta cuenta es únicamente para fines de seguimiento y gestión, permitiéndole monitorear su crecimiento financiero y rendimiento.
+
+Le recomendamos utilizar un nombre o identificador que sea significativo para usted, facilitando la identificación al revisar sus actividades financieras y calcular los intereses ganados a lo largo del tiempo.</value>
+  </data>
 </root>

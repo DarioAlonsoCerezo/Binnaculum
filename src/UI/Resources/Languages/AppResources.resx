@@ -218,4 +218,11 @@ We recommend using a name or identifier that is familiar or easy for you to reco
   <data name="FilePicker_Select_Image" xml:space="preserve">
     <value>Select an image</value>
   </data>
+  <data name="Information_Create_Bank_Account" xml:space="preserve">
+    <value># Important
+
+When creating a bank account, you should know that it is not connected to any **real bank account**. This account is solely for tracking and management purposes, allowing you to monitor your financial growth and performance.
+
+We recommend using a name or identifier that is meaningful to you, making it easy to identify when reviewing your financial activities and calculating interest earned over time.</value>
+  </data>
 </root>
