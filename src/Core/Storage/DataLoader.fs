@@ -13,12 +13,14 @@ open DynamicData
 /// </summary>
 module internal DataLoader =
     let private getAllCurrencies() = task {
+        do! CurrencyExtensions.Do.insertDefaultValues() |> Async.AwaitTask 
         let! databaseCurrencies = CurrencyExtensions.Do.getAll() |> Async.AwaitTask
         let currencies = databaseCurrencies |> List.map (fun c -> fromDatabaseCurrency c)
         Collections.Currencies.EditDiff currencies
     }
 
     let private getAllBrokers() = task {
+        do! BrokerExtensions.Do.insertIfNotExists() |> Async.AwaitTask
         let! databaseBrokers = BrokerExtensions.Do.getAll() |> Async.AwaitTask
         let brokers = databaseBrokers |> List.map (fun b -> fromDatabaseBroker b)
         Collections.Brokers.EditDiff brokers
