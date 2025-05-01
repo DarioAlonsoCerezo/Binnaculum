@@ -6,6 +6,11 @@
     xmlns:controls="clr-namespace:Binnaculum.Controls">
     <HorizontalStackLayout Spacing="12">
         <controls:IconControl x:Name="BankImage" />
+        <controls:ButtonAdd
+            x:Name="BankAdd"
+            IsVisible="False"
+            ScaleButton="0.48"
+            HorizontalOptions="Start" />
         <Label
             x:Name="BankName"
             Style="{StaticResource SelectableItem}" />

@@ -50,7 +50,9 @@ public partial class SelectableBankControl
             {
                 if(x.Id < 0)
                 {
+                    BankAdd.IsVisible = true;
                     BankName.SetLocalizedText(x.Name);
+                    BankImage.IsVisible = false;
                     return null;
                 }
                 return x.Name;
@@ -58,5 +60,7 @@ public partial class SelectableBankControl
             .WhereNotNull()
             .BindTo(BankName, x => x.Text)
             .DisposeWith(Disposables);
+
+        BankAdd.AddAction = () => BankSelected?.Invoke(this, Bank);
     }
 }
