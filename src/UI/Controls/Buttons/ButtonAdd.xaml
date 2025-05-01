@@ -9,6 +9,7 @@
     HorizontalOptions="Center"
     VerticalOptions="Center">
     <Border
+        x:Name="ButtonBorder"
         BackgroundColor="Transparent"
         Stroke="{AppThemeBinding Light={StaticResource Gray200},
                                  Dark={StaticResource Primary}}"
@@ -26,9 +27,11 @@
                 </ResourceDictionary>
             </Grid.Resources>
             <BoxView
+                x:Name="HorizontalLine"
                 HeightRequest="3"
                 WidthRequest="30" />
             <BoxView
+                x:Name="VerticalLine"
                 WidthRequest="3"
                 HeightRequest="30" />
         </Grid>
