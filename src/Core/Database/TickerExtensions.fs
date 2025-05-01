@@ -7,6 +7,7 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
+open OptionExtensions
 
 [<Extension>]
 type Do() =
@@ -16,8 +17,8 @@ type Do() =
         command.fillEntityAuditable<Ticker>(
             [
                 (SQLParameterName.Symbol, ticker.Symbol);
-                (SQLParameterName.Image, ticker.Image);
-                (SQLParameterName.Name, ticker.Name);
+                (SQLParameterName.Image, ticker.Image.ToDbValue());
+                (SQLParameterName.Name, ticker.Name.ToDbValue());
             ], ticker)
 
     [<Extension>]

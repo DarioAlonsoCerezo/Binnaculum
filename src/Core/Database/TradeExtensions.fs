@@ -8,6 +8,7 @@ open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
+open OptionExtensions
 
 [<Extension>]
 type Do() =
@@ -26,7 +27,7 @@ type Do() =
                 (SQLParameterName.Fees, trade.Fees);
                 (SQLParameterName.TradeCode, fromTradeCodeToDatabase trade.TradeCode);
                 (SQLParameterName.TradeType, fromTradeTypeToDatabase trade.TradeType);
-                (SQLParameterName.Notes, trade.Notes)
+                (SQLParameterName.Notes, trade.Notes.ToDbValue())
             ], trade)
 
     [<Extension>]

@@ -29,16 +29,6 @@ open System
             command
 
         /// <summary>
-        /// Fills the command with parameters from a list of tuples, and adds CreatedAt and UpdatedAt parameters.
-        /// </summary>
-        //[<Extension>]
-        //static member fillAuditable<'a when 'a :> IAuditEntity>(command: SqliteCommand, parameters: (string * obj) list, entity: 'a) =
-        //    let filled = command.fillParameters(parameters)
-        //    filled.Parameters.AddWithValue(SQLParameterName.CreatedAt, box entity.CreatedAt) |> ignore
-        //    filled.Parameters.AddWithValue(SQLParameterName.UpdatedAt, entity.UpdatedAt.ToDateTimeDbValue()) |> ignore
-        //    filled
-
-        /// <summary>
         /// Fills the command with parameters from a list of tuples, and adds CreatedAt, UpdatedAt, and Id parameters.
         /// </summary>
         [<Extension>]

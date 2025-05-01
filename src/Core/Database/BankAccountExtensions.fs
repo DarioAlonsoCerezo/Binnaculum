@@ -7,6 +7,7 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
+open OptionExtensions
 
 [<Extension>]
 type Do() =
@@ -17,7 +18,7 @@ type Do() =
             [
                 (SQLParameterName.BankId, bankAccount.BankId);
                 (SQLParameterName.Name, bankAccount.Name);
-                (SQLParameterName.Description, bankAccount.Description);
+                (SQLParameterName.Description, bankAccount.Description.ToDbValue());
                 (SQLParameterName.CurrencyId, bankAccount.CurrencyId);
             ], bankAccount)
 

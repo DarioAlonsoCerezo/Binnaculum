@@ -8,6 +8,7 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
+open OptionExtensions
 
 [<Extension>]
 type Do() =
@@ -29,7 +30,7 @@ type Do() =
                 (SQLParameterName.Commissions, optionTrade.Commissions);
                 (SQLParameterName.Fees, optionTrade.Fees);
                 (SQLParameterName.IsOpen, optionTrade.IsOpen);
-                (SQLParameterName.ClosedWith, optionTrade.ClosedWith)
+                (SQLParameterName.ClosedWith, optionTrade.ClosedWith.ToDbValue())
             ], optionTrade)
             
     [<Extension>]
