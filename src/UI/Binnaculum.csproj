@@ -68,6 +68,7 @@
 		<PackageReference Include="Microsoft.Data.Sqlite.Core" />
 		<PackageReference Include="ReactiveUI" />
 		<PackageReference Include="ReactiveUI.Maui" />
+		<PackageReference Include="DynamicData" />
 		<PackageReference Include="SQLitePCLRaw.bundle_green" />
 		<PackageReference Include="FSharp.Core" />
 
