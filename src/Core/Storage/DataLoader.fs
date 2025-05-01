@@ -36,9 +36,6 @@ module internal DataLoader =
         Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; })
     }
 
-    let private getBroker(name: string) =
-        Collections.Brokers.Items |> Seq.find (fun b -> b.Name = name)
-
     let loadBasicData() = task {
         do! getAllCurrencies() |> Async.AwaitTask |> Async.Ignore
         do! getAllBrokers() |> Async.AwaitTask |> Async.Ignore
