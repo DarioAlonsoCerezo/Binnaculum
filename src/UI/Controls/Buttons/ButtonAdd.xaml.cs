@@ -67,7 +67,7 @@ public partial class ButtonAdd
 
     protected override void StartLoad()
     {
-        AddTap.Events().Tapped
+        BorderGesture.Events().Tapped
             .Do(_ => AddAction?.Invoke())
             .Subscribe().DisposeWith(Disposables);
     }

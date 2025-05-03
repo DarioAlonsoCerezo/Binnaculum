@@ -39,7 +39,7 @@
             <RoundRectangle CornerRadius="20" />
         </Border.StrokeShape>
         <Border.GestureRecognizers>
-            <TapGestureRecognizer x:Name="AddTap" />
+            <TapGestureRecognizer x:Name="BorderGesture" />
         </Border.GestureRecognizers>
     </Border>
 </controls:BaseContentView>
