@@ -4,7 +4,7 @@ namespace Binnaculum.Controls;
 
 public partial class ButtonAdd
 {
-    public Action? AddAction { get; set; }
+    public event EventHandler? AddClicked;
 
     // Base values for scaling
     private const double BASE_SIZE = 100;
@@ -68,7 +68,7 @@ public partial class ButtonAdd
     protected override void StartLoad()
     {
         BorderGesture.Events().Tapped
-            .Do(_ => AddAction?.Invoke())
+            .Do(_ => AddClicked?.Invoke(this, EventArgs.Empty))
             .Subscribe().DisposeWith(Disposables);
     }
 }

@@ -61,6 +61,10 @@ public partial class SelectableBankControl
             .BindTo(BankName, x => x.Text)
             .DisposeWith(Disposables);
 
-        BankAdd.AddAction = () => BankSelected?.Invoke(this, Bank);
+        BankAdd.Events().AddClicked
+            .Subscribe(_ =>
+            {
+                BankSelected?.Invoke(this, Bank);
+            }).DisposeWith(Disposables);
     }
 }

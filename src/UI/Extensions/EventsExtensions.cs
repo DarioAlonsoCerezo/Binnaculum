@@ -31,6 +31,7 @@ public static class EventsExtensions
     public static RxRadioButtonEvents Events(this RadioButton item) => new(item);
     public static RxSelectableBrokerEvents Events(this SelectableBrokerControl item) => new(item);
     public static RxSelectableBankEvents Events(this SelectableBankControl item) => new(item);
+    public static RxButtonAddEvents Events(this ButtonAdd item) => new(item);
     public static RxButtonSaveEvents Events(this ButtonSave item) => new(item);
     public static RxButtonDiscardEvents Events(this ButtonDiscard item) => new(item);
     public static RxButtonAddOrDiscardEvents Events(this ButtonSaveOrDiscard item) => new(item);
@@ -633,6 +634,21 @@ public class RxSelectableBankEvents : RxBindableObjectEvents
                 eventHandler => (_, e) => eventHandler(e),
                 handler => _data.BankSelected += handler,
                 handler => _data.BankSelected -= handler);
+}
+
+public class RxButtonAddEvents : RxBindableObjectEvents
+{
+    private readonly ButtonAdd _data;
+    public RxButtonAddEvents(ButtonAdd data) : base(data)
+    {
+        _data = data;
+    }
+    public IObservable<EventArgs> AddClicked
+        => Observable
+            .FromEvent<EventHandler, EventArgs>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.AddClicked += handler,
+                handler => _data.AddClicked -= handler);
 }
 
 public class RxButtonSaveEvents : RxBindableObjectEvents

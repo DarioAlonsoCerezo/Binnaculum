@@ -41,7 +41,14 @@ public partial class OverviewPage
 
     protected override void StartLoad()
     {
-        AddAccount.AddAction = async () => await Navigation.PushModalAsync(new AccountCreatorPage());
+        AddAccount.Events().AddClicked
+            .ObserveOn(UiThread)
+            .Select(async _ =>
+            {
+                await Navigation.PushModalAsync(new AccountCreatorPage());
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
 
         var data = Core.UI.Overview.Data;
 
