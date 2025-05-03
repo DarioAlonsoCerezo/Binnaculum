@@ -58,7 +58,7 @@ public partial class SettingsPage : ContentPage
             .Subscribe()
             .DisposeWith(Disposables);
 
-        DefaultCurrencyTap.Events().Tapped
+        DefaultCurrencyGesture.Events().Tapped
         .SelectMany(_ => Observable.FromAsync(async () =>
         {
             var popup = new CurrencySelectorPopup();

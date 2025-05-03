@@ -31,7 +31,7 @@
                         Padding="0"
                         Style="{StaticResource LabelSettingsGroup}">
                         <Label.GestureRecognizers>
-                            <TapGestureRecognizer x:Name="DefaultCurrencyTap" />
+                            <TapGestureRecognizer x:Name="DefaultCurrencyGesture" />
                         </Label.GestureRecognizers>
                     </Label>
                 </Grid>
