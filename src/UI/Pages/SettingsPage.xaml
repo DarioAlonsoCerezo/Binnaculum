@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
     <ScrollView>
@@ -75,8 +76,8 @@
             <Border Style="{StaticResource Settings}">
                 <VerticalStackLayout Spacing="0">
                     <Grid Style="{StaticResource GridSettingsGroup}">
-                        <Image
-                            Source="light"
+                        <controls:TintedImage
+                            ImageSource="light"
                             Style="{StaticResource ImageSettingsGroup}" />
                         <Label
                             Text="{local:Translate Settings_Section_Theme_Light}"
@@ -90,8 +91,8 @@
                     <Line Style="{StaticResource LineSettingsGroup}" />
 
                     <Grid Style="{StaticResource GridSettingsGroup}">
-                        <Image
-                            Source="dark"
+                        <controls:TintedImage
+                            ImageSource="dark"
                             Style="{StaticResource ImageSettingsGroup}" />
                         <Label
                             Text="{local:Translate Settings_Section_Theme_Dark}"
@@ -105,8 +106,8 @@
                     <Line Style="{StaticResource LineSettingsGroup}" />
 
                     <Grid Style="{StaticResource GridSettingsGroup}">
-                        <Image
-                            Source="device"
+                        <controls:TintedImage
+                            ImageSource="device"
                             Style="{StaticResource ImageSettingsGroup}" />
                         <Label
                             Text="{local:Translate Settings_Section_Theme_Device}"

@@ -3,7 +3,6 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:markdown="clr-namespace:Indiko.Maui.Controls.Markdown;assembly=Indiko.Maui.Controls.Markdown"
     xmlns:controls="clr-namespace:Binnaculum.Controls">
 
@@ -421,12 +420,10 @@
 
     <Style
         x:Key="ImageSettingsGroup"
-        TargetType="Image">
+        TargetType="controls:TintedImage">
         <Setter Property="HorizontalOptions" Value="Start" />
         <Setter Property="WidthRequest" Value="20" />
-        <Style.Behaviors>
-            <toolkit:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
-        </Style.Behaviors>
+        <Setter Property="TintColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
     </Style>
 
     <Style
