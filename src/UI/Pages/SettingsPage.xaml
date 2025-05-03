@@ -20,22 +20,33 @@
                 Style="{StaticResource LabelSettingsTitle}"
                 Text="{local:Translate Settings_Section_General_Title}" />
             <Border Style="{StaticResource Settings}">
-                <Grid
-                    Style="{StaticResource GridSettingsGroup}"
-                    ColumnDefinitions="1*,Auto">
-                    <Label
-                        Text="{local:Translate Settings_Section_General_Currency}"
-                        Style="{StaticResource LabelSettingsGroup}" />
-                    <Label
-                        x:Name="DefaultCurrency"
-                        Grid.Column="1"
-                        Padding="0"
-                        Style="{StaticResource LabelSettingsGroup}">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer x:Name="DefaultCurrencyGesture" />
-                        </Label.GestureRecognizers>
-                    </Label>
-                </Grid>
+                <VerticalStackLayout>
+                    <Grid
+                        Style="{StaticResource GridSettingsGroup}"
+                        ColumnDefinitions="1*,Auto">
+                        <Label
+                            Text="{local:Translate Settings_Section_General_Currency}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <Label
+                            x:Name="DefaultCurrency"
+                            Grid.Column="1"
+                            Padding="0"
+                            Style="{StaticResource LabelSettingsGroup}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer x:Name="DefaultCurrencyGesture" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
+                    <Line Style="{StaticResource LineSettingsGroup}" />
+
+                    <Grid Style="{StaticResource GridSettingsGroup}">
+                        <Label
+                            Text="Testing Switch"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <controls:CustomSwitch Grid.Column="1" />
+                    </Grid>
+                </VerticalStackLayout>
             </Border>
 
             <Label
@@ -119,8 +130,6 @@
                     </Grid>
                 </VerticalStackLayout>
             </Border>
-
-
 
         </VerticalStackLayout>
     </ScrollView>
