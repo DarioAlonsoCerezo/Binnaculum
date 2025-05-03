@@ -9,10 +9,10 @@ namespace Binnaculum.Pages;
 
 public partial class AccountCreatorPage
 {
-    private ReadOnlyObservableCollection<Core.Models.Broker> _brokers;
+    private readonly ReadOnlyObservableCollection<Core.Models.Broker> _brokers;
     public ReadOnlyObservableCollection<Core.Models.Broker> Brokers => _brokers;
 
-    private ReadOnlyObservableCollection<Core.Models.Bank> _banks;
+    private readonly ReadOnlyObservableCollection<Core.Models.Bank> _banks;
     public ReadOnlyObservableCollection<Core.Models.Bank> Banks => _banks;
 
     public AccountCreatorPage()
@@ -70,8 +70,8 @@ public partial class AccountCreatorPage
             .DisposeWith(Disposables);
     }
 
-    private void SelectableBrokerControl_BrokerSelected(object sender, Core.Models.Broker e)
-        => SetBrokerSelection(e);
+    private void SelectableBrokerControl_BrokerSelected(object _, Core.Models.Broker broker)
+        => SetBrokerSelection(broker);
 
     private void SetUnselectedBroker()
     {
@@ -92,8 +92,8 @@ public partial class AccountCreatorPage
         BrokerAccountEntry.IsEnabled = true;
     }
 
-    private void SelectableBankControl_BankSelected(object sender, Core.Models.Bank e)
-        => SetBankSelection(e);
+    private void SelectableBankControl_BankSelected(object _, Core.Models.Bank bank)
+        => SetBankSelection(bank);
 
     private void SetUnselectedBank()
     {
@@ -102,6 +102,7 @@ public partial class AccountCreatorPage
         SelectedBank.IsVisible = false;
         BankExpander.IsExpanded = true;
         BankAccountEntry.IsEnabled = false;
+        BankAccountEntry.IsCurrencyVisible = false;
     }
 
     private void SetBankSelection(Core.Models.Bank bank)
@@ -121,6 +122,7 @@ public partial class AccountCreatorPage
         SelectedBank.IsVisible = true;
         BankExpander.IsExpanded = false;
         BankAccountEntry.SetLocalizedText(ResourceKeys.AccountCreator_Creating_Account_For_Bank, BorderedEntry.PlaceholderProperty, bank.Name);
+        BankAccountEntry.IsCurrencyVisible = true;
         BankAccountEntry.IsEnabled = true;
     }
 }

@@ -1,18 +1,14 @@
 using Binnaculum.Core;
 using Binnaculum.Popups;
-using CommunityToolkit.Maui.Views;
-using System.Reactive;
 
 namespace Binnaculum.Pages;
 
 public partial class SettingsPage : ContentPage
 {
-    private readonly CompositeDisposable Disposables;
+    private readonly CompositeDisposable Disposables = [];
     public SettingsPage()
 	{
 		InitializeComponent();
-
-        Disposables = new CompositeDisposable();
 
         SetupGeneral();
 

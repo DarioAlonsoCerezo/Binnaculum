@@ -1,3 +1,6 @@
+using Binnaculum.Core;
+using Binnaculum.Popups;
+
 namespace Binnaculum.Controls;
 
 public partial class BorderedEntry
@@ -51,10 +54,26 @@ public partial class BorderedEntry
         set => SetValue(InformationProperty, value);
     }
 
+    public static readonly BindableProperty IsCurrencyVisibleProperty =
+        BindableProperty.Create(nameof(IsCurrencyVisible), typeof(bool), typeof(BorderedEntry), false,
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                if (bindable is BorderedEntry borderedEntry)
+                    borderedEntry.CurrencyLabel.IsVisible = (bool)newValue;
+            });
+
+    public bool IsCurrencyVisible
+    {
+        get => (bool)GetValue(IsCurrencyVisibleProperty);
+        set => SetValue(IsCurrencyVisibleProperty, value);
+    }
+
     public BorderedEntry()
 	{
 		InitializeComponent();
-	}
+
+        CurrencyLabel.Text = Preferences.Get("Currency", "USD");
+    }
 
     protected override void StartLoad()
     {
@@ -83,5 +102,24 @@ public partial class BorderedEntry
             {
                 Completed?.Invoke(this, e);
             }).DisposeWith(Disposables);
+
+        CurrencyGesture.Events().Tapped
+        .SelectMany(_ => Observable.FromAsync(async () =>
+        {
+            var popup = new CurrencySelectorPopup();
+            var appMainpage = Application.Current!.Windows[0].Page!;
+            if (appMainpage is NavigationPage navigator)
+            {
+                var result = await navigator.ShowPopupAsync(popup);
+                if (result is Models.Currency currency)
+                {
+                    CurrencyLabel.Text = currency.Code;
+                    Preferences.Set("Currency", currency.Code);
+                }
+            }
+            return Unit.Default; // Return Unit.Default as a "void" equivalent
+        }))
+        .Subscribe()
+        .DisposeWith(Disposables);
     }
 }

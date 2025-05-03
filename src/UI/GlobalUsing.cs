@@ -1,10 +1,12 @@
 global using CommunityToolkit.Maui;
+global using CommunityToolkit.Maui.Views;
 global using Microsoft.Extensions.Logging;
 global using System.Globalization;
 global using System.ComponentModel;
 global using System.Reactive.Linq;
 global using Binnaculum.Extensions;
 global using Binnaculum.Resources.Languages;
+global using System.Reactive;
 global using System.Reactive.Disposables;
 global using System.Reactive.Concurrency;
 global using System.Collections.ObjectModel;
