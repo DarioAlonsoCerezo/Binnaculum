@@ -13,7 +13,7 @@
         Text="{local:Translate Global_Button_Discard}"
         HorizontalTextAlignment="Center">
         <Label.GestureRecognizers>
-            <TapGestureRecognizer x:Name="DiscardTapped" />
+            <TapGestureRecognizer x:Name="DiscardGesture" />
         </Label.GestureRecognizers>
     </Label>
 </controls:BaseContentView>

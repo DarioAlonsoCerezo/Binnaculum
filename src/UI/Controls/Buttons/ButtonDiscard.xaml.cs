@@ -15,7 +15,7 @@ public partial class ButtonDiscard
             .BindTo(DiscardText, x => x.IsEnabled)
             .DisposeWith(Disposables);
 
-        DiscardTapped.Events().Tapped
+        DiscardGesture.Events().Tapped
             .Subscribe(_ => DiscardClicked?.Invoke(this, EventArgs.Empty))
             .DisposeWith(Disposables);
     }
