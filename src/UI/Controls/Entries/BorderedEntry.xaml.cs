@@ -114,7 +114,6 @@ public partial class BorderedEntry
                 if (result is Models.Currency currency)
                 {
                     CurrencyLabel.Text = currency.Code;
-                    Preferences.Set("Currency", currency.Code);
                 }
             }
             return Unit.Default; // Return Unit.Default as a "void" equivalent
