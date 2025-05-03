@@ -38,7 +38,7 @@
         x:Key="Popup"
         TargetType="Border"
         BasedOn="{StaticResource Settings}">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
         <Setter Property="Padding" Value="16,32" />
     </Style>
 
