@@ -9,7 +9,9 @@
     x:Name="Control"
     CanBeDismissedByTappingOutsideOfPopup="True"
     Color="Transparent">
-    <Grid Padding="24,64">
+    <Grid
+        x:Name="Container"
+        Padding="24,0">
         <Border Style="{StaticResource Popup}">
             <Grid RowDefinitions="Auto, 1*, Auto">
                 <SearchBar x:Name="Searcher" />

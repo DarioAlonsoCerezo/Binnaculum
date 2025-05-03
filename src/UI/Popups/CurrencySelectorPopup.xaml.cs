@@ -16,6 +16,8 @@ public partial class CurrencySelectorPopup
 	{
 		InitializeComponent();
 
+        ApplyHeightPercentage(Container, 0.5, true);
+
         // Create a filter predicate that will update when search terms change
         _filterPredicate = _searchTerms
             .Throttle(TimeSpan.FromMilliseconds(300))
