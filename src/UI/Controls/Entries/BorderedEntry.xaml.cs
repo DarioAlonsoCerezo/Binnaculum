@@ -1,5 +1,6 @@
 using Binnaculum.Core;
 using Binnaculum.Popups;
+using CommunityToolkit.Maui.Core.Platform;
 
 namespace Binnaculum.Controls;
 
@@ -68,6 +69,15 @@ public partial class BorderedEntry
         set => SetValue(IsCurrencyVisibleProperty, value);
     }
 
+    public async Task Unfocus(bool hideKeyboard = false)
+    {
+        if(BorderlessEntry.IsFocused)
+            BorderlessEntry.Unfocus();
+
+        if(BorderlessEntry.IsSoftKeyboardShowing() && hideKeyboard)
+            await ((Entry)BorderlessEntry).HideKeyboardAsync();
+    }
+
     public BorderedEntry()
 	{
 		InitializeComponent();
@@ -91,6 +101,7 @@ public partial class BorderedEntry
             .DisposeWith(Disposables);
 
         BorderlessEntry.Events().TextChanged
+            .ObserveOn(UiThread)
             .Subscribe(e =>
             {
                 Text = e.NewTextValue;

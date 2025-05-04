@@ -3,7 +3,6 @@ using Binnaculum.Core;
 using Binnaculum.Core.UI;
 using Binnaculum.Popups;
 using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Views;
 
 namespace Binnaculum.Pages;
 
@@ -46,6 +45,7 @@ public partial class AccountCreatorPage
             .Subscribe();
 
         SelectedBroker.Events().BrokerSelected
+            .Select(async _ => await UnfocusEntries())
             .Do(_ => SetUnselectedBroker())
             .Subscribe()
             .DisposeWith(Disposables);
@@ -53,11 +53,13 @@ public partial class AccountCreatorPage
         BrokerExpander.Events().ExpandedChanged
             .Select(x => x as ExpandedChangedEventArgs)
             .Where(x => x!.IsExpanded && SelectedBroker.IsVisible)
+            .Select(async _ => await UnfocusEntries())
             .Do(_ => SetUnselectedBroker())
             .Subscribe()
             .DisposeWith(Disposables);
 
         SelectedBank.Events().BankSelected
+            .Select(async _ => await UnfocusEntries())
             .Do(_ => SetUnselectedBank())
             .Subscribe()
             .DisposeWith(Disposables);
@@ -65,13 +67,41 @@ public partial class AccountCreatorPage
         BankExpander.Events().ExpandedChanged
             .Select(x => x as ExpandedChangedEventArgs)
             .Where(x => x!.IsExpanded && SelectedBank.IsVisible)
+            .Select(async _ => await UnfocusEntries())
             .Do(_ => SetUnselectedBank())
             .Subscribe()
             .DisposeWith(Disposables);
+
+        BrokerAccountEntry.Events().TextChanged
+            .CombineLatest(BrokerAccountEntry.Events().TextChanged)
+            .Where(_ => SelectedBroker.IsVisible || SelectedBank.IsVisible)
+            .Select(_ => (SelectedBroker.Broker, SelectedBank.Bank, BrokerAccountEntry.Text, BankAccountEntry.Text))
+            .ObserveOn(UiThread)
+            .Select(CheckActiveButton)
+            .BindTo(ButtonSaveOrDiscard, x => x.IsButtonSaveEnabled)
+            .DisposeWith(Disposables);
     }
 
-    private void SelectableBrokerControl_BrokerSelected(object _, Core.Models.Broker broker)
-        => SetBrokerSelection(broker);
+    private bool CheckActiveButton((Models.Broker? broker, Models.Bank? bank, string? brokerAccountName, string? bankAccountName) selection)
+    {
+        if (selection.broker != null || selection.bank != null)
+        {
+            if (!string.IsNullOrWhiteSpace(selection.brokerAccountName) || !string.IsNullOrWhiteSpace(selection.bankAccountName))
+            {
+                if (selection.brokerAccountName?.Length > 2 || selection.bankAccountName?.Length > 2)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private async void SelectableBrokerControl_BrokerSelected(object _, Core.Models.Broker broker)
+    {
+        await UnfocusEntries();
+        SetBrokerSelection(broker);
+    }
 
     private void SetUnselectedBroker()
     {
@@ -92,8 +122,11 @@ public partial class AccountCreatorPage
         BrokerAccountEntry.IsEnabled = true;
     }
 
-    private void SelectableBankControl_BankSelected(object _, Core.Models.Bank bank)
-        => SetBankSelection(bank);
+    private async void SelectableBankControl_BankSelected(object _, Core.Models.Bank bank)
+    {
+        await UnfocusEntries();
+        SetBankSelection(bank);
+    }
 
     private void SetUnselectedBank()
     {
@@ -124,5 +157,11 @@ public partial class AccountCreatorPage
         BankAccountEntry.SetLocalizedText(ResourceKeys.AccountCreator_Creating_Account_For_Bank, BorderedEntry.PlaceholderProperty, bank.Name);
         BankAccountEntry.IsCurrencyVisible = true;
         BankAccountEntry.IsEnabled = true;
+    }
+
+    private async Task UnfocusEntries()
+    {
+        await BankAccountEntry.Unfocus(hideKeyboard: true);
+        await BrokerAccountEntry.Unfocus(hideKeyboard: true);
     }
 }
