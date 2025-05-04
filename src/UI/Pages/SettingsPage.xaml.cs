@@ -19,7 +19,12 @@ public partial class SettingsPage : ContentPage
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(SetupPreferencesCollection)
             .DisposeWith(Disposables);
-        
+
+        AllowCreateAccountsSwitch.Events().Toggled
+            .Do(Core.UI.SavedPrefereces.ChangeAllowCreateAccount)
+            .Subscribe()
+            .DisposeWith(Disposables);
+
         LightRadioButton.Events().Clicked
             .Do(_ => SetupTheme(AppTheme.Light))
             .Subscribe()
@@ -84,6 +89,7 @@ public partial class SettingsPage : ContentPage
     private void SetupPreferencesCollection(Core.UI.SavedPrefereces.PreferencesCollection collection)
     {
         DefaultCurrency.Text = collection.Currency;
+        AllowCreateAccountsSwitch.IsOn = collection.AllowCreateAccount;
 
         LanguageEnglishRadioButton.IsChecked = collection.Language.Equals("en");
         LanguageSpanishRadioButton.IsChecked = collection.Language.Equals("es");

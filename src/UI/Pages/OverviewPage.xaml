@@ -24,7 +24,7 @@
             Grid.Row="1"
             Margin="0,0,0,96"
             ColumnSpacing="0"
-            ColumnDefinitions="Auto,2*">
+            ColumnDefinitions="Auto,1*">
             <Grid.Resources>
                 <ResourceDictionary>
                     <controls:AccountTemplateSelector x:Key="AccountTemplateSelector" />

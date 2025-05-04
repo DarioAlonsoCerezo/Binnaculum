@@ -30,6 +30,9 @@ module SavedPrefereces =
     let private Currency = "Currency"
 
     [<Literal>]
+    let private AllowCreateAccount = "AllowCreateAccount"
+
+    [<Literal>]
     let private DefaultLanguage = "en"
 
     [<Literal>]
@@ -39,13 +42,15 @@ module SavedPrefereces =
         Theme: AppTheme
         Language: string
         Currency: string
+        AllowCreateAccount: bool
     }
 
     let private loadPreferences() = 
         let theme = Preferences.Get(ThemeKey, parseTheme AppTheme.Unspecified)
         let language = Preferences.Get(LanguageKey, DefaultLanguage)
         let currency = Preferences.Get(Currency, DefaultCurrency)
-        { Theme = themeIntToEnum theme; Language = language; Currency = currency }
+        let allowCreateAccount = Preferences.Get(AllowCreateAccount, true)
+        { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount }
 
     let UserPreferences = new BehaviorSubject<PreferencesCollection>(loadPreferences())
 
@@ -60,3 +65,7 @@ module SavedPrefereces =
     let ChangeCurrency(currency: string) =
         Preferences.Set(Currency, currency)
         UserPreferences.OnNext({ UserPreferences.Value with Currency = currency })
+
+    let ChangeAllowCreateAccount(allow: bool) =
+        Preferences.Set(AllowCreateAccount, allow)
+        UserPreferences.OnNext({ UserPreferences.Value with AllowCreateAccount = allow })

@@ -23,17 +23,17 @@ public partial class OverviewPage
         Core.UI.Collections.Accounts.Connect()
             .ObserveOn(UiThread)
             .Bind(out _accounts)
-            .Subscribe(x =>
-            {
-
-            });
+            .Subscribe();
 
         Core.UI.Collections.Movements.Connect()
             .ObserveOn(UiThread)
             .Bind(out _movements)
-            .Subscribe(x =>
-            {
-            });
+            .Subscribe();
+
+        Core.UI.SavedPrefereces.UserPreferences
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Select(x => x.AllowCreateAccount)
+            .BindTo(AddAccount, x => x.IsVisible);
 
         AccountsCarousel.ItemsSource = Accounts;
         MovementsCollectionView.ItemsSource = Movements;

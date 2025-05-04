@@ -44,9 +44,11 @@
 
                     <Grid Style="{StaticResource GridSettingsGroup}">
                         <Label
-                            Text="Testing Switch"
+                            Text="{local:Translate Settings_Section_General_Allow_Create_Account}"
                             Style="{StaticResource LabelSettingsGroup}" />
-                        <controls:CustomSwitch Grid.Column="1" />
+                        <controls:CustomSwitch
+                            x:Name="AllowCreateAccountsSwitch"
+                            Grid.Column="1" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>

@@ -226,4 +226,7 @@ Al crear una cuenta bancaria, debe saber que no está conectada a ninguna **cuen
 
 Le recomendamos utilizar un nombre o identificador que sea significativo para usted, facilitando la identificación al revisar sus actividades financieras y calcular los intereses ganados a lo largo del tiempo.</value>
   </data>
+  <data name="Settings_Section_General_Allow_Create_Account" xml:space="preserve">
+    <value>Permitir crear cuentas</value>
+  </data>
 </root>
