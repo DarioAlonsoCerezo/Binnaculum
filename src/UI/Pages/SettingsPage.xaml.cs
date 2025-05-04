@@ -1,5 +1,6 @@
 using Binnaculum.Core;
 using Binnaculum.Popups;
+using System.Diagnostics;
 
 namespace Binnaculum.Pages;
 
@@ -97,5 +98,35 @@ public partial class SettingsPage : ContentPage
         LightRadioButton.IsChecked = collection.Theme == AppTheme.Light;
         DarkRadioButton.IsChecked = collection.Theme == AppTheme.Dark;
         DeviceRadioButton.IsChecked = collection.Theme == AppTheme.Unspecified;
+    }
+
+    private async void IssueMarkdownView_OnHyperLinkClicked(object sender, Indiko.Maui.Controls.Markdown.LinkEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Url))
+        {
+            try
+            {
+                // Get the current culture to determine if we should add language parameter
+                var currentCulture = CultureInfo.CurrentCulture;
+                var url = e.Url;
+
+                // If Spanish is selected, add a query parameter to indicate this
+                if (currentCulture.TwoLetterISOLanguageName.Equals("es", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Add language parameter to the GitHub URL
+                    if (url.Contains("?"))
+                        url += "&lang=es";
+                    else
+                        url += "?lang=es";
+                }
+
+                // Open the URL in the default browser
+                await Launcher.OpenAsync(new Uri(url));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error opening URL: {ex.Message}");
+            }
+        }
     }
 }

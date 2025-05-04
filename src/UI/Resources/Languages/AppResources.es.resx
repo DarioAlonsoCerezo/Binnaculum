@@ -229,4 +229,7 @@ Le recomendamos utilizar un nombre o identificador que sea significativo para us
   <data name="Settings_Section_General_Allow_Create_Account" xml:space="preserve">
     <value>Permitir crear cuentas</value>
   </data>
+  <data name="Settings_Section_Issue" xml:space="preserve">
+    <value>[Informar de un problema o mejora.](https://github.com/DarioAlonsoCerezo/Binnaculum/issues)</value>
+  </data>
 </root>

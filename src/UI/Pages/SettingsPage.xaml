@@ -6,6 +6,7 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:local="clr-namespace:Binnaculum"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:markdown="clr-namespace:Indiko.Maui.Controls.Markdown;assembly=Indiko.Maui.Controls.Markdown"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
     <ScrollView>
@@ -134,6 +135,13 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!--  ISSUE  -->
+            <markdown:MarkdownView
+                x:Name="IssueMarkdownView"
+                Scale="1.5"
+                HorizontalOptions="Center"
+                OnHyperLinkClicked="IssueMarkdownView_OnHyperLinkClicked"
+                MarkdownText="{local:Translate Settings_Section_Issue}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
