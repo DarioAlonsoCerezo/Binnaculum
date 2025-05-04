@@ -13,8 +13,9 @@ public partial class App : Application
     protected override Window CreateWindow(IActivationState? activationState)
     {
         //Restore the theme and language settings
-        Current!.UserAppTheme = (AppTheme)Preferences.Get("AppTheme", (int)AppTheme.Unspecified);
-        LocalizationResourceManager.Instance.SetCulture(new CultureInfo(Preferences.Get("Language", "en")));
+        var preferences = Core.UI.SavedPrefereces.UserPreferences.Value;
+        Current!.UserAppTheme = preferences.Theme;
+        LocalizationResourceManager.Instance.SetCulture(new CultureInfo(preferences.Language));
         
         return new Window(new NavigationPage(new AppShell()));
     }

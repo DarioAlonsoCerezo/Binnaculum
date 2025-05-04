@@ -72,7 +72,7 @@ public partial class BorderedEntry
 	{
 		InitializeComponent();
 
-        CurrencyLabel.Text = Preferences.Get("Currency", "USD");
+        CurrencyLabel.Text = Core.UI.SavedPrefereces.UserPreferences.Value.Currency;
     }
 
     protected override void StartLoad()

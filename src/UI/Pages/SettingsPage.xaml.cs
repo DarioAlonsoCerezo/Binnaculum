@@ -10,8 +10,6 @@ public partial class SettingsPage : ContentPage
 	{
 		InitializeComponent();
 
-        SetupGeneral();
-
         this.Events().Appearing
             .Do(_ => SetupThemeRadioButtons())
             .Do(_ => SetupLanguageRadioButtons())
@@ -21,13 +19,16 @@ public partial class SettingsPage : ContentPage
         SetupEvents();
     }
 
-    private void SetupGeneral()
-    {
-        DefaultCurrency.Text = Preferences.Get("Currency", "USD");
-    }
-
     private void SetupEvents()
     {
+        Core.UI.SavedPrefereces.UserPreferences
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(preferences =>
+            {
+                DefaultCurrency.Text = preferences.Currency;
+            })
+            .DisposeWith(Disposables);
+        
         LightRadioButton.Events().CheckedChanged
             .Where(x => x.Value)
             .Do(_ => SetupTheme(AppTheme.Light))
@@ -69,7 +70,7 @@ public partial class SettingsPage : ContentPage
                 if (result is Models.Currency currency)
                 {
                     DefaultCurrency.Text = currency.Code;
-                    Preferences.Set("Currency", currency.Code);
+                    Core.UI.SavedPrefereces.ChangeCurrency(currency.Code);
                 }
             }
             return Unit.Default; // Return Unit.Default as a "void" equivalent
@@ -83,7 +84,7 @@ public partial class SettingsPage : ContentPage
         if (Application.Current!.UserAppTheme != theme)
         {
             Application.Current.UserAppTheme = theme;
-            Preferences.Set("AppTheme", (int)theme);
+            Core.UI.SavedPrefereces.ChangeAppTheme(theme);
         }
         SetupThemeRadioButtons();
     }
@@ -100,7 +101,7 @@ public partial class SettingsPage : ContentPage
         if (!AppResources.Culture.TwoLetterISOLanguageName.Equals(code))
         {
             LocalizationResourceManager.Instance.SetCulture(new CultureInfo(code));
-            Preferences.Set("Language", code);
+            Core.UI.SavedPrefereces.ChangeLanguage(code);
         }
         SetupLanguageRadioButtons();
     }

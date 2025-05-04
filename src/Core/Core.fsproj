@@ -64,6 +64,7 @@
 		<Compile Include="Utilities\FilePickerService.fs" />
 		<Compile Include="UI\Overview.fs" />
 		<Compile Include="UI\Creator.fs" />
+		<Compile Include="UI\SavedPrefereces.fs" />
 	</ItemGroup>
 
 </Project>
