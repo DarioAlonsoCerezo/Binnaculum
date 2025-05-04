@@ -15,6 +15,8 @@
             <VerticalStackLayout.Resources>
                 <ResourceDictionary />
             </VerticalStackLayout.Resources>
+
+            <!--  GENERAL SECTION  -->
             <Label
                 Margin="0,16,0,0"
                 Style="{StaticResource LabelSettingsTitle}"
@@ -49,6 +51,7 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!--  LANGUAGE SECTION  -->
             <Label
                 Margin="0,16,0,0"
                 Style="{StaticResource LabelSettingsTitle}"
@@ -60,10 +63,9 @@
                         <Label
                             Text="{local:Translate Settings_Section_Language_English}"
                             Style="{StaticResource LabelSettingsGroup}" />
-                        <RadioButton
+                        <controls:CustomRadioButton
                             x:Name="LanguageEnglishRadioButton"
-                            Style="{StaticResource RadioButtonSettingsGroup}"
-                            GroupName="LanguageGroup" />
+                            Style="{StaticResource SettingsStyle}" />
                     </Grid>
 
                     <Line Style="{StaticResource LineSettingsGroup}" />
@@ -72,14 +74,14 @@
                         <Label
                             Text="{local:Translate Settings_Section_Language_Spanish}"
                             Style="{StaticResource LabelSettingsGroup}" />
-                        <RadioButton
+                        <controls:CustomRadioButton
                             x:Name="LanguageSpanishRadioButton"
-                            Style="{StaticResource RadioButtonSettingsGroup}"
-                            GroupName="LanguageGroup" />
+                            Style="{StaticResource SettingsStyle}" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>
 
+            <!--  THEME SECTION  -->
             <Label
                 Style="{StaticResource LabelSettingsTitle}"
                 Text="{local:Translate Settings_Section_Theme_Title}" />
@@ -93,10 +95,9 @@
                         <Label
                             Text="{local:Translate Settings_Section_Theme_Light}"
                             Style="{StaticResource LabelSettingsGroup}" />
-                        <RadioButton
+                        <controls:CustomRadioButton
                             x:Name="LightRadioButton"
-                            Style="{StaticResource RadioButtonSettingsGroup}"
-                            GroupName="ThemeGroup" />
+                            Style="{StaticResource SettingsStyle}" />
                     </Grid>
 
                     <Line Style="{StaticResource LineSettingsGroup}" />
@@ -108,10 +109,10 @@
                         <Label
                             Text="{local:Translate Settings_Section_Theme_Dark}"
                             Style="{StaticResource LabelSettingsGroup}" />
-                        <RadioButton
+
+                        <controls:CustomRadioButton
                             x:Name="DarkRadioButton"
-                            Style="{StaticResource RadioButtonSettingsGroup}"
-                            GroupName="ThemeGroup" />
+                            Style="{StaticResource SettingsStyle}" />
                     </Grid>
 
                     <Line Style="{StaticResource LineSettingsGroup}" />
@@ -123,10 +124,10 @@
                         <Label
                             Text="{local:Translate Settings_Section_Theme_Device}"
                             Style="{StaticResource LabelSettingsGroup}" />
-                        <RadioButton
+
+                        <controls:CustomRadioButton
                             x:Name="DeviceRadioButton"
-                            Style="{StaticResource RadioButtonSettingsGroup}"
-                            GroupName="ThemeGroup" />
+                            Style="{StaticResource SettingsStyle}" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>

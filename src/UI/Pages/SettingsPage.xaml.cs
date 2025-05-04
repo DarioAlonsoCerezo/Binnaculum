@@ -10,12 +10,6 @@ public partial class SettingsPage : ContentPage
 	{
 		InitializeComponent();
 
-        this.Events().Appearing
-            .Do(_ => SetupThemeRadioButtons())
-            .Do(_ => SetupLanguageRadioButtons())
-            .Subscribe()
-            .DisposeWith(Disposables);
-
         SetupEvents();
     }
 
@@ -23,38 +17,30 @@ public partial class SettingsPage : ContentPage
     {
         Core.UI.SavedPrefereces.UserPreferences
             .ObserveOn(RxApp.MainThreadScheduler)
-            .Subscribe(preferences =>
-            {
-                DefaultCurrency.Text = preferences.Currency;
-            })
+            .Subscribe(SetupPreferencesCollection)
             .DisposeWith(Disposables);
         
-        LightRadioButton.Events().CheckedChanged
-            .Where(x => x.Value)
+        LightRadioButton.Events().Clicked
             .Do(_ => SetupTheme(AppTheme.Light))
             .Subscribe()
             .DisposeWith(Disposables);
 
-        DarkRadioButton.Events().CheckedChanged
-            .Where(x => x.Value)
+        DarkRadioButton.Events().Clicked
             .Do(_ => SetupTheme(AppTheme.Dark))
             .Subscribe()
             .DisposeWith(Disposables);
 
-        DeviceRadioButton.Events().CheckedChanged
-            .Where(x => x.Value)
+        DeviceRadioButton.Events().Clicked
             .Do(_ => SetupTheme(AppTheme.Unspecified))
             .Subscribe()
             .DisposeWith(Disposables);
 
-        LanguageEnglishRadioButton.Events().CheckedChanged
-            .Where(x => x.Value)
+        LanguageEnglishRadioButton.Events().Clicked
             .Do(_ => SetupLanguage("en"))
             .Subscribe()
             .DisposeWith(Disposables);
 
-        LanguageSpanishRadioButton.Events().CheckedChanged
-            .Where(x => x.Value)
+        LanguageSpanishRadioButton.Events().Clicked
             .Do(_ => SetupLanguage("es"))
             .Subscribe()
             .DisposeWith(Disposables);
@@ -86,29 +72,24 @@ public partial class SettingsPage : ContentPage
             Application.Current.UserAppTheme = theme;
             Core.UI.SavedPrefereces.ChangeAppTheme(theme);
         }
-        SetupThemeRadioButtons();
-    }
-
-    private void SetupThemeRadioButtons()
-    {
-        LightRadioButton.IsChecked = Application.Current!.UserAppTheme == AppTheme.Light;
-        DarkRadioButton.IsChecked = Application.Current.UserAppTheme == AppTheme.Dark;
-        DeviceRadioButton.IsChecked = Application.Current.UserAppTheme == AppTheme.Unspecified;
     }
 
     private void SetupLanguage(string code)
     {
-        if (!AppResources.Culture.TwoLetterISOLanguageName.Equals(code))
-        {
-            LocalizationResourceManager.Instance.SetCulture(new CultureInfo(code));
-            Core.UI.SavedPrefereces.ChangeLanguage(code);
-        }
-        SetupLanguageRadioButtons();
+        AppResources.Culture.TwoLetterISOLanguageName.Equals(code);
+        LocalizationResourceManager.Instance.SetCulture(new CultureInfo(code));
+        Core.UI.SavedPrefereces.ChangeLanguage(code);
     }
 
-    private void SetupLanguageRadioButtons()
+    private void SetupPreferencesCollection(Core.UI.SavedPrefereces.PreferencesCollection collection)
     {
-        LanguageEnglishRadioButton.IsChecked = AppResources.Culture.TwoLetterISOLanguageName == "en";
-        LanguageSpanishRadioButton.IsChecked = AppResources.Culture.TwoLetterISOLanguageName == "es";
+        DefaultCurrency.Text = collection.Currency;
+
+        LanguageEnglishRadioButton.IsChecked = collection.Language.Equals("en");
+        LanguageSpanishRadioButton.IsChecked = collection.Language.Equals("es");
+
+        LightRadioButton.IsChecked = collection.Theme == AppTheme.Light;
+        DarkRadioButton.IsChecked = collection.Theme == AppTheme.Dark;
+        DeviceRadioButton.IsChecked = collection.Theme == AppTheme.Unspecified;
     }
 }

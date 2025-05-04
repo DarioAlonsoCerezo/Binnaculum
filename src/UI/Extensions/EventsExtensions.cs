@@ -36,4 +36,5 @@ public static class EventsExtensions
     public static RxExpanderEvents Events(this Expander item) => new(item);
     public static RxIconControlEvents Events(this IconControl item) => new(item);
     public static RxEditableIconControlEvents Events(this EditableIconControl item) => new(item);
+    public static RxCustomRadioButtonEvents Events(this CustomRadioButton item) => new(item);
 }
