@@ -69,6 +69,8 @@ public partial class BorderedEntry
         set => SetValue(IsCurrencyVisibleProperty, value);
     }
 
+    public string SelectedCurrency => CurrencyLabel.Text;
+
     public async Task Unfocus(bool hideKeyboard = false)
     {
         if(BorderlessEntry.IsFocused)

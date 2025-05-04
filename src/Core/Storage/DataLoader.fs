@@ -19,7 +19,7 @@ module internal DataLoader =
         Collections.Currencies.EditDiff currencies
     }
 
-    let private getAllBrokers() = task {
+    let getOrRefreshAllBrokers() = task {
         do! BrokerExtensions.Do.insertIfNotExists() |> Async.AwaitTask
         let! databaseBrokers = BrokerExtensions.Do.getAll() |> Async.AwaitTask
         let brokers = databaseBrokers |> List.map (fun b -> fromDatabaseBroker b)
@@ -36,17 +36,48 @@ module internal DataLoader =
         Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; })
     }
 
+    let private getOrRefreshAllBrokerAccounts() = task {
+        let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
+        let brokerAccounts = 
+            databaseBrokerAccounts 
+            |> List.map (fun b -> fromDatabaseBrokerAccount b)
+            |> List.map (fun account -> 
+                { Type = AccountType.BrokerAccount; Broker = Some account; Bank = None })
+
+        return brokerAccounts
+    }
+
+    let private getOrRefreshAllBankAccounts() = task {
+        let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
+        let bankAccounts = 
+            databaseBankAccounts 
+            |> List.map (fun b -> fromDatabaseBankAccount b)
+            |> List.map (fun account -> 
+                { Type = AccountType.BankAccount; Broker = None; Bank = Some account })
+
+        return bankAccounts       
+    }
+
+    let getOrRefreshAllAccounts() = task {
+        let! brokerAccounts = getOrRefreshAllBrokerAccounts() |> Async.AwaitTask
+        let! bankAccounts = getOrRefreshAllBankAccounts() |> Async.AwaitTask
+        let allAccounts = brokerAccounts @ bankAccounts
+
+        if allAccounts.IsEmpty then
+            Collections.Accounts.Add({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; })
+        else
+            Collections.Accounts.Clear()
+            Collections.Accounts.EditDiff allAccounts
+    }
+
     let loadBasicData() = task {
         do! getAllCurrencies() |> Async.AwaitTask |> Async.Ignore
-        do! getAllBrokers() |> Async.AwaitTask |> Async.Ignore
+        do! getOrRefreshAllBrokers() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
     }
 
     let initialization() = task {
-        let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
-        let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
-        if databaseBrokerAccounts.IsEmpty && databaseBankAccounts.IsEmpty then
-            Collections.Accounts.Add({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; })
+        do! getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
     }
 
     let loadMovementsFor(account: Account) = task {

@@ -1,6 +1,8 @@
 ﻿namespace Binnaculum.Core.UI
 open Binnaculum.Core.Database.DatabaseModel
 open BankExtensions
+open BrokerAccountExtensions
+open BankAccountExtensions
 open System
 open Binnaculum.Core.Patterns
 open Binnacle.Core.Storage
@@ -13,6 +15,19 @@ module Creator =
         let bank = { Id = 0; Name = name; Image = icon; Audit = audit }
         do! bank.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
-        return()
+    }
+
+    let SaveBankAccount(bankId, name, currencyId) = task {
+        let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
+        let account = { Id = 0; BankId = bankId; Name = name; Description = None; CurrencyId = currencyId; Audit = audit; }
+        do! account.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
+    }
+
+    let SaveBrokerAccount(brokerId: int, accountNumber: string) = task {
+        let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
+        let account = { Id = 0; BrokerId = brokerId; AccountNumber = accountNumber; Audit = audit }
+        do! account.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
     }
 

@@ -2,6 +2,7 @@
 
 open Binnaculum.Core
 open Binnaculum.Core.Models
+open Binnaculum.Core.UI
 
 module internal ModelParser =
     let fromDatabaseSupportedBroker (databaseSupportedBroker: Database.DatabaseModel.SupportedBroker) =
@@ -32,3 +33,21 @@ module internal ModelParser =
             Image = databaseBank.Image
         }
 
+    let fromDatabaseBankAccount (databaseBankAccount: Database.DatabaseModel.BankAccount) =
+        let bank = Collections.Banks.Items |> Seq.find (fun b -> b.Id = databaseBankAccount.BankId)
+        let currency = Collections.Currencies.Items |> Seq.find (fun c -> c.Id = databaseBankAccount.CurrencyId)
+        { 
+            Id = databaseBankAccount.Id
+            Bank = bank
+            Name = databaseBankAccount.Name
+            Description = databaseBankAccount.Description
+            Currency = currency
+        }
+
+    let fromDatabaseBrokerAccount (databaseBrokerAccount: Database.DatabaseModel.BrokerAccount) =
+        let broker = Collections.Brokers.Items |> Seq.find (fun b -> b.Id = databaseBrokerAccount.BrokerId)
+        { 
+            Id = databaseBrokerAccount.Id
+            Broker = broker
+            AccountNumber = databaseBrokerAccount.AccountNumber
+        }

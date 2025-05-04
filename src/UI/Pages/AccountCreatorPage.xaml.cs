@@ -37,7 +37,11 @@ public partial class AccountCreatorPage
     protected override void StartLoad()
     {
         ButtonSaveOrDiscard.Events().SaveClicked
-            .Select(async _ => await Navigation.PopModalAsync())
+            .Select(async _ =>
+            {
+                await SaveAccounts();
+                await Navigation.PopModalAsync();
+            })
             .Subscribe();
 
         ButtonSaveOrDiscard.Events().DiscardClicked
@@ -163,5 +167,19 @@ public partial class AccountCreatorPage
     {
         await BankAccountEntry.Unfocus(hideKeyboard: true);
         await BrokerAccountEntry.Unfocus(hideKeyboard: true);
+    }
+
+    private async Task SaveAccounts()
+    {
+        if(SelectedBroker.IsVisible && BrokerAccountEntry.Text?.Length > 2)
+        {
+            await Creator.SaveBrokerAccount(SelectedBroker.Broker.Id, BrokerAccountEntry.Text);
+        }
+
+        if(SelectedBank.IsVisible && BankAccountEntry.Text?.Length > 2)
+        {
+            var currency = Collections.Currencies.Items.Single(x => x.Code.Equals(BankAccountEntry.SelectedCurrency));
+            await Creator.SaveBankAccount(SelectedBank.Bank.Id, BankAccountEntry.Text, currency.Id);
+        }
     }
 }
