@@ -2,14 +2,27 @@ namespace Binnaculum.Controls;
 
 public partial class BrokerAccountTemplate
 {
-	public BrokerAccountTemplate()
+    private Core.Models.Account? _account;
+    private Core.Models.BrokerAccount? _brokerAccount;
+    private Core.Models.Broker? _broker;
+
+    public BrokerAccountTemplate()
 	{
 		InitializeComponent();
 	}
 
     protected override void StartLoad()
     {
-        
+        Add.Events().AddClicked
+            .CombineLatest(
+                AddMovementContainerGesture.Events().Tapped,
+                AddMovementTextGesture.Events().Tapped)
+            .Do(_ =>
+            {
+                //TODO: Navigate to movement creator page for this account
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 
     protected override void OnBindingContextChanged()
@@ -17,14 +30,19 @@ public partial class BrokerAccountTemplate
         base.OnBindingContextChanged();
 
         if (BindingContext is Core.Models.Account account)
-        { 
-            SetupValues(account.Broker.Value);
+        {
+            _account = account;
+            _brokerAccount = account.Broker.Value;
+            _broker = account.Broker.Value?.Broker;
+
+            SetupValues();            
         }
     }
 
-    private void SetupValues(Core.Models.BrokerAccount brokerAccount)
+    private void SetupValues()
     {
-        Icon.ImagePath = brokerAccount.Broker.Image;
-        BrokerName.Text = brokerAccount.AccountNumber;
+        Icon.ImagePath = _broker!.Image;
+        BrokerName.Text = _brokerAccount!.AccountNumber;
+        AddMovementContainer.IsVisible = !_account!.HasMovements;
     }
 }

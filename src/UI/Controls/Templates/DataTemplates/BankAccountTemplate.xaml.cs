@@ -4,14 +4,27 @@ namespace Binnaculum.Controls;
 
 public partial class BankAccountTemplate
 {
-	public BankAccountTemplate()
+    private Core.Models.Account? _account;
+    private Core.Models.BankAccount? _bankAccount;
+    private Core.Models.Bank? _bank;
+
+    public BankAccountTemplate()
 	{
 		InitializeComponent();
 	}
 
     protected override void StartLoad()
     {
-       
+        Add.Events().AddClicked
+            .CombineLatest(
+                AddMovementContainerGesture.Events().Tapped,
+                AddMovementTextGesture.Events().Tapped)
+            .Do(_ =>
+            {
+                //TODO: Navigate to movement creator page for this account
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 
     protected override void OnBindingContextChanged()
@@ -20,17 +33,23 @@ public partial class BankAccountTemplate
 
         if (BindingContext is Core.Models.Account account)
         {
-            SetupValues(account.Bank.Value!);
+            _account = account;
+            _bankAccount = account.Bank.Value;
+            _bank = account.Bank.Value?.Bank;
+
+            SetupValues();            
         }
     }
 
-    private void SetupValues(Core.Models.BankAccount bankAccount)
+    private void SetupValues()
     {
-        if (bankAccount.Bank.Image != null)
-            Icon.ImagePath = bankAccount.Bank.Image.Value;
+        if (_bank?.Image != null)
+            Icon.ImagePath = _bank!.Image.Value;
         else
             Icon.ImagePath = "bank";
 
-        AccountNumber.Text = bankAccount.Name;
+        AccountNumber.Text = _bankAccount?.Name;
+
+        AddMovementContainer.IsVisible = !_account!.HasMovements;
     }
 }

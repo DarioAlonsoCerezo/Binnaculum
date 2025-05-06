@@ -232,4 +232,7 @@ Le recomendamos utilizar un nombre o identificador que sea significativo para us
   <data name="Settings_Section_Issue" xml:space="preserve">
     <value>[Informar de un problema o mejora.](https://github.com/DarioAlonsoCerezo/Binnaculum/issues)</value>
   </data>
+  <data name="Account_Card_Add_Movement" xml:space="preserve">
+    <value>Añadir movimiento</value>
+  </data>
 </root>

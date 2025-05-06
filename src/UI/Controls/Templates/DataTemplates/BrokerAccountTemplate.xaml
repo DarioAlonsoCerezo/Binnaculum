@@ -3,6 +3,7 @@
     x:Class="Binnaculum.Controls.BrokerAccountTemplate"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
     xmlns:controls="clr-namespace:Binnaculum.Controls">
     <Border
         Padding="12"
@@ -21,6 +22,31 @@
                 x:Name="BrokerName"
                 Grid.Column="1"
                 Style="{StaticResource CenteredSubHeadline}" />
+
+            <HorizontalStackLayout
+                x:Name="AddMovementContainer"
+                Grid.Row="1"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Spacing="12"
+                IsVisible="False"
+                VerticalOptions="Center"
+                HorizontalOptions="Center">
+                <controls:ButtonAdd
+                    x:Name="Add"
+                    ScaleButton="0.48"
+                    HorizontalOptions="Start" />
+                <Label
+                    Style="{StaticResource SelectableItem}"
+                    Text="{local:Translate Account_Card_Add_Movement}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer x:Name="AddMovementTextGesture" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <HorizontalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer x:Name="AddMovementContainerGesture" />
+                </HorizontalStackLayout.GestureRecognizers>
+            </HorizontalStackLayout>
         </Grid>
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="8,8,8,8" />
