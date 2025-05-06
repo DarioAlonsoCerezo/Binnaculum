@@ -175,8 +175,8 @@ Le recomendamos que utilice un nombre o número que le resulte familiar o fácil
   <data name="Shell_Tab_Calendar" xml:space="preserve">
     <value>Calendario</value>
   </data>
-  <data name="Shell_Tab_Movements" xml:space="preserve">
-    <value>Movimientos</value>
+  <data name="Shell_Tab_Strategies" xml:space="preserve">
+    <value>Estrategias</value>
   </data>
   <data name="Shell_Tab_Overview" xml:space="preserve">
     <value>Inicio</value>

@@ -175,8 +175,8 @@ We recommend that you use a name or number that is familiar or easy for you to r
   <data name="Shell_Tab_Calendar" xml:space="preserve">
     <value>Calendar</value>
   </data>
-  <data name="Shell_Tab_Movements" xml:space="preserve">
-    <value>Movements</value>
+  <data name="Shell_Tab_Strategies" xml:space="preserve">
+    <value>Strategies</value>
   </data>
   <data name="Shell_Tab_Overview" xml:space="preserve">
     <value>Overview</value>

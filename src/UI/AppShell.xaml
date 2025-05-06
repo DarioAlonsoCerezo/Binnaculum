@@ -11,15 +11,14 @@
             Title="{local:Translate Shell_Tab_Overview}"
             Icon="overview"
             ContentTemplate="{DataTemplate pages:OverviewPage}" />
-
-        <ShellContent
-            Title="{local:Translate Shell_Tab_Movements}"
-            Icon="movements"
-            ContentTemplate="{DataTemplate pages:MovementsPage}" />
         <ShellContent
             Title="{local:Translate Shell_Tab_Tickers}"
             Icon="tickers"
             ContentTemplate="{DataTemplate pages:TickersPage}" />
+        <ShellContent
+            Title="{local:Translate Shell_Tab_Strategies}"
+            Icon="strategies"
+            ContentTemplate="{DataTemplate pages:StrategiesPage}" />
         <ShellContent
             Title="{local:Translate Shell_Tab_Calendar}"
             Icon="calendar"
