@@ -10,11 +10,17 @@
         BackgroundColor="Transparent"
         Stroke="{AppThemeBinding Dark={StaticResource White},
                                  Light={StaticResource Gray200}}">
-        <Grid>
+        <Grid
+            ColumnDefinitions="Auto,1*"
+            RowDefinitions="Auto,1*">
             <controls:IconControl
                 x:Name="Icon"
                 HorizontalOptions="Start"
                 VerticalOptions="Start" />
+            <Label
+                x:Name="BrokerName"
+                Grid.Column="1"
+                Style="{StaticResource CenteredSubHeadline}" />
         </Grid>
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="8,8,8,8" />

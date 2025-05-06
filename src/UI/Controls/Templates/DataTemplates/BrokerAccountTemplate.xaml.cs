@@ -17,8 +17,14 @@ public partial class BrokerAccountTemplate
         base.OnBindingContextChanged();
 
         if (BindingContext is Core.Models.Account account)
-        {
-            Icon.ImagePath = account.Broker.Value.Broker.Image;
+        { 
+            SetupValues(account.Broker.Value);
         }
+    }
+
+    private void SetupValues(Core.Models.BrokerAccount brokerAccount)
+    {
+        Icon.ImagePath = brokerAccount.Broker.Image;
+        BrokerName.Text = brokerAccount.AccountNumber;
     }
 }

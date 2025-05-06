@@ -20,10 +20,17 @@ public partial class BankAccountTemplate
 
         if (BindingContext is Core.Models.Account account)
         {
-            if(account.Bank.Value!.Bank.Image != null)
-                Icon.ImagePath = account.Bank.Value.Bank.Image.Value;
-            else
-                Icon.ImagePath = "bank";
+            SetupValues(account.Bank.Value!);
         }
+    }
+
+    private void SetupValues(Core.Models.BankAccount bankAccount)
+    {
+        if (bankAccount.Bank.Image != null)
+            Icon.ImagePath = bankAccount.Bank.Image.Value;
+        else
+            Icon.ImagePath = "bank";
+
+        AccountNumber.Text = bankAccount.Name;
     }
 }
