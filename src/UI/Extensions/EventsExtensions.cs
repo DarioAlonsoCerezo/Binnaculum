@@ -38,4 +38,5 @@ public static class EventsExtensions
     public static RxEditableIconControlEvents Events(this EditableIconControl item) => new(item);
     public static RxCustomRadioButtonEvents Events(this CustomRadioButton item) => new(item);
     public static RxCustomSwitchEvents Events(this CustomSwitch item) => new(item);
+    public static RxSelectableCurrencyEvents Events(this SelectableCurrencyControl item) => new(item);
 }

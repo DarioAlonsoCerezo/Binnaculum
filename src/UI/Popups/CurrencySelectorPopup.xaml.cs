@@ -65,13 +65,8 @@ public partial class CurrencySelectorPopup
             (currency.Code?.ToLowerInvariant().Contains(searchTerm) ?? false);
     }
 
-    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    private void SelectableCurrencyControl_CurrencySelected(object sender, Models.Currency e)
     {
-        if(sender is View view && view.BindingContext is Models.Currency currency)
-        {
-            // Set the selected currency and close the popup
-            var selected = Collections.Currencies.Items.First(c => c.Code == currency.Code);
-            Close(selected);
-        }
+        Close(e);
     }
 }
