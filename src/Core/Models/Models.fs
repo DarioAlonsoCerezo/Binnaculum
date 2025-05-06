@@ -205,6 +205,7 @@ module Models =
         Type: AccountType
         Broker: BrokerAccount option
         Bank: BankAccount option
+        HasMovements: bool
     }
 
     type Movement = {

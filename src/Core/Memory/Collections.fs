@@ -45,7 +45,7 @@ module Collections =
     /// <summary>
     /// This should be filled from UI interactions and populated when navigate to the account details
     /// </summary>
-    let AccountDetails = new BehaviorSubject<Account>({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; })
+    let AccountDetails = new BehaviorSubject<Account>({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; HasMovements = false; })
 
     /// <summary>
     /// This should be filled from UI interactions and populated when AccountDetails is updated

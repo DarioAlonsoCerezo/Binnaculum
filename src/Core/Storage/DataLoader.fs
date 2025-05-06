@@ -42,7 +42,14 @@ module internal DataLoader =
             databaseBrokerAccounts 
             |> List.map (fun b -> fromDatabaseBrokerAccount b)
             |> List.map (fun account -> 
-                { Type = AccountType.BrokerAccount; Broker = Some account; Bank = None })
+                { 
+                    Type = AccountType.BrokerAccount; 
+                    Broker = Some account; 
+                    Bank = None;
+                    HasMovements = Collections.Movements.Items
+                        |> Seq.filter (fun m -> m.BrokerMovement.IsSome)
+                        |> Seq.exists (fun m -> m.BrokerMovement.Value.BrokerAccount.Id = account.Id)
+                })
 
         return brokerAccounts
     }
@@ -53,7 +60,14 @@ module internal DataLoader =
             databaseBankAccounts 
             |> List.map (fun b -> fromDatabaseBankAccount b)
             |> List.map (fun account -> 
-                { Type = AccountType.BankAccount; Broker = None; Bank = Some account })
+                { 
+                    Type = AccountType.BankAccount; 
+                    Broker = None; 
+                    Bank = Some account;
+                    HasMovements = Collections.Movements.Items
+                        |> Seq.filter (fun m -> m.BankAccountMovement.IsSome)
+                        |> Seq.exists (fun m -> m.BankAccountMovement.Value.BankAccount.Id = account.Id)
+                })
 
         return bankAccounts       
     }
@@ -64,7 +78,7 @@ module internal DataLoader =
         let allAccounts = brokerAccounts @ bankAccounts
 
         if allAccounts.IsEmpty then
-            Collections.Accounts.Add({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; })
+            Collections.Accounts.Add({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; HasMovements = false; })
         else
             Collections.Accounts.Clear()
             Collections.Accounts.EditDiff allAccounts
