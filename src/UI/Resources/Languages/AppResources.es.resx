@@ -213,7 +213,7 @@ Al crear un banco, puede utilizar cualquier nombre o identificador que desee, ya
 Le recomendamos usar un nombre o identificador que sea familiar o fácil de reconocer al asociarlo con sus cuentas y al revisar los movimientos relacionados.
 </value>
   </data>
-  <data name="AccountCreator_Create_Bank_Placeholder" xml:space="preserve">
+  <data name="AccountCreator_Create_Bank_And_Placeholder" xml:space="preserve">
     <value>Escriba el nombre</value>
   </data>
   <data name="FilePicker_Select_Image" xml:space="preserve">
@@ -706,4 +706,11 @@ Le recomendamos utilizar un nombre o identificador que sea significativo para us
   <data name="AccountCreator_Create_Broker" xml:space="preserve">
     <value>Crear un broker</value>
   </data>
+	<data name="Information_Create_Broker" xml:space="preserve">
+    <value># Importante 
+
+Al crear un broker, puede utilizar cualquier nombre o identificador que desee, ya que no hay conexión con ninguna **firma de broker real.** La información que almacene en esta aplicación es exclusivamente para sus propósitos de seguimiento y monitoreo.
+
+Le recomendamos usar un nombre o identificador que sea familiar o fácil de reconocer al asociarlo con sus cuentas de inversión y al revisar las actividades de trading relacionadas.</value>
+</data>
 </root>

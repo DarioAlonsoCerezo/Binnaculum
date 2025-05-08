@@ -3,6 +3,7 @@ open Binnaculum.Core.Database.DatabaseModel
 open BankExtensions
 open BrokerAccountExtensions
 open BankAccountExtensions
+open BrokerExtensions
 open System
 open Binnaculum.Core.Patterns
 open Binnacle.Core.Storage
@@ -15,6 +16,12 @@ module Creator =
         let bank = { Id = 0; Name = name; Image = icon; Audit = audit }
         do! bank.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
+    }
+
+    let SaveBroker(name, icon) = task {
+        let broker = { Id = 0; Name = name; Image = icon; SupportedBroker = SupportedBroker.Unknown }
+        do! broker.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.getOrRefreshAllBrokers() |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBankAccount(bankId, name, currencyId) = task {

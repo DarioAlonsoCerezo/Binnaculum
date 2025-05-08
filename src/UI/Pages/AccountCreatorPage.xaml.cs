@@ -120,6 +120,7 @@ public partial class AccountCreatorPage
     {
         if(broker.Id < 0)
         {
+            new BrokerCreatorPopup().Show();
             return;
         }
         SelectedBroker.Broker = broker;

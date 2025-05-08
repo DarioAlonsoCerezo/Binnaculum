@@ -212,7 +212,7 @@ When creating a bank, you can use any name or identifier you wish, as there is n
 
 We recommend using a name or identifier that is familiar or easy for you to recognize when associating it with your accounts and reviewing related movements.</value>
   </data>
-  <data name="AccountCreator_Create_Bank_Placeholder" xml:space="preserve">
+  <data name="AccountCreator_Create_Bank_And_Placeholder" xml:space="preserve">
     <value>Type the name</value>
   </data>
   <data name="FilePicker_Select_Image" xml:space="preserve">
@@ -705,4 +705,11 @@ We recommend using a name or identifier that is meaningful to you, making it eas
   <data name="AccountCreator_Create_Broker" xml:space="preserve">
     <value>Create a broker</value>
   </data>
+	<data name="Information_Create_Broker" xml:space="preserve">
+    <value># Important 
+
+When creating a broker, you can use any name or identifier you wish, as there is no connection with any **real brokerage firm.** The information you store in this application is solely for your tracking and monitoring purposes.
+
+We recommend using a name or identifier that is familiar or easy for you to recognize when associating it with your investment accounts and reviewing related trading activities.</value>
+</data>
 </root>
