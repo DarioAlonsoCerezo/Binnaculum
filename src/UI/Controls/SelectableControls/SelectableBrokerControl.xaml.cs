@@ -30,18 +30,42 @@ public partial class SelectableBrokerControl
                 BrokerSelected?.Invoke(this, Broker);
             }).DisposeWith(Disposables);
 
-        this.WhenAnyValue(x => x.Broker)
+        var broker = this.WhenAnyValue(x => x.Broker)
+            .WhereNotNull();
+
+        broker.Select(x =>
+            {
+                if (x.Image != null)
+                {
+                    return x.Image!;
+                }
+                return null;
+            })
             .WhereNotNull()
-            .Select(x => x.Image)
             .ObserveOn(UiThread)
             .BindTo(BrokerImage, x => x.ImagePath)
             .DisposeWith(Disposables);
 
-        this.WhenAnyValue(x => x.Broker)
+        broker.ObserveOn(UiThread)
+            .Select(x =>
+            {
+                if(x.Id < 0)
+                {
+                    BrokerAdd.IsVisible = true;
+                    BrokerName.SetLocalizedText(x.Name);
+                    BrokerImage.IsVisible = false;
+                    return null;
+                }
+                return x.Name;
+            })
             .WhereNotNull()
-            .Select(x => x.Name)
-            .ObserveOn(UiThread)
             .BindTo(BrokerName, x => x.Text)
             .DisposeWith(Disposables);
+
+        BrokerAdd.Events().AddClicked
+            .Subscribe(_ =>
+            {
+                BrokerSelected?.Invoke(this, Broker);
+            }).DisposeWith(Disposables);
     }
 }

@@ -62,3 +62,19 @@ public class BasePopup : Popup
         return base.OnClosed(result, wasDismissedByTappingOutsideOfPopup, token);
     }
 }
+
+public static class PopupExtensions
+{
+    public static void Show(this Popup popup)
+    {
+        var appMainpage = Application.Current!.Windows[0].Page!;
+        if (appMainpage is NavigationPage navigator)
+        {
+            navigator.ShowPopup(popup);
+        }
+        else
+        {
+            throw new InvalidOperationException("The current page is not a NavigationPage.");
+        }
+    }
+}

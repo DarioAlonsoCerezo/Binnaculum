@@ -118,6 +118,10 @@ public partial class AccountCreatorPage
 
     private void SetBrokerSelection(Core.Models.Broker broker)
     {
+        if(broker.Id < 0)
+        {
+            return;
+        }
         SelectedBroker.Broker = broker;
         BrokerExpanderTitle.SetLocalizedText(ResourceKeys.AccountCreator_Change_Selection);
         SelectedBroker.IsVisible = true;
@@ -146,12 +150,7 @@ public partial class AccountCreatorPage
     {
         if (bank.Id < 0)
         {
-            var popup = new BankCreatorPopup();
-            var appMainpage = Application.Current!.Windows[0].Page!;
-            if (appMainpage is NavigationPage navigator)
-            {
-                navigator.ShowPopup(popup);
-            }
+            new BankCreatorPopup().Show();
             return; 
         }
         SelectedBank.Bank = bank;

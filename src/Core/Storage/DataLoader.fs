@@ -24,6 +24,9 @@ module internal DataLoader =
         let! databaseBrokers = BrokerExtensions.Do.getAll() |> Async.AwaitTask
         let brokers = databaseBrokers |> List.map (fun b -> fromDatabaseBroker b)
         Collections.Brokers.EditDiff brokers
+
+        //As we allow users create brokers, we add this default broker to recognize it in the UI
+        Collections.Brokers.Add({ Id = -1; Name = "AccountCreator_Create_Broker"; Image = "broker"; SupportedBroker = "Unknown"; })
     }
 
     let getOrRefreshBanks() = task {

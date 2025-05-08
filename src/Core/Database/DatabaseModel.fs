@@ -15,6 +15,7 @@ module internal DatabaseModel =
     type SupportedBroker =
         | IBKR
         | Tastytrade
+        | Unknown
 
     type OptionCode =
         | BuyToOpen

@@ -15,4 +15,12 @@ module internal Keys =
     let Broker_Image_IBKR = "ibkr"
 
     [<Literal>]
+    let Broker_Unknown = "Unknown"
+    
+    [<Literal>]
+    let Broker_Image_Unknown = "broker"
+
+    [<Literal>]
     let HomeData = "home_data"
+
+    
