@@ -5,6 +5,8 @@ open Binnaculum.Core
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open DynamicData
+open Microsoft.Maui.Storage
+open System.IO
 
 /// <summary>
 /// This module serves as a critical layer for managing the transformation and synchronization of data
@@ -37,6 +39,31 @@ module internal DataLoader =
 
         //As we allow users create banks, we add this default bank to recognize it in the UI
         Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; })
+    }
+
+    let getOrRefresAvailableImages() = task {
+        let directory = FileSystem.AppDataDirectory
+    
+        // Check if the directory exists
+        if Directory.Exists(directory) then
+            // Get all image files (common image extensions)
+            let imageExtensions = [|".jpg"; ".jpeg"; ".png"|]
+            let imagePaths = 
+                Directory.GetFiles(directory)
+                |> Array.filter (fun file -> 
+                    let extension = Path.GetExtension(file).ToLowerInvariant()
+                    Array.contains extension imageExtensions)
+                |> Array.map (fun path ->
+                    // Use cross-platform path format for consistency
+                    path.Replace("\\", "/"))
+                |> Array.toList
+        
+            // Update the AvailableImages collection with full paths
+            Collections.AvailableImages.EditDiff imagePaths
+        else
+            // Create the directory if it doesn't exist
+            Directory.CreateDirectory(directory) |> ignore
+            Collections.AvailableImages.Clear()
     }
 
     let private getOrRefreshAllBrokerAccounts() = task {
@@ -91,6 +118,7 @@ module internal DataLoader =
         do! getAllCurrencies() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefreshAllBrokers() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
+        do! getOrRefresAvailableImages() |> Async.AwaitTask |> Async.Ignore
     }
 
     let initialization() = task {

@@ -59,3 +59,12 @@ module Collections =
     /// This should be cleared when navigate back from details
     /// </summary>
     let MovementDetails = new BehaviorSubject<Movement>(emptyMovement())
+
+    /// <summary>
+    /// This collection stores filenames of images available in FileSystem.AppDataDirectory.
+    /// It's populated at app startup and allows the application to offer a selection of images 
+    /// to users when they're creating or editing banks, brokers, accounts, or movements.
+    /// The stored values are image filenames without extensions, ready to be used directly
+    /// with UI image controls.
+    /// </summary>
+    let AvailableImages = new SourceList<string>()
