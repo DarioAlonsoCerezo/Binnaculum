@@ -705,11 +705,13 @@ We recommend using a name or identifier that is meaningful to you, making it eas
   <data name="AccountCreator_Create_Broker" xml:space="preserve">
     <value>Create a broker</value>
   </data>
-	<data name="Information_Create_Broker" xml:space="preserve">
+  <data name="Information_Create_Broker" xml:space="preserve">
     <value># Important 
 
 When creating a broker, you can use any name or identifier you wish, as there is no connection with any **real brokerage firm.** The information you store in this application is solely for your tracking and monitoring purposes.
 
-We recommend using a name or identifier that is familiar or easy for you to recognize when associating it with your investment accounts and reviewing related trading activities.</value>
-</data>
+We recommend using a name or identifier that is familiar or easy for you to recognize when associating it with your investment accounts and reviewing related trading activities.
+
+Please note that custom brokers you create will be marked as "not configured for auto-import," which means you'll need to manually enter your trading activities rather than importing them from files. This gives you complete flexibility while still maintaining comprehensive records of your investments.</value>
+  </data>
 </root>
