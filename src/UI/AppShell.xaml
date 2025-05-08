@@ -15,14 +15,14 @@
             Title="{local:Translate Shell_Tab_Tickers}"
             Icon="tickers"
             ContentTemplate="{DataTemplate pages:TickersPage}" />
-        <ShellContent
+        <!--<ShellContent
             Title="{local:Translate Shell_Tab_Strategies}"
             Icon="strategies"
-            ContentTemplate="{DataTemplate pages:StrategiesPage}" />
-        <ShellContent
+            ContentTemplate="{DataTemplate pages:StrategiesPage}" />-->
+        <!--<ShellContent
             Title="{local:Translate Shell_Tab_Calendar}"
             Icon="calendar"
-            ContentTemplate="{DataTemplate pages:CalendarPage}" />
+            ContentTemplate="{DataTemplate pages:CalendarPage}" />-->
         <ShellContent
             Title="{local:Translate Shell_Tab_Settings}"
             Icon="settings"
