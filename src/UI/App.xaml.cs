@@ -17,7 +17,7 @@ public partial class App : Application
         Current!.UserAppTheme = preferences.Theme;
         LocalizationResourceManager.Instance.SetCulture(new CultureInfo(preferences.Language));
         
-        return new Window(new NavigationPage(new AppShell()));
+        return new Window(new AppShell());
     }
 
     protected override void OnStart()
