@@ -1,3 +1,5 @@
+using Binnaculum.Pages;
+
 namespace Binnaculum.Controls;
 
 public partial class BrokerAccountTemplate
@@ -20,6 +22,14 @@ public partial class BrokerAccountTemplate
             .Do(_ =>
             {
                 //TODO: Navigate to movement creator page for this account
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
+        
+        BrokerAccountGesture.Events().Tapped
+            .Select(async _ =>
+            {
+                await Navigation.PushModalAsync(new BrokerAcccountPage());
             })
             .Subscribe()
             .DisposeWith(Disposables);
