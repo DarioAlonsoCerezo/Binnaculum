@@ -15,6 +15,12 @@ module internal Keys =
     let Broker_Image_IBKR = "ibkr"
 
     [<Literal>]
+    let Broker_Image_SigmaTrade = "sigmatrade"
+
+    [<Literal>]
+    let Broker_SigmaTrade = "Sigma Trade"
+
+    [<Literal>]
     let Broker_Unknown = "Unknown"
     
     [<Literal>]

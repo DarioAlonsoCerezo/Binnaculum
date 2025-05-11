@@ -9,12 +9,14 @@ module internal TypeParser =
         match value with
         | Keys.Broker_IBKR -> SupportedBroker.IBKR
         | Keys.Broker_Tastytrade -> SupportedBroker.Tastytrade
+        | Keys.Broker_SigmaTrade -> SupportedBroker.SigmaTrade
         | _ -> SupportedBroker.Unknown
 
     let fromSupportedBrokerToDatabase (value: SupportedBroker) =
         match value with
         | SupportedBroker.IBKR -> Keys.Broker_IBKR
         | SupportedBroker.Tastytrade -> Keys.Broker_Tastytrade
+        | SupportedBroker.SigmaTrade -> Keys.Broker_SigmaTrade
         | SupportedBroker.Unknown -> Keys.Broker_Unknown
     
     let fromTextToOptionCode(code: string) =

@@ -9,6 +9,7 @@ module internal ModelParser =
         match databaseSupportedBroker with
         | Database.DatabaseModel.SupportedBroker.IBKR -> Keys.Broker_IBKR
         | Database.DatabaseModel.SupportedBroker.Tastytrade -> Keys.Broker_Tastytrade
+        | Database.DatabaseModel.SupportedBroker.SigmaTrade -> Keys.Broker_SigmaTrade
         | Database.DatabaseModel.SupportedBroker.Unknown -> Keys.Broker_Unknown
 
     let fromDatabaseCurrency (databaseCurrency: Database.DatabaseModel.Currency) =
