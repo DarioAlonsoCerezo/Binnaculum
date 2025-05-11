@@ -1,3 +1,4 @@
+using Binnaculum.Core;
 using CommunityToolkit.Maui.Core;
 
 namespace Binnaculum.Controls;
