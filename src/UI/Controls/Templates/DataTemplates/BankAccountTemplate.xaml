@@ -50,5 +50,8 @@
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="8,8,8,8" />
         </Border.StrokeShape>
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer x:Name="BankAccountGesture" />
+        </Border.GestureRecognizers>
     </Border>
 </controls:BaseContentView>

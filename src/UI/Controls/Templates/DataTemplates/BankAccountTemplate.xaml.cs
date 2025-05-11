@@ -1,4 +1,4 @@
-using Microsoft.FSharp.Core;
+using Binnaculum.Pages;
 
 namespace Binnaculum.Controls;
 
@@ -22,6 +22,14 @@ public partial class BankAccountTemplate
             .Do(_ =>
             {
                 //TODO: Navigate to movement creator page for this account
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        BankAccountGesture.Events().Tapped
+            .Select(async _ =>
+            {
+                await Navigation.PushModalAsync(new BankAccountPage());
             })
             .Subscribe()
             .DisposeWith(Disposables);
