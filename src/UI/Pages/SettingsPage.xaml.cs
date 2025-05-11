@@ -54,16 +54,11 @@ public partial class SettingsPage : ContentPage
         DefaultCurrencyGesture.Events().Tapped
         .SelectMany(_ => Observable.FromAsync(async () =>
         {
-            var popup = new CurrencySelectorPopup();
-            var appMainpage = Application.Current!.Windows[0].Page!;
-            if (appMainpage is NavigationPage navigator)
+            var result = await new CurrencySelectorPopup().ShowAndWait();
+            if (result is Models.Currency currency)
             {
-                var result = await navigator.ShowPopupAsync(popup);
-                if (result is Models.Currency currency)
-                {
-                    DefaultCurrency.Text = currency.Code;
-                    Core.UI.SavedPrefereces.ChangeCurrency(currency.Code);
-                }
+                DefaultCurrency.Text = currency.Code;
+                Core.UI.SavedPrefereces.ChangeCurrency(currency.Code);
             }
             return Unit.Default; // Return Unit.Default as a "void" equivalent
         }))

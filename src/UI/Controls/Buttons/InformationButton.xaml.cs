@@ -29,13 +29,10 @@ public partial class InformationButton
         _controlTap.Events().Tapped
             .Subscribe(_ =>
             {
-                var popup = new MarkdownMessagePopup()
+                new MarkdownMessagePopup()
                 {
                     Text = Text,
-                };
-                var appMainpage = Application.Current!.Windows[0].Page!;
-                if (appMainpage is NavigationPage navigator)
-                    navigator.ShowPopup(popup);
+                }.Show();
             })
             .DisposeWith(Disposables);
     }

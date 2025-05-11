@@ -67,10 +67,24 @@ public static class PopupExtensions
 {
     public static void Show(this Popup popup)
     {
+
         var appMainpage = Application.Current!.Windows[0].Page!;
-        if (appMainpage is NavigationPage navigator)
+        if (appMainpage is Shell navigator)
         {
             navigator.ShowPopup(popup);
+        }
+        else
+        {
+            throw new InvalidOperationException("The current page is not a NavigationPage.");
+        }
+    }
+
+    public static Task<object?> ShowAndWait(this Popup popup)
+    {
+        var appMainpage = Application.Current!.Windows[0].Page!;
+        if (appMainpage is Shell navigator)
+        {
+            return navigator.ShowPopupAsync(popup);
         }
         else
         {

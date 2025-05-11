@@ -148,7 +148,7 @@
     <value>Discard</value>
   </data>
   <data name="Overview_Empty_Account_Info" xml:space="preserve">
-    <value>Start creating an account for a broker or bak to init your binnacle.</value>
+    <value>Start creating an account for a broker or bank to start your binnacle.</value>
   </data>
   <data name="AccountCreator_Select_Broker" xml:space="preserve">
     <value>Select a broker:</value>
