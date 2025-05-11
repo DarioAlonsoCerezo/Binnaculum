@@ -1,7 +1,6 @@
 ﻿namespace Binnacle.Core.Storage
 
 open ModelParser
-open Binnaculum.Core
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open DynamicData
