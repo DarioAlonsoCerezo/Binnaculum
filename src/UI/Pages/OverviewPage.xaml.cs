@@ -8,11 +8,11 @@ public partial class OverviewPage
     private IDisposable? _animateHistoryMarginDisposable;
     private bool _hiding;
 
-    private ReadOnlyObservableCollection<Core.Models.Account> _accounts;
-    public ReadOnlyObservableCollection<Core.Models.Account> Accounts => _accounts;
+    private ReadOnlyObservableCollection<Models.Account> _accounts;
+    public ReadOnlyObservableCollection<Models.Account> Accounts => _accounts;
 
-    private ReadOnlyObservableCollection<Core.Models.Movement> _movements;
-    public ReadOnlyObservableCollection<Core.Models.Movement> Movements => _movements;
+    private ReadOnlyObservableCollection<Models.Movement> _movements;
+    public ReadOnlyObservableCollection<Models.Movement> Movements => _movements;
 
     public OverviewPage()
     {
@@ -187,7 +187,5 @@ public partial class OverviewPage
 
             if (shouldDispose)
                 _animateHistoryMarginDisposable?.Dispose();
-        });
-
-    
+        });   
 }
