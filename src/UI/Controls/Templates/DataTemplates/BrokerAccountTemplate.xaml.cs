@@ -10,22 +10,20 @@ public partial class BrokerAccountTemplate
 
     public BrokerAccountTemplate()
 	{
-		InitializeComponent();
-	}
+		InitializeComponent();        
+    }
 
     protected override void StartLoad()
     {
-        Add.Events().AddClicked
-            .CombineLatest(
-                AddMovementContainerGesture.Events().Tapped,
-                AddMovementTextGesture.Events().Tapped)
-            .Do(_ =>
+        AddMovementButton.Events().AddClicked
+            .Where(_ => _brokerAccount != null)
+            .Select(async _ =>
             {
-                //TODO: Navigate to movement creator page for this account
+                await Navigation.PushModalAsync(new BrokerMovementCreatorPage(_brokerAccount!));
             })
             .Subscribe()
             .DisposeWith(Disposables);
-        
+
         BrokerAccountGesture.Events().Tapped
             .Select(async _ =>
             {
