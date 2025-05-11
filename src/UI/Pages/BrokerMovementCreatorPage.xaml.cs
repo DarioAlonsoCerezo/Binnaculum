@@ -10,10 +10,15 @@ public partial class BrokerMovementCreatorPage
 	{
 		InitializeComponent();
         _account = account;
+
+        Icon.ImagePath = _account.Broker.Image;
     }
 
     protected override void StartLoad()
     {
-
+        CloseGesture.Events().Tapped
+            .Select(async _ => await Navigation.PopModalAsync())
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 }
