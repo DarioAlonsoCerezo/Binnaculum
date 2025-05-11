@@ -88,8 +88,9 @@
                         Margin="4,48,4,0"
                         RowDefinitions="Auto, 1*">
                         <SearchBar
-                            Grid.Row="0" IsVisible="False"
-                            Margin="24,0" />
+                            Grid.Row="0"
+                            Margin="24,0"
+                            IsVisible="False" />
 
                         <CollectionView
                             x:Name="MovementsCollectionView"
