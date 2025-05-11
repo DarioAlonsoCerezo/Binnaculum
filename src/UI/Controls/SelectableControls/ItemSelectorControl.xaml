@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.ItemSelectorControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    x:Name="Control">
+    <VerticalStackLayout Spacing="24">
+        <Label
+            x:Name="SelectorTitle"
+            Style="{StaticResource LabelSettingsTitle}" />
+
+        <Border
+            Padding="24,32"
+            BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                              Dark={StaticResource Black}}"
+            VerticalOptions="Start">
+            <VerticalStackLayout Spacing="12">
+                <toolkit:Expander
+                    x:Name="ControlExpander"
+                    IsExpanded="True">
+                    <toolkit:Expander.Header>
+                        <VerticalStackLayout Spacing="12">
+                            <Label
+                                x:Name="ExpanderTitle"
+                                Text="{local:Translate ItemSelector_Select_Option}"
+                                Style="{StaticResource LabelInfo}" />
+                            <controls:SelectableItemControl
+                                x:Name="SelectedElement"
+                                IsVisible="False" />
+                        </VerticalStackLayout>
+                    </toolkit:Expander.Header>
+                    <VerticalStackLayout
+                        x:Name="SelectorLayout"
+                        Margin="0,12,0,0"
+                        Spacing="12">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <controls:SelectableItemControl
+                                    ItemSelected="SelectableItemControl_ItemSelected"
+                                    SelectableItem="{Binding}" />
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </toolkit:Expander>
+            </VerticalStackLayout>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+            </Border.StrokeShape>
+        </Border>
+    </VerticalStackLayout>
+</controls:BaseContentView>

@@ -11,4 +11,6 @@ internal static class ResourceKeys
     public const string AccountCreator_Select_Bank = nameof(AccountCreator_Select_Bank);
     public const string AccountCreator_Creating_Account_For_Bank = nameof(AccountCreator_Creating_Account_For_Bank);
     public const string FilePicker_Select_Image = nameof(FilePicker_Select_Image);
+    public const string ItemSelector_Select_Option = nameof(ItemSelector_Select_Option);
+    public const string ItemSelector_Change_Selection = nameof(ItemSelector_Change_Selection);
 }

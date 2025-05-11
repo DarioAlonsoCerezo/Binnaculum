@@ -726,4 +726,13 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="BrokerMovementCreator_How_To_File" xml:space="preserve">
     <value>From file</value>
   </data>
+  <data name="ItemSelector_Select_Option" xml:space="preserve">
+    <value>Select an option:</value>
+  </data>
+  <data name="ItemSelector_Change_Selection" xml:space="preserve">
+    <value>Change selection:</value>
+  </data>
+  <data name="BrokerMovementCreator_Type" xml:space="preserve">
+    <value>Movement type</value>
+  </data>
 </root>

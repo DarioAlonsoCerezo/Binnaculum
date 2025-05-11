@@ -727,4 +727,13 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="BrokerMovementCreator_How_To_File" xml:space="preserve">
     <value>Desde archivo</value>
   </data>
+  <data name="ItemSelector_Select_Option" xml:space="preserve">
+    <value>Seleccione una opción:</value>
+  </data>
+  <data name="ItemSelector_Change_Selection" xml:space="preserve">
+    <value>Cambiar selección:</value>
+  </data>
+  <data name="BrokerMovementCreator_Type" xml:space="preserve">
+    <value>Tipo de movimiento</value>
+  </data>
 </root>

@@ -27,6 +27,7 @@ public static class EventsExtensions
     public static RxRadioButtonEvents Events(this RadioButton item) => new(item);
     public static RxSelectableBrokerEvents Events(this SelectableBrokerControl item) => new(item);
     public static RxSelectableBankEvents Events(this SelectableBankControl item) => new(item);
+    public static RxSelectableItemControlEvents Events(this SelectableItemControl item) => new(item);
     public static RxButtonAddEvents Events(this ButtonAdd item) => new(item);
     public static RxButtonSaveEvents Events(this ButtonSave item) => new(item);
     public static RxButtonDiscardEvents Events(this ButtonDiscard item) => new(item);

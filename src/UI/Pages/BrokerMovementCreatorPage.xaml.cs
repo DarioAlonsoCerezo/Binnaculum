@@ -1,3 +1,4 @@
+using Binnaculum.Controls;
 using Binnaculum.Core;
 
 namespace Binnaculum.Pages;
@@ -13,6 +14,25 @@ public partial class BrokerMovementCreatorPage
 
         Icon.ImagePath = _account.Broker.Image;
         AccountName.Text = _account.AccountNumber;
+
+        MovementTypeControl.ItemsSource = new List<SelectableItem>
+        {
+            new SelectableItem
+            {
+                Title = "Deposit",
+                ItemValue = "Deposit"
+            },
+            new SelectableItem
+            {
+                Title = "Withdraw",
+                ItemValue = "Withdraw"
+            },
+            new SelectableItem
+            {
+                Title = "Transfer",
+                ItemValue = "Transfer"
+            }
+        };
     }
 
     protected override void StartLoad()
