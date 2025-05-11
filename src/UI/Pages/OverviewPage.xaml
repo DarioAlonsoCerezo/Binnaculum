@@ -88,6 +88,7 @@
                         Margin="4,48,4,0"
                         RowDefinitions="Auto, 1*">
                         <SearchBar
+                            x:Name="MovementSearcher"
                             Grid.Row="0"
                             Margin="24,0"
                             IsVisible="False" />

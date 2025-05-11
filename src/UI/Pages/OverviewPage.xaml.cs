@@ -1,5 +1,4 @@
-using DynamicData;
-using System.Collections.ObjectModel;
+using Binnaculum.Core;
 
 namespace Binnaculum.Pages;
 
@@ -29,6 +28,15 @@ public partial class OverviewPage
             .ObserveOn(UiThread)
             .Bind(out _movements)
             .Subscribe();
+
+        Core.UI.Collections.Movements.Connect()
+            .ObserveOn(UiThread)
+            .Select(changes => changes.Any(change =>
+                change.Reason == ListChangeReason.Add &&
+                change.Item.Current.Type != Models.AccountMovementType.EmptyMovement))
+            .DistinctUntilChanged()
+            .BindTo(MovementSearcher, x => x.IsVisible)
+            .DisposeWith(Disposables);
 
         Core.UI.SavedPrefereces.UserPreferences
             .ObserveOn(RxApp.MainThreadScheduler)
