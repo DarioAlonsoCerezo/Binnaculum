@@ -7,7 +7,7 @@ public class SelectableItem
     public string Title { get; set; }
     public object ItemValue { get; set; }
 
-    public static List<SelectableItem> MovementTypeList() =>
+    public static List<SelectableItem> BrokerMovementTypeList() =>
     [
         new SelectableItem
         {

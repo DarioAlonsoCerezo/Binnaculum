@@ -15,7 +15,7 @@ public partial class BrokerMovementCreatorPage
         Icon.ImagePath = _account.Broker.Image;
         AccountName.Text = _account.AccountNumber;
 
-        MovementTypeControl.ItemsSource = SelectableItem.MovementTypeList();
+        MovementTypeControl.ItemsSource = SelectableItem.BrokerMovementTypeList();
     }
 
     protected override void StartLoad()
