@@ -718,4 +718,13 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="Overview_No_Movements" xml:space="preserve">
     <value>Los movimientos aparecerán aquí una vez que se añadan a su cuenta.</value>
   </data>
+  <data name="BrokerMovementCreator_How_To_Title" xml:space="preserve">
+    <value>Como crearlo</value>
+  </data>
+  <data name="BrokerMovementCreator_How_To_Manual" xml:space="preserve">
+    <value>Manualmente</value>
+  </data>
+  <data name="BrokerMovementCreator_How_To_File" xml:space="preserve">
+    <value>Desde archivo</value>
+  </data>
 </root>

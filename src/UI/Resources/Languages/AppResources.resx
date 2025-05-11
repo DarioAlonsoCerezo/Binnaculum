@@ -717,4 +717,13 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="Overview_No_Movements" xml:space="preserve">
     <value>Movements will appear here once they are added to your account.</value>
   </data>
+  <data name="BrokerMovementCreator_How_To_Title" xml:space="preserve">
+    <value>How to create</value>
+  </data>
+  <data name="BrokerMovementCreator_How_To_Manual" xml:space="preserve">
+    <value>Manually</value>
+  </data>
+  <data name="BrokerMovementCreator_How_To_File" xml:space="preserve">
+    <value>From file</value>
+  </data>
 </root>

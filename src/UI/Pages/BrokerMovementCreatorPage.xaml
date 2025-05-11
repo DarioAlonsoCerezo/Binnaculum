@@ -5,16 +5,50 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:Binnaculum.Pages"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:local="clr-namespace:Binnaculum"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
     <ScrollView>
         <Grid>
-            <VerticalStackLayout Padding="0,48,0,0">
+            <VerticalStackLayout
+                Padding="24,48,24,16"
+                Spacing="16">
                 <controls:IconControl
                     x:Name="Icon"
                     Scale="2"
                     HorizontalOptions="Center"
                     VerticalOptions="Center" />
+                <Label
+                    x:Name="AccountName"
+                    Padding="0,20,0,0"
+                    Style="{StaticResource CenteredSubHeadline}" />
+
+                <Label
+                    Text="{local:Translate BrokerMovementCreator_How_To_Title}"
+                    Style="{StaticResource LabelSettingsTitle}" />
+
+                <Border Style="{StaticResource Settings}">
+                    <Grid
+                        ColumnDefinitions="1*,1*"
+                        Style="{StaticResource GridSettingsGroup}">
+                        <controls:CustomRadioButton
+                            x:Name="ManualRadioButton"
+                            HorizontalOptions="Start" />
+                        <Label
+                            Text="{local:Translate BrokerMovementCreator_How_To_Manual}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <controls:CustomRadioButton
+                            x:Name="FromFileRadioButton"
+                            Grid.Column="1"
+                            IsEnabled="False"
+                            HorizontalOptions="Start" />
+                        <Label
+                            Grid.Column="1"
+                            IsEnabled="False"
+                            Text="{local:Translate BrokerMovementCreator_How_To_File}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                    </Grid>
+                </Border>
             </VerticalStackLayout>
             <controls:TintedImage
                 Margin="0,20,12,0"

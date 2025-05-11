@@ -12,6 +12,7 @@ public partial class BrokerMovementCreatorPage
         _account = account;
 
         Icon.ImagePath = _account.Broker.Image;
+        AccountName.Text = _account.AccountNumber;
     }
 
     protected override void StartLoad()
@@ -20,5 +21,8 @@ public partial class BrokerMovementCreatorPage
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
             .DisposeWith(Disposables);
+
+        //By default, it should be created manually
+        ManualRadioButton.IsChecked = true;
     }
 }
