@@ -111,6 +111,16 @@
 
             </VerticalStackLayout>
 
+            <controls:TintedImage
+                ImageSource="close.png"
+                HeightRequest="40"
+                VerticalOptions="Start"
+                HorizontalOptions="End">
+                <controls:TintedImage.GestureRecognizers>
+                    <TapGestureRecognizer x:Name="CloseGesture" />
+                </controls:TintedImage.GestureRecognizers>
+            </controls:TintedImage>
+
             <controls:ButtonSaveOrDiscard
                 x:Name="ButtonSaveOrDiscard"
                 Grid.Row="2"

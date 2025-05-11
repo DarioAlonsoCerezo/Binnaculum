@@ -19,12 +19,18 @@ public partial class AccountCreatorPage
 		InitializeComponent();
 
         Collections.Brokers.Connect()
+            .Sort(SortExpressionComparer<Core.Models.Broker>
+                .Descending(b => b.Id < 0)
+                .ThenByAscending(b => b.Name))
             .ObserveOn(UiThread)
             .Bind(out _brokers)
             .Subscribe()
             .DisposeWith(Disposables);
 
         Collections.Banks.Connect()
+            .Sort(SortExpressionComparer<Core.Models.Bank>
+                .Descending(b => b.Id < 0)
+                .ThenByAscending(b => b.Name))
             .ObserveOn(UiThread)
             .Bind(out _banks)
             .Subscribe()
@@ -42,11 +48,18 @@ public partial class AccountCreatorPage
                 await SaveAccounts();
                 await Navigation.PopModalAsync();
             })
-            .Subscribe();
+            .Subscribe()
+            .DisposeWith(Disposables);
 
         ButtonSaveOrDiscard.Events().DiscardClicked
             .Select(async _ => await Navigation.PopModalAsync())
-            .Subscribe();
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        CloseGesture.Events().Tapped
+            .Select(async _ => await Navigation.PopModalAsync())
+            .Subscribe()
+            .DisposeWith(Disposables);
 
         SelectedBroker.Events().BrokerSelected
             .Select(async _ => await UnfocusEntries())
