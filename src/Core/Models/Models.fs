@@ -41,6 +41,10 @@ module Models =
         | ACATSecuritiesTransfer
         | InterestsPaid
         | Conversion
+        | DividendReceived
+        | DividendTaxWithheld
+        | DividendExDate
+        | DividendPayDate
         
     type BankAccountMovementType =
         | Balance

@@ -13,7 +13,7 @@ public partial class SelectableItemControl
         {
             if(bindable is SelectableItemControl control && newValue is SelectableItem item)
             {
-                control.ItemName.Text = item.Title;
+                control.ItemName.SetLocalizedText(item.Title);
             }
         });
 

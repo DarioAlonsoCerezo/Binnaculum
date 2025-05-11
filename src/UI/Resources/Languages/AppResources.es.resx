@@ -736,4 +736,58 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="BrokerMovementCreator_Type" xml:space="preserve">
     <value>Tipo de movimiento</value>
   </data>
+  <data name="MovementType_Deposit" xml:space="preserve">
+    <value>Depósito</value>
+    <comment>Tipo de movimiento: depósito de dinero</comment>
+  </data>
+  <data name="MovementType_Withdrawal" xml:space="preserve">
+    <value>Retirada</value>
+    <comment>Tipo de movimiento: retirada de dinero</comment>
+  </data>
+  <data name="MovementType_Fee" xml:space="preserve">
+    <value>Tasa</value>
+    <comment>Tipo de movimiento: comisión del broker</comment>
+  </data>
+  <data name="MovementType_InterestsGained" xml:space="preserve">
+    <value>Intereses recibidos</value>
+    <comment>Tipo de movimiento: intereses obtenidos</comment>
+  </data>
+  <data name="MovementType_Lending" xml:space="preserve">
+    <value>Ganancias por préstamo</value>
+    <comment>Tipo de movimiento: préstamo de valores</comment>
+  </data>
+  <data name="MovementType_ACATMoneyTransfer" xml:space="preserve">
+    <value>Transferencia ACAT de Dinero</value>
+    <comment>Tipo de movimiento: transferencia de dinero entre cuentas</comment>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransfer" xml:space="preserve">
+    <value>Transferencia ACAT de Valores</value>
+    <comment>Tipo de movimiento: transferencia de valores entre cuentas</comment>
+  </data>
+  <data name="MovementType_InterestsPaid" xml:space="preserve">
+    <value>Intereses pagados</value>
+    <comment>Tipo de movimiento: intereses pagados al broker</comment>
+  </data>
+  <data name="MovementType_Conversion" xml:space="preserve">
+    <value>Conversión</value>
+    <comment>Tipo de movimiento: conversión de divisas o valores</comment>
+  </data>
+	<data name="MovementType_DividendReceived" xml:space="preserve">
+  <value>Dividendo Recibido</value>
+  <comment>Tipo de movimiento: pago de dividendo recibido</comment>
+</data>
+	<data name="MovementType_DividendTaxWithheld" xml:space="preserve">
+  <value>Retención Fiscal de Dividendo</value>
+  <comment>Tipo de movimiento: impuesto retenido del dividendo</comment>
+</data>
+	<data name="MovementType_DividendExDate" xml:space="preserve">
+  <value>Fecha Ex-Dividendo</value>
+  <comment>Tipo de movimiento: fecha ex-dividendo</comment>
+</data>
+	<data name="MovementType_DividendPayDate" xml:space="preserve">
+  <value>Fecha de Pago de Dividendo</value>
+  <comment>Tipo de movimiento: fecha de pago del dividendo</comment>
+</data>
+
+
 </root>

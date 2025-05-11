@@ -735,4 +735,58 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="BrokerMovementCreator_Type" xml:space="preserve">
     <value>Movement type</value>
   </data>
+  <data name="MovementType_Deposit" xml:space="preserve">
+    <value>Deposit</value>
+    <comment>Movement type: money deposit</comment>
+  </data>
+  <data name="MovementType_Withdrawal" xml:space="preserve">
+    <value>Withdrawal</value>
+    <comment>Movement type: money withdrawal</comment>
+  </data>
+  <data name="MovementType_Fee" xml:space="preserve">
+    <value>Fee</value>
+    <comment>Movement type: broker fee</comment>
+  </data>
+  <data name="MovementType_InterestsGained" xml:space="preserve">
+    <value>Interests gained</value>
+    <comment>Movement type: interests earned</comment>
+  </data>
+  <data name="MovementType_Lending" xml:space="preserve">
+    <value>Gained for lending</value>
+    <comment>Movement type: securities lending</comment>
+  </data>
+  <data name="MovementType_ACATMoneyTransfer" xml:space="preserve">
+    <value>ACAT Money Transfer</value>
+    <comment>Movement type: money transfer between accounts</comment>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransfer" xml:space="preserve">
+    <value>ACAT Securities Transfer</value>
+    <comment>Movement type: securities transfer between accounts</comment>
+  </data>
+  <data name="MovementType_InterestsPaid" xml:space="preserve">
+    <value>Interests paid</value>
+    <comment>Movement type: interests paid to broker</comment>
+  </data>
+  <data name="MovementType_Conversion" xml:space="preserve">
+    <value>Conversion</value>
+    <comment>Movement type: currency or securities conversion</comment>
+  </data>
+	<data name="MovementType_DividendReceived" xml:space="preserve">
+  <value>Dividend Received</value>
+  <comment>Movement type: dividend payment received</comment>
+</data>
+	<data name="MovementType_DividendTaxWithheld" xml:space="preserve">
+  <value>Dividend Tax Withheld</value>
+  <comment>Movement type: tax withheld from dividend</comment>
+</data>
+	<data name="MovementType_DividendExDate" xml:space="preserve">
+  <value>Dividend Ex-Date</value>
+  <comment>Movement type: dividend ex-date</comment>
+</data>
+	<data name="MovementType_DividendPayDate" xml:space="preserve">
+  <value>Dividend Payment Date</value>
+  <comment>Movement type: dividend payment date</comment>
+</data>
+
+
 </root>
