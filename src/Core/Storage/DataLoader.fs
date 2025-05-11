@@ -125,7 +125,23 @@ module internal DataLoader =
         do! getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
     }
 
-    let loadMovementsFor(account: Account) = task {
+    let loadMovementsFor(account: Account option) = task {
+        // Clear the movements collection before loading new data
         Collections.Movements.Clear()
+        // Check if the account is None, and if so, return early
+        if account.IsNone then
+            let movement = {
+                Type = AccountMovementType.EmptyMovement
+                Trade = None
+                Dividend = None
+                DividendTax = None
+                DividendDate = None
+                OptionTrade = None
+                BrokerMovement = None
+                BankAccountMovement = None
+                TickerSplit = None
+            }
+
+            Collections.Movements.EditDiff [movement]
         return ()
     }

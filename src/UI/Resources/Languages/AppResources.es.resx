@@ -715,4 +715,7 @@ Le recomendamos usar un nombre o identificador que sea familiar o fácil de reco
 
 Tenga en cuenta que los brokers personalizados que cree se marcarán como "no configurados para importación automática", lo que significa que deberá ingresar manualmente sus actividades de trading en lugar de importarlas desde archivos. Esto le brinda completa flexibilidad mientras mantiene registros completos de sus inversiones.</value>
   </data>
+  <data name="Overview_No_Movements" xml:space="preserve">
+    <value>Los movimientos aparecerán aquí una vez que se añadan a su cuenta.</value>
+  </data>
 </root>

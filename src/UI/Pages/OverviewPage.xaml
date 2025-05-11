@@ -11,7 +11,12 @@
     <Grid
         RowDefinitions="64,1*,1*"
         RowSpacing="0">
-
+        <Grid.Resources>
+            <ResourceDictionary>
+                <controls:AccountTemplateSelector x:Key="AccountTemplateSelector" />
+                <controls:MovementTemplateSelector x:Key="MovementTemplateSelector" />
+            </ResourceDictionary>
+        </Grid.Resources>
         <Label
             Margin="24,24,0,0"
             Text="{local:Translate Overview_Title}"
@@ -25,11 +30,7 @@
             Margin="0,0,0,96"
             ColumnSpacing="0"
             ColumnDefinitions="Auto,1*">
-            <Grid.Resources>
-                <ResourceDictionary>
-                    <controls:AccountTemplateSelector x:Key="AccountTemplateSelector" />
-                </ResourceDictionary>
-            </Grid.Resources>
+
             <controls:ButtonAdd
                 x:Name="AddAccount"
                 Scale="0.5" />
@@ -67,6 +68,8 @@
                                                   Dark={StaticResource Black}}">
                 <Grid>
                     <Grid
+                        Grid.Row="0"
+                        Grid.RowSpan="2"
                         BackgroundColor="{AppThemeBinding Light={StaticResource White},
                                                           Dark={StaticResource Black}}"
                         VerticalOptions="Start"
@@ -81,26 +84,27 @@
                             <PanGestureRecognizer x:Name="HistoryGestured" />
                         </Grid.GestureRecognizers>
                     </Grid>
+                    <Grid
+                        Margin="4,48,4,0"
+                        RowDefinitions="Auto, 1*">
+                        <SearchBar
+                            Grid.Row="0" IsVisible="False"
+                            Margin="24,0" />
 
-                    <CollectionView
-                        x:Name="MovementsCollectionView"
-                        Margin="4,64,4,0"
-                        ItemSizingStrategy="MeasureFirstItem">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid
-                                    BackgroundColor="Yellow"
-                                    HeightRequest="90" />
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout
-                                Orientation="Vertical"
-                                ItemSpacing="4"
-                                SnapPointsType="Mandatory"
-                                SnapPointsAlignment="Start" />
-                        </CollectionView.ItemsLayout>
-                    </CollectionView>
+                        <CollectionView
+                            x:Name="MovementsCollectionView"
+                            Grid.Row="1"
+                            ItemTemplate="{StaticResource MovementTemplateSelector}"
+                            ItemSizingStrategy="MeasureFirstItem">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout
+                                    Orientation="Vertical"
+                                    ItemSpacing="4"
+                                    SnapPointsType="Mandatory"
+                                    SnapPointsAlignment="Start" />
+                            </CollectionView.ItemsLayout>
+                        </CollectionView>
+                    </Grid>
 
                 </Grid>
                 <Border.StrokeShape>

@@ -714,4 +714,7 @@ We recommend using a name or identifier that is familiar or easy for you to reco
 
 Please note that custom brokers you create will be marked as "not configured for auto-import," which means you'll need to manually enter your trading activities rather than importing them from files. This gives you complete flexibility while still maintaining comprehensive records of your investments.</value>
   </data>
+  <data name="Overview_No_Movements" xml:space="preserve">
+    <value>Movements will appear here once they are added to your account.</value>
+  </data>
 </root>

@@ -4,6 +4,14 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:local="clr-namespace:Binnaculum"
     HeightRequest="90">
-    <Grid BackgroundColor="Yellow" />
+    <Grid>
+        <Label
+            Padding="24,0"
+            Text="{local:Translate Overview_No_Movements}"
+            VerticalTextAlignment="Center"
+            HorizontalTextAlignment="Center" />
+        <Line Style="{StaticResource LineSettingsGroup}" />
+    </Grid>
 </controls:BaseContentView>
