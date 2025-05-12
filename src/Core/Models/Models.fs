@@ -31,7 +31,7 @@ module Models =
         | ExDividendDate
         | PayDividendDate
 
-    type MovementType =
+    type BrokerMovementType =
         | Deposit
         | Withdrawal
         | Fee
@@ -41,10 +41,23 @@ module Models =
         | ACATSecuritiesTransfer
         | InterestsPaid
         | Conversion
+
+    type MovementType =
+        | Deposit
+        | Withdrawal
+        | Trade
+        | OptionTrade
         | DividendReceived
         | DividendTaxWithheld
         | DividendExDate
         | DividendPayDate
+        | Fee
+        | InterestsGained
+        | Lending
+        | ACATMoneyTransfer
+        | ACATSecuritiesTransfer
+        | InterestsPaid
+        | Conversion        
         
     type BankAccountMovementType =
         | Balance
@@ -79,7 +92,7 @@ module Models =
         BrokerAccount: BrokerAccount
         Commissions: decimal
         Fees: decimal
-        MovementType: MovementType
+        MovementType: BrokerMovementType
     }
     
     type Ticker = {

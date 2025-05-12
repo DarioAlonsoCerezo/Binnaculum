@@ -63,3 +63,9 @@ module ResourceKeys =
     
     [<Literal>]
     let MovementType_DividendPayDate = "MovementType_DividendPayDate"
+
+    [<Literal>]
+    let MovementType_Trade = "MovementType_Trade"
+
+    [<Literal>]
+    let MovementType_OptionTrade = "MovementType_OptionTrade"

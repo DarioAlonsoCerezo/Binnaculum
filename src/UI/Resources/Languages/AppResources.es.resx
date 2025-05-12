@@ -788,6 +788,12 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <value>Fecha de Pago de Dividendo</value>
   <comment>Tipo de movimiento: fecha de pago del dividendo</comment>
 </data>
-
-
+	<data name="MovementType_Trade" xml:space="preserve">
+  <value>Operación</value>
+  <comment>Tipo de movimiento: operación con valores (compra/venta)</comment>
+</data>
+	<data name="MovementType_OptionTrade" xml:space="preserve">
+  <value>Operación con Opciones</value>
+  <comment>Tipo de movimiento: operación con contratos de opciones</comment>
+</data>
 </root>

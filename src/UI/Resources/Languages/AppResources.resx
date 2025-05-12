@@ -787,6 +787,12 @@ Please note that custom brokers you create will be marked as "not configured for
   <value>Dividend Payment Date</value>
   <comment>Movement type: dividend payment date</comment>
 </data>
-
-
+	<data name="MovementType_Trade" xml:space="preserve">
+  <value>Trade</value>
+  <comment>Movement type: security trade (buy/sell)</comment>
+</data>
+	<data name="MovementType_OptionTrade" xml:space="preserve">
+  <value>Option Trade</value>
+  <comment>Movement type: option contract trade</comment>
+</data>
 </root>

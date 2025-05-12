@@ -21,6 +21,36 @@ public class SelectableItem
         },
         new SelectableItem
         {
+            Title = ResourceKeys.MovementType_Trade,
+            ItemValue = Models.MovementType.Trade
+        },
+        new SelectableItem
+        {
+            Title = ResourceKeys.MovementType_OptionTrade,
+            ItemValue = Models.MovementType.OptionTrade
+        },
+        new SelectableItem
+        {
+            Title = ResourceKeys.MovementType_DividendReceived,
+            ItemValue = Models.MovementType.DividendReceived
+        },
+        new SelectableItem
+        {
+            Title = ResourceKeys.MovementType_DividendTaxWithheld,
+            ItemValue = Models.MovementType.DividendTaxWithheld
+        },
+        new SelectableItem
+        {
+            Title = ResourceKeys.MovementType_DividendExDate,
+            ItemValue = Models.MovementType.DividendExDate
+        },
+        new SelectableItem
+        {
+            Title = ResourceKeys.MovementType_DividendPayDate,
+            ItemValue = Models.MovementType.DividendPayDate
+        },
+        new SelectableItem
+        {
             Title = ResourceKeys.MovementType_Fee,
             ItemValue = Models.MovementType.Fee
         },
@@ -49,25 +79,9 @@ public class SelectableItem
             Title = ResourceKeys.MovementType_InterestsPaid,
             ItemValue = Models.MovementType.InterestsPaid
         },
-        new SelectableItem
-        {
-            Title = ResourceKeys.MovementType_DividendReceived,
-            ItemValue = Models.MovementType.DividendReceived
-        },
-        new SelectableItem
-        {
-            Title = ResourceKeys.MovementType_DividendTaxWithheld,
-            ItemValue = Models.MovementType.DividendTaxWithheld
-        },
-        new SelectableItem
-        {
-            Title = ResourceKeys.MovementType_DividendExDate,
-            ItemValue = Models.MovementType.DividendExDate
-        },
-        new SelectableItem
-        {
-            Title = ResourceKeys.MovementType_DividendPayDate,
-            ItemValue = Models.MovementType.DividendPayDate
+        new SelectableItem{
+            Title = ResourceKeys.MovementType_Conversion,
+            ItemValue = Models.MovementType.Conversion
         }
     ];
 }
