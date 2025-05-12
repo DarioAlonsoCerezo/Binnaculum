@@ -69,6 +69,21 @@ public partial class BorderedEntry
         set => SetValue(IsCurrencyVisibleProperty, value);
     }
 
+    public static readonly BindableProperty KeyboardProperty =
+    BindableProperty.Create(nameof(Keyboard), typeof(Keyboard), typeof(BorderedEntry), Keyboard.Default,
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            if (bindable is BorderedEntry borderedEntry)
+                borderedEntry.BorderlessEntry.Keyboard = (Keyboard)newValue;
+        });
+
+    public Keyboard Keyboard
+    {
+        get => (Keyboard)GetValue(KeyboardProperty);
+        set => SetValue(KeyboardProperty, value);
+    }
+
+
     public string SelectedCurrency => CurrencyLabel.Text;
 
     public async Task Unfocus(bool hideKeyboard = false)
@@ -119,15 +134,10 @@ public partial class BorderedEntry
         CurrencyGesture.Events().Tapped
         .SelectMany(_ => Observable.FromAsync(async () =>
         {
-            var popup = new CurrencySelectorPopup();
-            var appMainpage = Application.Current!.Windows[0].Page!;
-            if (appMainpage is NavigationPage navigator)
+            var result = await new CurrencySelectorPopup().ShowAndWait();
+            if (result is Models.Currency currency)
             {
-                var result = await navigator.ShowPopupAsync(popup);
-                if (result is Models.Currency currency)
-                {
-                    CurrencyLabel.Text = currency.Code;
-                }
+                CurrencyLabel.Text = currency.Code;
             }
             return Unit.Default; // Return Unit.Default as a "void" equivalent
         }))
