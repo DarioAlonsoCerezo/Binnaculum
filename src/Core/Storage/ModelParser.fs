@@ -53,3 +53,16 @@ module internal ModelParser =
             Broker = broker
             AccountNumber = databaseBrokerAccount.AccountNumber
         }
+
+    let fromMovementTypeToBrokerMoveventType(movementType: MovementType) =
+        match movementType with
+        | MovementType.Deposit -> Database.DatabaseModel.BrokerMovementType.Deposit
+        | MovementType.Withdrawal -> Database.DatabaseModel.BrokerMovementType.Withdrawal
+        | MovementType.Fee -> Database.DatabaseModel.BrokerMovementType.Fee
+        | MovementType.InterestsGained -> Database.DatabaseModel.BrokerMovementType.InterestsGained
+        | MovementType.Lending -> Database.DatabaseModel.BrokerMovementType.Lending
+        | MovementType.ACATMoneyTransfer -> Database.DatabaseModel.BrokerMovementType.ACATMoneyTransfer
+        | MovementType.ACATSecuritiesTransfer -> Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransfer
+        | MovementType.InterestsPaid -> Database.DatabaseModel.BrokerMovementType.InterestsPaid
+        | MovementType.Conversion -> Database.DatabaseModel.BrokerMovementType.Conversion
+        | _ -> failwithf "MovementType %A is not a BrokerMovementType" movementType

@@ -4,6 +4,7 @@ open BankExtensions
 open BrokerAccountExtensions
 open BankAccountExtensions
 open BrokerExtensions
+open BrokerMovementExtensions
 open System
 open Binnaculum.Core.Patterns
 open Binnacle.Core.Storage
@@ -38,3 +39,25 @@ module Creator =
         do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
     }
 
+    let SaveBrokerMovement(timeStamp, amount, currencyId, brokerAccountId, commision, fee, movementType: Binnaculum.Core.Models.MovementType) = task {
+        let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
+        let timeStampPattern = DateTimePattern.FromDateTime(timeStamp)
+        let amountMoney = Money.FromAmount(amount)
+        let commissionMoney = Money.FromAmount(commision)
+        let feeMoney = Money.FromAmount(fee)
+        let brokerMovementType = ModelParser.fromMovementTypeToBrokerMoveventType (movementType)
+        let movement = 
+            { 
+                Id = 0; 
+                TimeStamp = timeStampPattern; 
+                Amount = amountMoney; 
+                CurrencyId = currencyId; 
+                BrokerAccountId = brokerAccountId; 
+                Commissions = commissionMoney; 
+                Fees = feeMoney; 
+                MovementType = brokerMovementType; 
+                Audit = audit;
+            }
+
+        do! movement.save() |> Async.AwaitTask |> Async.Ignore
+    }
