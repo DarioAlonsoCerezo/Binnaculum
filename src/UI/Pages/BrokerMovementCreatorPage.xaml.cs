@@ -40,5 +40,16 @@ public partial class BrokerMovementCreatorPage
         selection.Select(x => x == Models.MovementType.Deposit || x == Models.MovementType.Withdrawal)
             .BindTo(Deposit, x => x.IsVisible)
             .DisposeWith(Disposables);
+
+        Deposit.Events().DepositChanged
+            .Where(_ => Deposit.IsVisible)
+            .Select(x => x.Amount > 0)
+            .BindTo(Save, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        Save.Events().SaveClicked
+            .Select(async _ => await Navigation.PopModalAsync())
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 }

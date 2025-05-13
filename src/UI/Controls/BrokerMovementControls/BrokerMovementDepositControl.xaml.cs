@@ -9,7 +9,14 @@ public partial class BrokerMovementDepositControl
 	public BrokerMovementDepositControl()
 	{
 		InitializeComponent();
-	}
+
+        _deposit = new DepositControl(
+            TimeStamp: DateTime.Now,
+            Amount: 0m,
+            Currency: Core.UI.SavedPrefereces.UserPreferences.Value.Currency,
+            Commissions: 0m,
+            Fees: 0m);
+    }
 
     protected override void StartLoad()
     {
