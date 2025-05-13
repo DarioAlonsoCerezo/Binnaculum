@@ -772,28 +772,40 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
     <value>Conversión</value>
     <comment>Tipo de movimiento: conversión de divisas o valores</comment>
   </data>
-	<data name="MovementType_DividendReceived" xml:space="preserve">
-  <value>Dividendo Recibido</value>
-  <comment>Tipo de movimiento: pago de dividendo recibido</comment>
-</data>
-	<data name="MovementType_DividendTaxWithheld" xml:space="preserve">
-  <value>Retención Fiscal de Dividendo</value>
-  <comment>Tipo de movimiento: impuesto retenido del dividendo</comment>
-</data>
-	<data name="MovementType_DividendExDate" xml:space="preserve">
-  <value>Fecha Ex-Dividendo</value>
-  <comment>Tipo de movimiento: fecha ex-dividendo</comment>
-</data>
-	<data name="MovementType_DividendPayDate" xml:space="preserve">
-  <value>Fecha de Pago de Dividendo</value>
-  <comment>Tipo de movimiento: fecha de pago del dividendo</comment>
-</data>
-	<data name="MovementType_Trade" xml:space="preserve">
-  <value>Operación</value>
-  <comment>Tipo de movimiento: operación con valores (compra/venta)</comment>
-</data>
-	<data name="MovementType_OptionTrade" xml:space="preserve">
-  <value>Operación con Opciones</value>
-  <comment>Tipo de movimiento: operación con contratos de opciones</comment>
-</data>
+  <data name="MovementType_DividendReceived" xml:space="preserve">
+    <value>Dividendo Recibido</value>
+    <comment>Tipo de movimiento: pago de dividendo recibido</comment>
+  </data>
+  <data name="MovementType_DividendTaxWithheld" xml:space="preserve">
+    <value>Retención Fiscal de Dividendo</value>
+    <comment>Tipo de movimiento: impuesto retenido del dividendo</comment>
+  </data>
+  <data name="MovementType_DividendExDate" xml:space="preserve">
+    <value>Fecha Ex-Dividendo</value>
+    <comment>Tipo de movimiento: fecha ex-dividendo</comment>
+  </data>
+  <data name="MovementType_DividendPayDate" xml:space="preserve">
+    <value>Fecha de Pago de Dividendo</value>
+    <comment>Tipo de movimiento: fecha de pago del dividendo</comment>
+  </data>
+  <data name="MovementType_Trade" xml:space="preserve">
+    <value>Operación</value>
+    <comment>Tipo de movimiento: operación con valores (compra/venta)</comment>
+  </data>
+  <data name="MovementType_OptionTrade" xml:space="preserve">
+    <value>Operación con Opciones</value>
+    <comment>Tipo de movimiento: operación con contratos de opciones</comment>
+  </data>
+  <data name="Placeholder_Amount" xml:space="preserve">
+    <value>Introduzca el importe</value>
+  </data>
+  <data name="Placeholder_Commissions" xml:space="preserve">
+    <value>Comisiones</value>
+  </data>
+  <data name="Placeholder_Fees" xml:space="preserve">
+    <value>Tasas</value>
+  </data>
+  <data name="BrokerMovementDepositControl_Title" xml:space="preserve">
+    <value>Cuánto y cuándo</value>
+  </data>
 </root>
