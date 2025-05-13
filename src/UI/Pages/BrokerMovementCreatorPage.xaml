@@ -54,7 +54,14 @@
                     x:Name="MovementTypeControl"
                     Title="{local:Translate BrokerMovementCreator_Type}" />
 
-                <controls:BrokerMovementDepositControl x:Name="Deposit" />
+                <controls:BrokerMovementDepositControl
+                    x:Name="Deposit"
+                    IsVisible="False" />
+
+                <controls:ButtonSave
+                    x:Name="Save"
+                    IsVisible="False" />
+
             </VerticalStackLayout>
             <controls:TintedImage
                 Margin="0,20,12,0"
