@@ -13,3 +13,16 @@ public class RxSelectableCurrencyEvents(SelectableCurrencyControl data)
                 handler => _data.CurrencySelected += handler,
                 handler => _data.CurrencySelected -= handler);
 }
+
+
+public class RxItemSelectorControlEvents(ItemSelectorControl data)
+    : RxBindableObjectEvents(data)
+{
+    private readonly ItemSelectorControl _data = data;
+    public IObservable<SelectableItem> ItemSelected
+        => Observable
+            .FromEvent<EventHandler<SelectableItem>, SelectableItem>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.ItemSelected += handler,
+                handler => _data.ItemSelected -= handler);
+}

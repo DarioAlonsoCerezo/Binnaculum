@@ -1,4 +1,5 @@
 ﻿using Binnaculum.Controls;
+using System.Runtime.CompilerServices;
 
 namespace Binnaculum.Extensions;
 
@@ -41,4 +42,5 @@ public static class EventsExtensions
     public static RxCustomRadioButtonEvents Events(this CustomRadioButton item) => new(item);
     public static RxCustomSwitchEvents Events(this CustomSwitch item) => new(item);
     public static RxSelectableCurrencyEvents Events(this SelectableCurrencyControl item) => new(item);
+    public static RxItemSelectorControlEvents Events(this ItemSelectorControl item) => new(item);
 }
