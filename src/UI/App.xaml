@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
                 <ResourceDictionary Source="Resources/Styles/BorderedControlsStyles.xaml" />
                 <ResourceDictionary Source="Resources/Styles/LabelsStyles.xaml" />
+                <ResourceDictionary Source="Resources/Styles/ControlTemplates.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

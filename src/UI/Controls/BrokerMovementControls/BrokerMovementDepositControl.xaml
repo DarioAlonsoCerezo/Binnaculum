@@ -16,7 +16,6 @@
             VerticalOptions="Start">
             <VerticalStackLayout>
                 <controls:BorderedEntry
-                    Keyboard="Numeric"
                     IsCurrencyVisible="True"
                     Placeholder="Type the amount" />
                 <Border Style="{StaticResource BorderedControl}">
@@ -28,10 +27,10 @@
 
                 <controls:BorderedEntry
                     Placeholder="Commissions"
-                    Keyboard="Numeric" />
+                    IsMoneyEntry="True" />
                 <controls:BorderedEntry
                     Placeholder="Fees"
-                    Keyboard="Numeric" />
+                    IsMoneyEntry="True" />
             </VerticalStackLayout>
         </Border>
     </VerticalStackLayout>

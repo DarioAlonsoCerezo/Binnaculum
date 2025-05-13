@@ -5,34 +5,31 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
     x:Name="Control"
-    x:DataType="controls:BorderedEntry">
-    <Border
-        x:Name="Container"
-        Style="{StaticResource BorderedControl}"
-        IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}">
-        <Grid ColumnDefinitions="Auto,1*">
-            <Label
-                x:Name="CurrencyLabel"
-                Padding="8,0"
-                Style="{StaticResource LabelSettingsGroup}"
-                IsVisible="{Binding Source={x:Reference Control}, Path=IsCurrencyVisible}">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer x:Name="CurrencyGesture" />
-                </Label.GestureRecognizers>
-            </Label>
-            <controls:BorderlessEntry
-                x:Name="BorderlessEntry"
-                Grid.Column="1"
-                Text="{Binding Text}"
-                Placeholder="{Binding Placeholder}"
-                PlaceholderColor="{Binding PlaceholderColor}"
-                IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />
-            <controls:InformationButton
-                x:Name="InformationMarkdownButton"
-                Grid.Column="1"
-                Text="{Binding Source={x:Reference Control}, Path=Information}"
-                IsVisible="False"
-                HorizontalOptions="End" />
-        </Grid>
-    </Border>
+    x:DataType="controls:BorderedEntry"
+    ControlTemplate="{StaticResource BorderedControlTemplate}">
+
+    <Grid ColumnDefinitions="Auto,1*">
+        <Label
+            x:Name="CurrencyLabel"
+            Padding="8,0"
+            Style="{StaticResource LabelSettingsGroup}"
+            IsVisible="{Binding Source={x:Reference Control}, Path=IsCurrencyVisible}">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer x:Name="CurrencyGesture" />
+            </Label.GestureRecognizers>
+        </Label>
+        <controls:BorderlessEntry
+            x:Name="BorderlessEntry"
+            Grid.Column="1"
+            Text="{Binding Text}"
+            Placeholder="{Binding Placeholder}"
+            PlaceholderColor="{Binding PlaceholderColor}"
+            IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />
+        <controls:InformationButton
+            x:Name="InformationMarkdownButton"
+            Grid.Column="1"
+            Text="{Binding Source={x:Reference Control}, Path=Information}"
+            IsVisible="False"
+            HorizontalOptions="End" />
+    </Grid>
 </controls:BaseContentView>

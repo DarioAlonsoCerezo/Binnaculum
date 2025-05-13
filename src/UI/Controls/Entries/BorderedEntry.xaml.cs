@@ -59,8 +59,12 @@ public partial class BorderedEntry
         BindableProperty.Create(nameof(IsCurrencyVisible), typeof(bool), typeof(BorderedEntry), false,
             propertyChanged: (bindable, oldValue, newValue) =>
             {
-                if (bindable is BorderedEntry borderedEntry)
-                    borderedEntry.CurrencyLabel.IsVisible = (bool)newValue;
+                if (bindable is BorderedEntry borderedEntry && newValue is bool enabled)
+                {
+                    borderedEntry.CurrencyLabel.IsVisible = enabled;
+                    if(enabled)
+                        borderedEntry.BorderlessEntry.Keyboard = Keyboard.Numeric;
+                }
             });
 
     public bool IsCurrencyVisible
@@ -69,22 +73,23 @@ public partial class BorderedEntry
         set => SetValue(IsCurrencyVisibleProperty, value);
     }
 
-    public static readonly BindableProperty KeyboardProperty =
-    BindableProperty.Create(nameof(Keyboard), typeof(Keyboard), typeof(BorderedEntry), Keyboard.Default,
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is BorderedEntry borderedEntry)
-                borderedEntry.BorderlessEntry.Keyboard = (Keyboard)newValue;
-        });
+    public static readonly BindableProperty IsMoneyEntryProperty =
+        BindableProperty.Create(nameof(IsMoneyEntry), typeof(bool), typeof(BorderedEntry), false,
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                if (bindable is BorderedEntry borderedEntry && newValue is bool enabled)
+                {
+                    borderedEntry.BorderlessEntry.Keyboard = enabled ? Keyboard.Numeric : Keyboard.Default;
+                }
+            });
 
-    public Keyboard Keyboard
+    public bool IsMoneyEntry
     {
-        get => (Keyboard)GetValue(KeyboardProperty);
-        set => SetValue(KeyboardProperty, value);
+        get => (bool)GetValue(IsMoneyEntryProperty);
+        set => SetValue(IsMoneyEntryProperty, value);
     }
 
-
-    public string SelectedCurrency => CurrencyLabel.Text;
+    public string SelectedCurrencyText => CurrencyLabel.Text;
 
     public async Task Unfocus(bool hideKeyboard = false)
     {
