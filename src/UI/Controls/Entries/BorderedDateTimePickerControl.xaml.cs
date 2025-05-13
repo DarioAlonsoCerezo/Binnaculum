@@ -2,6 +2,8 @@ namespace Binnaculum.Controls;
 
 public partial class BorderedDateTimePickerControl
 {
+    public event EventHandler<DateTime> DateSelected;
+
     public static readonly BindableProperty HideTimeSelectorProperty =
         BindableProperty.Create(
             nameof(HideTimeSelector), 
@@ -41,6 +43,8 @@ public partial class BorderedDateTimePickerControl
                 Date = DateControl.Date;
                 if(TimeControl.IsVisible)
                     Date = Date.Add(TimeControl.Time);
+
+                DateSelected?.Invoke(this, Date);
             })
             .DisposeWith(Disposables);
 
@@ -48,6 +52,8 @@ public partial class BorderedDateTimePickerControl
             .Subscribe(_ =>
             {
                 Date = Date.Add(TimeControl.Time);
+
+                DateSelected?.Invoke(this, Date);
             })
             .DisposeWith(Disposables);
     }
