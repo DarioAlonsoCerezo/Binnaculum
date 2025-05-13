@@ -16,11 +16,12 @@
             VerticalOptions="Start">
             <VerticalStackLayout Spacing="12">
                 <controls:BorderedEntry
+                    x:Name="AmountEntry"
                     IsCurrencyVisible="True"
                     Placeholder="Type the amount" />
-                <controls:BorderedDateTimePickerControl />
+                <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
 
-                <controls:BorderedFeeAndCommissionControl />
+                <controls:BorderedFeeAndCommissionControl x:Name="FeesAndCommissions" />
             </VerticalStackLayout>
         </Border>
     </VerticalStackLayout>
