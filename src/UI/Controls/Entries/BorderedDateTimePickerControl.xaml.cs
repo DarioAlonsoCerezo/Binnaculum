@@ -33,6 +33,8 @@ public partial class BorderedDateTimePickerControl
 
         DateControl.Date = DateTime.Now;
         TimeControl.Time = DateTime.Now.TimeOfDay;
+        Date = DateTime.Now;
+        DateSelected?.Invoke(this, Date);
     }
 
     protected override void StartLoad()
