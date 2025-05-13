@@ -24,4 +24,11 @@ public class RxBorderedEntry : RxVisualElementEvents
                 eventHandler => (_, e) => eventHandler(e),
                 handler => _data.Completed += handler,
                 handler => _data.Completed -= handler);
+
+    public IObservable<string> CurrencyChanged
+        => Observable
+            .FromEvent<EventHandler<string>, string>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.CurrencyChanged += handler,
+                handler => _data.CurrencyChanged -= handler);
 }

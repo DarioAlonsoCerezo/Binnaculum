@@ -7,6 +7,7 @@ namespace Binnaculum.Controls;
 public partial class BorderedEntry
 {
     public event EventHandler<TextChangedEventArgs> TextChanged;
+    public event EventHandler<string> CurrencyChanged;
     public event EventHandler Completed;
 
     public static readonly BindableProperty TextProperty =
@@ -105,6 +106,7 @@ public partial class BorderedEntry
 		InitializeComponent();
 
         CurrencyLabel.Text = Core.UI.SavedPrefereces.UserPreferences.Value.Currency;
+        CurrencyChanged?.Invoke(this, CurrencyLabel.Text);
     }
 
     protected override void StartLoad()
@@ -143,6 +145,7 @@ public partial class BorderedEntry
             if (result is Models.Currency currency)
             {
                 CurrencyLabel.Text = currency.Code;
+                CurrencyChanged?.Invoke(this, currency.Code);
             }
             return Unit.Default; // Return Unit.Default as a "void" equivalent
         }))
