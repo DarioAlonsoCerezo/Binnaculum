@@ -38,6 +38,8 @@ public partial class BorderlessDatePickerHandler : DatePickerHandler
             nativeView.SetBackground(gradientDrawable);
         }
 
+        nativeView.Gravity = Android.Views.GravityFlags.CenterHorizontal;
+
         return nativeView;
     }
 }
@@ -51,6 +53,8 @@ public partial class BorderlessDatePickerHandler : DatePickerHandler
         var nativeView = base.CreatePlatformView();
 
         nativeView.BorderStyle = UITextBorderStyle.None;
+
+        nativeView.TextAlignment = UITextAlignment.Center;
 
         return nativeView;
     }

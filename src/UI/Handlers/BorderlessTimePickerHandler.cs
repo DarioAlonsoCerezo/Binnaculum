@@ -33,6 +33,8 @@ public partial class BorderlessTimePickerHandler : TimePickerHandler
             nativeView.SetBackground(gradientDrawable);
         }
 
+        nativeView.Gravity = Android.Views.GravityFlags.CenterHorizontal;
+
         return nativeView;
     }
 }
@@ -46,6 +48,8 @@ public partial class BorderlessTimePickerHandler : TimePickerHandler
         var nativeView = base.CreatePlatformView();
 
         nativeView.BorderStyle = UIKit.UITextBorderStyle.None;
+
+        nativeView.TextAlignment = UITextAlignment.Center;
 
         return nativeView;
     }
