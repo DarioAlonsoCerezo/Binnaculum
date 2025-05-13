@@ -5,7 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
     ControlTemplate="{StaticResource BorderedControlTemplate}">
-    <Grid ColumnDefinitions="1*,1*">
+    <Grid
+        x:Name="Container"
+        ColumnDefinitions="1*,1*">
         <controls:BorderlessDatePicker x:Name="DateControl" />
         <controls:BorderlessTimePicker
             x:Name="TimeControl"
