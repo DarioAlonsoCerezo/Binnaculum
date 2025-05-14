@@ -6,6 +6,8 @@ public partial class BrokerMovementDepositControl
 
     private DepositControl _deposit;
 
+    public DepositControl DepositData => _deposit;
+
 	public BrokerMovementDepositControl()
 	{
 		InitializeComponent();
