@@ -102,7 +102,15 @@ module internal DataLoader =
     }
 
     let private getAccountMovements(account: Account) = task {
-        return []
+        match account.Broker with 
+        | Some a -> 
+            let! movements = BrokerMovementExtensions.Do.getAll()
+            return 
+                movements 
+                |> List.filter(fun m -> m.BrokerAccountId = a.Id)
+            
+        | None -> 
+        return[]
     }
 
     let private getEmptyMovement() = 
@@ -152,6 +160,6 @@ module internal DataLoader =
             let! movements = getAccountMovements account.Value |> Async.AwaitTask
             if movements.IsEmpty then
                 Collections.Movements.EditDiff [getEmptyMovement()]
-            else
-                Collections.Movements.EditDiff movements        
+            //else
+            //    Collections.Movements.EditDiff movements        
     }
