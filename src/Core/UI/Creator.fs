@@ -60,4 +60,5 @@ module Creator =
             }
 
         do! movement.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask 
     }

@@ -150,16 +150,20 @@ module internal DataLoader =
     }
 
     let loadMovementsFor(account: Account option) = task {
-        // Clear the movements collection before loading new data
-        Collections.Movements.Clear()
-        // Check if the account is None, and if so, return early
-        if account.IsNone then
-            Collections.Movements.EditDiff [getEmptyMovement()]
-        else 
-            // Load movements for the specified account
-            let! movements = getAccountMovements account.Value |> Async.AwaitTask
-            if movements.IsEmpty then
-                Collections.Movements.EditDiff [getEmptyMovement()]
-            //else
-            //    Collections.Movements.EditDiff movements        
+        let! databaseBrokerMovements = BrokerMovementExtensions.Do.getAll()
+        let brokerMovements = databaseBrokerMovements |> List.map(fun m -> fromBrokerMovementToMovement m)
+        
+        Collections.Movements.EditDiff brokerMovements 
+        //// Clear the movements collection before loading new data
+        //Collections.Movements.Clear()
+        //// Check if the account is None, and if so, return early
+        //if account.IsNone then
+        //    Collections.Movements.EditDiff [getEmptyMovement()]
+        //else 
+        //    // Load movements for the specified account
+        //    let! movements = getAccountMovements account.Value |> Async.AwaitTask
+        //    if movements.IsEmpty then
+        //        Collections.Movements.EditDiff [getEmptyMovement()]
+        //    //else
+        //    //    Collections.Movements.EditDiff movements        
     }
