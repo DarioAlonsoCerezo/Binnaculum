@@ -39,20 +39,20 @@ module Creator =
         do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
     }
 
-    let SaveBrokerMovement(timeStamp, amount, currencyId, brokerAccountId, commision, fee, movementType: Binnaculum.Core.Models.MovementType) = task {
+    let SaveDeposit(uiDeposit: Binnaculum.Core.Models.UiDeposit) = task {
         let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
-        let timeStampPattern = DateTimePattern.FromDateTime(timeStamp)
-        let amountMoney = Money.FromAmount(amount)
-        let commissionMoney = Money.FromAmount(commision)
-        let feeMoney = Money.FromAmount(fee)
-        let brokerMovementType = ModelParser.fromMovementTypeToBrokerMoveventType (movementType)
+        let timeStampPattern = DateTimePattern.FromDateTime(uiDeposit.Timestamp)
+        let amountMoney = Money.FromAmount(uiDeposit.Amount)
+        let commissionMoney = Money.FromAmount(uiDeposit.Commissions)
+        let feeMoney = Money.FromAmount(uiDeposit.Fees)
+        let brokerMovementType = ModelParser.fromMovementTypeToBrokerMoveventType(Binnaculum.Core.Models.MovementType.Deposit)
         let movement = 
             { 
                 Id = 0; 
                 TimeStamp = timeStampPattern; 
                 Amount = amountMoney; 
-                CurrencyId = currencyId; 
-                BrokerAccountId = brokerAccountId; 
+                CurrencyId = uiDeposit.CurrencyId; 
+                BrokerAccountId = uiDeposit.BrokerAccountId; 
                 Commissions = commissionMoney; 
                 Fees = feeMoney; 
                 MovementType = brokerMovementType; 
@@ -60,6 +60,4 @@ module Creator =
             }
 
         do! movement.save() |> Async.AwaitTask |> Async.Ignore
-
-        //TODO: reload Movements
     }
