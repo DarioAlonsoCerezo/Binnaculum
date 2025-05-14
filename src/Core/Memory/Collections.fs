@@ -68,3 +68,5 @@ module Collections =
     /// with UI image controls.
     /// </summary>
     let AvailableImages = new SourceList<string>()
+
+    let GetCurrency code = Currencies.Items |> Seq.find(fun c -> c.Code = code)
