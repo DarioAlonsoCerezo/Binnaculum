@@ -17,7 +17,7 @@ type Do() =
         command.fillEntityAuditable<BankAccountMovement>(
             [
                 (SQLParameterName.TimeStamp, bankAccountBalance.TimeStamp);
-                (SQLParameterName.Amount, bankAccountBalance.Amount);
+                (SQLParameterName.Amount, bankAccountBalance.Amount.Value);
                 (SQLParameterName.BankAccountId, bankAccountBalance.BankAccountId);
                 (SQLParameterName.CurrencyId, bankAccountBalance.CurrencyId);
                 (SQLParameterName.MovementType, fromBankMovementTypeToDatabase bankAccountBalance.MovementType);

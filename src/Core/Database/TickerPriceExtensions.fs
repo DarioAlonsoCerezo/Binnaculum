@@ -17,7 +17,7 @@ type Do() =
             [
                 (SQLParameterName.PriceDate, tickerPrice.PriceDate);
                 (SQLParameterName.TickerId, tickerPrice.TickerId);
-                (SQLParameterName.Price, tickerPrice.Price);
+                (SQLParameterName.Price, tickerPrice.Price.Value);
                 (SQLParameterName.CurrencyId, tickerPrice.CurrencyId);
             ], tickerPrice)
 

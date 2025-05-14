@@ -17,7 +17,7 @@ type Do() =
         command.fillEntityAuditable<DividendDate>(
             [
                 (SQLParameterName.TimeStamp, dividendDate.TimeStamp);
-                (SQLParameterName.Amount, dividendDate.Amount);
+                (SQLParameterName.Amount, dividendDate.Amount.Value);
                 (SQLParameterName.TickerId, dividendDate.TickerId);
                 (SQLParameterName.CurrencyId, dividendDate.CurrencyId);
                 (SQLParameterName.BrokerAccountId, dividendDate.BrokerAccountId);

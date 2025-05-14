@@ -19,16 +19,16 @@ type Do() =
             [
                 (SQLParameterName.TimeStamp, optionTrade.TimeStamp);
                 (SQLParameterName.ExpirationDate, optionTrade.ExpirationDate);
-                (SQLParameterName.Premium, optionTrade.Premium);
-                (SQLParameterName.NetPremium, optionTrade.NetPremium);
+                (SQLParameterName.Premium, optionTrade.Premium.Value);
+                (SQLParameterName.NetPremium, optionTrade.NetPremium.Value);
                 (SQLParameterName.TickerId, optionTrade.TickerId);
                 (SQLParameterName.BrokerAccountId, optionTrade.BrokerAccountId);
                 (SQLParameterName.CurrencyId, optionTrade.CurrencyId);
                 (SQLParameterName.OptionType, fromOptionTypeToDatabase optionTrade.OptionType);
                 (SQLParameterName.Code, fromOptionCodeToDatabase optionTrade.Code);
-                (SQLParameterName.Strike, optionTrade.Strike);
-                (SQLParameterName.Commissions, optionTrade.Commissions);
-                (SQLParameterName.Fees, optionTrade.Fees);
+                (SQLParameterName.Strike, optionTrade.Strike.Value);
+                (SQLParameterName.Commissions, optionTrade.Commissions.Value);
+                (SQLParameterName.Fees, optionTrade.Fees.Value);
                 (SQLParameterName.IsOpen, optionTrade.IsOpen);
                 (SQLParameterName.ClosedWith, optionTrade.ClosedWith.ToDbValue())
             ], optionTrade)

@@ -22,9 +22,9 @@ type Do() =
                 (SQLParameterName.BrokerAccountId, trade.BrokerAccountId);
                 (SQLParameterName.CurrencyId, trade.CurrencyId);
                 (SQLParameterName.Quantity, trade.Quantity);
-                (SQLParameterName.Price, trade.Price);
-                (SQLParameterName.Commissions, trade.Commissions);
-                (SQLParameterName.Fees, trade.Fees);
+                (SQLParameterName.Price, trade.Price.Value);
+                (SQLParameterName.Commissions, trade.Commissions.Value);
+                (SQLParameterName.Fees, trade.Fees.Value);
                 (SQLParameterName.TradeCode, fromTradeCodeToDatabase trade.TradeCode);
                 (SQLParameterName.TradeType, fromTradeTypeToDatabase trade.TradeType);
                 (SQLParameterName.Notes, trade.Notes.ToDbValue())

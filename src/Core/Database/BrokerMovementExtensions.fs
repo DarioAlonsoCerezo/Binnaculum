@@ -17,11 +17,11 @@ type Do() =
         command.fillEntityAuditable<BrokerMovement>(
             [
                 (SQLParameterName.TimeStamp, brokerMovement.TimeStamp.ToString());
-                (SQLParameterName.Amount, brokerMovement.Amount);
+                (SQLParameterName.Amount, brokerMovement.Amount.Value);
                 (SQLParameterName.CurrencyId, brokerMovement.CurrencyId);
                 (SQLParameterName.BrokerAccountId, brokerMovement.BrokerAccountId);
-                (SQLParameterName.Commissions, brokerMovement.Commissions);
-                (SQLParameterName.Fees, brokerMovement.Fees);
+                (SQLParameterName.Commissions, brokerMovement.Commissions.Value);
+                (SQLParameterName.Fees, brokerMovement.Fees.Value);
                 (SQLParameterName.MovementType, fromMovementTypeToDatabase brokerMovement.MovementType);
             ], brokerMovement)
 
