@@ -78,6 +78,7 @@ public partial class ItemSelectorControl
 
     private void SelectableItemControl_ItemSelected(object sender, SelectableItem item)
     {
+        SelectedItem = item;
         SelectedElement.SelectableItem = item;
         ControlExpander.IsExpanded = false;
         ExpanderTitle.SetLocalizedText(ResourceKeys.ItemSelector_Change_Selection);
