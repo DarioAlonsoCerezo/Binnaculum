@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-		<MauiVersion>9.0.60</MauiVersion>
+		<MauiVersion>9.0.70</MauiVersion>
 		<ReactiveUiVersion>20.2.45</ReactiveUiVersion>
 	</PropertyGroup>
 	<!-- MAUI -->
@@ -19,12 +19,12 @@
 	<!-- FSharp -->
 	<ItemGroup>
 		<PackageVersion Include="FSharp.Data" Version="6.3.0" />
-		<PackageVersion Include="FSharp.Core" Version="9.0.202" />
+		<PackageVersion Include="FSharp.Core" Version="9.0.300" />
 	</ItemGroup>
 
 	<!-- SQLite -->
 	<ItemGroup>
-		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="9.0.4" />
+		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="9.0.5" />
 		<PackageVersion Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
 	</ItemGroup>
 	
@@ -38,7 +38,7 @@
 	<!-- Microfost extensions -->
 	<ItemGroup>
 		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />				
+		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />				
 	</ItemGroup>
 	
 	<!-- Testing -->
