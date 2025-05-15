@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using System.Reactive.Subjects;
 
 namespace Binnaculum.Pages;
 
@@ -14,6 +15,9 @@ public partial class OverviewPage
     private ReadOnlyObservableCollection<Models.Movement> _movements;
     public ReadOnlyObservableCollection<Models.Movement> Movements => _movements;
 
+    IObservable<Func<Models.Movement, bool>> _filterPredicate;
+    BehaviorSubject<Models.Account?> _selected = new(null);
+
     public OverviewPage()
     {
 		InitializeComponent();
@@ -24,7 +28,21 @@ public partial class OverviewPage
             .Bind(out _accounts)
             .Subscribe();
 
+        _filterPredicate = _selected
+            .Throttle(TimeSpan.FromMilliseconds(300))
+            .Select(BuildFilterPredicate)
+            .ObserveOn(UiThread);
+
         Core.UI.Collections.Movements.Connect()
+            .Filter(_filterPredicate)
+            .Sort(SortExpressionComparer<Models.Movement>.Descending(m =>
+            {
+                if (m.Type.IsBankAccountMovement)
+                    return m.BankAccountMovement.Value.TimeStamp;
+                if (m.Type.IsBrokerMovement)
+                    return m.BrokerMovement.Value.TimeStamp;
+                return DateTime.MinValue;
+            }))
             .ObserveOn(UiThread)
             .Bind(out _movements)
             .Subscribe();
@@ -74,8 +92,7 @@ public partial class OverviewPage
             {
                 if(x is Core.Models.Account account)
                 {
-                    if (account.Type.IsBankAccount || account.Type.IsBrokerAccount)
-                        Task.Run(() => Core.UI.Overview.LoadMovements(account));
+                    _selected.OnNext(account);
                 }
             })
             .DisposeWith(Disposables);
@@ -188,4 +205,15 @@ public partial class OverviewPage
             if (shouldDispose)
                 _animateHistoryMarginDisposable?.Dispose();
         });   
+
+    private Func<Models.Movement, bool> BuildFilterPredicate(Models.Account? selected)
+    {
+        if (selected == null)
+            return _ =>  true;
+
+        if (selected.Type.IsBankAccount)
+            return x =>  x.BankAccountMovement.Value.BankAccount.Id.Equals(selected.Bank.Value.Id);
+    
+        return x => x.BrokerMovement.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+    }
 }
