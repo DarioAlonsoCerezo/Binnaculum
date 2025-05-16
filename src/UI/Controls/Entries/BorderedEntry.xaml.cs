@@ -63,8 +63,6 @@ public partial class BorderedEntry
                 if (bindable is BorderedEntry borderedEntry && newValue is bool enabled)
                 {
                     borderedEntry.CurrencyLabel.IsVisible = enabled;
-                    if(enabled)
-                        borderedEntry.BorderlessEntry.Keyboard = Keyboard.Numeric;
                 }
             });
 
