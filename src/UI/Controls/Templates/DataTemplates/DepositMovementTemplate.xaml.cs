@@ -25,6 +25,7 @@ public partial class DepositMovementTemplate
                 Icon.ImagePath = movement.BrokerMovement.Value.BrokerAccount.Broker.Image;
                 Amount.Amount = movement.BrokerMovement.Value.Amount;
                 Amount.Money = movement.BrokerMovement.Value.Currency;
+                TimeStamp.DateTime = movement.BrokerMovement.Value.TimeStamp;
             }
             
             if(movement.BankAccountMovement != null)

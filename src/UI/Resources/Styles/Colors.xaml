@@ -29,6 +29,9 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
+    <Color x:Key="RedState">#FF0000</Color>
+    <Color x:Key="GreenState">#008000</Color>
+
     <SolidColorBrush
         x:Key="PrimaryBrush"
         Color="{StaticResource Primary}" />
@@ -72,4 +75,10 @@
     <SolidColorBrush
         x:Key="Gray950Brush"
         Color="{StaticResource Gray950}" />
+    <SolidColorBrush
+        x:Key="ResStateBrush"
+        Color="{StaticResource RedState}" />
+    <SolidColorBrush
+        x:Key="GreenStateBrush"
+        Color="{StaticResource GreenState}" />
 </ResourceDictionary>

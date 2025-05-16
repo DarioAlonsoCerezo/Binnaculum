@@ -69,3 +69,9 @@ module ResourceKeys =
 
     [<Literal>]
     let MovementType_OptionTrade = "MovementType_OptionTrade"
+
+    [<Literal>]
+    let Yesterday = "Yesterday"
+
+    [<Literal>]
+    let Today = "Today"

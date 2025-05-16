@@ -71,16 +71,20 @@ module internal DataLoader =
             databaseBrokerAccounts 
             |> List.map (fun b -> fromDatabaseBrokerAccount b)
             |> List.map (fun account -> 
-                { 
-                    Type = AccountType.BrokerAccount; 
-                    Broker = Some account; 
-                    Bank = None;
-                    HasMovements = Collections.Movements.Items
-                        |> Seq.filter (fun m -> m.BrokerMovement.IsSome)
-                        |> Seq.exists (fun m -> m.BrokerMovement.Value.BrokerAccount.Id = account.Id)
-                })
+                async {
+                    let! hasMovements = 
+                        BrokerAccountExtensions.Do.hasMovements account.Id 
+                        |> Async.AwaitTask
+                    return { 
+                        Type = AccountType.BrokerAccount; 
+                        Broker = Some account; 
+                        Bank = None;
+                        HasMovements = hasMovements
+                    }
+                }) 
+        let accounts = brokerAccounts |> Async.Parallel |> Async.RunSynchronously
 
-        return brokerAccounts
+        return accounts |> Array.toList
     }
 
     let private getOrRefreshAllBankAccounts() = task {

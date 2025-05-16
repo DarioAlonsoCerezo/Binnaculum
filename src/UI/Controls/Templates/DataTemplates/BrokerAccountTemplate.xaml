@@ -23,13 +23,22 @@
                 Grid.Column="1"
                 Style="{StaticResource CenteredSubHeadline}" />
 
+            <controls:PercentageControl
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Percentage="-3"
+                HorizontalOptions="Center"
+                VerticalOptions="Center" />
+
+
             <HorizontalStackLayout
                 x:Name="AddMovementContainer"
                 Grid.Row="1"
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
                 Spacing="12"
-                IsVisible="False"
                 VerticalOptions="Center"
                 HorizontalOptions="Center">
                 <controls:ButtonAdd

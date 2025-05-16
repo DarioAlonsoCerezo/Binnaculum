@@ -808,4 +808,10 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="BrokerMovementDepositControl_Title" xml:space="preserve">
     <value>Cuánto y cuándo</value>
   </data>
+  <data name="Yesterday" xml:space="preserve">
+    <value>Ayer</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Hoy</value>
+  </data>
 </root>

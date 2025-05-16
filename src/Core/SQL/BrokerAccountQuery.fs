@@ -90,3 +90,20 @@ module internal BrokerAccountQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
+
+    let hasMovements =
+        $"""
+        SELECT 
+            CASE WHEN EXISTS (
+                SELECT 1 FROM {Trades} WHERE {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+                UNION
+                SELECT 1 FROM {Dividends} WHERE {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+                UNION
+                SELECT 1 FROM {DividendTaxes} WHERE {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+                UNION
+                SELECT 1 FROM {Options} WHERE {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+                UNION
+                SELECT 1 FROM {BrokerMovements} WHERE {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            )
+            THEN 1 ELSE 0 END AS HasMovements
+        """

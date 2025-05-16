@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.TimeStampControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Binnaculum.Controls">
+    <Label x:Name="TimeStampLabel">
+        <Label.FormattedText>
+            <FormattedString>
+                <Span
+                    x:Name="DateSpan"
+                    FontSize="16"
+                    FontFamily="OpenSansBold" />
+                <Span
+                    x:Name="TimePartSpan"
+                    FontSize="12"
+                    FontFamily="OpenSansSemibold" />
+            </FormattedString>
+        </Label.FormattedText>
+    </Label>
+</controls:BaseContentView>

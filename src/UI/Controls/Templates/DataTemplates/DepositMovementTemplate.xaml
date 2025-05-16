@@ -25,13 +25,12 @@
             HorizontalOptions="Center"
             VerticalOptions="Center"
             TranslationY="8" />
-        <Label
-            Padding="80,4,0,0"
-            Text="Today"
+        <controls:TimeStampControl
+            x:Name="TimeStamp"
+            Margin="0,4,20,0"
+            ShowTime="False"
             HorizontalOptions="End"
-            VerticalOptions="Start"
-            FontSize="Default"
-            Style="{StaticResource SelectableItem}" />
+            VerticalOptions="Start" />
         <Line Style="{StaticResource LineSettingsGroup}" />
     </Grid>
 </controls:BaseContentView>

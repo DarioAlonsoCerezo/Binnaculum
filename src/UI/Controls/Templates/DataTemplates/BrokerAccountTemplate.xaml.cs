@@ -51,6 +51,16 @@ public partial class BrokerAccountTemplate
     {
         Icon.ImagePath = _broker!.Image;
         BrokerName.Text = _brokerAccount!.AccountNumber;
-        AddMovementContainer.IsVisible = !_account!.HasMovements;
+        
+        AddMovementContainer.VerticalOptions = _account!.HasMovements 
+            ? LayoutOptions.End 
+            : LayoutOptions.Center;
+
+        AddMovementContainer.HorizontalOptions = _account!.HasMovements
+            ? LayoutOptions.Start 
+            : LayoutOptions.Center;
+
+        AddMovementButton.Scale = _account!.HasMovements ? 0.6 : 1;
+        AddMovementContainer.Spacing = _account!.HasMovements ? 0 : 12;
     }
 }

@@ -807,4 +807,10 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="BrokerMovementDepositControl_Title" xml:space="preserve">
     <value>How much &amp; when</value>
   </data>
+  <data name="Yesterday" xml:space="preserve">
+    <value>Yesterday</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
 </root>
