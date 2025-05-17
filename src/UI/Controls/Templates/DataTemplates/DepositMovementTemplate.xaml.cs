@@ -30,7 +30,10 @@ public partial class DepositMovementTemplate
             
             if(movement.BankAccountMovement != null)
             {
-                
+                Icon.ImagePath = movement.BankAccountMovement.Value.BankAccount.Bank.Image.Value;
+                Amount.Amount = movement.BankAccountMovement.Value.Amount;
+                Amount.Money = movement.BankAccountMovement.Value.Currency;
+                TimeStamp.DateTime = movement.BankAccountMovement.Value.TimeStamp;
             }
         }
     }
