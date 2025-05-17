@@ -25,7 +25,7 @@ module internal BankQuery =
         FOR EACH ROW
         BEGIN
             UPDATE {Banks}
-            SET {UpdatedAt} = DATETIME('now')
+            SET {UpdatedAt} = strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')
             WHERE {Id} = OLD.{Id};
         END;
         """

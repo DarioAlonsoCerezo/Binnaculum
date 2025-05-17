@@ -27,7 +27,7 @@ module internal TickerSplitQuery =
         FOR EACH ROW
         BEGIN
             UPDATE {TickerSplits}
-            SET {UpdatedAt} = datetime('now')
+            SET {UpdatedAt} = strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')
             WHERE {Id} = OLD.{Id};
         END;
         """

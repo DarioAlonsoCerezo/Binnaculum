@@ -49,7 +49,7 @@ module internal TradesQuery =
         FOR EACH ROW
         BEGIN
             UPDATE {Trades}
-            SET {UpdatedAt} = datetime('now')
+            SET {UpdatedAt} = strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')
             WHERE {Id} = OLD.{Id};
         END;
         """

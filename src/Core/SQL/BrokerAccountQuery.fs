@@ -31,7 +31,7 @@ module internal BrokerAccountQuery =
         FOR EACH ROW
         BEGIN
             UPDATE {BrokerAccounts}
-            SET {UpdatedAt} = datetime('now')
+            SET {UpdatedAt} = strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')
             WHERE {Id} = OLD.{Id};
         END;
         """
