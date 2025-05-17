@@ -15,13 +15,14 @@ public partial class BankAccountTemplate
 
     protected override void StartLoad()
     {
-        Add.Events().AddClicked
-            .CombineLatest(
-                AddMovementContainerGesture.Events().Tapped,
-                AddMovementTextGesture.Events().Tapped)
-            .Do(_ =>
+        Observable
+            .Merge(
+                Add.Events().AddClicked.Select(_ => Unit.Default),
+                AddMovementContainerGesture.Events().Tapped.Select(_ => Unit.Default),
+                AddMovementTextGesture.Events().Tapped.Select(_ => Unit.Default))
+            .Select(async _ =>
             {
-                //TODO: Navigate to movement creator page for this account
+                await Navigation.PushModalAsync(new BankMovementCreator(_bankAccount!));
             })
             .Subscribe()
             .DisposeWith(Disposables);
@@ -58,6 +59,15 @@ public partial class BankAccountTemplate
 
         AccountNumber.Text = _bankAccount?.Name;
 
-        AddMovementContainer.IsVisible = !_account!.HasMovements;
+        AddMovementContainer.VerticalOptions = _account!.HasMovements
+            ? LayoutOptions.End
+            : LayoutOptions.Center;
+
+        AddMovementContainer.HorizontalOptions = _account!.HasMovements
+            ? LayoutOptions.Start
+            : LayoutOptions.Center;
+
+        Add.Scale = _account!.HasMovements ? 0.6 : 1;
+        AddMovementContainer.Spacing = _account!.HasMovements ? 0 : 12;
     }
 }

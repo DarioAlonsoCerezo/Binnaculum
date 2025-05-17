@@ -28,7 +28,6 @@
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
                 Spacing="12"
-                IsVisible="False"
                 VerticalOptions="Center"
                 HorizontalOptions="Center">
                 <controls:ButtonAdd
