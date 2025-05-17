@@ -3,6 +3,7 @@ using Binnaculum.Core;
 using Binnaculum.Core.UI;
 using Binnaculum.Popups;
 using CommunityToolkit.Maui.Core;
+using System.Diagnostics;
 
 namespace Binnaculum.Pages;
 
@@ -89,10 +90,15 @@ public partial class AccountCreatorPage
             .Subscribe()
             .DisposeWith(Disposables);
 
-        BrokerAccountEntry.Events().TextChanged
-            .CombineLatest(BrokerAccountEntry.Events().TextChanged)
+        // Use Merge instead of CombineLatest to respond to either text entry changing
+        Observable
+            .Merge(
+                BrokerAccountEntry.Events().TextChanged.Select(_ => Unit.Default),
+                BankAccountEntry.Events().TextChanged.Select(_ => Unit.Default)
+            )            
             .Where(_ => SelectedBroker.IsVisible || SelectedBank.IsVisible)
             .Select(_ => (SelectedBroker.Broker, SelectedBank.Bank, BrokerAccountEntry.Text, BankAccountEntry.Text))
+            .LogWhileDebug("Checking activation of save button")
             .ObserveOn(UiThread)
             .Select(CheckActiveButton)
             .BindTo(ButtonSaveOrDiscard, x => x.IsButtonSaveEnabled)
