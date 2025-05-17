@@ -42,12 +42,19 @@
                 VerticalOptions="Center"
                 HorizontalOptions="Center">
                 <controls:ButtonAdd
-                    x:Name="AddMovementButton"
+                    x:Name="Add"
                     ScaleButton="0.48"
                     HorizontalOptions="Start" />
                 <Label
                     Style="{StaticResource SelectableItem}"
-                    Text="{local:Translate Account_Card_Add_Movement}" />
+                    Text="{local:Translate Account_Card_Add_Movement}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer x:Name="AddMovementTextGesture" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <HorizontalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer x:Name="AddMovementContainerGesture" />
+                </HorizontalStackLayout.GestureRecognizers>
             </HorizontalStackLayout>
         </Grid>
         <Border.StrokeShape>

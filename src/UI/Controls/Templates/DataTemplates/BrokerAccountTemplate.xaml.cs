@@ -15,7 +15,11 @@ public partial class BrokerAccountTemplate
 
     protected override void StartLoad()
     {
-        AddMovementButton.Events().AddClicked
+        Observable
+            .Merge(
+                Add.Events().AddClicked.Select(_ => Unit.Default),
+                AddMovementContainerGesture.Events().Tapped.Select(_ => Unit.Default),
+                AddMovementTextGesture.Events().Tapped.Select(_ => Unit.Default))
             .Where(_ => _brokerAccount != null)
             .Select(async _ =>
             {
@@ -60,7 +64,7 @@ public partial class BrokerAccountTemplate
             ? LayoutOptions.Start 
             : LayoutOptions.Center;
 
-        AddMovementButton.Scale = _account!.HasMovements ? 0.6 : 1;
+        Add.Scale = _account!.HasMovements ? 0.6 : 1;
         AddMovementContainer.Spacing = _account!.HasMovements ? 0 : 12;
     }
 }
