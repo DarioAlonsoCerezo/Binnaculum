@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using DynamicData.Aggregation;
 using System.Reactive.Subjects;
 
 namespace Binnaculum.Pages;
@@ -80,11 +81,11 @@ public partial class OverviewPage
 
         //Here we initialize the database
         data.Where(x => !x.IsDatabaseInitialized)
-            .Subscribe(_ => Task.Run(Core.UI.Overview.InitDatabase)).DisposeWith(Disposables);
+            .Subscribe(_ => InitDatabase()).DisposeWith(Disposables);
 
         //Here we load the data from the database
         data.Where(x => !x.TransactionsLoaded && x.IsDatabaseInitialized)
-            .Subscribe(_ => Task.Run(Core.UI.Overview.LoadData)).DisposeWith(Disposables);
+            .Subscribe(_ => LoadData()).DisposeWith(Disposables);
         
         AccountsCarousel.Events().CurrentItemChanged
             .Select(x => x.CurrentItem)
@@ -229,5 +230,59 @@ public partial class OverviewPage
 
             return x.BrokerMovement.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
         };
+    }
+
+    private void InitDatabase()
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Core.UI.Overview.InitDatabase();
+            }
+            catch (AggregateException agEx)
+            {
+                // F# async exceptions are often wrapped in AggregateException
+                var innerException = agEx.InnerException ?? agEx;
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await DisplayAlert("Error", innerException.Message, "Ok");
+                });
+            }
+            catch (Exception ex)
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await DisplayAlert("Error", ex.Message, "Ok");
+                });
+            }
+        });
+    }
+
+    private void LoadData()
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Core.UI.Overview.LoadData();
+            }
+            catch (AggregateException agEx)
+            {
+                // F# async exceptions are often wrapped in AggregateException
+                var innerException = agEx.InnerException ?? agEx;
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await DisplayAlert("Error", innerException.Message, "Ok");
+                });
+            }
+            catch (Exception ex)
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await DisplayAlert("Error", ex.Message, "Ok");
+                });
+            }
+        });
     }
 }
