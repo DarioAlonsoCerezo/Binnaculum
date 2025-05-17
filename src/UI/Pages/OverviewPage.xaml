@@ -105,6 +105,18 @@
                                     SnapPointsType="Mandatory"
                                     SnapPointsAlignment="Start" />
                             </CollectionView.ItemsLayout>
+                            <CollectionView.EmptyView>
+                                <Grid
+                                    VerticalOptions="Start"
+                                    HeightRequest="90">
+                                    <Label
+                                        Padding="24,0"
+                                        Text="{local:Translate Overview_No_Movements}"
+                                        VerticalTextAlignment="Center"
+                                        HorizontalTextAlignment="Center" />
+                                    <Line Style="{StaticResource LineSettingsGroup}" />
+                                </Grid>
+                            </CollectionView.EmptyView>
                         </CollectionView>
                     </Grid>
 
