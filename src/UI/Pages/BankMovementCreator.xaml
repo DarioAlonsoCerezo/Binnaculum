@@ -78,6 +78,7 @@
             <controls:ButtonSave
                 x:Name="Save"
                 Margin="24,48,24,16"
+                IsEnabled="False"
                 VerticalOptions="End" />
         </Grid>
     </ScrollView>

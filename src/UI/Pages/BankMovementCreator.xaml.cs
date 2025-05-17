@@ -1,6 +1,5 @@
 using Binnaculum.Core;
 using Binnaculum.Core.Utilities;
-using Binnaculum.Popups;
 
 namespace Binnaculum.Pages;
 
@@ -29,15 +28,12 @@ public partial class BankMovementCreator
             .Select(_ => (string)LocalizationResourceManager.Instance[ResourceKeys.FilePicker_Select_Image])
             .SelectMany(async title => await FilePickerService.pickImageAsync(title))
             .Where(x => x.Success)
-            .Select(x =>
-            {
-                SaveBankIcon(x.FilePath);
-                return x.FilePath;
-            })
+            .Select(x => x.FilePath)
+            .CatchCoreError(filePath => Core.UI.Creator.SaveBankIconChange(filePath, _account.Bank.Id))
             .ObserveOn(UiThread)
-            .Subscribe(x =>
+            .Subscribe(filePath =>
             {
-                Icon.ImagePath = x;
+                Icon.ImagePath = filePath;
             }).DisposeWith(Disposables);
 
         BalanceRadioButton.Events().CheckedChanged
@@ -74,38 +70,5 @@ public partial class BankMovementCreator
         Balance,
         Interest,
         Fees
-    }
-
-    private Task SaveBankIcon(string filePath)
-    {
-        return Task.Run(async () =>
-        {
-            try
-            {
-                await Core.UI.Creator.SaveBankIconChange(filePath, _account.Bank.Id);
-            }
-            catch (AggregateException agEx)
-            {
-                // F# async exceptions are often wrapped in AggregateException
-                var innerException = agEx.InnerException ?? agEx;
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await DisplayAlert("Error", innerException.Message, "Ok");
-                });
-            }
-            catch (Exception ex)
-            {
-                // Regular exception handling
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    var errorMessage = LocalizationResourceManager.Instance["Error_Changing_Icon"];
-                    var popup = new MarkdownMessagePopup
-                    {
-                        Text = $"{errorMessage}\n\n```\n{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}\n```"
-                    };
-                    popup.Show();
-                });
-            }
-        });
     }
 }

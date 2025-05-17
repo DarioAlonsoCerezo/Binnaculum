@@ -74,3 +74,7 @@ module Creator =
         | None ->        
             return()
     }
+
+    let SaveBankMovement(movement: Binnaculum.Core.Models.BankAccountMovement) = task {
+        return()
+    }
