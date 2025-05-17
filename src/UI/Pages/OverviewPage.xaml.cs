@@ -204,16 +204,30 @@ public partial class OverviewPage
 
             if (shouldDispose)
                 _animateHistoryMarginDisposable?.Dispose();
-        });   
+        });
 
     private Func<Models.Movement, bool> BuildFilterPredicate(Models.Account? selected)
     {
         if (selected == null)
-            return _ =>  true;
+            return _ => true;
 
         if (selected.Type.IsBankAccount)
-            return x =>  x.BankAccountMovement.Value.BankAccount.Id.Equals(selected.Bank.Value.Id);
-    
-        return x => x.BrokerMovement.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+        {
+            return x =>
+            {
+                if (x.Type.IsBankAccountMovement)
+                    return x.BankAccountMovement.Value.BankAccount.Id.Equals(selected.Bank.Value.Id);
+
+                return false;
+            };
+        }
+
+        return x =>
+        {
+            if (x.Type.IsBankAccountMovement)
+                return false;
+
+            return x.BrokerMovement.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+        };
     }
 }

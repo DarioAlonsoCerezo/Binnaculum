@@ -52,7 +52,7 @@
 
                 <controls:ItemSelectorControl
                     x:Name="MovementTypeControl"
-                    Title="{local:Translate BrokerMovementCreator_Type}" />
+                    Title="{local:Translate MovementCreator_Type}" />
 
                 <controls:BrokerMovementDepositControl
                     x:Name="Deposit"

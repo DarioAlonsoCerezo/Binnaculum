@@ -732,7 +732,7 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="ItemSelector_Change_Selection" xml:space="preserve">
     <value>Change selection:</value>
   </data>
-  <data name="BrokerMovementCreator_Type" xml:space="preserve">
+  <data name="MovementCreator_Type" xml:space="preserve">
     <value>Movement type</value>
   </data>
   <data name="MovementType_Deposit" xml:space="preserve">
@@ -804,7 +804,7 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="Placeholder_Fees" xml:space="preserve">
     <value>Fees</value>
   </data>
-  <data name="BrokerMovementDepositControl_Title" xml:space="preserve">
+  <data name="MovementDepositControl_Title" xml:space="preserve">
     <value>How much &amp; when</value>
   </data>
   <data name="Yesterday" xml:space="preserve">
@@ -812,5 +812,14 @@ Please note that custom brokers you create will be marked as "not configured for
   </data>
   <data name="Today" xml:space="preserve">
     <value>Today</value>
+  </data>
+  <data name="BankMovementType_Balance" xml:space="preserve">
+    <value>Balance</value>
+  </data>
+  <data name="BankMovementType_Interest" xml:space="preserve">
+    <value>Interests</value>
+  </data>
+  <data name="BankMovementType_Fees" xml:space="preserve">
+    <value>Fees</value>
   </data>
 </root>

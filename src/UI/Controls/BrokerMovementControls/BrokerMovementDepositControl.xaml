@@ -7,7 +7,7 @@
     xmlns:controls="clr-namespace:Binnaculum.Controls">
     <VerticalStackLayout Spacing="16">
         <Label
-            Text="{local:Translate BrokerMovementDepositControl_Title}"
+            Text="{local:Translate MovementDepositControl_Title}"
             Style="{StaticResource LabelSettingsTitle}" />
 
         <Border
@@ -18,7 +18,7 @@
             <VerticalStackLayout Spacing="12">
                 <controls:BorderedEntry
                     x:Name="AmountEntry"
-                    IsCurrencyVisible="True"
+                    IsMoneyEntry="True"
                     Placeholder="{local:Translate Placeholder_Amount}" />
                 <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
 

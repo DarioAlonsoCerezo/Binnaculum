@@ -8,9 +8,52 @@ public partial class BrokerMovementDepositControl
 
     public DepositControl DepositData => _deposit;
 
+    public static readonly BindableProperty HideFeesAndCommissionsProperty =
+        BindableProperty.Create(
+            nameof(HideFeesAndCommissions), 
+            typeof(bool), 
+            typeof(BrokerMovementDepositControl), 
+            false,
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                if (bindable is BrokerMovementDepositControl control && newValue is bool hideFeesAndCommissions)
+                {
+                    control.FeesAndCommissions.IsVisible = !hideFeesAndCommissions;
+                }
+            });
+
+    public bool HideFeesAndCommissions
+    {
+        get => (bool)GetValue(HideFeesAndCommissionsProperty);
+        set => SetValue(HideFeesAndCommissionsProperty, value);
+    }
+
+    public static readonly BindableProperty ShowCurrencyProperty =
+        BindableProperty.Create(
+            nameof(ShowCurrency),
+            typeof(bool),
+            typeof(BrokerMovementDepositControl),
+            true, // Default to visible
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                if (bindable is BrokerMovementDepositControl control && newValue is bool showCurrency)
+                {
+                    control.AmountEntry.IsCurrencyVisible = showCurrency;
+                }
+            });
+
+    public bool ShowCurrency
+    {
+        get => (bool)GetValue(ShowCurrencyProperty);
+        set => SetValue(ShowCurrencyProperty, value);
+    }
+
 	public BrokerMovementDepositControl()
 	{
 		InitializeComponent();
+
+        // Set default currency visibility (true by default from the bindable property)
+        AmountEntry.IsCurrencyVisible = ShowCurrency;
 
         _deposit = new DepositControl(
             TimeStamp: DateTime.Now,

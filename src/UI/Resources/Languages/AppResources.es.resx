@@ -733,7 +733,7 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="ItemSelector_Change_Selection" xml:space="preserve">
     <value>Cambiar selección:</value>
   </data>
-  <data name="BrokerMovementCreator_Type" xml:space="preserve">
+  <data name="MovementCreator_Type" xml:space="preserve">
     <value>Tipo de movimiento</value>
   </data>
   <data name="MovementType_Deposit" xml:space="preserve">
@@ -805,7 +805,7 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="Placeholder_Fees" xml:space="preserve">
     <value>Tasas</value>
   </data>
-  <data name="BrokerMovementDepositControl_Title" xml:space="preserve">
+  <data name="MovementDepositControl_Title" xml:space="preserve">
     <value>Cuánto y cuándo</value>
   </data>
   <data name="Yesterday" xml:space="preserve">
@@ -813,5 +813,14 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   </data>
   <data name="Today" xml:space="preserve">
     <value>Hoy</value>
+  </data>
+  <data name="BankMovementType_Balance" xml:space="preserve">
+    <value>Saldo</value>
+  </data>
+  <data name="BankMovementType_Interest" xml:space="preserve">
+    <value>Intereses</value>
+  </data>
+  <data name="BankMovementType_Fees" xml:space="preserve">
+    <value>Comisiones</value>
   </data>
 </root>

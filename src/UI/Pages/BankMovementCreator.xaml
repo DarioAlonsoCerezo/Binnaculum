@@ -13,9 +13,9 @@
             <VerticalStackLayout
                 Padding="24,48,24,16"
                 Spacing="16">
-                <controls:IconControl
+                <controls:EditableIconControl
                     x:Name="Icon"
-                    Scale="2"
+                    Scale="1.2"
                     HorizontalOptions="Center"
                     VerticalOptions="Center" />
                 <Label
@@ -23,44 +23,45 @@
                     Padding="0,20,0,0"
                     Style="{StaticResource CenteredSubHeadline}" />
 
-                <!--<Label
-                    Text="{local:Translate BrokerMovementCreator_How_To_Title}"
-                    Style="{StaticResource LabelSettingsTitle}" />-->
+                <Label
+                    Text="{local:Translate MovementCreator_Type}"
+                    Style="{StaticResource LabelSettingsTitle}" />
 
-                <!--<Border Style="{StaticResource Settings}">
+                <Border Style="{StaticResource Settings}">
                     <Grid
-                        ColumnDefinitions="1*,1*"
+                        ColumnDefinitions="1*,1*,1*"
                         Style="{StaticResource GridSettingsGroup}">
                         <controls:CustomRadioButton
-                            x:Name="ManualRadioButton"
+                            x:Name="BalanceRadioButton"
                             HorizontalOptions="Start" />
                         <Label
-                            Text="{local:Translate BrokerMovementCreator_How_To_Manual}"
+                            Text="{local:Translate BankMovementType_Balance}"
                             Style="{StaticResource LabelSettingsGroup}" />
                         <controls:CustomRadioButton
-                            x:Name="FromFileRadioButton"
+                            x:Name="InterestRadioButton"
                             Grid.Column="1"
-                            IsEnabled="False"
                             HorizontalOptions="Start" />
                         <Label
                             Grid.Column="1"
-                            IsEnabled="False"
-                            Text="{local:Translate BrokerMovementCreator_How_To_File}"
+                            Text="{local:Translate BankMovementType_Interest}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <controls:CustomRadioButton
+                            x:Name="FeesRadioButton"
+                            Grid.Column="2"
+                            HorizontalOptions="Start" />
+                        <Label
+                            Grid.Column="2"
+                            Text="{local:Translate BankMovementType_Fees}"
                             Style="{StaticResource LabelSettingsGroup}" />
                     </Grid>
-                </Border>-->
+                </Border>
 
-                <!--<controls:ItemSelectorControl
-                    x:Name="MovementTypeControl"
-                    Title="{local:Translate BrokerMovementCreator_Type}" />-->
-
-                <!--<controls:BrokerMovementDepositControl
+                <controls:BrokerMovementDepositControl
                     x:Name="Deposit"
-                    IsVisible="False" />-->
+                    HideFeesAndCommissions="True"
+                    ShowCurrency="False" />
 
-                <!--<controls:ButtonSave
-                    x:Name="Save"
-                    IsVisible="False" />-->
+
 
             </VerticalStackLayout>
             <controls:TintedImage
@@ -73,6 +74,11 @@
                     <TapGestureRecognizer x:Name="CloseGesture" />
                 </controls:TintedImage.GestureRecognizers>
             </controls:TintedImage>
+
+            <controls:ButtonSave
+                x:Name="Save"
+                Margin="24,48,24,16"
+                VerticalOptions="End" />
         </Grid>
     </ScrollView>
 </pages:BasePage>
