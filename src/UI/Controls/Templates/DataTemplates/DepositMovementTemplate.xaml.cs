@@ -30,11 +30,28 @@ public partial class DepositMovementTemplate
             
             if(movement.BankAccountMovement != null)
             {
-                Icon.ImagePath = movement.BankAccountMovement.Value.BankAccount.Bank.Image.Value;
-                Amount.Amount = movement.BankAccountMovement.Value.Amount;
-                Amount.Money = movement.BankAccountMovement.Value.Currency;
-                TimeStamp.DateTime = movement.BankAccountMovement.Value.TimeStamp;
+                FillBankAccountMovement(movement.BankAccountMovement.Value);
+                return;
             }
         }
+    }
+
+    private void FillBankAccountMovement(Models.BankAccountMovement movement)
+    {
+        Icon.ImagePath = movement.BankAccount.Bank.Image.Value;
+        Amount.Amount = movement.Amount;
+        Amount.Money = movement.Currency;
+        TimeStamp.DateTime = movement.TimeStamp;
+        Title.Text = GetTitleFromBankAccountMovementType(movement.MovementType);
+    }
+
+    private string GetTitleFromBankAccountMovementType(Models.BankAccountMovementType movementType)
+    {
+        if (movementType.IsBalance)
+            return "Balance";
+        if (movementType.IsInterest)
+            return "Interest";
+
+        return "Fee";
     }
 }
