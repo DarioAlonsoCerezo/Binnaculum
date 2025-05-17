@@ -110,3 +110,44 @@ module internal ModelParser =
             BankAccountMovement = None
             TickerSplit = None
         }
+
+    let fromBankMovementTypeToDatabase(movementType: BankAccountMovementType) =
+        match movementType with
+        | BankAccountMovementType.Balance -> Database.DatabaseModel.BankAccountMovementType.Balance
+        | BankAccountMovementType.Interest -> Database.DatabaseModel.BankAccountMovementType.Interest
+        | BankAccountMovementType.Fee -> Database.DatabaseModel.BankAccountMovementType.Fee
+
+    let fromDatabaseToBankMovementType(moventType: Database.DatabaseModel.BankAccountMovementType) =
+        match moventType with
+        | Database.DatabaseModel.BankAccountMovementType.Balance -> BankAccountMovementType.Balance
+        | Database.DatabaseModel.BankAccountMovementType.Interest -> BankAccountMovementType.Interest
+        | Database.DatabaseModel.BankAccountMovementType.Fee -> BankAccountMovementType.Fee
+
+    let fromBankMovementToMovement(bankAccountMovement: Database.DatabaseModel.BankAccountMovement) =
+        let currency = Collections.Currencies.Items |> Seq.find(fun c -> c.Id = bankAccountMovement.CurrencyId)
+        let account = 
+            Collections.Accounts.Items 
+            |> Seq.filter(fun a -> a.Bank.IsSome ) 
+            |> Seq.find(fun c -> c.Bank.Value.Id = bankAccountMovement.BankAccountId)
+        let bankAccount = account.Bank.Value
+        
+        let bankMovement =
+            {
+                Id = bankAccountMovement.Id
+                TimeStamp = bankAccountMovement.TimeStamp.Value
+                Amount = bankAccountMovement.Amount.Value
+                Currency = currency
+                BankAccount = bankAccount
+                MovementType = fromDatabaseToBankMovementType bankAccountMovement.MovementType
+            }
+        {
+            Type = AccountMovementType.BankAccountMovement
+            Trade = None
+            Dividend = None
+            DividendTax = None
+            DividendDate = None
+            OptionTrade = None
+            BrokerMovement = None
+            BankAccountMovement = Some bankMovement
+            TickerSplit = None
+        }

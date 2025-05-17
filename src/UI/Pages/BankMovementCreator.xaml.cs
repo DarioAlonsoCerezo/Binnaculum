@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using Binnaculum.Core.UI;
 using Binnaculum.Core.Utilities;
 
 namespace Binnaculum.Pages;
@@ -62,6 +63,35 @@ public partial class BankMovementCreator
             .ObserveOn(UiThread)
             .BindTo(Save, x => x.IsEnabled)
             .DisposeWith(Disposables);
+
+        Save.Events().SaveClicked
+            .Select(_ =>
+            {
+                var currency = Collections.GetCurrency(Deposit.DepositData.Currency);
+
+                return new Models.BankAccountMovement(
+                    0, 
+                    Deposit.DepositData.TimeStamp,
+                    Deposit.DepositData.Amount,
+                    _account,
+                    currency!,
+                    GetMovementType());
+            })
+            .CatchCoreError(Creator.SaveBankMovement)
+            .Select(async _ => await Navigation.PopModalAsync())
+            .Subscribe()
+            .DisposeWith(Disposables);
+    }
+
+    private Models.BankAccountMovementType GetMovementType()
+    {
+        if(BalanceRadioButton.IsChecked == true)
+            return Models.BankAccountMovementType.Balance;
+
+        if(InterestRadioButton.IsChecked == true)
+            return Models.BankAccountMovementType.Interest;
+
+        return Models.BankAccountMovementType.Fee;
     }
 
     private void SetupSelection(MovementType selection)

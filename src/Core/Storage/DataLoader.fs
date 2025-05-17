@@ -136,31 +136,6 @@ module internal DataLoader =
         return()
     }
 
-    let private getAccountMovements(account: Account) = task {
-        match account.Broker with 
-        | Some a -> 
-            let! movements = BrokerMovementExtensions.Do.getAll()
-            return 
-                movements 
-                |> List.filter(fun m -> m.BrokerAccountId = a.Id)
-            
-        | None -> 
-        return[]
-    }
-
-    let private getEmptyMovement() = 
-        { 
-            Type = AccountMovementType.EmptyMovement
-            Trade = None
-            Dividend = None
-            DividendTax = None
-            DividendDate = None
-            OptionTrade = None
-            BrokerMovement = None
-            BankAccountMovement = None
-            TickerSplit = None
-        }
-
     let getOrRefreshAllAccounts() = task {
         let! brokerAccounts = getOrRefreshAllBrokerAccounts() |> Async.AwaitTask
         let! bankAccounts = getOrRefreshAllBankAccounts() |> Async.AwaitTask
@@ -186,19 +161,11 @@ module internal DataLoader =
 
     let loadMovementsFor(account: Account option) = task {
         let! databaseBrokerMovements = BrokerMovementExtensions.Do.getAll()
+        let! databaseBankMovements = BankAccountBalanceExtensions.Do.getAll()
         let brokerMovements = databaseBrokerMovements |> List.map(fun m -> fromBrokerMovementToMovement m)
+        let bankMovements = databaseBankMovements |> List.map(fun m -> fromBankMovementToMovement m)
         
-        Collections.Movements.EditDiff brokerMovements 
-        //// Clear the movements collection before loading new data
-        //Collections.Movements.Clear()
-        //// Check if the account is None, and if so, return early
-        //if account.IsNone then
-        //    Collections.Movements.EditDiff [getEmptyMovement()]
-        //else 
-        //    // Load movements for the specified account
-        //    let! movements = getAccountMovements account.Value |> Async.AwaitTask
-        //    if movements.IsEmpty then
-        //        Collections.Movements.EditDiff [getEmptyMovement()]
-        //    //else
-        //    //    Collections.Movements.EditDiff movements        
+        let movements = brokerMovements @ bankMovements
+        
+        Collections.Movements.EditDiff movements
     }

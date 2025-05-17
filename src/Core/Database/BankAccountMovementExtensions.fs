@@ -16,7 +16,7 @@ type Do() =
     static member fill(bankAccountBalance: BankAccountMovement, command: SqliteCommand) =
         command.fillEntityAuditable<BankAccountMovement>(
             [
-                (SQLParameterName.TimeStamp, bankAccountBalance.TimeStamp);
+                (SQLParameterName.TimeStamp, bankAccountBalance.TimeStamp.ToString());
                 (SQLParameterName.Amount, bankAccountBalance.Amount.Value);
                 (SQLParameterName.BankAccountId, bankAccountBalance.BankAccountId);
                 (SQLParameterName.CurrencyId, bankAccountBalance.CurrencyId);
