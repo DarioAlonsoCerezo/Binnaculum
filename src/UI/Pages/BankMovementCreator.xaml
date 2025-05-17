@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<pages:BasePage
+    x:Class="Binnaculum.Pages.BankMovementCreator"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:pages="clr-namespace:Binnaculum.Pages"
+    NavigationPage.HasNavigationBar="False">
+    <ScrollView>
+        <Grid>
+            <VerticalStackLayout
+                Padding="24,48,24,16"
+                Spacing="16">
+                <controls:IconControl
+                    x:Name="Icon"
+                    Scale="2"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+                <Label
+                    x:Name="AccountName"
+                    Padding="0,20,0,0"
+                    Style="{StaticResource CenteredSubHeadline}" />
+
+                <!--<Label
+                    Text="{local:Translate BrokerMovementCreator_How_To_Title}"
+                    Style="{StaticResource LabelSettingsTitle}" />-->
+
+                <!--<Border Style="{StaticResource Settings}">
+                    <Grid
+                        ColumnDefinitions="1*,1*"
+                        Style="{StaticResource GridSettingsGroup}">
+                        <controls:CustomRadioButton
+                            x:Name="ManualRadioButton"
+                            HorizontalOptions="Start" />
+                        <Label
+                            Text="{local:Translate BrokerMovementCreator_How_To_Manual}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <controls:CustomRadioButton
+                            x:Name="FromFileRadioButton"
+                            Grid.Column="1"
+                            IsEnabled="False"
+                            HorizontalOptions="Start" />
+                        <Label
+                            Grid.Column="1"
+                            IsEnabled="False"
+                            Text="{local:Translate BrokerMovementCreator_How_To_File}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                    </Grid>
+                </Border>-->
+
+                <!--<controls:ItemSelectorControl
+                    x:Name="MovementTypeControl"
+                    Title="{local:Translate BrokerMovementCreator_Type}" />-->
+
+                <!--<controls:BrokerMovementDepositControl
+                    x:Name="Deposit"
+                    IsVisible="False" />-->
+
+                <!--<controls:ButtonSave
+                    x:Name="Save"
+                    IsVisible="False" />-->
+
+            </VerticalStackLayout>
+            <controls:TintedImage
+                Margin="0,20,12,0"
+                ImageSource="close.png"
+                HeightRequest="40"
+                VerticalOptions="Start"
+                HorizontalOptions="End">
+                <controls:TintedImage.GestureRecognizers>
+                    <TapGestureRecognizer x:Name="CloseGesture" />
+                </controls:TintedImage.GestureRecognizers>
+            </controls:TintedImage>
+        </Grid>
+    </ScrollView>
+</pages:BasePage>
