@@ -62,3 +62,14 @@ module Creator =
         do! movement.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask 
     }
+
+    let SaveBankIconChange(iconPath, bankId) = task {
+        let! bank = BankExtensions.Do.getById bankId |> Async.AwaitTask
+        match bank with
+        | Some b ->
+            let bank = { b with Image = Some iconPath }
+            do! bank.save() |> Async.AwaitTask |> Async.Ignore
+            do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
+        | None ->        
+            return()
+    }

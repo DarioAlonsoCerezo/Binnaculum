@@ -28,7 +28,14 @@ public partial class BankMovementCreator
             .Select(_ => (string)LocalizationResourceManager.Instance[ResourceKeys.FilePicker_Select_Image])
             .SelectMany(async title => await FilePickerService.pickImageAsync(title))
             .Where(x => x.Success)
-            .Select(x => x.FilePath)
+            .Select(x =>
+            {
+                Task.Run(() => 
+                {
+                    Core.UI.Creator.SaveBankIconChange(x.FilePath, _account.Bank.Id);
+                });
+                return x.FilePath;
+            })
             .ObserveOn(UiThread)
             .Subscribe(x =>
             {
