@@ -105,6 +105,37 @@ module internal DataLoader =
         return bankAccounts       
     }
 
+    let refreshBankAccount(bankId) = task {
+        let! databaseBank = BankExtensions.Do.getById bankId |> Async.AwaitTask
+        match databaseBank with
+        | None -> return()
+        | Some b ->
+            let bank = fromDatabaseBank b
+            let currentBank = Collections.Banks.Items |> Seq.find (fun b -> b.Id = bankId)
+            Collections.Banks.Replace(currentBank, bank)
+            
+        let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
+        
+        let accounts = 
+            databaseBankAccounts
+            |> List.filter (fun b -> b.BankId = bankId)
+            |> List.map (fun b -> fromDatabaseBankAccount b)
+            |> List.map (fun account -> 
+                { 
+                    Type = AccountType.BankAccount; 
+                    Broker = None; 
+                    Bank = Some account;
+                    HasMovements = Collections.Movements.Items
+                        |> Seq.filter (fun m -> m.BankAccountMovement.IsSome)
+                        |> Seq.exists (fun m -> m.BankAccountMovement.Value.BankAccount.Id = account.Id)
+                })
+        accounts
+        |> List.iter (fun account ->
+            let currentAccount = Collections.Accounts.Items |> Seq.find (fun a -> a.Bank.IsSome && a.Bank.Value.Id = account.Bank.Value.Id)
+            Collections.Accounts.Replace(currentAccount, account))
+        return()
+    }
+
     let private getAccountMovements(account: Account) = task {
         match account.Broker with 
         | Some a -> 

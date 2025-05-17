@@ -70,7 +70,7 @@ module Creator =
             let audit = { b.Audit with UpdatedAt = None }
             let bank = { b with Image = Some iconPath; Audit = audit }
             do! bank.save() |> Async.AwaitTask |> Async.Ignore
-            do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
+            do! DataLoader.refreshBankAccount(bankId) |> Async.AwaitTask |> Async.Ignore
         | None ->        
             return()
     }
