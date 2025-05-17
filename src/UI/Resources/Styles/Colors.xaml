@@ -29,7 +29,7 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
-    <Color x:Key="RedState">#FF0000</Color>
+    <Color x:Key="RedState">#BF0000</Color>
     <Color x:Key="GreenState">#008000</Color>
 
     <SolidColorBrush
