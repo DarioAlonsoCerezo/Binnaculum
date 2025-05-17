@@ -1,5 +1,6 @@
 using Binnaculum.Core;
 using Binnaculum.Core.Utilities;
+using Binnaculum.Popups;
 
 namespace Binnaculum.Pages;
 
@@ -30,10 +31,7 @@ public partial class BankMovementCreator
             .Where(x => x.Success)
             .Select(x =>
             {
-                Task.Run(() => 
-                {
-                    Core.UI.Creator.SaveBankIconChange(x.FilePath, _account.Bank.Id);
-                });
+                SaveBankIcon(x.FilePath);
                 return x.FilePath;
             })
             .ObserveOn(UiThread)
@@ -76,5 +74,38 @@ public partial class BankMovementCreator
         Balance,
         Interest,
         Fees
+    }
+
+    private Task SaveBankIcon(string filePath)
+    {
+        return Task.Run(async () =>
+        {
+            try
+            {
+                await Core.UI.Creator.SaveBankIconChange(filePath, _account.Bank.Id);
+            }
+            catch (AggregateException agEx)
+            {
+                // F# async exceptions are often wrapped in AggregateException
+                var innerException = agEx.InnerException ?? agEx;
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await DisplayAlert("Error", innerException.Message, "Ok");
+                });
+            }
+            catch (Exception ex)
+            {
+                // Regular exception handling
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    var errorMessage = LocalizationResourceManager.Instance["Error_Changing_Icon"];
+                    var popup = new MarkdownMessagePopup
+                    {
+                        Text = $"{errorMessage}\n\n```\n{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}\n```"
+                    };
+                    popup.Show();
+                });
+            }
+        });
     }
 }

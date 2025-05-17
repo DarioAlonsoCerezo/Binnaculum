@@ -67,7 +67,9 @@ module Creator =
         let! bank = BankExtensions.Do.getById bankId |> Async.AwaitTask
         match bank with
         | Some b ->
-            let bank = { b with Image = Some iconPath }
+            let updatedAt = DateTimePattern.FromDateTime DateTime.Now
+            let audit = { b.Audit with UpdatedAt = Some updatedAt }
+            let bank = { b with Image = Some iconPath; Audit = audit }
             do! bank.save() |> Async.AwaitTask |> Async.Ignore
             do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
         | None ->        
