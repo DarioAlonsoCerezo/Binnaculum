@@ -55,6 +55,7 @@ module internal BankQuery =
             {Name} = {SQLParameterName.Name},
             {Image} = {SQLParameterName.Image},
             {CreatedAt} = {SQLParameterName.CreatedAt},
+            {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
             {Id} = {SQLParameterName.Id}
         """
