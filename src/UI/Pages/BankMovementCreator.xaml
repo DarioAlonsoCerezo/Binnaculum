@@ -61,8 +61,6 @@
                     HideFeesAndCommissions="True"
                     ShowCurrency="False" />
 
-
-
             </VerticalStackLayout>
             <controls:TintedImage
                 Margin="0,20,12,0"

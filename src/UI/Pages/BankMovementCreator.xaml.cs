@@ -56,6 +56,12 @@ public partial class BankMovementCreator
             .Do(SetupSelection)
             .Subscribe()
             .DisposeWith(Disposables);
+
+        Deposit.Events().DepositChanged
+            .Select(x => x.Amount > 0)
+            .ObserveOn(UiThread)
+            .BindTo(Save, x => x.IsEnabled)
+            .DisposeWith(Disposables);
     }
 
     private void SetupSelection(MovementType selection)
