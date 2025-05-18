@@ -33,6 +33,7 @@ module internal ModelParser =
             Id = databaseBank.Id
             Name = databaseBank.Name
             Image = databaseBank.Image
+            CreatedAt = databaseBank.Audit.CreatedAt.Value.Value
         }
 
     let fromDatabaseBankAccount (databaseBankAccount: Database.DatabaseModel.BankAccount) =

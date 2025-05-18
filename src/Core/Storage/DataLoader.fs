@@ -6,6 +6,7 @@ open Binnaculum.Core.Models
 open DynamicData
 open Microsoft.Maui.Storage
 open System.IO
+open System
 
 /// <summary>
 /// This module serves as a critical layer for managing the transformation and synchronization of data
@@ -37,7 +38,7 @@ module internal DataLoader =
         Collections.Banks.EditDiff banks            
 
         //As we allow users create banks, we add this default bank to recognize it in the UI
-        Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; })
+        Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; CreatedAt = DateTime.Now; })
     }
 
     let getOrRefresAvailableImages() = task {

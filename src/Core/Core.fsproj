@@ -61,6 +61,9 @@
 		<Compile Include="Database\BankAccountMovementExtensions.fs" />
 		<Compile Include="Memory\Collections.fs" />
 		<Compile Include="Storage\ModelParser.fs" />
+		<Compile Include="Storage\DiscriminatedToDatabase.fs" />
+		<Compile Include="Storage\DiscriminatedToModel.fs" />
+		<Compile Include="Storage\ModelsToDatabase.fs" />
 		<Compile Include="Storage\DataLoader.fs" />
 		<Compile Include="Utilities\FilePickerService.fs" />
 		<Compile Include="UI\Overview.fs" />

@@ -20,6 +20,10 @@ module Creator =
         do! DataLoader.getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
     }
 
+    let CreateBank(bank: Binnaculum.Core.Models.Bank) = task {
+        return()
+    }
+
     let SaveBroker(name, icon) = task {
         let broker = { Id = 0; Name = name; Image = icon; SupportedBroker = SupportedBroker.Unknown }
         do! broker.save() |> Async.AwaitTask |> Async.Ignore

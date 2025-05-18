@@ -183,6 +183,7 @@ module Models =
         Id: int
         Name: string
         Image: string option
+        CreatedAt: DateTime
     }
 
     type BankAccount = {
