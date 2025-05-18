@@ -67,18 +67,6 @@ module Creator =
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask 
     }
 
-    //let SaveBankIconChange(iconPath, bankId) = task {
-    //    let! bank = BankExtensions.Do.getById bankId |> Async.AwaitTask
-    //    match bank with
-    //    | Some b ->
-    //        let audit = { b.Audit with UpdatedAt = None }
-    //        let bank = { b with Image = Some iconPath; Audit = audit }
-    //        do! bank.save() |> Async.AwaitTask |> Async.Ignore
-    //        do! DataLoader.refreshBankAccount(bankId) |> Async.AwaitTask |> Async.Ignore
-    //    | None ->        
-    //        return()
-    //}
-
     let SaveBankMovement(movement: Binnaculum.Core.Models.BankAccountMovement) = task {
         let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(movement.TimeStamp)); UpdatedAt = None }
         let timeStampPattern = DateTimePattern.FromDateTime(movement.TimeStamp)
