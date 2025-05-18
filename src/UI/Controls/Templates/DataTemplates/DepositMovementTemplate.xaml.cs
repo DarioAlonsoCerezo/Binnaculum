@@ -47,11 +47,12 @@ public partial class DepositMovementTemplate
 
     private string GetTitleFromBankAccountMovementType(Models.BankAccountMovementType movementType)
     {
+        var resourceKey = ResourceKeys.MovementType_Bank_Fees;
         if (movementType.IsBalance)
-            return "Balance";
+            resourceKey = ResourceKeys.MovementType_Bank_Balance;
         if (movementType.IsInterest)
-            return "Interest";
+            resourceKey = ResourceKeys.MovementType_Bank_Interest;
 
-        return "Fee";
+        return LocalizationResourceManager.Instance.GetString(resourceKey);
     }
 }

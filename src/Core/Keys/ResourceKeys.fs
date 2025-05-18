@@ -71,6 +71,15 @@ module ResourceKeys =
     let MovementType_OptionTrade = "MovementType_OptionTrade"
 
     [<Literal>]
+    let MovementType_Bank_Balance = "MovementType_Bank_Balance"
+
+    [<Literal>]
+    let MovementType_Bank_Fees = "MovementType_Bank_Fees"
+
+    [<Literal>]
+    let MovementType_Bank_Interest = "MovementType_Bank_Interest"
+
+    [<Literal>]
     let Yesterday = "Yesterday"
 
     [<Literal>]

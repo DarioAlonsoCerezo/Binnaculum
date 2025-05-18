@@ -823,4 +823,13 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="BankMovementType_Fees" xml:space="preserve">
     <value>Comisiones</value>
   </data>
+  <data name="MovementType_Bank_Balance" xml:space="preserve">
+    <value>Cambio en saldo</value>
+  </data>
+  <data name="MovementType_Bank_Interest" xml:space="preserve">
+    <value>Intereses</value>
+  </data>
+  <data name="MovementType_Bank_Fees" xml:space="preserve">
+    <value>Comisiones</value>
+  </data>
 </root>

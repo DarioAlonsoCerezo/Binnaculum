@@ -15,7 +15,6 @@
         <Label
             x:Name="Title"
             Padding="80,4,0,0"
-            Text="Deposit"
             HorizontalTextAlignment="Start"
             VerticalTextAlignment="Start"
             VerticalOptions="Start"
