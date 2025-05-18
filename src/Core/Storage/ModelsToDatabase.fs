@@ -4,6 +4,8 @@ open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
 open System
 open System.Runtime.CompilerServices
+open DiscriminatedToDatabase
+open PatternExtensions
 
 module internal ModelsToDatabase =
     
@@ -12,7 +14,7 @@ module internal ModelsToDatabase =
         
         [<Extension>]
         static member createBankToDatabase(bank: Binnaculum.Core.Models.Bank) =
-            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
+            let audit = { CreatedAt = Some(DateTime.Now.fromDateTime()); UpdatedAt = None }
             { 
                 Id = 0; 
                 Name = bank.Name; 
@@ -31,3 +33,51 @@ module internal ModelsToDatabase =
             | None ->
                 return failwithf "Bank with ID %d not found" bank.Id
         }
+
+        [<Extension>]
+        static member bankToDatabase(bank: Binnaculum.Core.Models.Bank) = task {
+            if bank.Id = 0 then
+                return bank.createBankToDatabase()
+            else
+                return! bank.updateBankToDatabase() |> Async.AwaitTask
+        }
+
+        [<Extension>]
+        static member createBankAccountToDatabase(bankAccount: Binnaculum.Core.Models.BankAccount) =
+            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
+            { 
+                Id = 0; 
+                BankId = bankAccount.Bank.Id; 
+                Name = bankAccount.Name; 
+                Description = bankAccount.Description; 
+                CurrencyId = bankAccount.Currency.Id; 
+                Audit = audit
+            }
+
+        [<Extension>]
+        static member updateBankAccountToDatabase(bankAccount: Binnaculum.Core.Models.BankAccount) = task {
+            let! currentBankAccount = BankAccountExtensions.Do.getById bankAccount.Id |> Async.AwaitTask
+            match currentBankAccount with
+            | Some current -> 
+                let audit = { current.Audit with UpdatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)) }
+                let updatedBankAccount = { current with Name = bankAccount.Name; Description = bankAccount.Description; Audit = audit }
+                return updatedBankAccount
+            | None -> 
+                return failwithf "BankAccount with ID %d not found" bankAccount.Id
+        }
+
+        [<Extension>]
+        static member createBankAccountMovementToDatabase(movement: Binnaculum.Core.Models.BankAccountMovement) =
+            let timeStamp = DateTimePattern.FromDateTime(movement.TimeStamp)
+            let movementType = movement.MovementType.bankMovementTypeToDatabase()
+            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
+            
+            { 
+                Id = 0; 
+                TimeStamp = DateTimePattern.FromDateTime(movement.TimeStamp); 
+                Amount = Money.FromAmount(movement.Amount);
+                BankAccountId = movement.BankAccount.Id;
+                CurrencyId = movement.Currency.Id;
+                MovementType = movementType;
+                Audit = audit;
+            }

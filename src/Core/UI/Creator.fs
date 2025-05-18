@@ -6,6 +6,7 @@ open BankAccountExtensions
 open BrokerExtensions
 open BrokerMovementExtensions
 open BankAccountBalanceExtensions
+open Binnaculum.Core.Storage.ModelsToDatabase
 open System
 open Binnaculum.Core.Patterns
 open Binnacle.Core.Storage
@@ -13,15 +14,13 @@ open Microsoft.FSharp.Core
 
 module Creator =
     
-    let SaveBank(name, icon: string option) = task {
-        let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
-        let bank = { Id = 0; Name = name; Image = icon; Audit = audit }
-        do! bank.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
-    }
-
-    let CreateBank(bank: Binnaculum.Core.Models.Bank) = task {
-        return()
+    let SaveBank(bank: Binnaculum.Core.Models.Bank) = task {
+        let! databaseBank = bank.bankToDatabase() |> Async.AwaitTask
+        do! databaseBank.save() |> Async.AwaitTask |> Async.Ignore
+        if bank.Id = 0 then
+            do! DataLoader.getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
+        else
+            do! DataLoader.refreshBankAccount(bank.Id) |> Async.AwaitTask |> Async.Ignore        
     }
 
     let SaveBroker(name, icon) = task {
@@ -68,17 +67,17 @@ module Creator =
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask 
     }
 
-    let SaveBankIconChange(iconPath, bankId) = task {
-        let! bank = BankExtensions.Do.getById bankId |> Async.AwaitTask
-        match bank with
-        | Some b ->
-            let audit = { b.Audit with UpdatedAt = None }
-            let bank = { b with Image = Some iconPath; Audit = audit }
-            do! bank.save() |> Async.AwaitTask |> Async.Ignore
-            do! DataLoader.refreshBankAccount(bankId) |> Async.AwaitTask |> Async.Ignore
-        | None ->        
-            return()
-    }
+    //let SaveBankIconChange(iconPath, bankId) = task {
+    //    let! bank = BankExtensions.Do.getById bankId |> Async.AwaitTask
+    //    match bank with
+    //    | Some b ->
+    //        let audit = { b.Audit with UpdatedAt = None }
+    //        let bank = { b with Image = Some iconPath; Audit = audit }
+    //        do! bank.save() |> Async.AwaitTask |> Async.Ignore
+    //        do! DataLoader.refreshBankAccount(bankId) |> Async.AwaitTask |> Async.Ignore
+    //    | None ->        
+    //        return()
+    //}
 
     let SaveBankMovement(movement: Binnaculum.Core.Models.BankAccountMovement) = task {
         let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(movement.TimeStamp)); UpdatedAt = None }

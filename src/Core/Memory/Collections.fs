@@ -69,4 +69,40 @@ module Collections =
     /// </summary>
     let AvailableImages = new SourceList<string>()
 
+    /// <summary>
+    /// This function is used to update the list of accounts in the UI.
+    /// It finds the current account in the list by its ID and replaces it with the updated account information.
+    /// </summary>
+    let internal updateBankAccount(updated: Account) =
+        let current = Accounts.Items |> Seq.find(fun b -> b.Bank.IsSome && b.Bank.Value.Id = updated.Bank.Value.Id)
+        Accounts.Replace(current, updated)
+
+    /// <summary>
+    /// This function is used to update the list of broker accounts in the UI.
+    /// It finds the current broker account in the list by its ID and replaces it with the updated broker account information.
+    /// </summary>
+    let internal updateBrokerAccount(updated: Account) =
+        let current = Accounts.Items |> Seq.find(fun b -> b.Broker.IsSome && b.Broker.Value.Id = updated.Broker.Value.Id)
+        Accounts.Replace(current, updated)
+
+    /// <summary>
+    /// This function is used to get a currency by its code.
+    /// It searches through the Currencies collection and returns the first currency that matches the provided code.
+    /// </summary>
     let GetCurrency code = Currencies.Items |> Seq.find(fun c -> c.Code = code)
+
+    /// <summary>
+    /// This function is used to update the list of brokers in the UI.
+    /// It finds the current broker in the list by its ID and replaces it with the updated broker information.
+    /// </summary>
+    let internal updateBroker(broker: Broker) =
+        let current = Brokers.Items |> Seq.find(fun b -> b.Id = broker.Id)
+        Brokers.Replace(current, broker)
+
+    /// <summary>
+    /// This function is used to update the list of banks in the UI.
+    /// It finds the current bank in the list by its ID and replaces it with the updated bank information.
+    /// </summary>
+    let internal updateBank(updated: Bank) =
+        let current = Banks.Items |> Seq.find(fun b -> b.Id = updated.Id)
+        Banks.Replace(current, updated)

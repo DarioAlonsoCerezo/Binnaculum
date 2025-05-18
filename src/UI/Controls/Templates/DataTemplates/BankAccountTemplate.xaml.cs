@@ -15,25 +15,7 @@ public partial class BankAccountTemplate
 
     protected override void StartLoad()
     {
-        Observable
-            .Merge(
-                Add.Events().AddClicked.Select(_ => Unit.Default),
-                AddMovementContainerGesture.Events().Tapped.Select(_ => Unit.Default),
-                AddMovementTextGesture.Events().Tapped.Select(_ => Unit.Default))
-            .Select(async _ =>
-            {
-                await Navigation.PushModalAsync(new BankMovementCreator(_bankAccount!));
-            })
-            .Subscribe()
-            .DisposeWith(Disposables);
-
-        BankAccountGesture.Events().Tapped
-            .Select(async _ =>
-            {
-                await Navigation.PushModalAsync(new BankAccountPage());
-            })
-            .Subscribe()
-            .DisposeWith(Disposables);
+        
     }
 
     protected override void OnBindingContextChanged()
@@ -42,6 +24,7 @@ public partial class BankAccountTemplate
 
         if (BindingContext is Core.Models.Account account)
         {
+            Disposables?.Clear();
             _account = account;
             _bankAccount = account.Bank.Value;
             _bank = account.Bank.Value?.Bank;
@@ -69,5 +52,25 @@ public partial class BankAccountTemplate
 
         Add.Scale = _account!.HasMovements ? 0.6 : 1;
         AddMovementContainer.Spacing = _account!.HasMovements ? 0 : 12;
+
+        Observable
+            .Merge(
+                Add.Events().AddClicked.Select(_ => Unit.Default),
+                AddMovementContainerGesture.Events().Tapped.Select(_ => Unit.Default),
+                AddMovementTextGesture.Events().Tapped.Select(_ => Unit.Default))
+            .Select(async _ =>
+            {
+                await Navigation.PushModalAsync(new BankMovementCreator(_bankAccount!));
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        BankAccountGesture.Events().Tapped
+            .Select(async _ =>
+            {
+                await Navigation.PushModalAsync(new BankAccountPage());
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 }

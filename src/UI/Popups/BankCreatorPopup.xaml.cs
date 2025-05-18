@@ -2,7 +2,7 @@
 using Binnaculum.Core;
 using Binnaculum.Core.UI;
 using Binnaculum.Core.Utilities;
-using System.Reactive;
+using Microsoft.FSharp.Core;
 
 namespace Binnaculum.Popups;
 
@@ -24,12 +24,12 @@ public partial class BankCreatorPopup
             .BindTo(SaveOrDiscard, x => x.IsButtonSaveEnabled)
             .DisposeWith(Disposables);
 
-        events.SaveClicked
-            .SelectMany(async _ =>
-            {
-                await Creator.SaveBank(BankNameEntry.Text, Icon.ImagePath);
-                return Unit.Default;
-            })
+        events.SaveClicked.
+            Select(_ => new Models.Bank(0, 
+                BankNameEntry.Text, 
+                new FSharpOption<string>(Icon.ImagePath),
+                DateTime.Now))
+            .CatchCoreError(Creator.SaveBank)
             .Subscribe(_ =>
             {
                 Close();

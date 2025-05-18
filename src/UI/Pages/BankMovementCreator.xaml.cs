@@ -1,6 +1,7 @@
 using Binnaculum.Core;
 using Binnaculum.Core.UI;
 using Binnaculum.Core.Utilities;
+using Microsoft.FSharp.Core;
 
 namespace Binnaculum.Pages;
 
@@ -30,12 +31,18 @@ public partial class BankMovementCreator
             .SelectMany(async title => await FilePickerService.pickImageAsync(title))
             .Where(x => x.Success)
             .Select(x => x.FilePath)
-            .CatchCoreError(filePath => Core.UI.Creator.SaveBankIconChange(filePath, _account.Bank.Id))
             .ObserveOn(UiThread)
-            .Subscribe(filePath =>
+            .Select(filePath =>
             {
                 Icon.ImagePath = filePath;
-            }).DisposeWith(Disposables);
+                return new Models.Bank(_account.Bank.Id,
+                    _account.Bank.Name,
+                    new FSharpOption<string>(filePath),
+                    _account.Bank.CreatedAt);
+            })
+            .CatchCoreError(Creator.SaveBank)
+            .Subscribe()
+            .DisposeWith(Disposables);
 
         BalanceRadioButton.Events().CheckedChanged
             .Where(x => x)
