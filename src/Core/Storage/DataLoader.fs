@@ -112,8 +112,7 @@ module internal DataLoader =
         | None -> return()
         | Some b ->
             let bank = fromDatabaseBank b
-            let currentBank = Collections.Banks.Items |> Seq.find (fun b -> b.Id = bankId)
-            Collections.Banks.Replace(currentBank, bank)
+            Collections.updateBank bank
             
         let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
         
@@ -131,9 +130,7 @@ module internal DataLoader =
                         |> Seq.exists (fun m -> m.BankAccountMovement.Value.BankAccount.Id = account.Id)
                 })
         accounts
-        |> List.iter (fun account ->
-            let currentAccount = Collections.Accounts.Items |> Seq.find (fun a -> a.Bank.IsSome && a.Bank.Value.Id = account.Bank.Value.Id)
-            Collections.Accounts.Replace(currentAccount, account))
+        |> List.iter (fun account -> Collections.updateBankAccount account)
         return()
     }
 
