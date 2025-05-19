@@ -42,7 +42,7 @@ public partial class DepositMovementTemplate
         Amount.Amount = movement.Amount;
         Amount.Money = movement.Currency;
         TimeStamp.DateTime = movement.TimeStamp;
-        Title.Text = GetTitleFromBankAccountMovementType(movement.MovementType);
+        Title.SetLocalizedText(GetTitleFromBankAccountMovementType(movement.MovementType));
     }
 
     private string GetTitleFromBankAccountMovementType(Models.BankAccountMovementType movementType)
@@ -53,6 +53,6 @@ public partial class DepositMovementTemplate
         if (movementType.IsInterest)
             resourceKey = ResourceKeys.MovementType_Bank_Interest;
 
-        return LocalizationResourceManager.Instance.GetString(resourceKey);
+        return resourceKey;
     }
 }

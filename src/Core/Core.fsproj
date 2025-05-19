@@ -65,6 +65,7 @@
 		<Compile Include="Storage\DiscriminatedToDatabase.fs" />
 		<Compile Include="Storage\DiscriminatedToModel.fs" />
 		<Compile Include="Storage\ModelsToDatabase.fs" />
+		<Compile Include="Storage\DatabaseToModels.fs" />
 		<Compile Include="Storage\DataLoader.fs" />
 		<Compile Include="Utilities\FilePickerService.fs" />
 		<Compile Include="UI\Overview.fs" />

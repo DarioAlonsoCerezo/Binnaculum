@@ -121,6 +121,29 @@ public static partial class LocalizationExtensions
     }
 
     /// <summary>
+    /// Sets a localized text on a Span using a type-safe resource key
+    /// </summary>
+    public static Span SetLocalizedText(this Span span, string resourceKey)
+    {
+        span.SetBinding(Span.TextProperty, new Binding
+        {
+            Source = LocalizationResourceManager.Instance,
+            Path = $"[{resourceKey}]",
+            Mode = BindingMode.OneWay
+        });
+        return span;
+    }
+
+    /// <summary>
+    /// Sets a localized text with format parameters on a Label
+    /// </summary>
+    public static Span SetLocalizedText(this Span span, string resourceKey, params object[] args)
+    {
+        span.Text = GetLocalizedString(resourceKey, args);
+        return span;
+    }
+
+    /// <summary>
     /// Gets the localized string for a specific resource key
     /// </summary>
     public static string GetLocalizedString(string resourceKey)

@@ -7,6 +7,7 @@ open DynamicData
 open Microsoft.Maui.Storage
 open System.IO
 open System
+open Binnaculum.Core.Storage.DatabaseToModels
 
 /// <summary>
 /// This module serves as a critical layer for managing the transformation and synchronization of data
@@ -17,8 +18,7 @@ module internal DataLoader =
     let private getAllCurrencies() = task {
         do! CurrencyExtensions.Do.insertDefaultValues() |> Async.AwaitTask 
         let! databaseCurrencies = CurrencyExtensions.Do.getAll() |> Async.AwaitTask
-        let currencies = databaseCurrencies |> List.map (fun c -> fromDatabaseCurrency c)
-        Collections.Currencies.EditDiff currencies
+        Collections.Currencies.EditDiff(databaseCurrencies.currenciesToModel())
     }
 
     let getOrRefreshAllBrokers() = task {
@@ -33,7 +33,7 @@ module internal DataLoader =
 
     let getOrRefreshBanks() = task {
         let! databaseBanks = BankExtensions.Do.getAll() |> Async.AwaitTask
-        let banks = databaseBanks |> List.map (fun b -> fromDatabaseBank b)
+        let banks = databaseBanks.banksToModel()
                 
         Collections.Banks.EditDiff banks            
 
@@ -91,8 +91,7 @@ module internal DataLoader =
     let private getOrRefreshAllBankAccounts() = task {
         let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
         let bankAccounts = 
-            databaseBankAccounts 
-            |> List.map (fun b -> fromDatabaseBankAccount b)
+            databaseBankAccounts.bankAccountsToModel() 
             |> List.map (fun account -> 
                 { 
                     Type = AccountType.BankAccount; 
@@ -110,16 +109,13 @@ module internal DataLoader =
         let! databaseBank = BankExtensions.Do.getById bankId |> Async.AwaitTask
         match databaseBank with
         | None -> return()
-        | Some b ->
-            let bank = fromDatabaseBank b
-            Collections.updateBank bank
+        | Some b -> Collections.updateBank(b.bankToModel())
             
         let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
         
         let accounts = 
-            databaseBankAccounts
-            |> List.filter (fun b -> b.BankId = bankId)
-            |> List.map (fun b -> fromDatabaseBankAccount b)
+            databaseBankAccounts.bankAccountsToModel() 
+            |> List.filter (fun b -> b.Bank.Id = bankId)
             |> List.map (fun account -> 
                 { 
                     Type = AccountType.BankAccount; 

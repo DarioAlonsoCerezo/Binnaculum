@@ -70,6 +70,13 @@ module Collections =
     let AvailableImages = new SourceList<string>()
 
     /// <summary>
+    /// This function is used to get a bank by its ID.
+    /// It searches through the Banks collection and returns the first bank that matches the provided ID.
+    /// </summary>
+    let internal getBank(id: int) =
+        Banks.Items |> Seq.find(fun b -> b.Id = id)
+
+    /// <summary>
     /// This function is used to update the list of accounts in the UI.
     /// It finds the current account in the list by its ID and replaces it with the updated account information.
     /// </summary>
@@ -84,6 +91,13 @@ module Collections =
     let internal updateBrokerAccount(updated: Account) =
         let current = Accounts.Items |> Seq.find(fun b -> b.Broker.IsSome && b.Broker.Value.Id = updated.Broker.Value.Id)
         Accounts.Replace(current, updated)
+
+    /// <summary>
+    /// This function is used to get a currency by its ID. 
+    /// </summary>
+    /// <param name="id"></param>
+    let internal getCurrency(id: int) =
+        Currencies.Items |> Seq.find(fun c -> c.Id = id)
 
     /// <summary>
     /// This function is used to get a currency by its code.

@@ -12,39 +12,12 @@ module internal ModelParser =
         | Database.DatabaseModel.SupportedBroker.SigmaTrade -> Keys.Broker_SigmaTrade
         | Database.DatabaseModel.SupportedBroker.Unknown -> Keys.Broker_Unknown
 
-    let fromDatabaseCurrency (databaseCurrency: Database.DatabaseModel.Currency) =
-        { 
-            Id = databaseCurrency.Id
-            Title = databaseCurrency.Name
-            Code = databaseCurrency.Code
-            Symbol = databaseCurrency.Symbol
-        }
-
     let fromDatabaseBroker (databaseBroker: Database.DatabaseModel.Broker) =
         { 
             Id = databaseBroker.Id
             Name = databaseBroker.Name
             Image = databaseBroker.Image
             SupportedBroker = fromDatabaseSupportedBroker databaseBroker.SupportedBroker
-        }
-
-    let fromDatabaseBank (databaseBank: Database.DatabaseModel.Bank) =
-        { 
-            Id = databaseBank.Id
-            Name = databaseBank.Name
-            Image = databaseBank.Image
-            CreatedAt = databaseBank.Audit.CreatedAt.Value.Value
-        }
-
-    let fromDatabaseBankAccount (databaseBankAccount: Database.DatabaseModel.BankAccount) =
-        let bank = Collections.Banks.Items |> Seq.find (fun b -> b.Id = databaseBankAccount.BankId)
-        let currency = Collections.Currencies.Items |> Seq.find (fun c -> c.Id = databaseBankAccount.CurrencyId)
-        { 
-            Id = databaseBankAccount.Id
-            Bank = bank
-            Name = databaseBankAccount.Name
-            Description = databaseBankAccount.Description
-            Currency = currency
         }
 
     let fromDatabaseBrokerAccount (databaseBrokerAccount: Database.DatabaseModel.BrokerAccount) =
