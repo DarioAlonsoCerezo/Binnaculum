@@ -1,5 +1,6 @@
 ﻿namespace Binnaculum.Extensions;
 
+using Binnaculum.Popups;
 using System;
 using System.Threading.Tasks;
 
@@ -33,10 +34,32 @@ public static class RxExtensions
             {
                 var innerException = agEx.InnerException ?? agEx;
                 System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {innerException.Message}]");
+
+#if DEBUG
+                // In DEBUG mode, always show the error
+                await ShowErrorPopup(innerException);
+#else
+                // In Release mode, only show if informUser is true
+                if (informUser)
+                {
+                    await ShowErrorPopup(innerException);
+                }
+#endif
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {ex.Message}]");
+
+#if DEBUG
+                // In DEBUG mode, always show the error
+                await ShowErrorPopup(ex);
+#else
+                // In Release mode, only show if informUser is true
+                if (informUser)
+                {
+                    await ShowErrorPopup(ex);
+                }
+#endif
             }
         });
         return source;
@@ -59,12 +82,73 @@ public static class RxExtensions
                 {
                     var innerException = agEx.InnerException ?? agEx;
                     System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {innerException.Message}]");
+
+#if DEBUG
+                    // In DEBUG mode, always show the error
+                    await ShowErrorPopup(innerException);
+#else
+                    // In Release mode, only show if informUser is true
+                    if (informUser)
+                    {
+                        await ShowErrorPopup(innerException);
+                    }
+#endif
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {ex.Message}]");
+
+#if DEBUG
+                    // In DEBUG mode, always show the error
+                    await ShowErrorPopup(ex);
+#else
+                    // In Release mode, only show if informUser is true
+                    if (informUser)
+                    {
+                        await ShowErrorPopup(ex);
+                    }
+#endif
                 }
             });
         });
+    }
+
+    /// <summary>
+    /// Shows an error popup with exception details.
+    /// </summary>
+    private static async Task ShowErrorPopup(Exception exception)
+    {
+        if (Microsoft.Maui.Controls.Application.Current != null && 
+            Microsoft.Maui.Controls.Application.Current.Windows.Count > 0)
+        {
+            await Microsoft.Maui.Controls.Application.Current.Dispatcher.DispatchAsync(async () =>
+            {
+                var errorMessage = FormatExceptionMessage(exception);
+                var popup = new MarkdownMessagePopup
+                {
+                    Text = errorMessage
+                };
+                
+                var mainWindow = Microsoft.Maui.Controls.Application.Current.Windows[0];
+                if (mainWindow.Page != null)
+                {
+                    await mainWindow.Page.ShowPopupAsync(popup);
+                }
+            });
+        }
+    }
+
+    /// <summary>
+    /// Formats an exception message for display in the markdown viewer.
+    /// </summary>
+    private static string FormatExceptionMessage(Exception exception)
+    {
+        string safeStackTrace = exception.StackTrace ?? "No stack trace available";
+        
+        return "# Error\n" +
+               "**Message:** " + exception.Message + "\n\n" +
+               "**Type:** " + exception.GetType().Name + "\n\n" +
+               "**Stack Trace:**\n" +
+               "```\n" + safeStackTrace + "\n```";
     }
 }
