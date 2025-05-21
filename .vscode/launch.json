@@ -4,32 +4,12 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
         {
-            "name": "Debug MAUI Android",
-            "type": "maui-android",
+            "name": ".NET MAUI",
+            "type": "maui",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/src/UI/Binnaculum.csproj"
-        },
-        {
-            "name": "Debug MAUI iOS",
-            "type": "maui-ios",
-            "request": "launch",
-            "projectPath": "${workspaceFolder}/src/UI/Binnaculum.csproj"
-        },
-        {
-            "name": "Debug MAUI Windows",
-            "type": "maui-windows",
-            "request": "launch",
-            "projectPath": "${workspaceFolder}/src/UI/Binnaculum.csproj"
-        },        {
-            "name": "Debug .NET Core",
-            "type": "coreclr",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/UI/bin/Debug/net9.0/Binnaculum.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/UI",
-            "stopAtEntry": false,
-            "console": "internalConsole"
+            "preLaunchTask": "maui: Build"
         }
     ]
 }
