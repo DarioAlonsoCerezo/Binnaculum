@@ -50,6 +50,12 @@
                         Orientation="Horizontal" />
                 </CarouselView.ItemsLayout>
             </CarouselView>
+            <ActivityIndicator
+                x:Name="CarouseIndicator"
+                Grid.Column="1"
+                IsRunning="True"
+                HorizontalOptions="Center"
+                VerticalOptions="Center" />
         </Grid>
 
         <Grid
@@ -118,6 +124,12 @@
                                 </Grid>
                             </CollectionView.EmptyView>
                         </CollectionView>
+                        <ActivityIndicator
+                            x:Name="CollectionIndicator"
+                            Grid.Row="1"
+                            IsRunning="True"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center" />
                     </Grid>
 
                 </Grid>
