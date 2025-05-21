@@ -86,7 +86,17 @@ public partial class OverviewPage
         //Here we load the data from the database
         data.Where(x => !x.TransactionsLoaded && x.IsDatabaseInitialized)
             .Subscribe(_ => LoadData()).DisposeWith(Disposables);
-        
+
+        data.Where(x => x.IsDatabaseInitialized)
+            .Throttle(TimeSpan.FromMilliseconds(300), UiThread)
+            .Subscribe(x => CarouseIndicator.IsVisible = false)
+            .DisposeWith(Disposables);
+
+        data.Where(x => x.TransactionsLoaded)
+            .Throttle(TimeSpan.FromMilliseconds(300), UiThread)
+            .Subscribe(x => CollectionIndicator.IsVisible = false)
+            .DisposeWith(Disposables);
+
         AccountsCarousel.Events().CurrentItemChanged
             .Select(x => x.CurrentItem)
             .Subscribe(x =>
