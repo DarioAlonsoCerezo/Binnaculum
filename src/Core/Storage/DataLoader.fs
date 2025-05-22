@@ -157,7 +157,7 @@ module internal DataLoader =
         let! databaseBrokerMovements = BrokerMovementExtensions.Do.getAll()
         let! databaseBankMovements = BankAccountBalanceExtensions.Do.getAll()
         let brokerMovements = databaseBrokerMovements |> List.map(fun m -> fromBrokerMovementToMovement m)
-        let bankMovements = databaseBankMovements |> List.map(fun m -> fromBankMovementToMovement m)
+        let bankMovements = databaseBankMovements.bankAccountMovementsToMovements()
         
         let movements = brokerMovements @ bankMovements
         

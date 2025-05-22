@@ -76,6 +76,11 @@ module Collections =
     let internal getBank(id: int) =
         Banks.Items |> Seq.find(fun b -> b.Id = id)
 
+    let internal getBankAccount(id: int) =
+        Accounts.Items 
+        |> Seq.find(fun b -> b.Bank.IsSome && b.Bank.Value.Id = id)
+        |> fun b -> b.Bank.Value
+
     /// <summary>
     /// This function is used to update the list of accounts in the UI.
     /// It finds the current account in the list by its ID and replaces it with the updated account information.

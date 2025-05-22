@@ -2,7 +2,7 @@
 
 open System.Runtime.CompilerServices
 open Binnaculum.Core.Models
-open Binnaculum.Core.UI.Collections
+open DiscriminatedToModel
 
 module internal DatabaseToModels =
 
@@ -61,3 +61,33 @@ module internal DatabaseToModels =
         [<Extension>]
         static member bankAccountsToModel(bankAccounts: Binnaculum.Core.Database.DatabaseModel.BankAccount list) =
             bankAccounts |> List.map (fun b -> b.bankAccountToModel())
+
+        [<Extension>]
+        static member bankAccountToMovement(movement: Binnaculum.Core.Database.DatabaseModel.BankAccountMovement) =
+            let bankMovement =
+                {
+                    Id = movement.Id
+                    TimeStamp = movement.TimeStamp.Value
+                    Amount = movement.Amount.Value
+                    Currency = Binnaculum.Core.UI.Collections.getCurrency(movement.CurrencyId)
+                    BankAccount = Binnaculum.Core.UI.Collections.getBankAccount(movement.BankAccountId)
+                    MovementType = movement.MovementType.bankMovementTypeToModel()
+                }
+
+            {
+                Type = AccountMovementType.BankAccountMovement
+                Trade = None
+                Dividend = None
+                DividendTax = None
+                DividendDate = None
+                OptionTrade = None
+                BrokerMovement = None
+                BankAccountMovement = Some bankMovement
+                TickerSplit = None
+            }
+
+        [<Extension>]
+        static member bankAccountMovementsToMovements(movements: Binnaculum.Core.Database.DatabaseModel.BankAccountMovement list) =
+            movements |> List.map (fun m -> m.bankAccountToMovement())
+
+        
