@@ -153,6 +153,24 @@ module internal DataLoader =
         do! getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
     }
 
+    let private updateBankAccount(account: Account, movements: Movement list) = 
+        let hasMovements = 
+            movements 
+            |> List.filter (fun m -> m.BankAccountMovement.IsSome && m.BankAccountMovement.Value.BankAccount.Id = account.Bank.Value.Id)
+            |> List.length > 0
+        if hasMovements <> account.HasMovements then
+            let updatedAccount = { account with HasMovements = hasMovements }
+            Collections.updateBankAccount updatedAccount
+
+    let private updateBrokerAccount(account: Account, movements: Movement list) = 
+        let hasMovements = 
+            movements 
+            |> List.filter (fun m -> m.BrokerMovement.IsSome && m.BrokerMovement.Value.BrokerAccount.Id = account.Broker.Value.Id)
+            |> List.length > 0
+        if hasMovements <> account.HasMovements then
+            let updatedAccount = { account with HasMovements = hasMovements }
+            Collections.updateBrokerAccount updatedAccount
+
     let loadMovementsFor(account: Account option) = task {
         let! databaseBrokerMovements = BrokerMovementExtensions.Do.getAll()
         let! databaseBankMovements = BankAccountBalanceExtensions.Do.getAll()
@@ -162,4 +180,16 @@ module internal DataLoader =
         let movements = brokerMovements @ bankMovements
         
         Collections.Movements.EditDiff movements
+
+        //Here we check if accounts have movements
+        Collections.Accounts.Items
+            |> Seq.iter (fun account ->
+                if account.Bank.IsSome then
+                    (account, movements) 
+                    |> updateBankAccount
+
+                if account.Broker.IsSome then
+                    (account, movements) 
+                    |> updateBrokerAccount
+                )
     }
