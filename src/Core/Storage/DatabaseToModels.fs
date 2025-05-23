@@ -90,4 +90,27 @@ module internal DatabaseToModels =
         static member bankAccountMovementsToMovements(movements: Binnaculum.Core.Database.DatabaseModel.BankAccountMovement list) =
             movements |> List.map (fun m -> m.bankAccountToMovement())
 
-        
+        [<Extension>]
+        static member brokerToModel(broker: Binnaculum.Core.Database.DatabaseModel.Broker) =
+            {
+                Id = broker.Id
+                Name = broker.Name
+                Image = broker.Image
+                SupportedBroker = broker.SupportedBroker.supportedBrokerToModel()
+            }
+
+        [<Extension>]
+        static member brokersToModel(brokers: Binnaculum.Core.Database.DatabaseModel.Broker list) =
+            brokers |> List.map (fun b -> b.brokerToModel())
+
+        [<Extension>]
+        static member brokerAccountToModel(brokerAccount: Binnaculum.Core.Database.DatabaseModel.BrokerAccount) =
+            {
+                Id = brokerAccount.Id
+                Broker = Binnaculum.Core.UI.Collections.getBroker(brokerAccount.BrokerId)
+                AccountNumber = brokerAccount.AccountNumber
+            }
+
+        [<Extension>]
+        static member brokerAccountsToModel(brokerAccounts: Binnaculum.Core.Database.DatabaseModel.BrokerAccount list) =
+            brokerAccounts |> List.map (fun b -> b.brokerAccountToModel())

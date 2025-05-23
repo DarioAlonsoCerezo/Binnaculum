@@ -70,12 +70,23 @@ module Collections =
     let AvailableImages = new SourceList<string>()
 
     /// <summary>
+    /// This function is used to get a broker by its ID.
+    /// It searches through the Brokers collection and returns the first broker that matches the provided ID.
+    /// </summary>
+    let internal getBroker(id: int) =
+        Brokers.Items |> Seq.find(fun b -> b.Id = id)
+
+    /// <summary>
     /// This function is used to get a bank by its ID.
     /// It searches through the Banks collection and returns the first bank that matches the provided ID.
     /// </summary>
     let internal getBank(id: int) =
         Banks.Items |> Seq.find(fun b -> b.Id = id)
 
+    /// <summary>
+    /// This function is used to get a bank by its ID.
+    /// It searches through the Banks collection and returns the first bank that matches the provided ID.
+    /// </summary>
     let internal getBankAccount(id: int) =
         Accounts.Items 
         |> Seq.find(fun b -> b.Bank.IsSome && b.Bank.Value.Id = id)

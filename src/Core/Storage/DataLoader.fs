@@ -24,7 +24,7 @@ module internal DataLoader =
     let getOrRefreshAllBrokers() = task {
         do! BrokerExtensions.Do.insertIfNotExists() |> Async.AwaitTask
         let! databaseBrokers = BrokerExtensions.Do.getAll() |> Async.AwaitTask
-        let brokers = databaseBrokers |> List.map (fun b -> fromDatabaseBroker b)
+        let brokers = databaseBrokers.brokersToModel()
         Collections.Brokers.EditDiff brokers
 
         //As we allow users create brokers, we add this default broker to recognize it in the UI
@@ -70,7 +70,7 @@ module internal DataLoader =
         let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
         let brokerAccounts = 
             databaseBrokerAccounts 
-            |> List.map (fun b -> fromDatabaseBrokerAccount b)
+            |> fun b -> b.brokerAccountsToModel()
             |> List.map (fun account -> 
                 async {
                     let! hasMovements = 
