@@ -7,6 +7,7 @@ open BrokerExtensions
 open BrokerMovementExtensions
 open BankAccountBalanceExtensions
 open Binnaculum.Core.Storage.ModelsToDatabase
+open Binnaculum.Core.Storage.DiscriminatedToDatabase
 open System
 open Binnaculum.Core.Patterns
 open Binnacle.Core.Storage
@@ -49,7 +50,7 @@ module Creator =
         let amountMoney = Money.FromAmount(uiDeposit.Amount)
         let commissionMoney = Money.FromAmount(uiDeposit.Commissions)
         let feeMoney = Money.FromAmount(uiDeposit.Fees)
-        let brokerMovementType = ModelParser.fromMovementTypeToBrokerMoveventType(Binnaculum.Core.Models.MovementType.Deposit)
+        let brokerMovementType = Binnaculum.Core.Models.MovementType.Deposit.brokerMoveventTypeToDatabase()
         let movement = 
             { 
                 Id = 0; 

@@ -5,19 +5,7 @@ open Binnaculum.Core.Models
 open Binnaculum.Core.UI
 
 module internal ModelParser =
-    let fromMovementTypeToBrokerMoveventType(movementType: MovementType) =
-        match movementType with
-        | MovementType.Deposit -> Database.DatabaseModel.BrokerMovementType.Deposit
-        | MovementType.Withdrawal -> Database.DatabaseModel.BrokerMovementType.Withdrawal
-        | MovementType.Fee -> Database.DatabaseModel.BrokerMovementType.Fee
-        | MovementType.InterestsGained -> Database.DatabaseModel.BrokerMovementType.InterestsGained
-        | MovementType.Lending -> Database.DatabaseModel.BrokerMovementType.Lending
-        | MovementType.ACATMoneyTransfer -> Database.DatabaseModel.BrokerMovementType.ACATMoneyTransfer
-        | MovementType.ACATSecuritiesTransfer -> Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransfer
-        | MovementType.InterestsPaid -> Database.DatabaseModel.BrokerMovementType.InterestsPaid
-        | MovementType.Conversion -> Database.DatabaseModel.BrokerMovementType.Conversion
-        | _ -> failwithf "MovementType %A is not a BrokerMovementType" movementType
-
+    
     let fromDatabaseMovementTypeToBrokerMovementType(movementType: Database.DatabaseModel.BrokerMovementType) =
         match movementType with
         | Database.DatabaseModel.BrokerMovementType.Deposit -> BrokerMovementType.Deposit
