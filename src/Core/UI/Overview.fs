@@ -2,7 +2,7 @@
 
 open System.Reactive.Subjects
 open Binnaculum.Core.Models
-open Binnacle.Core.Storage
+open Binnaculum.Core.Storage
 
 module Overview = 
 

@@ -10,7 +10,7 @@ open Binnaculum.Core.Storage.ModelsToDatabase
 open Binnaculum.Core.Storage.DiscriminatedToDatabase
 open System
 open Binnaculum.Core.Patterns
-open Binnacle.Core.Storage
+open Binnaculum.Core.Storage
 open Microsoft.FSharp.Core
 
 module Creator =
@@ -72,7 +72,7 @@ module Creator =
         let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(movement.TimeStamp)); UpdatedAt = None }
         let timeStampPattern = DateTimePattern.FromDateTime(movement.TimeStamp)
         let amountMoney = Money.FromAmount(movement.Amount)
-        let movementType = ModelParser.fromBankMovementTypeToDatabase(movement.MovementType)
+        let movementType = movement.MovementType.bankMovementTypeToDatabase()
         let bankMovement = 
             { 
                 Id = 0

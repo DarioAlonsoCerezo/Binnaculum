@@ -1,6 +1,5 @@
-﻿namespace Binnacle.Core.Storage
+﻿namespace Binnaculum.Core.Storage
 
-open ModelParser
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open DynamicData
@@ -174,7 +173,7 @@ module internal DataLoader =
     let loadMovementsFor(account: Account option) = task {
         let! databaseBrokerMovements = BrokerMovementExtensions.Do.getAll()
         let! databaseBankMovements = BankAccountBalanceExtensions.Do.getAll()
-        let brokerMovements = databaseBrokerMovements |> List.map(fun m -> fromBrokerMovementToMovement m)
+        let brokerMovements = databaseBrokerMovements.brokerMovementsToModel()
         let bankMovements = databaseBankMovements.bankAccountMovementsToMovements()
         
         let movements = brokerMovements @ bankMovements

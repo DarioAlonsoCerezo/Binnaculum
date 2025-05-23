@@ -114,3 +114,34 @@ module internal DatabaseToModels =
         [<Extension>]
         static member brokerAccountsToModel(brokerAccounts: Binnaculum.Core.Database.DatabaseModel.BrokerAccount list) =
             brokerAccounts |> List.map (fun b -> b.brokerAccountToModel())
+
+        [<Extension>]
+        static member brokerMovementToModel(movement: Binnaculum.Core.Database.DatabaseModel.BrokerMovement) =
+            let brokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(movement.BrokerAccountId)
+            let currency = Binnaculum.Core.UI.Collections.getCurrency(movement.CurrencyId)
+            let brokerMovement =
+                {
+                    Id = movement.Id
+                    TimeStamp = movement.TimeStamp.Value
+                    Amount = movement.Amount.Value
+                    Currency = currency
+                    BrokerAccount = brokerAccount
+                    Commissions = movement.Commissions.Value
+                    Fees = movement.Fees.Value
+                    MovementType = movement.MovementType.brokerMovementTypeToModel()
+                }
+            {
+                Type = AccountMovementType.BrokerMovement
+                Trade = None
+                Dividend = None
+                DividendTax = None
+                DividendDate = None
+                OptionTrade = None
+                BrokerMovement = Some brokerMovement
+                BankAccountMovement = None
+                TickerSplit = None
+            }
+
+        [<Extension>]
+        static member brokerMovementsToModel(movements: Binnaculum.Core.Database.DatabaseModel.BrokerMovement list) =
+            movements |> List.map (fun m -> m.brokerMovementToModel())

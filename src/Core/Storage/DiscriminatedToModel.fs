@@ -23,3 +23,18 @@ module internal DiscriminatedToModel =
             | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.Tastytrade -> Keys.Broker_Tastytrade
             | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.SigmaTrade -> Keys.Broker_SigmaTrade
             | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.Unknown -> Keys.Broker_Unknown
+
+
+        [<Extension>]
+        static member brokerMovementTypeToModel(movementType: Binnaculum.Core.Database.DatabaseModel.BrokerMovementType) =
+            match movementType with
+            | Database.DatabaseModel.BrokerMovementType.Deposit -> BrokerMovementType.Deposit
+            | Database.DatabaseModel.BrokerMovementType.Withdrawal -> BrokerMovementType.Withdrawal
+            | Database.DatabaseModel.BrokerMovementType.Fee -> BrokerMovementType.Fee
+            | Database.DatabaseModel.BrokerMovementType.InterestsGained -> BrokerMovementType.InterestsGained
+            | Database.DatabaseModel.BrokerMovementType.Lending -> BrokerMovementType.Lending
+            | Database.DatabaseModel.BrokerMovementType.ACATMoneyTransfer -> BrokerMovementType.ACATMoneyTransfer
+            | Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransfer -> BrokerMovementType.ACATSecuritiesTransfer
+            | Database.DatabaseModel.BrokerMovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
+            | Database.DatabaseModel.BrokerMovementType.Conversion -> BrokerMovementType.Conversion
+            
