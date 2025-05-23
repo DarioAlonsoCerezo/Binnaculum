@@ -60,6 +60,30 @@ module internal DatabaseModel =
         | Interest
         | Fee
 
+    type SnapshotEntityType =
+        | BankSnapshot          // Performance for an entire Bank
+        | BrokerSnapshot        // Performance for an entire Broker
+        | BankAccountSnapshot
+        | BrokerAccountSnapshot
+        | TickerSnapshot
+
+    type MetricType =
+        // BankAccount Metrics
+        | EndOfDayBalance
+        | MonthlyInterestEarned
+        // BrokerAccount Metrics
+        | PortfolioMarketValue
+        | UnrealizedGains
+        | RealizedGains
+        // Ticker Metrics
+        | ClosingPrice
+        | TradingVolume
+        | MarketCap
+        // Common Metrics
+        | PercentageChange // For generic percentage changes
+        | AbsoluteChange   // For generic absolute value changes
+        // Add other specific metric types as needed
+
     type Broker = {
         Id: int
         Name: string
@@ -321,6 +345,37 @@ module internal DatabaseModel =
             member this.InsertSQL = BankAccountMovementsQuery.insert
             member this.UpdateSQL = BankAccountMovementsQuery.update
             member this.DeleteSQL = BankAccountMovementsQuery.delete
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
+
+    // Represents a snapshot of a particular metric for a given entity (Bank, Broker, BankAccount, BrokerAccount, or Ticker) at a specific point in time.
+    // - EntityId: Links to the specific entity instance.
+    // - EntityType: Specifies the type of the entity being snapshotted.
+    // - Date: The date and time of the snapshot.
+    // - MetricValue: The numerical value of the metric (can be a monetary amount, a count, a percentage, etc.).
+    // - MetricType: Defines what the MetricValue represents (e.g., EndOfDayBalance, PortfolioMarketValue, ClosingPrice).
+    // - CurrencyId: The currency of the MetricValue or AccountValue, if applicable (0 if not).
+    // - AccountValue: Can store an overall account value (e.g., total balance) if different from the specific MetricValue, or Money.Zero if not applicable.
+    // Snapshots can be generated daily for volatile data (e.g., TickerPrice, PortfolioMarketValue) 
+    // or on-event/periodically for other data (e.g., RealizedGains on trade, MonthlyInterestEarned).
+    // The UI will use this data for charts, key metric displays, and historical performance tables.
+    type Snapshot = {
+        Id: int
+        EntityId: int // Foreign key to Bank, Broker, BankAccount, BrokerAccount, or Ticker
+        EntityType: SnapshotEntityType
+        Date: DateTimePattern
+        MetricValue: decimal // Can store monetary value, count, or percentage
+        MetricType: MetricType 
+        CurrencyId: int // Will be 0 if not applicable (e.g. for PercentageChange)
+        AccountValue: Money // Will be Money.Zero if not applicable
+        Audit: AuditableEntity
+    } with
+        interface IEntity with
+            member this.Id = this.Id
+            member this.InsertSQL = "SnapshotQuery.insert" // Placeholder for actual query
+            member this.UpdateSQL = "SnapshotQuery.update" // Placeholder for actual query
+            member this.DeleteSQL = "SnapshotQuery.delete" // Placeholder for actual query
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
