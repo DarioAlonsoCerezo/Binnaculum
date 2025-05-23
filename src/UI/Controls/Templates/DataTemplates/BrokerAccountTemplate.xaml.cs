@@ -15,26 +15,7 @@ public partial class BrokerAccountTemplate
 
     protected override void StartLoad()
     {
-        Observable
-            .Merge(
-                Add.Events().AddClicked.Select(_ => Unit.Default),
-                AddMovementContainerGesture.Events().Tapped.Select(_ => Unit.Default),
-                AddMovementTextGesture.Events().Tapped.Select(_ => Unit.Default))
-            .Where(_ => _brokerAccount != null)
-            .Select(async _ =>
-            {
-                await Navigation.PushModalAsync(new BrokerMovementCreatorPage(_brokerAccount!));
-            })
-            .Subscribe()
-            .DisposeWith(Disposables);
-
-        BrokerAccountGesture.Events().Tapped
-            .Select(async _ =>
-            {
-                await Navigation.PushModalAsync(new BrokerAcccountPage());
-            })
-            .Subscribe()
-            .DisposeWith(Disposables);
+        
     }
 
     protected override void OnBindingContextChanged()
@@ -43,6 +24,7 @@ public partial class BrokerAccountTemplate
 
         if (BindingContext is Core.Models.Account account)
         {
+            Disposables?.Clear();
             _account = account;
             _brokerAccount = account.Broker.Value;
             _broker = account.Broker.Value?.Broker;
@@ -66,5 +48,26 @@ public partial class BrokerAccountTemplate
 
         Add.Scale = _account!.HasMovements ? 0.6 : 1;
         AddMovementContainer.Spacing = _account!.HasMovements ? 0 : 12;
+
+        Observable
+            .Merge(
+                Add.Events().AddClicked.Select(_ => Unit.Default),
+                AddMovementContainerGesture.Events().Tapped.Select(_ => Unit.Default),
+                AddMovementTextGesture.Events().Tapped.Select(_ => Unit.Default))
+            .Where(_ => _brokerAccount != null)
+            .Select(async _ =>
+            {
+                await Navigation.PushModalAsync(new BrokerMovementCreatorPage(_brokerAccount!));
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        BrokerAccountGesture.Events().Tapped
+            .Select(async _ =>
+            {
+                await Navigation.PushModalAsync(new BrokerAcccountPage());
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 }

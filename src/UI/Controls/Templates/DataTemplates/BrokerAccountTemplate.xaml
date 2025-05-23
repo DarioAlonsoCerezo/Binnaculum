@@ -29,6 +29,7 @@
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
                 Percentage="-3"
+                IsVisible="False"
                 HorizontalOptions="Center"
                 VerticalOptions="Center" />
 
