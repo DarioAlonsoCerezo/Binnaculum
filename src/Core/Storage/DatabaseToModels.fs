@@ -129,6 +129,7 @@ module internal DatabaseToModels =
                     Commissions = movement.Commissions.Value
                     Fees = movement.Fees.Value
                     MovementType = movement.MovementType.brokerMovementTypeToModel()
+                    Notes = movement.Notes
                 }
             {
                 Type = AccountMovementType.BrokerMovement

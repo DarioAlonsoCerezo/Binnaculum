@@ -132,6 +132,7 @@ module internal DatabaseModel =
         Commissions: Money
         Fees: Money
         MovementType: BrokerMovementType
+        Notes: string option
         Audit: AuditableEntity
     } with
         interface IEntity with

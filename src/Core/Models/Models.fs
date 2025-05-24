@@ -93,6 +93,7 @@ module Models =
         Commissions: decimal
         Fees: decimal
         MovementType: BrokerMovementType
+        Notes: string option
     }
     
     type Ticker = {

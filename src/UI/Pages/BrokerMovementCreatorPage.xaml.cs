@@ -75,6 +75,7 @@ public partial class BrokerMovementCreatorPage
                             _account,
                             BrokerMovement.DepositData.Commissions,
                             BrokerMovement.DepositData.Fees,
-                            brokerMovementType.Value);
+                            brokerMovementType.Value,
+                            null); // Notes parameter is null by default
     }
 }

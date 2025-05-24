@@ -7,6 +7,7 @@ open Binnaculum.Core
 open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
 open CommandExtensions
+open OptionExtensions
 open Binnaculum.Core.SQL
 
 [<Extension>]
@@ -23,6 +24,7 @@ type Do() =
                 (SQLParameterName.Commissions, brokerMovement.Commissions.Value);
                 (SQLParameterName.Fees, brokerMovement.Fees.Value);
                 (SQLParameterName.MovementType, fromMovementTypeToDatabase brokerMovement.MovementType);
+                (SQLParameterName.Notes, brokerMovement.Notes.ToDbValue());
             ], brokerMovement)
 
     [<Extension>]
@@ -36,6 +38,7 @@ type Do() =
             Commissions = reader.getMoney FieldName.Commissions
             Fees = reader.getMoney FieldName.Fees
             MovementType = reader.getString FieldName.MovementType |> fromDataseToMovementType
+            Notes = reader.getStringOrNone FieldName.Notes
             Audit = reader.getAudit()        
         }
 

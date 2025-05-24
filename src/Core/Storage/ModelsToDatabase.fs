@@ -97,6 +97,7 @@ module internal ModelsToDatabase =
                 CurrencyId = movement.Currency.Id; 
                 Commissions = commissionMoney; 
                 Fees = feeMoney; 
-                MovementType = brokerMovementType; 
+                MovementType = brokerMovementType;
+                Notes = movement.Notes;
                 Audit = audit;
             }
