@@ -831,4 +831,7 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="MovementType_Bank_Fees" xml:space="preserve">
     <value>Fees</value>
   </data>
+  <data name="Placeholder_Note" xml:space="preserve">
+    <value>Type a note</value>
+  </data>
 </root>

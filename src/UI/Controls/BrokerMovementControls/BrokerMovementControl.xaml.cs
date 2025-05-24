@@ -60,7 +60,8 @@ public partial class BrokerMovementControl
             Amount: 0m,
             Currency: Core.UI.SavedPrefereces.UserPreferences.Value.Currency,
             Commissions: 0m,
-            Fees: 0m);
+            Fees: 0m,
+            Note: string.Empty);
     }
 
     protected override void StartLoad()
@@ -97,6 +98,14 @@ public partial class BrokerMovementControl
             .Subscribe(x =>
             {
                 _deposit = _deposit with { Commissions = x.Commission, Fees = x.Fee };
+                DepositChanged?.Invoke(this, _deposit);
+            })
+            .DisposeWith(Disposables);
+
+        Notes.Events().TextChanged
+            .Subscribe(x =>
+            {
+                _deposit = _deposit with { Note = x.NewTextValue };
                 DepositChanged?.Invoke(this, _deposit);
             })
             .DisposeWith(Disposables);

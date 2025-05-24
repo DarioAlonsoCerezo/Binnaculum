@@ -9,6 +9,7 @@ public static class EventsExtensions
     public static RxTapGestureRecognizerEvents Events(this TapGestureRecognizer data) => new(data);
     public static RxPanGestureRecognizerEvents Events(this PanGestureRecognizer data) => new(data);
     public static RxEntryEvents Events(this Entry item) => new(item);
+    public static RxEditorEvents Events(this Editor item) => new(item);
     public static RxInputViewEvents Events(this InputView item) => new(item);
     public static RxImageEvents Events(this Image item) => new(item);
     public static RxListViewEvents Events(this ListView item) => new(item);
@@ -47,4 +48,5 @@ public static class EventsExtensions
     public static RxItemSelectorControlEvents Events(this ItemSelectorControl item) => new(item);
     public static RxBrokerMovementControlEvents Events(this BrokerMovementControl item) => new(item);
     public static RxBankMovementControlEvents Events(this BankMovementControl item) => new(item);
+    public static RxBorderedEditorEvents Events(this BorderedEditor item) => new(item);
 }

@@ -832,4 +832,7 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="MovementType_Bank_Fees" xml:space="preserve">
     <value>Comisiones</value>
   </data>
+  <data name="Placeholder_Note" xml:space="preserve">
+    <value>Introduzca una nota</value>
+  </data>
 </root>

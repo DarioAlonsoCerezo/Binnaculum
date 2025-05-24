@@ -5,4 +5,5 @@ public record DepositControl(
     decimal Amount,
     string Currency,
     decimal Commissions,
-    decimal Fees);
+    decimal Fees,
+    string Note);

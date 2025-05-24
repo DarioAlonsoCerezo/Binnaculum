@@ -57,7 +57,8 @@ public partial class BankMovementControl
             Amount: 0m,
             Currency: Core.UI.SavedPrefereces.UserPreferences.Value.Currency,
             Commissions: 0m,
-            Fees: 0m);
+            Fees: 0m,
+            Note: string.Empty);
     }
 
     protected override void StartLoad()

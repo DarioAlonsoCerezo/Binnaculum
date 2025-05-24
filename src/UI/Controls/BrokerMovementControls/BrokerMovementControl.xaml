@@ -23,6 +23,9 @@
                 <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
 
                 <controls:BorderedFeeAndCommissionControl x:Name="FeesAndCommissions" />
+                <controls:BorderedEditor
+                    x:Name="Notes"
+                    Placeholder="{local:Translate Placeholder_Note}" />
             </VerticalStackLayout>
         </Border>
     </VerticalStackLayout>

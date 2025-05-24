@@ -67,6 +67,10 @@ public partial class BrokerMovementCreatorPage
         if (brokerMovementType == null)
             return null;
 
+        var notes = string.IsNullOrWhiteSpace(BrokerMovement.DepositData.Note)
+            ? Microsoft.FSharp.Core.FSharpOption<string>.None
+            : Microsoft.FSharp.Core.FSharpOption<string>.Some(BrokerMovement.DepositData.Note!);
+
         return new Models.BrokerMovement(
                             0,
                             BrokerMovement.DepositData.TimeStamp,
@@ -76,6 +80,6 @@ public partial class BrokerMovementCreatorPage
                             BrokerMovement.DepositData.Commissions,
                             BrokerMovement.DepositData.Fees,
                             brokerMovementType.Value,
-                            null); // Notes parameter is null by default
+                            notes);
     }
 }
