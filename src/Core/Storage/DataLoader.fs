@@ -65,6 +65,13 @@ module internal DataLoader =
             Collections.AvailableImages.Clear()
     }
 
+    let getOrRefreshAllTickers() = task {
+        do! TickerExtensions.Do.insertIfNotExists() |> Async.AwaitTask
+        let! databaseTickers = TickerExtensions.Do.getAll() |> Async.AwaitTask
+        let tickers = databaseTickers.tickersToModel()
+        Collections.Tickers.EditDiff tickers
+    }
+    
     let private getOrRefreshAllBrokerAccounts() = task {
         let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
         let brokerAccounts = 

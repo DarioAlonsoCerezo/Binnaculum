@@ -8,6 +8,8 @@ open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
 open OptionExtensions
+open Binnaculum.Core.Patterns
+open System
 
 [<Extension>]
 type Do() =
@@ -40,3 +42,25 @@ type Do() =
     static member getAll() = Database.Do.getAllEntities Do.read TickersQuery.getAll
 
     static member getById(id: int) = Database.Do.getById Do.read id TickersQuery.getById
+
+    static member tickerList() = 
+        let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None; }
+        [
+            { Id = 0; Symbol = "SPY"; Image = Some("spy.png"); Name = Some("SPDR S&P 500 ETF Trust"); Audit = audit; }
+        ]
+
+    static member exists(symbol: string) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- TickersQuery.getByTicker
+        command.Parameters.AddWithValue(SQLParameterName.Symbol, symbol) |> ignore
+        let! result = command.ExecuteScalarAsync() |> Async.AwaitTask
+        return result <> null
+    }
+    
+    static member insertIfNotExists() = task {
+        let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None; }
+        let spy = { Id = 0; Symbol = "SPY"; Image = Some("spy.png"); Name = Some("SPDR S&P 500 ETF Trust"); Audit = audit; }
+        let! exists = Do.exists(spy.Symbol)
+        if not exists then
+            do! spy.save()
+    }

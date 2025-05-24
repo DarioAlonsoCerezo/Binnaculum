@@ -27,30 +27,38 @@ module SavedPrefereces =
     let private LanguageKey = "Language"
 
     [<Literal>]
-    let private Currency = "Currency"
+    let private CurrencyKey = "Currency"
 
     [<Literal>]
-    let private AllowCreateAccount = "AllowCreateAccount"
+    let private TickerKey = "Ticker"
+
+    [<Literal>]
+    let private AllowCreateAccountKey = "AllowCreateAccount"
 
     [<Literal>]
     let private DefaultLanguage = "en"
 
     [<Literal>]
     let private DefaultCurrency = "USD"
+
+    [<Literal>]
+    let private DefaultTicker = "SPY"
     
     type PreferencesCollection = {
         Theme: AppTheme
         Language: string
         Currency: string
         AllowCreateAccount: bool
+        Ticker: string
     }
 
     let private loadPreferences() = 
         let theme = Preferences.Get(ThemeKey, parseTheme AppTheme.Unspecified)
         let language = Preferences.Get(LanguageKey, DefaultLanguage)
-        let currency = Preferences.Get(Currency, DefaultCurrency)
-        let allowCreateAccount = Preferences.Get(AllowCreateAccount, true)
-        { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount }
+        let currency = Preferences.Get(CurrencyKey, DefaultCurrency)
+        let allowCreateAccount = Preferences.Get(AllowCreateAccountKey, true)
+        let defaultTicker = Preferences.Get(DefaultTicker, DefaultTicker)
+        { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount; Ticker = defaultTicker }
 
     let UserPreferences = new BehaviorSubject<PreferencesCollection>(loadPreferences())
 
@@ -63,9 +71,13 @@ module SavedPrefereces =
         UserPreferences.OnNext({ UserPreferences.Value with Language = language })
 
     let ChangeCurrency(currency: string) =
-        Preferences.Set(Currency, currency)
+        Preferences.Set(CurrencyKey, currency)
         UserPreferences.OnNext({ UserPreferences.Value with Currency = currency })
 
     let ChangeAllowCreateAccount(allow: bool) =
-        Preferences.Set(AllowCreateAccount, allow)
+        Preferences.Set(AllowCreateAccountKey, allow)
         UserPreferences.OnNext({ UserPreferences.Value with AllowCreateAccount = allow })
+
+    let ChangeDefaultTicker(ticker: string) =
+        Preferences.Set(DefaultTicker, ticker)
+        UserPreferences.OnNext({ UserPreferences.Value with Ticker = ticker })

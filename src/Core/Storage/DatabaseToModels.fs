@@ -146,3 +146,17 @@ module internal DatabaseToModels =
         [<Extension>]
         static member brokerMovementsToModel(movements: Binnaculum.Core.Database.DatabaseModel.BrokerMovement list) =
             movements |> List.map (fun m -> m.brokerMovementToModel())
+
+        [<Extension>]
+        static member tickerToModel(ticker: Binnaculum.Core.Database.DatabaseModel.Ticker) =
+            {
+                Id = ticker.Id
+                Symbol = ticker.Symbol
+                Image = ticker.Image
+                Name = ticker.Name
+            }
+
+        [<Extension>]
+        static member tickersToModel(tikers: Binnaculum.Core.Database.DatabaseModel.Ticker list) =
+            tikers |> List.map (fun t -> t.tickerToModel())
+        

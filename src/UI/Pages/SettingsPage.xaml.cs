@@ -85,6 +85,7 @@ public partial class SettingsPage : ContentPage
     private void SetupPreferencesCollection(Core.UI.SavedPrefereces.PreferencesCollection collection)
     {
         DefaultCurrency.Text = collection.Currency;
+        DefaultTicker.Text = collection.Ticker;
         AllowCreateAccountsSwitch.IsOn = collection.AllowCreateAccount;
 
         LanguageEnglishRadioButton.IsChecked = collection.Language.Equals("en");

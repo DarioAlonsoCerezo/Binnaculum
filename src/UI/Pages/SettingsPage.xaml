@@ -41,6 +41,23 @@
                         </Label>
                     </Grid>
 
+                    <Grid
+                        Style="{StaticResource GridSettingsGroup}"
+                        ColumnDefinitions="1*,Auto">
+                        <Label
+                            Text="{local:Translate Settings_Section_General_Ticker}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <Label
+                            x:Name="DefaultTicker"
+                            Grid.Column="1"
+                            Padding="0"
+                            Style="{StaticResource LabelSettingsGroup}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer x:Name="DefaultTickerGesture" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
                     <Line Style="{StaticResource LineSettingsGroup}" />
 
                     <Grid Style="{StaticResource GridSettingsGroup}">

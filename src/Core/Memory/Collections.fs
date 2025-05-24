@@ -70,6 +70,13 @@ module Collections =
     let AvailableImages = new SourceList<string>()
 
     /// <summary>
+    /// This collection stores tickers that are available in the application.
+    /// It is used to provide a list of tickers for selection in various UI components.
+    /// The tickers are loaded from the database and can be updated as needed.
+    /// </summary>
+    let Tickers = new SourceList<Ticker>()
+
+    /// <summary>
     /// This function is used to get a broker by its ID.
     /// It searches through the Brokers collection and returns the first broker that matches the provided ID.
     /// </summary>
