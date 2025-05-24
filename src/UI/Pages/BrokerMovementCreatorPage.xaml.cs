@@ -53,16 +53,21 @@ public partial class BrokerMovementCreatorPage
             .Where(_ => MovementTypeControl.SelectedItem!.ItemValue is Models.MovementType movement)
             .Select(_ => MovementTypeControl.SelectedItem!.ItemValue as Models.MovementType);
 
-        savingMovement.Where(movement => movement == Models.MovementType.Deposit)
-            .Select(_ => GetBrokerMovement())
+        savingMovement
+            .Select(GetBrokerMovement)
+            .WhereNotNull()
             .CatchCoreError(Core.UI.Creator.SaveBrokerMovement)
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
             .DisposeWith(Disposables);
     }
 
-    private Models.BrokerMovement GetBrokerMovement()
+    private Models.BrokerMovement? GetBrokerMovement(Models.MovementType? movementType)
     {
+        var brokerMovementType = Core.UI.Creator.GetBrokerMovementType(movementType);
+        if (brokerMovementType.Value != null)
+            return null;
+
         return new Models.BrokerMovement(
                             0,
                             Deposit.DepositData.TimeStamp,
@@ -71,6 +76,6 @@ public partial class BrokerMovementCreatorPage
                             _account,
                             Deposit.DepositData.Commissions,
                             Deposit.DepositData.Fees,
-                            Models.BrokerMovementType.Deposit);
+                            brokerMovementType.Value);
     }
 }

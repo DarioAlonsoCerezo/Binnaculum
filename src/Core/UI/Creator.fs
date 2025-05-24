@@ -55,3 +55,28 @@ module Creator =
         do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }
+
+    let GetBrokerMovementType(uiSelectedType: Binnaculum.Core.Models.MovementType option) =
+        match uiSelectedType with
+        | None -> None
+        | Some selected ->
+            match selected with
+            | Binnaculum.Core.Models.MovementType.Deposit 
+                -> Some Binnaculum.Core.Models.BrokerMovementType.Deposit
+            | Binnaculum.Core.Models.MovementType.Withdrawal 
+                -> Some Binnaculum.Core.Models.BrokerMovementType.Withdrawal
+            | Binnaculum.Core.Models.MovementType.Fee 
+                -> Some Binnaculum.Core.Models.BrokerMovementType.Fee
+            | Binnaculum.Core.Models.MovementType.InterestsGained 
+                -> Some Binnaculum.Core.Models.BrokerMovementType.InterestsGained
+            | Binnaculum.Core.Models.MovementType.Lending 
+                -> Some Binnaculum.Core.Models.BrokerMovementType.Lending
+            | Binnaculum.Core.Models.MovementType.ACATMoneyTransfer 
+                -> Some Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransfer
+            | Binnaculum.Core.Models.MovementType.ACATSecuritiesTransfer 
+                -> Some Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransfer
+            | Binnaculum.Core.Models.MovementType.InterestsPaid 
+                -> Some Binnaculum.Core.Models.BrokerMovementType.InterestsPaid
+            | Binnaculum.Core.Models.MovementType.Conversion 
+                -> Some Binnaculum.Core.Models.BrokerMovementType.Conversion
+            | _ -> None
