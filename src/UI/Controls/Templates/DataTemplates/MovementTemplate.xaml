@@ -18,7 +18,7 @@
             HorizontalTextAlignment="Start"
             VerticalTextAlignment="Start"
             VerticalOptions="Start"
-            FontSize="Medium"
+            FontSize="Body"
             Style="{StaticResource SelectableItem}" />
         <controls:MoneyControl
             x:Name="Amount"

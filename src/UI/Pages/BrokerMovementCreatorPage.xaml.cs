@@ -39,12 +39,15 @@ public partial class BrokerMovementCreatorPage
 
         selection.Select(x =>
             {
-                if (x == Models.MovementType.Deposit || x == Models.MovementType.Withdrawal)
+                if (x == Models.MovementType.Deposit 
+                    || x == Models.MovementType.Withdrawal
+                    || x == Models.MovementType.ACATMoneyTransfer)
                     return true;
-                if(x == Models.MovementType.Fee)
+                
+                var hiderFeesAndCommissions = HideFeesAndCommissions(x);
+                if (hiderFeesAndCommissions)
                 {
-                    BrokerMovement.HideFeesAndCommissions = true;
-                    
+                    BrokerMovement.HideFeesAndCommissions = hiderFeesAndCommissions;                    
                     return true;
                 }
                 return false;
@@ -92,5 +95,25 @@ public partial class BrokerMovementCreatorPage
                             BrokerMovement.DepositData.Fees,
                             brokerMovementType.Value,
                             notes);
+    }
+
+    private bool HideFeesAndCommissions(Models.MovementType movementType)
+    {
+        if (movementType.IsFee)
+            return true;
+
+        if (movementType.IsInterestsGained)
+            return true;
+
+        if (movementType.IsLending)
+            return true;
+
+        if(movementType.IsInterestsGained)
+            return true;
+
+        if(movementType.IsInterestsPaid)
+            return true;
+
+        return false;
     }
 }
