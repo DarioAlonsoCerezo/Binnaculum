@@ -10,7 +10,7 @@ internal class MovementTemplateSelector : DataTemplateSelector
     public MovementTemplateSelector()
     {
         EmptyMovementTemplate = new DataTemplate(typeof(EmptyMovementTemplate));
-        DepositMovementTemplate = new DataTemplate(typeof(DepositMovementTemplate));
+        DepositMovementTemplate = new DataTemplate(typeof(MovementTemplate));
     }
 
     protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
