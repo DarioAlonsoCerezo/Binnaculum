@@ -67,8 +67,7 @@ module internal ModelsToDatabase =
         }
 
         [<Extension>]
-        static member createBankAccountMovementToDatabase(movement: Binnaculum.Core.Models.BankAccountMovement) =
-            let timeStamp = DateTimePattern.FromDateTime(movement.TimeStamp)
+        static member bankAccountMovementToDatabase(movement: Binnaculum.Core.Models.BankAccountMovement) =
             let movementType = movement.MovementType.bankMovementTypeToDatabase()
             let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
             
@@ -79,5 +78,25 @@ module internal ModelsToDatabase =
                 BankAccountId = movement.BankAccount.Id;
                 CurrencyId = movement.Currency.Id;
                 MovementType = movementType;
+                Audit = audit;
+            }
+
+        [<Extension>]
+        static member brokerMovementToDatabase(movement: Binnaculum.Core.Models.BrokerMovement) =
+            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(movement.TimeStamp)); UpdatedAt = None }
+            let timeStampPattern = DateTimePattern.FromDateTime(movement.TimeStamp)
+            let amountMoney = Money.FromAmount(movement.Amount)
+            let commissionMoney = Money.FromAmount(movement.Commissions)
+            let feeMoney = Money.FromAmount(movement.Fees)
+            let brokerMovementType = movement.MovementType.brokerMovementTypeToDatabase()            
+            { 
+                Id = 0; 
+                TimeStamp = timeStampPattern; 
+                Amount = amountMoney; 
+                BrokerAccountId = movement.BrokerAccount.Id; 
+                CurrencyId = movement.Currency.Id; 
+                Commissions = commissionMoney; 
+                Fees = feeMoney; 
+                MovementType = brokerMovementType; 
                 Audit = audit;
             }

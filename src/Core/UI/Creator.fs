@@ -44,45 +44,14 @@ module Creator =
         do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
     }
 
-    let SaveDeposit(uiDeposit: Binnaculum.Core.Models.UiDeposit) = task {
-        let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
-        let timeStampPattern = DateTimePattern.FromDateTime(uiDeposit.Timestamp)
-        let amountMoney = Money.FromAmount(uiDeposit.Amount)
-        let commissionMoney = Money.FromAmount(uiDeposit.Commissions)
-        let feeMoney = Money.FromAmount(uiDeposit.Fees)
-        let brokerMovementType = Binnaculum.Core.Models.MovementType.Deposit.brokerMoveventTypeToDatabase()
-        let movement = 
-            { 
-                Id = 0; 
-                TimeStamp = timeStampPattern; 
-                Amount = amountMoney; 
-                CurrencyId = uiDeposit.CurrencyId; 
-                BrokerAccountId = uiDeposit.BrokerAccountId; 
-                Commissions = commissionMoney; 
-                Fees = feeMoney; 
-                MovementType = brokerMovementType; 
-                Audit = audit;
-            }
-
-        do! movement.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask 
+    let SaveBrokerMovement(movement: Binnaculum.Core.Models.BrokerMovement) = task {
+        let databaseModel = movement.brokerMovementToDatabase()
+        do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBankMovement(movement: Binnaculum.Core.Models.BankAccountMovement) = task {
-        let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(movement.TimeStamp)); UpdatedAt = None }
-        let timeStampPattern = DateTimePattern.FromDateTime(movement.TimeStamp)
-        let amountMoney = Money.FromAmount(movement.Amount)
-        let movementType = movement.MovementType.bankMovementTypeToDatabase()
-        let bankMovement = 
-            { 
-                Id = 0
-                TimeStamp = timeStampPattern
-                Amount = amountMoney
-                BankAccountId = movement.BankAccount.Id
-                CurrencyId = movement.Currency.Id
-                MovementType = movementType
-                Audit = audit
-            }
-        do! bankMovement.save() |> Async.AwaitTask |> Async.Ignore
+        let databaseModel = movement.bankAccountMovementToDatabase()
+        do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }

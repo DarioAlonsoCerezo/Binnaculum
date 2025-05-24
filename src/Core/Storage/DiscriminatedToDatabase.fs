@@ -16,7 +16,7 @@ module internal DiscriminatedToDatabase =
             | Binnaculum.Core.Models.BankAccountMovementType.Fee -> BankAccountMovementType.Fee
 
         [<Extension>]
-        static member brokerMoveventTypeToDatabase(movementType: Binnaculum.Core.Models.MovementType) =
+        static member moveventTypeToBrokerMovementTypeDatabase(movementType: Binnaculum.Core.Models.MovementType) =
             match movementType with
             | Binnaculum.Core.Models.MovementType.Deposit -> BrokerMovementType.Deposit
             | Binnaculum.Core.Models.MovementType.Withdrawal -> BrokerMovementType.Withdrawal
@@ -28,3 +28,19 @@ module internal DiscriminatedToDatabase =
             | Binnaculum.Core.Models.MovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
             | Binnaculum.Core.Models.MovementType.Conversion -> BrokerMovementType.Conversion
             | _ -> failwithf "MovementType %A is not a BrokerMovementType" movementType
+
+        [<Extension>]
+        static member brokerMovementTypeToDatabase(movementType: Binnaculum.Core.Models.BrokerMovementType) =
+            match movementType with
+            | Binnaculum.Core.Models.BrokerMovementType.Deposit -> BrokerMovementType.Deposit
+            | Binnaculum.Core.Models.BrokerMovementType.Withdrawal -> BrokerMovementType.Withdrawal
+            | Binnaculum.Core.Models.BrokerMovementType.Fee -> BrokerMovementType.Fee
+            | Binnaculum.Core.Models.BrokerMovementType.InterestsGained -> BrokerMovementType.InterestsGained
+            | Binnaculum.Core.Models.BrokerMovementType.Lending -> BrokerMovementType.Lending
+            | Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransfer -> BrokerMovementType.ACATMoneyTransfer
+            | Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransfer -> BrokerMovementType.ACATSecuritiesTransfer
+            | Binnaculum.Core.Models.BrokerMovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
+            | Binnaculum.Core.Models.BrokerMovementType.Conversion -> BrokerMovementType.Conversion
+
+
+        

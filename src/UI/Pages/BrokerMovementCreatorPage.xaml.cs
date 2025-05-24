@@ -48,61 +48,29 @@ public partial class BrokerMovementCreatorPage
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
-        Save.Events().SaveClicked
-            .Select(async _ => await SaveMovement())
+        var savingMovement = Save.Events().SaveClicked
+            .Where(_ => MovementTypeControl.SelectedItem != null)
+            .Where(_ => MovementTypeControl.SelectedItem!.ItemValue is Models.MovementType movement)
+            .Select(_ => MovementTypeControl.SelectedItem!.ItemValue as Models.MovementType);
+
+        savingMovement.Where(movement => movement == Models.MovementType.Deposit)
+            .Select(_ => GetBrokerMovement())
+            .CatchCoreError(Core.UI.Creator.SaveBrokerMovement)
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
             .DisposeWith(Disposables);
     }
 
-    private Task SaveMovement()
+    private Models.BrokerMovement GetBrokerMovement()
     {
-        return Task.Run(async () =>
-        {
-            try
-            {
-                if (MovementTypeControl.SelectedItem == null)
-                    return;
-
-                if (MovementTypeControl.SelectedItem.ItemValue is Models.MovementType movement)
-                {
-                    if (movement.IsDeposit)
-                    {
-                        var currencyCode = Deposit.DepositData.Currency;
-                        var currency = Core.UI.Collections.GetCurrency(currencyCode);
-                        var uiDeposit = new Models.UiDeposit(
-                            _account.Id,
-                            currency.Id,
-                            Deposit.DepositData.Amount,
+        return new Models.BrokerMovement(
+                            0,
                             Deposit.DepositData.TimeStamp,
+                            Deposit.DepositData.Amount,
+                            Core.UI.Collections.GetCurrency(Deposit.DepositData.Currency),
+                            _account,
                             Deposit.DepositData.Commissions,
-                            Deposit.DepositData.Fees);
-                        await Core.UI.Creator.SaveDeposit(uiDeposit);
-                    }
-                    else if (movement == Models.MovementType.Withdrawal)
-                    {
-                        
-                    }
-                    else
-                    {
-                        
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-#if DEBUG
-                // Show error message to user on the UI thread
-                await MainThread.InvokeOnMainThreadAsync(() => {
-                    var errorMessage = LocalizationResourceManager.Instance["Error_Saving_Movement"];
-                    var popup = new MarkdownMessagePopup
-                    {
-                        Text = $"{errorMessage}\n\n```\n{ex.Message}\n```"
-                    };
-                    popup.Show();
-                });
-#endif
-            }
-        });
+                            Deposit.DepositData.Fees,
+                            Models.BrokerMovementType.Deposit);
     }
 }
