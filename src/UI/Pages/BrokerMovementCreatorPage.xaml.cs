@@ -39,11 +39,14 @@ public partial class BrokerMovementCreatorPage
 
         selection.Select(x =>
             {
-                if (x == Models.MovementType.Deposit 
+                if (x == Models.MovementType.Deposit
                     || x == Models.MovementType.Withdrawal
                     || x == Models.MovementType.ACATMoneyTransfer)
+                {
+                    BrokerMovement.HideFeesAndCommissions = false;
                     return true;
-                
+                }
+
                 var hiderFeesAndCommissions = HideFeesAndCommissions(x);
                 if (hiderFeesAndCommissions)
                 {
