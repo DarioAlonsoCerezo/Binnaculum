@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.BankMovementControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls">
+    <VerticalStackLayout Spacing="16">
+        <Label
+            Text="{local:Translate MovementDepositControl_Title}"
+            Style="{StaticResource LabelSettingsTitle}" />
+
+        <Border
+            Padding="24,32"
+            BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                              Dark={StaticResource Black}}"
+            VerticalOptions="Start">
+            <VerticalStackLayout Spacing="12">
+                <controls:BorderedEntry
+                    x:Name="AmountEntry"
+                    IsMoneyEntry="True"
+                    Placeholder="{local:Translate Placeholder_Amount}" />
+                <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
+
+                <controls:BorderedFeeAndCommissionControl x:Name="FeesAndCommissions" />
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+</controls:BaseContentView>

@@ -45,5 +45,6 @@ public static class EventsExtensions
     public static RxCustomSwitchEvents Events(this CustomSwitch item) => new(item);
     public static RxSelectableCurrencyEvents Events(this SelectableCurrencyControl item) => new(item);
     public static RxItemSelectorControlEvents Events(this ItemSelectorControl item) => new(item);
-    public static RxBrokerMovementDepositControlEvents Events(this BrokerMovementControl item) => new(item);
+    public static RxBrokerMovementControlEvents Events(this BrokerMovementControl item) => new(item);
+    public static RxBankMovementControlEvents Events(this BankMovementControl item) => new(item);
 }

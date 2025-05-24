@@ -1,6 +1,6 @@
 namespace Binnaculum.Controls;
 
-public partial class BrokerMovementControl
+public partial class BankMovementControl
 {
     public event EventHandler<DepositControl> DepositChanged;
 
@@ -10,13 +10,13 @@ public partial class BrokerMovementControl
 
     public static readonly BindableProperty HideFeesAndCommissionsProperty =
         BindableProperty.Create(
-            nameof(HideFeesAndCommissions), 
-            typeof(bool), 
-            typeof(BrokerMovementControl), 
+            nameof(HideFeesAndCommissions),
+            typeof(bool),
+            typeof(BankMovementControl),
             false,
             propertyChanged: (bindable, oldValue, newValue) =>
             {
-                if (bindable is BrokerMovementControl control && newValue is bool hideFeesAndCommissions)
+                if (bindable is BankMovementControl control && newValue is bool hideFeesAndCommissions)
                 {
                     control.FeesAndCommissions.IsVisible = !hideFeesAndCommissions;
                 }
@@ -32,11 +32,11 @@ public partial class BrokerMovementControl
         BindableProperty.Create(
             nameof(ShowCurrency),
             typeof(bool),
-            typeof(BrokerMovementControl),
+            typeof(BankMovementControl),
             true, // Default to visible
             propertyChanged: (bindable, oldValue, newValue) =>
             {
-                if (bindable is BrokerMovementControl control && newValue is bool showCurrency)
+                if (bindable is BankMovementControl control && newValue is bool showCurrency)
                 {
                     control.AmountEntry.IsCurrencyVisible = showCurrency;
                 }
@@ -48,12 +48,9 @@ public partial class BrokerMovementControl
         set => SetValue(ShowCurrencyProperty, value);
     }
 
-	public BrokerMovementControl()
+    public BankMovementControl()
 	{
 		InitializeComponent();
-
-        // Set default currency visibility (true by default from the bindable property)
-        AmountEntry.IsCurrencyVisible = ShowCurrency;
 
         _deposit = new DepositControl(
             TimeStamp: DateTime.Now,
