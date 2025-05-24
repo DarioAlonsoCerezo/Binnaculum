@@ -37,7 +37,18 @@ public partial class BrokerMovementCreatorPage
                 return null;
             }).WhereNotNull();
 
-        selection.Select(x => x == Models.MovementType.Deposit || x == Models.MovementType.Withdrawal)
+        selection.Select(x =>
+            {
+                if (x == Models.MovementType.Deposit || x == Models.MovementType.Withdrawal)
+                    return true;
+                if(x == Models.MovementType.Fee)
+                {
+                    BrokerMovement.HideFeesAndCommissions = true;
+                    
+                    return true;
+                }
+                return false;
+            })
             .BindTo(BrokerMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 

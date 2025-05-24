@@ -48,7 +48,7 @@ public partial class BrokerMovementControl
         set => SetValue(ShowCurrencyProperty, value);
     }
 
-	public BrokerMovementControl()
+    public BrokerMovementControl()
 	{
 		InitializeComponent();
 
