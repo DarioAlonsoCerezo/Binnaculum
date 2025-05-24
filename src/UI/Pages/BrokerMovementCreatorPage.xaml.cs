@@ -1,6 +1,5 @@
 using Binnaculum.Controls;
 using Binnaculum.Core;
-using Binnaculum.Popups;
 
 namespace Binnaculum.Pages;
 
@@ -39,11 +38,11 @@ public partial class BrokerMovementCreatorPage
             }).WhereNotNull();
 
         selection.Select(x => x == Models.MovementType.Deposit || x == Models.MovementType.Withdrawal)
-            .BindTo(Deposit, x => x.IsVisible)
+            .BindTo(BrokerMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
-        Deposit.Events().DepositChanged
-            .Where(_ => Deposit.IsVisible)
+        BrokerMovement.Events().DepositChanged
+            .Where(_ => BrokerMovement.IsVisible)
             .Select(x => x.Amount > 0)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
@@ -65,17 +64,17 @@ public partial class BrokerMovementCreatorPage
     private Models.BrokerMovement? GetBrokerMovement(Models.MovementType? movementType)
     {
         var brokerMovementType = Core.UI.Creator.GetBrokerMovementType(movementType);
-        if (brokerMovementType.Value != null)
+        if (brokerMovementType == null)
             return null;
 
         return new Models.BrokerMovement(
                             0,
-                            Deposit.DepositData.TimeStamp,
-                            Deposit.DepositData.Amount,
-                            Core.UI.Collections.GetCurrency(Deposit.DepositData.Currency),
+                            BrokerMovement.DepositData.TimeStamp,
+                            BrokerMovement.DepositData.Amount,
+                            Core.UI.Collections.GetCurrency(BrokerMovement.DepositData.Currency),
                             _account,
-                            Deposit.DepositData.Commissions,
-                            Deposit.DepositData.Fees,
+                            BrokerMovement.DepositData.Commissions,
+                            BrokerMovement.DepositData.Fees,
                             brokerMovementType.Value);
     }
 }

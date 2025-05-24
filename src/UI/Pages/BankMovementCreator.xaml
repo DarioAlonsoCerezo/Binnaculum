@@ -56,7 +56,7 @@
                     </Grid>
                 </Border>
 
-                <controls:BrokerMovementDepositControl
+                <controls:BrokerMovementControl
                     x:Name="Deposit"
                     HideFeesAndCommissions="True"
                     ShowCurrency="False" />

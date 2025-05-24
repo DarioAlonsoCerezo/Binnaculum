@@ -2,7 +2,7 @@
 
 namespace Binnaculum.Extensions;
 
-public class RxBrokerMovementDepositControlEvents(BrokerMovementDepositControl data) : RxVisualElementEvents(data)
+public class RxBrokerMovementDepositControlEvents(BrokerMovementControl data) : RxVisualElementEvents(data)
 {
     public IObservable<DepositControl> DepositChanged
         => Observable

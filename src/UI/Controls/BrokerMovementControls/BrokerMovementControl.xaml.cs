@@ -1,6 +1,6 @@
 namespace Binnaculum.Controls;
 
-public partial class BrokerMovementDepositControl
+public partial class BrokerMovementControl
 {
     public event EventHandler<DepositControl> DepositChanged;
 
@@ -12,11 +12,11 @@ public partial class BrokerMovementDepositControl
         BindableProperty.Create(
             nameof(HideFeesAndCommissions), 
             typeof(bool), 
-            typeof(BrokerMovementDepositControl), 
+            typeof(BrokerMovementControl), 
             false,
             propertyChanged: (bindable, oldValue, newValue) =>
             {
-                if (bindable is BrokerMovementDepositControl control && newValue is bool hideFeesAndCommissions)
+                if (bindable is BrokerMovementControl control && newValue is bool hideFeesAndCommissions)
                 {
                     control.FeesAndCommissions.IsVisible = !hideFeesAndCommissions;
                 }
@@ -32,11 +32,11 @@ public partial class BrokerMovementDepositControl
         BindableProperty.Create(
             nameof(ShowCurrency),
             typeof(bool),
-            typeof(BrokerMovementDepositControl),
+            typeof(BrokerMovementControl),
             true, // Default to visible
             propertyChanged: (bindable, oldValue, newValue) =>
             {
-                if (bindable is BrokerMovementDepositControl control && newValue is bool showCurrency)
+                if (bindable is BrokerMovementControl control && newValue is bool showCurrency)
                 {
                     control.AmountEntry.IsCurrencyVisible = showCurrency;
                 }
@@ -48,7 +48,7 @@ public partial class BrokerMovementDepositControl
         set => SetValue(ShowCurrencyProperty, value);
     }
 
-	public BrokerMovementDepositControl()
+	public BrokerMovementControl()
 	{
 		InitializeComponent();
 

@@ -54,8 +54,8 @@
                     x:Name="MovementTypeControl"
                     Title="{local:Translate MovementCreator_Type}" />
 
-                <controls:BrokerMovementDepositControl
-                    x:Name="Deposit"
+                <controls:BrokerMovementControl
+                    x:Name="BrokerMovement"
                     IsVisible="False" />
 
                 <controls:ButtonSave
