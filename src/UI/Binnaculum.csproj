@@ -20,6 +20,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
+		<!-- Required for F# Tasks to work correctly with WinRT generic interfaces -->
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
 		<!-- Display name -->
 		<ApplicationTitle>Binnaculum</ApplicationTitle>
 
