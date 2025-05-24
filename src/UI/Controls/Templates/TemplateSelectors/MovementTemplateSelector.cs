@@ -15,20 +15,9 @@ internal class MovementTemplateSelector : DataTemplateSelector
 
     protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
     {
-        if (item is Models.Movement movement)
+        if (item is Models.Movement)
         {
-            if(movement.BrokerMovement != null)
-            {
-                if (movement.BrokerMovement.Value.MovementType.IsDeposit)
-                    return DepositMovementTemplate;
-                
-            }
-            if(movement.BankAccountMovement != null)
-            {
-                if (movement.BankAccountMovement.Value.MovementType.IsBalance)
-                    return DepositMovementTemplate;
-                
-            }
+            return DepositMovementTemplate;
         }
         return EmptyMovementTemplate;
     }
