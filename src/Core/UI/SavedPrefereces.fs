@@ -57,7 +57,7 @@ module SavedPrefereces =
         let language = Preferences.Get(LanguageKey, DefaultLanguage)
         let currency = Preferences.Get(CurrencyKey, DefaultCurrency)
         let allowCreateAccount = Preferences.Get(AllowCreateAccountKey, true)
-        let defaultTicker = Preferences.Get(DefaultTicker, DefaultTicker)
+        let defaultTicker = Preferences.Get(TickerKey, DefaultTicker)
         { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount; Ticker = defaultTicker }
 
     let UserPreferences = new BehaviorSubject<PreferencesCollection>(loadPreferences())
@@ -79,5 +79,5 @@ module SavedPrefereces =
         UserPreferences.OnNext({ UserPreferences.Value with AllowCreateAccount = allow })
 
     let ChangeDefaultTicker(ticker: string) =
-        Preferences.Set(DefaultTicker, ticker)
+        Preferences.Set(TickerKey, ticker)
         UserPreferences.OnNext({ UserPreferences.Value with Ticker = ticker })

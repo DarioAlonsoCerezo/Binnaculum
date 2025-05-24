@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.SelectableTickerControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    x:Name="Control">
+    <Grid
+        Margin="12,16,12,0"
+        ColumnDefinitions="Auto, *">
+        <Label
+            x:Name="TickerSymbol"
+            FontAttributes="Bold"
+            VerticalOptions="Center" />
+        <Label
+            x:Name="TickerName"
+            Grid.Column="1"
+            Margin="8,0,0,0"
+            VerticalOptions="Center"
+            LineBreakMode="TailTruncation" />
+        <Line Style="{StaticResource LineSettingsGroup}" />
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer x:Name="TickerGesture" />
+        </Grid.GestureRecognizers>
+    </Grid>
+</controls:BaseContentView>

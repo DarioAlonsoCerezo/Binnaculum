@@ -6,6 +6,7 @@ open BankAccountExtensions
 open BrokerExtensions
 open BrokerMovementExtensions
 open BankAccountBalanceExtensions
+open TickerExtensions
 open Binnaculum.Core.Storage.ModelsToDatabase
 open Binnaculum.Core.Storage.DiscriminatedToDatabase
 open System
@@ -54,6 +55,17 @@ module Creator =
         let databaseModel = movement.bankAccountMovementToDatabase()
         do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+    }
+
+    /// <summary>
+    /// Save a new or updated ticker and refresh the tickers collection.
+    /// </summary>
+    let SaveTicker(ticker: Binnaculum.Core.Models.Ticker) = task {
+        // Map UI ticker to database model and save
+        let! databaseTicker = ticker.tickerToDatabase() |> Async.AwaitTask
+        do! databaseTicker.save() |> Async.AwaitTask |> Async.Ignore
+        // Refresh in-memory ticker collection
+        do! DataLoader.getOrRefreshAllTickers() |> Async.AwaitTask |> Async.Ignore
     }
 
     let GetBrokerMovementType(uiSelectedType: Binnaculum.Core.Models.MovementType option) =

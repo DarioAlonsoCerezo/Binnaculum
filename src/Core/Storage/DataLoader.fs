@@ -153,6 +153,7 @@ module internal DataLoader =
         do! getOrRefreshAllBrokers() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefresAvailableImages() |> Async.AwaitTask |> Async.Ignore
+        do! getOrRefreshAllTickers() |> Async.AwaitTask |> Async.Ignore
     }
 
     let initialization() = task {

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<popups:BasePopup
+    x:Class="Binnaculum.Popups.TickerSelectorPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:popups="clr-namespace:Binnaculum.Popups"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:local="clr-namespace:Binnaculum"
+    x:Name="Control"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Color="Transparent">
+    <Grid
+        x:Name="Container"
+        Padding="24,0">
+        <Border Style="{StaticResource Popup}">
+            <Grid RowDefinitions="Auto, 1*, Auto">
+                <Grid ColumnDefinitions="1*,Auto">
+                    <SearchBar
+                        x:Name="Searcher"
+                        Placeholder="Search ticker"
+                        TextTransform="Uppercase" />
+                    <controls:ButtonAdd
+                        x:Name="AddTicker"
+                        Grid.Column="1"
+                        Margin="12,0"
+                        ScaleButton="0.35" />
+                </Grid>
+
+                <CollectionView
+                    x:Name="TickerList"
+                    Grid.Row="1"
+                    Margin="0,12">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <controls:SelectableTickerControl
+                                BindingContext="{Binding .}"
+                                TickerSelected="SelectableTickerControl_TickerSelected" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <ScrollView>
+                            <Grid
+                                Padding="12,0,12,0"
+                                VerticalOptions="Start">
+                                <VerticalStackLayout Spacing="12">
+                                    <controls:EditableIconControl />
+                                    <controls:BorderedEntry Placeholder="Type the ticker symbol" />
+                                    <controls:BorderedEntry Placeholder="Type the ticker name" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </ScrollView>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+                <VerticalStackLayout
+                    Grid.Row="2"
+                    Spacing="12">
+                    <controls:ButtonSaveOrDiscard
+                        x:Name="SaveOrDiscard"
+                        IsButtonSaveEnabled="False" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+    </Grid>
+</popups:BasePopup>

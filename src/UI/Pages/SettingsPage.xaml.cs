@@ -64,6 +64,19 @@ public partial class SettingsPage : ContentPage
         }))
         .Subscribe()
         .DisposeWith(Disposables);
+
+        DefaultTickerGesture.Events().Tapped
+            .SelectMany(_ => Observable.FromAsync(async () =>
+            {
+                var result = await new TickerSelectorPopup().ShowAndWait();
+                if (result is Models.Ticker ticker)
+                {
+
+                }
+                return Unit.Default;
+            }))
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 
     private void SetupTheme(AppTheme theme)

@@ -101,3 +101,27 @@ module internal ModelsToDatabase =
                 Notes = movement.Notes;
                 Audit = audit;
             }
+
+        [<Extension>]
+        static member createTickerToDatabase(ticker: Binnaculum.Core.Models.Ticker) =
+            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
+            { Id = 0; Symbol = ticker.Symbol; Image = ticker.Image; Name = ticker.Name; Audit = audit }
+
+        [<Extension>]
+        static member updateTickerToDatabase(ticker: Binnaculum.Core.Models.Ticker) = task {
+            let! current = TickerExtensions.Do.getById ticker.Id |> Async.AwaitTask
+            match current with
+            | Some dbTicker ->
+                let audit = { dbTicker.Audit with UpdatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)) }
+                let updated = { dbTicker with Symbol = ticker.Symbol; Image = ticker.Image; Name = ticker.Name; Audit = audit }
+                return updated
+            | None -> return failwithf "Ticker with ID %d not found" ticker.Id
+        }
+
+        [<Extension>]
+        static member tickerToDatabase(ticker: Binnaculum.Core.Models.Ticker) = task {
+            if ticker.Id = 0 then
+                return ticker.createTickerToDatabase()
+            else
+                return! ticker.updateTickerToDatabase() |> Async.AwaitTask
+        }
