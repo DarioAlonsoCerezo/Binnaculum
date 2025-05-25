@@ -154,6 +154,7 @@ public partial class BorderedEntry
 
         BorderlessEntry.Events().TextChanged
             .ObserveOn(UiThread)
+            .LogWhileDebug("BorderlessEntry TextChanged")
             .Subscribe(e =>
             {
                 TextChanged?.Invoke(this, e);

@@ -15,7 +15,7 @@ type Do() =
     static member fill(dividend: Dividend, command: SqliteCommand) =
         command.fillEntityAuditable<Dividend>(
             [
-                (SQLParameterName.TimeStamp, dividend.TimeStamp);
+                (SQLParameterName.TimeStamp, dividend.TimeStamp.ToString());
                 (SQLParameterName.DividendAmount, dividend.DividendAmount.Value);
                 (SQLParameterName.TickerId, dividend.TickerId);
                 (SQLParameterName.CurrencyId, dividend.CurrencyId);

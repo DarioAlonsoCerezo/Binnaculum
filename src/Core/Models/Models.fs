@@ -229,6 +229,7 @@ module Models =
 
     type Movement = {
         Type: AccountMovementType
+        TimeStamp: DateTime
         Trade: Trade option
         Dividend: Dividend option
         DividendTax: DividendTax option
@@ -246,6 +247,7 @@ module Models =
 
     let emptyMovement() = {
         Type = AccountMovementType.EmptyMovement
+        TimeStamp = DateTime.MinValue
         Trade = None
         Dividend = None
         DividendTax = None

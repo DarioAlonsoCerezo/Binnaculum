@@ -32,6 +32,9 @@ public partial class MovementTemplate
 
             if (movement.Type.IsTrade)
                 FillTradeMovement(movement.Trade.Value);
+
+            if (movement.Type.IsDividend)
+                FillDividendReceived(movement.Dividend.Value);
         }
     }
 
@@ -63,6 +66,16 @@ public partial class MovementTemplate
         Quantity.Text = $"x{trade.Quantity.Simplifyed()}";
         Title.SetLocalizedText(ResourceKeys.MovementType_Trade);
         SubTitle.SetLocalizedText(GetSubtitleFromTradeCode(trade.TradeCode));
+    }
+
+    private void FillDividendReceived(Models.Dividend dividend)
+    {
+        Icon.ImagePath = dividend.Ticker.Image?.Value ?? string.Empty;
+        Icon.PlaceholderText = dividend.Ticker.Symbol;
+        TimeStamp.DateTime = dividend.TimeStamp;
+        Amount.Amount = dividend.Amount;
+        Amount.Money = dividend.Currency;
+        Title.SetLocalizedText(ResourceKeys.MovementType_DividendReceived);
     }
 
     private string GetTitleFromBrokerAccountMovementType(Models.BrokerMovementType movementType)

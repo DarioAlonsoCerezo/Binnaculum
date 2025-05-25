@@ -17,6 +17,7 @@ public partial class BrokerMovementCreatorPage
 
         MovementTypeControl.ItemsSource = SelectableItem.BrokerMovementTypeList();
         TradeMovement.BrokerAccount = account;
+        DividendReceivedMovement.BrokerAccount = account;
     }
 
     protected override void StartLoad()
@@ -57,6 +58,10 @@ public partial class BrokerMovementCreatorPage
             .BindTo(TradeMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
+        selection.Select(x => x == Models.MovementType.DividendReceived)
+            .BindTo(DividendReceivedMovement, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
         BrokerMovement.Events().DepositChanged
             .Where(_ => BrokerMovement.IsVisible)
             .Select(x => x.Amount > 0)
@@ -87,6 +92,21 @@ public partial class BrokerMovementCreatorPage
             .Select(_ => TradeMovement.Trade)
             .WhereNotNull()
             .CatchCoreError(Core.UI.Creator.SaveTrade)
+            .Select(async _ => await Navigation.PopModalAsync())
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        DividendReceivedMovement.Events().DividendChanged
+            .Where(_ => DividendReceivedMovement.IsVisible)
+            .Select(x => x != null)
+            .BindTo(Save, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        Save.Events().SaveClicked
+            .Where(_ => DividendReceivedMovement.IsVisible)
+            .Select(_ => DividendReceivedMovement.Dividend)
+            .WhereNotNull()
+            .CatchCoreError(Core.UI.Creator.SaveDividend)
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
             .DisposeWith(Disposables);

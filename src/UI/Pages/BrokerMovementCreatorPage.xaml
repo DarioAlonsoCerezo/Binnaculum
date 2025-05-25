@@ -62,6 +62,10 @@
                     x:Name="TradeMovement"
                     IsVisible="False" />
 
+                <controls:DividendReceivedControl
+                    x:Name="DividendReceivedMovement"
+                    IsVisible="False" />
+
                 <controls:ButtonSave
                     x:Name="Save"
                     IsVisible="False" />

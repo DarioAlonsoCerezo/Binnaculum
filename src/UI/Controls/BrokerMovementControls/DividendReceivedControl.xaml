@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.DividendReceivedControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls">
+    <VerticalStackLayout Spacing="16">
+        <Label
+            Text="{local:Translate MovementDepositControl_Title}"
+            Style="{StaticResource LabelSettingsTitle}" />
+        <Border
+            Padding="24,32"
+            BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                              Dark={StaticResource Black}}"
+            VerticalOptions="Start">
+            <VerticalStackLayout Spacing="12">
+                <controls:IconControl x:Name="Icon">
+                    <controls:IconControl.GestureRecognizers>
+                        <TapGestureRecognizer x:Name="IconGesture" />
+                    </controls:IconControl.GestureRecognizers>
+                </controls:IconControl>
+
+                <controls:BorderedEntry
+                    x:Name="AmountEntry"
+                    IsCurrencyVisible="True"
+                    IsMoneyEntry="True" />
+
+                <controls:BorderedDateTimePickerControl
+                    x:Name="DateTimePicker"
+                    HideTimeSelector="True" />
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+</controls:BaseContentView>

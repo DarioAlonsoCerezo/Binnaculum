@@ -76,6 +76,7 @@ module internal DatabaseToModels =
 
             {
                 Type = AccountMovementType.BankAccountMovement
+                TimeStamp = bankMovement.TimeStamp
                 Trade = None
                 Dividend = None
                 DividendTax = None
@@ -133,6 +134,7 @@ module internal DatabaseToModels =
                 }
             {
                 Type = AccountMovementType.BrokerMovement
+                TimeStamp = brokerMovement.TimeStamp
                 Trade = None
                 Dividend = None
                 DividendTax = None
@@ -190,6 +192,7 @@ module internal DatabaseToModels =
             let tradeMovement = trade.tradeToModel()
             {
                 Type = AccountMovementType.Trade
+                TimeStamp = tradeMovement.TimeStamp
                 Trade = Some tradeMovement
                 Dividend = None
                 DividendTax = None
@@ -224,6 +227,7 @@ module internal DatabaseToModels =
             let model = dividend.dividendReceivedToModel()
             {
                 Type = AccountMovementType.Dividend
+                TimeStamp = model.TimeStamp
                 Trade = None
                 Dividend = Some model
                 DividendTax = None

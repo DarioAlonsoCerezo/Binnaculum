@@ -36,14 +36,7 @@ public partial class OverviewPage
 
         Core.UI.Collections.Movements.Connect()
             .Filter(_filterPredicate)
-            .Sort(SortExpressionComparer<Models.Movement>.Descending(m =>
-            {
-                if (m.Type.IsBankAccountMovement)
-                    return m.BankAccountMovement.Value.TimeStamp;
-                if (m.Type.IsBrokerMovement)
-                    return m.BrokerMovement.Value.TimeStamp;
-                return DateTime.MinValue;
-            }))
+            .Sort(SortExpressionComparer<Models.Movement>.Descending(m => m.TimeStamp))
             .ObserveOn(UiThread)
             .Bind(out _movements)
             .Subscribe();
@@ -244,6 +237,9 @@ public partial class OverviewPage
             
             if(x.Type.IsTrade)
                 return x.Trade.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+
+            if(x.Type.IsDividend)
+                return x.Dividend.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
 
             return false;
         };
