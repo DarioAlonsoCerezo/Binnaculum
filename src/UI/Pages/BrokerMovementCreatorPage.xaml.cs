@@ -118,6 +118,18 @@ public partial class BrokerMovementCreatorPage
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
+        DividendMovement.Events().DividendDateChanged
+            .Where(_ => DividendMovement.IsVisible)
+            .Select(x => x != null)
+            .BindTo(Save, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        DividendMovement.Events().DividendTaxChanged
+            .Where(_ => DividendMovement.IsVisible)
+            .Select(x => x != null)
+            .BindTo(Save, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
         var saveDividend = Save.Events().SaveClicked
             .Where(_ => DividendMovement.IsVisible);
 
