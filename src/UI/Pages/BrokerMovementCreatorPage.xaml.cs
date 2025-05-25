@@ -75,6 +75,21 @@ public partial class BrokerMovementCreatorPage
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
             .DisposeWith(Disposables);
+
+        TradeMovement.Events().TradeChanged
+            .Where(_ => TradeMovement.IsVisible)
+            .Select(x => x != null)
+            .BindTo(Save, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        Save.Events().SaveClicked
+            .Where(_ => TradeMovement.IsVisible)
+            .Select(_ => TradeMovement.Trade)
+            .WhereNotNull()
+            .CatchCoreError(Core.UI.Creator.SaveTrade)
+            .Select(async _ => await Navigation.PopModalAsync())
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 
     private Models.BrokerMovement? GetBrokerMovement(Models.MovementType? movementType)

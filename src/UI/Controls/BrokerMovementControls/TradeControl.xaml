@@ -53,6 +53,7 @@
                         <Label
                             x:Name="Currency"
                             Padding="0"
+                            HorizontalOptions="Start"
                             Style="{StaticResource LabelSettingsGroup}">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer x:Name="CurrencyGesture" />

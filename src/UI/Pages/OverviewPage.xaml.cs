@@ -233,12 +233,19 @@ public partial class OverviewPage
             };
         }
 
+
         return x =>
         {
             if (x.Type.IsBankAccountMovement)
                 return false;
 
-            return x.BrokerMovement.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+            if(x.Type.IsBrokerMovement)
+                return x.BrokerMovement.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+            
+            if(x.Type.IsTrade)
+                return x.Trade.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+
+            return false;
         };
     }
 

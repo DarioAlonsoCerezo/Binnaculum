@@ -5,7 +5,7 @@ namespace Binnaculum.Controls;
 
 public partial class TradeControl
 {
-    public event EventHandler<Models.Trade> TradeChanged;
+    public event EventHandler<Models.Trade?> TradeChanged;
 
     private string _currency, _ticker;
 
@@ -21,6 +21,8 @@ public partial class TradeControl
         get => (Models.BrokerAccount)GetValue(BrokerAccountProperty);
         set => SetValue(BrokerAccountProperty, value);
     }
+
+    public Models.Trade? Trade => GetTrade();
 
     public TradeControl()
 	{
@@ -89,10 +91,9 @@ public partial class TradeControl
             LongSwitch.Events().Toggled.Select(_ => Unit.Default))
         .Where(x => IsVisible)
         .Select(_ => GetTrade())
-        .Where(trade => trade != null)
         .Subscribe(trade =>
         {
-            TradeChanged?.Invoke(this, trade!);
+            TradeChanged?.Invoke(this, trade);
         })
         .DisposeWith(Disposables);
     }

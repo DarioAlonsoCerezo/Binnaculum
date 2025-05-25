@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Controls;
 
@@ -20,11 +21,16 @@ public partial class MovementTemplate
 
         if(BindingContext is Models.Movement movement)
         {            
+            Quantity.IsVisible = movement.Type.IsTrade;
+
             if (movement.Type.IsBrokerMovement)
                 FillBrokerAccountMovement(movement);            
             
             if(movement.Type.IsBankAccountMovement)
                 FillBankAccountMovement(movement.BankAccountMovement.Value);
+
+            if (movement.Type.IsTrade)
+                FillTradeMovement(movement.Trade.Value);
         }
     }
 
@@ -44,6 +50,17 @@ public partial class MovementTemplate
         Amount.Money = movement.Currency;
         TimeStamp.DateTime = movement.TimeStamp;
         Title.SetLocalizedText(GetTitleFromBankAccountMovementType(movement.MovementType));
+    }
+
+    private void FillTradeMovement(Models.Trade trade)
+    {
+        Icon.ImagePath = trade.Ticker.Image?.Value ?? string.Empty;
+        Icon.PlaceholderText = trade.Ticker.Symbol;
+        TimeStamp.DateTime = trade.TimeStamp;
+        Amount.Amount = trade.TotalInvestedAmount;
+        Amount.Money = trade.Currency;
+        Quantity.Text = $"x{trade.Quantity}";
+        Title.SetLocalizedText(ResourceKeys.MovementType_Trade);
     }
 
     private string GetTitleFromBrokerAccountMovementType(Models.BrokerMovementType movementType)

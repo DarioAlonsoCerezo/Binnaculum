@@ -10,6 +10,7 @@
     <controls:BorderlessEditor
         x:Name="BorderlessEditor"
         Text="{Binding Text}"
+        AutoSize="TextChanges"
         Placeholder="{Binding Placeholder}"
         PlaceholderColor="{Binding PlaceholderColor}"
         IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />

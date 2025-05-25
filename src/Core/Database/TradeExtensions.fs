@@ -17,7 +17,7 @@ type Do() =
     static member fill(trade: Trade, command: SqliteCommand) =
         command.fillEntityAuditable<Trade>(
             [
-                (SQLParameterName.TimeStamp, trade.TimeStamp);
+                (SQLParameterName.TimeStamp, trade.TimeStamp.ToString());
                 (SQLParameterName.TickerId, trade.TickerId);
                 (SQLParameterName.BrokerAccountId, trade.BrokerAccountId);
                 (SQLParameterName.CurrencyId, trade.CurrencyId);
