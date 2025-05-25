@@ -148,3 +148,10 @@ module Collections =
     let internal updateBank(updated: Bank) =
         let current = Banks.Items |> Seq.find(fun b -> b.Id = updated.Id)
         Banks.Replace(current, updated)
+
+    /// <summary>
+    /// This function is used to get a ticker by its symbol.
+    /// It searches through the Tickers collection and returns the first ticker that matches the provided symbol.
+    /// </summary>
+    let GetTicker (ticker: string) =
+        Tickers.Items |> Seq.find(fun t -> t.Symbol = ticker)

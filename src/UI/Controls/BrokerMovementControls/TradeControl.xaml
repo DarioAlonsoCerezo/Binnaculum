@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.TradeControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls">
+    <VerticalStackLayout Spacing="16">
+        <Label
+            Text="{local:Translate MovementDepositControl_Title}"
+            Style="{StaticResource LabelSettingsTitle}" />
+
+        <Border
+            Padding="24,32"
+            BackgroundColor="{AppThemeBinding Light={StaticResource White},
+                                              Dark={StaticResource Black}}"
+            VerticalOptions="Start">
+            <VerticalStackLayout Spacing="12">
+                <controls:IconControl x:Name="Icon">
+                    <controls:IconControl.GestureRecognizers>
+                        <TapGestureRecognizer x:Name="IconGesture" />
+                    </controls:IconControl.GestureRecognizers>
+                </controls:IconControl>
+                <Grid ColumnDefinitions="1*,1*">
+                    <HorizontalStackLayout>
+                        <Label
+                            Padding="0,0,12,0"
+                            Text="Buy"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <controls:CustomSwitch
+                            x:Name="BuySwitch"
+                            Style="{StaticResource SettingsStyle}" />
+                    </HorizontalStackLayout>
+
+                    <HorizontalStackLayout Grid.Column="1">
+                        <Label
+                            Padding="0,0,12,0"
+                            Text="Long"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <controls:CustomSwitch
+                            x:Name="LongSwitch"
+                            Style="{StaticResource SettingsStyle}" />
+                    </HorizontalStackLayout>
+
+                </Grid>
+                <ContentView ControlTemplate="{StaticResource BorderedControlTemplate}">
+
+
+                    <Grid ColumnDefinitions="1*,1*">
+
+                        <controls:BorderlessEntry
+                            x:Name="Quantity"
+                            Keyboard="Numeric"
+                            HorizontalTextAlignment="Center"
+                            Placeholder="{local:Translate Placeholder_Quantity}" />
+                        <controls:BorderlessEntry
+                            x:Name="Price"
+                            Grid.Column="1"
+                            Placeholder="{local:Translate Placeholder_Price}"
+                            Keyboard="Numeric"
+                            HorizontalTextAlignment="Center" />
+                        <Label
+                            x:Name="Currency"
+                            Padding="0"
+                            Style="{StaticResource LabelSettingsGroup}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer x:Name="CurrencyGesture" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </ContentView>
+                <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
+
+                <controls:BorderedFeeAndCommissionControl x:Name="FeesAndCommissions" />
+                <controls:BorderedEditor
+                    x:Name="Notes"
+                    Placeholder="{local:Translate Placeholder_Note}" />
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+</controls:BaseContentView>

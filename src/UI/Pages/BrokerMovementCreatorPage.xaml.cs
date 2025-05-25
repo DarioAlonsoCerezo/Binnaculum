@@ -16,6 +16,7 @@ public partial class BrokerMovementCreatorPage
         AccountName.Text = _account.AccountNumber;
 
         MovementTypeControl.ItemsSource = SelectableItem.BrokerMovementTypeList();
+        TradeMovement.BrokerAccount = account;
     }
 
     protected override void StartLoad()
@@ -50,6 +51,10 @@ public partial class BrokerMovementCreatorPage
                 return false;
             })
             .BindTo(BrokerMovement, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        selection.Select(x => x == Models.MovementType.Trade)
+            .BindTo(TradeMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
         BrokerMovement.Events().DepositChanged

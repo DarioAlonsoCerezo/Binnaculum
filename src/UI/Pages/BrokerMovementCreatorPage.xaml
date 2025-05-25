@@ -58,6 +58,10 @@
                     x:Name="BrokerMovement"
                     IsVisible="False" />
 
+                <controls:TradeControl
+                    x:Name="TradeMovement"
+                    IsVisible="False" />
+
                 <controls:ButtonSave
                     x:Name="Save"
                     IsVisible="False" />

@@ -837,4 +837,10 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="Settings_Section_General_Ticker" xml:space="preserve">
     <value>Ticker</value>
   </data>
+  <data name="Placeholder_Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="Placeholder_Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
 </root>
