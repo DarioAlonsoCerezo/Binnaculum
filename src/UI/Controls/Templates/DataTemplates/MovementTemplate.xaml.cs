@@ -22,6 +22,7 @@ public partial class MovementTemplate
         if(BindingContext is Models.Movement movement)
         {            
             Quantity.IsVisible = movement.Type.IsTrade;
+            SubTitle.IsVisible = movement.Type.IsTrade;
 
             if (movement.Type.IsBrokerMovement)
                 FillBrokerAccountMovement(movement);            
@@ -59,8 +60,9 @@ public partial class MovementTemplate
         TimeStamp.DateTime = trade.TimeStamp;
         Amount.Amount = trade.TotalInvestedAmount;
         Amount.Money = trade.Currency;
-        Quantity.Text = $"x{trade.Quantity}";
+        Quantity.Text = $"x{trade.Quantity.Simplifyed()}";
         Title.SetLocalizedText(ResourceKeys.MovementType_Trade);
+        SubTitle.SetLocalizedText(GetSubtitleFromTradeCode(trade.TradeCode));
     }
 
     private string GetTitleFromBrokerAccountMovementType(Models.BrokerMovementType movementType)
@@ -96,4 +98,18 @@ public partial class MovementTemplate
 
         return resourceKey;
     }
+
+    private string GetSubtitleFromTradeCode(Models.TradeCode tradeCode)
+    {
+        var resourceKey = ResourceKeys.Movement_BuyToOpen;
+        if (tradeCode.IsBuyToClose)
+            resourceKey = ResourceKeys.Movement_BuyToClose;
+        if (tradeCode.IsSellToOpen)
+            resourceKey = ResourceKeys.Movement_SellToOpen;
+        if (tradeCode.IsSellToClose)
+            resourceKey = ResourceKeys.Movement_SellToClose;
+
+        return resourceKey;
+    }
+
 }

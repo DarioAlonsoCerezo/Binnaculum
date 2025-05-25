@@ -844,4 +844,16 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="Placeholder_Price" xml:space="preserve">
     <value>Precio</value>
   </data>
+  <data name="Movement_BuyToOpen" xml:space="preserve">
+    <value>Compra para abrir</value>
+  </data>
+  <data name="Movement_BuyToClose" xml:space="preserve">
+    <value>Compara para cerrar</value>
+  </data>
+  <data name="Movement_SellToOpen" xml:space="preserve">
+    <value>Venta para abrir</value>
+  </data>
+  <data name="Movement_SellToClose" xml:space="preserve">
+    <value>Venta para cerrar</value>
+  </data>
 </root>

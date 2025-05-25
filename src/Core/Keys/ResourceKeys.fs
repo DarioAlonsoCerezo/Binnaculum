@@ -84,3 +84,15 @@ module ResourceKeys =
 
     [<Literal>]
     let Today = "Today"
+
+    [<Literal>]
+    let Movement_BuyToClose = "Movement_BuyToClose"
+
+    [<Literal>]
+    let Movement_BuyToOpen = "Movement_BuyToOpen"
+
+    [<Literal>]
+    let Movement_SellToClose = "Movement_SellToClose"
+
+    [<Literal>]
+    let Movement_SellToOpen = "Movement_SellToOpen"
