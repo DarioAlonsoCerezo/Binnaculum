@@ -855,4 +855,13 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="Movement_SellToClose" xml:space="preserve">
     <value>Sell to close</value>
   </data>
+  <data name="Placeholder_Search_ticker" xml:space="preserve">
+    <value>Search ticker</value>
+  </data>
+  <data name="Placeholder_Type_Ticker_Symbol" xml:space="preserve">
+    <value>Type the ticker symbol</value>
+  </data>
+  <data name="Placeholder_Type_Ticker_Name" xml:space="preserve">
+    <value>Type the ticker name</value>
+  </data>
 </root>

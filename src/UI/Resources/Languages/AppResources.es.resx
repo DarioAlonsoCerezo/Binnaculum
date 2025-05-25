@@ -856,4 +856,13 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="Movement_SellToClose" xml:space="preserve">
     <value>Venta para cerrar</value>
   </data>
+  <data name="Placeholder_Search_ticker" xml:space="preserve">
+    <value>Buscar ticker</value>
+  </data>
+  <data name="Placeholder_Type_Ticker_Symbol" xml:space="preserve">
+    <value>Escriba el símbolo del ticker</value>
+  </data>
+  <data name="Placeholder_Type_Ticker_Name" xml:space="preserve">
+    <value>Escriba el nombre del ticker</value>
+  </data>
 </root>

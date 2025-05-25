@@ -17,7 +17,7 @@
                 <Grid ColumnDefinitions="1*,Auto">
                     <SearchBar
                         x:Name="Searcher"
-                        Placeholder="Search ticker"
+                        Placeholder="{local:Translate Placeholder_Search_ticker}"
                         TextTransform="Uppercase" />
                     <controls:ButtonAdd
                         x:Name="AddTicker"
@@ -49,10 +49,10 @@
                                     <controls:BorderedEntry
                                         x:Name="TickerSymbolEntry"
                                         TextTransform="Uppercase"
-                                        Placeholder="Type the ticker symbol" />
+                                        Placeholder="{local:Translate Placeholder_Type_Ticker_Symbol}" />
                                     <controls:BorderedEntry
                                         x:Name="TickerNameEntry"
-                                        Placeholder="Type the ticker name" />
+                                        Placeholder="{local:Translate Placeholder_Type_Ticker_Name}" />
                                 </VerticalStackLayout>
                             </Grid>
                         </ScrollView>
