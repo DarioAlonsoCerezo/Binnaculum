@@ -10,8 +10,24 @@ public partial class BorderedEntry
     public event EventHandler<string> CurrencyChanged;
     public event EventHandler Completed;
 
+    // Add a flag to prevent circular updates
+    private bool _isUpdatedOutside = false;
+
     public static readonly BindableProperty TextProperty =
-        BindableProperty.Create(nameof(Text), typeof(string), typeof(BorderedEntry), default(string));
+        BindableProperty.Create(
+            nameof(Text), 
+            typeof(string), 
+            typeof(BorderedEntry), 
+            default(string),
+            propertyChanged:(bindable, oldValue, newValue) => 
+            {
+                if (bindable is BorderedEntry borderedEntry)
+                {
+                    // Set flag to prevent circular updates
+                    borderedEntry._isUpdatedOutside = true;
+                    borderedEntry.BorderlessEntry.Text = (string)newValue;
+                }
+            });
 
     public string Text
     {
@@ -88,6 +104,20 @@ public partial class BorderedEntry
         set => SetValue(IsMoneyEntryProperty, value);
     }
 
+    public static readonly BindableProperty TextTransformProperty =
+        BindableProperty.Create(nameof(TextTransform), typeof(TextTransform), typeof(BorderedEntry), TextTransform.None,
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                if (bindable is BorderedEntry borderedEntry)
+                    borderedEntry.BorderlessEntry.TextTransform = (TextTransform)newValue;
+            });
+
+    public TextTransform TextTransform
+    {
+        get => (TextTransform)GetValue(TextTransformProperty);
+        set => SetValue(TextTransformProperty, value);
+    }
+
     public string SelectedCurrencyText => CurrencyLabel.Text;
 
     public async Task Unfocus(bool hideKeyboard = false)
@@ -126,8 +156,16 @@ public partial class BorderedEntry
             .ObserveOn(UiThread)
             .Subscribe(e =>
             {
-                Text = e.NewTextValue;
                 TextChanged?.Invoke(this, e);
+
+                // Only update the Text property if we're not already updating from it
+                if (_isUpdatedOutside)
+                {
+                    _isUpdatedOutside = false;
+                    return;
+                }
+                Text = e.NewTextValue;
+
             }).DisposeWith(Disposables);
 
         BorderlessEntry.Events().Completed

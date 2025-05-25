@@ -23,6 +23,7 @@
             Grid.Column="1"
             Text="{Binding Text}"
             Placeholder="{Binding Placeholder}"
+            TextTransform="{Binding TextTransform}"
             PlaceholderColor="{Binding PlaceholderColor}"
             IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />
         <controls:InformationButton
