@@ -38,14 +38,21 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.EmptyView>
-                        <ScrollView>
+                        <ScrollView
+                            x:Name="TickerEditorContainer"
+                            Opacity="0">
                             <Grid
                                 Padding="12,0,12,0"
                                 VerticalOptions="Start">
                                 <VerticalStackLayout Spacing="12">
-                                    <controls:EditableIconControl />
-                                    <controls:BorderedEntry Placeholder="Type the ticker symbol" />
-                                    <controls:BorderedEntry Placeholder="Type the ticker name" />
+                                    <controls:EditableIconControl x:Name="TickerIcon" />
+                                    <controls:BorderedEntry
+                                        x:Name="TickerSymbolEntry"
+                                        TextTransform="Uppercase"
+                                        Placeholder="Type the ticker symbol" />
+                                    <controls:BorderedEntry
+                                        x:Name="TickerNameEntry"
+                                        Placeholder="Type the ticker name" />
                                 </VerticalStackLayout>
                             </Grid>
                         </ScrollView>

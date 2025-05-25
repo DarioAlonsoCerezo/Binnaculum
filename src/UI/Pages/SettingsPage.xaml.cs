@@ -71,7 +71,7 @@ public partial class SettingsPage : ContentPage
                 var result = await new TickerSelectorPopup().ShowAndWait();
                 if (result is Models.Ticker ticker)
                 {
-
+                    Core.UI.SavedPrefereces.ChangeDefaultTicker(ticker.Symbol);
                 }
                 return Unit.Default;
             }))
