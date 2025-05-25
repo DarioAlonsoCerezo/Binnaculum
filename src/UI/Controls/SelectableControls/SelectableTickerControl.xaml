@@ -7,16 +7,19 @@
     x:Name="Control">
     <Grid
         Margin="12,16,12,0"
-        ColumnDefinitions="Auto, *">
+        ColumnDefinitions="Auto,Auto, *">
+        <controls:IconControl x:Name="Icon" />
         <Label
             x:Name="TickerSymbol"
-            FontAttributes="Bold"
-            VerticalOptions="Center" />
+            Grid.Column="1"
+            Margin="4,0"
+            WidthRequest="30"
+            Style="{StaticResource SelectableItem}" />
         <Label
             x:Name="TickerName"
-            Grid.Column="1"
+            Grid.Column="2"
             Margin="8,0,0,0"
-            VerticalOptions="Center"
+            Style="{StaticResource SelectableItem}"
             LineBreakMode="TailTruncation" />
         <Line Style="{StaticResource LineSettingsGroup}" />
         <Grid.GestureRecognizers>

@@ -14,9 +14,7 @@ namespace Binnaculum.Controls
 
         protected override void StartLoad()
         {
-            TickerGesture.Events().Tapped
-                .Subscribe(_ => TickerSelected?.Invoke(this, _ticker))
-                .DisposeWith(Disposables);
+            
         }
 
         protected override void OnBindingContextChanged()
@@ -25,10 +23,22 @@ namespace Binnaculum.Controls
             if (BindingContext is Models.Ticker ticker)
             {
                 _ticker = ticker;
-                TickerSymbol.Text = ticker.Symbol;
-                // Convert F# option<string> to string
-                TickerName.Text = ticker.Name?.Value ?? string.Empty;
+                Disposables?.Clear();
+                SetupData();
             }
+        }
+
+        private void SetupData()
+        {
+            Icon.PlaceholderText = _ticker.Symbol?.Trim() ?? string.Empty;
+            Icon.ImagePath = _ticker.Image?.Value ?? string.Empty;
+            TickerSymbol.Text = _ticker.Symbol;
+            // Convert F# option<string> to string
+            TickerName.Text = _ticker.Name?.Value ?? string.Empty;
+
+            TickerGesture.Events().Tapped
+            .Subscribe(_ => TickerSelected?.Invoke(this, _ticker))
+            .DisposeWith(Disposables);
         }
     }
 }
