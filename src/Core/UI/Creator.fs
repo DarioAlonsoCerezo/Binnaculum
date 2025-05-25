@@ -8,8 +8,8 @@ open BrokerMovementExtensions
 open BankAccountBalanceExtensions
 open TickerExtensions
 open TradeExtensions
+open DividendExtensions
 open Binnaculum.Core.Storage.ModelsToDatabase
-open Binnaculum.Core.Storage.DiscriminatedToDatabase
 open System
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage
@@ -69,9 +69,18 @@ module Creator =
         do! DataLoader.getOrRefreshAllTickers() |> Async.AwaitTask |> Async.Ignore
     }
 
+    /// <summary>
+    /// Save a new or updated trade and refresh the trades collection.
+    /// </summary>
     let SaveTrade(trade: Binnaculum.Core.Models.Trade) = task {
         let databaseTrade = trade.tradeToDatabase()
         do! databaseTrade.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+    }
+
+    let SaveDividend(dividend: Binnaculum.Core.Models.Dividend) = task {
+        let databaseDividend = dividend.dividendReceivedToDatabase()
+        do! databaseDividend.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }
 

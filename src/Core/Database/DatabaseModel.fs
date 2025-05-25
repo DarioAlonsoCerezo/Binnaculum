@@ -10,7 +10,10 @@ module internal DatabaseModel =
     type AuditableEntity = {
         CreatedAt: DateTimePattern option
         UpdatedAt: DateTimePattern option
-    }
+    } with 
+        static member Default = { CreatedAt = None; UpdatedAt = None }
+        static member FromDateTime(dateTime: DateTime) =
+            { CreatedAt = Some(DateTimePattern.FromDateTime(dateTime)); UpdatedAt = None }
 
     type SupportedBroker =
         | IBKR

@@ -128,11 +128,9 @@ module internal ModelsToDatabase =
 
         [<Extension>]
         static member tradeToDatabase(trade: Binnaculum.Core.Models.Trade) =
-            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(trade.TimeStamp)); UpdatedAt = None }
-            let timeStampPattern = DateTimePattern.FromDateTime(trade.TimeStamp)
             { 
                 Id = 0 
-                TimeStamp = timeStampPattern 
+                TimeStamp = DateTimePattern.FromDateTime(trade.TimeStamp) 
                 TickerId = trade.Ticker.Id
                 BrokerAccountId = trade.BrokerAccount.Id
                 CurrencyId = trade.Currency.Id
@@ -143,5 +141,17 @@ module internal ModelsToDatabase =
                 TradeCode = trade.TradeCode.tradeCodeToDatabase()
                 TradeType = trade.TradeType.tradeTypeToDatabase()
                 Notes = trade.Notes
-                Audit = audit
+                Audit = AuditableEntity.FromDateTime(trade.TimeStamp)
+            }
+
+        [<Extension>]
+        static member dividendReceivedToDatabase(dividend: Binnaculum.Core.Models.Dividend) =
+            { 
+                Id = 0 
+                TimeStamp = DateTimePattern.FromDateTime(dividend.TimeStamp) 
+                DividendAmount = Money.FromAmount(dividend.Amount) 
+                TickerId = dividend.Ticker.Id 
+                CurrencyId = dividend.Currency.Id 
+                BrokerAccountId = dividend.BrokerAccount.Id 
+                Audit = AuditableEntity.FromDateTime(dividend.TimeStamp)
             }

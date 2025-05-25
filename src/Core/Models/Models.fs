@@ -146,7 +146,7 @@ module Models =
     type DividendTax = {
         Id: int
         TimeStamp: DateTime
-        Amount: decimal
+        TaxAmount: decimal
         Ticker: Ticker
         Currency: Currency
         BrokerAccount: BrokerAccount
