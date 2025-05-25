@@ -49,4 +49,5 @@ public static class EventsExtensions
     public static RxBrokerMovementControlEvents Events(this BrokerMovementControl item) => new(item);
     public static RxBankMovementControlEvents Events(this BankMovementControl item) => new(item);
     public static RxBorderedEditorEvents Events(this BorderedEditor item) => new(item);
+    public static RxTradeControlEvents Events(this TradeControl item) => new(item);
 }
