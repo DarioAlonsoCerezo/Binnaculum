@@ -48,6 +48,11 @@ public abstract class BaseContentView : ContentView, IDisposable
         CurrentTheme = theme;
     }
 
+    /// <summary>
+    /// This method is called when the view is loaded.
+    /// Avoid using it when you are using this view as a DataTemplate 
+    /// or inside a ListView/CollectionView, as it can be called multiple times.
+    /// </summary>
     protected abstract void StartLoad();
 
     public void Dispose()
