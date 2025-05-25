@@ -17,8 +17,8 @@ type Do() =
     static member fill(optionTrade: OptionTrade, command: SqliteCommand) =
         command.fillEntityAuditable<OptionTrade>(
             [
-                (SQLParameterName.TimeStamp, optionTrade.TimeStamp);
-                (SQLParameterName.ExpirationDate, optionTrade.ExpirationDate);
+                (SQLParameterName.TimeStamp, optionTrade.TimeStamp.ToString());
+                (SQLParameterName.ExpirationDate, optionTrade.ExpirationDate.ToString());
                 (SQLParameterName.Premium, optionTrade.Premium.Value);
                 (SQLParameterName.NetPremium, optionTrade.NetPremium.Value);
                 (SQLParameterName.TickerId, optionTrade.TickerId);

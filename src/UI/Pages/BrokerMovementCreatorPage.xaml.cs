@@ -17,7 +17,7 @@ public partial class BrokerMovementCreatorPage
 
         MovementTypeControl.ItemsSource = SelectableItem.BrokerMovementTypeList();
         TradeMovement.BrokerAccount = account;
-        DividendReceivedMovement.BrokerAccount = account;
+        DividendMovement.BrokerAccount = account;
     }
 
     protected override void StartLoad()
@@ -59,7 +59,23 @@ public partial class BrokerMovementCreatorPage
             .DisposeWith(Disposables);
 
         selection.Select(x => x == Models.MovementType.DividendReceived)
-            .BindTo(DividendReceivedMovement, x => x.IsVisible)
+            .Do(_ => DividendMovement.DividendEditor = DividenEditor.Received)
+            .BindTo(DividendMovement, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        selection.Select(x => x == Models.MovementType.DividendExDate)
+            .Do(_ => DividendMovement.DividendEditor = DividenEditor.ExDividendDate)
+            .BindTo(DividendMovement, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        selection.Select(x => x == Models.MovementType.DividendPayDate)
+            .Do(_ => DividendMovement.DividendEditor = DividenEditor.PayDate)
+            .BindTo(DividendMovement, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        selection.Select(x => x == Models.MovementType.DividendTaxWithheld)
+            .Do(_ => DividendMovement.DividendEditor = DividenEditor.Taxes)
+            .BindTo(DividendMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
         BrokerMovement.Events().DepositChanged
@@ -96,15 +112,18 @@ public partial class BrokerMovementCreatorPage
             .Subscribe()
             .DisposeWith(Disposables);
 
-        DividendReceivedMovement.Events().DividendChanged
-            .Where(_ => DividendReceivedMovement.IsVisible)
+        DividendMovement.Events().DividendChanged
+            .Where(_ => DividendMovement.IsVisible)
             .Select(x => x != null)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
-        Save.Events().SaveClicked
-            .Where(_ => DividendReceivedMovement.IsVisible)
-            .Select(_ => DividendReceivedMovement.Dividend)
+        var saveDividend = Save.Events().SaveClicked
+            .Where(_ => DividendMovement.IsVisible);
+
+        saveDividend
+            .Where(_ => DividendMovement.DividendEditor == DividenEditor.Received)
+            .Select(_ => DividendMovement.Dividend)
             .WhereNotNull()
             .CatchCoreError(Core.UI.Creator.SaveDividend)
             .Select(async _ => await Navigation.PopModalAsync())

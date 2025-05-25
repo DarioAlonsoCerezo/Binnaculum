@@ -3,9 +3,9 @@ using Binnaculum.Core;
 
 namespace Binnaculum.Extensions;
 
-public class RxDividendReceivedControlEvents(DividendReceivedControl data) : RxVisualElementEvents(data)
+public class RxDividendReceivedControlEvents(DividendControl data) : RxVisualElementEvents(data)
 {
-    private readonly DividendReceivedControl _data = data;
+    private readonly DividendControl _data = data;
     public IObservable<Models.Dividend?> DividendChanged
         => Observable
             .FromEvent<EventHandler<Models.Dividend?>, Models.Dividend?>(

@@ -3,9 +3,19 @@ using Binnaculum.Popups;
 
 namespace Binnaculum.Controls;
 
-public partial class DividendReceivedControl 
+public enum DividenEditor
+{
+    Received,
+    ExDividendDate,
+    PayDate,
+    Taxes
+}
+
+public partial class DividendControl 
 {
     public event EventHandler<Models.Dividend?> DividendChanged;
+    public event EventHandler<Models.DividendDate?> DividendDateChanged;
+    public event EventHandler<Models.DividendTax?> DividendTaxChanged;
 
     private string _ticker;
     private decimal _amount;
@@ -23,9 +33,24 @@ public partial class DividendReceivedControl
         set => SetValue(BrokerAccountProperty, value);
     }
 
-    public Models.Dividend? Dividend => GetDividend();
+    public static readonly BindableProperty DividendEditorProperty =
+        BindableProperty.Create(
+            nameof(DividendEditor),
+            typeof(DividenEditor),
+            typeof(DividendControl),
+            DividenEditor.Received);
 
-    public DividendReceivedControl()
+    public DividenEditor DividendEditor
+    {
+        get => (DividenEditor)GetValue(DividendEditorProperty);
+        set => SetValue(DividendEditorProperty, value);
+    }
+
+    public Models.Dividend? Dividend => GetDividend();
+    public Models.DividendDate? DividendDate => GetDividendDate();
+    public Models.DividendTax? DividendTax => GetDividendTax();
+
+    public DividendControl()
 	{
 		InitializeComponent();
 
@@ -73,7 +98,12 @@ public partial class DividendReceivedControl
         .Select(_ => GetDividend())
         .Subscribe(dividend =>
         {
-            DividendChanged?.Invoke(this, dividend);
+            if (DividendEditor == DividenEditor.Received)
+                DividendChanged?.Invoke(this, dividend);
+            else if (DividendEditor == DividenEditor.ExDividendDate)
+                DividendDateChanged?.Invoke(this, GetDividendDate());
+            else if (DividendEditor == DividenEditor.Taxes)
+                DividendTaxChanged?.Invoke(this, GetDividendTax());
         })
         .DisposeWith(Disposables);
     }
@@ -88,6 +118,46 @@ public partial class DividendReceivedControl
         var date = DateTimePicker.Date;
 
         return new Models.Dividend(
+            0,
+            date,
+            _amount,
+            ticker,
+            currency,
+            BrokerAccount);
+    }
+
+    private Models.DividendDate? GetDividendDate()
+    {
+        if(_amount <= 0) 
+            return null;
+
+        var ticker = Core.UI.Collections.GetTicker(_ticker);
+        var currency = Core.UI.Collections.GetCurrency(AmountEntry.SelectedCurrencyText);
+        var date = DateTimePicker.Date;
+        var code = DividendEditor == DividenEditor.ExDividendDate
+            ? Models.DividendCode.ExDividendDate
+            : Models.DividendCode.PayDividendDate;
+
+        return new Models.DividendDate(
+            0,
+            date,
+            _amount,
+            ticker,
+            currency,
+            BrokerAccount,
+            code);
+    }
+
+    private Models.DividendTax? GetDividendTax()
+    {
+        if (_amount <= 0)
+            return null;
+
+        var ticker = Core.UI.Collections.GetTicker(_ticker);
+        var currency = Core.UI.Collections.GetCurrency(AmountEntry.SelectedCurrencyText);
+        var date = DateTimePicker.Date;
+        
+        return new Models.DividendTax(
             0,
             date,
             _amount,
