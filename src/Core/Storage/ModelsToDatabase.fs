@@ -155,3 +155,28 @@ module internal ModelsToDatabase =
                 BrokerAccountId = dividend.BrokerAccount.Id 
                 Audit = AuditableEntity.FromDateTime(dividend.TimeStamp)
             }
+
+        [<Extension>]
+        static member dividendTaxToDatabase(dividend: Binnaculum.Core.Models.DividendTax) =
+            {
+                Id = 0 
+                TimeStamp = DateTimePattern.FromDateTime(dividend.TimeStamp) 
+                DividendTaxAmount = Money.FromAmount(dividend.TaxAmount) 
+                TickerId = dividend.Ticker.Id 
+                CurrencyId = dividend.Currency.Id 
+                BrokerAccountId = dividend.BrokerAccount.Id  
+                Audit = AuditableEntity.FromDateTime(dividend.TimeStamp)
+            }
+
+        [<Extension>]
+        static member dividendDateToDatabase(dividendDate: Binnaculum.Core.Models.DividendDate) =
+            { 
+                Id = 0 
+                TimeStamp = DateTimePattern.FromDateTime(dividendDate.TimeStamp)
+                Amount = Money.FromAmount(dividendDate.Amount)
+                TickerId = dividendDate.Ticker.Id
+                CurrencyId = dividendDate.Currency.Id
+                BrokerAccountId = dividendDate.BrokerAccount.Id
+                DividendCode = dividendDate.DividendCode.dividendCodeToDatabase()
+                Audit = AuditableEntity.FromDateTime(dividendDate.TimeStamp)
+            }

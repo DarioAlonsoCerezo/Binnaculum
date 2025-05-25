@@ -241,6 +241,12 @@ public partial class OverviewPage
             if(x.Type.IsDividend)
                 return x.Dividend.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
 
+            if(x.Type.IsDividendDate)
+                return x.DividendDate.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+
+            if(x.Type.IsDividendTax)
+                return x.DividendTax.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+
             return false;
         };
     }

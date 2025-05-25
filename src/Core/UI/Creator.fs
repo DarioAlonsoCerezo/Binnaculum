@@ -9,6 +9,8 @@ open BankAccountBalanceExtensions
 open TickerExtensions
 open TradeExtensions
 open DividendExtensions
+open DividendDateExtensions
+open DividendTaxExtensions
 open Binnaculum.Core.Storage.ModelsToDatabase
 open System
 open Binnaculum.Core.Patterns
@@ -78,9 +80,27 @@ module Creator =
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }
 
+    /// <summary>
+    /// Save a new or updated dividend and refresh the dividends collection.
+    /// </summary>
     let SaveDividend(dividend: Binnaculum.Core.Models.Dividend) = task {
         let databaseDividend = dividend.dividendReceivedToDatabase()
         do! databaseDividend.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+    }
+
+    /// <summary>
+    /// Save a new or updated dividend date and refresh the dividend dates collection.
+    /// </summary>
+    let SaveDividendDate(dividendDate: Binnaculum.Core.Models.DividendDate) = task {
+        let databaseModel = dividendDate.dividendDateToDatabase()
+        do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+    }
+
+    let SaveDividendTax(dividendTax: Binnaculum.Core.Models.DividendTax) = task {
+        let databaseModel = dividendTax.dividendTaxToDatabase()
+        do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }
 

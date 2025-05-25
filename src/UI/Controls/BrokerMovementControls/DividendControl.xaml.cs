@@ -53,6 +53,7 @@ public partial class DividendControl
     public DividendControl()
 	{
 		InitializeComponent();
+        _amount = 0m;
 
         Core.UI.SavedPrefereces.UserPreferences
             .Do(p =>
@@ -95,15 +96,21 @@ public partial class DividendControl
             DateTimePicker.Events().DateSelected.Select(_ => Unit.Default),
             Icon.WhenAnyValue(x => x.PlaceholderText).Select(_ => Unit.Default))
         .Where(x => IsVisible)
-        .Select(_ => GetDividend())
-        .Subscribe(dividend =>
+        .Subscribe(_ =>
         {
-            if (DividendEditor == DividenEditor.Received)
-                DividendChanged?.Invoke(this, dividend);
-            else if (DividendEditor == DividenEditor.ExDividendDate)
-                DividendDateChanged?.Invoke(this, GetDividendDate());
-            else if (DividendEditor == DividenEditor.Taxes)
-                DividendTaxChanged?.Invoke(this, GetDividendTax());
+            switch (DividendEditor)
+            {
+                case DividenEditor.Received:
+                    DividendChanged?.Invoke(this, Dividend);
+                    break;
+                case DividenEditor.ExDividendDate:
+                case DividenEditor.PayDate:
+                    DividendDateChanged?.Invoke(this, DividendDate);
+                    break;
+                case DividenEditor.Taxes:
+                    DividendTaxChanged?.Invoke(this, DividendTax);
+                    break;
+            }
         })
         .DisposeWith(Disposables);
     }

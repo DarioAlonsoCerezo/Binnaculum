@@ -183,18 +183,23 @@ module internal DataLoader =
         let! databaseBankMovements = BankAccountBalanceExtensions.Do.getAll()
         let! databaseTrades = TradeExtensions.Do.getAll() |> Async.AwaitTask
         let! databaseDividends = DividendExtensions.Do.getAll() |> Async.AwaitTask
-        
+        let! databaseDividendDates = DividendDateExtensions.Do.getAll() |> Async.AwaitTask
+        let! databaseDividendTaxes = DividendTaxExtensions.Do.getAll() |> Async.AwaitTask
+
         let brokerMovements = databaseBrokerMovements.brokerMovementsToModel()
         let bankMovements = databaseBankMovements.bankAccountMovementsToMovements()
         let tradeMovements =  databaseTrades.tradesToMovements()
         let dividendMovements = databaseDividends.dividendsReceivedToMovements()
-        
+        let dividendDates = databaseDividendDates.dividendDatesToMovements()
+        let dividendTaxes = databaseDividendTaxes.dividendTaxesToMovements()        
         
         let movements = 
             brokerMovements 
             @ bankMovements 
             @ tradeMovements
             @ dividendMovements
+            @ dividendDates
+            @ dividendTaxes
         
         Collections.Movements.EditDiff movements
 

@@ -58,23 +58,25 @@ public partial class BrokerMovementCreatorPage
             .BindTo(TradeMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
-        selection.Select(x => x == Models.MovementType.DividendReceived)
-            .Do(_ => DividendMovement.DividendEditor = DividenEditor.Received)
-            .BindTo(DividendMovement, x => x.IsVisible)
-            .DisposeWith(Disposables);
-
-        selection.Select(x => x == Models.MovementType.DividendExDate)
-            .Do(_ => DividendMovement.DividendEditor = DividenEditor.ExDividendDate)
-            .BindTo(DividendMovement, x => x.IsVisible)
-            .DisposeWith(Disposables);
-
-        selection.Select(x => x == Models.MovementType.DividendPayDate)
-            .Do(_ => DividendMovement.DividendEditor = DividenEditor.PayDate)
-            .BindTo(DividendMovement, x => x.IsVisible)
-            .DisposeWith(Disposables);
-
-        selection.Select(x => x == Models.MovementType.DividendTaxWithheld)
-            .Do(_ => DividendMovement.DividendEditor = DividenEditor.Taxes)
+        selection.Select(x =>
+            {
+                if(x == Models.MovementType.DividendReceived
+                    || x == Models.MovementType.DividendExDate
+                    || x == Models.MovementType.DividendPayDate
+                    || x == Models.MovementType.DividendTaxWithheld)
+                {
+                    if(x == Models.MovementType.DividendReceived)
+                        DividendMovement.DividendEditor = DividenEditor.Received;
+                    else if (x == Models.MovementType.DividendExDate)
+                        DividendMovement.DividendEditor = DividenEditor.ExDividendDate;
+                    else if (x == Models.MovementType.DividendPayDate)
+                        DividendMovement.DividendEditor = DividenEditor.PayDate;
+                    else if (x == Models.MovementType.DividendTaxWithheld)
+                        DividendMovement.DividendEditor = DividenEditor.Taxes;
+                    return true;
+                }
+                return false;
+            })
             .BindTo(DividendMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
@@ -112,21 +114,16 @@ public partial class BrokerMovementCreatorPage
             .Subscribe()
             .DisposeWith(Disposables);
 
-        DividendMovement.Events().DividendChanged
+        Observable.Merge(DividendMovement.Events().DividendChanged.Select(_ => Unit.Default),
+                DividendMovement.Events().DividendDateChanged.Select(_ => Unit.Default),
+                DividendMovement.Events().DividendTaxChanged.Select(_ => Unit.Default))
             .Where(_ => DividendMovement.IsVisible)
-            .Select(x => x != null)
-            .BindTo(Save, x => x.IsVisible)
-            .DisposeWith(Disposables);
-
-        DividendMovement.Events().DividendDateChanged
-            .Where(_ => DividendMovement.IsVisible)
-            .Select(x => x != null)
-            .BindTo(Save, x => x.IsVisible)
-            .DisposeWith(Disposables);
-
-        DividendMovement.Events().DividendTaxChanged
-            .Where(_ => DividendMovement.IsVisible)
-            .Select(x => x != null)
+            .Select(_ =>
+            {
+                return DividendMovement.Dividend != null
+                       || DividendMovement.DividendDate != null
+                       || DividendMovement.DividendTax != null;
+            })
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
@@ -138,6 +135,25 @@ public partial class BrokerMovementCreatorPage
             .Select(_ => DividendMovement.Dividend)
             .WhereNotNull()
             .CatchCoreError(Core.UI.Creator.SaveDividend)
+            .Select(async _ => await Navigation.PopModalAsync())
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        saveDividend
+            .Where(_ => DividendMovement.DividendEditor == DividenEditor.ExDividendDate
+                        || DividendMovement.DividendEditor == DividenEditor.PayDate)
+            .Select(_ => DividendMovement.DividendDate)
+            .WhereNotNull()
+            .CatchCoreError(Core.UI.Creator.SaveDividendDate)
+            .Select(async _ => await Navigation.PopModalAsync())
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        saveDividend
+            .Where(_ => DividendMovement.DividendEditor == DividenEditor.Taxes)
+            .Select(_ => DividendMovement.DividendTax)
+            .WhereNotNull()
+            .CatchCoreError(Core.UI.Creator.SaveDividendTax)
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
             .DisposeWith(Disposables);

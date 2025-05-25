@@ -242,4 +242,73 @@ module internal DatabaseToModels =
         static member dividendsReceivedToMovements(dividends: Binnaculum.Core.Database.DatabaseModel.Dividend list) =
             dividends |> List.map (fun d -> d.dividendReceivedToMovement())
 
-            
+        [<Extension>]
+        static member dividendTaxToModel(dividend: Binnaculum.Core.Database.DatabaseModel.DividendTax) =
+            {
+                Id = dividend.Id
+                TimeStamp = dividend.TimeStamp.Value
+                TaxAmount = dividend.DividendTaxAmount.Value
+                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dividend.TickerId)
+                Currency = Binnaculum.Core.UI.Collections.getCurrency(dividend.CurrencyId)
+                BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
+            }
+
+        [<Extension>]
+        static member dividendTaxesToModel(dividends: Binnaculum.Core.Database.DatabaseModel.DividendTax list) =
+            dividends |> List.map (fun d -> d.dividendTaxToModel())
+        
+        [<Extension>]
+        static member dividendTaxToMovement(dividend: Binnaculum.Core.Database.DatabaseModel.DividendTax) =
+            let model = dividend.dividendTaxToModel()
+            {
+                Type = AccountMovementType.DividendTax
+                TimeStamp = model.TimeStamp
+                Trade = None
+                Dividend = None
+                DividendTax = Some model
+                DividendDate = None
+                OptionTrade = None
+                BrokerMovement = None
+                BankAccountMovement = None
+                TickerSplit = None
+            }
+
+        [<Extension>]
+        static member dividendTaxesToMovements(dividends: Binnaculum.Core.Database.DatabaseModel.DividendTax list) =
+            dividends |> List.map (fun d -> d.dividendTaxToMovement())
+
+        [<Extension>]
+        static member dividendDateToModel(dividend: Binnaculum.Core.Database.DatabaseModel.DividendDate) =
+            {
+                Id = dividend.Id
+                TimeStamp = dividend.TimeStamp.Value
+                Amount = dividend.Amount.Value
+                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dividend.TickerId)
+                Currency = Binnaculum.Core.UI.Collections.getCurrency(dividend.CurrencyId)
+                BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
+                DividendCode = dividend.DividendCode.databaseToDividendCode()
+            }
+
+        [<Extension>]
+        static member dividendDatesToModel(dividends: Binnaculum.Core.Database.DatabaseModel.DividendDate list) =
+            dividends |> List.map (fun d -> d.dividendDateToModel())
+        
+        [<Extension>]
+        static member dividendDateToMovement(dividend: Binnaculum.Core.Database.DatabaseModel.DividendDate) =
+            let model = dividend.dividendDateToModel()
+            {
+                Type = AccountMovementType.DividendDate
+                TimeStamp = model.TimeStamp
+                Trade = None
+                Dividend = None
+                DividendTax = None
+                DividendDate = Some model
+                OptionTrade = None
+                BrokerMovement = None
+                BankAccountMovement = None
+                TickerSplit = None
+            }
+
+        [<Extension>]
+        static member dividendDatesToMovements(dividends: Binnaculum.Core.Database.DatabaseModel.DividendDate list) =
+            dividends |> List.map (fun d -> d.dividendDateToMovement())

@@ -35,6 +35,12 @@ public partial class MovementTemplate
 
             if (movement.Type.IsDividend)
                 FillDividendReceived(movement.Dividend.Value);
+
+            if(movement.Type.IsDividendDate)
+                FillDividendDate(movement.DividendDate.Value);
+
+            if(movement.Type.IsDividendTax)
+                FillDividendTax(movement.DividendTax.Value);
         }
     }
 
@@ -76,6 +82,31 @@ public partial class MovementTemplate
         Amount.Amount = dividend.Amount;
         Amount.Money = dividend.Currency;
         Title.SetLocalizedText(ResourceKeys.MovementType_DividendReceived);
+    }
+
+    private void FillDividendDate(Models.DividendDate dividend)
+    {
+        Icon.ImagePath = dividend.Ticker.Image?.Value ?? string.Empty;
+        Icon.PlaceholderText = dividend.Ticker.Symbol;
+        SubTitle.Text = dividend.TimeStamp.ToShortDateString();
+        Amount.Amount = dividend.Amount;
+        Amount.Money = dividend.Currency;
+
+        var text = dividend.DividendCode == Models.DividendCode.ExDividendDate
+            ? ResourceKeys.MovementType_DividendExDate
+            : ResourceKeys.MovementType_DividendPayDate;
+
+        Title.SetLocalizedText(text);
+    }
+
+    private void FillDividendTax(Models.DividendTax dividend)
+    {
+        Icon.ImagePath = dividend.Ticker.Image?.Value ?? string.Empty;
+        Icon.PlaceholderText = dividend.Ticker.Symbol;
+        TimeStamp.DateTime = dividend.TimeStamp;
+        Amount.Amount = dividend.TaxAmount;
+        Amount.Money = dividend.Currency;
+        Title.SetLocalizedText(ResourceKeys.MovementType_DividendTaxWithheld);
     }
 
     private string GetTitleFromBrokerAccountMovementType(Models.BrokerMovementType movementType)

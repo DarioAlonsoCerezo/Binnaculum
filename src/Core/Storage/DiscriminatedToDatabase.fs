@@ -55,4 +55,10 @@ module internal DiscriminatedToDatabase =
             match tradeType with
             | Binnaculum.Core.Models.TradeType.Long -> TradeType.Long
             | Binnaculum.Core.Models.TradeType.Short -> TradeType.Short
+
+        [<Extension>]
+        static member dividendCodeToDatabase(dividendCode: Binnaculum.Core.Models.DividendCode) =
+            match dividendCode with
+            | Binnaculum.Core.Models.DividendCode.ExDividendDate -> DividendCode.ExDividendDate
+            | Binnaculum.Core.Models.DividendCode.PayDividendDate -> DividendCode.PayDividendDate
         
