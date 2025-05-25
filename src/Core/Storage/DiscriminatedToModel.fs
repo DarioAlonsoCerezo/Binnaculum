@@ -38,3 +38,16 @@ module internal DiscriminatedToModel =
             | Database.DatabaseModel.BrokerMovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
             | Database.DatabaseModel.BrokerMovementType.Conversion -> BrokerMovementType.Conversion
             
+        [<Extension>]
+        static member databaseToTradeCode(tradeCode: Binnaculum.Core.Database.DatabaseModel.TradeCode) =
+            match tradeCode with
+            | Database.DatabaseModel.TradeCode.BuyToOpen -> TradeCode.BuyToOpen
+            | Database.DatabaseModel.TradeCode.SellToOpen -> TradeCode.SellToOpen
+            | Database.DatabaseModel.TradeCode.BuyToClose -> TradeCode.BuyToClose
+            | Database.DatabaseModel.TradeCode.SellToClose -> TradeCode.SellToClose
+
+        [<Extension>]
+        static member databaseToTradeType(tradeType: Binnaculum.Core.Database.DatabaseModel.TradeType) =
+            match tradeType with
+            | Database.DatabaseModel.TradeType.Long -> TradeType.Long
+            | Database.DatabaseModel.TradeType.Short -> TradeType.Short

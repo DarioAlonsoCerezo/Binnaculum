@@ -7,6 +7,7 @@ open BrokerExtensions
 open BrokerMovementExtensions
 open BankAccountBalanceExtensions
 open TickerExtensions
+open TradeExtensions
 open Binnaculum.Core.Storage.ModelsToDatabase
 open Binnaculum.Core.Storage.DiscriminatedToDatabase
 open System
@@ -66,6 +67,12 @@ module Creator =
         do! databaseTicker.save() |> Async.AwaitTask |> Async.Ignore
         // Refresh in-memory ticker collection
         do! DataLoader.getOrRefreshAllTickers() |> Async.AwaitTask |> Async.Ignore
+    }
+
+    let SaveTrade(trade: Binnaculum.Core.Models.Trade) = task {
+        let databaseTrade = trade.tradeToDatabase()
+        do! databaseTrade.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }
 
     let GetBrokerMovementType(uiSelectedType: Binnaculum.Core.Models.MovementType option) =

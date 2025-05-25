@@ -159,4 +159,47 @@ module internal DatabaseToModels =
         [<Extension>]
         static member tickersToModel(tikers: Binnaculum.Core.Database.DatabaseModel.Ticker list) =
             tikers |> List.map (fun t -> t.tickerToModel())
+
+        [<Extension>]
+        static member tradeToModel(trade: Binnaculum.Core.Database.DatabaseModel.Trade) =
+            let amount = trade.Price.Value * trade.Quantity
+            let commissions = trade.Fees.Value + trade.Commissions.Value
+            let totalInvestedAmount = amount + commissions
+            {
+                Id = trade.Id
+                TimeStamp = trade.TimeStamp.Value
+                TotalInvestedAmount = totalInvestedAmount
+                Ticker = Binnaculum.Core.UI.Collections.getTickerById(trade.TickerId)
+                BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(trade.BrokerAccountId)
+                Currency = Binnaculum.Core.UI.Collections.getCurrency(trade.CurrencyId)
+                Quantity = trade.Quantity
+                Price = trade.Price.Value
+                Commissions = trade.Commissions.Value
+                Fees = trade.Fees.Value
+                TradeCode = trade.TradeCode.databaseToTradeCode()
+                TradeType = trade.TradeType.databaseToTradeType()
+                Notes = trade.Notes
+            }
         
+        [<Extension>]
+        static member tradesToModel(trades: Binnaculum.Core.Database.DatabaseModel.Trade list) =
+            trades |> List.map (fun t -> t.tradeToModel())
+
+        [<Extension>]
+        static member tradeToMovement(trade: Binnaculum.Core.Database.DatabaseModel.Trade) =
+            let tradeMovement = trade.tradeToModel()
+            {
+                Type = AccountMovementType.Trade
+                Trade = Some tradeMovement
+                Dividend = None
+                DividendTax = None
+                DividendDate = None
+                OptionTrade = None
+                BrokerMovement = None
+                BankAccountMovement = None
+                TickerSplit = None
+            }
+
+        [<Extension>]
+        static member tradesToMovements(trades: Binnaculum.Core.Database.DatabaseModel.Trade list) =
+            trades |> List.map (fun t -> t.tradeToMovement())

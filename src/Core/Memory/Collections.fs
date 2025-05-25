@@ -155,3 +155,10 @@ module Collections =
     /// </summary>
     let GetTicker (ticker: string) =
         Tickers.Items |> Seq.find(fun t -> t.Symbol = ticker)
+
+    /// <summary>
+    /// This function is used to get a ticker by its ID.
+    /// It searches through the Tickers collection and returns the first ticker that matches the provided ID.
+    /// </summary>
+    let internal getTickerById(id: int) =
+        Tickers.Items |> Seq.find(fun t -> t.Id = id)

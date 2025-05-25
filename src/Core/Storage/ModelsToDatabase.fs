@@ -125,3 +125,23 @@ module internal ModelsToDatabase =
             else
                 return! ticker.updateTickerToDatabase() |> Async.AwaitTask
         }
+
+        [<Extension>]
+        static member tradeToDatabase(trade: Binnaculum.Core.Models.Trade) =
+            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(trade.TimeStamp)); UpdatedAt = None }
+            let timeStampPattern = DateTimePattern.FromDateTime(trade.TimeStamp)
+            { 
+                Id = 0 
+                TimeStamp = timeStampPattern 
+                TickerId = trade.Ticker.Id
+                BrokerAccountId = trade.BrokerAccount.Id
+                CurrencyId = trade.Currency.Id
+                Quantity = trade.Quantity
+                Price = Money.FromAmount(trade.Price)
+                Commissions = Money.FromAmount(trade.Commissions)
+                Fees = Money.FromAmount(trade.Fees)
+                TradeCode = trade.TradeCode.tradeCodeToDatabase()
+                TradeType = trade.TradeType.tradeTypeToDatabase()
+                Notes = trade.Notes
+                Audit = audit
+            }

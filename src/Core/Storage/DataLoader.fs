@@ -181,10 +181,12 @@ module internal DataLoader =
     let loadMovementsFor(account: Account option) = task {
         let! databaseBrokerMovements = BrokerMovementExtensions.Do.getAll()
         let! databaseBankMovements = BankAccountBalanceExtensions.Do.getAll()
+        let! databaseTrades = TradeExtensions.Do.getAll() |> Async.AwaitTask
         let brokerMovements = databaseBrokerMovements.brokerMovementsToModel()
         let bankMovements = databaseBankMovements.bankAccountMovementsToMovements()
+        let tradeMovements =  databaseTrades.tradesToMovements()
         
-        let movements = brokerMovements @ bankMovements
+        let movements = brokerMovements @ bankMovements @ tradeMovements
         
         Collections.Movements.EditDiff movements
 
