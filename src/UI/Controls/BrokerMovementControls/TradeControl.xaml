@@ -44,21 +44,12 @@
 
                 </Grid>
                 <ContentView ControlTemplate="{StaticResource BorderedControlTemplate}">
-
-
                     <Grid ColumnDefinitions="1*,1*">
-
                         <controls:BorderlessEntry
                             x:Name="Quantity"
                             Keyboard="Numeric"
                             HorizontalTextAlignment="Center"
                             Placeholder="{local:Translate Placeholder_Quantity}" />
-                        <controls:BorderlessEntry
-                            x:Name="Price"
-                            Grid.Column="1"
-                            Placeholder="{local:Translate Placeholder_Price}"
-                            Keyboard="Numeric"
-                            HorizontalTextAlignment="Center" />
                         <Label
                             x:Name="Currency"
                             Padding="0"
@@ -67,6 +58,12 @@
                                 <TapGestureRecognizer x:Name="CurrencyGesture" />
                             </Label.GestureRecognizers>
                         </Label>
+                        <controls:BorderlessEntry
+                            x:Name="Price"
+                            Grid.Column="1"
+                            Placeholder="{local:Translate Placeholder_Price}"
+                            Keyboard="Numeric"
+                            HorizontalTextAlignment="Center" />
                     </Grid>
                 </ContentView>
                 <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
