@@ -22,7 +22,8 @@ public partial class MovementTemplate
         if(BindingContext is Models.Movement movement)
         {            
             Quantity.IsVisible = movement.Type.IsTrade;
-            SubTitle.IsVisible = movement.Type.IsTrade;
+            SubTitle.IsVisible = movement.Type.IsTrade || movement.Type.IsDividendDate;
+            TimeStamp.IsVisible = !movement.Type.IsDividendDate;
 
             if (movement.Type.IsBrokerMovement)
                 FillBrokerAccountMovement(movement);            
@@ -88,15 +89,15 @@ public partial class MovementTemplate
     {
         Icon.ImagePath = dividend.Ticker.Image?.Value ?? string.Empty;
         Icon.PlaceholderText = dividend.Ticker.Symbol;
-        SubTitle.Text = dividend.TimeStamp.ToShortDateString();
+        
         Amount.Amount = dividend.Amount;
         Amount.Money = dividend.Currency;
-
         var text = dividend.DividendCode == Models.DividendCode.ExDividendDate
             ? ResourceKeys.MovementType_DividendExDate
             : ResourceKeys.MovementType_DividendPayDate;
 
         Title.SetLocalizedText(text);
+        SubTitle.Text = dividend.TimeStamp.ToShortDateString();
     }
 
     private void FillDividendTax(Models.DividendTax dividend)
