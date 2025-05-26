@@ -16,7 +16,7 @@ type Do() =
         command.fillEntityAuditable<DividendTax>(
             [
                 (SQLParameterName.TimeStamp, dividendTax.TimeStamp.ToString());
-                (SQLParameterName.Amount, dividendTax.DividendTaxAmount.Value);
+                (SQLParameterName.DividendTaxAmount, dividendTax.DividendTaxAmount.Value);
                 (SQLParameterName.TickerId, dividendTax.TickerId);
                 (SQLParameterName.CurrencyId, dividendTax.CurrencyId);
                 (SQLParameterName.BrokerAccountId, dividendTax.BrokerAccountId);
@@ -27,7 +27,7 @@ type Do() =
         {
             Id = reader.getInt32 FieldName.Id
             TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
-            DividendTaxAmount = reader.getMoney FieldName.Amount
+            DividendTaxAmount = reader.getMoney FieldName.DividendTaxAmount
             TickerId = reader.getInt32 FieldName.TickerId
             CurrencyId = reader.getInt32 FieldName.CurrencyId
             BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
