@@ -51,21 +51,30 @@
                     </VerticalStackLayout>
                 </Grid>
 
-                <Grid ColumnDefinitions="1*,1*">
-                    <Label
-                        Style="{StaticResource LabelSettingsTitle}"
-                        Text="Type" />
-                    <Label
-                        Grid.Column="1"
-                        Style="{StaticResource LabelSettingsTitle}"
-                        Text="Code" />
-                </Grid>
+                <VerticalStackLayout
+                    x:Name="LegsLayout"
+                    IsVisible="False">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <controls:OptionTradeTemplate />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
 
-                <controls:ButtonAdd x:Name="AddLeg" />
+                <Label
+                    x:Name="AddLegText"
+                    Margin="0,12"
+                    Text="Add leg"
+                    Style="{StaticResource LabelInfo}"
+                    FontSize="Header"
+                    HorizontalTextAlignment="Center"
+                    TextDecorations="Underline">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer x:Name="AddLegGesture" />
+                    </Label.GestureRecognizers>
+                </Label>
 
                 <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
-
-                <controls:BorderedFeeAndCommissionControl x:Name="FeesAndCommissions" />
 
                 <controls:BorderedEditor
                     x:Name="Notes"

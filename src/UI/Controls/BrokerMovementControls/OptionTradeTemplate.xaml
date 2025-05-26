@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Binnaculum.Controls.OptionTradeTemplate"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Margin="0,12,0,0">
+    <Border
+        Padding="12"
+        Stroke="{AppThemeBinding Dark={StaticResource OffWhite},
+                                 Light={StaticResource OffBlack}}"
+        StrokeThickness="1"
+        BackgroundColor="Transparent">
+        <VerticalStackLayout Spacing="12">
+            <Label HorizontalTextAlignment="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="Expiring at: " />
+                        <Span x:Name="ExpirationDate" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <Grid>
+                <Label>
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Strike: " />
+                            <Span x:Name="StrikePrice" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Label HorizontalOptions="End">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span x:Name="OptionType" />
+                            <Span x:Name="OptionCode" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Grid>
+        </VerticalStackLayout>
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="12" />
+        </Border.StrokeShape>
+    </Border>
+</ContentView>

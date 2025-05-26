@@ -92,13 +92,33 @@ public partial class OptionTradeControl
             .Subscribe()
             .DisposeWith(Disposables);
 
-        AddLeg.Events().AddClicked
+        AddLegGesture.Events().Tapped
             .SelectMany(_ => Observable.FromAsync(async () =>
             {
                 var ticker = Core.UI.Collections.GetTicker(_ticker);
                 var currency = Core.UI.Collections.GetCurrency(_currency);
                 var result = await new OptionBuilderPopup(currency, BrokerAccount, ticker).ShowAndWait();
-                
+                if(result is Models.OptionTrade trade)
+                {
+                    if (!LegsLayout.IsVisible)
+                    {
+                        var legs = new List<Models.OptionTrade>
+                        {
+                            trade
+                        };
+                        LegsLayout.IsVisible = true;
+                        BindableLayout.SetItemsSource(LegsLayout, legs);
+                        return;
+                    }
+
+                    var currentLegs = BindableLayout.GetItemsSource(LegsLayout) as List<Models.OptionTrade>;
+                    // Here we create a new list to insert the new trade coming from popup
+                    // and then we set the new list as ItemSource for LegsLayout
+                    var newLegs = currentLegs?.ToList() ?? [];
+                    newLegs.Add(trade);
+                    AddLegText.IsVisible = newLegs.Count < 4; // Hide "Add Leg" if we have 4 or more legs
+                    BindableLayout.SetItemsSource(LegsLayout, newLegs);
+                }
             }))
             .Subscribe()
             .DisposeWith(Disposables);

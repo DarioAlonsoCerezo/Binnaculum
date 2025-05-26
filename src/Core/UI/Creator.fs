@@ -121,6 +121,9 @@ module Creator =
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }
 
+    let UpdateOptionsTimestampNotesAndMultiplier(timestamp: DateTime, notes: string option, multiplier: decimal, trade: Binnaculum.Core.Models.OptionTrade) =
+        {   trade with TimeStamp = timestamp; Multiplier = multiplier; Notes = notes }
+
     let GetBrokerMovementType(uiSelectedType: Binnaculum.Core.Models.MovementType option) =
         match uiSelectedType with
         | None -> None
