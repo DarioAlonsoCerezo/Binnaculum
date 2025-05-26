@@ -8,13 +8,15 @@ public partial class OptionBuilderPopup
     private Models.Currency _currency;
     private Models.BrokerAccount _broker;
     private Models.Ticker _ticker;
+    private decimal _multiplier;
     private DateTime _expiration = DateTime.Now;
     private decimal _strikePrice, _premium, _commissions, _fees = 0.0m;
     private int _quantity = 1;
 
     public OptionBuilderPopup(Models.Currency currency, 
         Models.BrokerAccount broker,
-        Models.Ticker ticker)
+        Models.Ticker ticker,
+        decimal multiplier)
 	{
 		InitializeComponent();
 
@@ -23,6 +25,7 @@ public partial class OptionBuilderPopup
         _currency = currency;
         _broker = broker;
         _ticker = ticker;
+        _multiplier = multiplier;
 
         ExpirationDate.Events().DateSelected
             .Subscribe(date =>
@@ -113,12 +116,31 @@ public partial class OptionBuilderPopup
 
     private Models.OptionTrade? GetResult()
     {
-        if (_quantity < 1 || _strikePrice <= 0 || _premium <= 0)
+        if (_quantity < 1 || _strikePrice <= 0)
             return null;
-
-        var netPremium = _premium - _commissions - _fees;
-        var optionType = (Models.OptionType)SelectedOptionType.SelectableItem.ItemValue;
         var optionCode = (Models.OptionCode)SelectedOptionCode.SelectableItem.ItemValue;
+
+        if(optionCode.IsSellToClose 
+            || optionCode.IsSellToOpen
+            || optionCode.IsBuyToOpen
+            || optionCode.IsBuyToClose)
+        {
+            if(_premium <= 0)
+                return null;
+        }
+
+        var quantity = Convert.ToInt32(_quantity);
+        var netPremium = _premium * _multiplier * _quantity;
+        var totalCommissions = _commissions * _quantity;
+        var totalFees = _fees * _quantity;
+        var optionType = (Models.OptionType)SelectedOptionType.SelectableItem.ItemValue;
+        
+        if (optionCode.IsSellToClose || optionCode.IsSellToOpen)
+            netPremium = netPremium - totalFees - totalCommissions;
+
+        if (optionCode.IsBuyToClose || optionCode.IsBuyToOpen)
+            netPremium = netPremium + totalFees + totalCommissions;
+
         var isOpen = optionCode == Models.OptionCode.SellToOpen || optionCode == Models.OptionCode.BuyToOpen;
         var notes = Microsoft.FSharp.Core.FSharpOption<string>.None;
         return new Models.OptionTrade(
@@ -133,11 +155,12 @@ public partial class OptionBuilderPopup
             optionType,
             optionCode,
             _strikePrice,
-            _commissions,
-            _fees,
+            totalCommissions,
+            totalFees,
             isOpen,
             0,
-            100.0m,
+            _multiplier,
+            quantity,
             notes);
     }
 

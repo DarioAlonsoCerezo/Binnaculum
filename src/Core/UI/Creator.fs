@@ -112,7 +112,17 @@ module Creator =
     /// Save option trades and refresh the movements collection.
     /// </summary>
     let SaveOptionsTrade(optionTrades: Binnaculum.Core.Models.OptionTrade list) = task {
-        do! optionTrades.optionTradesToDatabase()
+        // Expand trades with quantity > 1 into multiple trades with quantity = 1
+        let expandedTrades = 
+            optionTrades 
+            |> List.collect (fun trade ->
+                if trade.Quantity > 1 then
+                    [ for _ in 1 .. trade.Quantity -> { trade with Quantity = 1 } ]
+                else
+                    [trade]
+            )
+        
+        do! expandedTrades.optionTradesToDatabase()
             |> List.map (fun model -> model.save() |> Async.AwaitTask |> Async.Ignore)
             |> Async.Parallel
             |> Async.Ignore

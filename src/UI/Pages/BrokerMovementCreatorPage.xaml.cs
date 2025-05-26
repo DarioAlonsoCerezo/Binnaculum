@@ -18,6 +18,7 @@ public partial class BrokerMovementCreatorPage
         MovementTypeControl.ItemsSource = SelectableItem.BrokerMovementTypeList();
         TradeMovement.BrokerAccount = account;
         DividendMovement.BrokerAccount = account;
+        OptionTradeMovement.BrokerAccount = account;
     }
 
     protected override void StartLoad()
@@ -158,6 +159,21 @@ public partial class BrokerMovementCreatorPage
             .Select(_ => DividendMovement.DividendTax)
             .WhereNotNull()
             .CatchCoreError(Core.UI.Creator.SaveDividendTax)
+            .Select(async _ => await Navigation.PopModalAsync())
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        OptionTradeMovement.Events().OptionTradesChanged
+            .Where(_ => OptionTradeMovement.IsVisible)
+            .Select(x => x != null && x.Count > 0)
+            .BindTo(Save, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        Save.Events().SaveClicked
+            .Where(_ => OptionTradeMovement.IsVisible)
+            .Select(_ => OptionTradeMovement.Trades)
+            .WhereNotNull()
+            .CatchCoreError(Core.UI.Creator.SaveOptionsTrade)
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
             .DisposeWith(Disposables);

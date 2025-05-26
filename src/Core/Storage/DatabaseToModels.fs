@@ -333,6 +333,7 @@ module internal DatabaseToModels =
                 IsOpen = optionTrade.IsOpen
                 ClosedWith = match optionTrade.ClosedWith with | Some c -> c | None -> 0
                 Multiplier = optionTrade.Multiplier
+                Quantity = 1
                 Notes = optionTrade.Notes
             }
 

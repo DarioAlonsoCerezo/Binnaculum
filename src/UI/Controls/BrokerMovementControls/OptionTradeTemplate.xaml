@@ -3,6 +3,7 @@
     x:Class="Binnaculum.Controls.OptionTradeTemplate"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
     Margin="0,12,0,0">
     <Border
         Padding="12"
@@ -11,14 +12,22 @@
         StrokeThickness="1"
         BackgroundColor="Transparent">
         <VerticalStackLayout Spacing="12">
-            <Label HorizontalTextAlignment="Center">
-                <Label.FormattedText>
-                    <FormattedString>
-                        <Span Text="Expiring at: " />
-                        <Span x:Name="ExpirationDate" />
-                    </FormattedString>
-                </Label.FormattedText>
-            </Label>
+            <Grid>
+                <Label
+                    x:Name="Quantity" Style="{StaticResource LabelInfo}"
+                    HorizontalTextAlignment="Start" />
+                <Label HorizontalTextAlignment="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Expiring at: " />
+                            <Span x:Name="ExpirationDate" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Grid>
+            <controls:MoneyControl
+                x:Name="Premium"
+                HorizontalOptions="Center" />
             <Grid>
                 <Label>
                     <Label.FormattedText>
@@ -32,6 +41,7 @@
                     <Label.FormattedText>
                         <FormattedString>
                             <Span x:Name="OptionType" />
+                            <Span Text=": " />
                             <Span x:Name="OptionCode" />
                         </FormattedString>
                     </Label.FormattedText>

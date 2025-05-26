@@ -180,6 +180,7 @@ module Models =
         IsOpen: bool
         ClosedWith: int
         Multiplier: decimal
+        Quantity: int
         Notes: string option
     }
 

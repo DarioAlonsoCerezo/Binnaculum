@@ -1,5 +1,6 @@
 using Binnaculum.Core;
 using Binnaculum.Popups;
+using Microsoft.FSharp.Collections;
 
 namespace Binnaculum.Controls;
 
@@ -23,13 +24,17 @@ public partial class OptionTradeControl
         set => SetValue(BrokerAccountProperty, value);
     }
 
+    public FSharpList<Models.OptionTrade> Trades => GetTrades();
+
     public OptionTradeControl()
 	{
 		InitializeComponent();
 
         UpdateMultiplier();
 
-        OptionTradesChanged?.Invoke(this, GetTrades());
+        // Get the current item source to pass to the event
+        var currentLegs = BindableLayout.GetItemsSource(LegsLayout) as List<Models.OptionTrade?>;
+        OptionTradesChanged?.Invoke(this, currentLegs);
 
         Core.UI.SavedPrefereces.UserPreferences
             .Do(p =>
@@ -97,27 +102,29 @@ public partial class OptionTradeControl
             {
                 var ticker = Core.UI.Collections.GetTicker(_ticker);
                 var currency = Core.UI.Collections.GetCurrency(_currency);
-                var result = await new OptionBuilderPopup(currency, BrokerAccount, ticker).ShowAndWait();
+                var result = await new OptionBuilderPopup(currency, BrokerAccount, ticker, _multiplier).ShowAndWait();
                 if(result is Models.OptionTrade trade)
                 {
                     if (!LegsLayout.IsVisible)
                     {
-                        var legs = new List<Models.OptionTrade>
+                        var legs = new List<Models.OptionTrade?>
                         {
                             trade
                         };
                         LegsLayout.IsVisible = true;
                         BindableLayout.SetItemsSource(LegsLayout, legs);
+                        OptionTradesChanged?.Invoke(this, legs);
                         return;
                     }
 
-                    var currentLegs = BindableLayout.GetItemsSource(LegsLayout) as List<Models.OptionTrade>;
+                    var currentLegs = BindableLayout.GetItemsSource(LegsLayout) as List<Models.OptionTrade?>;
                     // Here we create a new list to insert the new trade coming from popup
                     // and then we set the new list as ItemSource for LegsLayout
                     var newLegs = currentLegs?.ToList() ?? [];
                     newLegs.Add(trade);
                     AddLegText.IsVisible = newLegs.Count < 4; // Hide "Add Leg" if we have 4 or more legs
                     BindableLayout.SetItemsSource(LegsLayout, newLegs);
+                    OptionTradesChanged?.Invoke(this, newLegs);
                 }
             }))
             .Subscribe()
@@ -130,8 +137,21 @@ public partial class OptionTradeControl
         MultiplierText.Text = text;
     }
 
-    private List<Models.OptionTrade?>? GetTrades()
+    private FSharpList<Models.OptionTrade> GetTrades()
     {
-        return null;
+        var csharpList = BindableLayout.GetItemsSource(LegsLayout) as List<Models.OptionTrade?>;
+        if (csharpList == null || csharpList.Count == 0)
+        {
+            // Return an empty F# list if there are no trades
+            return ListModule.Empty<Models.OptionTrade>();
+        }
+
+        // Filter out null values and convert to non-nullable OptionTrade sequence
+        var nonNullTrades = csharpList
+            .Where(trade => trade != null)
+            .Cast<Models.OptionTrade>();
+        
+        // Convert the C# sequence to an F# list
+        return ListModule.OfSeq(nonNullTrades);
     }
 }

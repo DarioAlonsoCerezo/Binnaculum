@@ -1,4 +1,4 @@
-﻿using Markdig.Helpers;
+﻿using Binnaculum.Core;
 
 namespace Binnaculum.Extensions;
 
@@ -54,5 +54,34 @@ public static class DecimalExtensions
 
         // If parsing fails, return zero
         return 0m;
+    }
+}
+
+
+public static class OptionTradeExtensions
+{
+    public static string ToLocalized(this Models.OptionType optionType)
+    {
+        return optionType.IsPut ? ResourceKeys.OptionType_Put : ResourceKeys.OptionType_Call;
+    }
+
+    public static string ToLocalized(this Models.OptionCode code)
+    {
+        if (code.IsSellToOpen)
+            return ResourceKeys.OptionCode_STO_Extended;
+
+        if (code.IsSellToClose)
+            return ResourceKeys.OptionCode_STC_Extended;
+
+        if (code.IsBuyToOpen)
+            return ResourceKeys.OptionCode_BTO_Extended;
+
+        if (code.IsBuyToClose)
+            return ResourceKeys.OptionCode_BTC_Extended;
+
+        if (code.IsAssigned)
+            return ResourceKeys.OptionCode_Assigned_Extended;
+
+        return ResourceKeys.OptionCode_Expired_Extended;
     }
 }

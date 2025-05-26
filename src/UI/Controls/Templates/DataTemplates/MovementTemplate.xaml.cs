@@ -23,6 +23,7 @@ public partial class MovementTemplate
         {            
             Quantity.IsVisible = movement.Type.IsTrade;
             SubTitle.IsVisible = movement.Type.IsTrade || movement.Type.IsDividendDate;
+            OptionSubtitle.IsVisible = movement.Type.IsOptionTrade;
 
             if (movement.Type.IsBrokerMovement)
                 FillBrokerAccountMovement(movement);            
@@ -41,8 +42,13 @@ public partial class MovementTemplate
 
             if(movement.Type.IsDividendTax)
                 FillDividendTax(movement.DividendTax.Value);
+
+            if(movement.Type.IsOptionTrade)
+                FillOptionTrade(movement.OptionTrade.Value);
         }
     }
+
+    
 
     private void FillBrokerAccountMovement(Models.Movement movement)
     {
@@ -109,6 +115,18 @@ public partial class MovementTemplate
         Title.SetLocalizedText(ResourceKeys.MovementType_DividendTaxWithheld);
     }
 
+    private void FillOptionTrade(OptionTrade trade)
+    {
+        Icon.ImagePath = trade.Ticker.Image?.Value ?? string.Empty;
+        Icon.PlaceholderText = trade.Ticker.Symbol;
+        TimeStamp.DateTime = trade.TimeStamp;
+        Amount.Amount = trade.Premium;
+        Amount.Money = trade.Currency;
+        Title.SetLocalizedText(ResourceKeys.MovementType_OptionTrade);
+        OptionType.SetLocalizedText(trade.OptionType.ToLocalized());
+        OptionCode.SetLocalizedText(trade.Code.ToLocalized());
+    }
+
     private string GetTitleFromBrokerAccountMovementType(Models.BrokerMovementType movementType)
     {
         var resourceKey = ResourceKeys.MovementType_ACATMoneyTransfer;
@@ -155,5 +173,4 @@ public partial class MovementTemplate
 
         return resourceKey;
     }
-
 }

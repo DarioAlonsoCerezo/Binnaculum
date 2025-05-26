@@ -51,4 +51,5 @@ public static class EventsExtensions
     public static RxBorderedEditorEvents Events(this BorderedEditor item) => new(item);
     public static RxTradeControlEvents Events(this TradeControl item) => new(item);
     public static RxDividendReceivedControlEvents Events(this DividendControl item) => new(item);
+    public static RxOptionTradeControlEvents Events(this OptionTradeControl item) => new(item);
 }

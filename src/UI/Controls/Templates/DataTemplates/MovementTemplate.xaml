@@ -23,12 +23,27 @@
             <Label
                 x:Name="SubTitle"
                 IsVisible="False"
-                Text="Buy to open"
                 HorizontalTextAlignment="Start"
                 VerticalTextAlignment="Start"
                 VerticalOptions="Start"
                 FontSize="Micro"
                 Style="{StaticResource LabelInfo}" />
+            <Label
+                x:Name="OptionSubtitle"
+                IsVisible="False"
+                HorizontalTextAlignment="Start"
+                VerticalTextAlignment="Start"
+                VerticalOptions="Start"
+                FontSize="Micro"
+                Style="{StaticResource LabelInfo}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span x:Name="OptionType" />
+                        <Span Text=": " />
+                        <Span x:Name="OptionCode" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
         </VerticalStackLayout>
 
         <controls:MoneyControl

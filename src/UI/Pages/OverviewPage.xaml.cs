@@ -247,6 +247,9 @@ public partial class OverviewPage
             if(x.Type.IsDividendTax)
                 return x.DividendTax.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
 
+            if(x.Type.IsOptionTrade)
+                return x.OptionTrade.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+
             return false;
         };
     }
