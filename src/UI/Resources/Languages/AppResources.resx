@@ -977,4 +977,22 @@ A PUT option gives you the **right to sell** the underlying asset at a specific 
 - **For buyers**: Loss of premium paid
 - **For sellers**: Full profit of premium received</value>
   </data>
+  <data name="OptionCode_STO_Extended" xml:space="preserve">
+    <value>Sell to open</value>
+  </data>
+  <data name="OptionCode_STC_Extended" xml:space="preserve">
+    <value>Sell to close</value>
+  </data>
+  <data name="OptionCode_BTO_Extended" xml:space="preserve">
+    <value>Buy to open</value>
+  </data>
+  <data name="OptionCode_BTC_Extended" xml:space="preserve">
+    <value>Buy to close</value>
+  </data>
+  <data name="OptionCode_Assigned_Extended" xml:space="preserve">
+    <value>Assigned</value>
+  </data>
+  <data name="OptionCode_Expired_Extended" xml:space="preserve">
+    <value>Expired</value>
+  </data>
 </root>

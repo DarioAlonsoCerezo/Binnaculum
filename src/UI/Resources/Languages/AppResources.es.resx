@@ -978,4 +978,22 @@ Una opción PUT te da el **derecho a vender** el activo subyacente a un precio e
 - **Para compradores**: Pérdida de la prima pagada
 - **Para vendedores**: Beneficio total de la prima recibida</value>
   </data>
+  <data name="OptionCode_STO_Extended" xml:space="preserve">
+    <value>Venta para abrir</value>
+  </data>
+  <data name="OptionCode_STC_Extended" xml:space="preserve">
+    <value>Venta para cerrar</value>
+  </data>
+  <data name="OptionCode_BTO_Extended" xml:space="preserve">
+    <value>Compra para abrir</value>
+  </data>
+  <data name="OptionCode_BTC_Extended" xml:space="preserve">
+    <value>Compra para cerrar</value>
+  </data>
+  <data name="OptionCode_Assigned_Extended" xml:space="preserve">
+    <value>Asignado</value>
+  </data>
+  <data name="OptionCode_Expired_Extended" xml:space="preserve">
+    <value>Expirado</value>
+  </data>
 </root>

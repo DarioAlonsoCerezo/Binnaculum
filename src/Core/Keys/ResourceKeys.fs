@@ -123,3 +123,21 @@ module ResourceKeys =
 
     [<Literal>]
     let OptionCode_Expired = "OptionCode_Expired"
+
+    [<Literal>]
+    let OptionCode_BTC_Extended = "OptionCode_BTC_Extended"
+    
+    [<Literal>]
+    let OptionCode_BTO_Extended = "OptionCode_BTO_Extended"
+    
+    [<Literal>]
+    let OptionCode_STC_Extended = "OptionCode_STC_Extended"
+    
+    [<Literal>]
+    let OptionCode_STO_Extended = "OptionCode_STO_Extended"
+    
+    [<Literal>]
+    let OptionCode_Assigned_Extended = "OptionCode_Assigned_Extended"
+    
+    [<Literal>]
+    let OptionCode_Expired_Extended = "OptionCode_Expired_Extended"
