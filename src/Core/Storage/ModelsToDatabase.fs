@@ -188,3 +188,26 @@ module internal ModelsToDatabase =
                 DividendCode = dividendDate.DividendCode.dividendCodeToDatabase()
                 Audit = AuditableEntity.FromDateTime(dividendDate.TimeStamp)
             }
+
+        [<Extension>]
+        static member optionTradeToDatabase(optionTrade: Binnaculum.Core.Models.OptionTrade) =
+            { 
+                Id = 0 
+                TimeStamp = DateTimePattern.FromDateTime(optionTrade.TimeStamp) 
+                ExpirationDate = DateTimePattern.FromDateTime(optionTrade.ExpirationDate)
+                Premium = Money.FromAmount(optionTrade.Premium)
+                NetPremium = Money.FromAmount(optionTrade.NetPremium)
+                TickerId = optionTrade.Ticker.Id
+                BrokerAccountId = optionTrade.BrokerAccount.Id
+                CurrencyId = optionTrade.Currency.Id
+                OptionType = optionTrade.OptionType.optionTypeToDatabase()
+                Code = optionTrade.Code.optionCodeToDatabase()
+                Strike = Money.FromAmount(optionTrade.Strike)
+                Commissions = Money.FromAmount(optionTrade.Commissions)
+                Fees = Money.FromAmount(optionTrade.Fees)
+                IsOpen = optionTrade.IsOpen
+                ClosedWith = Some optionTrade.ClosedWith
+                Multiplier = optionTrade.Multiplier
+                Notes = optionTrade.Notes
+                Audit = AuditableEntity.FromDateTime(optionTrade.TimeStamp)
+            }

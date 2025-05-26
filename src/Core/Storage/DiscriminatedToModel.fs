@@ -57,3 +57,19 @@ module internal DiscriminatedToModel =
             match dividendCode with
             | Database.DatabaseModel.DividendCode.ExDividendDate -> DividendCode.ExDividendDate
             | Database.DatabaseModel.DividendCode.PayDividendDate -> DividendCode.PayDividendDate
+
+        [<Extension>]
+        static member databaseToOptionType(optionType: Binnaculum.Core.Database.DatabaseModel.OptionType) =
+            match optionType with
+            | Database.DatabaseModel.OptionType.Call -> OptionType.Call
+            | Database.DatabaseModel.OptionType.Put -> OptionType.Put
+
+        [<Extension>]
+        static member databaseToOptionCode(optionCode: Binnaculum.Core.Database.DatabaseModel.OptionCode) =
+            match optionCode with
+            | Database.DatabaseModel.OptionCode.BuyToOpen -> OptionCode.BuyToOpen
+            | Database.DatabaseModel.OptionCode.SellToOpen -> OptionCode.SellToOpen
+            | Database.DatabaseModel.OptionCode.BuyToClose -> OptionCode.BuyToClose
+            | Database.DatabaseModel.OptionCode.SellToClose -> OptionCode.SellToClose
+            | Database.DatabaseModel.OptionCode.Assigned -> OptionCode.Assigned
+            | Database.DatabaseModel.OptionCode.Expired -> OptionCode.Expired

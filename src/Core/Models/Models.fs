@@ -178,7 +178,7 @@ module Models =
         Commissions: decimal
         Fees: decimal
         IsOpen: bool
-        ClosedWith: int option
+        ClosedWith: int
         Multiplier: decimal
         Notes: string option
     }

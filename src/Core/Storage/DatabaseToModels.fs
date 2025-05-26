@@ -313,3 +313,46 @@ module internal DatabaseToModels =
         [<Extension>]
         static member dividendDatesToMovements(dividends: Binnaculum.Core.Database.DatabaseModel.DividendDate list) =
             dividends |> List.map (fun d -> d.dividendDateToMovement())
+
+        [<Extension>]
+        static member optionTradeToModel(optionTrade: Binnaculum.Core.Database.DatabaseModel.OptionTrade) =
+            {
+                Id = optionTrade.Id
+                TimeStamp = optionTrade.TimeStamp.Value
+                ExpirationDate = optionTrade.ExpirationDate.Value
+                Premium = optionTrade.Premium.Value
+                NetPremium = optionTrade.NetPremium.Value
+                Ticker = Binnaculum.Core.UI.Collections.getTickerById(optionTrade.TickerId)
+                BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(optionTrade.BrokerAccountId)
+                Currency = Binnaculum.Core.UI.Collections.getCurrency(optionTrade.CurrencyId)
+                OptionType = optionTrade.OptionType.databaseToOptionType()
+                Code = optionTrade.Code.databaseToOptionCode()
+                Strike = optionTrade.Strike.Value
+                Commissions = optionTrade.Commissions.Value
+                Fees = optionTrade.Fees.Value
+                IsOpen = optionTrade.IsOpen
+                ClosedWith = match optionTrade.ClosedWith with | Some c -> c | None -> 0
+                Multiplier = optionTrade.Multiplier
+                Notes = optionTrade.Notes
+            }
+
+        [<Extension>]
+        static member optionTradesToModel(optionTrades: Binnaculum.Core.Database.DatabaseModel.OptionTrade list) =
+            optionTrades |> List.map (fun o -> o.optionTradeToModel())
+        
+        [<Extension>]
+        static member optionTradesToMovements(optionTrades: Binnaculum.Core.Database.DatabaseModel.OptionTrade list) =
+            optionTrades |> List.map (fun o ->
+                let model = o.optionTradeToModel()
+                {
+                    Type = AccountMovementType.OptionTrade
+                    TimeStamp = model.TimeStamp
+                    Trade = None
+                    Dividend = None
+                    DividendTax = None
+                    DividendDate = None
+                    OptionTrade = Some model
+                    BrokerMovement = None
+                    BankAccountMovement = None
+                    TickerSplit = None
+                })

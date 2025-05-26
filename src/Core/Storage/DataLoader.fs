@@ -179,19 +179,29 @@ module internal DataLoader =
             Collections.updateBrokerAccount updatedAccount
 
     let loadMovementsFor(account: Account option) = task {
+
+        // TODO: Performance Optimization Needed
+        // This method currently loads ALL movements from the database regardless of the account parameter.
+        // For large datasets, this can cause significant performance issues.
+        // Consider implementing filtering at the database level based on the account parameter:
+        // 1. If account is Some, only load movements for that specific account
+        // 2. Use parameterized queries in each extension method to filter data before loading
+        // 3. Consider pagination for very large movement histories
         let! databaseBrokerMovements = BrokerMovementExtensions.Do.getAll()
         let! databaseBankMovements = BankAccountBalanceExtensions.Do.getAll()
         let! databaseTrades = TradeExtensions.Do.getAll() |> Async.AwaitTask
         let! databaseDividends = DividendExtensions.Do.getAll() |> Async.AwaitTask
         let! databaseDividendDates = DividendDateExtensions.Do.getAll() |> Async.AwaitTask
         let! databaseDividendTaxes = DividendTaxExtensions.Do.getAll() |> Async.AwaitTask
+        let! databaseOptions = OptionTradeExtensions.Do.getAll() |> Async.AwaitTask
 
         let brokerMovements = databaseBrokerMovements.brokerMovementsToModel()
         let bankMovements = databaseBankMovements.bankAccountMovementsToMovements()
         let tradeMovements =  databaseTrades.tradesToMovements()
         let dividendMovements = databaseDividends.dividendsReceivedToMovements()
         let dividendDates = databaseDividendDates.dividendDatesToMovements()
-        let dividendTaxes = databaseDividendTaxes.dividendTaxesToMovements()        
+        let dividendTaxes = databaseDividendTaxes.dividendTaxesToMovements()       
+        let optionTrades = databaseOptions.optionTradesToMovements()
         
         let movements = 
             brokerMovements 
@@ -200,6 +210,7 @@ module internal DataLoader =
             @ dividendMovements
             @ dividendDates
             @ dividendTaxes
+            @ optionTrades
         
         Collections.Movements.EditDiff movements
 
