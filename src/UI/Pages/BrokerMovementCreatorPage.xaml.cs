@@ -80,6 +80,10 @@ public partial class BrokerMovementCreatorPage
             .BindTo(DividendMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
+        selection.Select(x => x == Models.MovementType.OptionTrade)
+            .BindTo(OptionTradeMovement, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
         BrokerMovement.Events().DepositChanged
             .Where(_ => BrokerMovement.IsVisible)
             .Select(x => x.Amount > 0)

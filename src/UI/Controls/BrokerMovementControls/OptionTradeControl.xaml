@@ -27,64 +27,20 @@
                         VerticalOptions="Center"
                         Spacing="0">
                         <Label
-                            Text="{local:Translate Leverage_Title}"
+                            Text="{local:Translate Multiplier_Title}"
                             Style="{StaticResource LabelInfo}"
                             TextDecorations="Underline" />
                         <Label
+                            x:Name="MultiplierText"
                             Style="{StaticResource LabelInfo}"
-                            Text="x1"
                             HorizontalTextAlignment="Center" />
                         <VerticalStackLayout.GestureRecognizers>
-                            <TapGestureRecognizer x:Name="LeverageGesture" />
+                            <TapGestureRecognizer x:Name="MultiplierGesture" />
                         </VerticalStackLayout.GestureRecognizers>
                     </VerticalStackLayout>
                 </Grid>
-                <Grid ColumnDefinitions="1*,1*">
-                    <HorizontalStackLayout>
-                        <Label
-                            Padding="0,0,12,0"
-                            Text="Buy"
-                            Style="{StaticResource LabelSettingsGroup}" />
-                        <controls:CustomSwitch
-                            x:Name="BuySwitch"
-                            Style="{StaticResource SettingsStyle}" />
-                    </HorizontalStackLayout>
 
-                    <HorizontalStackLayout Grid.Column="1">
-                        <Label
-                            Padding="0,0,12,0"
-                            Text="Long"
-                            Style="{StaticResource LabelSettingsGroup}" />
-                        <controls:CustomSwitch
-                            x:Name="LongSwitch"
-                            Style="{StaticResource SettingsStyle}" />
-                    </HorizontalStackLayout>
 
-                </Grid>
-                <ContentView ControlTemplate="{StaticResource BorderedControlTemplate}">
-                    <Grid ColumnDefinitions="1*,1*">
-                        <controls:BorderlessEntry
-                            x:Name="Quantity"
-                            Keyboard="Numeric"
-                            HorizontalTextAlignment="Center"
-                            Placeholder="{local:Translate Placeholder_Quantity}" />
-                        <Label
-                            x:Name="Currency"
-                            Padding="0"
-                            HorizontalOptions="Start"
-                            Style="{StaticResource LabelSettingsGroup}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer x:Name="CurrencyGesture" />
-                            </Label.GestureRecognizers>
-                        </Label>
-                        <controls:BorderlessEntry
-                            x:Name="Price"
-                            Grid.Column="1"
-                            Placeholder="{local:Translate Placeholder_Price}"
-                            Keyboard="Numeric"
-                            HorizontalTextAlignment="Center" />
-                    </Grid>
-                </ContentView>
                 <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
 
                 <controls:BorderedFeeAndCommissionControl x:Name="FeesAndCommissions" />

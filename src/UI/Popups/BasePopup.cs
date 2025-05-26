@@ -37,6 +37,18 @@ public class BasePopup : Popup
         return screenHeight * percentage;
     }
 
+    protected double GetWidthByPercentage(double percentage)
+    {
+        // Ensure the percentage is within valid range (0-1)
+        percentage = Math.Clamp(percentage, 0, 1);
+        // Get current display metrics
+        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+        // Calculate screen width in device-independent units
+        double screenWidth = displayInfo.Width / displayInfo.Density;
+        // Return the calculated width
+        return screenWidth * percentage;
+    }
+
     /// <summary>
     /// Applies a percentage-based height to a view
     /// </summary>
@@ -45,7 +57,7 @@ public class BasePopup : Popup
     /// <param name="applyAsMinMax">Whether to also apply the height to MinimumHeightRequest and MaximumHeightRequest</param>
     protected void ApplyHeightPercentage(View view, double percentage, bool applyAsMinMax = true)
     {
-        double height = GetHeightByPercentage(percentage);
+        double height = GetHeightByPercentage(percentage);        
 
         view.HeightRequest = height;
 
@@ -54,6 +66,12 @@ public class BasePopup : Popup
             view.MinimumHeightRequest = height;
             view.MaximumHeightRequest = height;
         }
+    }
+
+    protected void ForceFillWidth(View view)
+    {
+        double width = GetWidthByPercentage(1.0);
+        view.WidthRequest = width;
     }
 
     protected override Task OnClosed(object? result, bool wasDismissedByTappingOutsideOfPopup, CancellationToken token = default)

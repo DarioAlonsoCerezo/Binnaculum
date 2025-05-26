@@ -889,4 +889,7 @@ Al operar con apalancamiento:
 
 Recuerde que la mayoría de los operadores que utilizan apalancamiento terminan perdiendo dinero. Considere practicar primero con cuentas demo para entender los mecanismos sin arriesgar capital real.</value>
   </data>
+  <data name="Multiplier_Title" xml:space="preserve">
+    <value>Multiplicador</value>
+  </data>
 </root>

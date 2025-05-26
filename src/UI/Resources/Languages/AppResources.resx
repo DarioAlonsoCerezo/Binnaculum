@@ -888,4 +888,7 @@ When trading with leverage:
 
 Remember that most leveraged traders ultimately lose money. Consider paper trading first to understand the mechanics without risking real capital.</value>
   </data>
+  <data name="Multiplier_Title" xml:space="preserve">
+    <value>Multiplier</value>
+  </data>
 </root>

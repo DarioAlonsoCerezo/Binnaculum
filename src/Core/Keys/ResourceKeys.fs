@@ -96,3 +96,6 @@ module ResourceKeys =
 
     [<Literal>]
     let Movement_SellToOpen = "Movement_SellToOpen"
+
+    [<Literal>]
+    let Multiplier_Title = "Multiplier_Title"
