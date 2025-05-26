@@ -28,7 +28,8 @@
                         Spacing="0">
                         <Label
                             Text="{local:Translate Leverage_Title}"
-                            Style="{StaticResource LabelInfo}" />
+                            Style="{StaticResource LabelInfo}"
+                            TextDecorations="Underline" />
                         <Label
                             Style="{StaticResource LabelInfo}"
                             Text="x1"
