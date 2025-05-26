@@ -130,6 +130,9 @@ module internal SQLParameterName =
 
     [<Literal>]
     let ClosedWith = "@ClosedWith"
+    
+    [<Literal>]
+    let Multiplier = "@Multiplier"
 
     // Banks
     [<Literal>]

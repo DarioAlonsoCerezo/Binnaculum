@@ -31,6 +31,7 @@ type Do() =
                 (SQLParameterName.Fees, optionTrade.Fees.Value);
                 (SQLParameterName.IsOpen, optionTrade.IsOpen);
                 (SQLParameterName.ClosedWith, optionTrade.ClosedWith.ToDbValue())
+                (SQLParameterName.Multiplier, optionTrade.Multiplier)
             ], optionTrade)
             
     [<Extension>]
@@ -51,6 +52,7 @@ type Do() =
             Fees = reader.getMoney FieldName.Fees
             IsOpen = reader.getBoolean FieldName.IsOpen
             ClosedWith = reader.getIntOrNone FieldName.ClosedWith
+            Multiplier = reader.getDecimal FieldName.Multiplier
             Audit = reader.getAudit()
         }
 

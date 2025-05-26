@@ -179,6 +179,7 @@ module Models =
         Fees: decimal
         IsOpen: bool
         ClosedWith: int option
+        Multiplier: decimal
     }
 
     type Bank = {

@@ -293,6 +293,7 @@ module internal DatabaseModel =
         Fees: Money
         IsOpen: bool
         ClosedWith: int option
+        Multiplier: decimal
         Audit: AuditableEntity
     } with
         interface IEntity with

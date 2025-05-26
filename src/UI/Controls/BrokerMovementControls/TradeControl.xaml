@@ -16,11 +16,28 @@
                                               Dark={StaticResource Black}}"
             VerticalOptions="Start">
             <VerticalStackLayout Spacing="12">
-                <controls:IconControl x:Name="Icon">
-                    <controls:IconControl.GestureRecognizers>
-                        <TapGestureRecognizer x:Name="IconGesture" />
-                    </controls:IconControl.GestureRecognizers>
-                </controls:IconControl>
+                <Grid>
+                    <controls:IconControl x:Name="Icon">
+                        <controls:IconControl.GestureRecognizers>
+                            <TapGestureRecognizer x:Name="IconGesture" />
+                        </controls:IconControl.GestureRecognizers>
+                    </controls:IconControl>
+                    <VerticalStackLayout
+                        HorizontalOptions="End"
+                        VerticalOptions="Center"
+                        Spacing="0">
+                        <Label
+                            Text="{local:Translate Leverage_Title}"
+                            Style="{StaticResource LabelInfo}" />
+                        <Label
+                            Style="{StaticResource LabelInfo}"
+                            Text="x1"
+                            HorizontalTextAlignment="Center" />
+                        <VerticalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer x:Name="LeverageGesture" />
+                        </VerticalStackLayout.GestureRecognizers>
+                    </VerticalStackLayout>
+                </Grid>
                 <Grid ColumnDefinitions="1*,1*">
                     <HorizontalStackLayout>
                         <Label
