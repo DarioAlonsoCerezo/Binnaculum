@@ -5,7 +5,6 @@ open Binnaculum.Core.Patterns
 open System
 open System.Runtime.CompilerServices
 open DiscriminatedToDatabase
-open PatternExtensions
 
 module internal ModelsToDatabase =
     
@@ -14,12 +13,11 @@ module internal ModelsToDatabase =
         
         [<Extension>]
         static member createBankToDatabase(bank: Binnaculum.Core.Models.Bank) =
-            let audit = { CreatedAt = Some(DateTime.Now.fromDateTime()); UpdatedAt = None }
             { 
                 Id = 0; 
                 Name = bank.Name; 
                 Image = bank.Image; 
-                Audit = audit
+                Audit = AuditableEntity.FromDateTime(DateTime.Now);
             }
 
         [<Extension>]
@@ -27,8 +25,12 @@ module internal ModelsToDatabase =
             let! currentBank = BankExtensions.Do.getById bank.Id |> Async.AwaitTask
             match currentBank with
             | Some current -> 
-                let audit = { current.Audit with UpdatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)) }
-                let updatedBank = { current with Name = bank.Name; Image = bank.Image; Audit = audit }
+                let updatedBank = 
+                    { current with 
+                        Name = bank.Name; 
+                        Image = bank.Image; 
+                        Audit = AuditableEntity.FromDateTime(DateTime.Now);
+                    }
                 return updatedBank
             | None ->
                 return failwithf "Bank with ID %d not found" bank.Id
@@ -44,14 +46,13 @@ module internal ModelsToDatabase =
 
         [<Extension>]
         static member createBankAccountToDatabase(bankAccount: Binnaculum.Core.Models.BankAccount) =
-            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
             { 
                 Id = 0; 
                 BankId = bankAccount.Bank.Id; 
                 Name = bankAccount.Name; 
                 Description = bankAccount.Description; 
                 CurrencyId = bankAccount.Currency.Id; 
-                Audit = audit
+                Audit = AuditableEntity.FromDateTime(DateTime.Now);
             }
 
         [<Extension>]
@@ -59,8 +60,12 @@ module internal ModelsToDatabase =
             let! currentBankAccount = BankAccountExtensions.Do.getById bankAccount.Id |> Async.AwaitTask
             match currentBankAccount with
             | Some current -> 
-                let audit = { current.Audit with UpdatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)) }
-                let updatedBankAccount = { current with Name = bankAccount.Name; Description = bankAccount.Description; Audit = audit }
+                let updatedBankAccount = 
+                    { current with 
+                        Name = bankAccount.Name; 
+                        Description = bankAccount.Description; 
+                        Audit = AuditableEntity.FromDateTime(DateTime.Now);
+                    }
                 return updatedBankAccount
             | None -> 
                 return failwithf "BankAccount with ID %d not found" bankAccount.Id
@@ -69,8 +74,6 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member bankAccountMovementToDatabase(movement: Binnaculum.Core.Models.BankAccountMovement) =
             let movementType = movement.MovementType.bankMovementTypeToDatabase()
-            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
-            
             { 
                 Id = 0; 
                 TimeStamp = DateTimePattern.FromDateTime(movement.TimeStamp); 
@@ -78,42 +81,46 @@ module internal ModelsToDatabase =
                 BankAccountId = movement.BankAccount.Id;
                 CurrencyId = movement.Currency.Id;
                 MovementType = movementType;
-                Audit = audit;
+                Audit = AuditableEntity.FromDateTime(movement.TimeStamp);
             }
 
         [<Extension>]
         static member brokerMovementToDatabase(movement: Binnaculum.Core.Models.BrokerMovement) =
-            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(movement.TimeStamp)); UpdatedAt = None }
-            let timeStampPattern = DateTimePattern.FromDateTime(movement.TimeStamp)
-            let amountMoney = Money.FromAmount(movement.Amount)
-            let commissionMoney = Money.FromAmount(movement.Commissions)
-            let feeMoney = Money.FromAmount(movement.Fees)
-            let brokerMovementType = movement.MovementType.brokerMovementTypeToDatabase()            
             { 
                 Id = 0; 
-                TimeStamp = timeStampPattern; 
-                Amount = amountMoney; 
+                TimeStamp = DateTimePattern.FromDateTime(movement.TimeStamp); 
+                Amount = Money.FromAmount(movement.Amount); 
                 BrokerAccountId = movement.BrokerAccount.Id; 
                 CurrencyId = movement.Currency.Id; 
-                Commissions = commissionMoney; 
-                Fees = feeMoney; 
-                MovementType = brokerMovementType;
+                Commissions = Money.FromAmount(movement.Commissions); 
+                Fees = Money.FromAmount(movement.Fees); 
+                MovementType = movement.MovementType.brokerMovementTypeToDatabase();
                 Notes = movement.Notes;
-                Audit = audit;
+                Audit = AuditableEntity.FromDateTime(movement.TimeStamp);
             }
 
         [<Extension>]
         static member createTickerToDatabase(ticker: Binnaculum.Core.Models.Ticker) =
-            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
-            { Id = 0; Symbol = ticker.Symbol; Image = ticker.Image; Name = ticker.Name; Audit = audit }
+            { 
+                Id = 0; 
+                Symbol = ticker.Symbol; 
+                Image = ticker.Image; 
+                Name = ticker.Name; 
+                Audit = AuditableEntity.FromDateTime(DateTime.Now);
+            }
 
         [<Extension>]
         static member updateTickerToDatabase(ticker: Binnaculum.Core.Models.Ticker) = task {
             let! current = TickerExtensions.Do.getById ticker.Id |> Async.AwaitTask
             match current with
             | Some dbTicker ->
-                let audit = { dbTicker.Audit with UpdatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)) }
-                let updated = { dbTicker with Symbol = ticker.Symbol; Image = ticker.Image; Name = ticker.Name; Audit = audit }
+                let updated = 
+                    { dbTicker with 
+                        Symbol = ticker.Symbol; 
+                        Image = ticker.Image; 
+                        Name = ticker.Name; 
+                        Audit = AuditableEntity.FromDateTime(DateTime.Now); 
+                    }
                 return updated
             | None -> return failwithf "Ticker with ID %d not found" ticker.Id
         }
