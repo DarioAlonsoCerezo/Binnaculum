@@ -41,6 +41,8 @@
                         <Span x:Name="OptionType" />
                         <Span Text=": " />
                         <Span x:Name="OptionCode" />
+                        <Span Text=" " />
+                        <Span x:Name="OptionQuantity" />
                     </FormattedString>
                 </Label.FormattedText>
             </Label>
@@ -50,7 +52,7 @@
             x:Name="Amount"
             HorizontalOptions="Center"
             VerticalOptions="Center"
-            TranslationY="8" />
+            TranslationY="14" />
         <controls:TimeStampControl
             x:Name="TimeStamp"
             Margin="0,4,20,0"

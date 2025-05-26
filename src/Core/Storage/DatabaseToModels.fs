@@ -343,17 +343,40 @@ module internal DatabaseToModels =
         
         [<Extension>]
         static member optionTradesToMovements(optionTrades: Binnaculum.Core.Database.DatabaseModel.OptionTrade list) =
-            optionTrades |> List.map (fun o ->
-                let model = o.optionTradeToModel()
-                {
-                    Type = AccountMovementType.OptionTrade
-                    TimeStamp = model.TimeStamp
-                    Trade = None
-                    Dividend = None
-                    DividendTax = None
-                    DividendDate = None
-                    OptionTrade = Some model
-                    BrokerMovement = None
-                    BankAccountMovement = None
-                    TickerSplit = None
-                })
+            // First convert all trades to models
+            let optionTradeModels = optionTrades |> List.map (fun o -> o.optionTradeToModel())
+            
+            // Group trades by key characteristics (ticker ID, option type, strike price, expiration date)
+            let groupedTrades = 
+                optionTradeModels 
+                |> List.groupBy (fun trade -> 
+                    (trade.Ticker.Id, trade.OptionType, decimal trade.Strike, trade.ExpirationDate.Date))
+                |> List.map (fun ((tickerId, optionType, strike, expiration), trades) ->
+                    // Get first trade from group to use as template
+                    let representative = List.head trades
+                    
+                    // Calculate total quantity and net premium across all trades in the group
+                    let totalQuantity = trades |> List.sumBy (fun t -> t.Quantity)
+                    let totalNetPremium = trades |> List.sumBy (fun t -> t.NetPremium)
+                    
+                    // Create an updated model with the combined values
+                    let combinedTrade = 
+                        { representative with 
+                            NetPremium = totalNetPremium
+                            Quantity = totalQuantity }
+                    
+                    // Create movement for the combined trade
+                    {
+                        Type = AccountMovementType.OptionTrade
+                        TimeStamp = combinedTrade.TimeStamp
+                        Trade = None
+                        Dividend = None
+                        DividendTax = None
+                        DividendDate = None
+                        OptionTrade = Some combinedTrade
+                        BrokerMovement = None
+                        BankAccountMovement = None
+                        TickerSplit = None
+                    })
+            
+            groupedTrades

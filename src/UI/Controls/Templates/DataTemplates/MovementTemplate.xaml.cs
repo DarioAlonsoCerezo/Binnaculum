@@ -127,6 +127,8 @@ public partial class MovementTemplate
         Title.SetLocalizedText(ResourceKeys.MovementType_OptionTrade);
         OptionType.SetLocalizedText(trade.OptionType.ToLocalized());
         OptionCode.SetLocalizedText(trade.Code.ToLocalized());
+        if(trade.Quantity > 1)
+            OptionQuantity.Text = $"x{trade.Quantity}";
     }
 
     private string GetTitleFromBrokerAccountMovementType(Models.BrokerMovementType movementType)
