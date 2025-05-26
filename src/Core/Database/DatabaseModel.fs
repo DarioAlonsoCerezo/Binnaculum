@@ -294,6 +294,7 @@ module internal DatabaseModel =
         IsOpen: bool
         ClosedWith: int option
         Multiplier: decimal
+        Notes: string option
         Audit: AuditableEntity
     } with
         interface IEntity with

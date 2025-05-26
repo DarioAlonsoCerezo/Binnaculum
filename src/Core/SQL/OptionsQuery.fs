@@ -25,6 +25,7 @@ module internal OptionsQuery =
             {IsOpen} INTEGER NOT NULL,
             {ClosedWith} INTEGER,
             {Multiplier} TEXT NOT NULL DEFAULT 100.0,
+            {Notes} TEXT,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
             -- Foreign key to ensure TickerId references a valid Ticker in the Tickers table
@@ -77,6 +78,7 @@ module internal OptionsQuery =
             {IsOpen},
             {ClosedWith},
             {Multiplier},
+            {Notes},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -97,6 +99,7 @@ module internal OptionsQuery =
             {SQLParameterName.IsOpen},
             {SQLParameterName.ClosedWith},
             {SQLParameterName.Multiplier},
+            {SQLParameterName.Notes},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -121,6 +124,7 @@ module internal OptionsQuery =
             {IsOpen} = {SQLParameterName.IsOpen},
             {ClosedWith} = {SQLParameterName.ClosedWith},
             {Multiplier} = {SQLParameterName.Multiplier},
+            {Notes} = {SQLParameterName.Notes},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE

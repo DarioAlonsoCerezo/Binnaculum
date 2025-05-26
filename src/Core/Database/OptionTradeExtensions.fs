@@ -32,6 +32,7 @@ type Do() =
                 (SQLParameterName.IsOpen, optionTrade.IsOpen);
                 (SQLParameterName.ClosedWith, optionTrade.ClosedWith.ToDbValue())
                 (SQLParameterName.Multiplier, optionTrade.Multiplier)
+                (SQLParameterName.Notes, optionTrade.Notes.ToDbValue())
             ], optionTrade)
             
     [<Extension>]
@@ -53,6 +54,7 @@ type Do() =
             IsOpen = reader.getBoolean FieldName.IsOpen
             ClosedWith = reader.getIntOrNone FieldName.ClosedWith
             Multiplier = reader.getDecimal FieldName.Multiplier
+            Notes = reader.getStringOrNone FieldName.Notes
             Audit = reader.getAudit()
         }
 
