@@ -120,8 +120,10 @@ public partial class MovementTemplate
         Icon.ImagePath = trade.Ticker.Image?.Value ?? string.Empty;
         Icon.PlaceholderText = trade.Ticker.Symbol;
         TimeStamp.DateTime = trade.TimeStamp;
-        Amount.Amount = trade.Premium;
+        Amount.Amount = trade.NetPremium;
         Amount.Money = trade.Currency;
+        Amount.ChangeColor = true;
+        Amount.IsNegative = trade.Code.IsPaid();
         Title.SetLocalizedText(ResourceKeys.MovementType_OptionTrade);
         OptionType.SetLocalizedText(trade.OptionType.ToLocalized());
         OptionCode.SetLocalizedText(trade.Code.ToLocalized());

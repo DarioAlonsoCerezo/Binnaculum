@@ -117,7 +117,8 @@ module Creator =
             optionTrades 
             |> List.collect (fun trade ->
                 if trade.Quantity > 1 then
-                    [ for _ in 1 .. trade.Quantity -> { trade with Quantity = 1 } ]
+                    let netPremium = trade.NetPremium / decimal trade.Quantity
+                    [ for _ in 1 .. trade.Quantity -> { trade with Quantity = 1; NetPremium = netPremium;  } ]
                 else
                     [trade]
             )

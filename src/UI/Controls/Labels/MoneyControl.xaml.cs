@@ -53,7 +53,41 @@ public partial class MoneyControl
         set => SetValue(AmountProperty, value);
     }
 
-	public MoneyControl()
+    public static readonly BindableProperty IsNegativeProperty =
+        BindableProperty.Create(nameof(IsNegative), typeof(bool), typeof(MoneyControl), false,
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                if (bindable is MoneyControl control && newValue is bool isNegative)
+                {
+                    // Update display with formatted amount
+                    control.UpdateControl();
+                }
+            });
+
+    public bool IsNegative
+    {
+        get => (bool)GetValue(IsNegativeProperty);
+        set => SetValue(IsNegativeProperty, value);
+    }
+
+    public static readonly BindableProperty ChangeColorProperty =
+        BindableProperty.Create(nameof(ChangeColor), typeof(bool), typeof(MoneyControl), false,
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                if (bindable is MoneyControl control && newValue is bool changeColor)
+                {
+                    // Update the color of the amount based on the changeColor property
+                    control.UpdateControl();
+                }
+            });
+
+    public bool ChangeColor
+    {
+        get => (bool)GetValue(ChangeColorProperty);
+        set => SetValue(ChangeColorProperty, value);
+    }
+
+    public MoneyControl()
 	{
 		InitializeComponent();
 	}
@@ -86,5 +120,21 @@ public partial class MoneyControl
         
         // Set the decimal part with the decimal point
         AmountDecimals.Text = "." + parts[1];
+
+        if (IsNegative)
+        {
+            NegativeStart.Text = "(";
+            NegativeEnd.Text = ")";
+        }
+
+        if (ChangeColor)
+        {
+            AmountValue.TextColor = IsNegative 
+                ? (Color)Application.Current!.Resources["RedState"] 
+                : (Color)Application.Current!.Resources["GreenState"];
+            AmountDecimals.TextColor = IsNegative 
+                ? (Color)Application.Current!.Resources["RedState"] 
+                : (Color)Application.Current!.Resources["GreenState"];
+        }
     }
 }

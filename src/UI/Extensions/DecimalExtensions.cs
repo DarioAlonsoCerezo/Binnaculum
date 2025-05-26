@@ -84,4 +84,9 @@ public static class OptionTradeExtensions
 
         return ResourceKeys.OptionCode_Expired_Extended;
     }
+
+    public static bool IsPaid(this Models.OptionCode code)
+    {
+        return code.IsBuyToOpen || code.IsBuyToClose;
+    }
 }
