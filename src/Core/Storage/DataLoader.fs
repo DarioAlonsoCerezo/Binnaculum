@@ -79,6 +79,7 @@ module internal DataLoader =
             |> fun b -> b.brokerAccountsToModel()
             |> List.map (fun account -> 
                 async {
+                    // Use the database query to check if the account has any movements, including option trades
                     let! hasMovements = 
                         BrokerAccountExtensions.Do.hasMovements account.Id 
                         |> Async.AwaitTask
@@ -170,13 +171,16 @@ module internal DataLoader =
             Collections.updateBankAccount updatedAccount
 
     let private updateBrokerAccount(account: Account, movements: Movement list) = 
-        let hasMovements = 
-            movements 
-            |> List.filter (fun m -> m.BrokerMovement.IsSome && m.BrokerMovement.Value.BrokerAccount.Id = account.Broker.Value.Id)
-            |> List.length > 0
-        if hasMovements <> account.HasMovements then
-            let updatedAccount = { account with HasMovements = hasMovements }
-            Collections.updateBrokerAccount updatedAccount
+        // Use the database query to directly check if the account has any movements
+        async {
+            let! hasMovements = 
+                BrokerAccountExtensions.Do.hasMovements account.Broker.Value.Id
+                |> Async.AwaitTask
+            
+            if hasMovements <> account.HasMovements then
+                let updatedAccount = { account with HasMovements = hasMovements }
+                Collections.updateBrokerAccount updatedAccount
+        } |> Async.StartImmediate
 
     let loadMovementsFor(account: Account option) = task {
 
