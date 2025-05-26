@@ -74,9 +74,89 @@
                     </toolkit:Expander>
                 </Grid>
 
+                <Line Style="{StaticResource LineSettingsGroup}" />
+
+                <Grid
+                    Margin="0,12,0,0"
+                    ColumnDefinitions="1*,1*">
+                    <Label
+                        Text="Expiration"
+                        Style="{StaticResource LabelInfo}"
+                        HorizontalTextAlignment="Center" />
+                    <Label
+                        Grid.Column="1"
+                        Text="Strike"
+                        Style="{StaticResource LabelInfo}"
+                        HorizontalTextAlignment="Center" />
+                </Grid>
+
+                <ContentView
+                    Margin="0,12,0,0"
+                    ControlTemplate="{StaticResource BorderedControlTemplate}">
+                    <Grid ColumnDefinitions="1*,1*">
+                        <controls:BorderlessDatePicker x:Name="ExpirationDate" />
+                        <controls:BorderlessEntry
+                            x:Name="StrikePriceEntry"
+                            Grid.Column="1"
+                            Placeholder="Strike"
+                            Keyboard="Numeric"
+                            HorizontalTextAlignment="Center" />
+                    </Grid>
+                </ContentView>
+
+                <Grid
+                    Margin="0,12,0,0"
+                    ColumnDefinitions="1*,1*">
+                    <Label
+                        Text="Quantity"
+                        Style="{StaticResource LabelInfo}"
+                        HorizontalTextAlignment="Center" />
+                    <Label
+                        Grid.Column="1"
+                        Text="Premium"
+                        Style="{StaticResource LabelInfo}"
+                        HorizontalTextAlignment="Center" />
+                </Grid>
+
+                <ContentView
+                    Margin="0,12,0,0"
+                    ControlTemplate="{StaticResource BorderedControlTemplate}">
+                    <Grid ColumnDefinitions="1*,1*">
+                        <controls:BorderlessEntry
+                            x:Name="QuantityEntry"
+                            Placeholder="Quantity"
+                            Keyboard="Numeric"
+                            HorizontalTextAlignment="Center" />
+                        <controls:BorderlessEntry
+                            x:Name="PremiumEntry"
+                            Grid.Column="1"
+                            Placeholder="Premium"
+                            Keyboard="Numeric"
+                            HorizontalTextAlignment="Center" />
+                    </Grid>
+                </ContentView>
+
+                <Grid
+                    Margin="0,12,0,0"
+                    ColumnDefinitions="1*,1*">
+                    <Label
+                        Text="Commissions"
+                        Style="{StaticResource LabelInfo}"
+                        HorizontalTextAlignment="Center" />
+                    <Label
+                        Grid.Column="1"
+                        Text="Fees"
+                        Style="{StaticResource LabelInfo}"
+                        HorizontalTextAlignment="Center" />
+                </Grid>
+                <controls:BorderedFeeAndCommissionControl
+                    x:Name="FeeAndCommission"
+                    Margin="0,12,0,0" />
+
                 <controls:ButtonSaveOrDiscard
                     x:Name="SaveOrDiscard"
-                    Margin="0,32,0,0" />
+                    Margin="0,32,0,0"
+                    IsButtonSaveEnabled="False" />
             </VerticalStackLayout>
         </Border>
     </Grid>
