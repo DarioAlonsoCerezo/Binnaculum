@@ -8,6 +8,7 @@ public partial class TradeControl
     public event EventHandler<Models.Trade?> TradeChanged;
 
     private string _currency, _ticker;
+    private decimal _leverage = 1.0m;
 
     public static readonly BindableProperty BrokerAccountProperty =
         BindableProperty.Create(
@@ -74,7 +75,21 @@ public partial class TradeControl
             }))
             .Subscribe()
             .DisposeWith(Disposables);
-        
+
+        LeverageGesture.Events().Tapped
+            .SelectMany(_ => Observable.FromAsync(async () =>
+            {
+                var result = await new LeveragePopup().ShowAndWait();
+                if (result is decimal leverage)
+                {
+                    _leverage = leverage;
+                }
+                return Unit.Default; // Return Unit.Default as a "void" equivalent
+            }))
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+
         SetupChanges();
     }
 
@@ -140,7 +155,7 @@ public partial class TradeControl
             fees,
             tradeCode,
             tradeType,
-            1.0m,
+            _leverage,
             notes);
     }
 }
