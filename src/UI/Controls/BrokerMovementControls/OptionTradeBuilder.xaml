@@ -5,5 +5,26 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Binnaculum"
     xmlns:controls="clr-namespace:Binnaculum.Controls">
-    <Grid />
+    <VerticalStackLayout>
+        <Grid ColumnDefinitions="1*,1*">
+            <HorizontalStackLayout
+                Spacing="20"
+                HorizontalOptions="Center">
+                <Label
+                    Style="{StaticResource LabelInfo}"
+                    Text="CALL" />
+                <controls:CustomRadioButton x:Name="CallRadioButton" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout
+                Grid.Column="1"
+                Spacing="20"
+                HorizontalOptions="Center">
+                <Label
+                    Style="{StaticResource LabelInfo}"
+                    Text="PUT" />
+                <controls:CustomRadioButton x:Name="PutRadioButton" />
+            </HorizontalStackLayout>
+        </Grid>
+        <Label Text="Leg" />
+    </VerticalStackLayout>
 </controls:BaseContentView>

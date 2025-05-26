@@ -40,10 +40,15 @@
                     </VerticalStackLayout>
                 </Grid>
 
-
                 <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
 
                 <controls:BorderedFeeAndCommissionControl x:Name="FeesAndCommissions" />
+
+                <controls:OptionTradeBuilder x:Name="LegOne" />
+                <controls:OptionTradeBuilder x:Name="LegTwo" />
+                <controls:OptionTradeBuilder x:Name="LegThree" />
+                <controls:OptionTradeBuilder x:Name="LegFour" />
+
                 <controls:BorderedEditor
                     x:Name="Notes"
                     Placeholder="{local:Translate Placeholder_Note}" />
