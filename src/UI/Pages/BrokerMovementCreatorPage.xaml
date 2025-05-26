@@ -66,6 +66,10 @@
                     x:Name="DividendMovement"
                     IsVisible="False" />
 
+                <controls:OptionTradeControl
+                    x:Name="OptionTradeMovement"
+                    IsVisible="False" />
+
                 <controls:ButtonSave
                     x:Name="Save"
                     IsVisible="False" />

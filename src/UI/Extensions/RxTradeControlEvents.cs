@@ -15,3 +15,14 @@ public class RxTradeControlEvents(TradeControl data) : RxVisualElementEvents(dat
                 handler => _data.TradeChanged -= handler);
 
 }
+
+public class RxOptionTradeControlEvents(OptionTradeControl data) : RxVisualElementEvents(data)
+{
+    private readonly OptionTradeControl _data = data;
+    public IObservable<List<Models.OptionTrade?>> OptionTradesChanged
+        => Observable
+            .FromEvent<EventHandler<List<Models.OptionTrade?>>, List<Models.OptionTrade?>>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => _data.OptionTradesChanged += handler,
+                handler => _data.OptionTradesChanged -= handler);
+}

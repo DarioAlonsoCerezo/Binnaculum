@@ -180,6 +180,7 @@ module Models =
         IsOpen: bool
         ClosedWith: int option
         Multiplier: decimal
+        Notes: string option
     }
 
     type Bank = {
