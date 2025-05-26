@@ -23,7 +23,6 @@ public partial class MovementTemplate
         {            
             Quantity.IsVisible = movement.Type.IsTrade;
             SubTitle.IsVisible = movement.Type.IsTrade || movement.Type.IsDividendDate;
-            TimeStamp.IsVisible = !movement.Type.IsDividendDate;
 
             if (movement.Type.IsBrokerMovement)
                 FillBrokerAccountMovement(movement);            
@@ -89,7 +88,7 @@ public partial class MovementTemplate
     {
         Icon.ImagePath = dividend.Ticker.Image?.Value ?? string.Empty;
         Icon.PlaceholderText = dividend.Ticker.Symbol;
-        
+        TimeStamp.DateTime = dividend.TimeStamp;
         Amount.Amount = dividend.Amount;
         Amount.Money = dividend.Currency;
         var text = dividend.DividendCode == Models.DividendCode.ExDividendDate
