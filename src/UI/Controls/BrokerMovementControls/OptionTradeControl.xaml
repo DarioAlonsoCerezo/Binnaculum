@@ -17,15 +17,23 @@
             VerticalOptions="Start">
             <VerticalStackLayout Spacing="12">
                 <Grid>
-                    <Label
-                        x:Name="CurrencyLabel"
-                        HorizontalOptions="Start"
-                        Style="{StaticResource LabelInfo}"
-                        TextDecorations="Underline">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer x:Name="CurrencyGesture" />
-                        </Label.GestureRecognizers>
-                    </Label>
+                    <HorizontalStackLayout
+                        Spacing="8"
+                        HorizontalOptions="Start">
+                        <Label
+                            x:Name="CurrencyLabel"
+                            HorizontalOptions="Start"
+                            Style="{StaticResource LabelInfo}"
+                            TextDecorations="Underline">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer x:Name="CurrencyGesture" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <controls:InformationButton
+                            HorizontalOptions="Start"
+                            Text="{local:Translate Information_Options_Trading}" />
+                    </HorizontalStackLayout>
+
                     <controls:IconControl
                         x:Name="Icon"
                         HorizontalOptions="Center">

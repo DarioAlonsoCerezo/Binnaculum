@@ -18,6 +18,8 @@ public partial class MarkdownMessagePopup
 	{
 		InitializeComponent();
 
+        ApplyHeightPercentage(Container, 0.8);
+
         OkButton.Events().Clicked
             .Subscribe(_ =>
             {

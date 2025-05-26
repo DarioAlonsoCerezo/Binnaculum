@@ -9,9 +9,11 @@
     x:Name="Control"
     x:DataType="popups:MarkdownMessagePopup"
     Color="Transparent">
-    <ScrollView>
-        <Grid Padding="24,0">
-            <Border Style="{StaticResource Popup}">
+    <Grid
+        x:Name="Container"
+        Padding="24,0">
+        <Border Style="{StaticResource Popup}">
+            <ScrollView>
                 <Grid RowDefinitions="1*,Auto">
                     <markdown:MarkdownView
                         Style="{StaticResource BasicMarkdown}"
@@ -22,7 +24,7 @@
                         Margin="0,32,0,0"
                         Text="{local:Translate Global_Button_Ok}" />
                 </Grid>
-            </Border>
-        </Grid>
-    </ScrollView>
+            </ScrollView>
+        </Border>
+    </Grid>
 </popups:BasePopup>

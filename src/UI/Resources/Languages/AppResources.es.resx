@@ -922,4 +922,60 @@ Recuerde que la mayoría de los operadores que utilizan apalancamiento terminan 
   <data name="OptionCode_Title" xml:space="preserve">
     <value>Código de opción:</value>
   </data>
+  <data name="Information_Options_Trading" xml:space="preserve">
+    <value># Fundamentos de Operaciones con Opciones
+
+## Tipos de Opciones
+
+### Opciones CALL
+Una opción CALL te da el **derecho a comprar** el activo subyacente a un precio específico (precio de ejercicio) antes de la fecha de vencimiento.
+
+- **Potencial de beneficio**: Cuando esperas que el precio SUBA
+- **Compradores de Call** esperan que el precio del activo suba por encima del precio de ejercicio
+- **Vendedores de Call** esperan que el precio del activo se mantenga por debajo del precio de ejercicio
+
+### Opciones PUT
+Una opción PUT te da el **derecho a vender** el activo subyacente a un precio específico (precio de ejercicio) antes de la fecha de vencimiento.
+
+- **Potencial de beneficio**: Cuando esperas que el precio BAJE
+- **Compradores de Put** esperan que el precio del activo caiga por debajo del precio de ejercicio
+- **Vendedores de Put** esperan que el precio del activo se mantenga por encima del precio de ejercicio
+
+## Códigos de Opciones
+
+### VPA (STO) - Venta Para Abrir
+- **Qué significa**: Crear una nueva posición de opción como vendedor
+- **Prima**: RECIBES prima por adelantado
+- **Obligación**: Asumes la obligación de comprar/vender acciones si te asignan
+- **Ejemplo**: VPA de un CALL significa que vendes una opción call y recibes prima con la obligación de vender acciones al precio de ejercicio si te asignan
+
+### VPC (STC) - Venta Para Cerrar
+- **Qué significa**: Cerrar una posición larga existente
+- **Prima**: RECIBES prima
+- **Resultado**: Sales de tu posición y renuncias a tus derechos
+- **Ejemplo**: VPC de un PUT significa que vendes una opción put que compraste previamente, terminando tu derecho a vender acciones al precio de ejercicio
+
+### CPA (BTO) - Compra Para Abrir
+- **Qué significa**: Crear una nueva posición de opción como comprador
+- **Prima**: PAGAS prima por adelantado
+- **Derechos**: Obtienes el derecho a comprar/vender acciones al precio de ejercicio
+- **Ejemplo**: CPA de un PUT significa que compras una opción put, dándote el derecho a vender acciones al precio de ejercicio
+
+### CPC (BTC) - Compra Para Cerrar
+- **Qué significa**: Cerrar una posición corta existente
+- **Prima**: PAGAS prima
+- **Resultado**: Sales de tu posición y terminas tus obligaciones
+- **Ejemplo**: CPC de un CALL significa que recompras una opción call que vendiste previamente, terminando tu obligación de vender acciones
+
+### Asignado
+- **Qué significa**: El comprador de la opción ejerció su derecho
+- **Resultado**: Debes cumplir con la obligación del contrato (comprar/vender acciones)
+- **Se aplica a**: Solo vendedores de opciones
+
+### Expirado
+- **Qué significa**: La opción llegó a su fecha de vencimiento sin ser ejercida
+- **Resultado**: El contrato se vuelve sin valor
+- **Para compradores**: Pérdida de la prima pagada
+- **Para vendedores**: Beneficio total de la prima recibida</value>
+  </data>
 </root>

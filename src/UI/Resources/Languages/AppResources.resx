@@ -921,4 +921,60 @@ Remember that most leveraged traders ultimately lose money. Consider paper tradi
   <data name="OptionCode_Title" xml:space="preserve">
     <value>Option code:</value>
   </data>
+  <data name="Information_Options_Trading" xml:space="preserve">
+    <value># Options Trading Basics
+
+## Option Types
+
+### CALL Options
+A CALL option gives you the **right to buy** the underlying asset at a specific price (strike price) before the expiration date.
+
+- **Profit potential**: When you expect the price to go UP
+- **Call buyers** hope the asset price rises above the strike price
+- **Call sellers** hope the asset price stays below the strike price
+
+### PUT Options
+A PUT option gives you the **right to sell** the underlying asset at a specific price (strike price) before the expiration date.
+
+- **Profit potential**: When you expect the price to go DOWN
+- **Put buyers** hope the asset price falls below the strike price
+- **Put sellers** hope the asset price stays above the strike price
+
+## Option Codes
+
+### STO - Sell To Open
+- **What it means**: Creating a new option position as a seller
+- **Premium**: You RECEIVE premium upfront
+- **Obligation**: You take on the obligation to buy/sell shares if assigned
+- **Example**: STO a CALL means you sell a call option and receive premium with the obligation to sell shares at the strike price if assigned
+
+### STC - Sell To Close
+- **What it means**: Closing an existing long option position
+- **Premium**: You RECEIVE premium
+- **Result**: You exit your position and give up your rights
+- **Example**: STC a PUT means you sell a put option you previously bought, ending your right to sell shares at the strike price
+
+### BTO - Buy To Open
+- **What it means**: Creating a new option position as a buyer
+- **Premium**: You PAY premium upfront
+- **Rights**: You gain the right to buy/sell shares at the strike price
+- **Example**: BTO a PUT means you buy a put option, giving you the right to sell shares at the strike price
+
+### BTC - Buy To Close
+- **What it means**: Closing an existing short option position
+- **Premium**: You PAY premium
+- **Result**: You exit your position and end your obligations
+- **Example**: BTC a CALL means you buy back a call option you previously sold, ending your obligation to sell shares
+
+### Assigned
+- **What it means**: The option buyer exercised their right
+- **Result**: You must fulfill the contract obligation (buy/sell shares)
+- **Applies to**: Option sellers only
+
+### Expired
+- **What it means**: The option reached its expiration date without being exercised
+- **Result**: The contract becomes worthless
+- **For buyers**: Loss of premium paid
+- **For sellers**: Full profit of premium received</value>
+  </data>
 </root>
