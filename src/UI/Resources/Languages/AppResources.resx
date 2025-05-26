@@ -864,4 +864,28 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="Placeholder_Type_Ticker_Name" xml:space="preserve">
     <value>Type the ticker name</value>
   </data>
+  <data name="Leverage_Title" xml:space="preserve">
+    <value>Leveraged</value>
+  </data>
+  <data name="Information_Leveraged_Trading" xml:space="preserve">
+    <value># WARNING: High Risk of Leveraged Trading
+
+Leveraged trading involves **significant risk** and can lead to:
+
+- **Rapid Account Depletion**: Your entire account balance can be wiped out in minutes
+- **Losses Beyond Your Investment**: You may lose more than your initial deposit
+- **Margin Calls**: Requiring immediate additional funds
+- **Psychological Impact**: Emotional decision-making often leads to further losses
+
+## Risk Multiplication
+
+When trading with leverage:
+- 2x leverage means losses are doubled
+- 5x leverage means losses are multiplied by 5
+- 10x leverage means a 10% market move against you results in a complete loss
+
+**Only use leverage if you thoroughly understand these risks and have developed a strict risk management strategy.**
+
+Remember that most leveraged traders ultimately lose money. Consider paper trading first to understand the mechanics without risking real capital.</value>
+  </data>
 </root>

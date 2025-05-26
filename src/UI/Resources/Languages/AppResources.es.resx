@@ -865,4 +865,28 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
   <data name="Placeholder_Type_Ticker_Name" xml:space="preserve">
     <value>Escriba el nombre del ticker</value>
   </data>
+  <data name="Leverage_Title" xml:space="preserve">
+    <value>Apalancado</value>
+  </data>
+  <data name="Information_Leveraged_Trading" xml:space="preserve">
+    <value># ADVERTENCIA: Alto Riesgo en Operaciones Apalancadas
+
+El trading con apalancamiento implica **riesgos significativos** y puede provocar:
+
+- **Pérdida Rápida de Capital**: Su cuenta completa puede quedar a cero en cuestión de minutos
+- **Pérdidas Superiores a su Inversión**: Puede perder más dinero del que depositó inicialmente
+- **Llamadas de Margen**: Que requieren fondos adicionales de forma inmediata
+- **Impacto Psicológico**: Las decisiones emocionales suelen conducir a pérdidas mayores
+
+## Multiplicación del Riesgo
+
+Al operar con apalancamiento:
+- Apalancamiento 2x significa que las pérdidas se duplican
+- Apalancamiento 5x significa que las pérdidas se multiplican por 5
+- Apalancamiento 10x significa que un movimiento del mercado del 10% en su contra resultará en una pérdida total
+
+**Solo utilice apalancamiento si comprende perfectamente estos riesgos y ha desarrollado una estrategia estricta de gestión de riesgos.**
+
+Recuerde que la mayoría de los operadores que utilizan apalancamiento terminan perdiendo dinero. Considere practicar primero con cuentas demo para entender los mecanismos sin arriesgar capital real.</value>
+  </data>
 </root>
