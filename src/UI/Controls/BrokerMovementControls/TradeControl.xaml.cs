@@ -140,6 +140,7 @@ public partial class TradeControl
             fees,
             tradeCode,
             tradeType,
+            1.0m,
             notes);
     }
 }

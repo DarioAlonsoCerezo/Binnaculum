@@ -20,6 +20,7 @@ module internal TradesQuery =
             {Fees} TEXT NOT NULL,
             {TradeCode} TEXT NOT NULL,
             {TradeType} TEXT NOT NULL,
+            {Leveraged} TEXT NOT NULL DEFAULT '1.0',
             {Notes} TEXT,
             {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
             {UpdatedAt} TEXT,
@@ -68,6 +69,7 @@ module internal TradesQuery =
             {Fees},
             {TradeCode},
             {TradeType},
+            {Leveraged},
             {Notes},
             {CreatedAt},
             {UpdatedAt}
@@ -84,6 +86,7 @@ module internal TradesQuery =
             {SQLParameterName.Fees},
             {SQLParameterName.TradeCode},
             {SQLParameterName.TradeType},
+            {SQLParameterName.Leveraged},
             {SQLParameterName.Notes},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
@@ -104,6 +107,7 @@ module internal TradesQuery =
             {Fees} = {SQLParameterName.Fees},   
             {TradeCode} = {SQLParameterName.TradeCode},
             {TradeType} = {SQLParameterName.TradeType},
+            {Leveraged} = {SQLParameterName.Leveraged},
             {Notes} = {SQLParameterName.Notes},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}

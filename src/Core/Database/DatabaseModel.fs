@@ -209,6 +209,7 @@ module internal DatabaseModel =
         Fees: Money
         TradeCode: TradeCode
         TradeType: TradeType
+        Leveraged: decimal
         Notes: string option
         Audit: AuditableEntity
     } with

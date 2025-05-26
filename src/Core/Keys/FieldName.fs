@@ -105,6 +105,9 @@ module internal FieldName =
 
     [<Literal>]
     let Notes = "Notes"
+    
+    [<Literal>]
+    let Leveraged = "Leveraged"
 
     // Options
     [<Literal>]

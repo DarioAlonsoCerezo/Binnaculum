@@ -131,6 +131,7 @@ module Models =
         Fees: decimal
         TradeCode: TradeCode
         TradeType: TradeType
+        Leveraged: decimal
         Notes: string option
     }
 

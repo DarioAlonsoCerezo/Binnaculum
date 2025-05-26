@@ -27,6 +27,7 @@ type Do() =
                 (SQLParameterName.Fees, trade.Fees.Value);
                 (SQLParameterName.TradeCode, fromTradeCodeToDatabase trade.TradeCode);
                 (SQLParameterName.TradeType, fromTradeTypeToDatabase trade.TradeType);
+                (SQLParameterName.Leveraged, trade.Leveraged)
                 (SQLParameterName.Notes, trade.Notes.ToDbValue())
             ], trade)
 
@@ -44,6 +45,7 @@ type Do() =
             Fees = reader.getMoney FieldName.Fees
             TradeCode = reader.GetString(reader.GetOrdinal(FieldName.TradeCode)) |> fromDatabaseToTradeCode
             TradeType = reader.GetString(reader.GetOrdinal(FieldName.TradeType)) |> fromDatabaseToTradeType
+            Leveraged = reader.getDecimal FieldName.Leveraged
             Notes = reader.getStringOrNone FieldName.Notes
             Audit = reader.getAudit()
         }

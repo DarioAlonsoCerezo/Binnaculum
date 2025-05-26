@@ -180,6 +180,7 @@ module internal DatabaseToModels =
                 Fees = trade.Fees.Value
                 TradeCode = trade.TradeCode.databaseToTradeCode()
                 TradeType = trade.TradeType.databaseToTradeType()
+                Leveraged = trade.Leveraged
                 Notes = trade.Notes
             }
         

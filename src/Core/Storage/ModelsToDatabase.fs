@@ -147,6 +147,7 @@ module internal ModelsToDatabase =
                 Fees = Money.FromAmount(trade.Fees)
                 TradeCode = trade.TradeCode.tradeCodeToDatabase()
                 TradeType = trade.TradeType.tradeTypeToDatabase()
+                Leveraged = trade.Leveraged
                 Notes = trade.Notes
                 Audit = AuditableEntity.FromDateTime(trade.TimeStamp)
             }
