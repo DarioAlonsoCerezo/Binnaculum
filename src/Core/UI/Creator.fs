@@ -11,6 +11,7 @@ open TradeExtensions
 open DividendExtensions
 open DividendDateExtensions
 open DividendTaxExtensions
+open OptionTradeExtensions
 open Binnaculum.Core.Storage.ModelsToDatabase
 open System
 open Binnaculum.Core.Patterns
@@ -98,9 +99,25 @@ module Creator =
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }
 
+    /// <summary>
+    /// Save a new or updated dividend tax and refresh the dividend taxes collection.
+    /// </summary>
     let SaveDividendTax(dividendTax: Binnaculum.Core.Models.DividendTax) = task {
         let databaseModel = dividendTax.dividendTaxToDatabase()
         do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+    }
+
+    /// <summary>
+    /// Save option trades and refresh the movements collection.
+    /// </summary>
+    let SaveOptionsTrade(optionTrades: Binnaculum.Core.Models.OptionTrade list) = task {
+        do! optionTrades.optionTradesToDatabase()
+            |> List.map (fun model -> model.save() |> Async.AwaitTask |> Async.Ignore)
+            |> Async.Parallel
+            |> Async.Ignore
+        
+        // Refresh the movements collection to reflect the new option trades
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }
 
