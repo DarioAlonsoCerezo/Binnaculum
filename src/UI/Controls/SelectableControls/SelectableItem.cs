@@ -84,4 +84,58 @@ public class SelectableItem
             ItemValue = Models.MovementType.Conversion
         }
     ];
+
+    public static List<SelectableItem> OptionTypeList()
+    {
+        return new List<SelectableItem>
+        {
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionType_Call,
+                ItemValue = Models.OptionType.Call
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionType_Put,
+                ItemValue = Models.OptionType.Put
+            }
+        };
+    }
+
+    public static List<SelectableItem> OptionCodeList()
+    {
+        return new List<SelectableItem>
+        {
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_STO,
+                ItemValue = Models.OptionCode.SellToOpen
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_STC,
+                ItemValue = Models.OptionCode.SellToClose
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_BTO,
+                ItemValue = Models.OptionCode.BuyToOpen
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_BTC,
+                ItemValue = Models.OptionCode.BuyToClose
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_Assigned,
+                ItemValue = Models.OptionCode.Assigned
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_Expired,
+                ItemValue = Models.OptionCode.Expired
+            }
+        };
+    }
 }

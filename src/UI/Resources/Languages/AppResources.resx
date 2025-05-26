@@ -891,4 +891,34 @@ Remember that most leveraged traders ultimately lose money. Consider paper tradi
   <data name="Multiplier_Title" xml:space="preserve">
     <value>Multiplier</value>
   </data>
+  <data name="OptionType_Call" xml:space="preserve">
+    <value>CALL</value>
+  </data>
+  <data name="OptionType_Put" xml:space="preserve">
+    <value>PUT</value>
+  </data>
+  <data name="OptionCode_STO" xml:space="preserve">
+    <value>STO</value>
+  </data>
+  <data name="OptionCode_STC" xml:space="preserve">
+    <value>STC</value>
+  </data>
+  <data name="OptionCode_BTO" xml:space="preserve">
+    <value>BTO</value>
+  </data>
+  <data name="OptionCode_BTC" xml:space="preserve">
+    <value>BTC</value>
+  </data>
+  <data name="OptionCode_Assigned" xml:space="preserve">
+    <value>Assigned</value>
+  </data>
+  <data name="OptionCode_Expired" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="OptionType_Title" xml:space="preserve">
+    <value>Option type:</value>
+  </data>
+  <data name="OptionCode_Title" xml:space="preserve">
+    <value>Option code:</value>
+  </data>
 </root>

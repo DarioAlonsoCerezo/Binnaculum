@@ -17,7 +17,18 @@
             VerticalOptions="Start">
             <VerticalStackLayout Spacing="12">
                 <Grid>
-                    <controls:IconControl x:Name="Icon">
+                    <Label
+                        x:Name="CurrencyLabel"
+                        HorizontalOptions="Start"
+                        Style="{StaticResource LabelInfo}"
+                        TextDecorations="Underline">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer x:Name="CurrencyGesture" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <controls:IconControl
+                        x:Name="Icon"
+                        HorizontalOptions="Center">
                         <controls:IconControl.GestureRecognizers>
                             <TapGestureRecognizer x:Name="IconGesture" />
                         </controls:IconControl.GestureRecognizers>
@@ -40,14 +51,21 @@
                     </VerticalStackLayout>
                 </Grid>
 
+                <Grid ColumnDefinitions="1*,1*">
+                    <Label
+                        Style="{StaticResource LabelSettingsTitle}"
+                        Text="Type" />
+                    <Label
+                        Grid.Column="1"
+                        Style="{StaticResource LabelSettingsTitle}"
+                        Text="Code" />
+                </Grid>
+
+                <controls:ButtonAdd x:Name="AddLeg" />
+
                 <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
 
                 <controls:BorderedFeeAndCommissionControl x:Name="FeesAndCommissions" />
-
-                <controls:OptionTradeBuilder x:Name="LegOne" />
-                <controls:OptionTradeBuilder x:Name="LegTwo" />
-                <controls:OptionTradeBuilder x:Name="LegThree" />
-                <controls:OptionTradeBuilder x:Name="LegFour" />
 
                 <controls:BorderedEditor
                     x:Name="Notes"

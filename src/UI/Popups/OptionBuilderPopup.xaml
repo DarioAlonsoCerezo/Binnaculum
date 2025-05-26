@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<popups:BasePopup
+    x:Class="Binnaculum.Popups.OptionBuilderPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:popups="clr-namespace:Binnaculum.Popups"
+    xmlns:core="clr-namespace:Binnaculum.Core;assembly=Core"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:Name="Control"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    Color="Transparent">
+    <Grid
+        x:Name="Container"
+        Padding="24,0">
+        <Border Style="{StaticResource Popup}">
+            <VerticalStackLayout>
+                <Grid ColumnDefinitions="1*,1*">
+                    <toolkit:Expander
+                        x:Name="OptionTypeExpander"
+                        HorizontalOptions="Center"
+                        IsExpanded="False">
+                        <toolkit:Expander.Header>
+                            <VerticalStackLayout Spacing="12">
+                                <Label
+                                    x:Name="OptionTypeExpanderTitle"
+                                    Text="{local:Translate OptionType_Title}"
+                                    TextDecorations="Underline"
+                                    Style="{StaticResource LabelInfo}" />
+                                <controls:SelectableItemControl x:Name="SelectedOptionType" />
+                            </VerticalStackLayout>
+                        </toolkit:Expander.Header>
+                        <VerticalStackLayout
+                            x:Name="OptionsTypeLayout"
+                            Margin="0,12,0,0"
+                            Spacing="12">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <controls:SelectableItemControl
+                                        SelectableItem="{Binding .}"
+                                        ItemSelected="TypeSelected" />
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </toolkit:Expander>
+                    <toolkit:Expander
+                        x:Name="OptionCodeExpander"
+                        Grid.Column="1"
+                        HorizontalOptions="Center"
+                        IsExpanded="False">
+                        <toolkit:Expander.Header>
+                            <VerticalStackLayout Spacing="12">
+                                <Label
+                                    x:Name="OptionCodeExpanderTitle"
+                                    Text="{local:Translate OptionCode_Title}"
+                                    TextDecorations="Underline"
+                                    Style="{StaticResource LabelInfo}" />
+                                <controls:SelectableItemControl x:Name="SelectedOptionCode" />
+                            </VerticalStackLayout>
+                        </toolkit:Expander.Header>
+                        <VerticalStackLayout
+                            x:Name="OptionsCodeLayout"
+                            Margin="0,12,0,0"
+                            Spacing="12">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <controls:SelectableItemControl
+                                        SelectableItem="{Binding .}"
+                                        ItemSelected="CodeSelected" />
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </toolkit:Expander>
+                </Grid>
+
+                <controls:ButtonSaveOrDiscard
+                    x:Name="SaveOrDiscard"
+                    Margin="0,32,0,0" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</popups:BasePopup>

@@ -37,7 +37,7 @@ public partial class OptionTradeControl
                 var ticker = Core.UI.Collections.GetTicker(p.Ticker);
                 Icon.PlaceholderText = ticker.Symbol;
                 Icon.ImagePath = ticker.Image?.Value ?? string.Empty;
-                //Currency.Text = p.Currency;
+                CurrencyLabel.Text = p.Currency;
                 _ticker = ticker.Symbol;
                 _currency = p.Currency;
             })
@@ -62,19 +62,19 @@ public partial class OptionTradeControl
             .Subscribe()
             .DisposeWith(Disposables);
 
-        //CurrencyGesture.Events().Tapped
-        //    .SelectMany(_ => Observable.FromAsync(async () =>
-        //    {
-        //        var result = await new CurrencySelectorPopup().ShowAndWait();
-        //        if (result is Models.Currency currency)
-        //        {
-        //            Currency.Text = currency.Code;
-        //            _currency = currency.Code;
-        //        }
-        //        return Unit.Default; // Return Unit.Default as a "void" equivalent
-        //    }))
-        //    .Subscribe()
-        //    .DisposeWith(Disposables);
+        CurrencyGesture.Events().Tapped
+            .SelectMany(_ => Observable.FromAsync(async () =>
+            {
+                var result = await new CurrencySelectorPopup().ShowAndWait();
+                if (result is Models.Currency currency)
+                {
+                    CurrencyLabel.Text = currency.Code;
+                    _currency = currency.Code;
+                }
+                return Unit.Default; // Return Unit.Default as a "void" equivalent
+            }))
+            .Subscribe()
+            .DisposeWith(Disposables);
 
         MultiplierGesture.Events().Tapped
             .SelectMany(_ => Observable.FromAsync(async () =>
@@ -88,6 +88,17 @@ public partial class OptionTradeControl
                     UpdateMultiplier();
                 }
                 return Unit.Default; // Return Unit.Default as a "void" equivalent
+            }))
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        AddLeg.Events().AddClicked
+            .SelectMany(_ => Observable.FromAsync(async () =>
+            {
+                var ticker = Core.UI.Collections.GetTicker(_ticker);
+                var currency = Core.UI.Collections.GetCurrency(_currency);
+                var result = await new OptionBuilderPopup(currency, BrokerAccount, ticker).ShowAndWait();
+                
             }))
             .Subscribe()
             .DisposeWith(Disposables);

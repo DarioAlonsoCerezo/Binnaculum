@@ -99,3 +99,27 @@ module ResourceKeys =
 
     [<Literal>]
     let Multiplier_Title = "Multiplier_Title"
+
+    [<Literal>]
+    let OptionType_Call = "OptionType_Call"
+
+    [<Literal>]
+    let OptionType_Put = "OptionType_Put"
+
+    [<Literal>]
+    let OptionCode_BTC = "OptionCode_BTC"
+
+    [<Literal>]
+    let OptionCode_BTO = "OptionCode_BTO"
+
+    [<Literal>]
+    let OptionCode_STC = "OptionCode_STC"
+
+    [<Literal>]
+    let OptionCode_STO = "OptionCode_STO"
+
+    [<Literal>]
+    let OptionCode_Assigned = "OptionCode_Assigned"
+
+    [<Literal>]
+    let OptionCode_Expired = "OptionCode_Expired"
