@@ -14,7 +14,7 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member createBankToDatabase(bank: Binnaculum.Core.Models.Bank) =
             { 
-                Id = 0; 
+                Id = bank.Id; 
                 Name = bank.Name; 
                 Image = bank.Image; 
                 Audit = AuditableEntity.FromDateTime(DateTime.Now);
@@ -47,7 +47,7 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member createBankAccountToDatabase(bankAccount: Binnaculum.Core.Models.BankAccount) =
             { 
-                Id = 0; 
+                Id = bankAccount.Id; 
                 BankId = bankAccount.Bank.Id; 
                 Name = bankAccount.Name; 
                 Description = bankAccount.Description; 
@@ -75,7 +75,7 @@ module internal ModelsToDatabase =
         static member bankAccountMovementToDatabase(movement: Binnaculum.Core.Models.BankAccountMovement) =
             let movementType = movement.MovementType.bankMovementTypeToDatabase()
             { 
-                Id = 0; 
+                Id = movement.Id; 
                 TimeStamp = DateTimePattern.FromDateTime(movement.TimeStamp); 
                 Amount = Money.FromAmount(movement.Amount);
                 BankAccountId = movement.BankAccount.Id;
@@ -87,7 +87,7 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member brokerMovementToDatabase(movement: Binnaculum.Core.Models.BrokerMovement) =
             { 
-                Id = 0; 
+                Id = movement.Id; 
                 TimeStamp = DateTimePattern.FromDateTime(movement.TimeStamp); 
                 Amount = Money.FromAmount(movement.Amount); 
                 BrokerAccountId = movement.BrokerAccount.Id; 
@@ -102,7 +102,7 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member createTickerToDatabase(ticker: Binnaculum.Core.Models.Ticker) =
             { 
-                Id = 0; 
+                Id = ticker.Id; 
                 Symbol = ticker.Symbol; 
                 Image = ticker.Image; 
                 Name = ticker.Name; 
@@ -136,7 +136,7 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member tradeToDatabase(trade: Binnaculum.Core.Models.Trade) =
             { 
-                Id = 0 
+                Id = trade.Id
                 TimeStamp = DateTimePattern.FromDateTime(trade.TimeStamp) 
                 TickerId = trade.Ticker.Id
                 BrokerAccountId = trade.BrokerAccount.Id
@@ -155,7 +155,7 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member dividendReceivedToDatabase(dividend: Binnaculum.Core.Models.Dividend) =
             { 
-                Id = 0 
+                Id = dividend.Id 
                 TimeStamp = DateTimePattern.FromDateTime(dividend.TimeStamp) 
                 DividendAmount = Money.FromAmount(dividend.Amount) 
                 TickerId = dividend.Ticker.Id 
@@ -167,7 +167,7 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member dividendTaxToDatabase(dividend: Binnaculum.Core.Models.DividendTax) =
             {
-                Id = 0 
+                Id = dividend.Id 
                 TimeStamp = DateTimePattern.FromDateTime(dividend.TimeStamp) 
                 DividendTaxAmount = Money.FromAmount(dividend.TaxAmount) 
                 TickerId = dividend.Ticker.Id 
@@ -179,7 +179,7 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member dividendDateToDatabase(dividendDate: Binnaculum.Core.Models.DividendDate) =
             { 
-                Id = 0 
+                Id = dividendDate.Id
                 TimeStamp = DateTimePattern.FromDateTime(dividendDate.TimeStamp)
                 Amount = Money.FromAmount(dividendDate.Amount)
                 TickerId = dividendDate.Ticker.Id
@@ -192,7 +192,7 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member optionTradeToDatabase(optionTrade: Binnaculum.Core.Models.OptionTrade) =
             { 
-                Id = 0 
+                Id = optionTrade.Id 
                 TimeStamp = DateTimePattern.FromDateTime(optionTrade.TimeStamp) 
                 ExpirationDate = DateTimePattern.FromDateTime(optionTrade.ExpirationDate)
                 Premium = Money.FromAmount(optionTrade.Premium)
@@ -211,3 +211,7 @@ module internal ModelsToDatabase =
                 Notes = optionTrade.Notes
                 Audit = AuditableEntity.FromDateTime(optionTrade.TimeStamp)
             }
+
+        [<Extension>]
+        static member optionTradesToDatabase(optionTrades: Binnaculum.Core.Models.OptionTrade seq) = 
+            optionTrades |> Seq.map (fun trade -> trade.optionTradeToDatabase()) |> Seq.toList
