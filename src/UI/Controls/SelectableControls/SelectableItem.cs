@@ -125,16 +125,6 @@ public class SelectableItem
             {
                 Title = ResourceKeys.OptionCode_BTC,
                 ItemValue = Models.OptionCode.BuyToClose
-            },
-            new SelectableItem
-            {
-                Title = ResourceKeys.OptionCode_Assigned,
-                ItemValue = Models.OptionCode.Assigned
-            },
-            new SelectableItem
-            {
-                Title = ResourceKeys.OptionCode_Expired,
-                ItemValue = Models.OptionCode.Expired
             }
         };
     }
