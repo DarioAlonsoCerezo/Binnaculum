@@ -117,18 +117,29 @@ public partial class MovementTemplate
 
     private void FillOptionTrade(OptionTrade trade)
     {
+        var toShow = trade.Code.ToShow();
+        
+        if (toShow && trade.ExpirationDate > DateTime.Today)
+        {
+            ExpirationDateLabel.IsVisible = toShow;
+            ExpirationDate.Text = trade.ExpirationDate.ToString("d");
+        }
+
         Icon.ImagePath = trade.Ticker.Image?.Value ?? string.Empty;
         Icon.PlaceholderText = trade.Ticker.Symbol;
         TimeStamp.DateTime = trade.TimeStamp;
         Amount.Amount = trade.NetPremium;
         Amount.Money = trade.Currency;
-        Amount.ChangeColor = true;
+        Amount.ChangeColor = toShow;
         Amount.IsNegative = trade.Code.IsPaid();
         Title.SetLocalizedText(ResourceKeys.MovementType_OptionTrade);
         OptionType.SetLocalizedText(trade.OptionType.ToLocalized());
         OptionCode.SetLocalizedText(trade.Code.ToLocalized());
-        if(trade.Quantity > 1)
+        OptionStrikeValue.Text = trade.Strike.ToMoneyString();
+        if (trade.Quantity > 1)
             OptionQuantity.Text = $"x{trade.Quantity}";
+
+        OptionStrike.IsVisible = trade.ExpirationDate > DateTime.Today;
     }
 
     private string GetTitleFromBrokerAccountMovementType(Models.BrokerMovementType movementType)

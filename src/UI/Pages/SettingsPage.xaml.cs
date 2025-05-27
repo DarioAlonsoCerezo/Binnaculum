@@ -26,6 +26,11 @@ public partial class SettingsPage : ContentPage
             .Subscribe()
             .DisposeWith(Disposables);
 
+        GroupOptionTrades.Events().Toggled
+            .Do(Core.UI.SavedPrefereces.ChangeGroupOption)
+            .Subscribe()
+            .DisposeWith(Disposables);
+
         LightRadioButton.Events().Clicked
             .Do(_ => SetupTheme(AppTheme.Light))
             .Subscribe()
@@ -100,6 +105,7 @@ public partial class SettingsPage : ContentPage
         DefaultCurrency.Text = collection.Currency;
         DefaultTicker.Text = collection.Ticker;
         AllowCreateAccountsSwitch.IsOn = collection.AllowCreateAccount;
+        GroupOptionTrades.IsOn = collection.GroupOptions;
 
         LanguageEnglishRadioButton.IsChecked = collection.Language.Equals("en");
         LanguageSpanishRadioButton.IsChecked = collection.Language.Equals("es");

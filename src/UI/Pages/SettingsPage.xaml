@@ -68,6 +68,14 @@
                             x:Name="AllowCreateAccountsSwitch"
                             Grid.Column="1" />
                     </Grid>
+                    <Grid Style="{StaticResource GridSettingsGroup}">
+                        <Label
+                            Text="{local:Translate Settings_Section_General_Group_Option_Trades}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+                        <controls:CustomSwitch
+                            x:Name="GroupOptionTrades"
+                            Grid.Column="1" />
+                    </Grid>
                 </VerticalStackLayout>
             </Border>
 

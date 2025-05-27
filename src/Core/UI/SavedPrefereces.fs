@@ -3,6 +3,8 @@
 open Microsoft.Maui.ApplicationModel
 open Microsoft.Maui.Storage
 open System.Reactive.Subjects
+open Binnaculum.Core.Storage
+open System.Threading.Tasks
 
 module SavedPrefereces =
     
@@ -33,6 +35,9 @@ module SavedPrefereces =
     let private TickerKey = "Ticker"
 
     [<Literal>]
+    let private GroupOptionsKey = "GroupOptions"
+
+    [<Literal>]
     let private AllowCreateAccountKey = "AllowCreateAccount"
 
     [<Literal>]
@@ -50,6 +55,7 @@ module SavedPrefereces =
         Currency: string
         AllowCreateAccount: bool
         Ticker: string
+        GroupOptions: bool
     }
 
     let private loadPreferences() = 
@@ -58,7 +64,8 @@ module SavedPrefereces =
         let currency = Preferences.Get(CurrencyKey, DefaultCurrency)
         let allowCreateAccount = Preferences.Get(AllowCreateAccountKey, true)
         let defaultTicker = Preferences.Get(TickerKey, DefaultTicker)
-        { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount; Ticker = defaultTicker }
+        let groupOptions = Preferences.Get(GroupOptionsKey, true)
+        { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount; Ticker = defaultTicker; GroupOptions = groupOptions }
 
     let UserPreferences = new BehaviorSubject<PreferencesCollection>(loadPreferences())
 
@@ -81,3 +88,30 @@ module SavedPrefereces =
     let ChangeDefaultTicker(ticker: string) =
         Preferences.Set(TickerKey, ticker)
         UserPreferences.OnNext({ UserPreferences.Value with Ticker = ticker })
+
+    // Fire-and-forget helper function
+    let private fireAndForget (task: Task) =
+        // This creates a task that ignores exceptions and doesn't block
+        Task.Run(fun () -> 
+            task.ContinueWith(fun t ->
+                // Ignoring exceptions, but could log them here if needed
+                if t.IsFaulted && t.Exception <> null then
+                    System.Diagnostics.Debug.WriteLine($"Task failed: {t.Exception}")
+            ) |> ignore
+        ) |> ignore
+
+    let ChangeGroupOption(group: bool) =
+        // Check if the group option has changed
+        let currentValue = UserPreferences.Value.GroupOptions
+        Preferences.Set(GroupOptionsKey, group)
+        UserPreferences.OnNext({ UserPreferences.Value with GroupOptions = group })
+        
+        // If the value has changed, reload option trades
+        if currentValue <> group then
+            DataLoader.changeOptionsGrouped()
+            |> fireAndForget
+
+    // TODO: Add Information button to all settings where we need to explain the user
+    // what the setting does.
+    // Sample: When the user change options group, what's happening after the change
+    // Sample: When the user change Currency, Ticket....

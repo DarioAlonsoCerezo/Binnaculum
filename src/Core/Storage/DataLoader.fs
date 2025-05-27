@@ -230,3 +230,31 @@ module internal DataLoader =
                     |> updateBrokerAccount
                 )
     }
+
+    let internal changeOptionsGrouped() = task {
+        // Remove all option trades from current movements
+        let currentMovements = Collections.Movements.Items |> Seq.toList
+        let movementsWithoutOptions = 
+            currentMovements 
+            |> List.filter (fun movement -> movement.OptionTrade.IsNone)
+        
+        // Get the latest options from the database
+        let! databaseOptions = OptionTradeExtensions.Do.getAll() |> Async.AwaitTask
+        
+        // Convert to movements based on current GroupOptions setting
+        let optionTrades = databaseOptions.optionTradesToMovements()
+        
+        // Combine non-option movements with the new option movements
+        let updatedMovements = movementsWithoutOptions @ optionTrades
+        
+        // Update the movements collection
+        Collections.Movements.EditDiff updatedMovements
+        
+        // Update accounts movement status
+        Collections.Accounts.Items
+            |> Seq.iter (fun account ->
+                if account.Broker.IsSome then
+                    (account, updatedMovements) 
+                    |> updateBrokerAccount
+            )
+    }
