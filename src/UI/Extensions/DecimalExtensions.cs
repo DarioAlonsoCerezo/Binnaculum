@@ -89,4 +89,13 @@ public static class OptionTradeExtensions
     {
         return code.IsBuyToOpen || code.IsBuyToClose;
     }
+
+    public static bool ToShow(this Models.OptionCode code)
+    {
+        return code.IsBuyToOpen || code.IsBuyToClose || code.IsSellToOpen || code.IsSellToClose;
+    }
+
+    public static string ToMoneyString(this decimal money, string? symbol = null) 
+        => string.IsNullOrWhiteSpace(symbol) ? $"${money:0.00}" : $"{symbol}{money:0.00}";
+
 }
