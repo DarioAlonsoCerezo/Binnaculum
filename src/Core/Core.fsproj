@@ -37,9 +37,11 @@
 		<Compile Include="SQL\BankQuery.fs" />
 		<Compile Include="SQL\BankAccountsQuery.fs" />
 		<Compile Include="SQL\BankAccountMovementsQuery.fs" />
+		<Compile Include="SQL\TickerSnapshotQuery.fs" />
 		<Compile Include="Database\Database.fs" />
 		<Compile Include="Database\OptionExtensions.fs" />
 		<Compile Include="Database\DatabaseModel.fs" />
+		<Compile Include="Database\SnapshotsModel.fs" />
 		<Compile Include="Database\DataReaderExtensions.fs" />
 		<Compile Include="Database\CommandExtensions.fs" />
 		<Compile Include="Database\TypeParser.fs" />
