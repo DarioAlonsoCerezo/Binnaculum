@@ -140,3 +140,28 @@ module internal FieldName =
 
     [<Literal>]
     let Description = "Description"
+    
+    // Ticker Snapshots
+    [<Literal>]
+    let Date = "Date"
+    
+    [<Literal>]
+    let TotalShares = "TotalShares"
+    
+    [<Literal>]
+    let Weight = "Weight"
+    
+    [<Literal>]
+    let CostBasis = "CostBasis"
+    
+    [<Literal>]
+    let RealCost = "RealCost"
+    
+    [<Literal>]
+    let Dividends = "Dividends"
+    
+    [<Literal>]
+    let Options = "Options"
+    
+    [<Literal>]
+    let TotalIncomes = "TotalIncomes"

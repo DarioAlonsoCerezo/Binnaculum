@@ -3,6 +3,7 @@
 open Binnaculum.Core.Patterns
 open DatabaseModel
 open Do
+open Binnaculum.Core.SQL
 
 module internal SnapshotsModel =
 
@@ -29,9 +30,9 @@ module internal SnapshotsModel =
     } with
         interface IEntity with
             member this.Id = this.Base.Id
-            member this.InsertSQL = "TickerSnapshotQuery.insert"
-            member this.UpdateSQL = "TickerSnapshotQuery.update"
-            member this.DeleteSQL = "TickerSnapshotQuery.delete"
+            member this.InsertSQL = TickerSnapshotQuery.insert
+            member this.UpdateSQL = TickerSnapshotQuery.update
+            member this.DeleteSQL = TickerSnapshotQuery.delete
         interface IAuditEntity with
             member this.CreatedAt = this.Base.Audit.CreatedAt
             member this.UpdatedAt = this.Base.Audit.UpdatedAt
