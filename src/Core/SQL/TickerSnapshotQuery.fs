@@ -20,6 +20,7 @@ module internal TickerSnapshotQuery =
             {Dividends} REAL NOT NULL,
             {Options} REAL NOT NULL,
             {TotalIncomes} REAL NOT NULL,
+            {UnrealizedGains} REAL NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
             -- Foreign key to ensure TickerId references a valid Ticker in the Tickers table
@@ -65,6 +66,7 @@ module internal TickerSnapshotQuery =
             {Dividends},
             {Options},
             {TotalIncomes},
+            {UnrealizedGains},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -80,6 +82,7 @@ module internal TickerSnapshotQuery =
             {SQLParameterName.Dividends},
             {SQLParameterName.Options},
             {SQLParameterName.TotalIncomes},
+            {SQLParameterName.UnrealizedGains},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -99,6 +102,7 @@ module internal TickerSnapshotQuery =
             {Dividends} = {SQLParameterName.Dividends},
             {Options} = {SQLParameterName.Options},
             {TotalIncomes} = {SQLParameterName.TotalIncomes},
+            {UnrealizedGains} = {SQLParameterName.UnrealizedGains},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE

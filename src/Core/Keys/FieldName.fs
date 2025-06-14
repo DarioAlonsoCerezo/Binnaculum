@@ -166,6 +166,9 @@ module internal FieldName =
     [<Literal>]
     let TotalIncomes = "TotalIncomes"
     
+    [<Literal>]
+    let UnrealizedGains = "UnrealizedGains"
+    
     // Broker Account Snapshots
     [<Literal>]
     let PortfolioValue = "PortfolioValue"

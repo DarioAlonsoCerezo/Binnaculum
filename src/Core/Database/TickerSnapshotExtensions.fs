@@ -25,6 +25,7 @@ type Do() =
                 (SQLParameterName.Dividends, tickerSnapshot.Dividends.Value);
                 (SQLParameterName.Options, tickerSnapshot.Options.Value);
                 (SQLParameterName.TotalIncomes, tickerSnapshot.TotalIncomes.Value);
+                (SQLParameterName.UnrealizedGains, tickerSnapshot.UnrealizedGains.Value);
             ], tickerSnapshot)
 
     [<Extension>]
@@ -44,6 +45,7 @@ type Do() =
             Dividends = reader.getMoney FieldName.Dividends
             Options = reader.getMoney FieldName.Options
             TotalIncomes = reader.getMoney FieldName.TotalIncomes
+            UnrealizedGains = reader.getMoney FieldName.UnrealizedGains
         }
 
     [<Extension>]
