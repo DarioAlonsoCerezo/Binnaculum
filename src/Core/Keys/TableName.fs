@@ -57,4 +57,7 @@ module internal TableName =
     
     [<Literal>]
     let BankAccountSnapshots = "BankAccountSnapshots"
+    
+    [<Literal>]
+    let BankSnapshots = "BankSnapshots"
 

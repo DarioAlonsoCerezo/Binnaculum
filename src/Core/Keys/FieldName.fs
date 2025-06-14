@@ -195,3 +195,7 @@ module internal FieldName =
     
     [<Literal>]
     let FeesPaid = "FeesPaid"
+    
+    // Bank Snapshots
+    [<Literal>]
+    let TotalBalance = "TotalBalance"

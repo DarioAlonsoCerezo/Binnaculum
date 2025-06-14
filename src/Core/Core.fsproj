@@ -41,6 +41,7 @@
 		<Compile Include="SQL\BrokerAccountSnapshotQuery.fs" />
 		<Compile Include="SQL\BrokerSnapshotQuery.fs" />
 		<Compile Include="SQL\BankAccountSnapshotQuery.fs" />
+		<Compile Include="SQL\BankSnapshotQuery.fs" />
 		<Compile Include="Database\Database.fs" />
 		<Compile Include="Database\OptionExtensions.fs" />
 		<Compile Include="Database\DatabaseModel.fs" />

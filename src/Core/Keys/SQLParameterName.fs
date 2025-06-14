@@ -198,3 +198,7 @@ module internal SQLParameterName =
     
     [<Literal>]
     let FeesPaid = "@FeesPaid"
+    
+    // Bank Snapshots
+    [<Literal>]
+    let TotalBalance = "@TotalBalance"
