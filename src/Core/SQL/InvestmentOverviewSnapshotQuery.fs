@@ -11,12 +11,12 @@ module internal InvestmentOverviewSnapshotQuery =
         (
             {Id} INTEGER PRIMARY KEY,
             {Date} TEXT NOT NULL,
-            {PortfoliosValue} REAL NOT NULL,
-            {RealizedGains} REAL NOT NULL,
-            {RealizedPercentage} REAL NOT NULL,
-            {Invested} REAL NOT NULL,
-            {Commissions} REAL NOT NULL,
-            {Fees} REAL NOT NULL,
+            {PortfoliosValue} TEXT NOT NULL,
+            {RealizedGains} TEXT NOT NULL,
+            {RealizedPercentage} TEXT NOT NULL,
+            {Invested} TEXT NOT NULL,
+            {Commissions} TEXT NOT NULL,
+            {Fees} TEXT NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT
         );
