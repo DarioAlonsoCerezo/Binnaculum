@@ -86,9 +86,9 @@ module internal SnapshotsModel =
     } with
         interface IEntity with
             member this.Id = this.Base.Id
-            member this.InsertSQL = "BankAccountSnapshotQuery.insert"
-            member this.UpdateSQL = "BankAccountSnapshotQuery.update"
-            member this.DeleteSQL = "BankAccountSnapshotQuery.delete"
+            member this.InsertSQL = BankAccountSnapshotQuery.insert
+            member this.UpdateSQL = BankAccountSnapshotQuery.update
+            member this.DeleteSQL = BankAccountSnapshotQuery.delete
         interface IAuditEntity with
             member this.CreatedAt = this.Base.Audit.CreatedAt
             member this.UpdatedAt = this.Base.Audit.UpdatedAt    
