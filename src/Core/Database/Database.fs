@@ -45,6 +45,7 @@ module internal Do =
         Binnaculum.Core.SQL.BrokerSnapshotQuery.createTable
         Binnaculum.Core.SQL.BankAccountSnapshotQuery.createTable
         Binnaculum.Core.SQL.BankSnapshotQuery.createTable
+        Binnaculum.Core.SQL.InvestmentOverviewSnapshotQuery.createTable
     ]
 
     let private connect() = task {

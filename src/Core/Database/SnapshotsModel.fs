@@ -110,3 +110,20 @@ module internal SnapshotsModel =
             member this.CreatedAt = this.Base.Audit.CreatedAt
             member this.UpdatedAt = this.Base.Audit.UpdatedAt
 
+    type InvestmentOverviewSnapshot = {
+        Base: BaseSnapshot
+        PortfoliosValue: Money // End-of-day portfolio value
+        RealizedGains: Money // Cumulative realized gains across all accounts
+        RealizedPercentage: decimal // Percentage of realized gains
+        Invested: Money // Total invested amount
+        Commissions: Money // Total commissions paid
+        Fees: Money // Total fees paid
+    } with
+        interface IEntity with
+            member this.Id = this.Base.Id
+            member this.InsertSQL = InvestmentOverviewSnapshotQuery.insert
+            member this.UpdateSQL = InvestmentOverviewSnapshotQuery.update
+            member this.DeleteSQL = InvestmentOverviewSnapshotQuery.delete
+        interface IAuditEntity with
+            member this.CreatedAt = this.Base.Audit.CreatedAt
+            member this.UpdatedAt = this.Base.Audit.UpdatedAt
