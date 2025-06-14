@@ -12,10 +12,10 @@ module internal BankAccountSnapshotQuery =
             {Id} INTEGER PRIMARY KEY,
             {Date} TEXT NOT NULL,
             {BankAccountId} INTEGER NOT NULL,
-            {Balance} REAL NOT NULL,
+            {Balance} TEXT NOT NULL,
             {CurrencyId} INTEGER NOT NULL,
-            {InterestEarned} REAL NOT NULL,
-            {FeesPaid} REAL NOT NULL,
+            {InterestEarned} TEXT NOT NULL,
+            {FeesPaid} TEXT NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
             -- Foreign key to ensure BankAccountId references a valid BankAccount in the BankAccounts table
