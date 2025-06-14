@@ -49,9 +49,9 @@ module internal SnapshotsModel =
     } with
         interface IEntity with
             member this.Id = this.Base.Id
-            member this.InsertSQL = "BrokerAccountSnapshotQuery.insert"
-            member this.UpdateSQL = "BrokerAccountSnapshotQuery.update"
-            member this.DeleteSQL = "BrokerAccountSnapshotQuery.delete"
+            member this.InsertSQL = BrokerAccountSnapshotQuery.insert
+            member this.UpdateSQL = BrokerAccountSnapshotQuery.update
+            member this.DeleteSQL = BrokerAccountSnapshotQuery.delete
         interface IAuditEntity with
             member this.CreatedAt = this.Base.Audit.CreatedAt
             member this.UpdatedAt = this.Base.Audit.UpdatedAt
@@ -69,9 +69,9 @@ module internal SnapshotsModel =
     } with
         interface IEntity with
             member this.Id = this.Base.Id
-            member this.InsertSQL = "BrokerSnapshotQuery.insert"
-            member this.UpdateSQL = "BrokerSnapshotQuery.update"
-            member this.DeleteSQL = "BrokerSnapshotQuery.delete"
+            member this.InsertSQL = BrokerSnapshotQuery.insert
+            member this.UpdateSQL = BrokerSnapshotQuery.update
+            member this.DeleteSQL = BrokerSnapshotQuery.delete
         interface IAuditEntity with
             member this.CreatedAt = this.Base.Audit.CreatedAt
             member this.UpdatedAt = this.Base.Audit.UpdatedAt

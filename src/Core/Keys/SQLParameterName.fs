@@ -168,3 +168,23 @@ module internal SQLParameterName =
     
     [<Literal>]
     let TotalIncomes = "@TotalIncomes"
+    
+    // Broker Account Snapshots
+    [<Literal>]
+    let PortfolioValue = "@PortfolioValue"
+    
+    [<Literal>]
+    let RealizedGains = "@RealizedGains"
+    
+    [<Literal>]
+    let RealizedPercentage = "@RealizedPercentage"
+    
+    [<Literal>]
+    let Invested = "@Invested"
+    
+    // Broker Snapshots
+    [<Literal>]
+    let PortfoliosValue = "@PortfoliosValue"
+    
+    [<Literal>]
+    let AccountCount = "@AccountCount"

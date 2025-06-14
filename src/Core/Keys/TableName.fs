@@ -49,3 +49,9 @@ module internal TableName =
     [<Literal>]
     let TickerSnapshots = "TickerSnapshots"
 
+    [<Literal>]
+    let BrokerAccountSnapshots = "BrokerAccountSnapshots"
+    
+    [<Literal>]
+    let BrokerSnapshots = "BrokerSnapshots"
+
