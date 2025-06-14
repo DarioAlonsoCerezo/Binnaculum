@@ -66,6 +66,7 @@
 		<Compile Include="Database\BankExtensions.fs" />
 		<Compile Include="Database\BankAccountExtensions.fs" />
 		<Compile Include="Database\BankAccountMovementExtensions.fs" />
+		<Compile Include="Database\BrokerAccountSnapshotExtensions.fs" />
 		<Compile Include="Memory\Collections.fs" />
 		<Compile Include="Storage\PatternExtensions.fs" />
 		<Compile Include="Storage\DiscriminatedToDatabase.fs" />
