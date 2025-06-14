@@ -169,6 +169,21 @@ module internal SQLParameterName =
     [<Literal>]
     let TotalIncomes = "@TotalIncomes"
     
+    [<Literal>]
+    let Unrealized = "@Unrealized"
+    
+    [<Literal>]
+    let Realized = "@Realized"
+    
+    [<Literal>]
+    let Performance = "@Performance"
+    
+    [<Literal>]
+    let LatestPrice = "@LatestPrice"
+    
+    [<Literal>]
+    let OpenTrades = "@OpenTrades"
+    
     // Broker Account Snapshots
     [<Literal>]
     let PortfolioValue = "@PortfolioValue"

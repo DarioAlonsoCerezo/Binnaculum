@@ -27,6 +27,11 @@ module internal SnapshotsModel =
         Dividends: Money // Total dividends received for the ticker
         Options: Money // Total options premiums received
         TotalIncomes: Money // Total income from trades, dividends, etc.
+        Unrealized: Money // Unrealized gains/losses
+        Realized: Money // Realized gains/losses
+        Performance: decimal // Performance percentage
+        LatestPrice: Money // Latest price of the ticker
+        OpenTrades: bool // Whether there are open trades
     } with
         interface IEntity with
             member this.Id = this.Base.Id
