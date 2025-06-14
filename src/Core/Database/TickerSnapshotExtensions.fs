@@ -25,6 +25,11 @@ type Do() =
                 (SQLParameterName.Dividends, tickerSnapshot.Dividends.Value);
                 (SQLParameterName.Options, tickerSnapshot.Options.Value);
                 (SQLParameterName.TotalIncomes, tickerSnapshot.TotalIncomes.Value);
+                (SQLParameterName.Unrealized, tickerSnapshot.Unrealized.Value);
+                (SQLParameterName.Realized, tickerSnapshot.Realized.Value);
+                (SQLParameterName.Performance, tickerSnapshot.Performance);
+                (SQLParameterName.LatestPrice, tickerSnapshot.LatestPrice.Value);
+                (SQLParameterName.OpenTrades, tickerSnapshot.OpenTrades);
             ], tickerSnapshot)
 
     [<Extension>]
@@ -44,6 +49,11 @@ type Do() =
             Dividends = reader.getMoney FieldName.Dividends
             Options = reader.getMoney FieldName.Options
             TotalIncomes = reader.getMoney FieldName.TotalIncomes
+            Unrealized = reader.getMoney FieldName.Unrealized
+            Realized = reader.getMoney FieldName.Realized
+            Performance = reader.getDecimal FieldName.Performance
+            LatestPrice = reader.getMoney FieldName.LatestPrice
+            OpenTrades = reader.getBoolean FieldName.OpenTrades
         }
 
     [<Extension>]

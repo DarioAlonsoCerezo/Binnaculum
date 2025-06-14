@@ -20,6 +20,11 @@ module internal TickerSnapshotQuery =
             {Dividends} REAL NOT NULL,
             {Options} REAL NOT NULL,
             {TotalIncomes} REAL NOT NULL,
+            {Unrealized} REAL NOT NULL,
+            {Realized} REAL NOT NULL,
+            {Performance} REAL NOT NULL,
+            {LatestPrice} REAL NOT NULL,
+            {OpenTrades} INTEGER NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
             -- Foreign key to ensure TickerId references a valid Ticker in the Tickers table
@@ -65,6 +70,11 @@ module internal TickerSnapshotQuery =
             {Dividends},
             {Options},
             {TotalIncomes},
+            {Unrealized},
+            {Realized},
+            {Performance},
+            {LatestPrice},
+            {OpenTrades},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -80,6 +90,11 @@ module internal TickerSnapshotQuery =
             {SQLParameterName.Dividends},
             {SQLParameterName.Options},
             {SQLParameterName.TotalIncomes},
+            {SQLParameterName.Unrealized},
+            {SQLParameterName.Realized},
+            {SQLParameterName.Performance},
+            {SQLParameterName.LatestPrice},
+            {SQLParameterName.OpenTrades},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -99,6 +114,11 @@ module internal TickerSnapshotQuery =
             {Dividends} = {SQLParameterName.Dividends},
             {Options} = {SQLParameterName.Options},
             {TotalIncomes} = {SQLParameterName.TotalIncomes},
+            {Unrealized} = {SQLParameterName.Unrealized},
+            {Realized} = {SQLParameterName.Realized},
+            {Performance} = {SQLParameterName.Performance},
+            {LatestPrice} = {SQLParameterName.LatestPrice},
+            {OpenTrades} = {SQLParameterName.OpenTrades},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
