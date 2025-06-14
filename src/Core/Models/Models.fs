@@ -261,12 +261,3 @@ module Models =
         BankAccountMovement = None
         TickerSplit = None
     }
-
-    type UiDeposit = {
-        BrokerAccountId: int
-        CurrencyId: int
-        Amount: decimal
-        Timestamp: DateTime
-        Commissions: decimal
-        Fees: decimal
-    }
