@@ -58,6 +58,7 @@
 		<Compile Include="Database\TickerExtensions.fs" />
 		<Compile Include="Database\TickerPriceExtensions.fs" />
 		<Compile Include="Database\TickerSplitExtensions.fs" />
+		<Compile Include="Database\TickerSnapshotExtensions.fs" />
 		<Compile Include="Database\TradeExtensions.fs" />
 		<Compile Include="Database\DividendExtensions.fs" />
 		<Compile Include="Database\DividendTaxExtensions.fs" />
@@ -66,6 +67,7 @@
 		<Compile Include="Database\BankExtensions.fs" />
 		<Compile Include="Database\BankAccountExtensions.fs" />
 		<Compile Include="Database\BankAccountMovementExtensions.fs" />
+		<Compile Include="Database\BankSnapshotExtensions.fs" />
 		<Compile Include="Memory\Collections.fs" />
 		<Compile Include="Storage\PatternExtensions.fs" />
 		<Compile Include="Storage\DiscriminatedToDatabase.fs" />
