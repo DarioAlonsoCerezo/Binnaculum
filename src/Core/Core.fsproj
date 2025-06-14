@@ -69,6 +69,7 @@
 		<Compile Include="Database\BrokerAccountSnapshotExtensions.fs" />
 		<Compile Include="Database\BrokerSnapshotExtensions.fs" />
 		<Compile Include="Database\BankAccountSnapshotExtensions.fs" />
+		<Compile Include="Database\BankSnapshotExtensions.fs" />
 		<Compile Include="Database\InvestmentOverviewSnapshotExtensions.fs" />
 		<Compile Include="Models\Models.fs" />
 		<Compile Include="Memory\Collections.fs" />
