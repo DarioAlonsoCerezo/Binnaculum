@@ -8,7 +8,6 @@ open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Database.DatabaseModel
 
 [<Extension>]
 type Do() =
