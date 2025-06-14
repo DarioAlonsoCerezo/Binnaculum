@@ -55,7 +55,7 @@ type Do() =
         let! command = Database.Do.createCommand()
         command.CommandText <- BankSnapshotQuery.getByBankId
         command.Parameters.AddWithValue(SQLParameterName.BankId, bankId) |> ignore
-        let! result = Database.Do.readAll(command, Do.read)
+        let! result = Database.Do.readAll<BankSnapshot>(command, Do.read)
         return result
     }
 
@@ -63,7 +63,7 @@ type Do() =
         let! command = Database.Do.createCommand()
         command.CommandText <- BankSnapshotQuery.getLatestByBankId
         command.Parameters.AddWithValue(SQLParameterName.BankId, bankId) |> ignore
-        let! result = Database.Do.read(command, Do.read)
+        let! result = Database.Do.read<BankSnapshot>(command, Do.read)
         return result
     }
 
@@ -72,7 +72,7 @@ type Do() =
         command.CommandText <- BankSnapshotQuery.getByBankIdAndDate
         command.Parameters.AddWithValue(SQLParameterName.BankId, bankId) |> ignore
         command.Parameters.AddWithValue(SQLParameterName.Date, date.ToString()) |> ignore
-        let! result = Database.Do.read(command, Do.read)
+        let! result = Database.Do.read<BankSnapshot>(command, Do.read)
         return result
     }
 
@@ -82,6 +82,6 @@ type Do() =
         command.Parameters.AddWithValue(SQLParameterName.BankId, bankId) |> ignore
         command.Parameters.AddWithValue(SQLParameterName.Date, startDate.ToString()) |> ignore
         command.Parameters.AddWithValue(SQLParameterName.DateEnd, endDate.ToString()) |> ignore
-        let! result = Database.Do.readAll(command, Do.read)
+        let! result = Database.Do.readAll<BankSnapshot>(command, Do.read)
         return result
     }

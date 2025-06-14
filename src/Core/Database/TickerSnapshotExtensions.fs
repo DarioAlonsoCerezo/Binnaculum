@@ -63,7 +63,7 @@ type Do() =
         let! command = Database.Do.createCommand()
         command.CommandText <- TickerSnapshotQuery.getByTickerId
         command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
-        let! result = Database.Do.readAll(command, Do.read)
+        let! result = Database.Do.readAll<TickerSnapshot>(command, Do.read)
         return result
     }
 
@@ -71,7 +71,7 @@ type Do() =
         let! command = Database.Do.createCommand()
         command.CommandText <- TickerSnapshotQuery.getLatestByTickerId
         command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
-        let! result = Database.Do.read(command, Do.read)
+        let! result = Database.Do.read<TickerSnapshot>(command, Do.read)
         return result
     }
 
@@ -80,7 +80,7 @@ type Do() =
         command.CommandText <- TickerSnapshotQuery.getByTickerIdAndDate
         command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
         command.Parameters.AddWithValue(SQLParameterName.Date, date.ToString()) |> ignore
-        let! result = Database.Do.read(command, Do.read)
+        let! result = Database.Do.read<TickerSnapshot>(command, Do.read)
         return result
     }
 
@@ -90,6 +90,6 @@ type Do() =
         command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
         command.Parameters.AddWithValue(SQLParameterName.Date, startDate.ToString()) |> ignore
         command.Parameters.AddWithValue(SQLParameterName.DateEnd, endDate.ToString()) |> ignore
-        let! result = Database.Do.readAll(command, Do.read)
+        let! result = Database.Do.readAll<TickerSnapshot>(command, Do.read)
         return result
     }
