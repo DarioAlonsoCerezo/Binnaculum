@@ -51,6 +51,7 @@
 		<Compile Include="Database\CommandExtensions.fs" />
 		<Compile Include="Database\TypeParser.fs" />
 		<Compile Include="Database\BrokerExtensions.fs" />
+		<Compile Include="Database\BrokerSnapshotExtensions.fs" />
 		<Compile Include="Models\Models.fs" />
 		<Compile Include="Database\BrokerAccountExtensions.fs" />
 		<Compile Include="Database\CurrencyExtensions.fs" />
