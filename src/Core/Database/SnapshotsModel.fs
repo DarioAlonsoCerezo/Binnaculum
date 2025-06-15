@@ -70,10 +70,13 @@ module internal SnapshotsModel =
         PortfoliosValue: Money // End-of-day portfolio value
         RealizedGains: Money // Cumulative realized gains across all accounts
         RealizedPercentage: decimal // Percentage of realized gains
+        UnrealizedGains: Money // Unrealized gains/losses across all accounts
+        UnrealizedGainsPercentage: decimal // Percentage of unrealized gains
         AccountCount: int // Number of accounts
         Invested: Money // Total invested amount
         Commissions: Money // Total commissions paid
         Fees: Money // Total fees paid
+        OpenTrades: bool // Whether there are open trades across all accounts
     } with
         interface IEntity with
             member this.Id = this.Base.Id
