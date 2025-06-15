@@ -15,10 +15,13 @@ module internal BrokerSnapshotQuery =
             {PortfoliosValue} TEXT NOT NULL,
             {RealizedGains} TEXT NOT NULL,
             {RealizedPercentage} TEXT NOT NULL,
+            {UnrealizedGains} TEXT NOT NULL,
+            {UnrealizedGainsPercentage} TEXT NOT NULL,
             {AccountCount} INTEGER NOT NULL,
             {Invested} TEXT NOT NULL,
             {Commissions} TEXT NOT NULL,
             {Fees} TEXT NOT NULL,
+            {OpenTrades} INTEGER NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
             -- Foreign key to ensure BrokerId references a valid Broker in the Brokers table
@@ -54,10 +57,13 @@ module internal BrokerSnapshotQuery =
             {PortfoliosValue},
             {RealizedGains},
             {RealizedPercentage},
+            {UnrealizedGains},
+            {UnrealizedGainsPercentage},
             {AccountCount},
             {Invested},
             {Commissions},
             {Fees},
+            {OpenTrades},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -68,10 +74,13 @@ module internal BrokerSnapshotQuery =
             {SQLParameterName.PortfoliosValue},
             {SQLParameterName.RealizedGains},
             {SQLParameterName.RealizedPercentage},
+            {SQLParameterName.UnrealizedGains},
+            {SQLParameterName.UnrealizedGainsPercentage},
             {SQLParameterName.AccountCount},
             {SQLParameterName.Invested},
             {SQLParameterName.Commissions},
             {SQLParameterName.Fees},
+            {SQLParameterName.OpenTrades},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -86,10 +95,13 @@ module internal BrokerSnapshotQuery =
             {PortfoliosValue} = {SQLParameterName.PortfoliosValue},
             {RealizedGains} = {SQLParameterName.RealizedGains},
             {RealizedPercentage} = {SQLParameterName.RealizedPercentage},
+            {UnrealizedGains} = {SQLParameterName.UnrealizedGains},
+            {UnrealizedGainsPercentage} = {SQLParameterName.UnrealizedGainsPercentage},
             {AccountCount} = {SQLParameterName.AccountCount},
             {Invested} = {SQLParameterName.Invested},
             {Commissions} = {SQLParameterName.Commissions},
             {Fees} = {SQLParameterName.Fees},
+            {OpenTrades} = {SQLParameterName.OpenTrades},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE

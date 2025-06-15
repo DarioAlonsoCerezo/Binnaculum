@@ -249,10 +249,13 @@ module Models =
         PortfoliosValue: decimal
         RealizedGains: decimal
         RealizedPercentage: decimal
+        UnrealizedGains: decimal
+        UnrealizedGainsPercentage: decimal
         AccountCount: int
         Invested: decimal
         Commissions: decimal
         Fees: decimal
+        OpenTrades: bool
     }
     
     // Bank account snapshot - represents the state of a bank account at a specific point in time
