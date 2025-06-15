@@ -336,6 +336,7 @@ module internal DatabaseToModels =
                 Multiplier = optionTrade.Multiplier
                 Quantity = 1
                 Notes = optionTrade.Notes
+                FeesPerContract = false
             }
 
         [<Extension>]
