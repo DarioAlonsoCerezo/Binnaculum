@@ -182,6 +182,7 @@ module Models =
         Multiplier: decimal
         Quantity: int
         Notes: string option
+        FeesPerContract: bool
     }
 
     type Bank = {

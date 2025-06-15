@@ -161,7 +161,8 @@ public partial class OptionBuilderPopup
             0,
             _multiplier,
             quantity,
-            notes);
+            notes,
+            false);
     }
 
     private void TypeSelected(object sender, SelectableItem selected)
