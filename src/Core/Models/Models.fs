@@ -208,6 +208,96 @@ module Models =
         MovementType: BankAccountMovementType
     }
 
+    // Ticker snapshot model - represents the state of a ticker at a specific point in time
+    type TickerSnapshot = {
+        Date: DateOnly
+        Ticker: Ticker
+        Currency: Currency
+        TotalShares: decimal
+        Weight: decimal
+        CostBasis: decimal
+        RealCost: decimal
+        Dividends: decimal
+        Options: decimal
+        TotalIncomes: decimal
+        Unrealized: decimal
+        Realized: decimal
+        Performance: decimal
+        LatestPrice: decimal
+        OpenTrades: bool
+    }
+    
+    // Broker account snapshot - represents the state of a broker account at a specific point in time
+    type BrokerAccountSnapshot = {
+        Date: DateOnly
+        BrokerAccount: BrokerAccount
+        PortfolioValue: decimal
+        RealizedGains: decimal
+        RealizedPercentage: decimal
+        Invested: decimal
+        Commissions: decimal
+        Fees: decimal
+    }
+    
+    // Broker snapshot - represents the state of a broker at a specific point in time
+    type BrokerSnapshot = {
+        Date: DateOnly
+        Broker: Broker
+        PortfoliosValue: decimal
+        RealizedGains: decimal
+        RealizedPercentage: decimal
+        AccountCount: int
+        Invested: decimal
+        Commissions: decimal
+        Fees: decimal
+    }
+    
+    // Bank account snapshot - represents the state of a bank account at a specific point in time
+    type BankAccountSnapshot = {
+        Date: DateOnly
+        BankAccount: BankAccount
+        Balance: decimal
+        InterestEarned: decimal
+        FeesPaid: decimal
+    }
+    
+    // Bank snapshot - represents the state of a bank at a specific point in time
+    type BankSnapshot = {
+        Date: DateOnly
+        Bank: Bank
+        TotalBalance: decimal
+        InterestEarned: decimal
+        FeesPaid: decimal
+        AccountCount: int
+    }
+    
+    // Investment overview snapshot - represents the state of the entire investment portfolio at a specific point in time
+    type InvestmentOverviewSnapshot = {
+        Date: DateOnly
+        PortfoliosValue: decimal
+        RealizedGains: decimal
+        RealizedPercentage: decimal
+        Invested: decimal
+        Commissions: decimal
+        Fees: decimal
+    }
+
+    type OverviewSnapshotType =
+        | InvestmentOverview
+        | Broker
+        | Bank
+        | BrokerAccount
+        | BankAccount
+
+    type OverviewSnapshot = {
+        Type: OverviewSnapshotType
+        InvestmentOverview: InvestmentOverviewSnapshot option
+        Broker: BrokerSnapshot option
+        Bank: BankSnapshot option
+        BrokerAccount: BrokerAccountSnapshot option
+        BankAccount: BankAccountSnapshot option
+    }
+
     type AccountMovementType =
         | Trade 
         | Dividend 
