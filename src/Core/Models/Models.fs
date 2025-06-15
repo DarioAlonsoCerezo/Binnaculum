@@ -234,9 +234,12 @@ module Models =
         PortfolioValue: decimal
         RealizedGains: decimal
         RealizedPercentage: decimal
+        UnrealizedGains: decimal
+        UnrealizedGainsPercentage: decimal
         Invested: decimal
         Commissions: decimal
         Fees: decimal
+        OpenTrades: bool
     }
     
     // Broker snapshot - represents the state of a broker at a specific point in time

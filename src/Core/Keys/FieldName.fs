@@ -192,6 +192,12 @@ module internal FieldName =
     let RealizedPercentage = "RealizedPercentage"
     
     [<Literal>]
+    let UnrealizedGains = "UnrealizedGains"
+    
+    [<Literal>]
+    let UnrealizedGainsPercentage = "UnrealizedGainsPercentage"
+    
+    [<Literal>]
     let Invested = "Invested"
     
     // Broker Snapshots

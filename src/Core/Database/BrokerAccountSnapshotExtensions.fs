@@ -21,9 +21,12 @@ type Do() =
                 (SQLParameterName.PortfolioValue, snapshot.PortfolioValue.Value);
                 (SQLParameterName.RealizedGains, snapshot.RealizedGains.Value);
                 (SQLParameterName.RealizedPercentage, snapshot.RealizedPercentage);
+                (SQLParameterName.UnrealizedGains, snapshot.UnrealizedGains.Value);
+                (SQLParameterName.UnrealizedGainsPercentage, snapshot.UnrealizedGainsPercentage);
                 (SQLParameterName.Invested, snapshot.Invested.Value);
                 (SQLParameterName.Commissions, snapshot.Commissions.Value);
                 (SQLParameterName.Fees, snapshot.Fees.Value);
+                (SQLParameterName.OpenTrades, snapshot.OpenTrades);
             ], snapshot)
 
     [<Extension>]
@@ -39,9 +42,12 @@ type Do() =
             PortfolioValue = reader.getMoney FieldName.PortfolioValue
             RealizedGains = reader.getMoney FieldName.RealizedGains
             RealizedPercentage = reader.getDecimal FieldName.RealizedPercentage
+            UnrealizedGains = reader.getMoney FieldName.UnrealizedGains
+            UnrealizedGainsPercentage = reader.getDecimal FieldName.UnrealizedGainsPercentage
             Invested = reader.getMoney FieldName.Invested
             Commissions = reader.getMoney FieldName.Commissions
             Fees = reader.getMoney FieldName.Fees
+            OpenTrades = reader.getBoolean FieldName.OpenTrades
         }
 
     [<Extension>]
