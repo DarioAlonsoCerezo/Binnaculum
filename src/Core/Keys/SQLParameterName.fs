@@ -195,6 +195,12 @@ module internal SQLParameterName =
     let RealizedPercentage = "@RealizedPercentage"
     
     [<Literal>]
+    let UnrealizedGains = "@UnrealizedGains"
+    
+    [<Literal>]
+    let UnrealizedGainsPercentage = "@UnrealizedGainsPercentage"
+    
+    [<Literal>]
     let Invested = "@Invested"
     
     // Broker Snapshots
