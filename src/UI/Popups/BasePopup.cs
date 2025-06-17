@@ -85,28 +85,33 @@ public static class PopupExtensions
 {
     public static void Show(this Popup popup)
     {
-
         var appMainpage = Application.Current!.Windows[0].Page!;
-        if (appMainpage is Shell navigator)
+        if (appMainpage is Shell shell)
         {
-            navigator.ShowPopup(popup);
+            // In newer versions, use the current page instead of Shell
+            var currentPage = shell.CurrentPage;
+            currentPage.ShowPopup(popup);
         }
         else
         {
-            throw new InvalidOperationException("The current page is not a NavigationPage.");
+            // For non-Shell pages, use the page directly
+            appMainpage.ShowPopup(popup);
         }
     }
 
     public static Task<object?> ShowAndWait(this Popup popup)
     {
         var appMainpage = Application.Current!.Windows[0].Page!;
-        if (appMainpage is Shell navigator)
+        if (appMainpage is Shell shell)
         {
-            return navigator.ShowPopupAsync(popup);
+            // In newer versions, use the current page instead of Shell
+            var currentPage = shell.CurrentPage;
+            return currentPage.ShowPopupAsync(popup);
         }
         else
         {
-            throw new InvalidOperationException("The current page is not a NavigationPage.");
+            // For non-Shell pages, use the page directly
+            return appMainpage.ShowPopupAsync(popup);
         }
     }
 }
