@@ -7,31 +7,25 @@
     xmlns:core="clr-namespace:Binnaculum.Core;assembly=Core"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
     xmlns:local="clr-namespace:Binnaculum"
-    x:Name="Control"
-    CanBeDismissedByTappingOutsideOfPopup="True"
-    Color="Transparent">
+    x:Name="Control">
     <Grid
-        x:Name="Container"
-        Padding="24,0">
-        <Border Style="{StaticResource Popup}">
-            <Grid RowDefinitions="Auto, 1*, Auto">
-                <SearchBar x:Name="Searcher" />
-                <CollectionView
-                    x:Name="CurrencyList"
-                    Grid.Row="1"
-                    Margin="0,12">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <controls:SelectableCurrencyControl
-                                BindingContext="{Binding .}"
-                                CurrencySelected="SelectableCurrencyControl_CurrencySelected" />
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-                <controls:ButtonDiscard
-                    x:Name="Discard"
-                    Grid.Row="2" />
-            </Grid>
-        </Border>
+        Padding="16,32"
+        RowDefinitions="Auto, 1*, Auto">
+        <SearchBar x:Name="Searcher" />
+        <CollectionView
+            x:Name="CurrencyList"
+            Grid.Row="1"
+            Margin="0,12">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <controls:SelectableCurrencyControl
+                        BindingContext="{Binding .}"
+                        CurrencySelected="SelectableCurrencyControl_CurrencySelected" />
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <controls:ButtonDiscard
+            x:Name="Discard"
+            Grid.Row="2" />
     </Grid>
 </popups:BasePopup>

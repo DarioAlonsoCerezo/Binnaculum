@@ -118,21 +118,22 @@ public static class RxExtensions
     /// </summary>
     private static async Task ShowErrorPopup(Exception exception)
     {
-        if (Microsoft.Maui.Controls.Application.Current != null && 
-            Microsoft.Maui.Controls.Application.Current.Windows.Count > 0)
+        if (Application.Current != null &&
+            Application.Current.Windows.Count > 0)
         {
-            await Microsoft.Maui.Controls.Application.Current.Dispatcher.DispatchAsync(async () =>
+            await Application.Current.Dispatcher.DispatchAsync(async () =>
             {
+                await Task.Delay(0);
                 var errorMessage = FormatExceptionMessage(exception);
                 var popup = new MarkdownMessagePopup
                 {
                     Text = errorMessage
                 };
-                
-                var mainWindow = Microsoft.Maui.Controls.Application.Current.Windows[0];
-                if (mainWindow.Page != null)
+                var mainWindow = Application.Current.Windows[0];
+                if (mainWindow.Page is Shell shell)
                 {
-                    await mainWindow.Page.ShowPopupAsync(popup);
+                    // Use the extension method from PopupExtensions
+                    PopupExtensions.Show(popup);
                 }
             });
         }

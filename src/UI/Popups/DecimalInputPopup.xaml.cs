@@ -10,7 +10,7 @@ public partial class DecimalInputPopup
         LabelTitle.SetLocalizedText(i18nTitle);
         _target = target;
 
-        ForceFillWidth(Container);
+        ForceFillWidth();
 
         MultiplierEntry.Text = _target.ToString("N0");
 

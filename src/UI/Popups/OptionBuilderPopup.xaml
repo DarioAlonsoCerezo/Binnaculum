@@ -8,156 +8,150 @@
     xmlns:controls="clr-namespace:Binnaculum.Controls"
     xmlns:local="clr-namespace:Binnaculum"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    x:Name="Control"
-    CanBeDismissedByTappingOutsideOfPopup="True"
-    Color="Transparent">
-    <Grid
-        x:Name="Container"
-        Padding="24,0">
-        <Border Style="{StaticResource Popup}">
-            <VerticalStackLayout>
+    x:Name="Control">
+    <ScrollView Padding="0,32" VerticalOptions="Center">
+        <VerticalStackLayout>
+            <Grid ColumnDefinitions="1*,1*">
+                <toolkit:Expander
+                    x:Name="OptionTypeExpander"
+                    HorizontalOptions="Center"
+                    IsExpanded="False">
+                    <toolkit:Expander.Header>
+                        <VerticalStackLayout Spacing="12">
+                            <Label
+                                x:Name="OptionTypeExpanderTitle"
+                                Text="{local:Translate OptionType_Title}"
+                                TextDecorations="Underline"
+                                Style="{StaticResource LabelInfo}" />
+                            <controls:SelectableItemControl x:Name="SelectedOptionType" />
+                        </VerticalStackLayout>
+                    </toolkit:Expander.Header>
+                    <VerticalStackLayout
+                        x:Name="OptionsTypeLayout"
+                        Margin="0,12,0,0"
+                        Spacing="12">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <controls:SelectableItemControl
+                                    SelectableItem="{Binding .}"
+                                    ItemSelected="TypeSelected" />
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </toolkit:Expander>
+                <toolkit:Expander
+                    x:Name="OptionCodeExpander"
+                    Grid.Column="1"
+                    HorizontalOptions="Center"
+                    IsExpanded="False">
+                    <toolkit:Expander.Header>
+                        <VerticalStackLayout Spacing="12">
+                            <Label
+                                x:Name="OptionCodeExpanderTitle"
+                                Text="{local:Translate OptionCode_Title}"
+                                TextDecorations="Underline"
+                                Style="{StaticResource LabelInfo}" />
+                            <controls:SelectableItemControl x:Name="SelectedOptionCode" />
+                        </VerticalStackLayout>
+                    </toolkit:Expander.Header>
+                    <VerticalStackLayout
+                        x:Name="OptionsCodeLayout"
+                        Margin="0,12,0,0"
+                        Spacing="12">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <controls:SelectableItemControl
+                                    SelectableItem="{Binding .}"
+                                    ItemSelected="CodeSelected" />
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </toolkit:Expander>
+            </Grid>
+
+            <Line Style="{StaticResource LineSettingsGroup}" />
+
+            <Grid
+                Margin="0,12,0,0"
+                ColumnDefinitions="1*,1*">
+                <Label
+                    Text="Expiration"
+                    Style="{StaticResource LabelInfo}"
+                    HorizontalTextAlignment="Center" />
+                <Label
+                    Grid.Column="1"
+                    Text="Strike"
+                    Style="{StaticResource LabelInfo}"
+                    HorizontalTextAlignment="Center" />
+            </Grid>
+
+            <ContentView
+                Margin="0,12,0,0"
+                ControlTemplate="{StaticResource BorderedControlTemplate}">
                 <Grid ColumnDefinitions="1*,1*">
-                    <toolkit:Expander
-                        x:Name="OptionTypeExpander"
-                        HorizontalOptions="Center"
-                        IsExpanded="False">
-                        <toolkit:Expander.Header>
-                            <VerticalStackLayout Spacing="12">
-                                <Label
-                                    x:Name="OptionTypeExpanderTitle"
-                                    Text="{local:Translate OptionType_Title}"
-                                    TextDecorations="Underline"
-                                    Style="{StaticResource LabelInfo}" />
-                                <controls:SelectableItemControl x:Name="SelectedOptionType" />
-                            </VerticalStackLayout>
-                        </toolkit:Expander.Header>
-                        <VerticalStackLayout
-                            x:Name="OptionsTypeLayout"
-                            Margin="0,12,0,0"
-                            Spacing="12">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <controls:SelectableItemControl
-                                        SelectableItem="{Binding .}"
-                                        ItemSelected="TypeSelected" />
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-                    </toolkit:Expander>
-                    <toolkit:Expander
-                        x:Name="OptionCodeExpander"
+                    <controls:BorderlessDatePicker x:Name="ExpirationDate" />
+                    <controls:BorderlessEntry
+                        x:Name="StrikePriceEntry"
                         Grid.Column="1"
-                        HorizontalOptions="Center"
-                        IsExpanded="False">
-                        <toolkit:Expander.Header>
-                            <VerticalStackLayout Spacing="12">
-                                <Label
-                                    x:Name="OptionCodeExpanderTitle"
-                                    Text="{local:Translate OptionCode_Title}"
-                                    TextDecorations="Underline"
-                                    Style="{StaticResource LabelInfo}" />
-                                <controls:SelectableItemControl x:Name="SelectedOptionCode" />
-                            </VerticalStackLayout>
-                        </toolkit:Expander.Header>
-                        <VerticalStackLayout
-                            x:Name="OptionsCodeLayout"
-                            Margin="0,12,0,0"
-                            Spacing="12">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate>
-                                    <controls:SelectableItemControl
-                                        SelectableItem="{Binding .}"
-                                        ItemSelected="CodeSelected" />
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
-                    </toolkit:Expander>
-                </Grid>
-
-                <Line Style="{StaticResource LineSettingsGroup}" />
-
-                <Grid
-                    Margin="0,12,0,0"
-                    ColumnDefinitions="1*,1*">
-                    <Label
-                        Text="Expiration"
-                        Style="{StaticResource LabelInfo}"
-                        HorizontalTextAlignment="Center" />
-                    <Label
-                        Grid.Column="1"
-                        Text="Strike"
-                        Style="{StaticResource LabelInfo}"
+                        Placeholder="Strike"
+                        Keyboard="Numeric"
                         HorizontalTextAlignment="Center" />
                 </Grid>
+            </ContentView>
 
-                <ContentView
-                    Margin="0,12,0,0"
-                    ControlTemplate="{StaticResource BorderedControlTemplate}">
-                    <Grid ColumnDefinitions="1*,1*">
-                        <controls:BorderlessDatePicker x:Name="ExpirationDate" />
-                        <controls:BorderlessEntry
-                            x:Name="StrikePriceEntry"
-                            Grid.Column="1"
-                            Placeholder="Strike"
-                            Keyboard="Numeric"
-                            HorizontalTextAlignment="Center" />
-                    </Grid>
-                </ContentView>
+            <Grid
+                Margin="0,12,0,0"
+                ColumnDefinitions="1*,1*">
+                <Label
+                    Text="Quantity"
+                    Style="{StaticResource LabelInfo}"
+                    HorizontalTextAlignment="Center" />
+                <Label
+                    Grid.Column="1"
+                    Text="Premium"
+                    Style="{StaticResource LabelInfo}"
+                    HorizontalTextAlignment="Center" />
+            </Grid>
 
-                <Grid
-                    Margin="0,12,0,0"
-                    ColumnDefinitions="1*,1*">
-                    <Label
-                        Text="Quantity"
-                        Style="{StaticResource LabelInfo}"
+            <ContentView
+                Margin="0,12,0,0"
+                ControlTemplate="{StaticResource BorderedControlTemplate}">
+                <Grid ColumnDefinitions="1*,1*">
+                    <controls:BorderlessEntry
+                        x:Name="QuantityEntry"
+                        Placeholder="Quantity"
+                        Keyboard="Numeric"
                         HorizontalTextAlignment="Center" />
-                    <Label
+                    <controls:BorderlessEntry
+                        x:Name="PremiumEntry"
                         Grid.Column="1"
-                        Text="Premium"
-                        Style="{StaticResource LabelInfo}"
+                        Placeholder="Premium"
+                        Keyboard="Numeric"
                         HorizontalTextAlignment="Center" />
                 </Grid>
+            </ContentView>
 
-                <ContentView
-                    Margin="0,12,0,0"
-                    ControlTemplate="{StaticResource BorderedControlTemplate}">
-                    <Grid ColumnDefinitions="1*,1*">
-                        <controls:BorderlessEntry
-                            x:Name="QuantityEntry"
-                            Placeholder="Quantity"
-                            Keyboard="Numeric"
-                            HorizontalTextAlignment="Center" />
-                        <controls:BorderlessEntry
-                            x:Name="PremiumEntry"
-                            Grid.Column="1"
-                            Placeholder="Premium"
-                            Keyboard="Numeric"
-                            HorizontalTextAlignment="Center" />
-                    </Grid>
-                </ContentView>
+            <Grid
+                Margin="0,12,0,0"
+                ColumnDefinitions="1*,1*">
+                <Label
+                    Text="Commissions"
+                    Style="{StaticResource LabelInfo}"
+                    HorizontalTextAlignment="Center" />
+                <Label
+                    Grid.Column="1"
+                    Text="Fees"
+                    Style="{StaticResource LabelInfo}"
+                    HorizontalTextAlignment="Center" />
+            </Grid>
+            <controls:BorderedFeeAndCommissionControl
+                x:Name="FeeAndCommission"
+                Margin="0,12,0,0" />
 
-                <Grid
-                    Margin="0,12,0,0"
-                    ColumnDefinitions="1*,1*">
-                    <Label
-                        Text="Commissions"
-                        Style="{StaticResource LabelInfo}"
-                        HorizontalTextAlignment="Center" />
-                    <Label
-                        Grid.Column="1"
-                        Text="Fees"
-                        Style="{StaticResource LabelInfo}"
-                        HorizontalTextAlignment="Center" />
-                </Grid>
-                <controls:BorderedFeeAndCommissionControl
-                    x:Name="FeeAndCommission"
-                    Margin="0,12,0,0" />
-
-                <controls:ButtonSaveOrDiscard
-                    x:Name="SaveOrDiscard"
-                    Margin="0,32,0,0"
-                    IsButtonSaveEnabled="False" />
-            </VerticalStackLayout>
-        </Border>
-    </Grid>
+            <controls:ButtonSaveOrDiscard
+                x:Name="SaveOrDiscard"
+                Margin="0,32,0,0"
+                IsButtonSaveEnabled="False" />
+        </VerticalStackLayout>
+    </ScrollView>
 </popups:BasePopup>

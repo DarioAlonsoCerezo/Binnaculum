@@ -20,7 +20,7 @@ public partial class TickerSelectorPopup
     public TickerSelectorPopup()
     {
         InitializeComponent();
-        ApplyHeightPercentage(Container, 0.5, true);
+        ApplyHeightPercentage(this, 0.5, true);
 
         var merged = Observable.Merge(_searchTerms, _addTickerEnabled.Select(_ => string.Empty));
 

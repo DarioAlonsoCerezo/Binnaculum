@@ -178,8 +178,8 @@ public partial class BorderedEntry
         CurrencyGesture.Events().Tapped
         .SelectMany(_ => Observable.FromAsync(async () =>
         {
-            var result = await new CurrencySelectorPopup().ShowAndWait();
-            if (result is Models.Currency currency)
+            var popupResult = await new CurrencySelectorPopup().ShowAndWait();
+            if (popupResult.Result is Models.Currency currency)
             {
                 CurrencyLabel.Text = currency.Code;
                 CurrencyChanged?.Invoke(this, currency.Code);

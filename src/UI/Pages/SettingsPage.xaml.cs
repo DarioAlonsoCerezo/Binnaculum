@@ -59,8 +59,8 @@ public partial class SettingsPage : ContentPage
         DefaultCurrencyGesture.Events().Tapped
         .SelectMany(_ => Observable.FromAsync(async () =>
         {
-            var result = await new CurrencySelectorPopup().ShowAndWait();
-            if (result is Models.Currency currency)
+            var popupResult = await new CurrencySelectorPopup().ShowAndWait();
+            if (popupResult.Result is Models.Currency currency)
             {
                 DefaultCurrency.Text = currency.Code;
                 Core.UI.SavedPrefereces.ChangeCurrency(currency.Code);
@@ -73,8 +73,8 @@ public partial class SettingsPage : ContentPage
         DefaultTickerGesture.Events().Tapped
             .SelectMany(_ => Observable.FromAsync(async () =>
             {
-                var result = await new TickerSelectorPopup().ShowAndWait();
-                if (result is Models.Ticker ticker)
+                var popupResult = await new TickerSelectorPopup().ShowAndWait();
+                if (popupResult.Result is Models.Ticker ticker)
                 {
                     Core.UI.SavedPrefereces.ChangeDefaultTicker(ticker.Symbol);
                 }

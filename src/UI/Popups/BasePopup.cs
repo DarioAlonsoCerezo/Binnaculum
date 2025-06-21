@@ -1,8 +1,10 @@
-using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Extensions;
+using Microsoft.Maui.Controls.Shapes;
 
 namespace Binnaculum.Popups;
 
-public class BasePopup : Popup
+public class BasePopup : Popup<PopupCustomResult>
 {
     protected readonly CompositeDisposable Disposables = new();
     protected IScheduler UiThread;
@@ -10,8 +12,12 @@ public class BasePopup : Popup
 
     public BasePopup()
     {
+        this.SetAppThemeColor(BackgroundColorProperty, Colors.White, Colors.Black);
+        Margin = new Thickness(24, 0);
+        Padding = new Thickness(0);
+
         while (SynchronizationContext.Current == null)
-            Thread.Sleep(10);
+            Thread.Sleep(10);        
 
         UiThread = new SynchronizationContextScheduler(SynchronizationContext.Current);
         BackgroundScheduler = new NewThreadScheduler(t => new Thread(t) { IsBackground = true });
@@ -37,6 +43,11 @@ public class BasePopup : Popup
         return screenHeight * percentage;
     }
 
+    /// <summary>
+    /// Calculates a width value based on a percentage of the screen width
+    /// </summary>
+    /// <param name="percentage"></param>
+    /// <returns></returns>
     protected double GetWidthByPercentage(double percentage)
     {
         // Ensure the percentage is within valid range (0-1)
@@ -68,16 +79,20 @@ public class BasePopup : Popup
         }
     }
 
-    protected void ForceFillWidth(View view)
+    protected void ForceFillWidth()
     {
-        double width = GetWidthByPercentage(1.0);
-        view.WidthRequest = width;
+        WidthRequest = GetWidthByPercentage(0.76);
     }
 
-    protected override Task OnClosed(object? result, bool wasDismissedByTappingOutsideOfPopup, CancellationToken token = default)
+    public void Close()
     {
         Disposables?.Dispose();
-        return base.OnClosed(result, wasDismissedByTappingOutsideOfPopup, token);
+        CloseAsync(new PopupCustomResult(null, false));
+    }
+    public void Close(object? result)
+    {
+        Disposables?.Dispose();
+        CloseAsync(new PopupCustomResult(result, false));
     }
 }
 
@@ -89,7 +104,12 @@ public static class PopupExtensions
         var appMainpage = Application.Current!.Windows[0].Page!;
         if (appMainpage is Shell navigator)
         {
-            navigator.ShowPopup(popup);
+            navigator.ShowPopup(popup, new PopupOptions
+            {
+                CanBeDismissedByTappingOutsideOfPopup = false,
+                Shadow = null,
+                Shape = new RoundRectangle { CornerRadius = 24 }
+            });
         }
         else
         {
@@ -97,16 +117,37 @@ public static class PopupExtensions
         }
     }
 
-    public static Task<object?> ShowAndWait(this Popup popup)
+    public static async Task<PopupCustomResult> ShowAndWait(this Popup popup)
     {
         var appMainpage = Application.Current!.Windows[0].Page!;
         if (appMainpage is Shell navigator)
         {
-            return navigator.ShowPopupAsync(popup);
+            var awaited = await navigator.ShowPopupAsync(popup, new PopupOptions
+            {
+                CanBeDismissedByTappingOutsideOfPopup = false,
+                Shadow = null,
+                Shape = new RoundRectangle { CornerRadius = 24 }
+            }).ConfigureAwait(false);
+            
+            if (awaited is IPopupResult<PopupCustomResult> iPopup)
+                return new PopupCustomResult(iPopup.Result?.Result, false);
+            
+            return new PopupCustomResult(null, false);
         }
         else
         {
             throw new InvalidOperationException("The current page is not a NavigationPage.");
         }
+    }
+}
+
+public class PopupCustomResult : IPopupResult
+{
+    public object? Result { get; }
+    public bool WasDismissedByTappingOutsideOfPopup { get; }
+    public PopupCustomResult(object? result, bool wasDismissedByTappingOutsideOfPopup)
+    {
+        Result = result;
+        WasDismissedByTappingOutsideOfPopup = wasDismissedByTappingOutsideOfPopup;
     }
 }

@@ -12,6 +12,8 @@ public partial class BankCreatorPopup
 	{
 		InitializeComponent();
 
+        ForceFillWidth();
+
         var events = SaveOrDiscard.Events();
 
         events.DiscardClicked
@@ -35,8 +37,6 @@ public partial class BankCreatorPopup
                 Close();
             })
             .DisposeWith(Disposables);
-
-        Container.WidthRequest = DeviceDisplay.MainDisplayInfo.Width;
 
         Icon.Events().IconClicked
             .Select(_ => (string)LocalizationResourceManager.Instance[ResourceKeys.FilePicker_Select_Image])

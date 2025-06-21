@@ -72,8 +72,8 @@ public partial class DividendControl
         IconGesture.Events().Tapped
             .SelectMany(_ => Observable.FromAsync(async () =>
             {
-                var result = await new TickerSelectorPopup().ShowAndWait();
-                if (result is Models.Ticker ticker)
+                var popupResult = await new TickerSelectorPopup().ShowAndWait();
+                if (popupResult.Result is Models.Ticker ticker)
                 {
                     Icon.PlaceholderText = ticker.Symbol;
                     Icon.ImagePath = ticker.Image?.Value ?? string.Empty;

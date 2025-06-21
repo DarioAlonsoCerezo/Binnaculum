@@ -55,8 +55,8 @@ public partial class OptionTradeControl
         IconGesture.Events().Tapped
             .SelectMany(_ => Observable.FromAsync(async () =>
             {
-                var result = await new TickerSelectorPopup().ShowAndWait();
-                if (result is Models.Ticker ticker)
+                var popupResult = await new TickerSelectorPopup().ShowAndWait();
+                if (popupResult.Result is Models.Ticker ticker)
                 {
                     Icon.PlaceholderText = ticker.Symbol;
                     Icon.ImagePath = ticker.Image?.Value ?? string.Empty;
@@ -70,8 +70,8 @@ public partial class OptionTradeControl
         CurrencyGesture.Events().Tapped
             .SelectMany(_ => Observable.FromAsync(async () =>
             {
-                var result = await new CurrencySelectorPopup().ShowAndWait();
-                if (result is Models.Currency currency)
+                var popupResult = await new CurrencySelectorPopup().ShowAndWait();
+                if (popupResult.Result is Models.Currency currency)
                 {
                     CurrencyLabel.Text = currency.Code;
                     _currency = currency.Code;
@@ -84,8 +84,8 @@ public partial class OptionTradeControl
         MultiplierGesture.Events().Tapped
             .SelectMany(_ => Observable.FromAsync(async () =>
             {
-                var result = await new DecimalInputPopup(_multiplier, ResourceKeys.Multiplier_Title).ShowAndWait();
-                if (result is decimal multiplier)
+                var popupResult = await new DecimalInputPopup(_multiplier, ResourceKeys.Multiplier_Title).ShowAndWait();
+                if (popupResult.Result is decimal multiplier)
                 {
                     if(multiplier < 100m)
                         multiplier = 100m; // Ensure minimum multiplier is 100
@@ -102,8 +102,8 @@ public partial class OptionTradeControl
             {
                 var ticker = Core.UI.Collections.GetTicker(_ticker);
                 var currency = Core.UI.Collections.GetCurrency(_currency);
-                var result = await new OptionBuilderPopup(currency, BrokerAccount, ticker, _multiplier).ShowAndWait();
-                if(result is Models.OptionTrade trade)
+                var popupResult = await new OptionBuilderPopup(currency, BrokerAccount, ticker, _multiplier).ShowAndWait();
+                if(popupResult.Result is Models.OptionTrade trade)
                 {
                     if (!LegsLayout.IsVisible)
                     {

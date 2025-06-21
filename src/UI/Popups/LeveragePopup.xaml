@@ -7,31 +7,24 @@
     xmlns:controls="clr-namespace:Binnaculum.Controls"
     xmlns:markdown="clr-namespace:Indiko.Maui.Controls.Markdown;assembly=Indiko.Maui.Controls.Markdown"
     xmlns:popups="clr-namespace:Binnaculum.Popups"
-    x:Name="Control"
-    Color="Transparent">
-    <Grid
-        x:Name="Container"
-        Padding="24,0">
-        <Border Style="{StaticResource Popup}">
-            <ScrollView>
-                <VerticalStackLayout>
-                    <markdown:MarkdownView
-                        x:Name="WarningText"
-                        Style="{StaticResource BasicMarkdown}"
-                        MarkdownText="{local:Translate Information_Leveraged_Trading}" />
+    x:Name="Control">
+    <ScrollView Padding="0,32">
+        <VerticalStackLayout>
+            <markdown:MarkdownView
+                x:Name="WarningText"
+                Style="{StaticResource BasicMarkdown}"
+                MarkdownText="{local:Translate Information_Leveraged_Trading}" />
 
-                    <controls:BorderedEntry
-                        x:Name="Leverage"
-                        Margin="0,16,0,0"
-                        IsMoneyEntry="True"
-                        Text="1" />
+            <controls:BorderedEntry
+                x:Name="Leverage"
+                Margin="0,16,0,0"
+                IsMoneyEntry="True"
+                Text="1" />
 
-                    <controls:ButtonSaveOrDiscard
-                        x:Name="SaveOrDiscard"
-                        Margin="0,32,0,0" />
+            <controls:ButtonSaveOrDiscard
+                x:Name="SaveOrDiscard"
+                Margin="0,32,0,0" />
 
-                </VerticalStackLayout>
-            </ScrollView>
-        </Border>
-    </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
 </popups:BasePopup>

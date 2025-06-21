@@ -6,7 +6,7 @@ public partial class LeveragePopup
 	{
 		InitializeComponent();
 
-        ApplyHeightPercentage(Container, 0.5, true);
+        ApplyHeightPercentage(this, 0.5, true);
 
         SaveOrDiscard.Events().DiscardClicked
             .Subscribe(_ => Close())

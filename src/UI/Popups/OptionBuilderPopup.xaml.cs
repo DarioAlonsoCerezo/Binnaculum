@@ -20,7 +20,7 @@ public partial class OptionBuilderPopup
 	{
 		InitializeComponent();
 
-        ForceFillWidth(Container);
+        ForceFillWidth();
 
         _currency = currency;
         _broker = broker;
