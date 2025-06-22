@@ -162,6 +162,16 @@ public partial class MovementTemplate
         if (movementType.IsWithdrawal)
             resourceKey = ResourceKeys.MovementType_Withdrawal;
         
+        // Handle new ACAT types
+        if (movementType == Models.BrokerMovementType.ACATMoneyTransferSent)
+            resourceKey = ResourceKeys.MovementType_ACATMoneyTransferSent;
+        if (movementType == Models.BrokerMovementType.ACATMoneyTransferReceived)
+            resourceKey = ResourceKeys.MovementType_ACATMoneyTransferReceived;
+        if (movementType == Models.BrokerMovementType.ACATSecuritiesTransferSent)
+            resourceKey = ResourceKeys.MovementType_ACATSecuritiesTransferSent;
+        if (movementType == Models.BrokerMovementType.ACATSecuritiesTransferReceived)
+            resourceKey = ResourceKeys.MovementType_ACATSecuritiesTransferReceived;
+        
         return resourceKey;
     }
 
