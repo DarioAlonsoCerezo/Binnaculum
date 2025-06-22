@@ -144,25 +144,21 @@ public partial class MovementTemplate
 
     private string GetTitleFromBrokerAccountMovementType(Models.BrokerMovementType movementType)
     {
-        var resourceKey = ResourceKeys.MovementType_ACATMoneyTransfer;
-        if (movementType.IsACATSecuritiesTransfer)
-            resourceKey = ResourceKeys.MovementType_ACATSecuritiesTransfer;
-        if (movementType.IsConversion)
-            resourceKey = ResourceKeys.MovementType_Conversion;
-        if (movementType.IsDeposit)
-            resourceKey = ResourceKeys.MovementType_Deposit;
-        if (movementType.IsFee)
-            resourceKey = ResourceKeys.MovementType_Fee;
-        if (movementType.IsInterestsGained)
-            resourceKey = ResourceKeys.MovementType_InterestsGained;       
-        if (movementType.IsInterestsPaid)
-            resourceKey = ResourceKeys.MovementType_InterestsPaid;
-        if (movementType.IsLending)
-            resourceKey = ResourceKeys.MovementType_Lending;
-        if (movementType.IsWithdrawal)
-            resourceKey = ResourceKeys.MovementType_Withdrawal;
-        
-        return resourceKey;
+        return movementType switch
+        {
+            Models.BrokerMovementType.Deposit => ResourceKeys.MovementType_Deposit,
+            Models.BrokerMovementType.Withdrawal => ResourceKeys.MovementType_Withdrawal,
+            Models.BrokerMovementType.Fee => ResourceKeys.MovementType_Fee,
+            Models.BrokerMovementType.InterestsGained => ResourceKeys.MovementType_InterestsGained,
+            Models.BrokerMovementType.Lending => ResourceKeys.MovementType_Lending,
+            Models.BrokerMovementType.ACATMoneyTransferSent => ResourceKeys.MovementType_ACATMoneyTransferSent,
+            Models.BrokerMovementType.ACATMoneyTransferReceived => ResourceKeys.MovementType_ACATMoneyTransferReceived,
+            Models.BrokerMovementType.ACATSecuritiesTransferSent => ResourceKeys.MovementType_ACATSecuritiesTransferSent,
+            Models.BrokerMovementType.ACATSecuritiesTransferReceived => ResourceKeys.MovementType_ACATSecuritiesTransferReceived,
+            Models.BrokerMovementType.InterestsPaid => ResourceKeys.MovementType_InterestsPaid,
+            Models.BrokerMovementType.Conversion => ResourceKeys.MovementType_Conversion,
+            _ => throw new ArgumentOutOfRangeException(nameof(movementType), movementType, null)
+        };
     }
 
     private string GetTitleFromBankAccountMovementType(Models.BankAccountMovementType movementType)

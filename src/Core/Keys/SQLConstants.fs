@@ -18,10 +18,16 @@ module internal SQLConstants =
     let Lending = "LENDING"
     
     [<Literal>]
-    let AcatMoneyTransfer = "ACAT_MONEY_TRANSFER"
+    let AcatMoneyTransferSent = "ACAT_MONEY_TRANSFER_SENT"
     
     [<Literal>]
-    let AcatSecuritiesTransfer = "ACAT_SECURITIES_TRANSFER"
+    let AcatMoneyTransferReceived = "ACAT_MONEY_TRANSFER_RECEIVED"
+    
+    [<Literal>]
+    let AcatSecuritiesTransferSent = "ACAT_SECURITIES_TRANSFER_SENT"
+    
+    [<Literal>]
+    let AcatSecuritiesTransferReceived = "ACAT_SECURITIES_TRANSFER_RECEIVED"
     
     [<Literal>]
     let InterestsPaid = "INTERESTS_PAID"

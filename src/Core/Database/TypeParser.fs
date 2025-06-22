@@ -99,8 +99,10 @@ module internal TypeParser =
         | SQLConstants.Fee -> BrokerMovementType.Fee
         | SQLConstants.InterestsGained -> BrokerMovementType.InterestsGained
         | SQLConstants.Lending -> BrokerMovementType.Lending
-        | SQLConstants.AcatMoneyTransfer -> BrokerMovementType.ACATMoneyTransfer
-        | SQLConstants.AcatSecuritiesTransfer -> BrokerMovementType.ACATSecuritiesTransfer
+        | SQLConstants.AcatMoneyTransferSent -> BrokerMovementType.ACATMoneyTransferSent
+        | SQLConstants.AcatMoneyTransferReceived -> BrokerMovementType.ACATMoneyTransferReceived
+        | SQLConstants.AcatSecuritiesTransferSent -> BrokerMovementType.ACATSecuritiesTransferSent
+        | SQLConstants.AcatSecuritiesTransferReceived -> BrokerMovementType.ACATSecuritiesTransferReceived
         | SQLConstants.InterestsPaid -> BrokerMovementType.InterestsPaid
         | SQLConstants.Conversion -> BrokerMovementType.Conversion
         | _ -> failwith $"Invalid Movement Type: {value}"
@@ -112,8 +114,10 @@ module internal TypeParser =
         | BrokerMovementType.Fee -> SQLConstants.Fee
         | BrokerMovementType.InterestsGained -> SQLConstants.InterestsGained
         | BrokerMovementType.Lending -> SQLConstants.Lending
-        | BrokerMovementType.ACATMoneyTransfer -> SQLConstants.AcatMoneyTransfer
-        | BrokerMovementType.ACATSecuritiesTransfer -> SQLConstants.AcatSecuritiesTransfer
+        | BrokerMovementType.ACATMoneyTransferSent -> SQLConstants.AcatMoneyTransferSent
+        | BrokerMovementType.ACATMoneyTransferReceived -> SQLConstants.AcatMoneyTransferReceived
+        | BrokerMovementType.ACATSecuritiesTransferSent -> SQLConstants.AcatSecuritiesTransferSent
+        | BrokerMovementType.ACATSecuritiesTransferReceived -> SQLConstants.AcatSecuritiesTransferReceived
         | BrokerMovementType.InterestsPaid -> SQLConstants.InterestsPaid
         | BrokerMovementType.Conversion -> SQLConstants.Conversion
 

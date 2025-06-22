@@ -23,8 +23,10 @@ module internal DiscriminatedToDatabase =
             | Binnaculum.Core.Models.MovementType.Fee -> BrokerMovementType.Fee
             | Binnaculum.Core.Models.MovementType.InterestsGained -> BrokerMovementType.InterestsGained
             | Binnaculum.Core.Models.MovementType.Lending -> BrokerMovementType.Lending
-            | Binnaculum.Core.Models.MovementType.ACATMoneyTransfer -> BrokerMovementType.ACATMoneyTransfer
-            | Binnaculum.Core.Models.MovementType.ACATSecuritiesTransfer -> BrokerMovementType.ACATSecuritiesTransfer
+            | Binnaculum.Core.Models.MovementType.ACATMoneyTransferSent -> BrokerMovementType.ACATMoneyTransferSent
+            | Binnaculum.Core.Models.MovementType.ACATMoneyTransferReceived -> BrokerMovementType.ACATMoneyTransferReceived
+            | Binnaculum.Core.Models.MovementType.ACATSecuritiesTransferSent -> BrokerMovementType.ACATSecuritiesTransferSent
+            | Binnaculum.Core.Models.MovementType.ACATSecuritiesTransferReceived -> BrokerMovementType.ACATSecuritiesTransferReceived
             | Binnaculum.Core.Models.MovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
             | Binnaculum.Core.Models.MovementType.Conversion -> BrokerMovementType.Conversion
             | _ -> failwithf "MovementType %A is not a BrokerMovementType" movementType
@@ -37,8 +39,10 @@ module internal DiscriminatedToDatabase =
             | Binnaculum.Core.Models.BrokerMovementType.Fee -> BrokerMovementType.Fee
             | Binnaculum.Core.Models.BrokerMovementType.InterestsGained -> BrokerMovementType.InterestsGained
             | Binnaculum.Core.Models.BrokerMovementType.Lending -> BrokerMovementType.Lending
-            | Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransfer -> BrokerMovementType.ACATMoneyTransfer
-            | Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransfer -> BrokerMovementType.ACATSecuritiesTransfer
+            | Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransferSent -> BrokerMovementType.ACATMoneyTransferSent
+            | Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransferReceived -> BrokerMovementType.ACATMoneyTransferReceived
+            | Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransferSent -> BrokerMovementType.ACATSecuritiesTransferSent
+            | Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransferReceived -> BrokerMovementType.ACATSecuritiesTransferReceived
             | Binnaculum.Core.Models.BrokerMovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
             | Binnaculum.Core.Models.BrokerMovementType.Conversion -> BrokerMovementType.Conversion
 

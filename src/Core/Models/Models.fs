@@ -37,8 +37,10 @@ module Models =
         | Fee
         | InterestsGained
         | Lending
-        | ACATMoneyTransfer
-        | ACATSecuritiesTransfer
+        | ACATMoneyTransferSent
+        | ACATMoneyTransferReceived
+        | ACATSecuritiesTransferSent
+        | ACATSecuritiesTransferReceived
         | InterestsPaid
         | Conversion
 
@@ -54,8 +56,10 @@ module Models =
         | Fee
         | InterestsGained
         | Lending
-        | ACATMoneyTransfer
-        | ACATSecuritiesTransfer
+        | ACATMoneyTransferSent
+        | ACATMoneyTransferReceived
+        | ACATSecuritiesTransferSent
+        | ACATSecuritiesTransferReceived
         | InterestsPaid
         | Conversion        
         

@@ -41,10 +41,16 @@ module ResourceKeys =
     let MovementType_Lending = "MovementType_Lending"
     
     [<Literal>]
-    let MovementType_ACATMoneyTransfer = "MovementType_ACATMoneyTransfer"
+    let MovementType_ACATMoneyTransferSent = "MovementType_ACATMoneyTransferSent"
     
     [<Literal>]
-    let MovementType_ACATSecuritiesTransfer = "MovementType_ACATSecuritiesTransfer"
+    let MovementType_ACATMoneyTransferReceived = "MovementType_ACATMoneyTransferReceived"
+    
+    [<Literal>]
+    let MovementType_ACATSecuritiesTransferSent = "MovementType_ACATSecuritiesTransferSent"
+    
+    [<Literal>]
+    let MovementType_ACATSecuritiesTransferReceived = "MovementType_ACATSecuritiesTransferReceived"
     
     [<Literal>]
     let MovementType_InterestsPaid = "MovementType_InterestsPaid"
