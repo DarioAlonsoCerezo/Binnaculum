@@ -46,7 +46,6 @@ public partial class BrokerMovementCreatorPage
                 BrokerMovement.HideFeesAndCommissions = hiderFeesAndCommissions;
                 if (x == Models.MovementType.Deposit
                     || x == Models.MovementType.Withdrawal
-                    || x == Models.MovementType.ACATMoneyTransfer
                     || x == Models.MovementType.ACATMoneyTransferSent
                     || x == Models.MovementType.ACATMoneyTransferReceived
                     || x == Models.MovementType.ACATSecuritiesTransferSent

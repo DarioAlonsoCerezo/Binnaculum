@@ -150,10 +150,6 @@ module Creator =
                 -> Some Binnaculum.Core.Models.BrokerMovementType.InterestsGained
             | Binnaculum.Core.Models.MovementType.Lending 
                 -> Some Binnaculum.Core.Models.BrokerMovementType.Lending
-            | Binnaculum.Core.Models.MovementType.ACATMoneyTransfer 
-                -> Some Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransfer
-            | Binnaculum.Core.Models.MovementType.ACATSecuritiesTransfer 
-                -> Some Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransfer
             | Binnaculum.Core.Models.MovementType.ACATMoneyTransferSent 
                 -> Some Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransferSent
             | Binnaculum.Core.Models.MovementType.ACATMoneyTransferReceived 

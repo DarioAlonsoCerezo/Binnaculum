@@ -66,16 +66,6 @@ public class SelectableItem
         },
         new SelectableItem
         {
-            Title = ResourceKeys.MovementType_ACATMoneyTransfer,
-            ItemValue = Models.MovementType.ACATMoneyTransfer
-        },
-        new SelectableItem
-        {
-            Title = ResourceKeys.MovementType_ACATSecuritiesTransfer,
-            ItemValue = Models.MovementType.ACATSecuritiesTransfer
-        },
-        new SelectableItem
-        {
             Title = ResourceKeys.MovementType_ACATMoneyTransferSent,
             ItemValue = Models.MovementType.ACATMoneyTransferSent
         },
