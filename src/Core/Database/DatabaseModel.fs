@@ -54,6 +54,10 @@ module internal DatabaseModel =
         | Lending
         | ACATMoneyTransfer
         | ACATSecuritiesTransfer
+        | ACATMoneyTransferSent
+        | ACATMoneyTransferReceived
+        | ACATSecuritiesTransferSent
+        | ACATSecuritiesTransferReceived
         | InterestsPaid
         | Conversion
 

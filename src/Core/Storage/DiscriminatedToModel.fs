@@ -35,6 +35,10 @@ module internal DiscriminatedToModel =
             | Database.DatabaseModel.BrokerMovementType.Lending -> BrokerMovementType.Lending
             | Database.DatabaseModel.BrokerMovementType.ACATMoneyTransfer -> BrokerMovementType.ACATMoneyTransfer
             | Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransfer -> BrokerMovementType.ACATSecuritiesTransfer
+            | Database.DatabaseModel.BrokerMovementType.ACATMoneyTransferSent -> BrokerMovementType.ACATMoneyTransferSent
+            | Database.DatabaseModel.BrokerMovementType.ACATMoneyTransferReceived -> BrokerMovementType.ACATMoneyTransferReceived
+            | Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransferSent -> BrokerMovementType.ACATSecuritiesTransferSent
+            | Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransferReceived -> BrokerMovementType.ACATSecuritiesTransferReceived
             | Database.DatabaseModel.BrokerMovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
             | Database.DatabaseModel.BrokerMovementType.Conversion -> BrokerMovementType.Conversion
             
