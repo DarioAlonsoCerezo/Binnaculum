@@ -16,9 +16,14 @@ public partial class OptionBuilderPopup
     public OptionBuilderPopup(Models.Currency currency, 
         Models.BrokerAccount broker,
         Models.Ticker ticker,
-        decimal multiplier)
+        decimal multiplier,
+        bool feesPerOperation)
 	{
 		InitializeComponent();
+
+        FeeAndCommission.IsVisible = !feesPerOperation;
+        FeeAndCommissionTitles.IsVisible = !feesPerOperation;
+        FeesPerOperation.IsOn = feesPerOperation;
 
         ForceFillWidth();
 
@@ -162,7 +167,7 @@ public partial class OptionBuilderPopup
             _multiplier,
             quantity,
             notes,
-            false);
+            FeesPerOperation.IsOn);
     }
 
     private void TypeSelected(object sender, SelectableItem selected)

@@ -83,7 +83,9 @@
                 </Label>
 
                 <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
-
+                <controls:BorderedFeeAndCommissionControl
+                    x:Name="FeesForOperation"
+                    IsVisible="False" />
                 <controls:BorderedEditor
                     x:Name="Notes"
                     Placeholder="{local:Translate Placeholder_Note}" />

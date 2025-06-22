@@ -102,9 +102,17 @@ public partial class OptionTradeControl
             {
                 var ticker = Core.UI.Collections.GetTicker(_ticker);
                 var currency = Core.UI.Collections.GetCurrency(_currency);
-                var popupResult = await new OptionBuilderPopup(currency, BrokerAccount, ticker, _multiplier).ShowAndWait();
+                var popupResult = await new OptionBuilderPopup(
+                        currency, 
+                        BrokerAccount, 
+                        ticker, 
+                        _multiplier, 
+                        FeesForOperation.IsVisible)
+                    .ShowAndWait();
                 if(popupResult.Result is Models.OptionTrade trade)
                 {
+                    FeesForOperation.IsVisible = trade.FeesPerOperation;
+
                     if (!LegsLayout.IsVisible)
                     {
                         var legs = new List<Models.OptionTrade?>

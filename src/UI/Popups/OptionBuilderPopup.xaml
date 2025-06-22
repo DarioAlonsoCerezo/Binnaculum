@@ -9,7 +9,9 @@
     xmlns:local="clr-namespace:Binnaculum"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Name="Control">
-    <ScrollView Padding="0,32" VerticalOptions="Center">
+    <ScrollView
+        Padding="0,32"
+        VerticalOptions="Center">
         <VerticalStackLayout>
             <Grid ColumnDefinitions="1*,1*">
                 <toolkit:Expander
@@ -132,6 +134,7 @@
             </ContentView>
 
             <Grid
+                x:Name="FeeAndCommissionTitles"
                 Margin="0,12,0,0"
                 ColumnDefinitions="1*,1*">
                 <Label
@@ -147,6 +150,15 @@
             <controls:BorderedFeeAndCommissionControl
                 x:Name="FeeAndCommission"
                 Margin="0,12,0,0" />
+
+            <Grid Padding="0,12,0,0">
+                <Label
+                    Text="Fees per operation"
+                    Style="{StaticResource LabelInfo}" />
+                <controls:CustomSwitch
+                    x:Name="FeesPerOperation"
+                    HorizontalOptions="End" />
+            </Grid>
 
             <controls:ButtonSaveOrDiscard
                 x:Name="SaveOrDiscard"
