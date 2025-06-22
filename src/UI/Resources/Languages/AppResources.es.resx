@@ -756,13 +756,21 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
     <value>Ganancias por préstamo</value>
     <comment>Tipo de movimiento: préstamo de valores</comment>
   </data>
-  <data name="MovementType_ACATMoneyTransfer" xml:space="preserve">
-    <value>Transferencia ACAT de Dinero</value>
-    <comment>Tipo de movimiento: transferencia de dinero entre cuentas</comment>
+  <data name="MovementType_ACATMoneyTransferSent" xml:space="preserve">
+    <value>Transferencia ACAT de Dinero Enviada</value>
+    <comment>Tipo de movimiento: transferencia de dinero enviada a otra cuenta</comment>
   </data>
-  <data name="MovementType_ACATSecuritiesTransfer" xml:space="preserve">
-    <value>Transferencia ACAT de Valores</value>
-    <comment>Tipo de movimiento: transferencia de valores entre cuentas</comment>
+  <data name="MovementType_ACATMoneyTransferReceived" xml:space="preserve">
+    <value>Transferencia ACAT de Dinero Recibida</value>
+    <comment>Tipo de movimiento: transferencia de dinero recibida de otra cuenta</comment>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransferSent" xml:space="preserve">
+    <value>Transferencia ACAT de Valores Enviada</value>
+    <comment>Tipo de movimiento: transferencia de valores enviada a otra cuenta</comment>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransferReceived" xml:space="preserve">
+    <value>Transferencia ACAT de Valores Recibida</value>
+    <comment>Tipo de movimiento: transferencia de valores recibida de otra cuenta</comment>
   </data>
   <data name="MovementType_InterestsPaid" xml:space="preserve">
     <value>Intereses pagados</value>

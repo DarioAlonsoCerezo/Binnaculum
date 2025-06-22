@@ -755,13 +755,21 @@ Please note that custom brokers you create will be marked as "not configured for
     <value>Gained for lending</value>
     <comment>Movement type: securities lending</comment>
   </data>
-  <data name="MovementType_ACATMoneyTransfer" xml:space="preserve">
-    <value>ACAT Money Transfer</value>
-    <comment>Movement type: money transfer between accounts</comment>
+  <data name="MovementType_ACATMoneyTransferSent" xml:space="preserve">
+    <value>ACAT Money Transfer Sent</value>
+    <comment>Movement type: money transfer sent to another account</comment>
   </data>
-  <data name="MovementType_ACATSecuritiesTransfer" xml:space="preserve">
-    <value>ACAT Securities Transfer</value>
-    <comment>Movement type: securities transfer between accounts</comment>
+  <data name="MovementType_ACATMoneyTransferReceived" xml:space="preserve">
+    <value>ACAT Money Transfer Received</value>
+    <comment>Movement type: money transfer received from another account</comment>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransferSent" xml:space="preserve">
+    <value>ACAT Securities Transfer Sent</value>
+    <comment>Movement type: securities transfer sent to another account</comment>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransferReceived" xml:space="preserve">
+    <value>ACAT Securities Transfer Received</value>
+    <comment>Movement type: securities transfer received from another account</comment>
   </data>
   <data name="MovementType_InterestsPaid" xml:space="preserve">
     <value>Interests paid</value>
