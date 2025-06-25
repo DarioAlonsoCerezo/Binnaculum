@@ -203,6 +203,21 @@ module internal SQLParameterName =
     [<Literal>]
     let Invested = "@Invested"
     
+    [<Literal>]
+    let Deposited = "@Deposited"
+    
+    [<Literal>]
+    let Withdrawn = "@Withdrawn"
+    
+    [<Literal>]
+    let DividendsReceived = "@DividendsReceived"
+    
+    [<Literal>]
+    let OptionsIncome = "@OptionsIncome"
+    
+    [<Literal>]
+    let OtherIncome = "@OtherIncome"
+    
     // Broker Snapshots
     [<Literal>]
     let PortfoliosValue = "@PortfoliosValue"

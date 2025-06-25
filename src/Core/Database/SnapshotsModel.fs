@@ -53,6 +53,11 @@ module internal SnapshotsModel =
         Invested: Money // Total invested amount
         Commissions: Money // Total commissions paid
         Fees: Money // Total fees paid
+        Deposited: Money // Total amount deposited into the account
+        Withdrawn: Money // Total amount withdrawn from the account
+        DividendsReceived: Money // Total dividends received
+        OptionsIncome: Money // Total options premiums received
+        OtherIncome: Money // Total other income (e.g., interest, miscellaneous credits)
         OpenTrades: bool // Whether there are open trades
     } with
         interface IEntity with
