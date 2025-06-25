@@ -1,6 +1,8 @@
 # Binnaculum
 App based in .NET MAUI to track your investments
 
+> **Español**: [README en Español](README.es.md) | **English**: [English README](README.md)
+
 # Table of Contents
 - [Overview](#overview)
 - [Resources](#resources)
