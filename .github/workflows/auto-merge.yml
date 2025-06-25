@@ -1,5 +1,9 @@
 name: Enable Auto-Merge on PR Approval
 
+permissions:
+  pull-requests: write
+  contents: write
+
 on:
   pull_request_review:
     types: [submitted]
