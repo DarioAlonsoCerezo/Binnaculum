@@ -26,6 +26,11 @@ type Do() =
                 (SQLParameterName.Invested, snapshot.Invested.Value);
                 (SQLParameterName.Commissions, snapshot.Commissions.Value);
                 (SQLParameterName.Fees, snapshot.Fees.Value);
+                (SQLParameterName.Deposited, snapshot.Deposited.Value);
+                (SQLParameterName.Withdrawn, snapshot.Withdrawn.Value);
+                (SQLParameterName.DividendsReceived, snapshot.DividendsReceived.Value);
+                (SQLParameterName.OptionsIncome, snapshot.OptionsIncome.Value);
+                (SQLParameterName.OtherIncome, snapshot.OtherIncome.Value);
                 (SQLParameterName.OpenTrades, snapshot.OpenTrades);
             ], snapshot)
 
@@ -47,6 +52,11 @@ type Do() =
             Invested = reader.getMoney FieldName.Invested
             Commissions = reader.getMoney FieldName.Commissions
             Fees = reader.getMoney FieldName.Fees
+            Deposited = reader.getMoney FieldName.Deposited
+            Withdrawn = reader.getMoney FieldName.Withdrawn
+            DividendsReceived = reader.getMoney FieldName.DividendsReceived
+            OptionsIncome = reader.getMoney FieldName.OptionsIncome
+            OtherIncome = reader.getMoney FieldName.OtherIncome
             OpenTrades = reader.getBoolean FieldName.OpenTrades
         }
 
