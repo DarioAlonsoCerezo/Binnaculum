@@ -211,7 +211,7 @@ module internal DataLoader =
             |> Array.choose id
             |> Array.toList
         
-        Collections.BrokerSnapshots.EditDiff(snapshots)
+        Collections.Snapshots.AddRange(snapshots)
     }
 
     let private loadLatestBankSnapshots() = task {
@@ -265,7 +265,7 @@ module internal DataLoader =
             |> Array.choose id
             |> Array.toList
         
-        Collections.BankSnapshots.EditDiff(snapshots)
+        Collections.Snapshots.AddRange(snapshots)
     }
 
     let private loadLatestBrokerAccountSnapshots() = task {
@@ -332,7 +332,7 @@ module internal DataLoader =
             |> Array.choose id
             |> Array.toList
         
-        Collections.BrokerAccountSnapshots.EditDiff(snapshots)
+        Collections.Snapshots.AddRange(snapshots)
     }
 
     let private loadLatestBankAccountSnapshots() = task {
@@ -388,10 +388,11 @@ module internal DataLoader =
             |> Array.choose id
             |> Array.toList
         
-        Collections.BankAccountSnapshots.EditDiff(snapshots)
+        Collections.Snapshots.AddRange(snapshots)
     }
 
     let loadLatestSnapshots() = task {
+        Collections.Snapshots.Clear()
         do! loadLatestBrokerSnapshots() |> Async.AwaitTask |> Async.Ignore
         do! loadLatestBankSnapshots() |> Async.AwaitTask |> Async.Ignore
         do! loadLatestBrokerAccountSnapshots() |> Async.AwaitTask |> Async.Ignore
