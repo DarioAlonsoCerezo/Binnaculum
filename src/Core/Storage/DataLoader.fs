@@ -319,11 +319,88 @@ module internal DataLoader =
         )
     }
 
+    let private loadLatestTickerSnapshots() = task {
+        let tickers = Collections.Tickers.Items
+        let snapshots = 
+            tickers
+            |> Seq.filter (fun t -> t.Id > 0) // Exclude any default/placeholder tickers
+            |> Seq.map (fun ticker ->
+                async {
+                    try
+                        let! latestSnapshot = TickerSnapshotExtensions.Do.getLatestByTickerId ticker.Id |> Async.AwaitTask
+                        match latestSnapshot with
+                        | Some dbSnapshot ->
+                            return Some (dbSnapshot.tickerSnapshotToModel())
+                        | None ->
+                            return None
+                    with
+                    | _ ->
+                        return None
+                })
+            |> Async.Parallel
+            |> Async.RunSynchronously
+            |> Array.choose id
+            |> Array.toList
+        
+        snapshots
+        |> List.iter (fun newSnapshot ->
+            let tickerId = newSnapshot.Ticker.Id
+            let existingSnapshot = Collections.TickerSnapshots.Items 
+                                 |> Seq.tryFind (fun s -> s.Ticker.Id = tickerId)
+            match existingSnapshot with
+            | Some existing when existing <> newSnapshot ->
+                Collections.TickerSnapshots.Replace(existing, newSnapshot)
+            | None ->
+                Collections.TickerSnapshots.Add(newSnapshot)
+            | Some _ -> () // Same snapshot, no action needed
+        )
+    }
+
     let loadLatestSnapshots() = task {
         do! loadLatestBrokerSnapshots() |> Async.AwaitTask |> Async.Ignore
         do! loadLatestBankSnapshots() |> Async.AwaitTask |> Async.Ignore
         do! loadLatestBrokerAccountSnapshots() |> Async.AwaitTask |> Async.Ignore
         do! loadLatestBankAccountSnapshots() |> Async.AwaitTask |> Async.Ignore
+        do! loadLatestTickerSnapshots() |> Async.AwaitTask |> Async.Ignore
+    }
+
+    let loadTickerSnapshotsByTickerId(tickerId: int) = task {
+        try
+            let! dbSnapshots = TickerSnapshotExtensions.Do.getByTickerId tickerId |> Async.AwaitTask
+            let snapshots = dbSnapshots.tickerSnapshotsToModel()
+            
+            // Remove existing snapshots for this ticker
+            let tickerSnapshotsToRemove = Collections.TickerSnapshots.Items
+                                        |> Seq.filter (fun s -> s.Ticker.Id = tickerId)
+                                        |> Seq.toList
+            
+            tickerSnapshotsToRemove |> List.iter (fun snapshot -> Collections.TickerSnapshots.Remove(snapshot) |> ignore)
+            snapshots |> List.iter (fun snapshot -> Collections.TickerSnapshots.Add(snapshot))
+        with
+        | ex -> 
+            // Log error or handle as appropriate - for now just ignore
+            ()
+    }
+
+    let loadLatestTickerSnapshotByTickerId(tickerId: int) = task {
+        try
+            let! dbSnapshot = TickerSnapshotExtensions.Do.getLatestByTickerId tickerId |> Async.AwaitTask
+            match dbSnapshot with
+            | Some snapshot ->
+                let modelSnapshot = snapshot.tickerSnapshotToModel()
+                let existingSnapshot = Collections.TickerSnapshots.Items 
+                                     |> Seq.tryFind (fun s -> s.Ticker.Id = tickerId)
+                match existingSnapshot with
+                | Some existing when existing <> modelSnapshot ->
+                    Collections.TickerSnapshots.Replace(existing, modelSnapshot)
+                | None ->
+                    Collections.TickerSnapshots.Add(modelSnapshot)
+                | Some _ -> () // Same snapshot, no action needed
+            | None -> ()
+        with
+        | ex -> 
+            // Log error or handle as appropriate - for now just ignore
+            ()
     }
 
     let loadBasicData() = task {

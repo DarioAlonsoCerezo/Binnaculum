@@ -166,6 +166,30 @@ module internal DatabaseToModels =
             tikers |> List.map (fun t -> t.tickerToModel())
 
         [<Extension>]
+        static member tickerSnapshotToModel(dbSnapshot: TickerSnapshot) =
+            {
+                Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                Currency = Binnaculum.Core.UI.Collections.getCurrency(dbSnapshot.CurrencyId)
+                TotalShares = dbSnapshot.TotalShares
+                Weight = dbSnapshot.Weight
+                CostBasis = dbSnapshot.CostBasis.Value
+                RealCost = dbSnapshot.RealCost.Value
+                Dividends = dbSnapshot.Dividends.Value
+                Options = dbSnapshot.Options.Value
+                TotalIncomes = dbSnapshot.TotalIncomes.Value
+                Unrealized = dbSnapshot.Unrealized.Value
+                Realized = dbSnapshot.Realized.Value
+                Performance = dbSnapshot.Performance
+                LatestPrice = dbSnapshot.LatestPrice.Value
+                OpenTrades = dbSnapshot.OpenTrades
+            }
+
+        [<Extension>]
+        static member tickerSnapshotsToModel(dbSnapshots: TickerSnapshot list) =
+            dbSnapshots |> List.map (fun s -> s.tickerSnapshotToModel())
+
+        [<Extension>]
         static member tradeToModel(trade: Binnaculum.Core.Database.DatabaseModel.Trade) =
             let amount = trade.Price.Value * trade.Quantity
             let commissions = trade.Fees.Value + trade.Commissions.Value

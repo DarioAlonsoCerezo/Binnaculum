@@ -84,6 +84,12 @@ module Collections =
     let Snapshots = new SourceList<OverviewSnapshot>()
 
     /// <summary>
+    /// This collection stores ticker snapshots that represent the state of individual tickers at specific points in time.
+    /// Each snapshot contains historical performance data for a ticker including shares, cost basis, gains/losses, etc.
+    /// </summary>
+    let TickerSnapshots = new SourceList<TickerSnapshot>()
+
+    /// <summary>
     /// This function is used to get a broker by its ID.
     /// It searches through the Brokers collection and returns the first broker that matches the provided ID.
     /// </summary>
@@ -169,3 +175,17 @@ module Collections =
     /// </summary>
     let internal getTickerById(id: int) =
         Tickers.Items |> Seq.find(fun t -> t.Id = id)
+
+    /// <summary>
+    /// This function is used to get the latest ticker snapshot by ticker ID.
+    /// It searches through the TickerSnapshots collection and returns the ticker snapshot for the given ticker ID if it exists.
+    /// </summary>
+    let internal getTickerSnapshotByTickerId(tickerId: int) =
+        TickerSnapshots.Items |> Seq.tryFind(fun s -> s.Ticker.Id = tickerId)
+
+    /// <summary>
+    /// This function is used to get all ticker snapshots for a specific ticker.
+    /// It returns all snapshots for the given ticker ID from the TickerSnapshots collection.
+    /// </summary>
+    let internal getTickerSnapshotsByTickerId(tickerId: int) =
+        TickerSnapshots.Items |> Seq.filter(fun s -> s.Ticker.Id = tickerId) |> Seq.toList
