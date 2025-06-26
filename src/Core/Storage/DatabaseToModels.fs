@@ -4,6 +4,7 @@ open System.Runtime.CompilerServices
 open Binnaculum.Core.Models
 open DiscriminatedToModel
 open Microsoft.Maui.Storage
+open Binnaculum.Core.Database.SnapshotsModel
 
 module internal DatabaseToModels =
 
@@ -401,3 +402,107 @@ module internal DatabaseToModels =
                             BankAccountMovement = None
                             TickerSplit = None
                         })
+
+        // Snapshot conversion functions
+        [<Extension>]
+        static member brokerSnapshotToOverviewSnapshot(dbSnapshot: BrokerSnapshot, broker: Broker) =
+            {
+                Type = OverviewSnapshotType.Broker
+                InvestmentOverview = None
+                Broker = Some {
+                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                    Broker = broker
+                    PortfoliosValue = dbSnapshot.PortfoliosValue.Value
+                    RealizedGains = dbSnapshot.RealizedGains.Value
+                    RealizedPercentage = dbSnapshot.RealizedPercentage
+                    UnrealizedGains = dbSnapshot.UnrealizedGains.Value
+                    UnrealizedGainsPercentage = dbSnapshot.UnrealizedGainsPercentage
+                    AccountCount = dbSnapshot.AccountCount
+                    Invested = dbSnapshot.Invested.Value
+                    Commissions = dbSnapshot.Commissions.Value
+                    Fees = dbSnapshot.Fees.Value
+                    Deposited = dbSnapshot.Deposited.Value
+                    Withdrawn = dbSnapshot.Withdrawn.Value
+                    DividendsReceived = dbSnapshot.DividendsReceived.Value
+                    OptionsIncome = dbSnapshot.OptionsIncome.Value
+                    OtherIncome = dbSnapshot.OtherIncome.Value
+                    OpenTrades = dbSnapshot.OpenTrades
+                }
+                Bank = None
+                BrokerAccount = None
+                BankAccount = None
+            }
+
+        [<Extension>]
+        static member bankSnapshotToOverviewSnapshot(dbSnapshot: BankSnapshot, bank: Bank) =
+            {
+                Type = OverviewSnapshotType.Bank
+                InvestmentOverview = None
+                Broker = None
+                Bank = Some {
+                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                    Bank = bank
+                    TotalBalance = dbSnapshot.TotalBalance.Value
+                    InterestEarned = dbSnapshot.InterestEarned.Value
+                    FeesPaid = dbSnapshot.FeesPaid.Value
+                    AccountCount = dbSnapshot.AccountCount
+                }
+                BrokerAccount = None
+                BankAccount = None
+            }
+
+        [<Extension>]
+        static member brokerAccountSnapshotToOverviewSnapshot(dbSnapshot: BrokerAccountSnapshot, brokerAccount: BrokerAccount) =
+            {
+                Type = OverviewSnapshotType.BrokerAccount
+                InvestmentOverview = None
+                Broker = None
+                Bank = None
+                BrokerAccount = Some {
+                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                    BrokerAccount = brokerAccount
+                    PortfolioValue = dbSnapshot.PortfolioValue.Value
+                    RealizedGains = dbSnapshot.RealizedGains.Value
+                    RealizedPercentage = dbSnapshot.RealizedPercentage
+                    UnrealizedGains = dbSnapshot.UnrealizedGains.Value
+                    UnrealizedGainsPercentage = dbSnapshot.UnrealizedGainsPercentage
+                    Invested = dbSnapshot.Invested.Value
+                    Commissions = dbSnapshot.Commissions.Value
+                    Fees = dbSnapshot.Fees.Value
+                    Deposited = dbSnapshot.Deposited.Value
+                    Withdrawn = dbSnapshot.Withdrawn.Value
+                    DividendsReceived = dbSnapshot.DividendsReceived.Value
+                    OptionsIncome = dbSnapshot.OptionsIncome.Value
+                    OtherIncome = dbSnapshot.OtherIncome.Value
+                    OpenTrades = dbSnapshot.OpenTrades
+                }
+                BankAccount = None
+            }
+
+        [<Extension>]
+        static member bankAccountSnapshotToOverviewSnapshot(dbSnapshot: BankAccountSnapshot, bankAccount: BankAccount) =
+            {
+                Type = OverviewSnapshotType.BankAccount
+                InvestmentOverview = None
+                Broker = None
+                Bank = None
+                BrokerAccount = None
+                BankAccount = Some {
+                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                    BankAccount = bankAccount
+                    Balance = dbSnapshot.Balance.Value
+                    InterestEarned = dbSnapshot.InterestEarned.Value
+                    FeesPaid = dbSnapshot.FeesPaid.Value
+                }
+            }
+
+        [<Extension>]
+        static member createEmptyOverviewSnapshot() =
+            {
+                Type = OverviewSnapshotType.Empty
+                InvestmentOverview = None
+                Broker = None
+                Bank = None
+                BrokerAccount = None
+                BankAccount = None
+            }

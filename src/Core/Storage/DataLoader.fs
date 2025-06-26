@@ -160,51 +160,12 @@ module internal DataLoader =
                         let! latestSnapshot = BrokerSnapshotExtensions.Do.getLatestByBrokerId broker.Id |> Async.AwaitTask
                         match latestSnapshot with
                         | Some dbSnapshot ->
-                            return Some {
-                                Type = OverviewSnapshotType.Broker
-                                InvestmentOverview = None
-                                Broker = Some {
-                                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
-                                    Broker = broker
-                                    PortfoliosValue = dbSnapshot.PortfoliosValue.Value
-                                    RealizedGains = dbSnapshot.RealizedGains.Value
-                                    RealizedPercentage = dbSnapshot.RealizedPercentage
-                                    UnrealizedGains = dbSnapshot.UnrealizedGains.Value
-                                    UnrealizedGainsPercentage = dbSnapshot.UnrealizedGainsPercentage
-                                    AccountCount = dbSnapshot.AccountCount
-                                    Invested = dbSnapshot.Invested.Value
-                                    Commissions = dbSnapshot.Commissions.Value
-                                    Fees = dbSnapshot.Fees.Value
-                                    Deposited = dbSnapshot.Deposited.Value
-                                    Withdrawn = dbSnapshot.Withdrawn.Value
-                                    DividendsReceived = dbSnapshot.DividendsReceived.Value
-                                    OptionsIncome = dbSnapshot.OptionsIncome.Value
-                                    OtherIncome = dbSnapshot.OtherIncome.Value
-                                    OpenTrades = dbSnapshot.OpenTrades
-                                }
-                                Bank = None
-                                BrokerAccount = None
-                                BankAccount = None
-                            }
+                            return Some (dbSnapshot.brokerSnapshotToOverviewSnapshot(broker))
                         | None ->
-                            return Some {
-                                Type = OverviewSnapshotType.Empty
-                                InvestmentOverview = None
-                                Broker = None
-                                Bank = None
-                                BrokerAccount = None
-                                BankAccount = None
-                            }
+                            return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                     with
                     | _ ->
-                        return Some {
-                            Type = OverviewSnapshotType.Empty
-                            InvestmentOverview = None
-                            Broker = None
-                            Bank = None
-                            BrokerAccount = None
-                            BankAccount = None
-                        }
+                        return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                 })
             |> Async.Parallel
             |> Async.RunSynchronously
@@ -225,40 +186,12 @@ module internal DataLoader =
                         let! latestSnapshot = BankSnapshotExtensions.Do.getLatestByBankId bank.Id |> Async.AwaitTask
                         match latestSnapshot with
                         | Some dbSnapshot ->
-                            return Some {
-                                Type = OverviewSnapshotType.Bank
-                                InvestmentOverview = None
-                                Broker = None
-                                Bank = Some {
-                                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
-                                    Bank = bank
-                                    TotalBalance = dbSnapshot.TotalBalance.Value
-                                    InterestEarned = dbSnapshot.InterestEarned.Value
-                                    FeesPaid = dbSnapshot.FeesPaid.Value
-                                    AccountCount = dbSnapshot.AccountCount
-                                }
-                                BrokerAccount = None
-                                BankAccount = None
-                            }
+                            return Some (dbSnapshot.bankSnapshotToOverviewSnapshot(bank))
                         | None ->
-                            return Some {
-                                Type = OverviewSnapshotType.Empty
-                                InvestmentOverview = None
-                                Broker = None
-                                Bank = None
-                                BrokerAccount = None
-                                BankAccount = None
-                            }
+                            return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                     with
                     | _ ->
-                        return Some {
-                            Type = OverviewSnapshotType.Empty
-                            InvestmentOverview = None
-                            Broker = None
-                            Bank = None
-                            BrokerAccount = None
-                            BankAccount = None
-                        }
+                        return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                 })
             |> Async.Parallel
             |> Async.RunSynchronously
@@ -282,50 +215,12 @@ module internal DataLoader =
                         let! latestSnapshot = BrokerAccountSnapshotExtensions.Do.getLatestByBrokerAccountId brokerAccount.Id |> Async.AwaitTask
                         match latestSnapshot with
                         | Some dbSnapshot ->
-                            return Some {
-                                Type = OverviewSnapshotType.BrokerAccount
-                                InvestmentOverview = None
-                                Broker = None
-                                Bank = None
-                                BrokerAccount = Some {
-                                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
-                                    BrokerAccount = brokerAccount
-                                    PortfolioValue = dbSnapshot.PortfolioValue.Value
-                                    RealizedGains = dbSnapshot.RealizedGains.Value
-                                    RealizedPercentage = dbSnapshot.RealizedPercentage
-                                    UnrealizedGains = dbSnapshot.UnrealizedGains.Value
-                                    UnrealizedGainsPercentage = dbSnapshot.UnrealizedGainsPercentage
-                                    Invested = dbSnapshot.Invested.Value
-                                    Commissions = dbSnapshot.Commissions.Value
-                                    Fees = dbSnapshot.Fees.Value
-                                    Deposited = dbSnapshot.Deposited.Value
-                                    Withdrawn = dbSnapshot.Withdrawn.Value
-                                    DividendsReceived = dbSnapshot.DividendsReceived.Value
-                                    OptionsIncome = dbSnapshot.OptionsIncome.Value
-                                    OtherIncome = dbSnapshot.OtherIncome.Value
-                                    OpenTrades = dbSnapshot.OpenTrades
-                                }
-                                BankAccount = None
-                            }
+                            return Some (dbSnapshot.brokerAccountSnapshotToOverviewSnapshot(brokerAccount))
                         | None ->
-                            return Some {
-                                Type = OverviewSnapshotType.Empty
-                                InvestmentOverview = None
-                                Broker = None
-                                Bank = None
-                                BrokerAccount = None
-                                BankAccount = None
-                            }
+                            return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                     with
                     | _ ->
-                        return Some {
-                            Type = OverviewSnapshotType.Empty
-                            InvestmentOverview = None
-                            Broker = None
-                            Bank = None
-                            BrokerAccount = None
-                            BankAccount = None
-                        }
+                        return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                 })
             |> Async.Parallel
             |> Async.RunSynchronously
@@ -349,39 +244,12 @@ module internal DataLoader =
                         let! latestSnapshot = BankAccountSnapshotExtensions.Do.getLatestByBankAccountId bankAccount.Id |> Async.AwaitTask
                         match latestSnapshot with
                         | Some dbSnapshot ->
-                            return Some {
-                                Type = OverviewSnapshotType.BankAccount
-                                InvestmentOverview = None
-                                Broker = None
-                                Bank = None
-                                BrokerAccount = None
-                                BankAccount = Some {
-                                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
-                                    BankAccount = bankAccount
-                                    Balance = dbSnapshot.Balance.Value
-                                    InterestEarned = dbSnapshot.InterestEarned.Value
-                                    FeesPaid = dbSnapshot.FeesPaid.Value
-                                }
-                            }
+                            return Some (dbSnapshot.bankAccountSnapshotToOverviewSnapshot(bankAccount))
                         | None ->
-                            return Some {
-                                Type = OverviewSnapshotType.Empty
-                                InvestmentOverview = None
-                                Broker = None
-                                Bank = None
-                                BrokerAccount = None
-                                BankAccount = None
-                            }
+                            return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                     with
                     | _ ->
-                        return Some {
-                            Type = OverviewSnapshotType.Empty
-                            InvestmentOverview = None
-                            Broker = None
-                            Bank = None
-                            BrokerAccount = None
-                            BankAccount = None
-                        }
+                        return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                 })
             |> Async.Parallel
             |> Async.RunSynchronously
