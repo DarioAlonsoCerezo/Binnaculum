@@ -77,6 +77,13 @@ module Collections =
     let Tickers = new SourceList<Ticker>()
 
     /// <summary>
+    /// This collection stores the latest snapshots for all entity types (brokers, banks, broker accounts, bank accounts).
+    /// Each snapshot represents the most recent state of an entity and uses the Type field to discriminate between different snapshot types.
+    /// Use the Type field and corresponding optional properties to access specific snapshot data.
+    /// </summary>
+    let Snapshots = new SourceList<OverviewSnapshot>()
+
+    /// <summary>
     /// This function is used to get a broker by its ID.
     /// It searches through the Brokers collection and returns the first broker that matches the provided ID.
     /// </summary>
