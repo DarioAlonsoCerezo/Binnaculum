@@ -172,7 +172,22 @@ module internal DataLoader =
             |> Array.choose id
             |> Array.toList
         
-        Collections.Snapshots.AddRange(snapshots)
+        snapshots
+        |> List.iter (fun newSnapshot ->
+            if newSnapshot.Type = OverviewSnapshotType.Broker && newSnapshot.Broker.IsSome then
+                let brokerId = newSnapshot.Broker.Value.Broker.Id
+                let existingSnapshot = Collections.Snapshots.Items 
+                                     |> Seq.tryFind (fun s -> s.Type = OverviewSnapshotType.Broker && s.Broker.IsSome && s.Broker.Value.Broker.Id = brokerId)
+                match existingSnapshot with
+                | Some existing when existing <> newSnapshot ->
+                    Collections.Snapshots.Replace(existing, newSnapshot)
+                | None ->
+                    Collections.Snapshots.Add(newSnapshot)
+                | Some _ -> () // Same snapshot, no action needed
+            else
+                // For empty snapshots, just add them if they don't exist
+                Collections.Snapshots.Add(newSnapshot)
+        )
     }
 
     let private loadLatestBankSnapshots() = task {
@@ -198,7 +213,22 @@ module internal DataLoader =
             |> Array.choose id
             |> Array.toList
         
-        Collections.Snapshots.AddRange(snapshots)
+        snapshots
+        |> List.iter (fun newSnapshot ->
+            if newSnapshot.Type = OverviewSnapshotType.Bank && newSnapshot.Bank.IsSome then
+                let bankId = newSnapshot.Bank.Value.Bank.Id
+                let existingSnapshot = Collections.Snapshots.Items 
+                                     |> Seq.tryFind (fun s -> s.Type = OverviewSnapshotType.Bank && s.Bank.IsSome && s.Bank.Value.Bank.Id = bankId)
+                match existingSnapshot with
+                | Some existing when existing <> newSnapshot ->
+                    Collections.Snapshots.Replace(existing, newSnapshot)
+                | None ->
+                    Collections.Snapshots.Add(newSnapshot)
+                | Some _ -> () // Same snapshot, no action needed
+            else
+                // For empty snapshots, just add them if they don't exist
+                Collections.Snapshots.Add(newSnapshot)
+        )
     }
 
     let private loadLatestBrokerAccountSnapshots() = task {
@@ -227,7 +257,22 @@ module internal DataLoader =
             |> Array.choose id
             |> Array.toList
         
-        Collections.Snapshots.AddRange(snapshots)
+        snapshots
+        |> List.iter (fun newSnapshot ->
+            if newSnapshot.Type = OverviewSnapshotType.BrokerAccount && newSnapshot.BrokerAccount.IsSome then
+                let brokerAccountId = newSnapshot.BrokerAccount.Value.BrokerAccount.Id
+                let existingSnapshot = Collections.Snapshots.Items 
+                                     |> Seq.tryFind (fun s -> s.Type = OverviewSnapshotType.BrokerAccount && s.BrokerAccount.IsSome && s.BrokerAccount.Value.BrokerAccount.Id = brokerAccountId)
+                match existingSnapshot with
+                | Some existing when existing <> newSnapshot ->
+                    Collections.Snapshots.Replace(existing, newSnapshot)
+                | None ->
+                    Collections.Snapshots.Add(newSnapshot)
+                | Some _ -> () // Same snapshot, no action needed
+            else
+                // For empty snapshots, just add them if they don't exist
+                Collections.Snapshots.Add(newSnapshot)
+        )
     }
 
     let private loadLatestBankAccountSnapshots() = task {
@@ -256,11 +301,25 @@ module internal DataLoader =
             |> Array.choose id
             |> Array.toList
         
-        Collections.Snapshots.AddRange(snapshots)
+        snapshots
+        |> List.iter (fun newSnapshot ->
+            if newSnapshot.Type = OverviewSnapshotType.BankAccount && newSnapshot.BankAccount.IsSome then
+                let bankAccountId = newSnapshot.BankAccount.Value.BankAccount.Id
+                let existingSnapshot = Collections.Snapshots.Items 
+                                     |> Seq.tryFind (fun s -> s.Type = OverviewSnapshotType.BankAccount && s.BankAccount.IsSome && s.BankAccount.Value.BankAccount.Id = bankAccountId)
+                match existingSnapshot with
+                | Some existing when existing <> newSnapshot ->
+                    Collections.Snapshots.Replace(existing, newSnapshot)
+                | None ->
+                    Collections.Snapshots.Add(newSnapshot)
+                | Some _ -> () // Same snapshot, no action needed
+            else
+                // For empty snapshots, just add them if they don't exist
+                Collections.Snapshots.Add(newSnapshot)
+        )
     }
 
     let loadLatestSnapshots() = task {
-        Collections.Snapshots.Clear()
         do! loadLatestBrokerSnapshots() |> Async.AwaitTask |> Async.Ignore
         do! loadLatestBankSnapshots() |> Async.AwaitTask |> Async.Ignore
         do! loadLatestBrokerAccountSnapshots() |> Async.AwaitTask |> Async.Ignore

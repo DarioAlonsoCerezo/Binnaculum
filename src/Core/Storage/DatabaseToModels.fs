@@ -1,5 +1,6 @@
 ﻿namespace Binnaculum.Core.Storage
 
+open System
 open System.Runtime.CompilerServices
 open Binnaculum.Core.Models
 open DiscriminatedToModel
@@ -410,7 +411,7 @@ module internal DatabaseToModels =
                 Type = OverviewSnapshotType.Broker
                 InvestmentOverview = None
                 Broker = Some {
-                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                     Broker = broker
                     PortfoliosValue = dbSnapshot.PortfoliosValue.Value
                     RealizedGains = dbSnapshot.RealizedGains.Value
@@ -440,7 +441,7 @@ module internal DatabaseToModels =
                 InvestmentOverview = None
                 Broker = None
                 Bank = Some {
-                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                     Bank = bank
                     TotalBalance = dbSnapshot.TotalBalance.Value
                     InterestEarned = dbSnapshot.InterestEarned.Value
@@ -459,7 +460,7 @@ module internal DatabaseToModels =
                 Broker = None
                 Bank = None
                 BrokerAccount = Some {
-                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                     BrokerAccount = brokerAccount
                     PortfolioValue = dbSnapshot.PortfolioValue.Value
                     RealizedGains = dbSnapshot.RealizedGains.Value
@@ -488,7 +489,7 @@ module internal DatabaseToModels =
                 Bank = None
                 BrokerAccount = None
                 BankAccount = Some {
-                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                     BankAccount = bankAccount
                     Balance = dbSnapshot.Balance.Value
                     InterestEarned = dbSnapshot.InterestEarned.Value
