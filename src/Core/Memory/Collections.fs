@@ -77,6 +77,30 @@ module Collections =
     let Tickers = new SourceList<Ticker>()
 
     /// <summary>
+    /// This collection stores the latest snapshots for brokers.
+    /// Each snapshot represents the most recent state of a broker including portfolio value, gains, etc.
+    /// </summary>
+    let BrokerSnapshots = new SourceList<OverviewSnapshot>()
+
+    /// <summary>
+    /// This collection stores the latest snapshots for banks.
+    /// Each snapshot represents the most recent state of a bank including total balance, interest, etc.
+    /// </summary>
+    let BankSnapshots = new SourceList<OverviewSnapshot>()
+
+    /// <summary>
+    /// This collection stores the latest snapshots for broker accounts.
+    /// Each snapshot represents the most recent state of a broker account including portfolio value, gains, etc.
+    /// </summary>
+    let BrokerAccountSnapshots = new SourceList<OverviewSnapshot>()
+
+    /// <summary>
+    /// This collection stores the latest snapshots for bank accounts.
+    /// Each snapshot represents the most recent state of a bank account including balance, interest, etc.
+    /// </summary>
+    let BankAccountSnapshots = new SourceList<OverviewSnapshot>()
+
+    /// <summary>
     /// This function is used to get a broker by its ID.
     /// It searches through the Brokers collection and returns the first broker that matches the provided ID.
     /// </summary>

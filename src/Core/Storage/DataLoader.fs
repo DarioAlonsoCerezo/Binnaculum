@@ -149,6 +149,255 @@ module internal DataLoader =
             Collections.Accounts.EditDiff allAccounts
     }
 
+    let private loadLatestBrokerSnapshots() = task {
+        let brokers = Collections.Brokers.Items
+        let snapshots = 
+            brokers
+            |> Seq.filter (fun b -> b.Id > 0) // Exclude the default "-1" broker
+            |> Seq.map (fun broker ->
+                async {
+                    try
+                        let! latestSnapshot = BrokerSnapshotExtensions.Do.getLatestByBrokerId broker.Id |> Async.AwaitTask
+                        match latestSnapshot with
+                        | Some dbSnapshot ->
+                            return Some {
+                                Type = OverviewSnapshotType.Broker
+                                InvestmentOverview = None
+                                Broker = Some {
+                                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                                    Broker = broker
+                                    PortfoliosValue = dbSnapshot.PortfoliosValue.Value
+                                    RealizedGains = dbSnapshot.RealizedGains.Value
+                                    RealizedPercentage = dbSnapshot.RealizedPercentage
+                                    UnrealizedGains = dbSnapshot.UnrealizedGains.Value
+                                    UnrealizedGainsPercentage = dbSnapshot.UnrealizedGainsPercentage
+                                    AccountCount = dbSnapshot.AccountCount
+                                    Invested = dbSnapshot.Invested.Value
+                                    Commissions = dbSnapshot.Commissions.Value
+                                    Fees = dbSnapshot.Fees.Value
+                                    Deposited = dbSnapshot.Deposited.Value
+                                    Withdrawn = dbSnapshot.Withdrawn.Value
+                                    DividendsReceived = dbSnapshot.DividendsReceived.Value
+                                    OptionsIncome = dbSnapshot.OptionsIncome.Value
+                                    OtherIncome = dbSnapshot.OtherIncome.Value
+                                    OpenTrades = dbSnapshot.OpenTrades
+                                }
+                                Bank = None
+                                BrokerAccount = None
+                                BankAccount = None
+                            }
+                        | None ->
+                            return Some {
+                                Type = OverviewSnapshotType.Empty
+                                InvestmentOverview = None
+                                Broker = None
+                                Bank = None
+                                BrokerAccount = None
+                                BankAccount = None
+                            }
+                    with
+                    | _ ->
+                        return Some {
+                            Type = OverviewSnapshotType.Empty
+                            InvestmentOverview = None
+                            Broker = None
+                            Bank = None
+                            BrokerAccount = None
+                            BankAccount = None
+                        }
+                })
+            |> Async.Parallel
+            |> Async.RunSynchronously
+            |> Array.choose id
+            |> Array.toList
+        
+        Collections.BrokerSnapshots.EditDiff(snapshots)
+    }
+
+    let private loadLatestBankSnapshots() = task {
+        let banks = Collections.Banks.Items
+        let snapshots = 
+            banks
+            |> Seq.filter (fun b -> b.Id > 0) // Exclude the default "-1" bank
+            |> Seq.map (fun bank ->
+                async {
+                    try
+                        let! latestSnapshot = BankSnapshotExtensions.Do.getLatestByBankId bank.Id |> Async.AwaitTask
+                        match latestSnapshot with
+                        | Some dbSnapshot ->
+                            return Some {
+                                Type = OverviewSnapshotType.Bank
+                                InvestmentOverview = None
+                                Broker = None
+                                Bank = Some {
+                                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                                    Bank = bank
+                                    TotalBalance = dbSnapshot.TotalBalance.Value
+                                    InterestEarned = dbSnapshot.InterestEarned.Value
+                                    FeesPaid = dbSnapshot.FeesPaid.Value
+                                    AccountCount = dbSnapshot.AccountCount
+                                }
+                                BrokerAccount = None
+                                BankAccount = None
+                            }
+                        | None ->
+                            return Some {
+                                Type = OverviewSnapshotType.Empty
+                                InvestmentOverview = None
+                                Broker = None
+                                Bank = None
+                                BrokerAccount = None
+                                BankAccount = None
+                            }
+                    with
+                    | _ ->
+                        return Some {
+                            Type = OverviewSnapshotType.Empty
+                            InvestmentOverview = None
+                            Broker = None
+                            Bank = None
+                            BrokerAccount = None
+                            BankAccount = None
+                        }
+                })
+            |> Async.Parallel
+            |> Async.RunSynchronously
+            |> Array.choose id
+            |> Array.toList
+        
+        Collections.BankSnapshots.EditDiff(snapshots)
+    }
+
+    let private loadLatestBrokerAccountSnapshots() = task {
+        let brokerAccounts = 
+            Collections.Accounts.Items 
+            |> Seq.filter (fun a -> a.Broker.IsSome)
+            |> Seq.map (fun a -> a.Broker.Value)
+        
+        let snapshots = 
+            brokerAccounts
+            |> Seq.map (fun brokerAccount ->
+                async {
+                    try
+                        let! latestSnapshot = BrokerAccountSnapshotExtensions.Do.getLatestByBrokerAccountId brokerAccount.Id |> Async.AwaitTask
+                        match latestSnapshot with
+                        | Some dbSnapshot ->
+                            return Some {
+                                Type = OverviewSnapshotType.BrokerAccount
+                                InvestmentOverview = None
+                                Broker = None
+                                Bank = None
+                                BrokerAccount = Some {
+                                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                                    BrokerAccount = brokerAccount
+                                    PortfolioValue = dbSnapshot.PortfolioValue.Value
+                                    RealizedGains = dbSnapshot.RealizedGains.Value
+                                    RealizedPercentage = dbSnapshot.RealizedPercentage
+                                    UnrealizedGains = dbSnapshot.UnrealizedGains.Value
+                                    UnrealizedGainsPercentage = dbSnapshot.UnrealizedGainsPercentage
+                                    Invested = dbSnapshot.Invested.Value
+                                    Commissions = dbSnapshot.Commissions.Value
+                                    Fees = dbSnapshot.Fees.Value
+                                    Deposited = dbSnapshot.Deposited.Value
+                                    Withdrawn = dbSnapshot.Withdrawn.Value
+                                    DividendsReceived = dbSnapshot.DividendsReceived.Value
+                                    OptionsIncome = dbSnapshot.OptionsIncome.Value
+                                    OtherIncome = dbSnapshot.OtherIncome.Value
+                                    OpenTrades = dbSnapshot.OpenTrades
+                                }
+                                BankAccount = None
+                            }
+                        | None ->
+                            return Some {
+                                Type = OverviewSnapshotType.Empty
+                                InvestmentOverview = None
+                                Broker = None
+                                Bank = None
+                                BrokerAccount = None
+                                BankAccount = None
+                            }
+                    with
+                    | _ ->
+                        return Some {
+                            Type = OverviewSnapshotType.Empty
+                            InvestmentOverview = None
+                            Broker = None
+                            Bank = None
+                            BrokerAccount = None
+                            BankAccount = None
+                        }
+                })
+            |> Async.Parallel
+            |> Async.RunSynchronously
+            |> Array.choose id
+            |> Array.toList
+        
+        Collections.BrokerAccountSnapshots.EditDiff(snapshots)
+    }
+
+    let private loadLatestBankAccountSnapshots() = task {
+        let bankAccounts = 
+            Collections.Accounts.Items 
+            |> Seq.filter (fun a -> a.Bank.IsSome)
+            |> Seq.map (fun a -> a.Bank.Value)
+        
+        let snapshots = 
+            bankAccounts
+            |> Seq.map (fun bankAccount ->
+                async {
+                    try
+                        let! latestSnapshot = BankAccountSnapshotExtensions.Do.getLatestByBankAccountId bankAccount.Id |> Async.AwaitTask
+                        match latestSnapshot with
+                        | Some dbSnapshot ->
+                            return Some {
+                                Type = OverviewSnapshotType.BankAccount
+                                InvestmentOverview = None
+                                Broker = None
+                                Bank = None
+                                BrokerAccount = None
+                                BankAccount = Some {
+                                    Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.DateTime)
+                                    BankAccount = bankAccount
+                                    Balance = dbSnapshot.Balance.Value
+                                    InterestEarned = dbSnapshot.InterestEarned.Value
+                                    FeesPaid = dbSnapshot.FeesPaid.Value
+                                }
+                            }
+                        | None ->
+                            return Some {
+                                Type = OverviewSnapshotType.Empty
+                                InvestmentOverview = None
+                                Broker = None
+                                Bank = None
+                                BrokerAccount = None
+                                BankAccount = None
+                            }
+                    with
+                    | _ ->
+                        return Some {
+                            Type = OverviewSnapshotType.Empty
+                            InvestmentOverview = None
+                            Broker = None
+                            Bank = None
+                            BrokerAccount = None
+                            BankAccount = None
+                        }
+                })
+            |> Async.Parallel
+            |> Async.RunSynchronously
+            |> Array.choose id
+            |> Array.toList
+        
+        Collections.BankAccountSnapshots.EditDiff(snapshots)
+    }
+
+    let loadLatestSnapshots() = task {
+        do! loadLatestBrokerSnapshots() |> Async.AwaitTask |> Async.Ignore
+        do! loadLatestBankSnapshots() |> Async.AwaitTask |> Async.Ignore
+        do! loadLatestBrokerAccountSnapshots() |> Async.AwaitTask |> Async.Ignore
+        do! loadLatestBankAccountSnapshots() |> Async.AwaitTask |> Async.Ignore
+    }
+
     let loadBasicData() = task {
         do! getAllCurrencies() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefreshAllBrokers() |> Async.AwaitTask |> Async.Ignore
@@ -159,6 +408,7 @@ module internal DataLoader =
 
     let initialization() = task {
         do! getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
+        do! loadLatestSnapshots() |> Async.AwaitTask |> Async.Ignore
     }
 
     let private updateBankAccount(account: Account, movements: Movement list) = 
