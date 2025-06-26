@@ -304,6 +304,7 @@ module Models =
     }
 
     type OverviewSnapshotType =
+        | Empty
         | InvestmentOverview
         | Broker
         | Bank
