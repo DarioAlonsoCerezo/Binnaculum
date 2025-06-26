@@ -265,6 +265,11 @@ module Models =
         Invested: decimal
         Commissions: decimal
         Fees: decimal
+        Deposited: decimal
+        Withdrawn: decimal
+        DividendsReceived: decimal
+        OptionsIncome: decimal
+        OtherIncome: decimal
         OpenTrades: bool
     }
     
