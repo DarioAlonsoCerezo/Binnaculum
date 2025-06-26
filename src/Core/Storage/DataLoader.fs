@@ -364,45 +364,6 @@ module internal DataLoader =
         do! loadLatestTickerSnapshots() |> Async.AwaitTask |> Async.Ignore
     }
 
-    let loadTickerSnapshotsByTickerId(tickerId: int) = task {
-        try
-            let! dbSnapshots = TickerSnapshotExtensions.Do.getByTickerId tickerId |> Async.AwaitTask
-            let snapshots = dbSnapshots.tickerSnapshotsToModel()
-            
-            // Remove existing snapshots for this ticker
-            let tickerSnapshotsToRemove = Collections.TickerSnapshots.Items
-                                        |> Seq.filter (fun s -> s.Ticker.Id = tickerId)
-                                        |> Seq.toList
-            
-            tickerSnapshotsToRemove |> List.iter (fun snapshot -> Collections.TickerSnapshots.Remove(snapshot) |> ignore)
-            snapshots |> List.iter (fun snapshot -> Collections.TickerSnapshots.Add(snapshot))
-        with
-        | ex -> 
-            // Log error or handle as appropriate - for now just ignore
-            ()
-    }
-
-    let loadLatestTickerSnapshotByTickerId(tickerId: int) = task {
-        try
-            let! dbSnapshot = TickerSnapshotExtensions.Do.getLatestByTickerId tickerId |> Async.AwaitTask
-            match dbSnapshot with
-            | Some snapshot ->
-                let modelSnapshot = snapshot.tickerSnapshotToModel()
-                let existingSnapshot = Collections.TickerSnapshots.Items 
-                                     |> Seq.tryFind (fun s -> s.Ticker.Id = tickerId)
-                match existingSnapshot with
-                | Some existing when existing <> modelSnapshot ->
-                    Collections.TickerSnapshots.Replace(existing, modelSnapshot)
-                | None ->
-                    Collections.TickerSnapshots.Add(modelSnapshot)
-                | Some _ -> () // Same snapshot, no action needed
-            | None -> ()
-        with
-        | ex -> 
-            // Log error or handle as appropriate - for now just ignore
-            ()
-    }
-
     let loadBasicData() = task {
         do! getAllCurrencies() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefreshAllBrokers() |> Async.AwaitTask |> Async.Ignore
