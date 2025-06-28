@@ -46,18 +46,18 @@ module internal SnapshotsModel =
         Base: BaseSnapshot
         BrokerAccountId: int
         PortfolioValue: Money // End-of-day portfolio value
-        RealizedGains: Money // Cumulative realized gains
+        RealizedGains: Money // Cumulative realized gains - Default currency: USD
         RealizedPercentage: decimal // Percentage of realized gains
-        UnrealizedGains: Money // Unrealized gains/losses
+        UnrealizedGains: Money // Unrealized gains/losses - Default currency: USD
         UnrealizedGainsPercentage: decimal // Percentage of unrealized gains
-        Invested: Money // Total invested amount
-        Commissions: Money // Total commissions paid
-        Fees: Money // Total fees paid
-        Deposited: Money // Total amount deposited into the account
-        Withdrawn: Money // Total amount withdrawn from the account
-        DividendsReceived: Money // Total dividends received
-        OptionsIncome: Money // Total options premiums received
-        OtherIncome: Money // Total other income (e.g., interest, miscellaneous credits)
+        Invested: Money // Total invested amount - Default currency: USD
+        Commissions: Money // Total commissions paid - Default currency: USD
+        Fees: Money // Total fees paid - Default currency: USD
+        Deposited: Money // Total amount deposited into the account - Default currency: USD
+        Withdrawn: Money // Total amount withdrawn from the account - Default currency: USD
+        DividendsReceived: Money // Total dividends received - Default currency: USD
+        OptionsIncome: Money // Total options premiums received - Default currency: USD
+        OtherIncome: Money // Total other income (e.g., interest, miscellaneous credits) - Default currency: USD
         OpenTrades: bool // Whether there are open trades
     } with
         interface IEntity with
@@ -73,19 +73,19 @@ module internal SnapshotsModel =
         Base: BaseSnapshot
         BrokerId: int
         PortfoliosValue: Money // End-of-day portfolio value
-        RealizedGains: Money // Cumulative realized gains across all accounts
+        RealizedGains: Money // Cumulative realized gains across all accounts - Default currency: USD
         RealizedPercentage: decimal // Percentage of realized gains
-        UnrealizedGains: Money // Unrealized gains/losses across all accounts
+        UnrealizedGains: Money // Unrealized gains/losses across all accounts - Default currency: USD
         UnrealizedGainsPercentage: decimal // Percentage of unrealized gains
         AccountCount: int // Number of accounts
-        Invested: Money // Total invested amount
-        Commissions: Money // Total commissions paid
-        Fees: Money // Total fees paid
-        Deposited: Money // Total amount deposited across all accounts
-        Withdrawn: Money // Total amount withdrawn across all accounts
-        DividendsReceived: Money // Total dividends received across all accounts
-        OptionsIncome: Money // Total options premiums received across all accounts
-        OtherIncome: Money // Total other income across all accounts
+        Invested: Money // Total invested amount - Default currency: USD
+        Commissions: Money // Total commissions paid - Default currency: USD
+        Fees: Money // Total fees paid - Default currency: USD
+        Deposited: Money // Total amount deposited across all accounts - Default currency: USD
+        Withdrawn: Money // Total amount withdrawn across all accounts - Default currency: USD
+        DividendsReceived: Money // Total dividends received across all accounts - Default currency: USD
+        OptionsIncome: Money // Total options premiums received across all accounts - Default currency: USD
+        OtherIncome: Money // Total other income across all accounts - Default currency: USD
         OpenTrades: bool // Whether there are open trades across all accounts
     } with
         interface IEntity with
