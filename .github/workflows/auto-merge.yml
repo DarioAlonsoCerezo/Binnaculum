@@ -23,7 +23,7 @@ jobs:
   delete-branch:
     needs: enable-auto-merge
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && github.event.pull_request.draft == false
+    if: github.event.pull_request.merged == true
     steps:
       - name: Delete branch after merge
         uses: peter-evans/delete-branch@v4
