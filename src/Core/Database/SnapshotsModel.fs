@@ -16,6 +16,22 @@ module internal SnapshotsModel =
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
 
+    type BrokerFinancialSnapshot = {
+        RealizedGains: Money // Cumulative realized gains - Default currency: USD
+        RealizedPercentage: decimal // Percentage of realized gains
+        UnrealizedGains: Money // Unrealized gains/losses - Default currency: USD
+        UnrealizedGainsPercentage: decimal // Percentage of unrealized gains
+        Invested: Money // Total invested amount - Default currency: USD
+        Commissions: Money // Total commissions paid - Default currency: USD
+        Fees: Money // Total fees paid - Default currency: USD
+        Deposited: Money // Total amount deposited - Default currency: USD
+        Withdrawn: Money // Total amount withdrawn - Default currency: USD
+        DividendsReceived: Money // Total dividends received - Default currency: USD
+        OptionsIncome: Money // Total options premiums received - Default currency: USD
+        OtherIncome: Money // Total other income - Default currency: USD
+        OpenTrades: bool // Whether there are open trades
+    }
+
     type TickerSnapshot = {
         Base: BaseSnapshot
         TickerId: int
@@ -46,19 +62,7 @@ module internal SnapshotsModel =
         Base: BaseSnapshot
         BrokerAccountId: int
         PortfolioValue: Money // End-of-day portfolio value
-        RealizedGains: Money // Cumulative realized gains - Default currency: USD
-        RealizedPercentage: decimal // Percentage of realized gains
-        UnrealizedGains: Money // Unrealized gains/losses - Default currency: USD
-        UnrealizedGainsPercentage: decimal // Percentage of unrealized gains
-        Invested: Money // Total invested amount - Default currency: USD
-        Commissions: Money // Total commissions paid - Default currency: USD
-        Fees: Money // Total fees paid - Default currency: USD
-        Deposited: Money // Total amount deposited into the account - Default currency: USD
-        Withdrawn: Money // Total amount withdrawn from the account - Default currency: USD
-        DividendsReceived: Money // Total dividends received - Default currency: USD
-        OptionsIncome: Money // Total options premiums received - Default currency: USD
-        OtherIncome: Money // Total other income (e.g., interest, miscellaneous credits) - Default currency: USD
-        OpenTrades: bool // Whether there are open trades
+        Financial: BrokerFinancialSnapshot
     } with
         interface IEntity with
             member this.Id = this.Base.Id
@@ -73,20 +77,8 @@ module internal SnapshotsModel =
         Base: BaseSnapshot
         BrokerId: int
         PortfoliosValue: Money // End-of-day portfolio value
-        RealizedGains: Money // Cumulative realized gains across all accounts - Default currency: USD
-        RealizedPercentage: decimal // Percentage of realized gains
-        UnrealizedGains: Money // Unrealized gains/losses across all accounts - Default currency: USD
-        UnrealizedGainsPercentage: decimal // Percentage of unrealized gains
         AccountCount: int // Number of accounts
-        Invested: Money // Total invested amount - Default currency: USD
-        Commissions: Money // Total commissions paid - Default currency: USD
-        Fees: Money // Total fees paid - Default currency: USD
-        Deposited: Money // Total amount deposited across all accounts - Default currency: USD
-        Withdrawn: Money // Total amount withdrawn across all accounts - Default currency: USD
-        DividendsReceived: Money // Total dividends received across all accounts - Default currency: USD
-        OptionsIncome: Money // Total options premiums received across all accounts - Default currency: USD
-        OtherIncome: Money // Total other income across all accounts - Default currency: USD
-        OpenTrades: bool // Whether there are open trades across all accounts
+        Financial: BrokerFinancialSnapshot
     } with
         interface IEntity with
             member this.Id = this.Base.Id

@@ -19,19 +19,19 @@ type Do() =
                 (SQLParameterName.Date, snapshot.Base.Date.ToString());
                 (SQLParameterName.BrokerAccountId, snapshot.BrokerAccountId);
                 (SQLParameterName.PortfolioValue, snapshot.PortfolioValue.Value);
-                (SQLParameterName.RealizedGains, snapshot.RealizedGains.Value);
-                (SQLParameterName.RealizedPercentage, snapshot.RealizedPercentage);
-                (SQLParameterName.UnrealizedGains, snapshot.UnrealizedGains.Value);
-                (SQLParameterName.UnrealizedGainsPercentage, snapshot.UnrealizedGainsPercentage);
-                (SQLParameterName.Invested, snapshot.Invested.Value);
-                (SQLParameterName.Commissions, snapshot.Commissions.Value);
-                (SQLParameterName.Fees, snapshot.Fees.Value);
-                (SQLParameterName.Deposited, snapshot.Deposited.Value);
-                (SQLParameterName.Withdrawn, snapshot.Withdrawn.Value);
-                (SQLParameterName.DividendsReceived, snapshot.DividendsReceived.Value);
-                (SQLParameterName.OptionsIncome, snapshot.OptionsIncome.Value);
-                (SQLParameterName.OtherIncome, snapshot.OtherIncome.Value);
-                (SQLParameterName.OpenTrades, snapshot.OpenTrades);
+                (SQLParameterName.RealizedGains, snapshot.Financial.RealizedGains.Value);
+                (SQLParameterName.RealizedPercentage, snapshot.Financial.RealizedPercentage);
+                (SQLParameterName.UnrealizedGains, snapshot.Financial.UnrealizedGains.Value);
+                (SQLParameterName.UnrealizedGainsPercentage, snapshot.Financial.UnrealizedGainsPercentage);
+                (SQLParameterName.Invested, snapshot.Financial.Invested.Value);
+                (SQLParameterName.Commissions, snapshot.Financial.Commissions.Value);
+                (SQLParameterName.Fees, snapshot.Financial.Fees.Value);
+                (SQLParameterName.Deposited, snapshot.Financial.Deposited.Value);
+                (SQLParameterName.Withdrawn, snapshot.Financial.Withdrawn.Value);
+                (SQLParameterName.DividendsReceived, snapshot.Financial.DividendsReceived.Value);
+                (SQLParameterName.OptionsIncome, snapshot.Financial.OptionsIncome.Value);
+                (SQLParameterName.OtherIncome, snapshot.Financial.OtherIncome.Value);
+                (SQLParameterName.OpenTrades, snapshot.Financial.OpenTrades);
             ], snapshot)
 
     [<Extension>]
@@ -41,10 +41,7 @@ type Do() =
             Date = reader.getDateTimePattern FieldName.Date
             Audit = reader.getAudit()
         }
-        {
-            Base = baseSnapshot
-            BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
-            PortfolioValue = reader.getMoney FieldName.PortfolioValue
+        let financialSnapshot = {
             RealizedGains = reader.getMoney FieldName.RealizedGains
             RealizedPercentage = reader.getDecimal FieldName.RealizedPercentage
             UnrealizedGains = reader.getMoney FieldName.UnrealizedGains
@@ -58,6 +55,12 @@ type Do() =
             OptionsIncome = reader.getMoney FieldName.OptionsIncome
             OtherIncome = reader.getMoney FieldName.OtherIncome
             OpenTrades = reader.getBoolean FieldName.OpenTrades
+        }
+        {
+            Base = baseSnapshot
+            BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
+            PortfolioValue = reader.getMoney FieldName.PortfolioValue
+            Financial = financialSnapshot
         }
 
     [<Extension>]
