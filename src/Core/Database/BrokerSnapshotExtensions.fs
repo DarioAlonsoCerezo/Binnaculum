@@ -19,37 +19,29 @@ type Do() =
                 (SQLParameterName.Date, snapshot.Base.Date.ToString());
                 (SQLParameterName.BrokerId, snapshot.BrokerId);
                 (SQLParameterName.PortfoliosValue, snapshot.PortfoliosValue.Value);
-                (SQLParameterName.RealizedGains, snapshot.RealizedGains.Value);
-                (SQLParameterName.RealizedPercentage, snapshot.RealizedPercentage);
-                (SQLParameterName.UnrealizedGains, snapshot.UnrealizedGains.Value);
-                (SQLParameterName.UnrealizedGainsPercentage, snapshot.UnrealizedGainsPercentage);
+                (SQLParameterName.RealizedGains, snapshot.Financial.RealizedGains.Value);
+                (SQLParameterName.RealizedPercentage, snapshot.Financial.RealizedPercentage);
+                (SQLParameterName.UnrealizedGains, snapshot.Financial.UnrealizedGains.Value);
+                (SQLParameterName.UnrealizedGainsPercentage, snapshot.Financial.UnrealizedGainsPercentage);
                 (SQLParameterName.AccountCount, snapshot.AccountCount);
-                (SQLParameterName.Invested, snapshot.Invested.Value);
-                (SQLParameterName.Commissions, snapshot.Commissions.Value);
-                (SQLParameterName.Fees, snapshot.Fees.Value);
-                (SQLParameterName.Deposited, snapshot.Deposited.Value);
-                (SQLParameterName.Withdrawn, snapshot.Withdrawn.Value);
-                (SQLParameterName.DividendsReceived, snapshot.DividendsReceived.Value);
-                (SQLParameterName.OptionsIncome, snapshot.OptionsIncome.Value);
-                (SQLParameterName.OtherIncome, snapshot.OtherIncome.Value);
-                (SQLParameterName.OpenTrades, snapshot.OpenTrades);
+                (SQLParameterName.Invested, snapshot.Financial.Invested.Value);
+                (SQLParameterName.Commissions, snapshot.Financial.Commissions.Value);
+                (SQLParameterName.Fees, snapshot.Financial.Fees.Value);
+                (SQLParameterName.Deposited, snapshot.Financial.Deposited.Value);
+                (SQLParameterName.Withdrawn, snapshot.Financial.Withdrawn.Value);
+                (SQLParameterName.DividendsReceived, snapshot.Financial.DividendsReceived.Value);
+                (SQLParameterName.OptionsIncome, snapshot.Financial.OptionsIncome.Value);
+                (SQLParameterName.OtherIncome, snapshot.Financial.OtherIncome.Value);
+                (SQLParameterName.OpenTrades, snapshot.Financial.OpenTrades);
             ], snapshot)
 
     [<Extension>]
     static member read(reader: SqliteDataReader) =
-        {
-            Base = {
-                Id = reader.getInt32 FieldName.Id
-                Date = reader.getDateTimePattern FieldName.Date
-                Audit = reader.getAudit()
-            }
-            BrokerId = reader.getInt32 FieldName.BrokerId
-            PortfoliosValue = reader.getMoney FieldName.PortfoliosValue
+        let financialSnapshot = {
             RealizedGains = reader.getMoney FieldName.RealizedGains
             RealizedPercentage = reader.getDecimal FieldName.RealizedPercentage
             UnrealizedGains = reader.getMoney FieldName.UnrealizedGains
             UnrealizedGainsPercentage = reader.getDecimal FieldName.UnrealizedGainsPercentage
-            AccountCount = reader.getInt32 FieldName.AccountCount
             Invested = reader.getMoney FieldName.Invested
             Commissions = reader.getMoney FieldName.Commissions
             Fees = reader.getMoney FieldName.Fees
@@ -59,6 +51,17 @@ type Do() =
             OptionsIncome = reader.getMoney FieldName.OptionsIncome
             OtherIncome = reader.getMoney FieldName.OtherIncome
             OpenTrades = reader.getBoolean FieldName.OpenTrades
+        }
+        {
+            Base = {
+                Id = reader.getInt32 FieldName.Id
+                Date = reader.getDateTimePattern FieldName.Date
+                Audit = reader.getAudit()
+            }
+            BrokerId = reader.getInt32 FieldName.BrokerId
+            PortfoliosValue = reader.getMoney FieldName.PortfoliosValue
+            AccountCount = reader.getInt32 FieldName.AccountCount
+            Financial = financialSnapshot
         }
 
     [<Extension>]
