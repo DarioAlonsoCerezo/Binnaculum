@@ -11,7 +11,7 @@ on:
 jobs:
   enable-auto-merge:
     runs-on: ubuntu-latest
-    if: github.event.review.state == 'approved'
+    if: github.event.review.state == 'approved' && github.event.pull_request.draft == false
     steps:
       - name: Enable auto-merge for PR
         uses: peter-evans/enable-pull-request-automerge@v3
@@ -23,7 +23,7 @@ jobs:
   delete-branch:
     needs: enable-auto-merge
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && github.event.pull_request.draft == false
     steps:
       - name: Delete branch after merge
         uses: peter-evans/delete-branch@v4
