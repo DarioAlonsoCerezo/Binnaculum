@@ -73,7 +73,6 @@ module internal SnapshotsModel =
         Base: BaseSnapshot
         BrokerAccountId: int
         PortfolioValue: Money // End-of-day portfolio value
-        BrokerFinancialSnapshots: BrokerFinancialSnapshot list
     } with
         interface IEntity with
             member this.Id = this.Base.Id
@@ -89,7 +88,6 @@ module internal SnapshotsModel =
         BrokerId: int
         PortfoliosValue: Money // End-of-day portfolio value
         AccountCount: int // Number of accounts
-        BrokerFinancialSnapshots: BrokerFinancialSnapshot list
     } with
         interface IEntity with
             member this.Id = this.Base.Id

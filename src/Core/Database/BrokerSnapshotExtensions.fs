@@ -33,7 +33,6 @@ type Do() =
             BrokerId = reader.getInt32 FieldName.BrokerId
             PortfoliosValue = reader.getMoney FieldName.PortfoliosValue
             AccountCount = reader.getInt32 FieldName.AccountCount
-            BrokerFinancialSnapshots = []
         }
 
     [<Extension>]
