@@ -238,3 +238,7 @@ module internal SQLParameterName =
     // Bank Snapshots
     [<Literal>]
     let TotalBalance = "@TotalBalance"
+    
+    // Broker Financial Snapshots
+    [<Literal>]
+    let MovementCounter = "@MovementCounter"

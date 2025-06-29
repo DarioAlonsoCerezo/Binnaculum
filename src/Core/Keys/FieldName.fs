@@ -235,3 +235,7 @@ module internal FieldName =
     // Bank Snapshots
     [<Literal>]
     let TotalBalance = "TotalBalance"
+    
+    // Broker Financial Snapshots
+    [<Literal>]
+    let MovementCounter = "MovementCounter"
