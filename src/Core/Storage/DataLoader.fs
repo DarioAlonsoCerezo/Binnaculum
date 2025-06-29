@@ -151,43 +151,55 @@ module internal DataLoader =
 
     let private loadLatestBrokerSnapshots() = task {
         let brokers = Collections.Brokers.Items
-        let snapshots = 
+        
+        // Get brokers with valid IDs (exclude default "-1" broker)
+        let brokersWithSnapshots = 
             brokers
             |> Seq.filter (fun b -> b.Id > 0) // Exclude the default "-1" broker
-            |> Seq.map (fun broker ->
-                async {
-                    try
-                        let! latestSnapshot = BrokerSnapshotExtensions.Do.getLatestByBrokerId broker.Id |> Async.AwaitTask
-                        match latestSnapshot with
-                        | Some dbSnapshot ->
-                            return Some (dbSnapshot.brokerSnapshotToOverviewSnapshot(broker))
-                        | None ->
+            |> Seq.toList
+
+        if brokersWithSnapshots.IsEmpty then
+            return []
+        else
+            let snapshots = 
+                brokersWithSnapshots
+                |> Seq.map (fun broker ->
+                    async {
+                        try
+                            let! latestSnapshot = BrokerSnapshotExtensions.Do.getLatestByBrokerId broker.Id |> Async.AwaitTask
+                            match latestSnapshot with
+                            | Some dbSnapshot ->
+                                // Get financial snapshots for this specific broker using the latest date
+                                let! brokerFinancialSnapshots = 
+                                    BrokerFinancialSnapshotExtensions.Do.getLatestByBrokerIdGroupedByDate broker.Id 
+                                    |> Async.AwaitTask
+                                return Some (dbSnapshot.brokerSnapshotToOverviewSnapshot(broker, brokerFinancialSnapshots))
+                            | None ->
+                                return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
+                        with
+                        | _ ->
                             return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
-                    with
-                    | _ ->
-                        return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
-                })
-            |> Async.Parallel
-            |> Async.RunSynchronously
-            |> Array.choose id
-            |> Array.toList
-        
-        snapshots
-        |> List.iter (fun newSnapshot ->
-            if newSnapshot.Type = OverviewSnapshotType.Broker && newSnapshot.Broker.IsSome then
-                let brokerId = newSnapshot.Broker.Value.Broker.Id
-                let existingSnapshot = Collections.Snapshots.Items 
-                                     |> Seq.tryFind (fun s -> s.Type = OverviewSnapshotType.Broker && s.Broker.IsSome && s.Broker.Value.Broker.Id = brokerId)
-                match existingSnapshot with
-                | Some existing when existing <> newSnapshot ->
-                    Collections.Snapshots.Replace(existing, newSnapshot)
-                | None ->
-                    Collections.Snapshots.Add(newSnapshot)
-                | Some _ -> () // Same snapshot, no action needed
-            else
-                // For empty snapshots, just add them if they don't exist
-                Collections.Snapshots.Add(newSnapshot)
-        )
+                    })
+                |> Async.Parallel
+                |> Async.RunSynchronously
+                |> Array.choose id
+                |> Array.toList
+            
+            snapshots
+            |> List.iter (fun newSnapshot ->
+                if newSnapshot.Type = OverviewSnapshotType.Broker && newSnapshot.Broker.IsSome then
+                    let brokerId = newSnapshot.Broker.Value.Broker.Id
+                    let existingSnapshot = Collections.Snapshots.Items 
+                                         |> Seq.tryFind (fun s -> s.Type = OverviewSnapshotType.Broker && s.Broker.IsSome && s.Broker.Value.Broker.Id = brokerId)
+                    match existingSnapshot with
+                    | Some existing when existing <> newSnapshot ->
+                        Collections.Snapshots.Replace(existing, newSnapshot)
+                    | None ->
+                        Collections.Snapshots.Add newSnapshot
+                    | _ -> () // No change needed
+            )
+            
+            return snapshots
     }
 
     let private loadLatestBankSnapshots() = task {

@@ -19,6 +19,8 @@ type BrokerSnapshotTests () =
 
         let mockFinancial = {
             Date = DateOnly.FromDateTime(DateTime.Now)
+            BrokerId = 1 // For specific broker
+            BrokerAccountId = -1 // Default value
             CurrencyId = 1
             MovementCounter = 0
             RealizedGains = 200.0m
@@ -65,6 +67,8 @@ type BrokerSnapshotTests () =
 
         let mockFinancial = {
             Date = DateOnly.FromDateTime(DateTime.Now)
+            BrokerId = 1 // For specific broker
+            BrokerAccountId = -1 // Default value
             CurrencyId = 1
             MovementCounter = 0
             RealizedGains = 200.0m
@@ -84,6 +88,8 @@ type BrokerSnapshotTests () =
 
         let mockFinancialOtherCurrency = {
             Date = DateOnly.FromDateTime(DateTime.Now)
+            BrokerId = 1 // For specific broker
+            BrokerAccountId = -1 // Default value
             CurrencyId = 2 // Different currency (EUR)
             MovementCounter = 0
             RealizedGains = 150.0m
