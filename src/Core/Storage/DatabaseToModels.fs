@@ -428,10 +428,10 @@ module internal DatabaseToModels =
                             TickerSplit = None
                         })
 
-        // Snapshot conversion functions
+        // Snapshot conversion functions (backward compatible)
         [<Extension>]
         static member brokerSnapshotToOverviewSnapshot(dbSnapshot: BrokerSnapshot, broker: Broker) =
-            DatabaseToModels.Do.brokerSnapshotToOverviewSnapshot(dbSnapshot, broker, [])
+            dbSnapshot.brokerSnapshotToOverviewSnapshot(broker, [])
 
         [<Extension>]
         static member brokerSnapshotToOverviewSnapshot(dbSnapshot: BrokerSnapshot, broker: Broker, financialSnapshots: BrokerFinancialSnapshot list) =
