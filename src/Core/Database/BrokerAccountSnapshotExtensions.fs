@@ -32,7 +32,6 @@ type Do() =
             Base = baseSnapshot
             BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
             PortfolioValue = reader.getMoney FieldName.PortfolioValue
-            BrokerFinancialSnapshots = []
         }
 
     [<Extension>]
