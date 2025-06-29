@@ -439,10 +439,11 @@ module internal DatabaseToModels =
                 if financialSnapshots.IsEmpty then
                     // Create empty financial snapshot if no data available
                     let emptySnapshot = {
+                        Id = 0
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                        BrokerId = -1 // Default value indicating not for specific broker
-                        BrokerAccountId = -1 // Default value indicating not for specific broker account
-                        CurrencyId = 0
+                        Broker = None // Default value indicating not for specific broker
+                        BrokerAccount = None // Default value indicating not for specific broker account
+                        Currency = Binnaculum.Core.UI.Collections.getCurrency(0) // TODO: Use default currency
                         MovementCounter = 0
                         RealizedGains = 0.0m
                         RealizedPercentage = 0.0m
@@ -464,10 +465,11 @@ module internal DatabaseToModels =
                     let modelSnapshots = 
                         financialSnapshots
                         |> List.map (fun dbFinancial -> {
+                            Id = dbFinancial.Base.Id
                             Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
-                            BrokerId = dbFinancial.BrokerId
-                            BrokerAccountId = dbFinancial.BrokerAccountId
-                            CurrencyId = dbFinancial.CurrencyId
+                            Broker = if dbFinancial.BrokerId = -1 then None else Some (Binnaculum.Core.UI.Collections.getBroker(dbFinancial.BrokerId))
+                            BrokerAccount = if dbFinancial.BrokerAccountId = -1 then None else Some (Binnaculum.Core.UI.Collections.getBrokerAccount(dbFinancial.BrokerAccountId))
+                            Currency = Binnaculum.Core.UI.Collections.getCurrency(dbFinancial.CurrencyId)
                             MovementCounter = dbFinancial.MovementCounter
                             RealizedGains = dbFinancial.RealizedGains.Value
                             RealizedPercentage = dbFinancial.RealizedPercentage
@@ -491,10 +493,11 @@ module internal DatabaseToModels =
                     | [] -> 
                         // This shouldn't happen since we checked for empty list above, but handle it gracefully
                         let emptySnapshot = {
+                            Id = 0
                             Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                            BrokerId = -1 // Default value indicating not for specific broker
-                            BrokerAccountId = -1 // Default value indicating not for specific broker account
-                            CurrencyId = 0
+                            Broker = None // Default value indicating not for specific broker
+                            BrokerAccount = None // Default value indicating not for specific broker account
+                            Currency = Binnaculum.Core.UI.Collections.getCurrency(0) // TODO: Use default currency
                             MovementCounter = 0
                             RealizedGains = 0.0m
                             RealizedPercentage = 0.0m
@@ -558,10 +561,11 @@ module internal DatabaseToModels =
                     BrokerAccount = brokerAccount
                     PortfolioValue = dbSnapshot.PortfolioValue.Value
                     Financial = {
+                        Id = 0
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                        BrokerId = -1 // Default value indicating not for specific broker
-                        BrokerAccountId = brokerAccount.Id // This is for a specific broker account
-                        CurrencyId = 0 // TODO: Get from BrokerFinancialSnapshots
+                        Broker = None // Default value indicating not for specific broker
+                        BrokerAccount = Some brokerAccount // This is for a specific broker account
+                        Currency = Binnaculum.Core.UI.Collections.getCurrency(0) // TODO: Get from BrokerFinancialSnapshots or use default currency
                         MovementCounter = 0 // TODO: Get from BrokerFinancialSnapshots
                         RealizedGains = 0.0m // TODO: Get from BrokerFinancialSnapshots
                         RealizedPercentage = 0.0m // TODO: Get from BrokerFinancialSnapshots
