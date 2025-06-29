@@ -152,7 +152,7 @@ module internal DataLoader =
     let private loadLatestBrokerSnapshots() = task {
         let brokers = Collections.Brokers.Items
         
-        // Get financial snapshots only once, but only if we have valid brokers
+        // Get brokers with valid IDs (exclude default "-1" broker)
         let brokersWithSnapshots = 
             brokers
             |> Seq.filter (fun b -> b.Id > 0) // Exclude the default "-1" broker
@@ -161,9 +161,6 @@ module internal DataLoader =
         if brokersWithSnapshots.IsEmpty then
             return []
         else
-            // Only get financial snapshots if we have brokers to process
-            let! allFinancialSnapshots = BrokerFinancialSnapshotExtensions.Do.getAll() |> Async.AwaitTask
-            
             let snapshots = 
                 brokersWithSnapshots
                 |> Seq.map (fun broker ->
@@ -172,7 +169,11 @@ module internal DataLoader =
                             let! latestSnapshot = BrokerSnapshotExtensions.Do.getLatestByBrokerId broker.Id |> Async.AwaitTask
                             match latestSnapshot with
                             | Some dbSnapshot ->
-                                return Some (dbSnapshot.brokerSnapshotToOverviewSnapshot(broker, allFinancialSnapshots))
+                                // Get financial snapshots for this specific broker using the latest date
+                                let! brokerFinancialSnapshots = 
+                                    BrokerFinancialSnapshotExtensions.Do.getLatestByBrokerIdGroupedByDate broker.Id 
+                                    |> Async.AwaitTask
+                                return Some (dbSnapshot.brokerSnapshotToOverviewSnapshot(broker, brokerFinancialSnapshots))
                             | None ->
                                 return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                         with

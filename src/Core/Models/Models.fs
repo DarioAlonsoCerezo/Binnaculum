@@ -235,6 +235,8 @@ module Models =
     // Broker financial snapshot model - represents the financial state of a broker account at a specific point in time
     type BrokerFinancialSnapshot = {
         Date: DateOnly
+        BrokerId: int // Broker ID - Default: -1 (indicates not for specific broker)  
+        BrokerAccountId: int // Broker Account ID - Default: -1 (indicates not for specific broker account)
         CurrencyId: int
         MovementCounter: int
         RealizedGains: decimal

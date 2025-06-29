@@ -35,6 +35,8 @@ type BrokerFinancialSnapshotAggregationTests () =
 
         let financialSnapshot1 = {
             Base = { baseSnapshot with Id = 1 }
+            BrokerId = 1 // Same as broker ID
+            BrokerAccountId = -1 // Default value
             CurrencyId = 1
             MovementCounter = 5  // Lower counter
             RealizedGains = Money.FromAmount(100.0m)
@@ -54,6 +56,8 @@ type BrokerFinancialSnapshotAggregationTests () =
 
         let financialSnapshot2 = {
             Base = { baseSnapshot with Id = 2 }
+            BrokerId = 1 // Same as broker ID
+            BrokerAccountId = -1 // Default value
             CurrencyId = 2
             MovementCounter = 10  // Higher counter - this should be main
             RealizedGains = Money.FromAmount(200.0m)
@@ -156,6 +160,8 @@ type BrokerFinancialSnapshotAggregationTests () =
 
         let financialSnapshot = {
             Base = baseSnapshot
+            BrokerId = 1 // Same as broker ID
+            BrokerAccountId = -1 // Default value
             CurrencyId = 1
             MovementCounter = 7
             RealizedGains = Money.FromAmount(150.0m)

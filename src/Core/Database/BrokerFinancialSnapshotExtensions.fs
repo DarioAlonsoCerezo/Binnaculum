@@ -17,6 +17,8 @@ type Do() =
         command.fillEntityAuditable<BrokerFinancialSnapshot>(
             [
                 (SQLParameterName.Date, snapshot.Base.Date.ToString());
+                (SQLParameterName.BrokerId, snapshot.BrokerId);
+                (SQLParameterName.BrokerAccountId, snapshot.BrokerAccountId);
                 (SQLParameterName.CurrencyId, snapshot.CurrencyId);
                 (SQLParameterName.MovementCounter, snapshot.MovementCounter);
                 (SQLParameterName.RealizedGains, snapshot.RealizedGains.Value);
@@ -42,6 +44,8 @@ type Do() =
                 Date = reader.getDateTimePattern FieldName.Date
                 Audit = reader.getAudit()
             }
+            BrokerId = reader.getInt32 FieldName.BrokerId
+            BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
             CurrencyId = reader.getInt32 FieldName.CurrencyId
             MovementCounter = reader.getInt32 FieldName.MovementCounter
             RealizedGains = reader.getMoney FieldName.RealizedGains
@@ -108,6 +112,54 @@ type Do() =
         let! command = Database.Do.createCommand()
         command.CommandText <- BrokerFinancialSnapshotQuery.getByMovementCounter
         command.Parameters.AddWithValue(SQLParameterName.MovementCounter, movementCounter) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
+        return snapshots
+    }
+
+    static member getByBrokerId(brokerId: int) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerFinancialSnapshotQuery.getByBrokerId
+        command.Parameters.AddWithValue(SQLParameterName.BrokerId, brokerId) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
+        return snapshots
+    }
+
+    static member getLatestByBrokerId(brokerId: int) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerFinancialSnapshotQuery.getLatestByBrokerId
+        command.Parameters.AddWithValue(SQLParameterName.BrokerId, brokerId) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
+        return snapshots |> List.tryHead
+    }
+
+    static member getByBrokerAccountId(brokerAccountId: int) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerFinancialSnapshotQuery.getByBrokerAccountId
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
+        return snapshots
+    }
+
+    static member getLatestByBrokerAccountId(brokerAccountId: int) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerFinancialSnapshotQuery.getLatestByBrokerAccountId
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
+        return snapshots |> List.tryHead
+    }
+
+    static member getLatestByBrokerIdGroupedByDate(brokerId: int) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerFinancialSnapshotQuery.getLatestByBrokerIdGroupedByDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerId, brokerId) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
+        return snapshots
+    }
+
+    static member getLatestByBrokerAccountIdGroupedByDate(brokerAccountId: int) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerFinancialSnapshotQuery.getLatestByBrokerAccountIdGroupedByDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
         let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
         return snapshots
     }

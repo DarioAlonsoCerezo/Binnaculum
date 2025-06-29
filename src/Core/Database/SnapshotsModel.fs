@@ -18,6 +18,8 @@ module internal SnapshotsModel =
 
     type BrokerFinancialSnapshot = {
         Base: BaseSnapshot
+        BrokerId: int // Broker ID - Default: -1 (indicates not for specific broker)
+        BrokerAccountId: int // Broker Account ID - Default: -1 (indicates not for specific broker account)
         CurrencyId: int
         MovementCounter: int
         RealizedGains: Money // Cumulative realized gains - Default currency: USD

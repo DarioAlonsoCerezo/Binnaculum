@@ -440,6 +440,8 @@ module internal DatabaseToModels =
                     // Create empty financial snapshot if no data available
                     let emptySnapshot = {
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                        BrokerId = -1 // Default value indicating not for specific broker
+                        BrokerAccountId = -1 // Default value indicating not for specific broker account
                         CurrencyId = 0
                         MovementCounter = 0
                         RealizedGains = 0.0m
@@ -463,6 +465,8 @@ module internal DatabaseToModels =
                         financialSnapshots
                         |> List.map (fun dbFinancial -> {
                             Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
+                            BrokerId = dbFinancial.BrokerId
+                            BrokerAccountId = dbFinancial.BrokerAccountId
                             CurrencyId = dbFinancial.CurrencyId
                             MovementCounter = dbFinancial.MovementCounter
                             RealizedGains = dbFinancial.RealizedGains.Value
@@ -488,6 +492,8 @@ module internal DatabaseToModels =
                         // This shouldn't happen since we checked for empty list above, but handle it gracefully
                         let emptySnapshot = {
                             Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                            BrokerId = -1 // Default value indicating not for specific broker
+                            BrokerAccountId = -1 // Default value indicating not for specific broker account
                             CurrencyId = 0
                             MovementCounter = 0
                             RealizedGains = 0.0m
@@ -553,6 +559,8 @@ module internal DatabaseToModels =
                     PortfolioValue = dbSnapshot.PortfolioValue.Value
                     Financial = {
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                        BrokerId = -1 // Default value indicating not for specific broker
+                        BrokerAccountId = brokerAccount.Id // This is for a specific broker account
                         CurrencyId = 0 // TODO: Get from BrokerFinancialSnapshots
                         MovementCounter = 0 // TODO: Get from BrokerFinancialSnapshots
                         RealizedGains = 0.0m // TODO: Get from BrokerFinancialSnapshots
