@@ -257,19 +257,6 @@ module Models =
         Date: DateOnly
         BrokerAccount: BrokerAccount
         PortfolioValue: decimal
-        RealizedGains: decimal
-        RealizedPercentage: decimal
-        UnrealizedGains: decimal
-        UnrealizedGainsPercentage: decimal
-        Invested: decimal
-        Commissions: decimal
-        Fees: decimal
-        Deposited: decimal
-        Withdrawn: decimal
-        DividendsReceived: decimal
-        OptionsIncome: decimal
-        OtherIncome: decimal
-        OpenTrades: bool
         Financial: BrokerFinancialSnapshot
         FinancialOtherCurrencies: BrokerFinancialSnapshot list
     }
@@ -279,20 +266,9 @@ module Models =
         Date: DateOnly
         Broker: Broker
         PortfoliosValue: decimal
-        RealizedGains: decimal
-        RealizedPercentage: decimal
-        UnrealizedGains: decimal
-        UnrealizedGainsPercentage: decimal
         AccountCount: int
-        Invested: decimal
-        Commissions: decimal
-        Fees: decimal
-        Deposited: decimal
-        Withdrawn: decimal
-        DividendsReceived: decimal
-        OptionsIncome: decimal
-        OtherIncome: decimal
-        OpenTrades: bool
+        Financial: BrokerFinancialSnapshot
+        FinancialOtherCurrencies: BrokerFinancialSnapshot list
     }
     
     // Bank account snapshot - represents the state of a bank account at a specific point in time
