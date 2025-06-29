@@ -130,3 +130,62 @@ type BrokerFinancialSnapshotAggregationTests () =
         
         // Should have empty FinancialOtherCurrencies
         Assert.AreEqual(0, brokerSnapshot.FinancialOtherCurrencies.Length)
+
+    [<Test>]
+    member _.``brokerSnapshotToOverviewSnapshot handles single financial snapshot`` () =
+        // Arrange
+        let mockBroker = {
+            Id = 1
+            Name = "Test Broker"
+            Image = ""
+            SupportedBroker = ""
+        }
+
+        let baseSnapshot = {
+            Id = 1
+            Date = DateTimePattern.FromDateTime(DateTime.Now)
+            Audit = { CreatedAt = DateTime.Now; UpdatedAt = None }
+        }
+
+        let dbBrokerSnapshot = {
+            Base = baseSnapshot
+            BrokerId = 1
+            PortfoliosValue = Money.FromAmount(5000.0m)
+            AccountCount = 2
+        }
+
+        let financialSnapshot = {
+            Base = baseSnapshot
+            CurrencyId = 1
+            MovementCounter = 7
+            RealizedGains = Money.FromAmount(150.0m)
+            RealizedPercentage = 7.5m
+            UnrealizedGains = Money.FromAmount(75.0m)
+            UnrealizedGainsPercentage = 3.75m
+            Invested = Money.FromAmount(3000.0m)
+            Commissions = Money.FromAmount(15.0m)
+            Fees = Money.FromAmount(7.5m)
+            Deposited = Money.FromAmount(3000.0m)
+            Withdrawn = Money.FromAmount(0.0m)
+            DividendsReceived = Money.FromAmount(37.5m)
+            OptionsIncome = Money.FromAmount(0.0m)
+            OtherIncome = Money.FromAmount(0.0m)
+            OpenTrades = false
+        }
+
+        let financialSnapshots = [financialSnapshot]
+
+        // Act
+        let result = dbBrokerSnapshot.brokerSnapshotToOverviewSnapshot(mockBroker, financialSnapshots)
+
+        // Assert
+        Assert.IsNotNull(result.Broker)
+        let brokerSnapshot = result.Broker.Value
+        
+        // The single financial snapshot should be the main one
+        Assert.AreEqual(7, brokerSnapshot.Financial.MovementCounter)
+        Assert.AreEqual(1, brokerSnapshot.Financial.CurrencyId)
+        Assert.AreEqual(150.0m, brokerSnapshot.Financial.RealizedGains)
+        
+        // Should have empty FinancialOtherCurrencies since there's only one snapshot
+        Assert.AreEqual(0, brokerSnapshot.FinancialOtherCurrencies.Length)
