@@ -17,6 +17,9 @@ module internal SnapshotsModel =
             member this.UpdatedAt = this.Audit.UpdatedAt
 
     type BrokerFinancialSnapshot = {
+        Base: BaseSnapshot
+        CurrencyId: int
+        MovementCounter: int
         RealizedGains: Money // Cumulative realized gains - Default currency: USD
         RealizedPercentage: decimal // Percentage of realized gains
         UnrealizedGains: Money // Unrealized gains/losses - Default currency: USD
@@ -30,7 +33,15 @@ module internal SnapshotsModel =
         OptionsIncome: Money // Total options premiums received - Default currency: USD
         OtherIncome: Money // Total other income - Default currency: USD
         OpenTrades: bool // Whether there are open trades
-    }
+    } with
+        interface IEntity with
+            member this.Id = this.Base.Id
+            member this.InsertSQL = BrokerFinancialSnapshotQuery.insert
+            member this.UpdateSQL = BrokerFinancialSnapshotQuery.update
+            member this.DeleteSQL = BrokerFinancialSnapshotQuery.delete
+        interface IAuditEntity with
+            member this.CreatedAt = this.Base.Audit.CreatedAt
+            member this.UpdatedAt = this.Base.Audit.UpdatedAt
 
     type TickerSnapshot = {
         Base: BaseSnapshot
@@ -62,7 +73,7 @@ module internal SnapshotsModel =
         Base: BaseSnapshot
         BrokerAccountId: int
         PortfolioValue: Money // End-of-day portfolio value
-        Financial: BrokerFinancialSnapshot
+        BrokerFinancialSnapshots: BrokerFinancialSnapshot list
     } with
         interface IEntity with
             member this.Id = this.Base.Id
@@ -78,7 +89,7 @@ module internal SnapshotsModel =
         BrokerId: int
         PortfoliosValue: Money // End-of-day portfolio value
         AccountCount: int // Number of accounts
-        Financial: BrokerFinancialSnapshot
+        BrokerFinancialSnapshots: BrokerFinancialSnapshot list
     } with
         interface IEntity with
             member this.Id = this.Base.Id

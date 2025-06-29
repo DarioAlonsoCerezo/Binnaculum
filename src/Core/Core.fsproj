@@ -40,6 +40,7 @@
 		<Compile Include="SQL\TickerSnapshotQuery.fs" />
 		<Compile Include="SQL\BrokerAccountSnapshotQuery.fs" />
 		<Compile Include="SQL\BrokerSnapshotQuery.fs" />
+		<Compile Include="SQL\BrokerFinancialSnapshotQuery.fs" />
 		<Compile Include="SQL\BankAccountSnapshotQuery.fs" />
 		<Compile Include="SQL\BankSnapshotQuery.fs" />
 		<Compile Include="SQL\InvestmentOverviewSnapshotQuery.fs" />
@@ -68,6 +69,7 @@
 		<Compile Include="Database\TickerSnapshotExtensions.fs" />
 		<Compile Include="Database\BrokerAccountSnapshotExtensions.fs" />
 		<Compile Include="Database\BrokerSnapshotExtensions.fs" />
+		<Compile Include="Database\BrokerFinancialSnapshotExtensions.fs" />
 		<Compile Include="Database\BankAccountSnapshotExtensions.fs" />
 		<Compile Include="Database\BankSnapshotExtensions.fs" />
 		<Compile Include="Database\InvestmentOverviewSnapshotExtensions.fs" />
