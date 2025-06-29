@@ -9,7 +9,20 @@ on:
     types: [submitted]
 
 jobs:
+  test-core-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Run Core.Tests
+        run: dotnet test src/Tests/Core.Tests/Core.Tests.fsproj --no-build --verbosity normal
+
   enable-auto-merge:
+    needs: test-core-tests
     runs-on: ubuntu-latest
     if: github.event.review.state == 'approved' && github.event.pull_request.draft == false
     steps:
