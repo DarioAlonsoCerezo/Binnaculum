@@ -19,6 +19,7 @@
     <Compile Include="SavedPreferencesTests.fs" />
     <Compile Include="BrokerAccountSnapshotTests.fs" />
     <Compile Include="BrokerSnapshotTests.fs" />
+    <Compile Include="BrokerFinancialSnapshotAggregationTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
