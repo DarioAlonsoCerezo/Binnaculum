@@ -20,6 +20,7 @@
     <Compile Include="BrokerAccountSnapshotTests.fs" />
     <Compile Include="BrokerSnapshotTests.fs" />
     <Compile Include="BrokerFinancialSnapshotAggregationTests.fs" />
+    <Compile Include="BrokerFinancialSnapshotRefactoredTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
