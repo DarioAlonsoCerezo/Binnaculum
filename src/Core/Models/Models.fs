@@ -231,6 +231,26 @@ module Models =
         LatestPrice: decimal
         OpenTrades: bool
     }
+
+    // Broker financial snapshot model - represents the financial state of a broker account at a specific point in time
+    type BrokerFinancialSnapshot = {
+        Date: DateOnly
+        CurrencyId: int
+        MovementCounter: int
+        RealizedGains: decimal
+        RealizedPercentage: decimal
+        UnrealizedGains: decimal
+        UnrealizedGainsPercentage: decimal
+        Invested: decimal
+        Commissions: decimal
+        Fees: decimal
+        Deposited: decimal
+        Withdrawn: decimal
+        DividendsReceived: decimal
+        OptionsIncome: decimal
+        OtherIncome: decimal
+        OpenTrades: bool
+    }
     
     // Broker account snapshot - represents the state of a broker account at a specific point in time
     type BrokerAccountSnapshot = {
@@ -250,6 +270,8 @@ module Models =
         OptionsIncome: decimal
         OtherIncome: decimal
         OpenTrades: bool
+        Financial: BrokerFinancialSnapshot
+        FinancialOtherCurrencies: BrokerFinancialSnapshot list
     }
     
     // Broker snapshot - represents the state of a broker at a specific point in time

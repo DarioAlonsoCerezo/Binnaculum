@@ -500,6 +500,25 @@ module internal DatabaseToModels =
                     OptionsIncome = 0.0m // TODO: Get from BrokerFinancialSnapshots
                     OtherIncome = 0.0m // TODO: Get from BrokerFinancialSnapshots
                     OpenTrades = false // TODO: Get from BrokerFinancialSnapshots
+                    Financial = {
+                        Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                        CurrencyId = 0 // TODO: Get from BrokerFinancialSnapshots
+                        MovementCounter = 0 // TODO: Get from BrokerFinancialSnapshots
+                        RealizedGains = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        RealizedPercentage = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        UnrealizedGains = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        UnrealizedGainsPercentage = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        Invested = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        Commissions = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        Fees = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        Deposited = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        Withdrawn = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        DividendsReceived = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        OptionsIncome = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        OtherIncome = 0.0m // TODO: Get from BrokerFinancialSnapshots
+                        OpenTrades = false // TODO: Get from BrokerFinancialSnapshots
+                    }
+                    FinancialOtherCurrencies = [] // TODO: Get from BrokerFinancialSnapshots
                 }
                 BankAccount = None
             }
