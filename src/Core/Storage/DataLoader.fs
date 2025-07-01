@@ -22,8 +22,12 @@ module internal DataLoader =
     /// </summary>
     let private addSnapshotWithEmptyManagement (newSnapshot: OverviewSnapshot) =
         if newSnapshot.Type = OverviewSnapshotType.Empty then
-            // For empty snapshots, only add if no snapshots exist (empty or non-empty)
-            if Collections.Snapshots.Items.Count = 0 then
+            // For empty snapshots, only add if:
+            // 1. No empty snapshots already exist, AND
+            // 2. No non-empty snapshots exist
+            let existingEmptySnapshots = Collections.Snapshots.Items |> Seq.filter (fun s -> s.Type = OverviewSnapshotType.Empty) |> Seq.toList
+            let existingNonEmptySnapshots = Collections.Snapshots.Items |> Seq.filter (fun s -> s.Type <> OverviewSnapshotType.Empty) |> Seq.toList
+            if existingEmptySnapshots.IsEmpty && existingNonEmptySnapshots.IsEmpty then
                 Collections.Snapshots.Add(newSnapshot)
         else
             // For non-empty snapshots, first remove any existing empty snapshots
