@@ -21,6 +21,7 @@
     <Compile Include="BrokerSnapshotTests.fs" />
     <Compile Include="BrokerFinancialSnapshotAggregationTests.fs" />
     <Compile Include="BrokerFinancialSnapshotRefactoredTests.fs" />
+    <Compile Include="DataLoaderTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
