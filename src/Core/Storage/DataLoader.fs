@@ -243,15 +243,11 @@ module internal DataLoader =
             |> Seq.filter (fun b -> b.Id > 0) // Exclude the default "-1" bank
             |> Seq.map (fun bank ->
                 async {
-                    try
-                        let! latestSnapshot = BankSnapshotExtensions.Do.getLatestByBankId bank.Id |> Async.AwaitTask
-                        match latestSnapshot with
-                        | Some dbSnapshot ->
-                            return Some (dbSnapshot.bankSnapshotToOverviewSnapshot(bank))
-                        | None ->
-                            return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
-                    with
-                    | _ ->
+                    let! latestSnapshot = BankSnapshotExtensions.Do.getLatestByBankId bank.Id |> Async.AwaitTask
+                    match latestSnapshot with
+                    | Some dbSnapshot ->
+                        return Some (dbSnapshot.bankSnapshotToOverviewSnapshot(bank))
+                    | None ->
                         return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                 })
             |> Async.Parallel
@@ -291,15 +287,11 @@ module internal DataLoader =
                 brokerAccounts
                 |> Seq.map (fun brokerAccount ->
                     async {
-                        try
-                            let! latestSnapshot = BrokerAccountSnapshotExtensions.Do.getLatestByBrokerAccountId brokerAccount.Id |> Async.AwaitTask
-                            match latestSnapshot with
-                            | Some dbSnapshot ->
-                                return Some (dbSnapshot.brokerAccountSnapshotToOverviewSnapshot(brokerAccount))
-                            | None ->
-                                return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
-                        with
-                        | _ ->
+                        let! latestSnapshot = BrokerAccountSnapshotExtensions.Do.getLatestByBrokerAccountId brokerAccount.Id |> Async.AwaitTask
+                        match latestSnapshot with
+                        | Some dbSnapshot ->
+                            return Some (dbSnapshot.brokerAccountSnapshotToOverviewSnapshot(brokerAccount))
+                        | None ->
                             return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                     })
                 |> Async.Parallel
@@ -335,15 +327,11 @@ module internal DataLoader =
             bankAccounts
             |> Seq.map (fun bankAccount ->
                 async {
-                    try
-                        let! latestSnapshot = BankAccountSnapshotExtensions.Do.getLatestByBankAccountId bankAccount.Id |> Async.AwaitTask
-                        match latestSnapshot with
-                        | Some dbSnapshot ->
-                            return Some (dbSnapshot.bankAccountSnapshotToOverviewSnapshot(bankAccount))
-                        | None ->
-                            return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
-                    with
-                    | _ ->
+                    let! latestSnapshot = BankAccountSnapshotExtensions.Do.getLatestByBankAccountId bankAccount.Id |> Async.AwaitTask
+                    match latestSnapshot with
+                    | Some dbSnapshot ->
+                        return Some (dbSnapshot.bankAccountSnapshotToOverviewSnapshot(bankAccount))
+                    | None ->
                         return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
                 })
             |> Async.Parallel
@@ -376,15 +364,11 @@ module internal DataLoader =
             |> Seq.filter (fun t -> t.Id > 0) // Exclude any default/placeholder tickers
             |> Seq.map (fun ticker ->
                 async {
-                    try
-                        let! latestSnapshot = TickerSnapshotExtensions.Do.getLatestByTickerId ticker.Id |> Async.AwaitTask
-                        match latestSnapshot with
-                        | Some dbSnapshot ->
-                            return Some (dbSnapshot.tickerSnapshotToModel())
-                        | None ->
-                            return None
-                    with
-                    | _ ->
+                    let! latestSnapshot = TickerSnapshotExtensions.Do.getLatestByTickerId ticker.Id |> Async.AwaitTask
+                    match latestSnapshot with
+                    | Some dbSnapshot ->
+                        return Some (dbSnapshot.tickerSnapshotToModel())
+                    | None ->
                         return None
                 })
             |> Async.Parallel
