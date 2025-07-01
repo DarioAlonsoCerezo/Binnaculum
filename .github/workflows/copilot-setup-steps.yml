@@ -22,4 +22,4 @@ jobs:
       - name: Install .NET MAUI workloads
         run: dotnet workload install maui
       - name: Restore dependencies
-        run: dotnet restore src/UI/Binnaculum.csproj -f net9.0-android
+        run: dotnet restore src/UI/Binnaculum.csproj
