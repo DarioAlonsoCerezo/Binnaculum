@@ -199,11 +199,11 @@ public partial class AccountCreatorPage
         {
             var currency = Collections.Currencies.Items.Single(x => x.Code.Equals(BankAccountEntry.SelectedCurrencyText));
             var bankAccount = new Core.Models.BankAccount(
-                Id: 0,
-                Bank: SelectedBank.Bank,
-                Name: BankAccountEntry.Text,
-                Description: null,
-                Currency: currency
+                0,
+                SelectedBank.Bank,
+                BankAccountEntry.Text,
+                null,
+                currency
             );
             await Creator.SaveBankAccount(bankAccount);
         }
