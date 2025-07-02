@@ -29,11 +29,9 @@ module Creator =
         do! Saver.saveBroker(databaseBroker) |> Async.AwaitTask |> Async.Ignore
     }
 
-    let SaveBankAccount(bankId, name, currencyId) = task {
-        let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
-        let account = { Id = 0; BankId = bankId; Name = name; Description = None; CurrencyId = currencyId; Audit = audit; }
-        do! account.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
+    let SaveBankAccount(bankAccount: Binnaculum.Core.Models.BankAccount) = task {
+        let! databaseBankAccount = bankAccount.bankAccountToDatabase() |> Async.AwaitTask
+        do! Saver.saveBankAccount(databaseBankAccount) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBrokerAccount(brokerId: int, accountNumber: string) = task {

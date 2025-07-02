@@ -2,6 +2,7 @@ namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.DatabaseModel
 open BankExtensions
+open BankAccountExtensions
 open BrokerExtensions
 
 /// <summary>
@@ -35,4 +36,13 @@ module internal Saver =
             do! DataLoader.loadAddedBroker() |> Async.AwaitTask |> Async.Ignore
         else
             do! DataLoader.refreshSpecificBroker(broker.Id) |> Async.AwaitTask |> Async.Ignore        
+    }
+    
+    /// <summary>
+    /// Saves a BankAccount entity to the database and updates the corresponding collections.
+    /// - After saving, it refreshes all accounts to ensure UI consistency
+    /// </summary>
+    let saveBankAccount(bankAccount: BankAccount) = task {
+        do! bankAccount.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore        
     }

@@ -105,6 +105,14 @@ module internal ModelsToDatabase =
         }
 
         [<Extension>]
+        static member bankAccountToDatabase(bankAccount: Binnaculum.Core.Models.BankAccount) = task {
+            if bankAccount.Id = 0 then
+                return bankAccount.createBankAccountToDatabase()
+            else
+                return! bankAccount.updateBankAccountToDatabase() |> Async.AwaitTask
+        }
+
+        [<Extension>]
         static member bankAccountMovementToDatabase(movement: Binnaculum.Core.Models.BankAccountMovement) =
             let movementType = movement.MovementType.bankMovementTypeToDatabase()
             { 

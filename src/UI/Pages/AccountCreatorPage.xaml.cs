@@ -198,7 +198,14 @@ public partial class AccountCreatorPage
         if(SelectedBank.IsVisible && BankAccountEntry.Text?.Length > 2)
         {
             var currency = Collections.Currencies.Items.Single(x => x.Code.Equals(BankAccountEntry.SelectedCurrencyText));
-            await Creator.SaveBankAccount(SelectedBank.Bank.Id, BankAccountEntry.Text, currency.Id);
+            var bankAccount = new Core.Models.BankAccount(
+                Id: 0,
+                Bank: SelectedBank.Bank,
+                Name: BankAccountEntry.Text,
+                Description: null,
+                Currency: currency
+            );
+            await Creator.SaveBankAccount(bankAccount);
         }
     }
 }
