@@ -16,7 +16,7 @@ module internal Saver =
     /// - If the Bank is new (Id = 0), after saving, it loads the newly added bank from the database
     /// - If the Bank is being updated, it refreshes the specific bank and its associated accounts
     /// </summary>
-    let saveBank(bank: Binnaculum.Core.Database.DatabaseModel.Bank) = task {
+    let saveBank(bank: Bank) = task {
         do! bank.save() |> Async.AwaitTask |> Async.Ignore
         if bank.Id = 0 then
             do! DataLoader.loadAddedBank() |> Async.AwaitTask |> Async.Ignore
@@ -29,7 +29,7 @@ module internal Saver =
     /// - If the Broker is new (Id = 0), after saving, it loads the newly added broker from the database
     /// - If the Broker is being updated, it refreshes the specific broker
     /// </summary>
-    let saveBroker(broker: Binnaculum.Core.Database.DatabaseModel.Broker) = task {
+    let saveBroker(broker: Broker) = task {
         do! broker.save() |> Async.AwaitTask |> Async.Ignore
         if broker.Id = 0 then
             do! DataLoader.loadAddedBroker() |> Async.AwaitTask |> Async.Ignore
