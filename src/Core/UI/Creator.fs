@@ -24,10 +24,10 @@ module Creator =
         do! Saver.saveBank(databaseBank) |> Async.AwaitTask |> Async.Ignore
     }
 
-    let SaveBroker(broker: Binnaculum.Core.Models.Broker) = task {
-        let! databaseBroker = broker.brokerToDatabase() |> Async.AwaitTask
-        do! databaseBroker.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.getOrRefreshAllBrokers() |> Async.AwaitTask |> Async.Ignore
+    let SaveBroker(name, icon) = task {
+        let broker = { Id = 0; Name = name; Image = icon; SupportedBroker = SupportedBroker.Unknown }
+        do! broker.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadBrokers() |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBankAccount(bankId, name, currencyId) = task {
@@ -64,7 +64,7 @@ module Creator =
         let! databaseTicker = ticker.tickerToDatabase() |> Async.AwaitTask
         do! databaseTicker.save() |> Async.AwaitTask |> Async.Ignore
         // Refresh in-memory ticker collection
-        do! DataLoader.getOrRefreshAllTickers() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadTickers() |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>
