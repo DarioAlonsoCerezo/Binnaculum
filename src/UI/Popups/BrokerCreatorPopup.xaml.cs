@@ -27,7 +27,7 @@ public partial class BrokerCreatorPopup
         events.SaveClicked
             .SelectMany(async _ =>
             {
-                await Creator.SaveBroker(BrokerNameEntry.Text, Icon.ImagePath);
+                await Creator.SaveBroker(new Models.Broker(0, BrokerNameEntry.Text, Icon.ImagePath, ""));
                 return Unit.Default;
             })
             .Subscribe(_ =>

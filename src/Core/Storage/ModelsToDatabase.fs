@@ -9,7 +9,40 @@ open DiscriminatedToDatabase
 module internal ModelsToDatabase =
     
     [<Extension>]
-    type Do() =     
+    type Do() = 
+    
+        [<Extension>]
+        static member createBrokerToDatabase(broker: Binnaculum.Core.Models.Broker) =
+            { 
+                Id = broker.Id; 
+                Name = broker.Name; 
+                Image = broker.Image; 
+                SupportedBroker = SupportedBroker.Unknown;
+            }
+
+        [<Extension>]
+        static member updateBrokerToDatabase(broker: Binnaculum.Core.Models.Broker) = task {
+            let! currentBroker = BrokerExtensions.Do.getById broker.Id |> Async.AwaitTask
+            match currentBroker with
+            | Some current -> 
+                let updatedBroker = 
+                    { current with 
+                        Name = broker.Name; 
+                        Image = broker.Image; 
+                        SupportedBroker = SupportedBroker.Unknown;
+                    }
+                return updatedBroker
+            | None ->
+                return failwithf "Broker with ID %d not found" broker.Id
+        }
+
+        [<Extension>]
+        static member brokerToDatabase(broker: Binnaculum.Core.Models.Broker) = task {
+            if broker.Id = 0 then
+                return broker.createBrokerToDatabase()
+            else
+                return! broker.updateBrokerToDatabase() |> Async.AwaitTask
+        }
         
         [<Extension>]
         static member createBankToDatabase(bank: Binnaculum.Core.Models.Bank) =
