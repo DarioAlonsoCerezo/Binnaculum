@@ -74,3 +74,11 @@ module internal BrokerQuery =
         WHERE {Name} = {SQLParameterName.Name}
         LIMIT 1
         """
+
+    /// Retrieves the most recently added broker from the Brokers table.
+    let getLatest =
+        $"""
+        SELECT * FROM {Brokers}
+        ORDER BY {Id} DESC
+        LIMIT 1
+        """

@@ -40,6 +40,13 @@ open CommandExtensions
         static member getAll() = Database.Do.getAllEntities Do.read BrokerQuery.getAll
         
         static member getById(id: int) = Database.Do.getById Do.read id BrokerQuery.getById
+        
+        static member getLatest() = task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- BrokerQuery.getLatest
+            let! brokers = Database.Do.readAll<Broker>(command, Do.read)
+            return brokers |> List.tryHead
+        }
 
         //This list contains all supported brokers
         static member brokerList() =
