@@ -1,12 +1,7 @@
 namespace Binnaculum.Core.Storage
 
-open Binnaculum.Core.Storage.DatabaseToModels
 open Binnaculum.Core.Database.DatabaseModel
-open Binnaculum.Core.UI
-open Binnaculum.Core.Models
 open BankExtensions
-open DynamicData
-open System
 
 /// <summary>
 /// This module serves as the central handler for saving entities to the database

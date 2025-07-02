@@ -7,8 +7,6 @@ open Microsoft.Maui.Storage
 open System.IO
 open System
 open Binnaculum.Core.Storage.DatabaseToModels
-open BankExtensions
-open BankAccountExtensions
 
 /// <summary>
 /// This module serves as a critical layer for managing the transformation and synchronization of data

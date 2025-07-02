@@ -1,7 +1,6 @@
 ﻿namespace Binnaculum.Core
 
 open System
-open DynamicData
 
 module Models =
     

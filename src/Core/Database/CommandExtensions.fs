@@ -4,7 +4,6 @@ open System.Runtime.CompilerServices
 open Microsoft.Data.Sqlite
 open Binnaculum.Core.Database.Do
 open Binnaculum.Core
-open OptionExtensions
 open System
 
     [<Extension>]
