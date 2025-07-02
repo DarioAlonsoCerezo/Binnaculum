@@ -16,17 +16,13 @@ open Binnaculum.Core.Storage.ModelsToDatabase
 open System
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage
+open Binnaculum.Core.Storage.Saver
 open Microsoft.FSharp.Core
 
 module Creator =
     
     let SaveBank(bank: Binnaculum.Core.Models.Bank) = task {
-        let! databaseBank = bank.bankToDatabase() |> Async.AwaitTask
-        do! databaseBank.save() |> Async.AwaitTask |> Async.Ignore
-        if bank.Id = 0 then
-            do! DataLoader.getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
-        else
-            do! DataLoader.refreshBankAccount(bank.Id) |> Async.AwaitTask |> Async.Ignore        
+        do! Saver.saveBank(bank) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBroker(name, icon) = task {
