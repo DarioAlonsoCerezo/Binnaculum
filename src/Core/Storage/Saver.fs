@@ -18,17 +18,23 @@ open System
 module internal Saver =
     
     /// <summary>
-    /// Refreshes the entire Banks collection by loading all banks from the database.
-    /// This is used when adding new banks to ensure the UI reflects the latest state.
+    /// Retrieves the latest saved bank from the database and adds it to the Banks collection.
+    /// This is used when adding new banks to ensure the UI reflects the newly created bank.
     /// </summary>
     let private refreshAllBanks() = task {
+        // Get the latest bank (the one with the highest ID, which was just saved)
         let! databaseBanks = BankExtensions.Do.getAll() |> Async.AwaitTask
         let banks = databaseBanks.banksToModel()
-                
-        Collections.Banks.EditDiff banks            
+        
+        // Find the latest bank (highest ID) and add it to the collection
+        match banks |> List.sortByDescending (fun b -> b.Id) |> List.tryHead with
+        | Some latestBank -> Collections.Banks.Add(latestBank)
+        | None -> ()
 
-        //As we allow users create banks, we add this default bank to recognize it in the UI
-        Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; CreatedAt = DateTime.Now; })
+        //As we allow users create banks, we add this default bank to recognize it in the UI (if not already present)
+        let hasDefaultBank = Collections.Banks.Items |> Seq.exists (fun b -> b.Id = -1)
+        if not hasDefaultBank then
+            Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; CreatedAt = DateTime.Now; })
     }
     
     /// <summary>

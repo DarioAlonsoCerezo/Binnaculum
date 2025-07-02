@@ -146,30 +146,7 @@ module internal DataLoader =
         return bankAccounts       
     }
 
-    let refreshBankAccount(bankId) = task {
-        let! databaseBank = BankExtensions.Do.getById bankId |> Async.AwaitTask
-        match databaseBank with
-        | None -> return()
-        | Some b -> Collections.updateBank(b.bankToModel())
-            
-        let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
-        
-        let accounts = 
-            databaseBankAccounts.bankAccountsToModel() 
-            |> List.filter (fun b -> b.Bank.Id = bankId)
-            |> List.map (fun account -> 
-                { 
-                    Type = AccountType.BankAccount; 
-                    Broker = None; 
-                    Bank = Some account;
-                    HasMovements = Collections.Movements.Items
-                        |> Seq.filter (fun m -> m.BankAccountMovement.IsSome)
-                        |> Seq.exists (fun m -> m.BankAccountMovement.Value.BankAccount.Id = account.Id)
-                })
-        accounts
-        |> List.iter (fun account -> Collections.updateBankAccount account)
-        return()
-    }
+
 
     let getOrRefreshAllAccounts() = task {
         let! brokerAccounts = getOrRefreshAllBrokerAccounts() |> Async.AwaitTask
