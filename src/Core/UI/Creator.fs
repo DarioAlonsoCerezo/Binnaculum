@@ -24,9 +24,9 @@ module Creator =
         do! Saver.saveBank(databaseBank) |> Async.AwaitTask |> Async.Ignore
     }
 
-    let SaveBroker(name, icon) = task {
-        let broker = { Id = 0; Name = name; Image = icon; SupportedBroker = SupportedBroker.Unknown }
-        do! broker.save() |> Async.AwaitTask |> Async.Ignore
+    let SaveBroker(broker: Binnaculum.Core.Models.Broker) = task {
+        let! databaseBroker = broker.brokerToDatabase() |> Async.AwaitTask
+        do! databaseBroker.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.loadBrokers() |> Async.AwaitTask |> Async.Ignore
     }
 
