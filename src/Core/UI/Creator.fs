@@ -22,7 +22,8 @@ open Microsoft.FSharp.Core
 module Creator =
     
     let SaveBank(bank: Binnaculum.Core.Models.Bank) = task {
-        do! Saver.saveBank(bank) |> Async.AwaitTask |> Async.Ignore
+        let! databaseBank = bank.bankToDatabase() |> Async.AwaitTask
+        do! Saver.saveBank(databaseBank) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBroker(name, icon) = task {

@@ -71,9 +71,8 @@ module internal Saver =
     /// - If the Bank is new (Id = 0), after saving, it loads the newly added bank from the database
     /// - If the Bank is being updated, it refreshes the specific bank and its associated accounts
     /// </summary>
-    let saveBank(bank: Binnaculum.Core.Models.Bank) = task {
-        let! databaseBank = bank.bankToDatabase() |> Async.AwaitTask
-        do! databaseBank.save() |> Async.AwaitTask |> Async.Ignore
+    let saveBank(bank: Binnaculum.Core.Database.DatabaseModel.Bank) = task {
+        do! bank.save() |> Async.AwaitTask |> Async.Ignore
         if bank.Id = 0 then
             do! loadAddedBank() |> Async.AwaitTask |> Async.Ignore
         else
