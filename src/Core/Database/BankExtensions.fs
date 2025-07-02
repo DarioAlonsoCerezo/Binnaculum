@@ -38,3 +38,10 @@ type Do() =
     static member getAll() = Database.Do.getAllEntities Do.read BankQuery.getAll
 
     static member getById(id: int) = Database.Do.getById Do.read id BankQuery.getById
+
+    static member getLatest() = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BankQuery.getLatest
+        let! banks = Database.Do.readAll<Bank>(command, Do.read)
+        return banks |> List.tryHead
+    }
