@@ -109,8 +109,10 @@ module internal DataLoader =
         let brokers = databaseBrokers.brokersToModel()
         Collections.Brokers.EditDiff brokers
 
-        //As we allow users create brokers, we add this default broker to recognize it in the UI
-        Collections.Brokers.Add({ Id = -1; Name = "AccountCreator_Create_Broker"; Image = "broker"; SupportedBroker = "Unknown"; })
+        //As we allow users create brokers, we add this default broker to recognize it in the UI (if not already present)
+        let hasDefaultBroker = Collections.Brokers.Items |> Seq.exists (fun b -> b.Id = -1)
+        if not hasDefaultBroker then
+            Collections.Brokers.Add({ Id = -1; Name = "AccountCreator_Create_Broker"; Image = "broker"; SupportedBroker = "Unknown"; })
     }
 
     let loadBanks() = task {
@@ -119,8 +121,10 @@ module internal DataLoader =
                 
         Collections.Banks.EditDiff banks            
 
-        //As we allow users create banks, we add this default bank to recognize it in the UI
-        Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; CreatedAt = DateTime.Now; })
+        //As we allow users create banks, we add this default bank to recognize it in the UI (if not already present)
+        let hasDefaultBank = Collections.Banks.Items |> Seq.exists (fun b -> b.Id = -1)
+        if not hasDefaultBank then
+            Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; CreatedAt = DateTime.Now; })
     }
 
     let getOrRefresAvailableImages() = task {
