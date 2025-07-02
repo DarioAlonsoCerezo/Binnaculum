@@ -79,3 +79,10 @@ module internal BankQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
+
+    let getLatest =
+        $"""
+        SELECT * FROM {Banks}
+        ORDER BY {Id} DESC
+        LIMIT 1
+        """
