@@ -69,6 +69,37 @@ module internal DataLoader =
     }
     
     /// <summary>
+    /// Retrieves the latest saved broker from the database and adds it to the Brokers collection.
+    /// This is used when adding new brokers to ensure the UI reflects the newly created broker.
+    /// </summary>
+    let internal loadAddedBroker() = task {
+        // Get the latest broker (the one with the highest ID, which was just saved)
+        let! databaseBroker = BrokerExtensions.Do.getLatest() |> Async.AwaitTask
+        
+        match databaseBroker with
+        | Some broker -> 
+            let modelBroker = broker.brokerToModel()
+            Collections.Brokers.Add(modelBroker)
+        | None -> ()
+
+        //As we allow users create brokers, we add this default broker to recognize it in the UI (if not already present)
+        let hasDefaultBroker = Collections.Brokers.Items |> Seq.exists (fun b -> b.Id = -1)
+        if not hasDefaultBroker then
+            Collections.Brokers.Add({ Id = -1; Name = "AccountCreator_Create_Broker"; Image = "broker"; SupportedBroker = "Unknown"; })
+    }
+    
+    /// <summary>
+    /// Refreshes a specific broker in the collections.
+    /// This is used when updating existing brokers to ensure the UI reflects the changes.
+    /// </summary>
+    let internal refreshSpecificBroker(brokerId) = task {
+        let! databaseBroker = BrokerExtensions.Do.getById brokerId |> Async.AwaitTask
+        match databaseBroker with
+        | None -> return()
+        | Some b -> Collections.updateBroker(b.brokerToModel())
+    }
+    
+    /// <summary>
     /// Refreshes a specific bank and its associated bank accounts in the collections.
     /// This is used when updating existing banks to ensure the UI reflects the changes.
     /// </summary>
