@@ -97,13 +97,13 @@ module internal DataLoader =
         return()
     }
 
-    let private getAllCurrencies() = task {
+    let private loadCurrencies() = task {
         do! CurrencyExtensions.Do.insertDefaultValues() |> Async.AwaitTask 
         let! databaseCurrencies = CurrencyExtensions.Do.getAll() |> Async.AwaitTask
         Collections.Currencies.EditDiff(databaseCurrencies.currenciesToModel())
     }
 
-    let getOrRefreshAllBrokers() = task {
+    let loadBrokers() = task {
         do! BrokerExtensions.Do.insertIfNotExists() |> Async.AwaitTask
         let! databaseBrokers = BrokerExtensions.Do.getAll() |> Async.AwaitTask
         let brokers = databaseBrokers.brokersToModel()
@@ -113,7 +113,7 @@ module internal DataLoader =
         Collections.Brokers.Add({ Id = -1; Name = "AccountCreator_Create_Broker"; Image = "broker"; SupportedBroker = "Unknown"; })
     }
 
-    let getOrRefreshBanks() = task {
+    let loadBanks() = task {
         let! databaseBanks = BankExtensions.Do.getAll() |> Async.AwaitTask
         let banks = databaseBanks.banksToModel()
                 
@@ -148,14 +148,14 @@ module internal DataLoader =
             Collections.AvailableImages.Clear()
     }
 
-    let getOrRefreshAllTickers() = task {
+    let loadTickers() = task {
         do! TickerExtensions.Do.insertIfNotExists() |> Async.AwaitTask
         let! databaseTickers = TickerExtensions.Do.getAll() |> Async.AwaitTask
         let tickers = databaseTickers.tickersToModel()
         Collections.Tickers.EditDiff tickers
     }
     
-    let private getOrRefreshAllBrokerAccounts() = task {
+    let private loadBrokerAccounts() = task {
         let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
         let brokerAccounts = 
             databaseBrokerAccounts 
@@ -178,7 +178,7 @@ module internal DataLoader =
         return accounts |> Array.toList
     }
 
-    let private getOrRefreshAllBankAccounts() = task {
+    let private loadBankAccounts() = task {
         let! databaseBankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask
         let bankAccounts = 
             databaseBankAccounts.bankAccountsToModel() 
@@ -198,8 +198,8 @@ module internal DataLoader =
 
 
     let getOrRefreshAllAccounts() = task {
-        let! brokerAccounts = getOrRefreshAllBrokerAccounts() |> Async.AwaitTask
-        let! bankAccounts = getOrRefreshAllBankAccounts() |> Async.AwaitTask
+        let! brokerAccounts = loadBrokerAccounts() |> Async.AwaitTask
+        let! bankAccounts = loadBankAccounts() |> Async.AwaitTask
         let allAccounts = brokerAccounts @ bankAccounts
 
         if allAccounts.IsEmpty then
@@ -425,11 +425,11 @@ module internal DataLoader =
     }
 
     let loadBasicData() = task {
-        do! getAllCurrencies() |> Async.AwaitTask |> Async.Ignore
-        do! getOrRefreshAllBrokers() |> Async.AwaitTask |> Async.Ignore
-        do! getOrRefreshBanks() |> Async.AwaitTask |> Async.Ignore
+        do! loadCurrencies() |> Async.AwaitTask |> Async.Ignore
+        do! loadBrokers() |> Async.AwaitTask |> Async.Ignore
+        do! loadBanks() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefresAvailableImages() |> Async.AwaitTask |> Async.Ignore
-        do! getOrRefreshAllTickers() |> Async.AwaitTask |> Async.Ignore
+        do! loadTickers() |> Async.AwaitTask |> Async.Ignore
     }
 
     let initialization() = task {
