@@ -19,6 +19,7 @@ module internal BrokerMovementQuery =
             {MovementType} TEXT NOT NULL CHECK ({MovementType} IN ('{SQLConstants.Deposit}', '{SQLConstants.Withdrawal}', '{SQLConstants.Fee}', '{SQLConstants.InterestsGained}', '{SQLConstants.Lending}', '{SQLConstants.AcatMoneyTransferSent}', '{SQLConstants.AcatMoneyTransferReceived}', '{SQLConstants.AcatSecuritiesTransferSent}', '{SQLConstants.AcatSecuritiesTransferReceived}', '{SQLConstants.InterestsPaid}', '{SQLConstants.Conversion}')),
             {Notes} TEXT,
             {FromCurrencyId} INTEGER,
+            {AmountChanged} TEXT,
             {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
             {UpdatedAt} TEXT,
             FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}),
@@ -59,6 +60,7 @@ module internal BrokerMovementQuery =
             {MovementType},
             {Notes},
             {FromCurrencyId},
+            {AmountChanged},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -73,6 +75,7 @@ module internal BrokerMovementQuery =
             {SQLParameterName.MovementType},
             {SQLParameterName.Notes},
             {SQLParameterName.FromCurrencyId},
+            {SQLParameterName.AmountChanged},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -91,6 +94,7 @@ module internal BrokerMovementQuery =
             {MovementType} = {SQLParameterName.MovementType},
             {Notes} = {SQLParameterName.Notes},
             {FromCurrencyId} = {SQLParameterName.FromCurrencyId},
+            {AmountChanged} = {SQLParameterName.AmountChanged},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE

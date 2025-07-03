@@ -114,6 +114,7 @@ module internal DatabaseModel =
         MovementType: BrokerMovementType
         Notes: string option
         FromCurrencyId: int option
+        AmountChanged: Money option
         Audit: AuditableEntity
     } with
         interface IEntity with

@@ -52,7 +52,15 @@ module Creator =
         | _, None ->
             () // Valid: Non-conversion without FromCurrency
         
-        let databaseModel = movement.brokerMovementToDatabase()
+        // Set default AmountChanged for Conversion movements if not provided
+        let movementWithDefaults = 
+            match movement.MovementType, movement.AmountChanged with
+            | Binnaculum.Core.Models.BrokerMovementType.Conversion, None ->
+                // Set default value for AmountChanged (using the same amount as the main Amount for now)
+                { movement with AmountChanged = Some movement.Amount }
+            | _ -> movement
+        
+        let databaseModel = movementWithDefaults.brokerMovementToDatabase()
         do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask |> Async.Ignore
     }
 

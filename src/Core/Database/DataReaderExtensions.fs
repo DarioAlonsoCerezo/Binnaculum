@@ -38,6 +38,15 @@ open Binnaculum.Core
             Money.FromAmount(decimal value)
 
         [<Extension>]
+        static member getMoneyOrNone(reader: SqliteDataReader, columName: string) =
+            let ordinal = reader.GetOrdinal(columName)
+            if reader.IsDBNull(ordinal) then
+                None
+            else
+                let value = reader.getDecimal columName
+                Some(Money.FromAmount(decimal value))
+
+        [<Extension>]
         static member getStringOrNone(reader: SqliteDataReader, columName: string) =
             let ordinal = reader.GetOrdinal(columName)
             if reader.IsDBNull(ordinal) then

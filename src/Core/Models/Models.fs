@@ -98,6 +98,7 @@ module Models =
         MovementType: BrokerMovementType
         Notes: string option
         FromCurrency: Currency option
+        AmountChanged: decimal option
     }
     
     type Ticker = {
