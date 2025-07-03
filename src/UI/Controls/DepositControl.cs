@@ -6,4 +6,5 @@ public record DepositControl(
     string Currency,
     decimal Commissions,
     decimal Fees,
-    string Note);
+    string Note,
+    string? FromCurrency = null);
