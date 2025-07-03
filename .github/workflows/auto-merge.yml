@@ -32,3 +32,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: merge
+
+  delete-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete branch after merge
+        uses: peter-evans/delete-branch@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.event.pull_request.head.ref }}
