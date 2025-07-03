@@ -54,11 +54,8 @@ module Creator =
     /// Save a new or updated ticker and refresh the tickers collection.
     /// </summary>
     let SaveTicker(ticker: Binnaculum.Core.Models.Ticker) = task {
-        // Map UI ticker to database model and save
         let! databaseTicker = ticker.tickerToDatabase() |> Async.AwaitTask
-        do! databaseTicker.save() |> Async.AwaitTask |> Async.Ignore
-        // Refresh in-memory ticker collection
-        do! DataLoader.loadTickers() |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveTicker(databaseTicker) |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>
