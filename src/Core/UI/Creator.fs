@@ -37,8 +37,7 @@ module Creator =
     let SaveBrokerAccount(brokerId: int, accountNumber: string) = task {
         let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
         let account = { Id = 0; BrokerId = brokerId; AccountNumber = accountNumber; Audit = audit }
-        do! account.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveBrokerAccount(account) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBrokerMovement(movement: Binnaculum.Core.Models.BrokerMovement) = task {
