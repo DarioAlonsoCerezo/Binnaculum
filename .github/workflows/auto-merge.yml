@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete branch after merge
-        uses: peter-evans/delete-branch@v4
+        uses: peter-evans/delete-branch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.event.pull_request.head.ref }}
