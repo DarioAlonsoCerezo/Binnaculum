@@ -202,6 +202,7 @@ public partial class BrokerMovementCreatorPage
                             BrokerMovement.DepositData.Fees,
                             brokerMovementType.Value,
                             notes,
+                            null,
                             null);
     }
 
