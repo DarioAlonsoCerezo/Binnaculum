@@ -11,6 +11,7 @@ open TickerExtensions
 open TradeExtensions
 open DividendExtensions
 open DividendDateExtensions
+open DividendTaxExtensions
 
 /// <summary>
 /// This module serves as the central handler for saving entities to the database
@@ -114,5 +115,14 @@ module internal Saver =
     /// </summary>
     let saveDividendDate(dividendDate: DividendDate) = task {
         do! dividendDate.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+    }
+
+    /// <summary>
+    /// Saves a DividendTax entity to the database and updates the corresponding collections.
+    /// - After saving, it refreshes all movements to ensure UI consistency
+    /// </summary>
+    let saveDividendTax(dividendTax: DividendTax) = task {
+        do! dividendTax.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }

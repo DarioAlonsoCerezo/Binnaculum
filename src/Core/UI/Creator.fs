@@ -87,8 +87,7 @@ module Creator =
     /// </summary>
     let SaveDividendTax(dividendTax: Binnaculum.Core.Models.DividendTax) = task {
         let databaseModel = dividendTax.dividendTaxToDatabase()
-        do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveDividendTax(databaseModel) |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>
