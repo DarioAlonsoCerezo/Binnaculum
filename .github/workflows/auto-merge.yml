@@ -34,6 +34,7 @@ jobs:
           merge-method: merge
 
   delete-branch:
+    needs: enable-auto-merge
     runs-on: ubuntu-latest
     steps:
       - name: Delete branch after merge
