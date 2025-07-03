@@ -71,8 +71,7 @@ module Creator =
     /// </summary>
     let SaveDividend(dividend: Binnaculum.Core.Models.Dividend) = task {
         let databaseDividend = dividend.dividendReceivedToDatabase()
-        do! databaseDividend.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveDividend(databaseDividend) |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>
