@@ -5,6 +5,7 @@ open BankExtensions
 open BankAccountExtensions
 open BrokerExtensions
 open BrokerAccountExtensions
+open BrokerMovementExtensions
 
 /// <summary>
 /// This module serves as the central handler for saving entities to the database
@@ -55,4 +56,13 @@ module internal Saver =
     let saveBrokerAccount(brokerAccount: BrokerAccount) = task {
         do! brokerAccount.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore        
+    }
+
+    /// <summary>
+    /// Saves a BrokerMovement entity to the database and updates the corresponding collections.
+    /// - After saving, it refreshes all movements to ensure UI consistency
+    /// </summary>
+    let saveBrokerMovement(brokerMovement: BrokerMovement) = task {
+        do! brokerMovement.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore        
     }
