@@ -137,6 +137,7 @@ module internal ModelsToDatabase =
                 Fees = Money.FromAmount(movement.Fees); 
                 MovementType = movement.MovementType.brokerMovementTypeToDatabase();
                 Notes = movement.Notes;
+                FromCurrencyId = movement.FromCurrency |> Option.map (fun c -> c.Id);
                 Audit = AuditableEntity.FromDateTime(movement.TimeStamp);
             }
 

@@ -71,6 +71,9 @@ module internal FieldName =
     let Fees = "Fees"
 
     [<Literal>]
+    let FromCurrencyId = "FromCurrencyId"
+
+    [<Literal>]
     let CreatedAt = "CreatedAt"
 
     [<Literal>]
