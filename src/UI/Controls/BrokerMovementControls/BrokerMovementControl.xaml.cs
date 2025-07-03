@@ -28,26 +28,6 @@ public partial class BrokerMovementControl
         set => SetValue(HideFeesAndCommissionsProperty, value);
     }
 
-    public static readonly BindableProperty ShowFromCurrencyProperty =
-        BindableProperty.Create(
-            nameof(ShowFromCurrency),
-            typeof(bool),
-            typeof(BrokerMovementControl),
-            false, // Default to hidden
-            propertyChanged: (bindable, oldValue, newValue) =>
-            {
-                if (bindable is BrokerMovementControl control && newValue is bool showFromCurrency)
-                {
-                    control.FromCurrencyEntry.IsVisible = showFromCurrency;
-                }
-            });
-
-    public bool ShowFromCurrency
-    {
-        get => (bool)GetValue(ShowFromCurrencyProperty);
-        set => SetValue(ShowFromCurrencyProperty, value);
-    }
-
     public static readonly BindableProperty ShowCurrencyProperty =
         BindableProperty.Create(
             nameof(ShowCurrency),
@@ -74,7 +54,6 @@ public partial class BrokerMovementControl
 
         // Set default currency visibility (true by default from the bindable property)
         AmountEntry.IsCurrencyVisible = ShowCurrency;
-        FromCurrencyEntry.IsVisible = ShowFromCurrency;
 
         _deposit = new DepositControl(
             TimeStamp: DateTime.Now,
@@ -82,8 +61,7 @@ public partial class BrokerMovementControl
             Currency: Core.UI.SavedPrefereces.UserPreferences.Value.Currency,
             Commissions: 0m,
             Fees: 0m,
-            Note: string.Empty,
-            FromCurrency: null);
+            Note: string.Empty);
     }
 
     protected override void StartLoad()
@@ -128,14 +106,6 @@ public partial class BrokerMovementControl
             .Subscribe(x =>
             {
                 _deposit = _deposit with { Note = x.NewTextValue };
-                DepositChanged?.Invoke(this, _deposit);
-            })
-            .DisposeWith(Disposables);
-
-        FromCurrencyEntry.Events().CurrencyChanged
-            .Subscribe(x =>
-            {
-                _deposit = _deposit with { FromCurrency = x };
                 DepositChanged?.Invoke(this, _deposit);
             })
             .DisposeWith(Disposables);

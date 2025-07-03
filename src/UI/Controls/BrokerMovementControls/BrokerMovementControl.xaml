@@ -22,12 +22,6 @@
                     Placeholder="{local:Translate Placeholder_Amount}" />
                 <controls:BorderedDateTimePickerControl x:Name="DateTimePicker" />
 
-                <controls:BorderedEntry
-                    x:Name="FromCurrencyEntry"
-                    IsCurrencyEntry="True"
-                    IsVisible="False"
-                    Placeholder="{local:Translate Placeholder_FromCurrency}" />
-
                 <controls:BorderedFeeAndCommissionControl x:Name="FeesAndCommissions" />
                 <controls:BorderedEditor
                     x:Name="Notes"

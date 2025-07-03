@@ -44,14 +44,12 @@ public partial class BrokerMovementCreatorPage
             {
                 var hiderFeesAndCommissions = HideFeesAndCommissions(x);
                 BrokerMovement.HideFeesAndCommissions = hiderFeesAndCommissions;
-                BrokerMovement.ShowFromCurrency = (x == Models.MovementType.Conversion);
                 if (x == Models.MovementType.Deposit
                     || x == Models.MovementType.Withdrawal
                     || x == Models.MovementType.ACATMoneyTransferSent
                     || x == Models.MovementType.ACATMoneyTransferReceived
                     || x == Models.MovementType.ACATSecuritiesTransferSent
                     || x == Models.MovementType.ACATSecuritiesTransferReceived
-                    || x == Models.MovementType.Conversion
                     || hiderFeesAndCommissions)                
                     return true;
                 
@@ -194,10 +192,6 @@ public partial class BrokerMovementCreatorPage
             ? Microsoft.FSharp.Core.FSharpOption<string>.None
             : Microsoft.FSharp.Core.FSharpOption<string>.Some(BrokerMovement.DepositData.Note!);
 
-        var fromCurrency = string.IsNullOrWhiteSpace(BrokerMovement.DepositData.FromCurrency)
-            ? Microsoft.FSharp.Core.FSharpOption<Models.Currency>.None
-            : Microsoft.FSharp.Core.FSharpOption<Models.Currency>.Some(Core.UI.Collections.GetCurrency(BrokerMovement.DepositData.FromCurrency));
-
         return new Models.BrokerMovement(
                             0,
                             BrokerMovement.DepositData.TimeStamp,
@@ -208,7 +202,7 @@ public partial class BrokerMovementCreatorPage
                             BrokerMovement.DepositData.Fees,
                             brokerMovementType.Value,
                             notes,
-                            fromCurrency);
+                            null);
     }
 
     private bool HideFeesAndCommissions(Models.MovementType movementType)
