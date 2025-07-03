@@ -42,8 +42,7 @@ module Creator =
 
     let SaveBrokerMovement(movement: Binnaculum.Core.Models.BrokerMovement) = task {
         let databaseModel = movement.brokerMovementToDatabase()
-        do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBankMovement(movement: Binnaculum.Core.Models.BankAccountMovement) = task {
