@@ -201,7 +201,8 @@ public partial class BrokerMovementCreatorPage
                             BrokerMovement.DepositData.Commissions,
                             BrokerMovement.DepositData.Fees,
                             brokerMovementType.Value,
-                            notes);
+                            notes,
+                            null);
     }
 
     private bool HideFeesAndCommissions(Models.MovementType movementType)

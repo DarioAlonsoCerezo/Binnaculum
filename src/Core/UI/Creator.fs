@@ -41,6 +41,17 @@ module Creator =
     }
 
     let SaveBrokerMovement(movement: Binnaculum.Core.Models.BrokerMovement) = task {
+        // Validate FromCurrency based on MovementType
+        match movement.MovementType, movement.FromCurrency with
+        | Binnaculum.Core.Models.BrokerMovementType.Conversion, None ->
+            failwith "FromCurrency is required when MovementType is Conversion"
+        | Binnaculum.Core.Models.BrokerMovementType.Conversion, Some _ ->
+            () // Valid: Conversion with FromCurrency
+        | _, Some _ ->
+            failwith "FromCurrency should only be set when MovementType is Conversion"
+        | _, None ->
+            () // Valid: Non-conversion without FromCurrency
+        
         let databaseModel = movement.brokerMovementToDatabase()
         do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask |> Async.Ignore
     }

@@ -147,3 +147,6 @@ module ResourceKeys =
     
     [<Literal>]
     let OptionCode_Expired_Extended = "OptionCode_Expired_Extended"
+
+    [<Literal>]
+    let Placeholder_FromCurrency = "Placeholder_FromCurrency"

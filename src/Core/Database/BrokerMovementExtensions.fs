@@ -25,6 +25,7 @@ type Do() =
                 (SQLParameterName.Fees, brokerMovement.Fees.Value);
                 (SQLParameterName.MovementType, fromMovementTypeToDatabase brokerMovement.MovementType);
                 (SQLParameterName.Notes, brokerMovement.Notes.ToDbValue());
+                (SQLParameterName.FromCurrencyId, brokerMovement.FromCurrencyId.ToDbValue());
             ], brokerMovement)
 
     [<Extension>]
@@ -39,6 +40,7 @@ type Do() =
             Fees = reader.getMoney FieldName.Fees
             MovementType = reader.getString FieldName.MovementType |> fromDataseToMovementType
             Notes = reader.getStringOrNone FieldName.Notes
+            FromCurrencyId = reader.getIntOrNone FieldName.FromCurrencyId
             Audit = reader.getAudit()        
         }
 
