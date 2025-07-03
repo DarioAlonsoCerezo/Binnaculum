@@ -8,6 +8,7 @@ open BrokerAccountExtensions
 open BrokerMovementExtensions
 open BankAccountBalanceExtensions
 open TickerExtensions
+open TradeExtensions
 
 /// <summary>
 /// This module serves as the central handler for saving entities to the database
@@ -85,4 +86,13 @@ module internal Saver =
     let saveTicker(ticker: Ticker) = task {
         do! ticker.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.loadTickers() |> Async.AwaitTask |> Async.Ignore
+    }
+
+    /// <summary>
+    /// Saves a Trade entity to the database and updates the corresponding collections.
+    /// - After saving, it refreshes all movements to ensure UI consistency
+    /// </summary>
+    let saveTrade(trade: Trade) = task {
+        do! trade.save() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
     }

@@ -63,8 +63,7 @@ module Creator =
     /// </summary>
     let SaveTrade(trade: Binnaculum.Core.Models.Trade) = task {
         let databaseTrade = trade.tradeToDatabase()
-        do! databaseTrade.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveTrade(databaseTrade) |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>
