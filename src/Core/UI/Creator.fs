@@ -79,8 +79,7 @@ module Creator =
     /// </summary>
     let SaveDividendDate(dividendDate: Binnaculum.Core.Models.DividendDate) = task {
         let databaseModel = dividendDate.dividendDateToDatabase()
-        do! databaseModel.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveDividendDate(databaseModel) |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>
