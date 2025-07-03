@@ -105,13 +105,8 @@ module Creator =
                     [trade]
             )
         
-        do! expandedTrades.optionTradesToDatabase()
-            |> List.map (fun model -> model.save() |> Async.AwaitTask |> Async.Ignore)
-            |> Async.Parallel
-            |> Async.Ignore
-        
-        // Refresh the movements collection to reflect the new option trades
-        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+        let databaseModels = expandedTrades.optionTradesToDatabase()
+        do! Saver.saveOptionsTrade(databaseModels) |> Async.AwaitTask |> Async.Ignore
     }
 
     let UpdateOptionsTimestampNotesAndMultiplier(timestamp: DateTime, notes: string option, multiplier: decimal, trade: Binnaculum.Core.Models.OptionTrade) =
