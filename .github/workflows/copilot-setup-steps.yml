@@ -1,0 +1,34 @@
+name: "Copilot Setup Steps"
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  copilot-setup-steps:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Disable Copilot agent firewall
+        run: echo "disable-firewall" > /etc/copilot-agent/firewall
+        continue-on-error: true
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install .NET MAUI Workload    
+        run: dotnet workload install maui
+
+      - name: Restore NuGet packages
+        run: dotnet restore
