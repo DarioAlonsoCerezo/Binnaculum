@@ -136,6 +136,7 @@ module internal DatabaseToModels =
                     MovementType = movement.MovementType.brokerMovementTypeToModel()
                     Notes = movement.Notes
                     FromCurrency = fromCurrency
+                    AmountChanged = movement.AmountChanged |> Option.map (fun m -> m.Value)
                 }
             {
                 Type = AccountMovementType.BrokerMovement

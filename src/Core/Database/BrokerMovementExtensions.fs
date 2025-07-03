@@ -26,6 +26,7 @@ type Do() =
                 (SQLParameterName.MovementType, fromMovementTypeToDatabase brokerMovement.MovementType);
                 (SQLParameterName.Notes, brokerMovement.Notes.ToDbValue());
                 (SQLParameterName.FromCurrencyId, brokerMovement.FromCurrencyId.ToDbValue());
+                (SQLParameterName.AmountChanged, (brokerMovement.AmountChanged |> Option.map (fun m -> m.Value)).ToDbValue());
             ], brokerMovement)
 
     [<Extension>]
@@ -41,6 +42,7 @@ type Do() =
             MovementType = reader.getString FieldName.MovementType |> fromDataseToMovementType
             Notes = reader.getStringOrNone FieldName.Notes
             FromCurrencyId = reader.getIntOrNone FieldName.FromCurrencyId
+            AmountChanged = reader.getMoneyOrNone FieldName.AmountChanged
             Audit = reader.getAudit()        
         }
 

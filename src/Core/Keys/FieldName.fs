@@ -74,6 +74,9 @@ module internal FieldName =
     let FromCurrencyId = "FromCurrencyId"
 
     [<Literal>]
+    let AmountChanged = "AmountChanged"
+
+    [<Literal>]
     let CreatedAt = "CreatedAt"
 
     [<Literal>]
