@@ -8,7 +8,7 @@
     x:DataType="controls:BorderedEntry"
     ControlTemplate="{StaticResource BorderedControlTemplate}">
 
-    <Grid ColumnDefinitions="Auto,Auto,1*">
+    <Grid ColumnDefinitions="Auto,1*">
         <Label
             x:Name="CurrencyLabel"
             Padding="8,0"
@@ -20,7 +20,6 @@
         </Label>
         <Label
             x:Name="TickerLabel"
-            Grid.Column="1"
             Padding="8,0"
             Style="{StaticResource LabelSettingsGroup}"
             IsVisible="{Binding Source={x:Reference Control}, Path=IsTickerVisible}">
@@ -30,7 +29,7 @@
         </Label>
         <controls:BorderlessEntry
             x:Name="BorderlessEntry"
-            Grid.Column="2"
+            Grid.Column="1"
             Text="{Binding Text}"
             Placeholder="{Binding Placeholder}"
             TextTransform="{Binding TextTransform}"

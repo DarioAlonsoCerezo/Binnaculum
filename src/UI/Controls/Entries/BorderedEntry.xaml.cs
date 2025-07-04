@@ -198,31 +198,31 @@ public partial class BorderedEntry
             }).DisposeWith(Disposables);
 
         CurrencyGesture.Events().Tapped
-        .SelectMany(_ => Observable.FromAsync(async () =>
-        {
-            var popupResult = await new CurrencySelectorPopup().ShowAndWait();
-            if (popupResult.Result is Models.Currency currency)
+            .SelectMany(_ => Observable.FromAsync(async () =>
             {
-                CurrencyLabel.Text = currency.Code;
-                CurrencyChanged?.Invoke(this, currency.Code);
-            }
-            return Unit.Default; // Return Unit.Default as a "void" equivalent
-        }))
-        .Subscribe()
-        .DisposeWith(Disposables);
+                var popupResult = await new CurrencySelectorPopup().ShowAndWait();
+                if (popupResult.Result is Models.Currency currency)
+                {
+                    CurrencyLabel.Text = currency.Code;
+                    CurrencyChanged?.Invoke(this, currency.Code);
+                }
+                return Unit.Default; // Return Unit.Default as a "void" equivalent
+            }))
+            .Subscribe()
+            .DisposeWith(Disposables);
 
         TickerGesture.Events().Tapped
-        .SelectMany(_ => Observable.FromAsync(async () =>
-        {
-            var popupResult = await new TickerSelectorPopup().ShowAndWait();
-            if (popupResult.Result is Models.Ticker ticker)
+            .SelectMany(_ => Observable.FromAsync(async () =>
             {
-                TickerLabel.Text = ticker.Symbol;
-                TickerChanged?.Invoke(this, ticker.Symbol);
-            }
-            return Unit.Default; // Return Unit.Default as a "void" equivalent
-        }))
-        .Subscribe()
-        .DisposeWith(Disposables);
+                var popupResult = await new TickerSelectorPopup().ShowAndWait();
+                if (popupResult.Result is Models.Ticker ticker)
+                {
+                    TickerLabel.Text = ticker.Symbol;
+                    TickerChanged?.Invoke(this, ticker.Symbol);
+                }
+                return Unit.Default; // Return Unit.Default as a "void" equivalent
+            }))
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 }
