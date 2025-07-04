@@ -8,7 +8,7 @@
     x:DataType="controls:BorderedEntry"
     ControlTemplate="{StaticResource BorderedControlTemplate}">
 
-    <Grid ColumnDefinitions="Auto,1*">
+    <Grid ColumnDefinitions="Auto,Auto,1*">
         <Label
             x:Name="CurrencyLabel"
             Padding="8,0"
@@ -18,9 +18,19 @@
                 <TapGestureRecognizer x:Name="CurrencyGesture" />
             </Label.GestureRecognizers>
         </Label>
+        <Label
+            x:Name="TickerLabel"
+            Grid.Column="1"
+            Padding="8,0"
+            Style="{StaticResource LabelSettingsGroup}"
+            IsVisible="{Binding Source={x:Reference Control}, Path=IsTickerVisible}">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer x:Name="TickerGesture" />
+            </Label.GestureRecognizers>
+        </Label>
         <controls:BorderlessEntry
             x:Name="BorderlessEntry"
-            Grid.Column="1"
+            Grid.Column="2"
             Text="{Binding Text}"
             Placeholder="{Binding Placeholder}"
             TextTransform="{Binding TextTransform}"
@@ -28,7 +38,7 @@
             IsEnabled="{Binding Source={x:Reference Control}, Path=IsEnabled}" />
         <controls:InformationButton
             x:Name="InformationMarkdownButton"
-            Grid.Column="1"
+            Grid.Column="2"
             Text="{Binding Source={x:Reference Control}, Path=Information}"
             IsVisible="False"
             HorizontalOptions="End" />

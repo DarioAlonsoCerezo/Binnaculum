@@ -8,6 +8,7 @@ public partial class BorderedEntry
 {
     public event EventHandler<TextChangedEventArgs> TextChanged;
     public event EventHandler<string> CurrencyChanged;
+    public event EventHandler<string> TickerChanged;
     public event EventHandler Completed;
 
     // Add a flag to prevent circular updates
@@ -88,6 +89,22 @@ public partial class BorderedEntry
         set => SetValue(IsCurrencyVisibleProperty, value);
     }
 
+    public static readonly BindableProperty IsTickerVisibleProperty =
+        BindableProperty.Create(nameof(IsTickerVisible), typeof(bool), typeof(BorderedEntry), false,
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                if (bindable is BorderedEntry borderedEntry && newValue is bool enabled)
+                {
+                    borderedEntry.TickerLabel.IsVisible = enabled;
+                }
+            });
+
+    public bool IsTickerVisible
+    {
+        get => (bool)GetValue(IsTickerVisibleProperty);
+        set => SetValue(IsTickerVisibleProperty, value);
+    }
+
     public static readonly BindableProperty IsMoneyEntryProperty =
         BindableProperty.Create(nameof(IsMoneyEntry), typeof(bool), typeof(BorderedEntry), false,
             propertyChanged: (bindable, oldValue, newValue) =>
@@ -120,6 +137,8 @@ public partial class BorderedEntry
 
     public string SelectedCurrencyText => CurrencyLabel.Text;
 
+    public string SelectedTickerText => TickerLabel.Text;
+
     public async Task Unfocus(bool hideKeyboard = false)
     {
         if(BorderlessEntry.IsFocused)
@@ -135,6 +154,9 @@ public partial class BorderedEntry
 
         CurrencyLabel.Text = Core.UI.SavedPrefereces.UserPreferences.Value.Currency;
         CurrencyChanged?.Invoke(this, CurrencyLabel.Text);
+        
+        TickerLabel.Text = Core.UI.SavedPrefereces.UserPreferences.Value.Ticker;
+        TickerChanged?.Invoke(this, TickerLabel.Text);
     }
 
     protected override void StartLoad()
@@ -183,6 +205,20 @@ public partial class BorderedEntry
             {
                 CurrencyLabel.Text = currency.Code;
                 CurrencyChanged?.Invoke(this, currency.Code);
+            }
+            return Unit.Default; // Return Unit.Default as a "void" equivalent
+        }))
+        .Subscribe()
+        .DisposeWith(Disposables);
+
+        TickerGesture.Events().Tapped
+        .SelectMany(_ => Observable.FromAsync(async () =>
+        {
+            var popupResult = await new TickerSelectorPopup().ShowAndWait();
+            if (popupResult.Result is Models.Ticker ticker)
+            {
+                TickerLabel.Text = ticker.Symbol;
+                TickerChanged?.Invoke(this, ticker.Symbol);
             }
             return Unit.Default; // Return Unit.Default as a "void" equivalent
         }))
