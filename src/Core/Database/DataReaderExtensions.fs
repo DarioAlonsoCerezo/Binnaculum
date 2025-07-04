@@ -63,6 +63,14 @@ open Binnaculum.Core
                 Some(reader.GetInt32(ordinal))
 
         [<Extension>]
+        static member getDecimalOrNone(reader: SqliteDataReader, columName: string) =
+            let ordinal = reader.GetOrdinal(columName)
+            if reader.IsDBNull(ordinal) then
+                None
+            else
+                Some(reader.GetDecimal(ordinal))
+
+        [<Extension>]
         static member getDataTimeOrNone(reader: SqliteDataReader, columName: string) =
             let ordinal = reader.GetOrdinal(columName)
             if reader.IsDBNull(ordinal) then

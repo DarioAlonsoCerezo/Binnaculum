@@ -124,6 +124,7 @@ module internal DatabaseToModels =
             let brokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(movement.BrokerAccountId)
             let currency = Binnaculum.Core.UI.Collections.getCurrency(movement.CurrencyId)
             let fromCurrency = movement.FromCurrencyId |> Option.map (fun id -> Binnaculum.Core.UI.Collections.getCurrency(id))
+            let ticker = movement.TickerId |> Option.map (fun id -> Binnaculum.Core.UI.Collections.getTickerById(id))
             let brokerMovement =
                 {
                     Id = movement.Id
@@ -137,6 +138,8 @@ module internal DatabaseToModels =
                     Notes = movement.Notes
                     FromCurrency = fromCurrency
                     AmountChanged = movement.AmountChanged |> Option.map (fun m -> m.Value)
+                    Ticker = ticker
+                    Quantity = movement.Quantity
                 }
             {
                 Type = AccountMovementType.BrokerMovement

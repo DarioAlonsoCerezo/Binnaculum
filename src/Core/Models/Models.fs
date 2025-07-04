@@ -87,6 +87,13 @@ module Models =
         Symbol: string;
     }
 
+    type Ticker = {
+        Id: int
+        Symbol: string
+        Image: string option
+        Name: string option
+    }
+
     type BrokerMovement = {
         Id: int
         TimeStamp: DateTime
@@ -99,13 +106,8 @@ module Models =
         Notes: string option
         FromCurrency: Currency option
         AmountChanged: decimal option
-    }
-    
-    type Ticker = {
-        Id: int
-        Symbol: string
-        Image: string option
-        Name: string option
+        Ticker: Ticker option
+        Quantity: decimal option
     }
 
     type TickerSplit = {
