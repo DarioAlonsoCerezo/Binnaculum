@@ -57,6 +57,13 @@ public partial class MovementTemplate
         Amount.Money = movement.BrokerMovement.Value.Currency;
         TimeStamp.DateTime = movement.BrokerMovement.Value.TimeStamp;
         Title.SetLocalizedText(GetTitleFromBrokerAccountMovementType(movement.BrokerMovement.Value.MovementType));
+
+        if (movement.BrokerMovement.Value.MovementType.IsConversion)
+        {
+            AmountConverted.Amount = movement.BrokerMovement.Value.AmountChanged.Value;
+            AmountConverted.Money = movement.BrokerMovement.Value.FromCurrency.Value;
+            AmountConverted.IsVisible = true;
+        }    
     }
 
     private void FillBankAccountMovement(Models.BankAccountMovement movement)

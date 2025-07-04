@@ -1006,4 +1006,10 @@ A PUT option gives you the **right to sell** the underlying asset at a specific 
   <data name="Settings_Section_General_Group_Option_Trades" xml:space="preserve">
     <value>Group options</value>
   </data>
+  <data name="Placeholder_Conversion_From" xml:space="preserve">
+    <value>Converting</value>
+  </data>
+  <data name="Placeholder_Conversion_To" xml:space="preserve">
+    <value>Converted</value>
+  </data>
 </root>

@@ -1007,4 +1007,10 @@ Una opción PUT te da el **derecho a vender** el activo subyacente a un precio e
   <data name="Settings_Section_General_Group_Option_Trades" xml:space="preserve">
     <value>Agrupar opcions</value>
   </data>
+  <data name="Placeholder_Conversion_From" xml:space="preserve">
+    <value>Convirtiendo</value>
+  </data>
+  <data name="Placeholder_Conversion_To" xml:space="preserve">
+    <value>Convertido</value>
+  </data>
 </root>

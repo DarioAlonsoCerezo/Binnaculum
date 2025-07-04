@@ -8,7 +8,7 @@
     xmlns:local="clr-namespace:Binnaculum"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
-    <ScrollView>
+    <ScrollView Padding="0,0,0,24">
         <Grid>
             <VerticalStackLayout
                 Padding="24,48,24,16"

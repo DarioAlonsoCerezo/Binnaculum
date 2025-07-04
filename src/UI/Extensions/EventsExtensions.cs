@@ -36,6 +36,7 @@ public static class EventsExtensions
     public static RxButtonDiscardEvents Events(this ButtonDiscard item) => new(item);
     public static RxButtonAddOrDiscardEvents Events(this ButtonSaveOrDiscard item) => new(item);
     public static RxCarouselViewEvents Events(this CarouselView item) => new(item);
+    public static RxBorderedConversionControlEvents Events(this BorderedConversionControl item) => new(item);
     public static RxBorderedEntry Events(this BorderedEntry item) => new(item);
     public static RxBorderedFeeAndCommissionControlEvents Events(this BorderedFeeAndCommissionControl item) => new(item);
     public static RxBorderedDateTimePickerControlEvents Events(this BorderedDateTimePickerControl item) => new(item);

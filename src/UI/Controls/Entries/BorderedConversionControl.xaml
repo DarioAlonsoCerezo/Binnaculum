@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.BorderedConversionControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    ControlTemplate="{StaticResource BorderedControlTemplate}">
+    <Grid ColumnDefinitions="1*,1*">
+        <Grid ColumnDefinitions="Auto, 1*">
+            <Label
+                x:Name="CurrencyConvertingLabel"
+                Padding="8,0"
+                TextDecorations="Underline"
+                Style="{StaticResource LabelSettingsGroup}">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer x:Name="CurrencyConvertingGesture" />
+                </Label.GestureRecognizers>
+            </Label>
+            <controls:BorderlessEntry
+                x:Name="AmountConverting"
+                Grid.Column="1"
+                Placeholder="{local:Translate Placeholder_Conversion_From}"
+                Keyboard="Numeric"
+                HorizontalTextAlignment="Center" />
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto, 1*" Grid.Column="1">
+            <Label
+                x:Name="CurrencyConvertedLabel"
+                Padding="8,0"
+                TextDecorations="Underline"
+                Style="{StaticResource LabelSettingsGroup}">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer x:Name="CurrencyConvertedGesture" />
+                </Label.GestureRecognizers>
+            </Label>
+            <controls:BorderlessEntry
+                x:Name="AmountConverted"
+                Grid.Column="1"
+                Placeholder="{local:Translate Placeholder_Conversion_To}"
+                Keyboard="Numeric"
+                HorizontalTextAlignment="Center" />
+        </Grid>
+
+
+    </Grid>
+</controls:BaseContentView>

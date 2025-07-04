@@ -8,7 +8,7 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:pages="clr-namespace:Binnaculum.Pages"
     NavigationPage.HasNavigationBar="False">
-    <ScrollView>
+    <ScrollView Padding="0,0,0,24">
         <Grid
             Padding="24"
             RowDefinitions="1*,1*,Auto"

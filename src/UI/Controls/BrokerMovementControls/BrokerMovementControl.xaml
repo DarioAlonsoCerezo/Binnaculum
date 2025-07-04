@@ -16,6 +16,9 @@
                                               Dark={StaticResource Black}}"
             VerticalOptions="Start">
             <VerticalStackLayout Spacing="12">
+                <controls:BorderedConversionControl
+                    x:Name="Conversion"
+                    IsVisible="False" />
                 <controls:BorderedEntry
                     x:Name="AmountEntry"
                     IsMoneyEntry="True"

@@ -1,5 +1,6 @@
 using Binnaculum.Controls;
 using Binnaculum.Core;
+using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Pages;
 
@@ -44,12 +45,14 @@ public partial class BrokerMovementCreatorPage
             {
                 var hiderFeesAndCommissions = HideFeesAndCommissions(x);
                 BrokerMovement.HideFeesAndCommissions = hiderFeesAndCommissions;
+                BrokerMovement.HideAmount = x == Models.MovementType.Conversion;
                 if (x == Models.MovementType.Deposit
                     || x == Models.MovementType.Withdrawal
                     || x == Models.MovementType.ACATMoneyTransferSent
                     || x == Models.MovementType.ACATMoneyTransferReceived
                     || x == Models.MovementType.ACATSecuritiesTransferSent
                     || x == Models.MovementType.ACATSecuritiesTransferReceived
+                    || x == Models.MovementType.Conversion
                     || hiderFeesAndCommissions)                
                     return true;
                 
@@ -91,6 +94,12 @@ public partial class BrokerMovementCreatorPage
         BrokerMovement.Events().DepositChanged
             .Where(_ => BrokerMovement.IsVisible)
             .Select(x => x.Amount > 0)
+            .BindTo(Save, x => x.IsVisible)
+            .DisposeWith(Disposables);
+
+        BrokerMovement.Events().ConversionChanged
+            .Where(_ => BrokerMovement.IsVisible)
+            .Select(x => x.AmountTo > 0 && x.AmountFrom > 0)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
@@ -184,6 +193,9 @@ public partial class BrokerMovementCreatorPage
 
     private Models.BrokerMovement? GetBrokerMovement(Models.MovementType? movementType)
     {
+        if(movementType == Models.MovementType.Conversion)
+            return GetConversion(movementType);
+
         var brokerMovementType = Core.UI.Creator.GetBrokerMovementType(movementType);
         if (brokerMovementType == null)
             return null;
@@ -202,8 +214,36 @@ public partial class BrokerMovementCreatorPage
                             BrokerMovement.DepositData.Fees,
                             brokerMovementType.Value,
                             notes,
-                            null,
-                            null);
+                            Microsoft.FSharp.Core.FSharpOption<Models.Currency>.None,
+                            Microsoft.FSharp.Core.FSharpOption<decimal>.None,
+                            Microsoft.FSharp.Core.FSharpOption<Models.Ticker>.None,
+                            Microsoft.FSharp.Core.FSharpOption<decimal>.None);
+    }
+
+    private Models.BrokerMovement? GetConversion(Models.MovementType? movementType)
+    {
+        var brokerMovementType = Core.UI.Creator.GetBrokerMovementType(movementType);
+        if (brokerMovementType == null)
+            return null;
+
+        var notes = string.IsNullOrWhiteSpace(BrokerMovement.ConversionData.Note)
+            ? Microsoft.FSharp.Core.FSharpOption<string>.None
+            : Microsoft.FSharp.Core.FSharpOption<string>.Some(BrokerMovement.ConversionData.Note!);
+
+        return new Models.BrokerMovement(
+                            0,
+                            BrokerMovement.DepositData.TimeStamp,
+                            BrokerMovement.ConversionData.AmountTo, 
+                            Core.UI.Collections.GetCurrency(BrokerMovement.ConversionData.CurrencyTo),
+                            _account,
+                            BrokerMovement.ConversionData.Commissions,
+                            BrokerMovement.ConversionData.Fees,
+                            brokerMovementType.Value,
+                            notes,
+                            Core.UI.Collections.GetCurrency(BrokerMovement.ConversionData.CurrencyFrom),
+                            BrokerMovement.ConversionData.AmountFrom,
+                            Microsoft.FSharp.Core.FSharpOption<Models.Ticker>.None,
+                            Microsoft.FSharp.Core.FSharpOption<decimal>.None);
     }
 
     private bool HideFeesAndCommissions(Models.MovementType movementType)

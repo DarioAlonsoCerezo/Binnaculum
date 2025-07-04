@@ -10,4 +10,11 @@ public class RxBrokerMovementControlEvents(BrokerMovementControl data) : RxVisua
                 eventHandler => (_, e) => eventHandler(e),
                 handler => data.DepositChanged += handler,
                 handler => data.DepositChanged -= handler);
+
+    public IObservable<ConversionControl> ConversionChanged
+        => Observable
+            .FromEvent<EventHandler<ConversionControl>, ConversionControl>(
+                eventHandler => (_, e) => eventHandler(e),
+                handler => data.ConversionChanged += handler,
+                handler => data.ConversionChanged -= handler);
 }

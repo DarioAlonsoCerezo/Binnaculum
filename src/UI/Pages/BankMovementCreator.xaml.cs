@@ -2,7 +2,6 @@ using Binnaculum.Core;
 using Binnaculum.Core.UI;
 using Binnaculum.Core.Utilities;
 using Microsoft.FSharp.Core;
-using System.Reactive.Linq;
 
 namespace Binnaculum.Pages;
 
