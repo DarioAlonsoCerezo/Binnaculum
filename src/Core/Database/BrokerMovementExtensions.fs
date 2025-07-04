@@ -27,6 +27,8 @@ type Do() =
                 (SQLParameterName.Notes, brokerMovement.Notes.ToDbValue());
                 (SQLParameterName.FromCurrencyId, brokerMovement.FromCurrencyId.ToDbValue());
                 (SQLParameterName.AmountChanged, (brokerMovement.AmountChanged |> Option.map (fun m -> m.Value)).ToDbValue());
+                (SQLParameterName.TickerId, brokerMovement.TickerId.ToDbValue());
+                (SQLParameterName.Quantity, brokerMovement.Quantity.ToDbValue());
             ], brokerMovement)
 
     [<Extension>]
@@ -43,6 +45,8 @@ type Do() =
             Notes = reader.getStringOrNone FieldName.Notes
             FromCurrencyId = reader.getIntOrNone FieldName.FromCurrencyId
             AmountChanged = reader.getMoneyOrNone FieldName.AmountChanged
+            TickerId = reader.getIntOrNone FieldName.TickerId
+            Quantity = reader.getDecimalOrNone FieldName.Quantity
             Audit = reader.getAudit()        
         }
 

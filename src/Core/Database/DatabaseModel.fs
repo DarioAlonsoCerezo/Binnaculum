@@ -115,6 +115,8 @@ module internal DatabaseModel =
         Notes: string option
         FromCurrencyId: int option
         AmountChanged: Money option
+        TickerId: int option
+        Quantity: decimal option
         Audit: AuditableEntity
     } with
         interface IEntity with

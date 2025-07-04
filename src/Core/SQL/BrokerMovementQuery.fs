@@ -20,11 +20,14 @@ module internal BrokerMovementQuery =
             {Notes} TEXT,
             {FromCurrencyId} INTEGER,
             {AmountChanged} TEXT,
+            {TickerId} INTEGER,
+            {Quantity} TEXT,
             {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
             {UpdatedAt} TEXT,
             FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}),
             FOREIGN KEY ({BrokerAccountId}) REFERENCES {BrokerAccounts}({Id}),
-            FOREIGN KEY ({FromCurrencyId}) REFERENCES {Currencies}({Id})
+            FOREIGN KEY ({FromCurrencyId}) REFERENCES {Currencies}({Id}),
+            FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id})
         );
 
         -- Index to optimize queries filtering by TimeStamp
@@ -61,6 +64,8 @@ module internal BrokerMovementQuery =
             {Notes},
             {FromCurrencyId},
             {AmountChanged},
+            {TickerId},
+            {Quantity},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -76,6 +81,8 @@ module internal BrokerMovementQuery =
             {SQLParameterName.Notes},
             {SQLParameterName.FromCurrencyId},
             {SQLParameterName.AmountChanged},
+            {SQLParameterName.TickerId},
+            {SQLParameterName.Quantity},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -95,6 +102,8 @@ module internal BrokerMovementQuery =
             {Notes} = {SQLParameterName.Notes},
             {FromCurrencyId} = {SQLParameterName.FromCurrencyId},
             {AmountChanged} = {SQLParameterName.AmountChanged},
+            {TickerId} = {SQLParameterName.TickerId},
+            {Quantity} = {SQLParameterName.Quantity},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE

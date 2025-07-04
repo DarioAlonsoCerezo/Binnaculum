@@ -139,6 +139,8 @@ module internal ModelsToDatabase =
                 Notes = movement.Notes;
                 FromCurrencyId = movement.FromCurrency |> Option.map (fun c -> c.Id);
                 AmountChanged = movement.AmountChanged |> Option.map Money.FromAmount;
+                TickerId = movement.Ticker |> Option.map (fun t -> t.Id);
+                Quantity = movement.Quantity;
                 Audit = AuditableEntity.FromDateTime(movement.TimeStamp);
             }
 
