@@ -22,9 +22,9 @@ open BrokerAccountExtensions
 /// </summary>
 module internal SnapshotManager =
 
-    /// Helper function to get the date part only from a DateTimePattern
+    /// Helper function to get the date part only from a DateTimePattern, set to end of day (23:59:59)
     let private getDateOnly (dateTime: DateTimePattern) =
-        let date = dateTime.Value.Date
+        let date = dateTime.Value.Date.AddDays(1).AddTicks(-1)
         DateTimePattern.FromDateTime(date)
     
     /// Creates a base snapshot with the given date
