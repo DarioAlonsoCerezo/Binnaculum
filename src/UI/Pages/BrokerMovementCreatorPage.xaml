@@ -79,6 +79,8 @@
                 Margin="0,20,12,0"
                 ImageSource="close.png"
                 HeightRequest="40"
+                TintColor="{AppThemeBinding Dark={StaticResource White},
+                                            Light={StaticResource Black}}"
                 VerticalOptions="Start"
                 HorizontalOptions="End">
                 <controls:TintedImage.GestureRecognizers>
