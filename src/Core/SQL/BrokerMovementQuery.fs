@@ -129,3 +129,12 @@ module internal BrokerMovementQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
+    
+    let getByBrokerAccountIdAndDateRange =
+        $"""
+        SELECT * FROM {BrokerMovements}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND {TimeStamp} <= {SQLParameterName.DateEnd}
+        ORDER BY {TimeStamp}
+        """
