@@ -24,6 +24,12 @@ module internal Patterns =
                 | true, dateTime -> Some(DateTimePattern dateTime)
                 | false, _ -> None
 
+            /// Returns a new DateTimePattern with the same date but time set to 23:59:59
+            member this.WithEndOfDay() =
+                let (DateTimePattern dateTime) = this
+                let endOfDay = DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 23, 59, 59, dateTime.Kind)
+                DateTimePattern endOfDay
+
             /// Converts the DateTimePattern back to a string in ISO 8601 format
             override this.ToString() =
                 let (DateTimePattern dateTime) = this

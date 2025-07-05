@@ -136,7 +136,11 @@ module internal Saver =
     /// </summary>
     let saveOptionsTrade(optionTrades: OptionTrade list) = task {
         do! optionTrades
-            |> List.map (fun model -> model.save() |> Async.AwaitTask |> Async.Ignore)
+            |> List.map (fun model -> 
+                let endOfDay = model.ExpirationDate.WithEndOfDay()
+                let updated = { model with ExpirationDate = endOfDay }
+                // Save each option trade asynchronously
+                updated.save() |> Async.AwaitTask |> Async.Ignore)
             |> Async.Parallel
             |> Async.Ignore
         
