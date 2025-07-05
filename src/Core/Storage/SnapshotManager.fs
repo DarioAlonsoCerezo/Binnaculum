@@ -147,12 +147,8 @@ module internal SnapshotManager =
         task {
             let snapshotDate = getDateOnly date
             
-            // Get all broker movements and filter for this account up to the snapshot date
-            let! allMovements = BrokerMovementExtensions.Do.getAll()
-            
-            let movementsUpToDate = 
-                allMovements
-                |> List.filter (fun m -> m.BrokerAccountId = brokerAccountId && m.TimeStamp.Value.Date <= snapshotDate.Value.Date)
+            // Get filtered broker movements for this account up to the snapshot date
+            let! movementsUpToDate = BrokerMovementExtensions.Do.getByBrokerAccountIdAndDateRange(brokerAccountId, snapshotDate)
             
             // Calculate net cash from movements (simplified calculation)
             let netCash = 
