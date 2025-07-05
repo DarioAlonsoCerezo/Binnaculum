@@ -1,4 +1,6 @@
-﻿namespace Binnaculum;
+﻿using Binnaculum.Controls;
+
+namespace Binnaculum;
 
 public partial class LocalizationResourceManager : INotifyPropertyChanged
 {
@@ -142,6 +144,13 @@ public static partial class LocalizationExtensions
         span.Text = GetLocalizedString(resourceKey, args);
         return span;
     }
+
+    public static BorderedEntry SetPlaceholderLocalizedText(this BorderedEntry entry, string resourceKey, params object[] args)
+    {
+        entry.Placeholder = GetLocalizedString(resourceKey, args);
+        return entry;
+    }
+
 
     /// <summary>
     /// Gets the localized string for a specific resource key

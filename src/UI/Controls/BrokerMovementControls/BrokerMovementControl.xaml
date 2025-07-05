@@ -16,6 +16,13 @@
                                               Dark={StaticResource Black}}"
             VerticalOptions="Start">
             <VerticalStackLayout Spacing="12">
+                <controls:IconControl
+                    x:Name="TickerIcon"
+                    IsVisible="False">
+                    <controls:IconControl.GestureRecognizers>
+                        <TapGestureRecognizer x:Name="TickerIconGesture" />
+                    </controls:IconControl.GestureRecognizers>
+                </controls:IconControl>
                 <controls:BorderedConversionControl
                     x:Name="Conversion"
                     IsVisible="False" />

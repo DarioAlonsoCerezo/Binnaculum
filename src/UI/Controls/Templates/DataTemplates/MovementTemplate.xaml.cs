@@ -22,8 +22,10 @@ public partial class MovementTemplate
         if(BindingContext is Models.Movement movement)
         {            
             Quantity.IsVisible = movement.Type.IsTrade;
-            SubTitle.IsVisible = movement.Type.IsTrade || movement.Type.IsDividendDate;
+            SubTitle.IsVisible = ShowSubtitle(movement);
             OptionSubtitle.IsVisible = movement.Type.IsOptionTrade;
+            ACAT.IsVisible = ShowACAT(movement);
+            Amount.IsVisible = !ACAT.IsVisible;
 
             if (movement.Type.IsBrokerMovement)
                 FillBrokerAccountMovement(movement);            
@@ -63,7 +65,26 @@ public partial class MovementTemplate
             AmountConverted.Amount = movement.BrokerMovement.Value.AmountChanged.Value;
             AmountConverted.Money = movement.BrokerMovement.Value.FromCurrency.Value;
             AmountConverted.IsVisible = true;
-        }    
+        } 
+        
+        if (movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferReceived
+            || movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferSent)
+        {
+            Icon.ImagePath = movement.BrokerMovement.Value.Ticker.Value.Image.Value;
+            ACATQuantity.Text = movement.BrokerMovement.Value.Quantity.Value.ToString("N0");
+
+            ACATQuantity.TextColor = movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferSent
+                ? (Color)Application.Current!.Resources["RedState"]
+                : (Color)Application.Current!.Resources["GreenState"];
+        }
+
+        if(movement.BrokerMovement.Value.MovementType.IsACATMoneyTransferReceived
+            || movement.BrokerMovement.Value.MovementType.IsACATMoneyTransferSent
+            || movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferReceived
+            || movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferSent)
+        {
+            SubTitle.SetLocalizedText(GetSubtitleFromACAT(movement.BrokerMovement.Value.MovementType));
+        }
     }
 
     private void FillBankAccountMovement(Models.BankAccountMovement movement)
@@ -151,13 +172,7 @@ public partial class MovementTemplate
 
     private string GetTitleFromBrokerAccountMovementType(Models.BrokerMovementType movementType)
     {
-        var resourceKey = ResourceKeys.MovementType_ACATMoneyTransferReceived;
-        if (movementType.IsACATMoneyTransferSent)
-            resourceKey = ResourceKeys.MovementType_ACATMoneyTransferSent;
-        if (movementType.IsACATSecuritiesTransferReceived)
-            resourceKey = ResourceKeys.MovementType_ACATSecuritiesTransferReceived;
-        if (movementType.IsACATSecuritiesTransferSent)
-            resourceKey = ResourceKeys.MovementType_ACATSecuritiesTransferSent;
+        var resourceKey = ResourceKeys.MovementType_ACATTransfer;
         if (movementType.IsConversion)
             resourceKey = ResourceKeys.MovementType_Conversion;
         if (movementType.IsDeposit)
@@ -198,5 +213,37 @@ public partial class MovementTemplate
             resourceKey = ResourceKeys.Movement_SellToClose;
 
         return resourceKey;
+    }
+
+    private string GetSubtitleFromACAT(Models.BrokerMovementType movementType)
+    {
+        var resourceKey = ResourceKeys.MovementType_ACATMoneyTransferReceived_Subtitle;
+        if (movementType.IsACATMoneyTransferSent)
+            resourceKey = ResourceKeys.MovementType_ACATMoneyTransferSent_Subtitle;
+        if (movementType.IsACATSecuritiesTransferSent)
+            resourceKey = ResourceKeys.MovementType_ACATSecuritiesTransferSent_Subtitle;
+        if (movementType.IsACATSecuritiesTransferReceived)
+            resourceKey = ResourceKeys.MovementType_ACATSecuritiesTransferReceived_Subtitle;
+        return resourceKey;
+    }
+
+    private bool ShowACAT(Models.Movement movement)
+    {
+        return movement.Type.IsBrokerMovement
+            && (movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferReceived
+                || movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferSent);
+    }
+
+    private bool ShowSubtitle(Models.Movement movement)
+    {
+        if(movement.Type.IsBrokerMovement)
+        {
+            return movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferReceived
+                || movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferSent
+                || movement.BrokerMovement.Value.MovementType.IsACATMoneyTransferReceived
+                || movement.BrokerMovement.Value.MovementType.IsACATMoneyTransferSent;
+        }
+
+        return movement.Type.IsTrade || movement.Type.IsDividendDate;
     }
 }

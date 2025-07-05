@@ -1,15 +1,22 @@
+using Binnaculum.Core;
+using Binnaculum.Popups;
+using System.Xml.Schema;
+
 namespace Binnaculum.Controls;
 
 public partial class BrokerMovementControl
 {
     public event EventHandler<DepositControl> DepositChanged;
     public event EventHandler<ConversionControl> ConversionChanged;
+    public event EventHandler<ACATControl> ACATChanged;
 
     private DepositControl _deposit;
     private ConversionControl _conversion;
+    private ACATControl _acat;
 
     public DepositControl DepositData => _deposit;
     public ConversionControl ConversionData => _conversion;
+    public ACATControl ACATData => _acat;
 
     public static readonly BindableProperty HideFeesAndCommissionsProperty =
         BindableProperty.Create(
@@ -72,12 +79,42 @@ public partial class BrokerMovementControl
         set => SetValue(HideAmountProperty, value);
     }
 
+    public static readonly BindableProperty ShowTickerProperty =
+        BindableProperty.Create(
+            nameof(ShowTicker),
+            typeof(bool),
+            typeof(BrokerMovementControl),
+            true, // Default to visible
+            propertyChanged: (bindable, oldValue, newValue) =>
+            {
+                if (bindable is BrokerMovementControl control && newValue is bool showTicker)
+                {
+                    control.TickerIcon.IsVisible = showTicker;
+                }
+            });
+
+    public bool ShowTicker
+    {
+        get => (bool)GetValue(ShowTickerProperty);
+        set => SetValue(ShowTickerProperty, value);
+    }
+
     public BrokerMovementControl()
 	{
 		InitializeComponent();
 
         // Set default currency visibility (true by default from the bindable property)
         AmountEntry.IsCurrencyVisible = ShowCurrency;
+
+        Core.UI.SavedPrefereces.UserPreferences
+            .Do(p =>
+            {
+                var ticker = Core.UI.Collections.GetTicker(p.Ticker);
+                TickerIcon.PlaceholderText = ticker.Symbol;
+                TickerIcon.ImagePath = ticker.Image?.Value ?? string.Empty;
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
 
         _deposit = new DepositControl(
             TimeStamp: DateTime.Now,
@@ -96,15 +133,47 @@ public partial class BrokerMovementControl
             Commissions: 0m,
             Fees: 0m, 
             Note: string.Empty);
+
+        _acat = new ACATControl(
+            TimeStamp: DateTime.Now,
+            Ticker: Core.UI.Collections.GetTicker(Core.UI.SavedPrefereces.UserPreferences.Value.Ticker),
+            Quantity: 0m,
+            Commissions: 0m,
+            Fees: 0m,
+            Note: string.Empty);
+
+        TickerIcon.WhenAnyValue(x => x.IsVisible)
+            .Select(x => x ? ResourceKeys.Placeholder_Quantity : ResourceKeys.Placeholder_Amount)
+            .Do(t =>
+            {
+                AmountEntry.SetPlaceholderLocalizedText(t);
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 
     protected override void StartLoad()
     {
+        TickerIconGesture.Events().Tapped
+            .SelectMany(_ => Observable.FromAsync(async () =>
+            {
+                var popupResult = await new TickerSelectorPopup().ShowAndWait();
+                if (popupResult.Result is Models.Ticker ticker)
+                {
+                    TickerIcon.PlaceholderText = ticker.Symbol;
+                    TickerIcon.ImagePath = ticker.Image?.Value ?? string.Empty;
+                    _acat = _acat with { Ticker = ticker };
+                    ACATChanged?.Invoke(this, _acat);
+                }
+                return Unit.Default; // Return Unit.Default as a "void" equivalent
+            }))
+            .Subscribe()
+            .DisposeWith(Disposables);
+
         AmountEntry.Events().CurrencyChanged
             .Subscribe(x =>
             {
                 _deposit = _deposit with { Currency = x };
-
                 DepositChanged?.Invoke(this, _deposit);
             })
             .DisposeWith(Disposables);
@@ -115,7 +184,9 @@ public partial class BrokerMovementControl
                 if (decimal.TryParse(x.NewTextValue, out var amount))
                 {
                     _deposit = _deposit with { Amount = amount };
+                    _acat = _acat with { Quantity = amount };
                     DepositChanged?.Invoke(this, _deposit);
+                    ACATChanged?.Invoke(this, _acat);
                 }
             })
             .DisposeWith(Disposables);
@@ -139,8 +210,10 @@ public partial class BrokerMovementControl
             {
                 _deposit = _deposit with { TimeStamp = x };
                 _conversion = _conversion with { TimeStamp = x };
+                _acat = _acat with { TimeStamp = x };
                 DepositChanged?.Invoke(this, _deposit);
                 ConversionChanged?.Invoke(this, _conversion);
+                ACATChanged?.Invoke(this, _acat);
             })
             .DisposeWith(Disposables);
 
@@ -149,8 +222,10 @@ public partial class BrokerMovementControl
             {
                 _deposit = _deposit with { Commissions = x.Commission, Fees = x.Fee };
                 _conversion = _conversion with { Commissions = x.Commission, Fees = x.Fee };
+                _acat = _acat with { Commissions = x.Commission, Fees = x.Fee };
                 DepositChanged?.Invoke(this, _deposit);
                 ConversionChanged?.Invoke(this, _conversion);
+                ACATChanged?.Invoke(this, _acat);
             })
             .DisposeWith(Disposables);
 
@@ -159,8 +234,10 @@ public partial class BrokerMovementControl
             {
                 _deposit = _deposit with { Note = x.NewTextValue };
                 _conversion = _conversion with { Note = x.NewTextValue };
+                _acat = _acat with { Note = x.NewTextValue };
                 DepositChanged?.Invoke(this, _deposit);
                 ConversionChanged?.Invoke(this, _conversion);
+                ACATChanged?.Invoke(this, _acat);
             })
             .DisposeWith(Disposables);
     }

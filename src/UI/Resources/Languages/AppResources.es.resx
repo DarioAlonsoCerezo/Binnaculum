@@ -760,10 +760,6 @@ Tenga en cuenta que los brokers personalizados que cree se marcarán como "no co
     <value>Transferencia ACAT de Dinero Enviada</value>
     <comment>Tipo de movimiento: transferencia de dinero enviada a otra cuenta</comment>
   </data>
-  <data name="MovementType_ACATMoneyTransferReceived" xml:space="preserve">
-    <value>Transferencia ACAT de Dinero Recibida</value>
-    <comment>Tipo de movimiento: transferencia de dinero recibida de otra cuenta</comment>
-  </data>
   <data name="MovementType_ACATSecuritiesTransferSent" xml:space="preserve">
     <value>Transferencia ACAT de Valores Enviada</value>
     <comment>Tipo de movimiento: transferencia de valores enviada a otra cuenta</comment>
@@ -1012,5 +1008,24 @@ Una opción PUT te da el **derecho a vender** el activo subyacente a un precio e
   </data>
   <data name="Placeholder_Conversion_To" xml:space="preserve">
     <value>Convertido</value>
+  </data>
+  <data name="MovementType_ACATTransfer" xml:space="preserve">
+    <value>Transferencia ACAT</value>
+  </data>
+  <data name="MovementType_ACATMoneyTransferReceived" xml:space="preserve">
+    <value>Transferencia ACAT de Dinero Recibida</value>
+    <comment>Tipo de movimiento: transferencia de dinero recibida de otra cuenta</comment>
+  </data>
+  <data name="MovementType_ACATMoneyTransferReceived_Subtitle" xml:space="preserve">
+    <value>Dinero recibido</value>
+  </data>
+  <data name="MovementType_ACATMoneyTransferSent_Subtitle" xml:space="preserve">
+    <value>Dinero enviado</value>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransferReceived_Subtitle" xml:space="preserve">
+    <value>Valores recibidos</value>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransferSent_Subtitle" xml:space="preserve">
+    <value>Valores enviados</value>
   </data>
 </root>

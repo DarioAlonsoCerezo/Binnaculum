@@ -74,12 +74,32 @@
 
         <controls:MoneyControl
             x:Name="AmountConverted"
+            Margin="0,0,10,0"
             IsVisible="False"
             Scale="0.75"
             Opacity="0.5"
             HorizontalOptions="End"
             VerticalOptions="Center"
             TranslationY="15" />
+
+        <Label
+            x:Name="ACAT"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            TranslationY="15">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span
+                        Text="x"
+                        FontSize="Caption"
+                        FontFamily="OpenSansSemibold" />
+                    <Span
+                        x:Name="ACATQuantity"
+                        FontSize="Title"
+                        FontFamily="OpenSansBold" />
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
         <VerticalStackLayout
             Margin="0,4,20,0"
             HorizontalOptions="End"

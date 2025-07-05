@@ -45,7 +45,15 @@ public partial class BrokerMovementCreatorPage
             {
                 var hiderFeesAndCommissions = HideFeesAndCommissions(x);
                 BrokerMovement.HideFeesAndCommissions = hiderFeesAndCommissions;
+                BrokerMovement.ShowCurrency = true;
+                BrokerMovement.ShowTicker = false;
                 BrokerMovement.HideAmount = x == Models.MovementType.Conversion;
+                if (x == Models.MovementType.ACATSecuritiesTransferReceived
+                    || x == Models.MovementType.ACATSecuritiesTransferSent)
+                {
+                    BrokerMovement.ShowTicker = true;
+                    BrokerMovement.ShowCurrency = false;
+                }
                 if (x == Models.MovementType.Deposit
                     || x == Models.MovementType.Withdrawal
                     || x == Models.MovementType.ACATMoneyTransferSent
@@ -193,9 +201,6 @@ public partial class BrokerMovementCreatorPage
 
     private Models.BrokerMovement? GetBrokerMovement(Models.MovementType? movementType)
     {
-        if(movementType == Models.MovementType.Conversion)
-            return GetConversion(movementType);
-
         var brokerMovementType = Core.UI.Creator.GetBrokerMovementType(movementType);
         if (brokerMovementType == null)
             return null;
@@ -203,6 +208,14 @@ public partial class BrokerMovementCreatorPage
         var notes = string.IsNullOrWhiteSpace(BrokerMovement.DepositData.Note)
             ? Microsoft.FSharp.Core.FSharpOption<string>.None
             : Microsoft.FSharp.Core.FSharpOption<string>.Some(BrokerMovement.DepositData.Note!);
+
+
+        if (movementType == Models.MovementType.Conversion)
+            return GetConversion(movementType, brokerMovementType, notes);
+
+        if (movementType == Models.MovementType.ACATSecuritiesTransferReceived
+            || movementType == Models.MovementType.ACATSecuritiesTransferSent)
+            return GetACAT(movementType, brokerMovementType, notes);
 
         return new Models.BrokerMovement(
                             0,
@@ -220,16 +233,10 @@ public partial class BrokerMovementCreatorPage
                             Microsoft.FSharp.Core.FSharpOption<decimal>.None);
     }
 
-    private Models.BrokerMovement? GetConversion(Models.MovementType? movementType)
+    private Models.BrokerMovement? GetConversion(Models.MovementType? movementType,
+        Microsoft.FSharp.Core.FSharpOption<BrokerMovementType> brokerMovementType,
+        Microsoft.FSharp.Core.FSharpOption<string> notes)
     {
-        var brokerMovementType = Core.UI.Creator.GetBrokerMovementType(movementType);
-        if (brokerMovementType == null)
-            return null;
-
-        var notes = string.IsNullOrWhiteSpace(BrokerMovement.ConversionData.Note)
-            ? Microsoft.FSharp.Core.FSharpOption<string>.None
-            : Microsoft.FSharp.Core.FSharpOption<string>.Some(BrokerMovement.ConversionData.Note!);
-
         return new Models.BrokerMovement(
                             0,
                             BrokerMovement.DepositData.TimeStamp,
@@ -244,6 +251,26 @@ public partial class BrokerMovementCreatorPage
                             BrokerMovement.ConversionData.AmountFrom,
                             Microsoft.FSharp.Core.FSharpOption<Models.Ticker>.None,
                             Microsoft.FSharp.Core.FSharpOption<decimal>.None);
+    }
+
+    private Models.BrokerMovement? GetACAT(Models.MovementType? movementType,
+        Microsoft.FSharp.Core.FSharpOption<BrokerMovementType> brokerMovementType,
+        Microsoft.FSharp.Core.FSharpOption<string> notes)
+    {
+        return new Models.BrokerMovement(
+                            0,
+                            BrokerMovement.DepositData.TimeStamp,
+                            0m,
+                            Core.UI.Collections.GetCurrency(Core.UI.SavedPrefereces.UserPreferences.Value.Currency),
+                            _account,
+                            BrokerMovement.ACATData.Commissions,
+                            BrokerMovement.ACATData.Fees,
+                            brokerMovementType.Value,
+                            notes,
+                            Microsoft.FSharp.Core.FSharpOption<Models.Currency>.None,
+                            Microsoft.FSharp.Core.FSharpOption<decimal>.None,
+                            BrokerMovement.ACATData.Ticker,
+                            BrokerMovement.ACATData.Quantity);
     }
 
     private bool HideFeesAndCommissions(Models.MovementType movementType)

@@ -39,18 +39,33 @@ module ResourceKeys =
     
     [<Literal>]
     let MovementType_Lending = "MovementType_Lending"
+
+    [<Literal>]
+    let MovementType_ACATTransfer = "MovementType_ACATTransfer"
     
     [<Literal>]
     let MovementType_ACATMoneyTransferSent = "MovementType_ACATMoneyTransferSent"
+
+    [<Literal>]
+    let MovementType_ACATMoneyTransferSent_Subtitle = "MovementType_ACATMoneyTransferSent_Subtitle"
     
     [<Literal>]
     let MovementType_ACATMoneyTransferReceived = "MovementType_ACATMoneyTransferReceived"
+
+    [<Literal>]
+    let MovementType_ACATMoneyTransferReceived_Subtitle = "MovementType_ACATMoneyTransferReceived_Subtitle"
     
     [<Literal>]
     let MovementType_ACATSecuritiesTransferSent = "MovementType_ACATSecuritiesTransferSent"
+
+    [<Literal>]
+    let MovementType_ACATSecuritiesTransferSent_Subtitle = "MovementType_ACATSecuritiesTransferSent_Subtitle"
     
     [<Literal>]
     let MovementType_ACATSecuritiesTransferReceived = "MovementType_ACATSecuritiesTransferReceived"
+
+    [<Literal>]
+    let MovementType_ACATSecuritiesTransferReceived_Subtitle = "MovementType_ACATSecuritiesTransferReceived_Subtitle"
     
     [<Literal>]
     let MovementType_InterestsPaid = "MovementType_InterestsPaid"
@@ -150,3 +165,9 @@ module ResourceKeys =
 
     [<Literal>]
     let Placeholder_FromCurrency = "Placeholder_FromCurrency"
+
+    [<Literal>]
+    let Placeholder_Amount = "Placeholder_Amount"
+
+    [<Literal>]
+    let Placeholder_Quantity = "Placeholder_Quantity"

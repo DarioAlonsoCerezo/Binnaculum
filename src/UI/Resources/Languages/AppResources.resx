@@ -759,10 +759,6 @@ Please note that custom brokers you create will be marked as "not configured for
     <value>ACAT Money Transfer Sent</value>
     <comment>Movement type: money transfer sent to another account</comment>
   </data>
-  <data name="MovementType_ACATMoneyTransferReceived" xml:space="preserve">
-    <value>ACAT Money Transfer Received</value>
-    <comment>Movement type: money transfer received from another account</comment>
-  </data>
   <data name="MovementType_ACATSecuritiesTransferSent" xml:space="preserve">
     <value>ACAT Securities Transfer Sent</value>
     <comment>Movement type: securities transfer sent to another account</comment>
@@ -1011,5 +1007,24 @@ A PUT option gives you the **right to sell** the underlying asset at a specific 
   </data>
   <data name="Placeholder_Conversion_To" xml:space="preserve">
     <value>Converted</value>
+  </data>
+  <data name="MovementType_ACATTransfer" xml:space="preserve">
+    <value>ACAT Transfer</value>
+  </data>
+  <data name="MovementType_ACATMoneyTransferReceived" xml:space="preserve">
+    <value>ACAT Money Transfer Received</value>
+    <comment>Movement type: money transfer received from another account</comment>
+  </data>
+  <data name="MovementType_ACATMoneyTransferReceived_Subtitle" xml:space="preserve">
+    <value>Money received</value>
+  </data>
+  <data name="MovementType_ACATMoneyTransferSent_Subtitle" xml:space="preserve">
+    <value>Money sent</value>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransferReceived_Subtitle" xml:space="preserve">
+    <value>Securities received</value>
+  </data>
+  <data name="MovementType_ACATSecuritiesTransferSent_Subtitle" xml:space="preserve">
+    <value>Securities sent</value>
   </data>
 </root>
