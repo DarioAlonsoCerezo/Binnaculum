@@ -68,19 +68,27 @@ module internal Saver =
     /// <summary>
     /// Saves a BrokerMovement entity to the database and updates the corresponding collections.
     /// - After saving, it refreshes all movements to ensure UI consistency
+    /// - Updates daily snapshots for the affected broker account and parent broker
     /// </summary>
     let saveBrokerMovement(brokerMovement: BrokerMovement) = task {
         do! brokerMovement.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore        
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+        
+        // Update snapshots for this movement
+        do! SnapshotManager.handleBrokerMovementSnapshot(brokerMovement) |> Async.AwaitTask |> Async.Ignore        
     }
 
     /// <summary>
     /// Saves a BankAccountMovement entity to the database and updates the corresponding collections.
     /// - After saving, it refreshes all movements to ensure UI consistency
+    /// - Updates daily snapshots for the affected bank account and parent bank
     /// </summary>
     let saveBankMovement(bankMovement: BankAccountMovement) = task {
         do! bankMovement.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore        
+        do! DataLoader.loadMovementsFor(None) |> Async.AwaitTask |> Async.Ignore
+        
+        // Update snapshots for this movement
+        do! SnapshotManager.handleBankMovementSnapshot(bankMovement) |> Async.AwaitTask |> Async.Ignore        
     }
 
     /// <summary>
