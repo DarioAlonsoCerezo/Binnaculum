@@ -319,6 +319,7 @@ module internal SnapshotManager =
     /// <summary>
     /// Handles snapshot updates when a BankAccountMovement is saved
     /// Updates both the account snapshot and the parent bank snapshot
+    /// For now, this always updates only the movement date - recalculation logic can be added later
     /// </summary>
     let handleBankMovementSnapshot (movement: BankAccountMovement) =
         task {
@@ -327,11 +328,15 @@ module internal SnapshotManager =
             
             match bankAccount with
             | Some account ->
-                // Update account snapshot
+                // Update account snapshot for this movement date
                 do! updateBankAccountSnapshot(movement.BankAccountId, movement.TimeStamp, movement.CurrencyId)
                 
-                // Update parent bank snapshot
+                // Update parent bank snapshot for this movement date
                 do! updateBankSnapshot(account.BankId, movement.TimeStamp)
+                
+                // TODO: Add recalculation logic for retroactive movements
+                // This would check if the movement is earlier than existing snapshots
+                // and recalculate all affected snapshots from that date forward
             | None ->
                 // Log error or handle missing bank account
                 ()
@@ -340,6 +345,7 @@ module internal SnapshotManager =
     /// <summary>
     /// Handles snapshot updates when a BrokerMovement is saved
     /// Updates both the account snapshot and the parent broker snapshot
+    /// For now, this always updates only the movement date - recalculation logic can be added later
     /// </summary>
     let handleBrokerMovementSnapshot (movement: BrokerMovement) =
         task {
@@ -348,11 +354,15 @@ module internal SnapshotManager =
             
             match brokerAccount with
             | Some account ->
-                // Update account snapshot
+                // Update account snapshot for this movement date
                 do! updateBrokerAccountSnapshot(movement.BrokerAccountId, movement.TimeStamp)
                 
-                // Update parent broker snapshot
+                // Update parent broker snapshot for this movement date
                 do! updateBrokerSnapshot(account.BrokerId, movement.TimeStamp)
+                
+                // TODO: Add recalculation logic for retroactive movements
+                // This would check if the movement is earlier than existing snapshots
+                // and recalculate all affected snapshots from that date forward
             | None ->
                 // Log error or handle missing broker account
                 ()
@@ -388,4 +398,66 @@ module internal SnapshotManager =
             // Recalculate each snapshot
             for snapshot in futureSnapshots do
                 do! updateBrokerAccountSnapshot(brokerAccountId, snapshot.Base.Date)
+        }
+
+    /// <summary>
+    /// Recalculates all bank snapshots from a given date forward for a specific bank
+    /// This is used when a retroactive movement affects existing snapshots
+    /// </summary>
+    let recalculateBankSnapshotsFromDate (bankId: int, fromDate: DateTimePattern) =
+        task {
+            let startDate = getDateOnly fromDate
+            
+            // Get all snapshots for this bank from the start date forward
+            let! futureSnapshots = BankSnapshotExtensions.Do.getByDateRange(bankId, startDate, DateTimePattern.FromDateTime(DateTime.MaxValue))
+            
+            // Recalculate each snapshot
+            for snapshot in futureSnapshots do
+                do! updateBankSnapshot(bankId, snapshot.Base.Date)
+        }
+
+    /// <summary>
+    /// Recalculates all broker snapshots from a given date forward for a specific broker
+    /// This is used when a retroactive movement affects existing snapshots
+    /// </summary>
+    let recalculateBrokerSnapshotsFromDate (brokerId: int, fromDate: DateTimePattern) =
+        task {
+            let startDate = getDateOnly fromDate
+            
+            // Get all snapshots for this broker from the start date forward
+            let! futureSnapshots = BrokerSnapshotExtensions.Do.getByDateRange(brokerId, startDate, DateTimePattern.FromDateTime(DateTime.MaxValue))
+            
+            // Recalculate each snapshot
+            for snapshot in futureSnapshots do
+                do! updateBrokerSnapshot(brokerId, snapshot.Base.Date)
+        }
+
+    /// <summary>
+    /// Handles snapshot updates when a new BankAccount is created
+    /// Creates snapshots for the current day and updates parent bank snapshot
+    /// </summary>
+    let handleNewBankAccount (bankAccount: BankAccount) =
+        task {
+            let today = DateTimePattern.FromDateTime(DateTime.Today)
+            
+            // Create initial snapshot for the new account (typically with zero balance)
+            do! updateBankAccountSnapshot(bankAccount.Id, today, bankAccount.CurrencyId)
+            
+            // Update parent bank snapshot to include this new account
+            do! updateBankSnapshot(bankAccount.BankId, today)
+        }
+
+    /// <summary>
+    /// Handles snapshot updates when a new BrokerAccount is created
+    /// Creates snapshots for the current day and updates parent broker snapshot
+    /// </summary>
+    let handleNewBrokerAccount (brokerAccount: BrokerAccount) =
+        task {
+            let today = DateTimePattern.FromDateTime(DateTime.Today)
+            
+            // Create initial snapshot for the new account (typically with zero portfolio value)
+            do! updateBrokerAccountSnapshot(brokerAccount.Id, today)
+            
+            // Update parent broker snapshot to include this new account
+            do! updateBrokerSnapshot(brokerAccount.BrokerId, today)
         }
