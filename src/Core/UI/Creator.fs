@@ -15,8 +15,14 @@ open Binnaculum.Core.Storage.ModelsToDatabase
 open System
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage
+open Binnaculum.Core.Storage.SnapshotManager
 open Microsoft.FSharp.Core
 
+/// <summary>
+/// This module handles user-initiated save operations from the UI layer.
+/// It orchestrates model validation, database persistence via Saver, and snapshot updates.
+/// This ensures snapshots are only updated for user actions, not during batch imports.
+/// </summary>
 module Creator =
     
     let SaveBank(bank: Binnaculum.Core.Models.Bank) = task {
@@ -31,13 +37,21 @@ module Creator =
 
     let SaveBankAccount(bankAccount: Binnaculum.Core.Models.BankAccount) = task {
         let! databaseBankAccount = bankAccount.bankAccountToDatabase() |> Async.AwaitTask
+        let isNewAccount = databaseBankAccount.Id = 0
         do! Saver.saveBankAccount(databaseBankAccount) |> Async.AwaitTask |> Async.Ignore
+        
+        // If it's a new account, create initial snapshots
+        if isNewAccount then
+            do! SnapshotManager.handleNewBankAccount(databaseBankAccount) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBrokerAccount(brokerId: int, accountNumber: string) = task {
         let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
         let account = { Id = 0; BrokerId = brokerId; AccountNumber = accountNumber; Audit = audit }
         do! Saver.saveBrokerAccount(account) |> Async.AwaitTask |> Async.Ignore
+        
+        // Create initial snapshots for the new account
+        do! SnapshotManager.handleNewBrokerAccount(account) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBrokerMovement(movement: Binnaculum.Core.Models.BrokerMovement) = task {
@@ -62,11 +76,17 @@ module Creator =
         
         let databaseModel = movementWithDefaults.brokerMovementToDatabase()
         do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        
+        // Update snapshots for this movement
+        do! SnapshotManager.handleBrokerMovementSnapshot(databaseModel) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBankMovement(movement: Binnaculum.Core.Models.BankAccountMovement) = task {
         let databaseModel = movement.bankAccountMovementToDatabase()
         do! Saver.saveBankMovement(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        
+        // Update snapshots for this movement
+        do! SnapshotManager.handleBankMovementSnapshot(databaseModel) |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>
