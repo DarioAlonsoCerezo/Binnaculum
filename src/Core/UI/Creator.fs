@@ -1,21 +1,9 @@
 ﻿namespace Binnaculum.Core.UI
 open Binnaculum.Core.Database.DatabaseModel
-open BrokerAccountExtensions
-open BankAccountExtensions
-open BrokerExtensions
-open BrokerMovementExtensions
-open BankAccountBalanceExtensions
-open TickerExtensions
-open TradeExtensions
-open DividendExtensions
-open DividendDateExtensions
-open DividendTaxExtensions
-open OptionTradeExtensions
 open Binnaculum.Core.Storage.ModelsToDatabase
 open System
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage
-open Binnaculum.Core.Storage.SnapshotManager
 open Microsoft.FSharp.Core
 
 /// <summary>
