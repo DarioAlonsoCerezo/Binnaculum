@@ -6,6 +6,7 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open BrokerSnapshotExtensions
 open Binnaculum.Core.Storage.SnapshotManagerUtils
+open BrokerAccountExtensions // For getting BrokerAccount by id
 
 /// <summary>
 /// Handles creation, updating, and recalculation of BrokerSnapshots.
@@ -23,15 +24,12 @@ module internal BrokerSnapshotManager =
             let! accountSnapshots = 
                 brokerAccounts
                 |> List.map (fun account -> 
-                    task {
-                        let! existing = BrokerAccountSnapshotExtensions.Do.getByBrokerAccountIdAndDate(account.Id, snapshotDate)
-                        match existing with
-                        | Some snapshot -> return snapshot
-                        | None -> 
-                            return! BrokerAccountSnapshotManager.calculateBrokerAccountSnapshot(account.Id, snapshotDate)
-                    })
+                    BrokerAccountSnapshotExtensions.Do.getByBrokerAccountIdAndDate(account.Id, snapshotDate))
                 |> System.Threading.Tasks.Task.WhenAll
-            let snapshots = accountSnapshots |> Array.toList
+            let snapshots = 
+                accountSnapshots
+                |> Array.choose id // Only use existing snapshots
+                |> Array.toList
             let totalPortfolioValue = 
                 snapshots
                 |> List.sumBy (fun s -> s.PortfolioValue.Value)
@@ -63,6 +61,7 @@ module internal BrokerSnapshotManager =
 
     /// <summary>
     /// Recalculates all broker snapshots from a given date forward for a specific broker
+    /// This is used when a retroactive movement affects existing snapshots
     /// </summary>
     let recalculateBrokerSnapshotsFromDate (brokerId: int, fromDate: DateTimePattern) =
         task {

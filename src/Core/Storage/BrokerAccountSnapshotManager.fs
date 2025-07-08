@@ -6,6 +6,8 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open BrokerAccountSnapshotExtensions
 open Binnaculum.Core.Storage.SnapshotManagerUtils
+open BrokerAccountExtensions // For getting BrokerAccount by id
+open BrokerMovementExtensions
 
 /// <summary>
 /// Handles creation, updating, and recalculation of BrokerAccountSnapshots.
@@ -13,13 +15,15 @@ open Binnaculum.Core.Storage.SnapshotManagerUtils
 module internal BrokerAccountSnapshotManager =
     /// <summary>
     /// Calculates BrokerAccountSnapshot for a specific broker account on a specific date
+    /// by aggregating all movements up to and including that date
     /// </summary>
     let calculateBrokerAccountSnapshot (brokerAccountId: int, date: DateTimePattern) =
         task {
             let snapshotDate = getDateOnly date
-            let! movementsUpToDate = BrokerMovementExtensions.Do.getByBrokerAccountIdAndDateRange(brokerAccountId, snapshotDate)
+            // Aggregate all movements up to and including the date
+            let! movements = BrokerMovementExtensions.Do.getByBrokerAccountIdAndDateRange(brokerAccountId, snapshotDate)
             let netCash = 
-                movementsUpToDate
+                movements
                 |> List.sumBy (fun m -> 
                     match m.MovementType with
                     | BrokerMovementType.Deposit -> m.Amount.Value
@@ -50,10 +54,18 @@ module internal BrokerAccountSnapshotManager =
                 do! updatedSnapshot.save()
             | None ->
                 do! newSnapshot.save()
+            // After saving, update the corresponding broker snapshot
+            let! brokerAccountOpt = BrokerAccountExtensions.Do.getById(brokerAccountId)
+            match brokerAccountOpt with
+            | Some brokerAccount ->
+                do! Binnaculum.Core.Storage.BrokerSnapshotManager.updateBrokerSnapshot(brokerAccount.BrokerId, snapshotDate)
+            | None ->
+                ()
         }
 
     /// <summary>
     /// Recalculates all snapshots from a given date forward for a specific broker account
+    /// This is used when a retroactive movement affects existing snapshots
     /// </summary>
     let recalculateBrokerAccountSnapshotsFromDate (brokerAccountId: int, fromDate: DateTimePattern) =
         task {
@@ -65,11 +77,14 @@ module internal BrokerAccountSnapshotManager =
 
     /// <summary>
     /// Handles snapshot updates when a new BrokerAccount is created
+    /// Creates snapshots for the current day
     /// </summary>
     let handleNewBrokerAccount (brokerAccount: BrokerAccount) =
         task {
             let today = DateTimePattern.FromDateTime(DateTime.Today)
             do! updateBrokerAccountSnapshot(brokerAccount.Id, today)
+            // After creating a new broker account snapshot, update the broker snapshot
+            do! Binnaculum.Core.Storage.BrokerSnapshotManager.updateBrokerSnapshot(brokerAccount.BrokerId, today)
         }
 
     /// <summary>

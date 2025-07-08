@@ -38,8 +38,8 @@
 		<Compile Include="SQL\BankAccountsQuery.fs" />
 		<Compile Include="SQL\BankAccountMovementsQuery.fs" />
 		<Compile Include="SQL\TickerSnapshotQuery.fs" />
-		<Compile Include="SQL\BrokerAccountSnapshotQuery.fs" />
 		<Compile Include="SQL\BrokerSnapshotQuery.fs" />
+		<Compile Include="SQL\BrokerAccountSnapshotQuery.fs" />
 		<Compile Include="SQL\BrokerFinancialSnapshotQuery.fs" />
 		<Compile Include="SQL\BankAccountSnapshotQuery.fs" />
 		<Compile Include="SQL\BankSnapshotQuery.fs" />
@@ -84,8 +84,8 @@
 		<Compile Include="Storage\SnapshotManagerUtils.fs" />
 		<Compile Include="Storage\BankSnapshotManager.fs" />
 		<Compile Include="Storage\BankAccountSnapshotManager.fs" />
-		<Compile Include="Storage\BrokerAccountSnapshotManager.fs" />
 		<Compile Include="Storage\BrokerSnapshotManager.fs" />
+		<Compile Include="Storage\BrokerAccountSnapshotManager.fs" />
 		<Compile Include="Storage\SnapshotManager.fs" />
 		<Compile Include="Storage\Saver.fs" />
 		<Compile Include="Utilities\FilePickerService.fs" />
