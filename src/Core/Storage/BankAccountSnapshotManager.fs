@@ -18,36 +18,65 @@ module internal BankAccountSnapshotManager =
     let calculateBankAccountSnapshot (bankAccountId: int, date: DateTimePattern, currencyId: int) = 
         task {
             let snapshotDate = getDateOnly date
-            let! allMovements = BankAccountBalanceExtensions.Do.getAll()
-            let movementsUpToDate = 
-                allMovements
-                |> List.filter (fun m -> m.BankAccountId = bankAccountId && m.TimeStamp.Value.Date <= snapshotDate.Value.Date)
-            let totalBalance = 
-                movementsUpToDate
-                |> List.sumBy (fun m -> 
-                    match m.MovementType with
-                    | BankAccountMovementType.Balance -> m.Amount.Value
-                    | BankAccountMovementType.Interest -> m.Amount.Value
-                    | BankAccountMovementType.Fee -> -m.Amount.Value)
-                |> Money.FromAmount
-            let interestEarned =
-                movementsUpToDate
-                |> List.filter (fun m -> m.MovementType = BankAccountMovementType.Interest)
-                |> List.sumBy (fun m -> m.Amount.Value)
-                |> Money.FromAmount
-            let feesPaid =
-                movementsUpToDate
-                |> List.filter (fun m -> m.MovementType = BankAccountMovementType.Fee)
-                |> List.sumBy (fun m -> m.Amount.Value)
-                |> Money.FromAmount
-            return {
-                Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
-                BankAccountId = bankAccountId
-                Balance = totalBalance
-                CurrencyId = currencyId
-                InterestEarned = interestEarned
-                FeesPaid = feesPaid
-            }
+            // Try to get the latest snapshot before the given date
+            let! previousSnapshotOpt = BankAccountSnapshotExtensions.Do.getLatestBeforeDateByBankAccountId(bankAccountId, snapshotDate)
+            match previousSnapshotOpt with
+            | None ->
+                // No previous snapshot, calculate from scratch using all movements up to and including the date
+                let! movements = BankAccountBalanceExtensions.Do.getByBankAccountIdAndDateTo(bankAccountId, snapshotDate)
+                let totalBalance = 
+                    movements
+                    |> List.sumBy (fun m -> 
+                        match m.MovementType with
+                        | BankAccountMovementType.Balance -> m.Amount.Value
+                        | BankAccountMovementType.Interest -> m.Amount.Value
+                        | BankAccountMovementType.Fee -> -m.Amount.Value)
+                    |> Money.FromAmount
+                let interestEarned =
+                    movements
+                    |> List.filter (fun m -> m.MovementType = BankAccountMovementType.Interest)
+                    |> List.sumBy (fun m -> m.Amount.Value)
+                    |> Money.FromAmount
+                let feesPaid =
+                    movements
+                    |> List.filter (fun m -> m.MovementType = BankAccountMovementType.Fee)
+                    |> List.sumBy (fun m -> m.Amount.Value)
+                    |> Money.FromAmount
+                return {
+                    Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
+                    BankAccountId = bankAccountId
+                    Balance = totalBalance
+                    CurrencyId = currencyId
+                    InterestEarned = interestEarned
+                    FeesPaid = feesPaid
+                }
+            | Some prevSnapshot ->
+                // Previous snapshot exists, only aggregate movements after previous snapshot date up to and including the target date
+                let prevDate = prevSnapshot.Base.Date
+                let! movements = BankAccountBalanceExtensions.Do.getByBankAccountIdAndDateRange(bankAccountId, prevDate, snapshotDate)
+                let balanceDelta =
+                    movements
+                    |> List.sumBy (fun m -> 
+                        match m.MovementType with
+                        | BankAccountMovementType.Balance -> m.Amount.Value
+                        | BankAccountMovementType.Interest -> m.Amount.Value
+                        | BankAccountMovementType.Fee -> -m.Amount.Value)
+                let interestDelta =
+                    movements
+                    |> List.filter (fun m -> m.MovementType = BankAccountMovementType.Interest)
+                    |> List.sumBy (fun m -> m.Amount.Value)
+                let feesDelta =
+                    movements
+                    |> List.filter (fun m -> m.MovementType = BankAccountMovementType.Fee)
+                    |> List.sumBy (fun m -> m.Amount.Value)
+                return {
+                    Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
+                    BankAccountId = bankAccountId
+                    Balance = Money.FromAmount (prevSnapshot.Balance.Value + balanceDelta)
+                    CurrencyId = currencyId
+                    InterestEarned = Money.FromAmount (prevSnapshot.InterestEarned.Value + interestDelta)
+                    FeesPaid = Money.FromAmount (prevSnapshot.FeesPaid.Value + feesDelta)
+                }
         }
 
     /// <summary>

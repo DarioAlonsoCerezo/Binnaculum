@@ -96,3 +96,13 @@ type Do() =
             let! snapshots = Database.Do.readAll<BankAccountSnapshot>(command, Do.read)
             return snapshots
         }
+
+    static member getLatestBeforeDateByBankAccountId(bankAccountId: int, date: DateTimePattern) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- BankAccountSnapshotQuery.getLatestBeforeDateByBankAccountId
+            command.Parameters.AddWithValue(SQLParameterName.BankAccountId, bankAccountId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.Date, date.ToString()) |> ignore
+            let! snapshot = Database.Do.read<BankAccountSnapshot>(command, Do.read)
+            return snapshot
+        }

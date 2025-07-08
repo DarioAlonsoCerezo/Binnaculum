@@ -101,3 +101,22 @@ module internal BankAccountMovementsQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
+
+    let getByBankAccountIdAndDateTo =
+        $"""
+        SELECT * FROM {BankAccountMovements}
+        WHERE
+            {BankAccountId} = {SQLParameterName.BankAccountId} AND
+            {TimeStamp} <= {SQLParameterName.TimeStamp}
+        ORDER BY {TimeStamp} ASC
+        """
+
+    let getByBankAccountIdAndDateRange =
+        $"""
+        SELECT * FROM {BankAccountMovements}
+        WHERE
+            {BankAccountId} = {SQLParameterName.BankAccountId} AND
+            {TimeStamp} > {SQLParameterName.TimeStampStart} AND
+            {TimeStamp} <= {SQLParameterName.TimeStampEnd}
+        ORDER BY {TimeStamp} ASC
+        """

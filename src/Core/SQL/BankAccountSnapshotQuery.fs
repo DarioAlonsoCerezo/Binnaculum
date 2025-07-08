@@ -151,3 +151,13 @@ module internal BankAccountSnapshotQuery =
             {Date} BETWEEN {SQLParameterName.Date} AND {SQLParameterName.DateEnd}
         ORDER BY {Date} ASC
         """
+
+    let getLatestBeforeDateByBankAccountId =
+        $"""
+        SELECT * FROM {BankAccountSnapshots}
+        WHERE
+            {BankAccountId} = {SQLParameterName.BankAccountId} AND
+            {Date} < {SQLParameterName.Date}
+        ORDER BY {Date} DESC
+        LIMIT 1
+        """
