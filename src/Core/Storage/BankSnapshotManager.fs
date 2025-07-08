@@ -23,15 +23,12 @@ module internal BankSnapshotManager =
             let! accountSnapshots = 
                 bankAccounts
                 |> List.map (fun account -> 
-                    task {
-                        let! existing = BankAccountSnapshotExtensions.Do.getByBankAccountIdAndDate(account.Id, snapshotDate)
-                        match existing with
-                        | Some snapshot -> return snapshot
-                        | None -> 
-                            return! BankAccountSnapshotManager.calculateBankAccountSnapshot(account.Id, snapshotDate, account.CurrencyId)
-                    })
+                    BankAccountSnapshotExtensions.Do.getByBankAccountIdAndDate(account.Id, snapshotDate))
                 |> System.Threading.Tasks.Task.WhenAll
-            let snapshots = accountSnapshots |> Array.toList
+            let snapshots = 
+                accountSnapshots
+                |> Array.choose id // Only use existing snapshots
+                |> Array.toList
             let totalBalance = 
                 snapshots
                 |> List.sumBy (fun s -> s.Balance.Value)

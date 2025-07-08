@@ -6,6 +6,7 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open BankAccountSnapshotExtensions
 open Binnaculum.Core.Storage.SnapshotManagerUtils
+open BankAccountExtensions // For getting BankAccount by id
 
 /// <summary>
 /// Handles creation, updating, and recalculation of BankAccountSnapshots.
@@ -93,6 +94,13 @@ module internal BankAccountSnapshotManager =
                 do! updatedSnapshot.save()
             | None ->
                 do! newSnapshot.save()
+            // After saving, update the corresponding bank snapshot
+            let! bankAccountOpt = BankAccountExtensions.Do.getById(bankAccountId)
+            match bankAccountOpt with
+            | Some bankAccount ->
+                do! Binnaculum.Core.Storage.BankSnapshotManager.updateBankSnapshot(bankAccount.BankId, snapshotDate)
+            | None ->
+                ()
         }
 
     /// <summary>
@@ -115,4 +123,6 @@ module internal BankAccountSnapshotManager =
         task {
             let today = DateTimePattern.FromDateTime(DateTime.Today)
             do! updateBankAccountSnapshot(bankAccount.Id, today, bankAccount.CurrencyId)
+            // After creating a new bank account snapshot, update the bank snapshot
+            do! Binnaculum.Core.Storage.BankSnapshotManager.updateBankSnapshot(bankAccount.BankId, today)
         }
