@@ -3,13 +3,22 @@
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage.SnapshotManagerUtils
+open BrokerFinancialSnapshotExtensions
 
 module internal BrokerFinancialSnapshotManager =
     /// <summary>
     /// Simplified: Calculates BrokerFinancialSnapshots for a broker account or broker and a snapshot date, based on previous snapshots only.
     /// </summary>
-    let private calculateFinancialSnapshots (snapshotDate: DateTimePattern) (brokerId: int) (brokerAccountId: int) (currencyId: int) =
+    let private calculateFinancialSnapshots (snapshotDate: DateTimePattern) (brokerId: int) (brokerAccountId: int) =
         async {
+            // Fetch latest BrokerFinancialSnapshot list before calculation
+            let! previousSnapshots =
+                if brokerId <> -1 then
+                    Do.getLatestByBrokerIdGroupedByDate brokerId |> Async.AwaitTask
+                elif brokerAccountId <> -1 then
+                    Do.getLatestByBrokerAccountIdGroupedByDate brokerAccountId |> Async.AwaitTask
+                else
+                    async { return [] }
             // Placeholder implementation
             return {
                 Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
@@ -39,8 +48,7 @@ module internal BrokerFinancialSnapshotManager =
     let calculateForBrokerAccount (brokerAccountId: int) (date: DateTimePattern) =
         async {
             let snapshotDate = getDateOnly date
-            // Placeholder: currencyId = 1, brokerId = -1
-            let! snapshot = calculateFinancialSnapshots snapshotDate -1 brokerAccountId 1
+            let! snapshot = calculateFinancialSnapshots snapshotDate -1 brokerAccountId
             return [snapshot]
         }
 
@@ -50,8 +58,7 @@ module internal BrokerFinancialSnapshotManager =
     let calculateForBroker (brokerId: int) (date: DateTimePattern) =
         async {
             let snapshotDate = getDateOnly date
-            // Placeholder: currencyId = 1, brokerAccountId = -1
-            let! snapshot = calculateFinancialSnapshots snapshotDate brokerId -1 1
+            let! snapshot = calculateFinancialSnapshots snapshotDate brokerId -1
             return [snapshot]
         }
 
