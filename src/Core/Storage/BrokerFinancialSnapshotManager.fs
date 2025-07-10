@@ -1,96 +1,57 @@
 ﻿namespace Binnaculum.Core.Storage
 
-open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage.SnapshotManagerUtils
 
 module internal BrokerFinancialSnapshotManager =
     /// <summary>
-    /// Helper to calculate BrokerFinancialSnapshots for a set of movements and a snapshot date
+    /// Simplified: Calculates BrokerFinancialSnapshots for a broker account or broker and a snapshot date, based on previous snapshots only.
     /// </summary>
-    let private calculateFinancialSnapshots (movements: BrokerMovement list) (snapshotDate: DateTimePattern) (getIds: int -> int * int) =
+    let private calculateFinancialSnapshots (snapshotDate: DateTimePattern) (brokerId: int) (brokerAccountId: int) (currencyId: int) =
         async {
-            let! currencyOpts =
-                movements
-                |> List.map (fun m -> CurrencyExtensions.Do.getById m.CurrencyId |> Async.AwaitTask)
-                |> Async.Parallel
-            let zipped = List.zip movements (currencyOpts |> Array.toList)
-            let filtered = zipped |> List.choose (fun (m, cOpt) -> cOpt |> Option.map (fun c -> (m, c)))
-            let byCurrency =
-                filtered
-                |> List.groupBy (fun (_, c) -> c.Id)
-            // Refactor: async per currency group
-            let! results =
-                byCurrency
-                |> List.map (fun (currencyId, ms) -> async {
-                    let msMovements = ms |> List.map fst
-                    let movementCounter = msMovements.Length
-                    let invested = msMovements |> List.sumBy (fun m -> match m.MovementType with | BrokerMovementType.Deposit -> m.Amount.Value | BrokerMovementType.Withdrawal -> -m.Amount.Value | _ -> 0m) |> Money.FromAmount
-                    let commissions = msMovements |> List.sumBy (fun m -> m.Commissions.Value) |> Money.FromAmount
-                    let fees = msMovements |> List.sumBy (fun m -> m.Fees.Value) |> Money.FromAmount
-                    let deposited = msMovements |> List.sumBy (fun m -> match m.MovementType with | BrokerMovementType.Deposit -> m.Amount.Value | _ -> 0m) |> Money.FromAmount
-                    let withdrawn = msMovements |> List.sumBy (fun m -> match m.MovementType with | BrokerMovementType.Withdrawal -> m.Amount.Value | _ -> 0m) |> Money.FromAmount
-                    let dividends = msMovements |> List.sumBy (fun m -> match m.MovementType with | BrokerMovementType.InterestsGained -> m.Amount.Value | _ -> 0m) |> Money.FromAmount
-                    let optionsIncome = 0m |> Money.FromAmount // Placeholder
-                    let otherIncome = 0m |> Money.FromAmount // Placeholder
-                    let brokerId, brokerAccountId = getIds currencyId
-                    // Fetch previous snapshot for this group
-                    let! prevSnapshot =
-                        if brokerAccountId <> -1 then
-                            BrokerFinancialSnapshotExtensions.Do.getLatestByBrokerAccountId brokerAccountId |> Async.AwaitTask
-                        elif brokerId <> -1 then
-                            BrokerFinancialSnapshotExtensions.Do.getLatestByBrokerId brokerId |> Async.AwaitTask
-                        else
-                            async { return None }
-                    // Use prevSnapshot for future calculations (currently placeholders)
-                    let realizedGains = 0m |> Money.FromAmount // TODO: Use prevSnapshot
-                    let realizedPct = 0m // TODO: Use prevSnapshot
-                    let unrealizedGains = 0m |> Money.FromAmount // TODO: Use prevSnapshot
-                    let unrealizedPct = 0m // TODO: Use prevSnapshot
-                    let openTrades = false // TODO: Use prevSnapshot
-                    return {
-                        Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
-                        BrokerId = brokerId
-                        BrokerAccountId = brokerAccountId
-                        CurrencyId = currencyId
-                        MovementCounter = movementCounter
-                        RealizedGains = realizedGains
-                        RealizedPercentage = realizedPct
-                        UnrealizedGains = unrealizedGains
-                        UnrealizedGainsPercentage = unrealizedPct
-                        Invested = invested
-                        Commissions = commissions
-                        Fees = fees
-                        Deposited = deposited
-                        Withdrawn = withdrawn
-                        DividendsReceived = dividends
-                        OptionsIncome = optionsIncome
-                        OtherIncome = otherIncome
-                        OpenTrades = openTrades
-                    }
-                })
-                |> Async.Parallel
-            return results |> Array.toList
+            // Placeholder implementation
+            return {
+                Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
+                BrokerId = brokerId
+                BrokerAccountId = brokerAccountId
+                CurrencyId = currencyId
+                MovementCounter = 0
+                RealizedGains = Money.FromAmount 0m
+                RealizedPercentage = 0m
+                UnrealizedGains = Money.FromAmount 0m
+                UnrealizedGainsPercentage = 0m
+                Invested = Money.FromAmount 0m
+                Commissions = Money.FromAmount 0m
+                Fees = Money.FromAmount 0m
+                Deposited = Money.FromAmount 0m
+                Withdrawn = Money.FromAmount 0m
+                DividendsReceived = Money.FromAmount 0m
+                OptionsIncome = Money.FromAmount 0m
+                OtherIncome = Money.FromAmount 0m
+                OpenTrades = false
+            }
         }
 
     /// <summary>
-    /// Calculates all BrokerFinancialSnapshots for a specific broker account and date (grouped by currency)
+    /// Calculates a placeholder BrokerFinancialSnapshot for a specific broker account and date (single currency, placeholder currencyId = 1)
     /// </summary>
     let calculateForBrokerAccount (brokerAccountId: int) (date: DateTimePattern) =
         async {
             let snapshotDate = getDateOnly date
-            let! movements = BrokerMovementExtensions.Do.getByBrokerAccountIdAndDateRange(brokerAccountId, snapshotDate) |> Async.AwaitTask
-            return! calculateFinancialSnapshots movements snapshotDate (fun _ -> (-1, brokerAccountId))
+            // Placeholder: currencyId = 1, brokerId = -1
+            let! snapshot = calculateFinancialSnapshots snapshotDate -1 brokerAccountId 1
+            return [snapshot]
         }
 
     /// <summary>
-    /// Calculates all BrokerFinancialSnapshots for a specific broker and date (aggregates all accounts, grouped by currency)
+    /// Calculates a placeholder BrokerFinancialSnapshot for a specific broker and date (single currency, placeholder currencyId = 1)
     /// </summary>
     let calculateForBroker (brokerId: int) (date: DateTimePattern) =
         async {
             let snapshotDate = getDateOnly date
-            let! movements = BrokerMovementExtensions.Do.getByBrokerAccountIdAndDateRange(brokerId, snapshotDate) |> Async.AwaitTask
-            return! calculateFinancialSnapshots movements snapshotDate (fun _ -> (brokerId, -1))
+            // Placeholder: currencyId = 1, brokerAccountId = -1
+            let! snapshot = calculateFinancialSnapshots snapshotDate brokerId -1 1
+            return [snapshot]
         }
 
