@@ -24,7 +24,7 @@
 
 	<!-- SQLite -->
 	<ItemGroup>
-		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="9.0.6" />
+		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="9.0.7" />
 		<PackageVersion Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
 	</ItemGroup>
 	
@@ -38,7 +38,7 @@
 	<!-- Microfost extensions -->
 	<ItemGroup>
 		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.6" />				
+		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.7" />				
 	</ItemGroup>
 	
 	<!-- Testing -->
