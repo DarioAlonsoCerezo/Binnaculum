@@ -6,8 +6,6 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open BrokerAccountSnapshotExtensions
 open Binnaculum.Core.Storage.SnapshotManagerUtils
-open BrokerAccountExtensions // For getting BrokerAccount by id
-open BrokerMovementExtensions
 
 /// <summary>
 /// Handles creation, updating, and recalculation of BrokerAccountSnapshots.
