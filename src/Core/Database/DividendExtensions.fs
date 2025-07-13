@@ -44,3 +44,13 @@ type Do() =
     static member getAll() = Database.Do.getAllEntities Do.read DividendsQuery.getAll
 
     static member getById(id: int) = Database.Do.getById Do.read id DividendsQuery.getById
+
+    static member getBetweenDates(startDate: string, endDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- DividendsQuery.getBetweenDates
+            command.Parameters.AddWithValue("@StartDate", startDate) |> ignore
+            command.Parameters.AddWithValue("@EndDate", endDate) |> ignore
+            let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
+            return dividends
+        }

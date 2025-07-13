@@ -105,3 +105,9 @@ module internal DividendsQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
+
+    let getBetweenDates =
+        $"""
+        SELECT * FROM {Dividends}
+        WHERE {TimeStamp} BETWEEN @StartDate AND @EndDate
+        """
