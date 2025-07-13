@@ -82,6 +82,7 @@
 		<Compile Include="Storage\DatabaseToModels.fs" />
 		<Compile Include="Storage\DataLoader.fs" />
 		<Compile Include="Storage\SnapshotManagerUtils.fs" />
+		<Compile Include="Storage\TickerSnapshotManager.fs" />
 		<Compile Include="Storage\BankSnapshotManager.fs" />
 		<Compile Include="Storage\BankAccountSnapshotManager.fs" />
 		<Compile Include="Storage\BrokerFinancialSnapshotManager.fs" />
