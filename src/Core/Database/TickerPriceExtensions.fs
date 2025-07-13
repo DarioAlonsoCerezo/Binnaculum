@@ -42,3 +42,16 @@ type Do() =
     static member getAll() = Database.Do.getAllEntities Do.read TickerPriceQuery.getAll
 
     static member getById(id: int) = Database.Do.getById Do.read id TickerPriceQuery.getById
+
+    static member getPriceByDateOrPrevious(tickerId: int, priceDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TickerPriceQuery.getPriceByDateOrPrevious
+            command.Parameters.AddWithValue("@TickerId", tickerId) |> ignore
+            command.Parameters.AddWithValue("@PriceDate", priceDate) |> ignore
+            let! fromDatabase = Database.Do.readAll<TickerPrice>(command, Do.read)
+            return fromDatabase 
+                |> List.tryHead 
+                |> Option.map (fun p -> p.Price.Value) 
+                |> Option.defaultValue 0m
+        }

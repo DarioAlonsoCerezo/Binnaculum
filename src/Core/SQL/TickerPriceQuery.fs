@@ -96,3 +96,11 @@ module internal TickerPriceQuery =
         WHERE
             {Id} = {SQLParameterName.Id}
         """
+
+    let getPriceByDateOrPrevious =
+        $"""
+        SELECT {Price} FROM {TickerPrices}
+        WHERE {TickerId} = {SQLParameterName.TickerId} AND {PriceDate} <= {SQLParameterName.PriceDate}
+        ORDER BY {PriceDate} DESC
+        LIMIT 1
+        """
