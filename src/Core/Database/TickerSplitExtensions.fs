@@ -40,3 +40,13 @@ type Do() =
     static member getAll() = Database.Do.getAllEntities Do.read TickerSplitQuery.getAll
 
     static member getById(id: int) = Database.Do.getById Do.read id TickerSplitQuery.getById
+
+    static member getBetweenDates(startDate: string, endDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TickerSplitQuery.getBetweenDates
+            command.Parameters.AddWithValue("@StartDate", startDate) |> ignore
+            command.Parameters.AddWithValue("@EndDate", endDate) |> ignore
+            let! splits = Database.Do.readAll<TickerSplit>(command, Do.read)
+            return splits
+        }

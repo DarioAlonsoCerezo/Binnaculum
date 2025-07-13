@@ -83,3 +83,9 @@ module internal TickerSplitQuery =
         WHERE
             {Id} = {SQLParameterName.Id}
         """
+
+    let getBetweenDates =
+        $"""
+        SELECT * FROM {TickerSplits}
+        WHERE {SplitDate} BETWEEN @StartDate AND @EndDate
+        """
