@@ -134,3 +134,9 @@ module internal TradesQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
+
+    let getBetweenDates =
+        $"""
+        SELECT * FROM {Trades}
+        WHERE {TimeStamp} BETWEEN @StartDate AND @EndDate
+        """

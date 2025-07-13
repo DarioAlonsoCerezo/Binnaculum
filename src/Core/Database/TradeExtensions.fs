@@ -59,3 +59,13 @@ type Do() =
     static member getAll() = Database.Do.getAllEntities Do.read TradesQuery.getAll
 
     static member getById(id: int) = Database.Do.getById Do.read id TradesQuery.getById
+
+    static member getBetweenDates(startDate: string, endDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TradesQuery.getBetweenDates
+            command.Parameters.AddWithValue("@StartDate", startDate) |> ignore
+            command.Parameters.AddWithValue("@EndDate", endDate) |> ignore
+            let! trades = Database.Do.readAll<Trade>(command, Do.read)
+            return trades
+        }
