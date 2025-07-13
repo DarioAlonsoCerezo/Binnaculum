@@ -216,8 +216,8 @@ module Models =
         MovementType: BankAccountMovementType
     }
 
-    // Ticker snapshot model - represents the state of a ticker at a specific point in time
-    type TickerSnapshot = {
+    type TickerCurrencySnaphot = {
+        Id: int
         Date: DateOnly
         Ticker: Ticker
         Currency: Currency
@@ -233,6 +233,15 @@ module Models =
         Performance: decimal
         LatestPrice: decimal
         OpenTrades: bool
+    }
+
+    // Ticker snapshot model - represents the state of a ticker at a specific point in time
+    type TickerSnapshot = {
+        Id: int
+        Date: DateOnly
+        Ticker: Ticker
+        MainCurrency: TickerCurrencySnaphot
+        OtherCurrencies: TickerCurrencySnaphot list
     }
 
     // Broker financial snapshot model - represents the financial state of a broker account at a specific point in time

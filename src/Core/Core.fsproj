@@ -66,6 +66,7 @@
 		<Compile Include="Database\BankExtensions.fs" />
 		<Compile Include="Database\BankAccountExtensions.fs" />
 		<Compile Include="Database\BankAccountMovementExtensions.fs" />
+		<Compile Include="Database\TickerCurrencySnapshotQuery.fs" />
 		<Compile Include="Database\TickerSnapshotExtensions.fs" />
 		<Compile Include="Database\BrokerAccountSnapshotExtensions.fs" />
 		<Compile Include="Database\BrokerSnapshotExtensions.fs" />

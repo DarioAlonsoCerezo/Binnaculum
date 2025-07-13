@@ -16,20 +16,7 @@ type Do() =
         command.fillEntityAuditable<TickerSnapshot>(
             [
                 (SQLParameterName.Date, tickerSnapshot.Base.Date.ToString());
-                (SQLParameterName.TickerId, tickerSnapshot.TickerId);
-                (SQLParameterName.CurrencyId, tickerSnapshot.CurrencyId);
-                (SQLParameterName.TotalShares, tickerSnapshot.TotalShares);
-                (SQLParameterName.Weight, tickerSnapshot.Weight);
-                (SQLParameterName.CostBasis, tickerSnapshot.CostBasis.Value);
-                (SQLParameterName.RealCost, tickerSnapshot.RealCost.Value);
-                (SQLParameterName.Dividends, tickerSnapshot.Dividends.Value);
-                (SQLParameterName.Options, tickerSnapshot.Options.Value);
-                (SQLParameterName.TotalIncomes, tickerSnapshot.TotalIncomes.Value);
-                (SQLParameterName.Unrealized, tickerSnapshot.Unrealized.Value);
-                (SQLParameterName.Realized, tickerSnapshot.Realized.Value);
-                (SQLParameterName.Performance, tickerSnapshot.Performance);
-                (SQLParameterName.LatestPrice, tickerSnapshot.LatestPrice.Value);
-                (SQLParameterName.OpenTrades, tickerSnapshot.OpenTrades);
+                (SQLParameterName.TickerId, tickerSnapshot.TickerId)
             ], tickerSnapshot)
 
     [<Extension>]
@@ -41,19 +28,6 @@ type Do() =
                 Audit = reader.getAudit()
             }
             TickerId = reader.getInt32 FieldName.TickerId
-            CurrencyId = reader.getInt32 FieldName.CurrencyId
-            TotalShares = reader.getDecimal FieldName.TotalShares
-            Weight = reader.getDecimal FieldName.Weight
-            CostBasis = reader.getMoney FieldName.CostBasis
-            RealCost = reader.getMoney FieldName.RealCost
-            Dividends = reader.getMoney FieldName.Dividends
-            Options = reader.getMoney FieldName.Options
-            TotalIncomes = reader.getMoney FieldName.TotalIncomes
-            Unrealized = reader.getMoney FieldName.Unrealized
-            Realized = reader.getMoney FieldName.Realized
-            Performance = reader.getDecimal FieldName.Performance
-            LatestPrice = reader.getMoney FieldName.LatestPrice
-            OpenTrades = reader.getBoolean FieldName.OpenTrades
         }
 
     [<Extension>]

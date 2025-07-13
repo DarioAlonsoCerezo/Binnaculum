@@ -45,7 +45,7 @@ module internal SnapshotsModel =
             member this.CreatedAt = this.Base.Audit.CreatedAt
             member this.UpdatedAt = this.Base.Audit.UpdatedAt
 
-    type TickerSnapshot = {
+    type TickerCurrencySnapshot = {
         Base: BaseSnapshot
         TickerId: int
         CurrencyId: int
@@ -61,6 +61,19 @@ module internal SnapshotsModel =
         Performance: decimal // Performance percentage
         LatestPrice: Money // Latest price of the ticker
         OpenTrades: bool // Whether there are open trades
+    } with
+        interface IEntity with
+            member this.Id = this.Base.Id
+            member this.InsertSQL = "TickerCurrencySnapshotQuery.insert" // TODO - Implement insertion logic if needed
+            member this.UpdateSQL = "TickerCurrencySnapshotQuery.update" // TODO - Implement insertion logic if needed
+            member this.DeleteSQL = "TickerCurrencySnapshotQuery.delete" // TODO - Implement deletion logic if needed
+        interface IAuditEntity with
+            member this.CreatedAt = this.Base.Audit.CreatedAt
+            member this.UpdatedAt = this.Base.Audit.UpdatedAt
+
+    type TickerSnapshot = {
+        Base: BaseSnapshot
+        TickerId: int
     } with
         interface IEntity with
             member this.Id = this.Base.Id

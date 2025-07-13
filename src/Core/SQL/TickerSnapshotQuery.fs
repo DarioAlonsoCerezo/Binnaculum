@@ -12,40 +12,15 @@ module internal TickerSnapshotQuery =
             {Id} INTEGER PRIMARY KEY,
             {Date} TEXT NOT NULL,
             {TickerId} INTEGER NOT NULL,
-            {CurrencyId} INTEGER NOT NULL,
-            {TotalShares} TEXT NOT NULL,
-            {Weight} TEXT NOT NULL,
-            {CostBasis} TEXT NOT NULL,
-            {RealCost} TEXT NOT NULL, 
-            {Dividends} TEXT NOT NULL,
-            {Options} TEXT NOT NULL,
-            {TotalIncomes} TEXT NOT NULL,
-            {Unrealized} TEXT NOT NULL,
-            {Realized} TEXT NOT NULL,
-            {Performance} TEXT NOT NULL,
-            {LatestPrice} TEXT NOT NULL,
-            {OpenTrades} INTEGER NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
-            -- Foreign key to ensure TickerId references a valid Ticker in the Tickers table
-            FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
-            -- Foreign key to ensure CurrencyId references a valid Currency in the Currencies table
-            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+            FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
         );
 
-        -- Index to optimize queries filtering by TickerId
         CREATE INDEX IF NOT EXISTS idx_TickerSnapshots_TickerId ON {TickerSnapshots}({TickerId});
-
-        -- Index to optimize queries filtering by CurrencyId
-        CREATE INDEX IF NOT EXISTS idx_TickerSnapshots_CurrencyId ON {TickerSnapshots}({CurrencyId});
-
-        -- Index to optimize queries filtering by Date
         CREATE INDEX IF NOT EXISTS idx_TickerSnapshots_Date ON {TickerSnapshots}({Date});
-        
-        -- Index to optimize queries for ticker and date combination 
         CREATE INDEX IF NOT EXISTS idx_TickerSnapshots_TickerId_Date ON {TickerSnapshots}({TickerId}, {Date});
 
-        -- Trigger to automatically update the UpdatedAt column on row update
         CREATE TRIGGER IF NOT EXISTS trg_TickerSnapshots_UpdatedAt
         AFTER UPDATE ON {TickerSnapshots}
         FOR EACH ROW
@@ -62,19 +37,6 @@ module internal TickerSnapshotQuery =
         (
             {Date},
             {TickerId},
-            {CurrencyId},
-            {TotalShares},
-            {Weight},
-            {CostBasis},
-            {RealCost},
-            {Dividends},
-            {Options},
-            {TotalIncomes},
-            {Unrealized},
-            {Realized},
-            {Performance},
-            {LatestPrice},
-            {OpenTrades},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -82,19 +44,6 @@ module internal TickerSnapshotQuery =
         (
             {SQLParameterName.Date},
             {SQLParameterName.TickerId},
-            {SQLParameterName.CurrencyId},
-            {SQLParameterName.TotalShares},
-            {SQLParameterName.Weight},
-            {SQLParameterName.CostBasis},
-            {SQLParameterName.RealCost},
-            {SQLParameterName.Dividends},
-            {SQLParameterName.Options},
-            {SQLParameterName.TotalIncomes},
-            {SQLParameterName.Unrealized},
-            {SQLParameterName.Realized},
-            {SQLParameterName.Performance},
-            {SQLParameterName.LatestPrice},
-            {SQLParameterName.OpenTrades},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -106,19 +55,6 @@ module internal TickerSnapshotQuery =
         SET
             {Date} = {SQLParameterName.Date},
             {TickerId} = {SQLParameterName.TickerId},
-            {CurrencyId} = {SQLParameterName.CurrencyId},
-            {TotalShares} = {SQLParameterName.TotalShares},
-            {Weight} = {SQLParameterName.Weight},
-            {CostBasis} = {SQLParameterName.CostBasis},
-            {RealCost} = {SQLParameterName.RealCost},
-            {Dividends} = {SQLParameterName.Dividends},
-            {Options} = {SQLParameterName.Options},
-            {TotalIncomes} = {SQLParameterName.TotalIncomes},
-            {Unrealized} = {SQLParameterName.Unrealized},
-            {Realized} = {SQLParameterName.Realized},
-            {Performance} = {SQLParameterName.Performance},
-            {LatestPrice} = {SQLParameterName.LatestPrice},
-            {OpenTrades} = {SQLParameterName.OpenTrades},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
