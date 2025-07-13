@@ -176,19 +176,7 @@ module internal DatabaseToModels =
             {
                 Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                 Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
-                Currency = Binnaculum.Core.UI.Collections.getCurrency(dbSnapshot.CurrencyId)
-                TotalShares = dbSnapshot.TotalShares
-                Weight = dbSnapshot.Weight
-                CostBasis = dbSnapshot.CostBasis.Value
-                RealCost = dbSnapshot.RealCost.Value
-                Dividends = dbSnapshot.Dividends.Value
-                Options = dbSnapshot.Options.Value
-                TotalIncomes = dbSnapshot.TotalIncomes.Value
-                Unrealized = dbSnapshot.Unrealized.Value
-                Realized = dbSnapshot.Realized.Value
-                Performance = dbSnapshot.Performance
-                LatestPrice = dbSnapshot.LatestPrice.Value
-                OpenTrades = dbSnapshot.OpenTrades
+                MainCurrency = 
             }
 
         [<Extension>]
