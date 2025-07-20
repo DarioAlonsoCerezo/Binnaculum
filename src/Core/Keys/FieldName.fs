@@ -249,3 +249,8 @@ module internal FieldName =
     // Additional field
     [<Literal>]
     let TickerSnapshotId = "TickerSnapshotId"
+
+    [<Literal>]
+    let BrokerSnapshotId = "BrokerSnapshotId"
+    [<Literal>]
+    let BrokerAccountSnapshotId = "BrokerAccountSnapshotId"

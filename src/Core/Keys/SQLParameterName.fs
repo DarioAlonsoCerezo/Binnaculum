@@ -257,3 +257,8 @@ module internal SQLParameterName =
 
     [<Literal>]
     let TickerSnapshotId = "@TickerSnapshotId"
+
+    [<Literal>]
+    let BrokerSnapshotId = "@BrokerSnapshotId"
+    [<Literal>]
+    let BrokerAccountSnapshotId = "@BrokerAccountSnapshotId"

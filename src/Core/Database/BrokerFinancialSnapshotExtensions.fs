@@ -21,6 +21,8 @@ type Do() =
                 (SQLParameterName.BrokerAccountId, snapshot.BrokerAccountId);
                 (SQLParameterName.CurrencyId, snapshot.CurrencyId);
                 (SQLParameterName.MovementCounter, snapshot.MovementCounter);
+                (SQLParameterName.BrokerSnapshotId, snapshot.BrokerSnapshotId);
+                (SQLParameterName.BrokerAccountSnapshotId, snapshot.BrokerAccountSnapshotId);
                 (SQLParameterName.RealizedGains, snapshot.RealizedGains.Value);
                 (SQLParameterName.RealizedPercentage, snapshot.RealizedPercentage);
                 (SQLParameterName.UnrealizedGains, snapshot.UnrealizedGains.Value);
@@ -48,6 +50,8 @@ type Do() =
             BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
             CurrencyId = reader.getInt32 FieldName.CurrencyId
             MovementCounter = reader.getInt32 FieldName.MovementCounter
+            BrokerSnapshotId = reader.getInt32 FieldName.BrokerSnapshotId
+            BrokerAccountSnapshotId = reader.getInt32 FieldName.BrokerAccountSnapshotId
             RealizedGains = reader.getMoney FieldName.RealizedGains
             RealizedPercentage = reader.getDecimal FieldName.RealizedPercentage
             UnrealizedGains = reader.getMoney FieldName.UnrealizedGains

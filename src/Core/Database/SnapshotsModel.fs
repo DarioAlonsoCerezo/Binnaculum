@@ -22,6 +22,8 @@ module internal SnapshotsModel =
         BrokerAccountId: int // Broker Account ID - Default: -1 (indicates not for specific broker account)
         CurrencyId: int
         MovementCounter: int
+        BrokerSnapshotId: int // Reference to BrokerSnapshot
+        BrokerAccountSnapshotId: int // Reference to BrokerAccountSnapshot
         RealizedGains: Money // Cumulative realized gains - Default currency: USD
         RealizedPercentage: decimal // Percentage of realized gains
         UnrealizedGains: Money // Unrealized gains/losses - Default currency: USD

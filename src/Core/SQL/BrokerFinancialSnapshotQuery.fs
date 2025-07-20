@@ -15,6 +15,8 @@ module internal BrokerFinancialSnapshotQuery =
             {BrokerAccountId} INTEGER NOT NULL DEFAULT -1,
             {CurrencyId} INTEGER NOT NULL,
             {MovementCounter} INTEGER NOT NULL,
+            {BrokerSnapshotId} INTEGER NOT NULL,
+            {BrokerAccountSnapshotId} INTEGER NOT NULL,
             {RealizedGains} TEXT NOT NULL,
             {RealizedPercentage} TEXT NOT NULL,
             {UnrealizedGains} TEXT NOT NULL,
@@ -35,7 +37,11 @@ module internal BrokerFinancialSnapshotQuery =
             -- Foreign key to ensure BrokerId references a valid Broker (when not -1)
             FOREIGN KEY ({BrokerId}) REFERENCES {Brokers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
             -- Foreign key to ensure BrokerAccountId references a valid BrokerAccount (when not -1)
-            FOREIGN KEY ({BrokerAccountId}) REFERENCES {BrokerAccounts}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+            FOREIGN KEY ({BrokerAccountId}) REFERENCES {BrokerAccounts}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure BrokerSnapshotId references a valid BrokerSnapshot in the BrokerSnapshots table
+            FOREIGN KEY ({BrokerSnapshotId}) REFERENCES {BrokerSnapshots}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            -- Foreign key to ensure BrokerAccountSnapshotId references a valid BrokerAccountSnapshot in the BrokerAccountSnapshots table
+            FOREIGN KEY ({BrokerAccountSnapshotId}) REFERENCES {BrokerAccountSnapshots}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
         );
 
         -- Index to optimize queries filtering by CurrencyId
@@ -52,6 +58,12 @@ module internal BrokerFinancialSnapshotQuery =
 
         -- Index to optimize queries filtering by BrokerAccountId
         CREATE INDEX IF NOT EXISTS idx_BrokerFinancialSnapshots_BrokerAccountId ON {BrokerFinancialSnapshots}({BrokerAccountId});
+
+        -- Index to optimize queries filtering by BrokerSnapshotId
+        CREATE INDEX IF NOT EXISTS idx_BrokerFinancialSnapshots_BrokerSnapshotId ON {BrokerFinancialSnapshots}({BrokerSnapshotId});
+
+        -- Index to optimize queries filtering by BrokerAccountSnapshotId
+        CREATE INDEX IF NOT EXISTS idx_BrokerFinancialSnapshots_BrokerAccountSnapshotId ON {BrokerFinancialSnapshots}({BrokerAccountSnapshotId});
 
         -- Composite index to optimize queries filtering by BrokerId and Date
         CREATE INDEX IF NOT EXISTS idx_BrokerFinancialSnapshots_BrokerId_Date ON {BrokerFinancialSnapshots}({BrokerId}, {Date});
@@ -79,6 +91,8 @@ module internal BrokerFinancialSnapshotQuery =
             {BrokerAccountId},
             {CurrencyId},
             {MovementCounter},
+            {BrokerSnapshotId},
+            {BrokerAccountSnapshotId},
             {RealizedGains},
             {RealizedPercentage},
             {UnrealizedGains},
@@ -102,6 +116,8 @@ module internal BrokerFinancialSnapshotQuery =
             {SQLParameterName.BrokerAccountId},
             {SQLParameterName.CurrencyId},
             {SQLParameterName.MovementCounter},
+            {SQLParameterName.BrokerSnapshotId},
+            {SQLParameterName.BrokerAccountSnapshotId},
             {SQLParameterName.RealizedGains},
             {SQLParameterName.RealizedPercentage},
             {SQLParameterName.UnrealizedGains},
@@ -129,6 +145,8 @@ module internal BrokerFinancialSnapshotQuery =
             {BrokerAccountId} = {SQLParameterName.BrokerAccountId},
             {CurrencyId} = {SQLParameterName.CurrencyId},
             {MovementCounter} = {SQLParameterName.MovementCounter},
+            {BrokerSnapshotId} = {SQLParameterName.BrokerSnapshotId},
+            {BrokerAccountSnapshotId} = {SQLParameterName.BrokerAccountSnapshotId},
             {RealizedGains} = {SQLParameterName.RealizedGains},
             {RealizedPercentage} = {SQLParameterName.RealizedPercentage},
             {UnrealizedGains} = {SQLParameterName.UnrealizedGains},
