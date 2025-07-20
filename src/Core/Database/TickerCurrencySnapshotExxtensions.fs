@@ -17,6 +17,7 @@ type Do() =
                 (SQLParameterName.Date, snapshot.Base.Date.ToString())
                 (SQLParameterName.TickerId, snapshot.TickerId)
                 (SQLParameterName.CurrencyId, snapshot.CurrencyId)
+                (SQLParameterName.TickerSnapshotId, snapshot.TickerSnapshotId)
                 (SQLParameterName.TotalShares, snapshot.TotalShares)
                 (SQLParameterName.Weight, snapshot.Weight)
                 (SQLParameterName.CostBasis, snapshot.CostBasis.Value)
@@ -41,6 +42,7 @@ type Do() =
             }
             TickerId = reader.getInt32 FieldName.TickerId
             CurrencyId = reader.getInt32 FieldName.CurrencyId
+            TickerSnapshotId = reader.getInt32 FieldName.TickerSnapshotId
             TotalShares = reader.getDecimal FieldName.TotalShares
             Weight = reader.getDecimal FieldName.Weight
             CostBasis = reader.getMoney FieldName.CostBasis

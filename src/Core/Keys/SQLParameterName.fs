@@ -254,3 +254,6 @@ module internal SQLParameterName =
     // Broker Financial Snapshots
     [<Literal>]
     let MovementCounter = "@MovementCounter"
+
+    [<Literal>]
+    let TickerSnapshotId = "@TickerSnapshotId"

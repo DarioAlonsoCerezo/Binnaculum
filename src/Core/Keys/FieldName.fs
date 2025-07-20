@@ -245,3 +245,7 @@ module internal FieldName =
     // Broker Financial Snapshots
     [<Literal>]
     let MovementCounter = "MovementCounter"
+
+    // Additional field
+    [<Literal>]
+    let TickerSnapshotId = "TickerSnapshotId"

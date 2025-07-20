@@ -13,6 +13,7 @@ module internal TickerCurrencySnapshotQuery =
             {Date} TEXT NOT NULL,
             {TickerId} INTEGER NOT NULL,
             {CurrencyId} INTEGER NOT NULL,
+            {TickerSnapshotId} INTEGER NOT NULL,
             {TotalShares} TEXT NOT NULL,
             {Weight} TEXT NOT NULL,
             {CostBasis} TEXT NOT NULL,
@@ -28,11 +29,13 @@ module internal TickerCurrencySnapshotQuery =
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
             FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
-            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY ({TickerSnapshotId}) REFERENCES {TickerSnapshots}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
         );
 
         CREATE INDEX IF NOT EXISTS idx_TickerCurrencySnapshots_TickerId ON {TickerCurrencySnapshots}({TickerId});
         CREATE INDEX IF NOT EXISTS idx_TickerCurrencySnapshots_CurrencyId ON {TickerCurrencySnapshots}({CurrencyId});
+        CREATE INDEX IF NOT EXISTS idx_TickerCurrencySnapshots_TickerSnapshotId ON {TickerCurrencySnapshots}({TickerSnapshotId});
         CREATE INDEX IF NOT EXISTS idx_TickerCurrencySnapshots_Date ON {TickerCurrencySnapshots}({Date});
         CREATE INDEX IF NOT EXISTS idx_TickerCurrencySnapshots_TickerId_Date ON {TickerCurrencySnapshots}({TickerId}, {Date});
 
@@ -52,6 +55,7 @@ module internal TickerCurrencySnapshotQuery =
             {Date},
             {TickerId},
             {CurrencyId},
+            {TickerSnapshotId},
             {TotalShares},
             {Weight},
             {CostBasis},
@@ -72,6 +76,7 @@ module internal TickerCurrencySnapshotQuery =
             {SQLParameterName.Date},
             {SQLParameterName.TickerId},
             {SQLParameterName.CurrencyId},
+            {SQLParameterName.TickerSnapshotId},
             {SQLParameterName.TotalShares},
             {SQLParameterName.Weight},
             {SQLParameterName.CostBasis},
@@ -95,6 +100,7 @@ module internal TickerCurrencySnapshotQuery =
             {Date} = {SQLParameterName.Date},
             {TickerId} = {SQLParameterName.TickerId},
             {CurrencyId} = {SQLParameterName.CurrencyId},
+            {TickerSnapshotId} = {SQLParameterName.TickerSnapshotId},
             {TotalShares} = {SQLParameterName.TotalShares},
             {Weight} = {SQLParameterName.Weight},
             {CostBasis} = {SQLParameterName.CostBasis},

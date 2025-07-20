@@ -49,6 +49,7 @@ module internal SnapshotsModel =
         Base: BaseSnapshot
         TickerId: int
         CurrencyId: int 
+        TickerSnapshotId: int // Reference to TickerSnapshot
         TotalShares: decimal // Total shares held
         Weight: decimal  // Percentage weight in portfolio
         CostBasis: Money // Cost basis for the ticker
@@ -64,9 +65,9 @@ module internal SnapshotsModel =
     } with
         interface IEntity with
             member this.Id = this.Base.Id
-            member this.InsertSQL = "TickerCurrencySnapshotQuery.insert" // TODO - Implement insertion logic if needed
-            member this.UpdateSQL = "TickerCurrencySnapshotQuery.update" // TODO - Implement insertion logic if needed
-            member this.DeleteSQL = "TickerCurrencySnapshotQuery.delete" // TODO - Implement deletion logic if needed
+            member this.InsertSQL = TickerCurrencySnapshotQuery.insert
+            member this.UpdateSQL = TickerCurrencySnapshotQuery.update
+            member this.DeleteSQL = TickerCurrencySnapshotQuery.delete
         interface IAuditEntity with
             member this.CreatedAt = this.Base.Audit.CreatedAt
             member this.UpdatedAt = this.Base.Audit.UpdatedAt
