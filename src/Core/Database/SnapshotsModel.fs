@@ -48,7 +48,7 @@ module internal SnapshotsModel =
     type TickerCurrencySnapshot = {
         Base: BaseSnapshot
         TickerId: int
-        CurrencyId: int
+        CurrencyId: int 
         TotalShares: decimal // Total shares held
         Weight: decimal  // Percentage weight in portfolio
         CostBasis: Money // Cost basis for the ticker

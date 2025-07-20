@@ -174,9 +174,29 @@ module internal DatabaseToModels =
         [<Extension>]
         static member tickerSnapshotToModel(dbSnapshot: TickerSnapshot) =
             {
+                Id = dbSnapshot.Base.Id
                 Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                 Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
                 MainCurrency = 
+                    {
+                        Id = 0
+                        Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                        Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                        Currency = Binnaculum.Core.UI.Collections.GetCurrency("USD") // Default currency, can be changed later
+                        TotalShares = 0m // Default value, not used in this context
+                        Weight = 0.0m // Default value, not used in this context
+                        CostBasis = 0.0m // Default value, not used in this context
+                        RealCost = 0.0m // Default value, not used in this context
+                        Dividends = 0.0m // Default value, not used in this context
+                        Options = 0.0m // Default value, not used in this context
+                        TotalIncomes = 0.0m // Default value, not used in this context
+                        Unrealized = 0.0m // Default value, not used in this context
+                        Realized = 0.0m // Default value, not used in this context
+                        Performance = 0.0m // Default value, not used in this context
+                        LatestPrice = 0.0m // Default value, not used in this context
+                        OpenTrades = false // Default value, not used in this context
+                    }
+                OtherCurrencies = []
             }
 
         [<Extension>]
