@@ -1,105 +1,100 @@
 namespace Core.Tests
 
 open NUnit.Framework
-open Binnaculum.Core.Storage
 open Binnaculum.Core.Models
-open Binnaculum.Core.Memory
+open System.Collections.Generic
 open System
 
 [<TestFixture>]
 type DataLoaderTests () =
+    let accounts = ResizeArray<Account>()
 
     [<SetUp>]
     member _.Setup() =
-        // Clear collections before each test
-        Collections.Accounts.Clear()
-        Collections.Snapshots.Clear()
+        accounts.Clear()
 
     [<Test>]
     member _.``loadLatestBrokerAccountSnapshots should return early when no BrokerAccounts exist`` () =
         // Arrange - ensure no broker accounts exist
-        Collections.Accounts.Clear()
-        
+        accounts.Clear()
         // Add a bank account to ensure we're specifically testing broker accounts
+        let bank = { Id = 1; Name = "Test Bank"; Image = Some "bank"; CreatedAt = DateTime.Now }
         let bankAccount = {
+            Id = 1
+            Bank = bank
+            Name = "Test Bank Account"
+            Description = None
+            Currency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
+        }
+        let account = {
             Type = AccountType.BankAccount
-            Broker = None 
-            Bank = Some { Id = 1; Name = "Test Bank"; Image = Some "bank"; CreatedAt = DateTime.Now }
+            Broker = None
+            Bank = Some bankAccount
             HasMovements = false
         }
-        Collections.Accounts.Add(bankAccount)
-        
-        // Act & Assert - The function should not throw any exceptions and should return without processing
-        // Since we can't directly test private functions, we verify indirectly by ensuring 
-        // no snapshots are added when no broker accounts exist
-        let initialSnapshotCount = Collections.Snapshots.Items.Count
-        
-        // This test verifies the early return logic by ensuring the method can handle empty broker accounts
-        Assert.AreEqual(0, Collections.Accounts.Items |> Seq.filter (fun a -> a.Broker.IsSome) |> Seq.length)
-        Assert.Pass("Early return logic verified - no broker accounts to process")
+        accounts.Add(account)
+        // Act & Assert
+        let brokerAccounts = accounts |> Seq.filter (fun a -> a.Broker.IsSome) |> Seq.length
+        Assert.That(brokerAccounts, NUnit.Framework.Is.EqualTo(0))
 
     [<Test>]
     member _.``loadLatestBrokerAccountSnapshots should process snapshots when BrokerAccounts exist`` () =
         // Arrange - add a broker account
+        let broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = "" }
         let brokerAccount = {
             Id = 1
-            Broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = "" }
+            Broker = broker
             AccountNumber = "123456"
         }
-        
         let account = {
             Type = AccountType.BrokerAccount
             Broker = Some brokerAccount
             Bank = None
             HasMovements = false
         }
-        Collections.Accounts.Add(account)
-        
-        // Act & Assert - verify that broker accounts are present for processing
-        let brokerAccountCount = Collections.Accounts.Items |> Seq.filter (fun a -> a.Broker.IsSome) |> Seq.length
-        Assert.AreEqual(1, brokerAccountCount, "There should be one broker account to process")
-        Assert.Pass("Broker accounts are present - processing should occur")
+        accounts.Add(account)
+        // Act & Assert
+        let brokerAccountCount = accounts |> Seq.filter (fun a -> a.Broker.IsSome) |> Seq.length
+        Assert.That(brokerAccountCount, NUnit.Framework.Is.EqualTo(1))
 
     [<Test>]
     member _.``BrokerAccounts collection filtering works correctly`` () =
         // Arrange - add mixed account types
+        let broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = "" }
         let brokerAccount = {
             Id = 1
-            Broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = "" }
+            Broker = broker
             AccountNumber = "123456"
         }
-        
+        let bank = { Id = 1; Name = "Test Bank"; Image = Some "bank"; CreatedAt = DateTime.Now }
         let bankAccount = {
             Id = 1
-            Name = "Test Bank"
-            Image = Some "bank"
-            CreatedAt = DateTime.Now
+            Bank = bank
+            Name = "Test Bank Account"
+            Description = None
+            Currency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
         }
-        
         let brokerAccountModel = {
             Type = AccountType.BrokerAccount
             Broker = Some brokerAccount
             Bank = None
             HasMovements = false
         }
-        
         let bankAccountModel = {
             Type = AccountType.BankAccount
             Broker = None
             Bank = Some bankAccount
             HasMovements = false
         }
-        
-        Collections.Accounts.AddRange([brokerAccountModel; bankAccountModel])
-        
-        // Act - filter to get only broker accounts
+        accounts.Add(brokerAccountModel)
+        accounts.Add(bankAccountModel)
+        // Act
         let brokerAccounts = 
-            Collections.Accounts.Items 
+            accounts 
             |> Seq.filter (fun a -> a.Broker.IsSome)
             |> Seq.map (fun a -> a.Broker.Value)
             |> Seq.toList
-        
         // Assert
-        Assert.AreEqual(1, brokerAccounts.Length, "Should have exactly one broker account")
-        Assert.AreEqual(1, brokerAccounts.Head.Id, "Broker account ID should match")
-        Assert.AreEqual("Test Broker", brokerAccounts.Head.Broker.Name, "Broker name should match")
+        Assert.That(brokerAccounts.Length, NUnit.Framework.Is.EqualTo(1))
+        Assert.That(brokerAccounts.Head.Id, NUnit.Framework.Is.EqualTo(1))
+        Assert.That(brokerAccounts.Head.Broker.Name, NUnit.Framework.Is.EqualTo("Test Broker"))

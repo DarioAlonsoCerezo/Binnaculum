@@ -10,18 +10,19 @@ type BrokerSnapshotTests () =
     [<Test>]
     member _.``BrokerSnapshot has Financial property of type BrokerFinancialSnapshot`` () =
         // Arrange
+        let mockCurrency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
         let mockBroker = {
             Id = 1
             Name = "Test Broker"
             Image = ""
             SupportedBroker = ""
         }
-
         let mockFinancial = {
+            Id = 1
             Date = DateOnly.FromDateTime(DateTime.Now)
-            BrokerId = 1 // For specific broker
-            BrokerAccountId = -1 // Default value
-            CurrencyId = 1
+            Broker = Some mockBroker
+            BrokerAccount = None
+            Currency = mockCurrency
             MovementCounter = 0
             RealizedGains = 200.0m
             RealizedPercentage = 10.0m
@@ -37,7 +38,6 @@ type BrokerSnapshotTests () =
             OtherIncome = 0.0m
             OpenTrades = false
         }
-
         let snapshot = {
             Date = DateOnly.FromDateTime(DateTime.Now)
             Broker = mockBroker
@@ -46,30 +46,31 @@ type BrokerSnapshotTests () =
             Financial = mockFinancial
             FinancialOtherCurrencies = []
         }
-
         // Act & Assert
-        Assert.IsNotNull(snapshot.Financial)
-        Assert.AreEqual(200.0m, snapshot.Financial.RealizedGains)
-        Assert.AreEqual(100.0m, snapshot.Financial.UnrealizedGains)
-        Assert.AreEqual(2, snapshot.AccountCount)
-        Assert.IsNotNull(snapshot.FinancialOtherCurrencies)
-        Assert.AreEqual(0, snapshot.FinancialOtherCurrencies.Length)
+        Assert.That(snapshot.Financial, Is.Not.Null)
+        Assert.That(snapshot.Financial.RealizedGains, Is.EqualTo(200.0m))
+        Assert.That(snapshot.Financial.UnrealizedGains, Is.EqualTo(100.0m))
+        Assert.That(snapshot.AccountCount, Is.EqualTo(2))
+        Assert.That(snapshot.FinancialOtherCurrencies, Is.Not.Null)
+        Assert.That(snapshot.FinancialOtherCurrencies.Length, Is.EqualTo(0))
 
     [<Test>]
     member _.``BrokerSnapshot has FinancialOtherCurrencies property of type BrokerFinancialSnapshot list`` () =
         // Arrange
+        let mockCurrency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
+        let mockCurrency2 = { Id = 2; Title = "EUR"; Code = "EUR"; Symbol = "€" }
         let mockBroker = {
             Id = 1
             Name = "Test Broker"
             Image = ""
             SupportedBroker = ""
         }
-
         let mockFinancial = {
+            Id = 1
             Date = DateOnly.FromDateTime(DateTime.Now)
-            BrokerId = 1 // For specific broker
-            BrokerAccountId = -1 // Default value
-            CurrencyId = 1
+            Broker = Some mockBroker
+            BrokerAccount = None
+            Currency = mockCurrency
             MovementCounter = 0
             RealizedGains = 200.0m
             RealizedPercentage = 10.0m
@@ -85,12 +86,12 @@ type BrokerSnapshotTests () =
             OtherIncome = 0.0m
             OpenTrades = false
         }
-
         let mockFinancialOtherCurrency = {
+            Id = 2
             Date = DateOnly.FromDateTime(DateTime.Now)
-            BrokerId = 1 // For specific broker
-            BrokerAccountId = -1 // Default value
-            CurrencyId = 2 // Different currency (EUR)
+            Broker = Some mockBroker
+            BrokerAccount = None
+            Currency = mockCurrency2
             MovementCounter = 0
             RealizedGains = 150.0m
             RealizedPercentage = 7.5m
@@ -106,7 +107,6 @@ type BrokerSnapshotTests () =
             OtherIncome = 0.0m
             OpenTrades = false
         }
-
         let snapshot = {
             Date = DateOnly.FromDateTime(DateTime.Now)
             Broker = mockBroker
@@ -115,9 +115,8 @@ type BrokerSnapshotTests () =
             Financial = mockFinancial
             FinancialOtherCurrencies = [mockFinancialOtherCurrency]
         }
-
         // Act & Assert
-        Assert.IsNotNull(snapshot.FinancialOtherCurrencies)
-        Assert.AreEqual(1, snapshot.FinancialOtherCurrencies.Length)
-        Assert.AreEqual(2, snapshot.FinancialOtherCurrencies.Head.CurrencyId)
-        Assert.AreEqual(150.0m, snapshot.FinancialOtherCurrencies.Head.RealizedGains)
+        Assert.That(snapshot.FinancialOtherCurrencies, Is.Not.Null)
+        Assert.That(snapshot.FinancialOtherCurrencies.Length, Is.EqualTo(1))
+        Assert.That(snapshot.FinancialOtherCurrencies.Head.Currency.Id, Is.EqualTo(2))
+        Assert.That(snapshot.FinancialOtherCurrencies.Head.RealizedGains, Is.EqualTo(150.0m))
