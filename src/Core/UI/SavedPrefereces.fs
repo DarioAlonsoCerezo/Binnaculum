@@ -90,11 +90,10 @@ module SavedPrefereces =
         UserPreferences.OnNext({ UserPreferences.Value with Ticker = ticker })
 
     // Fire-and-forget helper function
-    let private fireAndForget (task: Task) =
-        // This creates a task that ignores exceptions and doesn't block
-        Task.Run(fun () -> 
-            task.ContinueWith(fun t ->
-                // Ignoring exceptions, but could log them here if needed
+    let private fireAndForget (taskFactory: unit -> Task) =
+        // Start the work on a background thread
+        Task.Run(fun () ->
+            taskFactory().ContinueWith(fun t ->
                 if t.IsFaulted && t.Exception <> null then
                     System.Diagnostics.Debug.WriteLine($"Task failed: {t.Exception}")
             ) |> ignore
@@ -107,9 +106,8 @@ module SavedPrefereces =
         UserPreferences.OnNext({ UserPreferences.Value with GroupOptions = group })
         
         // If the value has changed, reload option trades
-        if currentValue <> group then
-            DataLoader.changeOptionsGrouped()
-            |> fireAndForget
+        if currentValue <> group then            
+            fireAndForget(fun () -> DataLoader.changeOptionsGrouped())
 
     // TODO: Add Information button to all settings where we need to explain the user
     // what the setting does.
