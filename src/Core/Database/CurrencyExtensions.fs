@@ -39,7 +39,14 @@ open CommandExtensions
 
         static member getById(id: int) = Database.Do.getById Do.read id CurrencyQuery.getById
 
-
+        static member getByCode(code: string) =
+            task {
+                let! command = Database.Do.createCommand()
+                command.CommandText <- CurrencyQuery.getByCode
+                command.Parameters.AddWithValue(SQLParameterName.Code, code) |> ignore
+                let! currency = Database.Do.read<Currency>(command, Do.read)
+                return currency
+            }
 
         static member currencyList() =
             [

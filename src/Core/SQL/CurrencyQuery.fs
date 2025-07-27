@@ -61,3 +61,11 @@ module internal CurrencyQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
+
+    let getByCode =
+        $"""
+        SELECT * FROM {Currencies}
+        WHERE
+            {Code} = {SQLParameterName.Code}
+        LIMIT 1
+        """
