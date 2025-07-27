@@ -29,4 +29,29 @@ module internal Keys =
     [<Literal>]
     let HomeData = "home_data"
 
-    
+    [<Literal>]
+    let ThemeKey = "AppTheme"
+
+    [<Literal>]
+    let LanguageKey = "Language"
+
+    [<Literal>]
+    let CurrencyKey = "Currency"
+
+    [<Literal>]
+    let TickerKey = "Ticker"
+
+    [<Literal>]
+    let GroupOptionsKey = "GroupOptions"
+
+    [<Literal>]
+    let AllowCreateAccountKey = "AllowCreateAccount"
+
+    [<Literal>]
+    let DefaultLanguage = "en"
+
+    [<Literal>]
+    let DefaultCurrency = "USD"
+
+    [<Literal>]
+    let DefaultTicker = "SPY"

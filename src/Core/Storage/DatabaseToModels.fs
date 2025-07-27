@@ -6,6 +6,7 @@ open Binnaculum.Core.Models
 open DiscriminatedToModel
 open Microsoft.Maui.Storage
 open Binnaculum.Core.Database.SnapshotsModel
+open Binnaculum.Core.Keys
 
 module internal DatabaseToModels =
 
@@ -388,7 +389,7 @@ module internal DatabaseToModels =
             // First convert all trades to models
             let optionTradeModels = optionTrades |> List.map (fun o -> o.optionTradeToModel())
 
-            let groupOptions = Preferences.Get("GroupOptions", true)
+            let groupOptions = Preferences.Get(GroupOptionsKey, true)
             
             if groupOptions then
             // Group trades by key characteristics (ticker ID, option type, strike price, expiration date)

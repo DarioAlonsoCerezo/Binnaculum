@@ -5,6 +5,7 @@ open Microsoft.Maui.Storage
 open System.Reactive.Subjects
 open Binnaculum.Core.Storage
 open System.Threading.Tasks
+open Binnaculum.Core.Keys // Added for key access
 
 module SavedPrefereces =
     
@@ -21,33 +22,6 @@ module SavedPrefereces =
         | 1 -> AppTheme.Light
         | 2 -> AppTheme.Dark
         | _ -> AppTheme.Unspecified
-    
-    [<Literal>]
-    let private ThemeKey = "AppTheme"
-
-    [<Literal>]
-    let private LanguageKey = "Language"
-
-    [<Literal>]
-    let private CurrencyKey = "Currency"
-
-    [<Literal>]
-    let private TickerKey = "Ticker"
-
-    [<Literal>]
-    let private GroupOptionsKey = "GroupOptions"
-
-    [<Literal>]
-    let private AllowCreateAccountKey = "AllowCreateAccount"
-
-    [<Literal>]
-    let private DefaultLanguage = "en"
-
-    [<Literal>]
-    let private DefaultCurrency = "USD"
-
-    [<Literal>]
-    let private DefaultTicker = "SPY"
     
     type PreferencesCollection = {
         Theme: AppTheme
