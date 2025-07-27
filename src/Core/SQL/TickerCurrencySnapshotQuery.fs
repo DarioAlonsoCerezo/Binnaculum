@@ -166,4 +166,11 @@ module internal TickerCurrencySnapshotQuery =
             {Date} BETWEEN {SQLParameterName.Date} AND {SQLParameterName.DateEnd}
         ORDER BY {Date} ASC
         """
+    let getAllByTickerIdAndDate =
+        $"""
+        SELECT * FROM {TickerCurrencySnapshots}
+        WHERE
+            {TickerId} = {SQLParameterName.TickerId} AND
+            {Date} = {SQLParameterName.Date}
+        """
 
