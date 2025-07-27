@@ -8,7 +8,7 @@ open Binnaculum.Core.Storage.SnapshotManagerUtils
 open Microsoft.Maui.Storage
 open Binnaculum.Core.Keys
 open TickerSnapshotExtensions
-open TickerCurrencySnapshotExxtensions
+open TickerCurrencySnapshotExtensions
 
 
 module internal TickerSnapshotManager =

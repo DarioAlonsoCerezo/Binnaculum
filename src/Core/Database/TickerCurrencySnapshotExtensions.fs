@@ -1,4 +1,4 @@
-﻿module internal TickerCurrencySnapshotExxtensions
+﻿module internal TickerCurrencySnapshotExtensions
 
 open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.SnapshotsModel
