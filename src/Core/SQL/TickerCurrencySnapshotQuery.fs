@@ -48,6 +48,7 @@ module internal TickerCurrencySnapshotQuery =
             WHERE {Id} = OLD.{Id};
         END;
         """
+
     let insert =
         $"""
         INSERT INTO {TickerCurrencySnapshots}
@@ -93,6 +94,7 @@ module internal TickerCurrencySnapshotQuery =
             {SQLParameterName.UpdatedAt}
         )
         """
+
     let update =
         $"""
         UPDATE {TickerCurrencySnapshots}
@@ -118,54 +120,14 @@ module internal TickerCurrencySnapshotQuery =
         WHERE
             {Id} = {SQLParameterName.Id}
         """
+
     let delete =
         $"""
         DELETE FROM {TickerCurrencySnapshots}
         WHERE
             {Id} = {SQLParameterName.Id}
         """
-    let getAll =
-        $"""
-        SELECT * FROM {TickerCurrencySnapshots}
-        """
-    let getById =
-        $"""
-        SELECT * FROM {TickerCurrencySnapshots}
-        WHERE
-            {Id} = {SQLParameterName.Id}
-        LIMIT 1
-        """
-    let getByTickerId =
-        $"""
-        SELECT * FROM {TickerCurrencySnapshots}
-        WHERE
-            {TickerId} = {SQLParameterName.TickerId}
-        ORDER BY {Date} DESC
-        """
-    let getLatestByTickerId =
-        $"""
-        SELECT * FROM {TickerCurrencySnapshots}
-        WHERE
-            {TickerId} = {SQLParameterName.TickerId}
-        ORDER BY {Date} DESC
-        LIMIT 1
-        """
-    let getByTickerIdAndDate =
-        $"""
-        SELECT * FROM {TickerCurrencySnapshots}
-        WHERE
-            {TickerId} = {SQLParameterName.TickerId} AND
-            {Date} = {SQLParameterName.Date}
-        LIMIT 1
-        """
-    let getTickerCurrencySnapshotsByDateRange =
-        $"""
-        SELECT * FROM {TickerCurrencySnapshots}
-        WHERE
-            {TickerId} = {SQLParameterName.TickerId} AND
-            {Date} BETWEEN {SQLParameterName.Date} AND {SQLParameterName.DateEnd}
-        ORDER BY {Date} ASC
-        """
+    
     let getAllByTickerIdAndDate =
         $"""
         SELECT * FROM {TickerCurrencySnapshots}
