@@ -174,3 +174,10 @@ module internal OptionsQuery =
         AND {TimeStamp} >= {SQLParameterName.StartDate}
         AND {TimeStamp} <= {SQLParameterName.EndDate}
         """
+
+    let getCurrenciesByTickerAndDate =
+        $"""
+        SELECT DISTINCT {CurrencyId} FROM {Options}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND DATE({TimeStamp}) = DATE({SQLParameterName.Date})
+        """

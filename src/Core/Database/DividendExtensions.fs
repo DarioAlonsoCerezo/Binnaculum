@@ -78,3 +78,18 @@ type Do() =
             let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
             return dividends
         }
+
+    static member getCurrenciesByTickerAndDate(tickerId: int, date: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- DividendsQuery.getCurrenciesByTickerAndDate
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.Date, date) |> ignore
+            let! reader = command.ExecuteReaderAsync()
+            let mutable currencies = []
+            while reader.Read() do
+                let currencyId = reader.GetInt32(0)
+                currencies <- currencyId :: currencies
+            reader.Close()
+            return currencies |> List.rev
+        }

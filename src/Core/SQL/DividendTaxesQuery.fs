@@ -130,3 +130,10 @@ module internal DividendTaxesQuery =
         AND {TimeStamp} >= {SQLParameterName.StartDate}
         AND {TimeStamp} <= {SQLParameterName.EndDate}
         """
+
+    let getCurrenciesByTickerAndDate =
+        $"""
+        SELECT DISTINCT {CurrencyId} FROM {DividendTaxes}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND DATE({TimeStamp}) = DATE({SQLParameterName.Date})
+        """

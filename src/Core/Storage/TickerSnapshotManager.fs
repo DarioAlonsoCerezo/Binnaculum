@@ -113,7 +113,7 @@ module internal TickerSnapshotManager =
             OpenTrades = openTrades
         }
 
-    /// Get all relevant currencies for a ticker based on trades and prices using optimized SQL queries
+    /// Get all relevant currencies for a ticker based on trades, prices, dividends, and options using optimized SQL queries
     let private getRelevantCurrencies (tickerId: int) (date: DateTimePattern) = task {
         let dateStr = date.Value.ToString("yyyy-MM-dd")
         
@@ -123,9 +123,18 @@ module internal TickerSnapshotManager =
         // Get currencies from prices for this ticker on this date using optimized query
         let! priceCurrencies = TickerPriceExtensions.Do.getCurrenciesByTickerAndDate(tickerId, dateStr)
         
-        // Combine and deduplicate currencies
+        // Get currencies from dividends for this ticker on this date using optimized query
+        let! dividendCurrencies = DividendExtensions.Do.getCurrenciesByTickerAndDate(tickerId, dateStr)
+        
+        // Get currencies from dividend taxes for this ticker on this date using optimized query
+        let! dividendTaxCurrencies = DividendTaxExtensions.Do.getCurrenciesByTickerAndDate(tickerId, dateStr)
+        
+        // Get currencies from option trades for this ticker on this date using optimized query
+        let! optionCurrencies = OptionTradeExtensions.Do.getCurrenciesByTickerAndDate(tickerId, dateStr)
+        
+        // Combine and deduplicate currencies from all sources
         let currencies = 
-            [ tradeCurrencies; priceCurrencies ]
+            [ tradeCurrencies; priceCurrencies; dividendCurrencies; dividendTaxCurrencies; optionCurrencies ]
             |> List.concat
             |> List.distinct
 

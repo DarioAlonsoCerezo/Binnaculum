@@ -101,3 +101,18 @@ type Do() =
             let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
             return optionTrades
         }
+
+    static member getCurrenciesByTickerAndDate(tickerId: int, date: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- OptionsQuery.getCurrenciesByTickerAndDate
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.Date, date) |> ignore
+            let! reader = command.ExecuteReaderAsync()
+            let mutable currencies = []
+            while reader.Read() do
+                let currencyId = reader.GetInt32(0)
+                currencies <- currencyId :: currencies
+            reader.Close()
+            return currencies |> List.rev
+        }

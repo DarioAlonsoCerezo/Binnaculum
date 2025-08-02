@@ -129,3 +129,10 @@ module internal DividendsQuery =
         AND {TimeStamp} >= {SQLParameterName.StartDate}
         AND {TimeStamp} <= {SQLParameterName.EndDate}
         """
+
+    let getCurrenciesByTickerAndDate =
+        $"""
+        SELECT DISTINCT {CurrencyId} FROM {Dividends}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND DATE({TimeStamp}) = DATE({SQLParameterName.Date})
+        """
