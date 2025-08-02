@@ -332,12 +332,53 @@ module internal TickerSnapshotManager =
             let! _ = Task.WhenAll(updateTasks)
             return ()
         }
+
+    /// Update a ticker snapshot and cascade the changes to all subsequent dates
+    let private updateTickerSnapshotWithCascade (tickerId: int) (date: DateTimePattern) =
+        task {
+            try
+                // Step 1: Update the target date
+                do! updateTickerSnapshot tickerId date
+                
+                // Step 2: Get all subsequent ticker snapshots that need to be updated
+                let! subsequentSnapshots = TickerSnapshotExtensions.Do.getTickerSnapshotsAfterDate(tickerId, date)
+                
+                // Step 3: Update each subsequent snapshot in chronological order
+                // Process snapshots sequentially to maintain proper calculation dependencies
+                for snapshot in subsequentSnapshots do
+                    try
+                        do! updateTickerSnapshot tickerId snapshot.Base.Date
+                    with
+                    | ex -> 
+                        // Log the error but continue with other dates
+                        failwithf "Failed to cascade update for ticker %d on date %s: %s" 
+                            tickerId (snapshot.Base.Date.Value.ToString()) ex.Message
+                
+                return ()
+            with
+            | ex -> 
+                failwithf "Failed to cascade update for ticker %d starting from date %s: %s" 
+                    tickerId (date.Value.ToString()) ex.Message
+                return () // Won't be reached but satisfies compiler
+        }
     
     /// Handles snapshot update when a new ticker is created
     let handleNewTicker (ticker: Ticker) =
         let today = DateTimePattern.FromDateTime(DateTime.Today)
         createTickerSnapshot ticker.Id today
 
+    /// Handles ticker change for a specific date without cascade updates
     let handleTickerChange (tickerId: int, date: DateTimePattern) =
         updateTickerSnapshot tickerId date
+
+    /// Handles ticker change for a specific date with cascade updates to subsequent dates
+    let handleTickerChangeWithCascade (tickerId: int, date: DateTimePattern) =
+        updateTickerSnapshotWithCascade tickerId date
+
+    /// Handles ticker change with optional cascade support
+    let handleTickerChangeOptionalCascade (tickerId: int, date: DateTimePattern, cascade: bool) =
+        if cascade then
+            updateTickerSnapshotWithCascade tickerId date
+        else
+            updateTickerSnapshot tickerId date
 

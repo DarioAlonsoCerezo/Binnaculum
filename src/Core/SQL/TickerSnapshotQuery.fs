@@ -115,4 +115,13 @@ module internal TickerSnapshotQuery =
             {Date} BETWEEN {SQLParameterName.Date} AND {SQLParameterName.DateEnd}
         ORDER BY {Date} ASC
         """
+        
+    let getTickerSnapshotsAfterDate =
+        $"""
+        SELECT * FROM {TickerSnapshots}
+        WHERE
+            {TickerId} = {SQLParameterName.TickerId} AND
+            {Date} > {SQLParameterName.Date}
+        ORDER BY {Date} ASC
+        """
 

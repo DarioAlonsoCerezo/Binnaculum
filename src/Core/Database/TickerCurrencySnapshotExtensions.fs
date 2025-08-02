@@ -72,3 +72,13 @@ type Do() =
             let! snapshots = Database.Do.readAll<TickerCurrencySnapshot>(command, Do.read)
             return snapshots
         }
+        
+    static member getAllByTickerIdAfterDate(tickerId: int, date: Binnaculum.Core.Patterns.DateTimePattern) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TickerCurrencySnapshotQuery.getAllByTickerIdAfterDate
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.Date, date.ToString()) |> ignore
+            let! snapshots = Database.Do.readAll<TickerCurrencySnapshot>(command, Do.read)
+            return snapshots
+        }
