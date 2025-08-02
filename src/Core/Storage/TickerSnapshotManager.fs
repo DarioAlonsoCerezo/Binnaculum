@@ -27,26 +27,31 @@ module internal TickerSnapshotManager =
             }
         }
 
-    let private createDefaultTickerCurrencySnapshot (date: DateTimePattern) (tickerId: int) (currencyId: int) (snapshotId: int) =
+    let private createDefaultTickerCurrencySnapshot (date: DateTimePattern) (tickerId: int) (currencyId: int) (snapshotId: int) = task {
+        let! priceByDate = TickerPriceExtensions.Do.getPriceByDateOrPrevious(tickerId, date.Value.ToString())
+        
         let snapshotDate = getDateOnly date
-        {
-            Base = createBaseSnapshot snapshotDate
-            TickerId = tickerId
-            CurrencyId = currencyId
-            TickerSnapshotId = snapshotId
-            TotalShares = 0.0M
-            Weight = 0.0M
-            CostBasis = Money.FromAmount(0.0m)
-            RealCost = Money.FromAmount(0.0m)
-            Dividends = Money.FromAmount(0.0m)
-            Options = Money.FromAmount(0.0m)
-            TotalIncomes = Money.FromAmount(0.0m)
-            Unrealized = Money.FromAmount(0.0m)
-            Realized = Money.FromAmount(0.0m)
-            Performance = 0.0m
-            LatestPrice = Money.FromAmount(0.0m)
-            OpenTrades = false
-        }
+        let snapshot = 
+            {
+                Base = createBaseSnapshot snapshotDate
+                TickerId = tickerId
+                CurrencyId = currencyId
+                TickerSnapshotId = snapshotId
+                TotalShares = 0.0M
+                Weight = 0.0M
+                CostBasis = Money.FromAmount(0.0m)
+                RealCost = Money.FromAmount(0.0m)
+                Dividends = Money.FromAmount(0.0m)
+                Options = Money.FromAmount(0.0m)
+                TotalIncomes = Money.FromAmount(0.0m)
+                Unrealized = Money.FromAmount(0.0m)
+                Realized = Money.FromAmount(0.0m)
+                Performance = 0.0m
+                LatestPrice = Money.FromAmount(priceByDate)
+                OpenTrades = false
+            }
+        return snapshot
+    }
 
     /// Create a new snapshot for a ticker and date
     let private createTickerSnapshot (tickerId: int) (date: DateTimePattern) =
@@ -66,7 +71,7 @@ module internal TickerSnapshotManager =
                 match currency with
                 | None -> failwithf "Currency %s not found" preferenceCurrency
                 | Some currency ->
-                    let currencySnapshot = createDefaultTickerCurrencySnapshot date tickerId currency.Id snapshot.Base.Id
+                    let! currencySnapshot = createDefaultTickerCurrencySnapshot date tickerId currency.Id snapshot.Base.Id
                     do! currencySnapshot.save()
         }
 
@@ -102,6 +107,11 @@ module internal TickerSnapshotManager =
                 do! updateTickerSnapshot tickerId d
         }
 
+    /// Handles snapshot update when a new ticker is created
+    let handleNewTicker (ticker: Ticker) =
+        let today = DateTimePattern.FromDateTime(DateTime.Today)
+        createTickerSnapshot ticker.Id today
+
     /// Handles snapshot update when a ticker movement occurs
     let handleTickerMovementSnapshot (tickerId: int, date: DateTimePattern) =
         task {
@@ -111,8 +121,11 @@ module internal TickerSnapshotManager =
             do! recalculateTickerSnapshotsFromDate tickerId date
         }
 
-    /// Handles snapshot update when a new ticker is created
-    let handleNewTicker (ticker: Ticker) =
-        let today = DateTimePattern.FromDateTime(DateTime.Today)
-        createTickerSnapshot ticker.Id today
+    let handleTickerPriceUpdate (tickerId: int, date: DateTimePattern) =
+        task {
+            // Update the ticker snapshot for the given date
+            do! updateTickerSnapshot tickerId date
+            // Recalculate all future snapshots from this date
+            do! recalculateTickerSnapshotsFromDate tickerId date
+        }
 
