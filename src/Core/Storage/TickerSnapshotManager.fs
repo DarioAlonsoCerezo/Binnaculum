@@ -350,7 +350,24 @@ module internal TickerSnapshotManager =
             return ()
         }
     
-    /// Handles snapshot update when a new ticker is created
+    /// <summary>
+    /// Handles snapshot initialization when a new ticker is created in the system.
+    /// This method creates the initial TickerSnapshot and TickerCurrencySnapshot for today's date
+    /// using the default currency preference and zero values for all financial metrics.
+    /// </summary>
+    /// <param name="ticker">The newly created ticker entity that requires snapshot initialization</param>
+    /// <returns>A task that represents the asynchronous snapshot creation operation</returns>
+    /// <remarks>
+    /// This method should be called immediately after a new ticker is successfully saved to the database.
+    /// It ensures that:
+    /// - A baseline TickerSnapshot is created for today's date
+    /// - A corresponding TickerCurrencySnapshot is created with default currency
+    /// - All financial metrics are initialized to zero (no trades, dividends, or positions yet)
+    /// - The latest price is retrieved from the ticker price data if available
+    /// 
+    /// Note: This is different from handleTickerChange, which handles updates to existing tickers.
+    /// For new tickers without any trading history, this provides the foundation for future calculations.
+    /// </remarks>
     let handleNewTicker (ticker: Ticker) =
         let today = DateTimePattern.FromDateTime(DateTime.Today)
         createTickerSnapshot ticker.Id today
