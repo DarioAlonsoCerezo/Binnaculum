@@ -154,15 +154,11 @@ module internal TickerSnapshotManager =
             | Some startDate -> TradeExtensions.Do.getFilteredTrades(tickerId, currencyId, startDate, toDateStr)
             | None -> TradeExtensions.Do.getByTickerCurrencyAndDateRange(tickerId, currencyId, None, toDateStr)
 
-        // Get dividends in date range
-        let! allDividends = DividendExtensions.Do.getAll()
-        let relevantDividends = 
-            allDividends 
-            |> List.filter (fun d -> 
-                d.TickerId = tickerId &&
-                d.CurrencyId = currencyId &&
-                (fromDate |> Option.map (fun dt -> d.TimeStamp.Value.Date > dt.Value.Date) |> Option.defaultValue true) &&
-                d.TimeStamp.Value.Date <= toDate.Value.Date)
+        // Get dividends in date range using optimized query
+        let! relevantDividends = 
+            match fromDateStr with
+            | Some startDate -> DividendExtensions.Do.getFilteredDividends(tickerId, currencyId, startDate, toDateStr)
+            | None -> DividendExtensions.Do.getByTickerCurrencyAndDateRange(tickerId, currencyId, None, toDateStr)
 
         // Get option trades in date range
         let! allOptionTrades = OptionTradeExtensions.Do.getAll()

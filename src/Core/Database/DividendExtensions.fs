@@ -54,3 +54,27 @@ type Do() =
             let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
             return dividends
         }
+
+    static member getByTickerCurrencyAndDateRange(tickerId: int, currencyId: int, fromDate: string option, toDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- DividendsQuery.getByTickerCurrencyAndDateRange
+            command.Parameters.AddWithValue("@TickerId", tickerId) |> ignore
+            command.Parameters.AddWithValue("@CurrencyId", currencyId) |> ignore
+            command.Parameters.AddWithValue("@FromDate", fromDate |> Option.defaultValue "1900-01-01") |> ignore
+            command.Parameters.AddWithValue("@ToDate", toDate) |> ignore
+            let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
+            return dividends
+        }
+
+    static member getFilteredDividends(tickerId: int, currencyId: int, startDate: string, endDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- DividendsQuery.getFilteredDividends
+            command.Parameters.AddWithValue("@TickerId", tickerId) |> ignore
+            command.Parameters.AddWithValue("@CurrencyId", currencyId) |> ignore
+            command.Parameters.AddWithValue("@StartDate", startDate) |> ignore
+            command.Parameters.AddWithValue("@EndDate", endDate) |> ignore
+            let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
+            return dividends
+        }

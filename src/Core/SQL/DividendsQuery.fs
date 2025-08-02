@@ -111,3 +111,21 @@ module internal DividendsQuery =
         SELECT * FROM {Dividends}
         WHERE {TimeStamp} BETWEEN @StartDate AND @EndDate
         """
+
+    let getByTickerCurrencyAndDateRange =
+        $"""
+        SELECT * FROM {Dividends}
+        WHERE {TickerId} = @TickerId
+        AND {CurrencyId} = @CurrencyId
+        AND {TimeStamp} > @FromDate
+        AND {TimeStamp} <= @ToDate
+        """
+
+    let getFilteredDividends =
+        $"""
+        SELECT * FROM {Dividends}
+        WHERE {TickerId} = @TickerId
+        AND {CurrencyId} = @CurrencyId
+        AND {TimeStamp} >= @StartDate
+        AND {TimeStamp} <= @EndDate
+        """
