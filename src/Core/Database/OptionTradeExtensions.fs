@@ -77,3 +77,27 @@ type Do() =
             let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
             return optionTrades
         }
+
+    static member getByTickerCurrencyAndDateRange(tickerId: int, currencyId: int, fromDate: string option, toDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- OptionsQuery.getByTickerCurrencyAndDateRange
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.StartDate, fromDate |> Option.defaultValue "1900-01-01") |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.EndDate, toDate) |> ignore
+            let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
+            return optionTrades
+        }
+
+    static member getFilteredOptionTrades(tickerId: int, currencyId: int, startDate: string, endDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- OptionsQuery.getFilteredOptionTrades
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.StartDate, startDate) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.EndDate, endDate) |> ignore
+            let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
+            return optionTrades
+        }

@@ -156,3 +156,21 @@ module internal OptionsQuery =
         SELECT * FROM {Options}
         WHERE {TimeStamp} BETWEEN {SQLParameterName.StartDate} AND {SQLParameterName.EndDate}
         """
+
+    let getByTickerCurrencyAndDateRange =
+        $"""
+        SELECT * FROM {Options}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND {CurrencyId} = {SQLParameterName.CurrencyId}
+        AND {TimeStamp} > {SQLParameterName.StartDate}
+        AND {TimeStamp} <= {SQLParameterName.EndDate}
+        """
+
+    let getFilteredOptionTrades =
+        $"""
+        SELECT * FROM {Options}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND {CurrencyId} = {SQLParameterName.CurrencyId}
+        AND {TimeStamp} >= {SQLParameterName.StartDate}
+        AND {TimeStamp} <= {SQLParameterName.EndDate}
+        """
