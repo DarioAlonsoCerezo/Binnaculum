@@ -57,9 +57,6 @@ module internal TickerSnapshotManager =
         let commissions = trades |> List.sumBy (fun t -> t.Commissions.Value)
         let fees = trades |> List.sumBy (fun t -> t.Fees.Value)
         
-        // Calculate dividend taxes (these represent a cost to the investor)
-        let dividendTaxes = data.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
-        
         // Calculate dividends (gross dividends minus taxes)
         let dividendAmount = 
             let currentDividends = dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
@@ -97,8 +94,10 @@ module internal TickerSnapshotManager =
             else 
                 0.0m
 
-        // Check for open trades
-        let openTrades = totalShares <> 0.0m
+        // Check for open trades - include both share positions and open option trades
+        let hasOpenShares = totalShares <> 0.0m
+        let hasOpenOptions = optionTrades |> List.exists (fun opt -> opt.IsOpen)
+        let openTrades = hasOpenShares || hasOpenOptions
 
         {
             TotalShares = totalShares
