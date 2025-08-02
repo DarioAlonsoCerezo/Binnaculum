@@ -355,7 +355,26 @@ module internal TickerSnapshotManager =
         let today = DateTimePattern.FromDateTime(DateTime.Today)
         createTickerSnapshot ticker.Id today
 
-    /// Handles ticker change for a specific date, automatically cascading updates if future snapshots exist
+    /// <summary>
+    /// Handles ticker-related changes for a specific date, automatically cascading updates if future snapshots exist.
+    /// This method intelligently determines whether to perform a simple update or a cascading update based on 
+    /// the presence of future snapshots. When future snapshots exist, all subsequent snapshots are recalculated
+    /// to maintain data consistency across the timeline.
+    /// </summary>
+    /// <param name="tickerId">The unique identifier of the ticker that changed</param>
+    /// <param name="date">The date when the ticker change occurred</param>
+    /// <returns>A task that represents the asynchronous snapshot update operation</returns>
+    /// <remarks>
+    /// This is the primary entry point for handling ticker changes in the snapshot system.
+    /// Use this method when:
+    /// - A trade is added, modified, or deleted for a ticker
+    /// - A dividend or dividend tax is recorded for a ticker
+    /// - An option trade is executed for a ticker
+    /// - A ticker price is updated
+    /// 
+    /// The method ensures that all financial calculations remain accurate by updating the target date
+    /// and cascading changes to all future snapshots when necessary.
+    /// </remarks>
     let handleTickerChange (tickerId: int, date: DateTimePattern) =
         task {
             // Check if there are any snapshots after this date
