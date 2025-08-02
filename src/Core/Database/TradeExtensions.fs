@@ -76,8 +76,8 @@ type Do() =
             command.CommandText <- TradesQuery.getByTickerCurrencyAndDateRange
             command.Parameters.AddWithValue("@TickerId", tickerId) |> ignore
             command.Parameters.AddWithValue("@CurrencyId", currencyId) |> ignore
-            command.Parameters.AddWithValue("@FromDate", fromDate |> Option.defaultValue "1900-01-01") |> ignore
-            command.Parameters.AddWithValue("@ToDate", toDate) |> ignore
+            command.Parameters.AddWithValue("@StartDate", fromDate |> Option.defaultValue "1900-01-01") |> ignore
+            command.Parameters.AddWithValue("@EndDate", toDate) |> ignore
             let! trades = Database.Do.readAll<Trade>(command, Do.read)
             return trades
         }

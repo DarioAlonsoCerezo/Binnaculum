@@ -146,8 +146,8 @@ module internal TradesQuery =
         SELECT * FROM {Trades}
         WHERE {TickerId} = @TickerId
         AND {CurrencyId} = @CurrencyId
-        AND {TimeStamp} > @FromDate
-        AND {TimeStamp} <= @ToDate
+        AND {TimeStamp} > @StartDate
+        AND {TimeStamp} <= @EndDate
         """
 
     let getFilteredTrades =
