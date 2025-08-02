@@ -110,23 +110,23 @@ module internal DividendTaxesQuery =
     let getBetweenDates =
         $"""
         SELECT * FROM {DividendTaxes}
-        WHERE {TimeStamp} BETWEEN @StartDate AND @EndDate
+        WHERE {TimeStamp} BETWEEN {SQLParameterName.StartDate} AND {SQLParameterName.EndDate}
         """
 
     let getByTickerCurrencyAndDateRange =
         $"""
         SELECT * FROM {DividendTaxes}
-        WHERE {TickerId} = @TickerId
-        AND {CurrencyId} = @CurrencyId
-        AND {TimeStamp} > @FromDate
-        AND {TimeStamp} <= @ToDate
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND {CurrencyId} = {SQLParameterName.CurrencyId}
+        AND {TimeStamp} > {SQLParameterName.StartDate}
+        AND {TimeStamp} <= {SQLParameterName.EndDate}
         """
 
     let getFilteredDividendTaxes =
         $"""
         SELECT * FROM {DividendTaxes}
-        WHERE {TickerId} = @TickerId
-        AND {CurrencyId} = @CurrencyId
-        AND {TimeStamp} >= @StartDate
-        AND {TimeStamp} <= @EndDate
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND {CurrencyId} = {SQLParameterName.CurrencyId}
+        AND {TimeStamp} >= {SQLParameterName.StartDate}
+        AND {TimeStamp} <= {SQLParameterName.EndDate}
         """
