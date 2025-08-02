@@ -93,3 +93,33 @@ type Do() =
             let! trades = Database.Do.readAll<Trade>(command, Do.read)
             return trades
         }
+
+    static member getCurrenciesByTickerAndDate(tickerId: int, date: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TradesQuery.getCurrenciesByTickerAndDate
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.Date, date) |> ignore
+            let! reader = command.ExecuteReaderAsync()
+            let mutable currencies = []
+            while reader.Read() do
+                let currencyId = reader.GetInt32(0)
+                currencies <- currencyId :: currencies
+            reader.Close()
+            return currencies |> List.rev
+        }
+
+    static member getDistinctCurrenciesByTickerAndDate(tickerId: int, date: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TradesQuery.getDistinctCurrenciesByTickerAndDate
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.Date, date) |> ignore
+            let! reader = command.ExecuteReaderAsync()
+            let mutable currencies = []
+            while reader.Read() do
+                let currencyId = reader.GetInt32(0)
+                currencies <- currencyId :: currencies
+            reader.Close()
+            return currencies |> List.distinct |> List.rev
+        }

@@ -113,27 +113,19 @@ module internal TickerSnapshotManager =
             OpenTrades = openTrades
         }
 
-    /// Get all relevant currencies for a ticker based on trades and prices
+    /// Get all relevant currencies for a ticker based on trades and prices using optimized SQL queries
     let private getRelevantCurrencies (tickerId: int) (date: DateTimePattern) = task {
-        // Get trades for this ticker on this date
-        let! allTrades = TradeExtensions.Do.getAll()
-        let tradesOnDate = 
-            allTrades 
-            |> List.filter (fun t -> 
-                t.TickerId = tickerId && 
-                t.TimeStamp.Value.Date = date.Value.Date)
-
-        // Get price currencies for this ticker on this date  
-        let! allPrices = TickerPriceExtensions.Do.getAll()
-        let pricesOnDate = 
-            allPrices 
-            |> List.filter (fun p -> 
-                p.TickerId = tickerId && 
-                p.PriceDate.Value.Date = date.Value.Date)
-
+        let dateStr = date.Value.ToString("yyyy-MM-dd")
+        
+        // Get currencies from trades for this ticker on this date using optimized query
+        let! tradeCurrencies = TradeExtensions.Do.getCurrenciesByTickerAndDate(tickerId, dateStr)
+        
+        // Get currencies from prices for this ticker on this date using optimized query
+        let! priceCurrencies = TickerPriceExtensions.Do.getCurrenciesByTickerAndDate(tickerId, dateStr)
+        
+        // Combine and deduplicate currencies
         let currencies = 
-            [ tradesOnDate |> List.map (fun t -> t.CurrencyId)
-              pricesOnDate |> List.map (fun p -> p.CurrencyId) ]
+            [ tradeCurrencies; priceCurrencies ]
             |> List.concat
             |> List.distinct
 

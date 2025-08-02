@@ -158,3 +158,33 @@ module internal TradesQuery =
         AND {TimeStamp} >= {SQLParameterName.StartDate}
         AND {TimeStamp} <= {SQLParameterName.EndDate}
         """
+
+    let getCurrenciesByTickerAndDateRange =
+        $"""
+        SELECT DISTINCT {CurrencyId} FROM {Trades}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND {CurrencyId} = {SQLParameterName.CurrencyId}
+        AND {TimeStamp} > {SQLParameterName.StartDate}
+        AND {TimeStamp} <= {SQLParameterName.EndDate}
+        """
+
+    let getCurrenciesByTickerAndExactDate =
+        $"""
+        SELECT DISTINCT {CurrencyId} FROM {Trades}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND {TimeStamp} = {SQLParameterName.Date}
+        """
+
+    let getDistinctCurrenciesByTickerAndDate =
+        $"""
+        SELECT DISTINCT {CurrencyId} FROM {Trades}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND DATE({TimeStamp}) = DATE({SQLParameterName.Date})
+        """
+
+    let getCurrenciesByTickerAndDate =
+        $"""
+        SELECT DISTINCT {CurrencyId} FROM {Trades}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND DATE({TimeStamp}) = DATE({SQLParameterName.Date})
+        """

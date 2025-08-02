@@ -104,3 +104,10 @@ module internal TickerPriceQuery =
         ORDER BY {PriceDate} DESC
         LIMIT 1
         """
+
+    let getCurrenciesByTickerAndDate =
+        $"""
+        SELECT DISTINCT {CurrencyId} FROM {TickerPrices}
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND DATE({PriceDate}) = DATE({SQLParameterName.Date})
+        """

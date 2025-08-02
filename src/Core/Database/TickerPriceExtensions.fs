@@ -55,3 +55,17 @@ type Do() =
                 |> Option.map (fun p -> p.Price.Value) 
                 |> Option.defaultValue 0m
         }
+
+    static member getCurrenciesByTickerAndDate(tickerId: int, date: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TickerPriceQuery.getCurrenciesByTickerAndDate
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.Date, date) |> ignore
+            use reader = command.ExecuteReader()
+            let mutable currencies = []
+            while reader.Read() do
+                let currencyId = reader.GetInt32(0)
+                currencies <- currencyId :: currencies
+            return currencies |> List.rev
+        }        
