@@ -16,6 +16,12 @@ module internal SQLParameterName =
     let TimeStampEnd = "@TimeStampEnd"
 
     [<Literal>]
+    let StartDate = "@StartDate"
+
+    [<Literal>]
+    let EndDate = "@EndDate"
+
+    [<Literal>]
     let CurrencyId = "@CurrencyId"
 
     // Dividends

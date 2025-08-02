@@ -138,23 +138,23 @@ module internal TradesQuery =
     let getBetweenDates =
         $"""
         SELECT * FROM {Trades}
-        WHERE {TimeStamp} BETWEEN @StartDate AND @EndDate
+        WHERE {TimeStamp} BETWEEN {SQLParameterName.StartDate} AND {SQLParameterName.EndDate}
         """
 
     let getByTickerCurrencyAndDateRange =
         $"""
         SELECT * FROM {Trades}
-        WHERE {TickerId} = @TickerId
-        AND {CurrencyId} = @CurrencyId
-        AND {TimeStamp} > @StartDate
-        AND {TimeStamp} <= @EndDate
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND {CurrencyId} = {SQLParameterName.CurrencyId}
+        AND {TimeStamp} > {SQLParameterName.StartDate}
+        AND {TimeStamp} <= {SQLParameterName.EndDate}
         """
 
     let getFilteredTrades =
         $"""
         SELECT * FROM {Trades}
-        WHERE {TickerId} = @TickerId
-        AND {CurrencyId} = @CurrencyId
-        AND {TimeStamp} >= @StartDate
-        AND {TimeStamp} <= @EndDate
+        WHERE {TickerId} = {SQLParameterName.TickerId}
+        AND {CurrencyId} = {SQLParameterName.CurrencyId}
+        AND {TimeStamp} >= {SQLParameterName.StartDate}
+        AND {TimeStamp} <= {SQLParameterName.EndDate}
         """
