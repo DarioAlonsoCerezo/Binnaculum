@@ -108,169 +108,153 @@ module internal TickerSnapshotManager =
 
     /// Get all relevant currencies for a ticker based on trades and prices
     let private getRelevantCurrencies (tickerId: int) (date: DateTimePattern) = task {
-        try
-            // Get trades for this ticker on this date
-            let! allTrades = TradeExtensions.Do.getAll()
-            let tradesOnDate = 
-                allTrades 
-                |> List.filter (fun t -> 
-                    t.TickerId = tickerId && 
-                    t.TimeStamp.Value.Date = date.Value.Date)
+        // Get trades for this ticker on this date
+        let! allTrades = TradeExtensions.Do.getAll()
+        let tradesOnDate = 
+            allTrades 
+            |> List.filter (fun t -> 
+                t.TickerId = tickerId && 
+                t.TimeStamp.Value.Date = date.Value.Date)
 
-            // Get price currencies for this ticker on this date  
-            let! allPrices = TickerPriceExtensions.Do.getAll()
-            let pricesOnDate = 
-                allPrices 
-                |> List.filter (fun p -> 
-                    p.TickerId = tickerId && 
-                    p.PriceDate.Value.Date = date.Value.Date)
+        // Get price currencies for this ticker on this date  
+        let! allPrices = TickerPriceExtensions.Do.getAll()
+        let pricesOnDate = 
+            allPrices 
+            |> List.filter (fun p -> 
+                p.TickerId = tickerId && 
+                p.PriceDate.Value.Date = date.Value.Date)
 
-            let currencies = 
-                [ tradesOnDate |> List.map (fun t -> t.CurrencyId)
-                  pricesOnDate |> List.map (fun p -> p.CurrencyId) ]
-                |> List.concat
-                |> List.distinct
+        let currencies = 
+            [ tradesOnDate |> List.map (fun t -> t.CurrencyId)
+              pricesOnDate |> List.map (fun p -> p.CurrencyId) ]
+            |> List.concat
+            |> List.distinct
 
-            // If no currencies found, use default currency
-            if currencies.IsEmpty then
-                let preferenceCurrency = Preferences.Get(CurrencyKey, DefaultCurrency)
-                let! defaultCurrency = CurrencyExtensions.Do.getByCode(preferenceCurrency)
-                match defaultCurrency with
-                | Some currency -> return [currency.Id]
-                | None -> return [1] // Fallback to currency ID 1
-            else
-                return currencies
-        with
-        | ex -> 
-            // Log error and return default currency
-            return [1]
+        // If no currencies found, use default currency
+        if currencies.IsEmpty then
+            let preferenceCurrency = Preferences.Get(CurrencyKey, DefaultCurrency)
+            let! defaultCurrency = CurrencyExtensions.Do.getByCode(preferenceCurrency)
+            match defaultCurrency with
+            | Some currency -> return [currency.Id]
+            | None -> 
+                failwithf "Default currency %s not found and no fallback currency available" preferenceCurrency
+                return [] // This won't be reached but satisfies the compiler
+        else
+            return currencies
     }
 
     /// Get calculation data for a specific ticker, currency and date range
     let private getCalculationData (tickerId: int) (currencyId: int) (fromDate: DateTimePattern option) (toDate: DateTimePattern) = task {
-        try
-            // Get trades in date range for this ticker and currency
-            let! allTrades = TradeExtensions.Do.getAll()
-            let relevantTrades = 
-                allTrades 
-                |> List.filter (fun t -> 
-                    t.TickerId = tickerId && 
-                    t.CurrencyId = currencyId &&
-                    (fromDate |> Option.map (fun d -> t.TimeStamp.Value.Date > d.Value.Date) |> Option.defaultValue true) &&
-                    t.TimeStamp.Value.Date <= toDate.Value.Date)
+        // Get trades in date range for this ticker and currency
+        let! allTrades = TradeExtensions.Do.getAll()
+        let relevantTrades = 
+            allTrades 
+            |> List.filter (fun t -> 
+                t.TickerId = tickerId && 
+                t.CurrencyId = currencyId &&
+                (fromDate |> Option.map (fun d -> t.TimeStamp.Value.Date > d.Value.Date) |> Option.defaultValue true) &&
+                t.TimeStamp.Value.Date <= toDate.Value.Date)
 
-            // Get dividends in date range
-            let! allDividends = DividendExtensions.Do.getAll()
-            let relevantDividends = 
-                allDividends 
-                |> List.filter (fun d -> 
-                    d.TickerId = tickerId &&
-                    d.CurrencyId = currencyId &&
-                    (fromDate |> Option.map (fun dt -> d.TimeStamp.Value.Date > dt.Value.Date) |> Option.defaultValue true) &&
-                    d.TimeStamp.Value.Date <= toDate.Value.Date)
+        // Get dividends in date range
+        let! allDividends = DividendExtensions.Do.getAll()
+        let relevantDividends = 
+            allDividends 
+            |> List.filter (fun d -> 
+                d.TickerId = tickerId &&
+                d.CurrencyId = currencyId &&
+                (fromDate |> Option.map (fun dt -> d.TimeStamp.Value.Date > dt.Value.Date) |> Option.defaultValue true) &&
+                d.TimeStamp.Value.Date <= toDate.Value.Date)
 
-            // Get option trades in date range
-            let! allOptionTrades = OptionTradeExtensions.Do.getAll()
-            let relevantOptionTrades = 
-                allOptionTrades 
-                |> List.filter (fun o -> 
-                    o.TickerId = tickerId &&
-                    o.CurrencyId = currencyId &&
-                    (fromDate |> Option.map (fun dt -> o.TimeStamp.Value.Date > dt.Value.Date) |> Option.defaultValue true) &&
-                    o.TimeStamp.Value.Date <= toDate.Value.Date)
+        // Get option trades in date range
+        let! allOptionTrades = OptionTradeExtensions.Do.getAll()
+        let relevantOptionTrades = 
+            allOptionTrades 
+            |> List.filter (fun o -> 
+                o.TickerId = tickerId &&
+                o.CurrencyId = currencyId &&
+                (fromDate |> Option.map (fun dt -> o.TimeStamp.Value.Date > dt.Value.Date) |> Option.defaultValue true) &&
+                o.TimeStamp.Value.Date <= toDate.Value.Date)
 
-            // Get latest price
-            let! latestPrice = TickerPriceExtensions.Do.getPriceByDateOrPrevious(tickerId, toDate.Value.ToString())
+        // Get latest price
+        let! latestPrice = TickerPriceExtensions.Do.getPriceByDateOrPrevious(tickerId, toDate.Value.ToString())
 
-            return Some {
-                Trades = relevantTrades
-                Dividends = relevantDividends
-                OptionTrades = relevantOptionTrades
-                LatestPrice = latestPrice
-                PreviousSnapshot = None // Will be set separately
-            }
-        with
-        | ex -> 
-            return None
+        return {
+            Trades = relevantTrades
+            Dividends = relevantDividends
+            OptionTrades = relevantOptionTrades
+            LatestPrice = latestPrice
+            PreviousSnapshot = None // Will be set separately
+        }
     }
 
     /// Get or create a TickerSnapshot for the given date
     let private getOrCreateTickerSnapshot (tickerId: int) (date: DateTimePattern) = task {
-        try
-            let! existingSnapshot = TickerSnapshotExtensions.Do.getByTickerIdAndDate(tickerId, date)
-            match existingSnapshot with
-            | Some snapshot -> return Some snapshot
-            | None ->
-                let snapshotDate = getDateOnly date
-                let newSnapshot = {
-                    Base = createBaseSnapshot snapshotDate
-                    TickerId = tickerId
-                }
-                do! newSnapshot.save()
-                let! createdSnapshot = TickerSnapshotExtensions.Do.getByTickerIdAndDate(tickerId, date)
-                return createdSnapshot
-        with
-        | ex -> 
-            return None
+        let! existingSnapshot = TickerSnapshotExtensions.Do.getByTickerIdAndDate(tickerId, date)
+        match existingSnapshot with
+        | Some snapshot -> return snapshot
+        | None ->
+            let snapshotDate = getDateOnly date
+            let newSnapshot = {
+                Base = createBaseSnapshot snapshotDate
+                TickerId = tickerId
+            }
+            do! newSnapshot.save()
+            let! createdSnapshot = TickerSnapshotExtensions.Do.getByTickerIdAndDate(tickerId, date)
+            match createdSnapshot with
+            | Some snapshot -> return snapshot
+            | None -> 
+                failwithf "Failed to create TickerSnapshot for ticker %d on date %s" tickerId (date.Value.ToString())
+                return { Base = createBaseSnapshot snapshotDate; TickerId = tickerId } // Won't be reached but satisfies compiler
     }
 
     /// Update or create a TickerCurrencySnapshot
     let private updateTickerCurrencySnapshot (tickerId: int) (currencyId: int) (date: DateTimePattern) (tickerSnapshotId: int) = task {
-        try
-            // Get previous snapshot to use as baseline
-            let! prevTickerSnapshot = TickerSnapshotExtensions.Do.getLatestByTickerId(tickerId)
-            let prevDateOpt = 
-                prevTickerSnapshot 
-                |> Option.bind (fun s -> 
-                    if s.Base.Date.Value.Date < date.Value.Date then 
-                        Some s.Base.Date 
-                    else 
-                        None)
+        // Get previous snapshot to use as baseline
+        let! prevTickerSnapshot = TickerSnapshotExtensions.Do.getLatestByTickerId(tickerId)
+        let prevDateOpt = 
+            prevTickerSnapshot 
+            |> Option.bind (fun s -> 
+                if s.Base.Date.Value.Date < date.Value.Date then 
+                    Some s.Base.Date 
+                else 
+                    None)
 
-            let! prevCurrencySnapshot = 
-                match prevDateOpt with
-                | Some prevDate -> 
-                    task {
-                        let! snapshots = TickerCurrencySnapshotExtensions.Do.getAllByTickerIdAndDate(tickerId, prevDate)
-                        return snapshots |> List.tryFind (fun s -> s.CurrencyId = currencyId)
-                    }
-                | None -> 
-                    task { return None }
-
-            // Get calculation data
-            let! calculationDataOpt = getCalculationData tickerId currencyId prevDateOpt date
-            
-            match calculationDataOpt with
-            | Some calculationData ->
-                let dataWithPrevious = { calculationData with PreviousSnapshot = prevCurrencySnapshot }
-                let calculatedValues = calculateSnapshotValues dataWithPrevious
-
-                let snapshot = {
-                    Base = createBaseSnapshot date
-                    TickerId = tickerId
-                    CurrencyId = currencyId
-                    TickerSnapshotId = tickerSnapshotId
-                    TotalShares = calculatedValues.TotalShares
-                    Weight = 0.0m // TODO: Calculate weight in portfolio context
-                    CostBasis = Money.FromAmount(calculatedValues.CostBasis)
-                    RealCost = Money.FromAmount(calculatedValues.RealCost)
-                    Dividends = Money.FromAmount(calculatedValues.Dividends)
-                    Options = Money.FromAmount(calculatedValues.Options)
-                    TotalIncomes = Money.FromAmount(calculatedValues.TotalIncomes)
-                    Unrealized = Money.FromAmount(calculatedValues.Unrealized)
-                    Realized = Money.FromAmount(calculatedValues.Realized)
-                    Performance = calculatedValues.Performance
-                    LatestPrice = Money.FromAmount(calculationData.LatestPrice)
-                    OpenTrades = calculatedValues.OpenTrades
+        let! prevCurrencySnapshot = 
+            match prevDateOpt with
+            | Some prevDate -> 
+                task {
+                    let! snapshots = TickerCurrencySnapshotExtensions.Do.getAllByTickerIdAndDate(tickerId, prevDate)
+                    return snapshots |> List.tryFind (fun s -> s.CurrencyId = currencyId)
                 }
+            | None -> 
+                task { return None }
 
-                do! snapshot.save()
-                return true
-            | None ->
-                return false
-        with
-        | ex -> 
-            return false
+        // Get calculation data
+        let! calculationData = getCalculationData tickerId currencyId prevDateOpt date
+        
+        let dataWithPrevious = { calculationData with PreviousSnapshot = prevCurrencySnapshot }
+        let calculatedValues = calculateSnapshotValues dataWithPrevious
+
+        let snapshot = {
+            Base = createBaseSnapshot date
+            TickerId = tickerId
+            CurrencyId = currencyId
+            TickerSnapshotId = tickerSnapshotId
+            TotalShares = calculatedValues.TotalShares
+            Weight = 0.0m // TODO: Calculate weight in portfolio context
+            CostBasis = Money.FromAmount(calculatedValues.CostBasis)
+            RealCost = Money.FromAmount(calculatedValues.RealCost)
+            Dividends = Money.FromAmount(calculatedValues.Dividends)
+            Options = Money.FromAmount(calculatedValues.Options)
+            TotalIncomes = Money.FromAmount(calculatedValues.TotalIncomes)
+            Unrealized = Money.FromAmount(calculatedValues.Unrealized)
+            Realized = Money.FromAmount(calculatedValues.Realized)
+            Performance = calculatedValues.Performance
+            LatestPrice = Money.FromAmount(calculationData.LatestPrice)
+            OpenTrades = calculatedValues.OpenTrades
+        }
+
+        do! snapshot.save()
     }
 
     let private createDefaultTickerCurrencySnapshot (date: DateTimePattern) (tickerId: int) (currencyId: int) (snapshotId: int) = task {
@@ -321,39 +305,26 @@ module internal TickerSnapshotManager =
                     do! currencySnapshot.save()
         }
 
-    /// Create or update a snapshot for a ticker and date with improved error handling and atomic operations
+    /// Create or update a snapshot for a ticker and date with improved error handling that throws exceptions to the UI
     let private updateTickerSnapshot (tickerId: int) (date: DateTimePattern) =
         task {
-            try
-                // Step 1: Get or create the TickerSnapshot for the date
-                let! tickerSnapshotOpt = getOrCreateTickerSnapshot tickerId date
-                
-                match tickerSnapshotOpt with
-                | None -> 
-                    return () // Failed to create/get ticker snapshot
-                | Some tickerSnapshot ->
-                    // Step 2: Get all relevant currencies for this ticker and date
-                    let! currencies = getRelevantCurrencies tickerId date
-                    
-                    // Step 3: Update/create TickerCurrencySnapshot for each currency
-                    let updateTasks = 
-                        currencies
-                        |> List.map (fun currencyId -> 
-                            updateTickerCurrencySnapshot tickerId currencyId date tickerSnapshot.Base.Id)
-                    
-                    let! results = Task.WhenAll(updateTasks)
-                    
-                    // Log any failures but don't throw
-                    let failures = results |> Array.filter (not) |> Array.length
-                    if failures > 0 then
-                        // TODO: Add proper logging
-                        ()
-                    
-                    return ()
-            with
-            | ex -> 
-                // TODO: Add proper logging
-                return ()
+            // Step 1: Get or create the TickerSnapshot for the date
+            let! tickerSnapshot = getOrCreateTickerSnapshot tickerId date
+            
+            // Step 2: Get all relevant currencies for this ticker and date
+            let! currencies = getRelevantCurrencies tickerId date
+            
+            if currencies.IsEmpty then
+                failwithf "No currencies found for ticker %d on date %s" tickerId (date.Value.ToString())
+            
+            // Step 3: Update/create TickerCurrencySnapshot for each currency
+            let updateTasks = 
+                currencies
+                |> List.map (fun currencyId -> 
+                    updateTickerCurrencySnapshot tickerId currencyId date tickerSnapshot.Base.Id)
+            
+            let! _ = Task.WhenAll(updateTasks)
+            return ()
         }
     
     /// Handles snapshot update when a new ticker is created
