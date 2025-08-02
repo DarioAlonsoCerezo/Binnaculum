@@ -49,8 +49,8 @@ type Do() =
         task {
             let! command = Database.Do.createCommand()
             command.CommandText <- DividendsQuery.getBetweenDates
-            command.Parameters.AddWithValue("@StartDate", startDate) |> ignore
-            command.Parameters.AddWithValue("@EndDate", endDate) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.StartDate, startDate) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.EndDate, endDate) |> ignore
             let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
             return dividends
         }
@@ -59,10 +59,10 @@ type Do() =
         task {
             let! command = Database.Do.createCommand()
             command.CommandText <- DividendsQuery.getByTickerCurrencyAndDateRange
-            command.Parameters.AddWithValue("@TickerId", tickerId) |> ignore
-            command.Parameters.AddWithValue("@CurrencyId", currencyId) |> ignore
-            command.Parameters.AddWithValue("@FromDate", fromDate |> Option.defaultValue "1900-01-01") |> ignore
-            command.Parameters.AddWithValue("@ToDate", toDate) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.StartDate, fromDate |> Option.defaultValue "1900-01-01") |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.EndDate, toDate) |> ignore
             let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
             return dividends
         }
@@ -71,10 +71,10 @@ type Do() =
         task {
             let! command = Database.Do.createCommand()
             command.CommandText <- DividendsQuery.getFilteredDividends
-            command.Parameters.AddWithValue("@TickerId", tickerId) |> ignore
-            command.Parameters.AddWithValue("@CurrencyId", currencyId) |> ignore
-            command.Parameters.AddWithValue("@StartDate", startDate) |> ignore
-            command.Parameters.AddWithValue("@EndDate", endDate) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.StartDate, startDate) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.EndDate, endDate) |> ignore
             let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
             return dividends
         }
