@@ -72,8 +72,8 @@ type Do() =
         task {
             let! command = Database.Do.createCommand()
             command.CommandText <- OptionsQuery.getBetweenDates
-            command.Parameters.AddWithValue("@StartDate", startDate) |> ignore
-            command.Parameters.AddWithValue("@EndDate", endDate) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.StartDate, startDate) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.EndDate, endDate) |> ignore
             let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
             return optionTrades
         }

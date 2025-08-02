@@ -154,5 +154,5 @@ module internal OptionsQuery =
     let getBetweenDates =
         $"""
         SELECT * FROM {Options}
-        WHERE {TimeStamp} BETWEEN @StartDate AND @EndDate
+        WHERE {TimeStamp} BETWEEN {SQLParameterName.StartDate} AND {SQLParameterName.EndDate}
         """
