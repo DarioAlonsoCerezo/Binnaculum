@@ -53,9 +53,12 @@ module internal TickerSnapshotManager =
             let prevCost = prevSnapshot |> Option.map (fun s -> s.CostBasis.Value) |> Option.defaultValue 0.0M
             prevCost + tradeCostBasis
 
-        // Calculate commissions and fees
+        // Calculate commissions and fees from trades
         let commissions = trades |> List.sumBy (fun t -> t.Commissions.Value)
         let fees = trades |> List.sumBy (fun t -> t.Fees.Value)
+        
+        // Calculate dividend taxes (these represent a cost to the investor)
+        let dividendTaxes = data.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
         
         // Calculate dividends (gross dividends minus taxes)
         let dividendAmount = 
@@ -74,9 +77,10 @@ module internal TickerSnapshotManager =
         // Calculate total incomes
         let totalIncomes = dividendAmount + optionsIncome
 
-        // Calculate real cost (cost basis + commissions + fees)
-        let realCost = costBasis + commissions + fees
-
+        // Calculate real cost (cost basis + commissions + fees + dividend taxes)
+        let dividendTaxAmount = data.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
+        let realCost = costBasis + commissions + fees + dividendTaxAmount
+    
         // Calculate unrealized gains/losses
         let marketValue = latestPrice * totalShares
         let unrealized = marketValue - costBasis
