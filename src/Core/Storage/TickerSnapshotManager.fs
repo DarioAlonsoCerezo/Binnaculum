@@ -367,18 +367,17 @@ module internal TickerSnapshotManager =
         let today = DateTimePattern.FromDateTime(DateTime.Today)
         createTickerSnapshot ticker.Id today
 
-    /// Handles ticker change for a specific date without cascade updates
+    /// Handles ticker change for a specific date, automatically cascading updates if future snapshots exist
     let handleTickerChange (tickerId: int, date: DateTimePattern) =
-        updateTickerSnapshot tickerId date
-
-    /// Handles ticker change for a specific date with cascade updates to subsequent dates
-    let handleTickerChangeWithCascade (tickerId: int, date: DateTimePattern) =
-        updateTickerSnapshotWithCascade tickerId date
-
-    /// Handles ticker change with optional cascade support
-    let handleTickerChangeOptionalCascade (tickerId: int, date: DateTimePattern, cascade: bool) =
-        if cascade then
-            updateTickerSnapshotWithCascade tickerId date
-        else
-            updateTickerSnapshot tickerId date
+        task {
+            // Check if there are any snapshots after this date
+            let! subsequentSnapshots = TickerSnapshotExtensions.Do.getTickerSnapshotsAfterDate(tickerId, date)
+            
+            if subsequentSnapshots.IsEmpty then
+                // No future snapshots, just update this date
+                do! updateTickerSnapshot tickerId date
+            else
+                // Future snapshots exist, use cascade update
+                do! updateTickerSnapshotWithCascade tickerId date
+        }
 
