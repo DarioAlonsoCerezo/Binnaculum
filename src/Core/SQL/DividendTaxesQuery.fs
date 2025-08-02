@@ -112,3 +112,21 @@ module internal DividendTaxesQuery =
         SELECT * FROM {DividendTaxes}
         WHERE {TimeStamp} BETWEEN @StartDate AND @EndDate
         """
+
+    let getByTickerCurrencyAndDateRange =
+        $"""
+        SELECT * FROM {DividendTaxes}
+        WHERE {TickerId} = @TickerId
+        AND {CurrencyId} = @CurrencyId
+        AND {TimeStamp} > @FromDate
+        AND {TimeStamp} <= @ToDate
+        """
+
+    let getFilteredDividendTaxes =
+        $"""
+        SELECT * FROM {DividendTaxes}
+        WHERE {TickerId} = @TickerId
+        AND {CurrencyId} = @CurrencyId
+        AND {TimeStamp} >= @StartDate
+        AND {TimeStamp} <= @EndDate
+        """

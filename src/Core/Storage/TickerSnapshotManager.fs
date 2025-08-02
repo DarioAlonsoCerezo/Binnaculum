@@ -14,6 +14,7 @@ open TickerCurrencySnapshotExtensions
 type private SnapshotCalculationData = {
     Trades: Trade list
     Dividends: Dividend list
+    DividendTaxes: DividendTax list
     OptionTrades: OptionTrade list
     LatestPrice: decimal
     PreviousSnapshot: TickerCurrencySnapshot option
@@ -56,11 +57,13 @@ module internal TickerSnapshotManager =
         let commissions = trades |> List.sumBy (fun t -> t.Commissions.Value)
         let fees = trades |> List.sumBy (fun t -> t.Fees.Value)
         
-        // Calculate dividends
+        // Calculate dividends (gross dividends minus taxes)
         let dividendAmount = 
             let currentDividends = dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
+            let currentDividendTaxes = data.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
+            let netDividends = currentDividends - currentDividendTaxes
             let prevDividends = prevSnapshot |> Option.map (fun s -> s.Dividends.Value) |> Option.defaultValue 0.0M
-            prevDividends + currentDividends
+            prevDividends + netDividends
 
         // Calculate options income
         let optionsIncome = 
@@ -160,6 +163,12 @@ module internal TickerSnapshotManager =
             | Some startDate -> DividendExtensions.Do.getFilteredDividends(tickerId, currencyId, startDate, toDateStr)
             | None -> DividendExtensions.Do.getByTickerCurrencyAndDateRange(tickerId, currencyId, None, toDateStr)
 
+        // Get dividend taxes in date range using optimized query
+        let! relevantDividendTaxes = 
+            match fromDateStr with
+            | Some startDate -> DividendTaxExtensions.Do.getFilteredDividendTaxes(tickerId, currencyId, startDate, toDateStr)
+            | None -> DividendTaxExtensions.Do.getByTickerCurrencyAndDateRange(tickerId, currencyId, None, toDateStr)
+        
         // Get option trades in date range
         let! allOptionTrades = OptionTradeExtensions.Do.getAll()
         let relevantOptionTrades = 
@@ -176,6 +185,7 @@ module internal TickerSnapshotManager =
         return {
             Trades = relevantTrades
             Dividends = relevantDividends
+            DividendTaxes = relevantDividendTaxes
             OptionTrades = relevantOptionTrades
             LatestPrice = latestPrice
             PreviousSnapshot = None // Will be set separately
