@@ -140,3 +140,21 @@ module internal TradesQuery =
         SELECT * FROM {Trades}
         WHERE {TimeStamp} BETWEEN @StartDate AND @EndDate
         """
+
+    let getByTickerCurrencyAndDateRange =
+        $"""
+        SELECT * FROM {Trades}
+        WHERE {TickerId} = @TickerId
+        AND {CurrencyId} = @CurrencyId
+        AND {TimeStamp} > @FromDate
+        AND {TimeStamp} <= @ToDate
+        """
+
+    let getFilteredTrades =
+        $"""
+        SELECT * FROM {Trades}
+        WHERE {TickerId} = @TickerId
+        AND {CurrencyId} = @CurrencyId
+        AND {TimeStamp} >= @StartDate
+        AND {TimeStamp} <= @EndDate
+        """

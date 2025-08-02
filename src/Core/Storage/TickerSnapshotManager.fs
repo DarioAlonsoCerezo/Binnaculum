@@ -145,15 +145,14 @@ module internal TickerSnapshotManager =
 
     /// Get calculation data for a specific ticker, currency and date range
     let private getCalculationData (tickerId: int) (currencyId: int) (fromDate: DateTimePattern option) (toDate: DateTimePattern) = task {
-        // Get trades in date range for this ticker and currency
-        let! allTrades = TradeExtensions.Do.getAll()
-        let relevantTrades = 
-            allTrades 
-            |> List.filter (fun t -> 
-                t.TickerId = tickerId && 
-                t.CurrencyId = currencyId &&
-                (fromDate |> Option.map (fun d -> t.TimeStamp.Value.Date > d.Value.Date) |> Option.defaultValue true) &&
-                t.TimeStamp.Value.Date <= toDate.Value.Date)
+        // Get trades in date range for this ticker and currency using optimized query
+        let fromDateStr = fromDate |> Option.map (fun d -> d.Value.ToString()) 
+        let toDateStr = toDate.Value.ToString()
+        
+        let! relevantTrades = 
+            match fromDateStr with
+            | Some startDate -> TradeExtensions.Do.getFilteredTrades(tickerId, currencyId, startDate, toDateStr)
+            | None -> TradeExtensions.Do.getByTickerCurrencyAndDateRange(tickerId, currencyId, None, toDateStr)
 
         // Get dividends in date range
         let! allDividends = DividendExtensions.Do.getAll()

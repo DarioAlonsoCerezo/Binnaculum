@@ -69,3 +69,27 @@ type Do() =
             let! trades = Database.Do.readAll<Trade>(command, Do.read)
             return trades
         }
+
+    static member getByTickerCurrencyAndDateRange(tickerId: int, currencyId: int, fromDate: string option, toDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TradesQuery.getByTickerCurrencyAndDateRange
+            command.Parameters.AddWithValue("@TickerId", tickerId) |> ignore
+            command.Parameters.AddWithValue("@CurrencyId", currencyId) |> ignore
+            command.Parameters.AddWithValue("@FromDate", fromDate |> Option.defaultValue "1900-01-01") |> ignore
+            command.Parameters.AddWithValue("@ToDate", toDate) |> ignore
+            let! trades = Database.Do.readAll<Trade>(command, Do.read)
+            return trades
+        }
+
+    static member getFilteredTrades(tickerId: int, currencyId: int, startDate: string, endDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TradesQuery.getFilteredTrades
+            command.Parameters.AddWithValue("@TickerId", tickerId) |> ignore
+            command.Parameters.AddWithValue("@CurrencyId", currencyId) |> ignore
+            command.Parameters.AddWithValue("@StartDate", startDate) |> ignore
+            command.Parameters.AddWithValue("@EndDate", endDate) |> ignore
+            let! trades = Database.Do.readAll<Trade>(command, Do.read)
+            return trades
+        }
