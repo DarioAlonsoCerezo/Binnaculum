@@ -44,6 +44,7 @@ module internal TypeParser =
         | OptionCode.SellToClose -> SQLConstants.SellToClose
         | OptionCode.Expired -> SQLConstants.Expired
         | OptionCode.Assigned -> SQLConstants.Assigned
+        | OptionCode.CashSettledAssigned -> SQLConstants.CashSettledAssigned
 
     let fromDatabaseToOptionCode(code: string) =
         match code with
@@ -53,6 +54,7 @@ module internal TypeParser =
         | SQLConstants.SellToClose -> OptionCode.SellToClose
         | SQLConstants.Expired -> OptionCode.Expired
         | SQLConstants.Assigned -> OptionCode.Assigned
+        | SQLConstants.CashSettledAssigned -> OptionCode.CashSettledAssigned
         | _ -> failwith $"Invalid Option Code: {code}"
 
     let fromOptionTypeToDatabase(optionType: OptionType) =

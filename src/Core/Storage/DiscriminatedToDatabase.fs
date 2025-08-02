@@ -81,3 +81,4 @@ module internal DiscriminatedToDatabase =
             | Binnaculum.Core.Models.OptionCode.SellToClose -> OptionCode.SellToClose
             | Binnaculum.Core.Models.OptionCode.Assigned -> OptionCode.Assigned
             | Binnaculum.Core.Models.OptionCode.Expired -> OptionCode.Expired
+            | Binnaculum.Core.Models.OptionCode.CashSettledAssigned -> OptionCode.CashSettledAssigned

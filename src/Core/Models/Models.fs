@@ -11,6 +11,7 @@ module Models =
         | SellToClose
         | Assigned
         | Expired
+        | CashSettledAssigned
 
     type OptionType =
         | Call

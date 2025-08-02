@@ -27,6 +27,7 @@ module internal DatabaseModel =
         | SellToClose
         | Assigned
         | Expired
+        | CashSettledAssigned
 
     type OptionType =
         | Call
