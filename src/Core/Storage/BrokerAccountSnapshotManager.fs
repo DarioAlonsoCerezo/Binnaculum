@@ -20,13 +20,20 @@ open Binnaculum.Core.SQL
 /// <summary>
 /// Handles creation, updating, and recalculation of BrokerAccountSnapshots.
 /// Enhanced with multi-currency support for per-currency detail rows.
+/// 
+/// This module exposes only two public entry points:
+/// - handleBrokerAccountChange: For handling changes to existing broker accounts
+/// - handleNewBrokerAccount: For initializing snapshots for new broker accounts
+/// 
+/// All other functionality is internal to maintain proper encapsulation and prevent misuse.
 /// </summary>
 module internal BrokerAccountSnapshotManager =
     /// <summary>
     /// Calculates BrokerAccountSnapshot for a specific broker account on a specific date
-    /// by aggregating all movements up to and including that date
+    /// by aggregating all movements up to and including that date.
+    /// This is an internal calculation method used by public entry points.
     /// </summary>
-    let calculateBrokerAccountSnapshot (brokerAccountId: int, date: DateTimePattern) =
+    let private calculateBrokerAccountSnapshot (brokerAccountId: int, date: DateTimePattern) =
         task {
             let snapshotDate = getDateOnly date
             // Aggregate all movements up to and including the date
@@ -50,9 +57,10 @@ module internal BrokerAccountSnapshotManager =
         }
 
     /// <summary>
-    /// Creates or updates a BrokerAccountSnapshot for the given broker account and date
+    /// Creates or updates a BrokerAccountSnapshot for the given broker account and date.
+    /// This is an internal update method used by public entry points.
     /// </summary>
-    let updateBrokerAccountSnapshot (brokerAccountId: int, date: DateTimePattern) =
+    let private updateBrokerAccountSnapshot (brokerAccountId: int, date: DateTimePattern) =
         task {
             let snapshotDate = getDateOnly date
             let! existingSnapshot = BrokerAccountSnapshotExtensions.Do.getByBrokerAccountIdAndDate(brokerAccountId, snapshotDate)
@@ -73,10 +81,11 @@ module internal BrokerAccountSnapshotManager =
         }
 
     /// <summary>
-    /// Recalculates all snapshots from a given date forward for a specific broker account
-    /// This is used when a retroactive movement affects existing snapshots
+    /// Recalculates all snapshots from a given date forward for a specific broker account.
+    /// This is used when a retroactive movement affects existing snapshots.
+    /// This is an internal recalculation method used by public entry points.
     /// </summary>
-    let recalculateBrokerAccountSnapshotsFromDate (brokerAccountId: int, fromDate: DateTimePattern) =
+    let private recalculateBrokerAccountSnapshotsFromDate (brokerAccountId: int, fromDate: DateTimePattern) =
         task {
             let startDate = getDateOnly fromDate
             let! futureSnapshots = BrokerAccountSnapshotExtensions.Do.getByDateRange(brokerAccountId, startDate, DateTimePattern.FromDateTime(DateTime.MaxValue))
@@ -97,9 +106,10 @@ module internal BrokerAccountSnapshotManager =
         }
 
     /// <summary>
-    /// Handles the broker account snapshot update part when a broker movement occurs
+    /// Handles the broker account snapshot update part when a broker movement occurs.
+    /// This is an internal helper method used by movement processing logic.
     /// </summary>
-    let handleBrokerMovementSnapshot (brokerAccountId: int, date: DateTimePattern) =
+    let private handleBrokerMovementSnapshot (brokerAccountId: int, date: DateTimePattern) =
         updateBrokerAccountSnapshot(brokerAccountId, date)
 
     // =================================================================================
@@ -256,11 +266,12 @@ module internal BrokerAccountSnapshotManager =
     /// 1. Ensures summary snapshot exists
     /// 2. Gets all relevant currencies for the account and date
     /// 3. Updates BrokerFinancialSnapshot for each currency
+    /// This is an internal extended update method used by public entry points.
     /// </summary>
     /// <param name="accountId">The broker account ID</param>
     /// <param name="date">The snapshot date</param>
     /// <returns>Task that completes when all snapshots are updated</returns>
-    let updateBrokerAccountSnapshotExtended (accountId: int, date: DateTimePattern) =
+    let private updateBrokerAccountSnapshotExtended (accountId: int, date: DateTimePattern) =
         task {
             let snapshotDate = getDateOnly date
             
