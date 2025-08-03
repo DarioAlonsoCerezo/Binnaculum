@@ -12,7 +12,6 @@ module internal BrokerAccountSnapshotQuery =
             {Id} INTEGER PRIMARY KEY,
             {Date} TEXT NOT NULL,
             {BrokerAccountId} INTEGER NOT NULL,
-            {PortfolioValue} TEXT NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
             -- Foreign key to ensure BrokerAccountId references a valid BrokerAccount in the BrokerAccounts table
@@ -45,7 +44,6 @@ module internal BrokerAccountSnapshotQuery =
         (
             {Date},
             {BrokerAccountId},
-            {PortfolioValue},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -53,7 +51,6 @@ module internal BrokerAccountSnapshotQuery =
         (
             {SQLParameterName.Date},
             {SQLParameterName.BrokerAccountId},
-            {SQLParameterName.PortfolioValue},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -65,7 +62,6 @@ module internal BrokerAccountSnapshotQuery =
         SET
             {Date} = {SQLParameterName.Date},
             {BrokerAccountId} = {SQLParameterName.BrokerAccountId},
-            {PortfolioValue} = {SQLParameterName.PortfolioValue},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE

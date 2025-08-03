@@ -204,9 +204,6 @@ module internal SQLParameterName =
     
     // Broker Account Snapshots
     [<Literal>]
-    let PortfolioValue = "@PortfolioValue"
-    
-    [<Literal>]
     let RealizedGains = "@RealizedGains"
     
     [<Literal>]

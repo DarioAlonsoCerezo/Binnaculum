@@ -30,15 +30,10 @@ module internal BrokerSnapshotManager =
                 accountSnapshots
                 |> Array.choose id // Only use existing snapshots
                 |> Array.toList
-            let totalPortfolioValue = 
-                snapshots
-                |> List.sumBy (fun s -> s.PortfolioValue.Value)
-                |> Money.FromAmount
             let accountCount = snapshots.Length
             return {
                 Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
                 BrokerId = brokerId
-                PortfoliosValue = totalPortfolioValue
                 AccountCount = accountCount
             }
         }

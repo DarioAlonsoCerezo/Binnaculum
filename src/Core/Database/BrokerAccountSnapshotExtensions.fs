@@ -18,7 +18,6 @@ type Do() =
             [
                 (SQLParameterName.Date, snapshot.Base.Date.ToString());
                 (SQLParameterName.BrokerAccountId, snapshot.BrokerAccountId);
-                (SQLParameterName.PortfolioValue, snapshot.PortfolioValue.Value);
             ], snapshot)
 
     [<Extension>]
@@ -31,7 +30,6 @@ type Do() =
         {
             Base = baseSnapshot
             BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
-            PortfolioValue = reader.getMoney FieldName.PortfolioValue
         }
 
     [<Extension>]
