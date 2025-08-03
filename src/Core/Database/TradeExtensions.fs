@@ -123,3 +123,21 @@ type Do() =
             reader.Close()
             return currencies |> List.distinct |> List.rev
         }
+
+    static member getByBrokerAccountAndCurrency(brokerAccountId: int, currencyId: int, ?startDate: string, ?endDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            match startDate, endDate with
+            | Some s, Some e ->
+                command.CommandText <- TradesQuery.getByBrokerAccountAndCurrencyWithDates
+                command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+                command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId) |> ignore
+                command.Parameters.AddWithValue(SQLParameterName.StartDate, s) |> ignore
+                command.Parameters.AddWithValue(SQLParameterName.EndDate, e) |> ignore
+            | _ ->
+                command.CommandText <- TradesQuery.getByBrokerAccountAndCurrency
+                command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+                command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId) |> ignore
+            let! trades = Database.Do.readAll<Trade>(command, Do.read)
+            return trades
+          }

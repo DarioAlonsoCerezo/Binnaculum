@@ -188,3 +188,21 @@ module internal TradesQuery =
         WHERE {TickerId} = {SQLParameterName.TickerId}
         AND DATE({TimeStamp}) = DATE({SQLParameterName.Date})
         """
+
+    // Query to get trades by BrokerAccountId and CurrencyId
+    let getByBrokerAccountAndCurrency =
+        $"""
+        SELECT * FROM {Trades}
+        WHERE {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+        AND {CurrencyId} = {SQLParameterName.CurrencyId}
+        """
+
+    // Query to get trades by BrokerAccountId, CurrencyId, and date range
+    let getByBrokerAccountAndCurrencyWithDates =
+        $"""
+        SELECT * FROM {Trades}
+        WHERE {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+        AND {CurrencyId} = {SQLParameterName.CurrencyId}
+        AND {TimeStamp} >= {SQLParameterName.StartDate}
+        AND {TimeStamp} <= {SQLParameterName.EndDate}
+        """

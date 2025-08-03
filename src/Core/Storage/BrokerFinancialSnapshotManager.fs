@@ -78,7 +78,6 @@ module internal BrokerFinancialSnapshotManager =
     /// </summary>
     let private calculateBrokerAccountFinancialForCurrency
         (snapshotDate: DateTimePattern)
-        (brokerId: int)
         (brokerAccountId: int)
         (brokerAccountSnapshotId: int)
         (currencyId: int)
@@ -103,10 +102,7 @@ module internal BrokerFinancialSnapshotManager =
                 |> List.filter (fun (m: BrokerMovement) -> m.CurrencyId = currencyId && m.TimeStamp.Value > previousDate.Value)
 
             // Get all trades for this account and currency in the date range
-            let! allTrades = TradeExtensions.Do.getBetweenDates(previousDate.ToString(), snapshotDate.ToString()) |> Async.AwaitTask
-            let filteredTrades = 
-                allTrades 
-                |> List.filter (fun (t: Trade) -> t.BrokerAccountId = brokerAccountId && t.CurrencyId = currencyId)
+            let! filteredTrades = TradeExtensions.Do.getByBrokerAccountAndCurrency(brokerAccountId, currencyId, previousDate.ToString(), snapshotDate.ToString()) |> Async.AwaitTask
 
             // Get all dividends for this account and currency in the date range
             let! allDividends = DividendExtensions.Do.getBetweenDates(previousDate.ToString(), snapshotDate.ToString()) |> Async.AwaitTask
@@ -158,7 +154,7 @@ module internal BrokerFinancialSnapshotManager =
 
             return {
                 Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
-                BrokerId = brokerId
+                BrokerId = 0 // BrokerId is 0 for account-specific snapshots
                 BrokerAccountId = brokerAccountId
                 CurrencyId = currencyId
                 MovementCounter = baseMovementCounter + filteredMovements.Length + filteredTrades.Length + filteredDividends.Length
@@ -203,7 +199,7 @@ module internal BrokerFinancialSnapshotManager =
             let! snapshots =
                 currencyList
                 |> List.map (fun currencyId ->
-                    calculateBrokerAccountFinancialForCurrency snapshotDate brokerId brokerAccountId brokerAccountSnapshotId currencyId
+                    calculateBrokerAccountFinancialForCurrency snapshotDate brokerAccountId brokerAccountSnapshotId currencyId
                 )
                 |> Async.Parallel
             return snapshots |> Array.toList
