@@ -3,12 +3,23 @@ namespace Binnaculum.Core.Storage
 open System
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
+open Binnaculum.Core.Database
+open Binnaculum.Core.Database.Do
 open Binnaculum.Core.Patterns
 open BrokerAccountSnapshotExtensions
+open BrokerFinancialSnapshotExtensions
+open BrokerMovementExtensions
+open TradeExtensions
+open DividendExtensions
+open DividendTaxExtensions
+open OptionTradeExtensions
+open CurrencyExtensions
 open Binnaculum.Core.Storage.SnapshotManagerUtils
+open Binnaculum.Core.SQL
 
 /// <summary>
 /// Handles creation, updating, and recalculation of BrokerAccountSnapshots.
+/// Enhanced with multi-currency support for per-currency detail rows.
 /// </summary>
 module internal BrokerAccountSnapshotManager =
     /// <summary>
@@ -90,3 +101,229 @@ module internal BrokerAccountSnapshotManager =
     /// </summary>
     let handleBrokerMovementSnapshot (brokerAccountId: int, date: DateTimePattern) =
         updateBrokerAccountSnapshot(brokerAccountId, date)
+
+    // =================================================================================
+    // Multi-Currency BrokerAccount Snapshot Functions
+    // =================================================================================
+
+    /// <summary>
+    /// Gets all relevant currencies used by movements, trades, dividends, dividend-taxes 
+    /// and option-trades for a specific broker account up to a given date.
+    /// Returns default currency (USD, ID=1) if no currencies are found.
+    /// Currently supports BrokerMovements only, with placeholders for other data sources.
+    /// </summary>
+    /// <param name="accountId">The broker account ID to analyze</param>
+    /// <param name="date">The cutoff date for analysis (inclusive)</param>
+    /// <returns>List of unique currency IDs used by the account</returns>
+    let private getRelevantCurrencies (accountId: int, date: DateTimePattern) =
+        task {
+            // Get all movements, trades, dividends etc. and extract their currencies
+            let! movements = BrokerMovementExtensions.Do.getByBrokerAccountIdAndDateRange(accountId, date)
+            let movementCurrencies = movements |> List.map (fun m -> m.CurrencyId) |> Set.ofList
+            
+            // For now, we'll start with movement currencies and return default if empty
+            // TODO: Add trades, dividends, dividend taxes, and option trades when needed
+            let allCurrencies = Set.toList movementCurrencies
+            
+            let finalCurrencies = 
+                if List.isEmpty allCurrencies then [1] // Default to USD currency ID 1
+                else allCurrencies
+                
+            return finalCurrencies
+        }
+
+    /// <summary>
+    /// Calculates BrokerFinancialSnapshot for a specific broker account, currency and date
+    /// by aggregating all movements, trades, dividends, taxes and option-trades in that currency.
+    /// Currently processes BrokerMovements only, with placeholders for comprehensive data sources.
+    /// </summary>
+    /// <param name="accountId">The broker account ID</param>
+    /// <param name="currencyId">The currency ID to filter by</param>
+    /// <param name="date">The snapshot date</param>
+    /// <returns>A populated BrokerFinancialSnapshot for the specified currency</returns>
+    let private calculateBrokerFinancialSnapshot (accountId: int, currencyId: int, date: DateTimePattern) =
+        task {
+            let snapshotDate = getDateOnly date
+            
+            // Get movements for this account and filter by currency
+            let! allMovements = BrokerMovementExtensions.Do.getByBrokerAccountIdAndDateRange(accountId, date)
+            let movements = allMovements |> List.filter (fun m -> m.CurrencyId = currencyId)
+            
+            // TODO: Add queries for trades, dividends, dividend taxes, and option trades
+            // For now, we'll use movements only for the basic implementation
+            
+            // Calculate cash flows with explicit type annotations
+            let deposited = 
+                movements
+                |> List.filter (fun (m: BrokerMovement) -> m.MovementType = BrokerMovementType.Deposit)
+                |> List.sumBy (fun (m: BrokerMovement) -> m.Amount.Value)
+                |> Money.FromAmount
+                
+            let withdrawn = 
+                movements
+                |> List.filter (fun (m: BrokerMovement) -> m.MovementType = BrokerMovementType.Withdrawal)
+                |> List.sumBy (fun (m: BrokerMovement) -> m.Amount.Value)
+                |> Money.FromAmount
+                
+            let fees = 
+                movements
+                |> List.filter (fun (m: BrokerMovement) -> m.MovementType = BrokerMovementType.Fee)
+                |> List.sumBy (fun (m: BrokerMovement) -> m.Amount.Value)
+                |> Money.FromAmount
+                
+            let otherIncome = 
+                movements
+                |> List.filter (fun (m: BrokerMovement) -> m.MovementType = BrokerMovementType.InterestsGained)
+                |> List.sumBy (fun (m: BrokerMovement) -> m.Amount.Value)
+                |> Money.FromAmount
+            
+            // Initialize other values for basic implementation
+            let invested = Money.FromAmount(0m)
+            let commissions = Money.FromAmount(0m)
+            let tradesFees = Money.FromAmount(0m)
+            let dividendsReceived = Money.FromAmount(0m)
+            let dividendTaxesPaid = Money.FromAmount(0m)
+            let optionsIncome = Money.FromAmount(0m)
+            let openTrades = false
+            
+            // Calculate portfolio value (simplified - net cash for now)
+            let netCash = deposited.Value - withdrawn.Value + otherIncome.Value - fees.Value - dividendTaxesPaid.Value + dividendsReceived.Value + optionsIncome.Value
+            
+            // Calculate realized gains (simplified)
+            let realizedGains = Money.FromAmount(0m) // TODO: Implement proper calculation
+            let realizedPercentage = 0m
+            
+            // Calculate unrealized gains (simplified)
+            let unrealizedGains = Money.FromAmount(0m) // TODO: Implement proper calculation
+            let unrealizedGainsPercentage = 0m
+            
+            // Movement counter
+            let movementCounter = movements.Length
+            
+            return {
+                Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
+                BrokerId = -1 // Not for specific broker
+                BrokerAccountId = accountId
+                CurrencyId = currencyId
+                MovementCounter = movementCounter
+                BrokerSnapshotId = -1 // Will be set when needed
+                BrokerAccountSnapshotId = -1 // Will be set when needed
+                RealizedGains = realizedGains
+                RealizedPercentage = realizedPercentage
+                UnrealizedGains = unrealizedGains
+                UnrealizedGainsPercentage = unrealizedGainsPercentage
+                Invested = invested
+                Commissions = Money.FromAmount(commissions.Value + tradesFees.Value)
+                Fees = fees
+                Deposited = deposited
+                Withdrawn = withdrawn
+                DividendsReceived = dividendsReceived
+                OptionsIncome = optionsIncome
+                OtherIncome = otherIncome
+                OpenTrades = openTrades
+            }
+        }
+
+    /// <summary>
+    /// Creates or updates a BrokerFinancialSnapshot for the given broker account, currency and date.
+    /// Preserves Base.Id on updates to maintain referential integrity.
+    /// </summary>
+    /// <param name="accountId">The broker account ID</param>
+    /// <param name="currencyId">The currency ID</param>
+    /// <param name="date">The snapshot date</param>
+    /// <returns>Task that completes when the snapshot is saved</returns>
+    let private updateBrokerFinancialSnapshot (accountId: int, currencyId: int, date: DateTimePattern) =
+        task {
+            // Check if financial snapshot already exists for this account, currency and date
+            let! existingSnapshots = BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountId(accountId)
+            let existingSnapshot = 
+                existingSnapshots 
+                |> List.tryFind (fun s -> s.CurrencyId = currencyId && s.Base.Date.Value.Date = date.Value.Date)
+            
+            let! newSnapshot = calculateBrokerFinancialSnapshot(accountId, currencyId, date)
+            
+            match existingSnapshot with
+            | Some existing ->
+                // Preserve the existing ID
+                let updatedSnapshot = { newSnapshot with Base = { newSnapshot.Base with Id = existing.Base.Id } }
+                do! updatedSnapshot.save()
+            | None ->
+                do! newSnapshot.save()
+        }
+
+    /// <summary>
+    /// Extended version of updateBrokerAccountSnapshot that handles per-currency detail rows.
+    /// 1. Ensures summary snapshot exists
+    /// 2. Gets all relevant currencies for the account and date
+    /// 3. Updates BrokerFinancialSnapshot for each currency
+    /// </summary>
+    /// <param name="accountId">The broker account ID</param>
+    /// <param name="date">The snapshot date</param>
+    /// <returns>Task that completes when all snapshots are updated</returns>
+    let updateBrokerAccountSnapshotExtended (accountId: int, date: DateTimePattern) =
+        task {
+            let snapshotDate = getDateOnly date
+            
+            // 1. Ensure the main BrokerAccountSnapshot exists
+            do! updateBrokerAccountSnapshot(accountId, date)
+            
+            // 2. Get all relevant currencies for this account and date
+            let! currencies = getRelevantCurrencies(accountId, date)
+            
+            // 3. Update BrokerFinancialSnapshot for each currency
+            for currencyId in currencies do
+                do! updateBrokerFinancialSnapshot(accountId, currencyId, date)
+        }
+
+    /// <summary>
+    /// Handles cascade updates for retroactive changes that affect future snapshots.
+    /// 1. Runs one-day update for the specified date
+    /// 2. Loads all future snapshots and re-applies per-currency updates in chronological order
+    /// This ensures data consistency when historical changes are made.
+    /// </summary>
+    /// <param name="accountId">The broker account ID</param>
+    /// <param name="date">The date of the retroactive change</param>
+    /// <returns>Task that completes when all affected snapshots are updated</returns>
+    let private updateBrokerAccountSnapshotWithCascade (accountId: int, date: DateTimePattern) =
+        task {
+            let startDate = getDateOnly date
+            
+            // 1. Run one-day update for the specified date
+            do! updateBrokerAccountSnapshotExtended(accountId, date)
+            
+            // 2. Get all future snapshots that need to be recalculated
+            let nextDay = DateTimePattern.FromDateTime(startDate.Value.Date.AddDays(1.0))
+            let! futureSnapshots = BrokerAccountSnapshotExtensions.Do.getByDateRange(
+                accountId, 
+                nextDay, 
+                DateTimePattern.FromDateTime(DateTime.MaxValue))
+            
+            // 3. Re-apply per-currency updates for each future snapshot date
+            for snapshot in futureSnapshots do
+                do! updateBrokerAccountSnapshotExtended(accountId, snapshot.Base.Date)
+        }
+
+    /// <summary>
+    /// Public API for handling broker account changes with multi-currency support.
+    /// Automatically determines whether to use one-day or cascade update based on the date:
+    /// - If date = today: runs one-day update (updateBrokerAccountSnapshotExtended)
+    /// - Else: runs cascade update for retroactive changes (updateBrokerAccountSnapshotWithCascade)
+    /// 
+    /// This is the recommended entry point for triggering snapshot updates after account changes.
+    /// </summary>
+    /// <param name="accountId">The broker account ID that changed</param>
+    /// <param name="date">The date of the change</param>
+    /// <returns>Task that completes when the appropriate update strategy finishes</returns>
+    let handleBrokerAccountChange (accountId: int, date: DateTimePattern) =
+        task {
+            let snapshotDate = getDateOnly date
+            let today = DateTimePattern.FromDateTime(DateTime.Today)
+            let todayDate = getDateOnly today
+            
+            if snapshotDate.Value.Date = todayDate.Value.Date then
+                // Same-day update - just update this date
+                do! updateBrokerAccountSnapshotExtended(accountId, date)
+            else
+                // Retroactive change - cascade update from this date forward
+                do! updateBrokerAccountSnapshotWithCascade(accountId, date)
+        }
