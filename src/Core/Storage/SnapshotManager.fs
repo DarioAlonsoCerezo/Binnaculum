@@ -25,7 +25,7 @@ module internal SnapshotManager =
             let! brokerAccount = BrokerAccountExtensions.Do.getById movement.BrokerAccountId
             match brokerAccount with
             | Some account ->
-                do! BrokerAccountSnapshotManager.updateBrokerAccountSnapshot(movement.BrokerAccountId, movement.TimeStamp)
+                do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccountId, movement.TimeStamp)
                 do! BrokerSnapshotManager.handleBrokerMovementSnapshot(account.BrokerId, movement.TimeStamp)
             | None -> ()
         }
