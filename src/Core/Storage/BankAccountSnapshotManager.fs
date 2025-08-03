@@ -6,7 +6,6 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open BankAccountSnapshotExtensions
 open Binnaculum.Core.Storage.SnapshotManagerUtils
-open BankAccountExtensions // For getting BankAccount by id
 
 /// <summary>
 /// Handles creation, updating, and recalculation of BankAccountSnapshots.
@@ -16,7 +15,7 @@ module internal BankAccountSnapshotManager =
     /// Calculates BankAccountSnapshot for a specific bank account on a specific date
     /// by aggregating all movements up to and including that date
     /// </summary>
-    let calculateBankAccountSnapshot (bankAccountId: int, date: DateTimePattern, currencyId: int) = 
+    let private calculateBankAccountSnapshot (bankAccountId: int, date: DateTimePattern, currencyId: int) = 
         task {
             let snapshotDate = getDateOnly date
             // Try to get the latest snapshot before the given date
@@ -83,7 +82,7 @@ module internal BankAccountSnapshotManager =
     /// <summary>
     /// Creates or updates a BankAccountSnapshot for the given bank account and date
     /// </summary>
-    let updateBankAccountSnapshot (bankAccountId: int, date: DateTimePattern, currencyId: int) =
+    let private updateBankAccountSnapshot (bankAccountId: int, date: DateTimePattern, currencyId: int) =
         task {
             let snapshotDate = getDateOnly date
             let! existingSnapshot = BankAccountSnapshotExtensions.Do.getByBankAccountIdAndDate(bankAccountId, snapshotDate)
@@ -94,25 +93,6 @@ module internal BankAccountSnapshotManager =
                 do! updatedSnapshot.save()
             | None ->
                 do! newSnapshot.save()
-            // After saving, update the corresponding bank snapshot
-            let! bankAccountOpt = BankAccountExtensions.Do.getById(bankAccountId)
-            match bankAccountOpt with
-            | Some bankAccount ->
-                do! Binnaculum.Core.Storage.BankSnapshotManager.updateBankSnapshot(bankAccount.BankId, snapshotDate)
-            | None ->
-                ()
-        }
-
-    /// <summary>
-    /// Recalculates all snapshots from a given date forward for a specific bank account
-    /// This is used when a retroactive movement affects existing snapshots
-    /// </summary>
-    let recalculateBankAccountSnapshotsFromDate (bankAccountId: int, fromDate: DateTimePattern, currencyId: int) =
-        task {
-            let startDate = getDateOnly fromDate
-            let! futureSnapshots = BankAccountSnapshotExtensions.Do.getByDateRange(bankAccountId, startDate, DateTimePattern.FromDateTime(DateTime.MaxValue))
-            for snapshot in futureSnapshots do
-                do! updateBankAccountSnapshot(bankAccountId, snapshot.Base.Date, currencyId)
         }
 
     /// <summary>
@@ -123,6 +103,28 @@ module internal BankAccountSnapshotManager =
         task {
             let today = DateTimePattern.FromDateTime(DateTime.Today)
             do! updateBankAccountSnapshot(bankAccount.Id, today, bankAccount.CurrencyId)
-            // After creating a new bank account snapshot, update the bank snapshot
-            do! Binnaculum.Core.Storage.BankSnapshotManager.updateBankSnapshot(bankAccount.BankId, today)
+        }
+
+    /// <summary>
+    /// Handles bank account-related changes for a specific date, automatically cascading updates if future snapshots exist.
+    /// </summary>
+    let handleBankAccountChange (bankAccountId: int, date: DateTimePattern) =
+        task {
+            let! bankAccountOpt = BankAccountExtensions.Do.getById(bankAccountId)
+            match bankAccountOpt with
+            | Some bankAccount ->
+                let currencyId = bankAccount.CurrencyId
+                let! subsequentSnapshots =
+                    BankAccountSnapshotExtensions.Do.getByDateRange(
+                        bankAccountId,
+                        date,
+                        DateTimePattern.FromDateTime(DateTime.MaxValue)
+                    )
+                if subsequentSnapshots.IsEmpty then
+                    do! updateBankAccountSnapshot(bankAccountId, date, currencyId)
+                else
+                    do! updateBankAccountSnapshot(bankAccountId, date, currencyId)
+                    for snapshot in subsequentSnapshots do
+                        do! updateBankAccountSnapshot(bankAccountId, snapshot.Base.Date, currencyId)
+            | None -> ()
         }
