@@ -320,14 +320,24 @@ module internal BrokerAccountSnapshotManager =
     /// <returns>Task that completes when the appropriate update strategy finishes</returns>
     let handleBrokerAccountChange (accountId: int, date: DateTimePattern) =
         task {
+            // Convert the incoming pattern to a pure DateTime value
             let snapshotDate = getDateOnly date
-            let today = DateTimePattern.FromDateTime(DateTime.Today)
-            let todayDate = getDateOnly today
             
-            if snapshotDate.Value.Date = todayDate.Value.Date then
-                // Same-day update - just update this date
+            // Compute a DateTimePattern representing the day after the change
+            let nextDayPattern =
+                DateTimePattern.FromDateTime(snapshotDate.Value.Date.AddDays(1.0))
+            
+            // Load any snapshots after the change date to determine update strategy
+            let! subsequentSnapshots =
+                BrokerAccountSnapshotExtensions.Do.getByDateRange(
+                    accountId,
+                    nextDayPattern,
+                    DateTimePattern.FromDateTime(DateTime.MaxValue))
+            
+            if List.isEmpty subsequentSnapshots then
+                // No future snapshots: perform single-date update
                 do! updateBrokerAccountSnapshotExtended(accountId, date)
             else
-                // Retroactive change - cascade update from this date forward
+                // Future snapshots exist: perform cascade update
                 do! updateBrokerAccountSnapshotWithCascade(accountId, date)
         }
