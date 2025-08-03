@@ -16,6 +16,10 @@ module internal SnapshotsModel =
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
 
+    /// <summary>
+    /// Financial snapshot record. Exactly one of broker-level or account-level IDs must be set.
+    /// Invariant: Only one of (BrokerId, BrokerSnapshotId) or (BrokerAccountId, BrokerAccountSnapshotId) should be non-default.
+    /// </summary>
     type BrokerFinancialSnapshot = {
         Base: BaseSnapshot
         BrokerId: int // Broker ID - Default: -1 (indicates not for specific broker)

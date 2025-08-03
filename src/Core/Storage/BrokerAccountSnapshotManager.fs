@@ -280,7 +280,31 @@ module internal BrokerAccountSnapshotManager =
     let handleNewBrokerAccount (brokerAccount: BrokerAccount) =
         task {
             let today = DateTimePattern.FromDateTime(DateTime.Today)
-            do! updateBrokerAccountSnapshot(brokerAccount.Id, today)
+            // 1. Create default BrokerAccountSnapshot
+            let defaultAccountSnapshot = 
+                {
+                    Base = createBaseSnapshot today
+                    BrokerAccountId = brokerAccount.Id
+                    PortfolioValue = Money.FromAmount(0m)
+                }
+            // 2. Save the default BrokerAccountSnapshot to the database
+            do! defaultAccountSnapshot.save()
+            // 3. Recover the saved BrokerAccountSnapshot to obtain its ID
+            let! maybeSavedSnapshot = BrokerAccountSnapshotExtensions.Do.getByBrokerAccountIdAndDate(brokerAccount.Id, today)
+            let savedSnapshot =
+                match maybeSavedSnapshot with
+                | Some s -> s
+                | None -> failwithf "BrokerAccountSnapshot not found for account %i on %O" brokerAccount.Id today
+            // 4. Get default BrokerFinancialSnapshot
+            let! financialSnapshot = 
+                BrokerFinancialSnapshotManager.getInitialFinancialSnapshot 
+                    today 
+                    0 
+                    brokerAccount.Id 
+                    0 
+                    savedSnapshot.Base.Id
+            // 5. Save the default BrokerFinancialSnapshot
+            do! financialSnapshot.save()
         }
 
     /// <summary>
