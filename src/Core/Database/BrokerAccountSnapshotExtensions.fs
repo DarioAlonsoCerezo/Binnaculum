@@ -78,3 +78,12 @@ type Do() =
         let! snapshots = Database.Do.readAll<BrokerAccountSnapshot>(command, Do.read)
         return snapshots
     }
+
+    static member getBrokerAccountSnapshotsAfterDate(brokerAccountId: int, date: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerAccountSnapshotQuery.getBrokerAccountSnapshotsAfterDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.Date, date.ToString()) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerAccountSnapshot>(command, Do.read)
+        return snapshots
+    }
