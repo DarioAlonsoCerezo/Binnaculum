@@ -19,6 +19,7 @@ open Binnaculum.Core.SQL
 
 /// <summary>
 /// Handles creation, updating, and recalculation of BrokerAccountSnapshots.
+/// Enhanced with multi-currency support for per-currency detail rows.
 /// </summary>
 module internal BrokerAccountSnapshotManager =
     /// <summary>
@@ -108,8 +109,12 @@ module internal BrokerAccountSnapshotManager =
     /// <summary>
     /// Gets all relevant currencies used by movements, trades, dividends, dividend-taxes 
     /// and option-trades for a specific broker account up to a given date.
-    /// Returns default currency if no currencies are found.
+    /// Returns default currency (USD, ID=1) if no currencies are found.
+    /// Currently supports BrokerMovements only, with placeholders for other data sources.
     /// </summary>
+    /// <param name="accountId">The broker account ID to analyze</param>
+    /// <param name="date">The cutoff date for analysis (inclusive)</param>
+    /// <returns>List of unique currency IDs used by the account</returns>
     let private getRelevantCurrencies (accountId: int, date: DateTimePattern) =
         task {
             // Get all movements, trades, dividends etc. and extract their currencies
@@ -130,7 +135,12 @@ module internal BrokerAccountSnapshotManager =
     /// <summary>
     /// Calculates BrokerFinancialSnapshot for a specific broker account, currency and date
     /// by aggregating all movements, trades, dividends, taxes and option-trades in that currency.
+    /// Currently processes BrokerMovements only, with placeholders for comprehensive data sources.
     /// </summary>
+    /// <param name="accountId">The broker account ID</param>
+    /// <param name="currencyId">The currency ID to filter by</param>
+    /// <param name="date">The snapshot date</param>
+    /// <returns>A populated BrokerFinancialSnapshot for the specified currency</returns>
     let private calculateBrokerFinancialSnapshot (accountId: int, currencyId: int, date: DateTimePattern) =
         task {
             let snapshotDate = getDateOnly date
@@ -216,8 +226,12 @@ module internal BrokerAccountSnapshotManager =
 
     /// <summary>
     /// Creates or updates a BrokerFinancialSnapshot for the given broker account, currency and date.
-    /// Preserves Base.Id on updates.
+    /// Preserves Base.Id on updates to maintain referential integrity.
     /// </summary>
+    /// <param name="accountId">The broker account ID</param>
+    /// <param name="currencyId">The currency ID</param>
+    /// <param name="date">The snapshot date</param>
+    /// <returns>Task that completes when the snapshot is saved</returns>
     let private updateBrokerFinancialSnapshot (accountId: int, currencyId: int, date: DateTimePattern) =
         task {
             // Check if financial snapshot already exists for this account, currency and date
@@ -240,9 +254,12 @@ module internal BrokerAccountSnapshotManager =
     /// <summary>
     /// Extended version of updateBrokerAccountSnapshot that handles per-currency detail rows.
     /// 1. Ensures summary snapshot exists
-    /// 2. Gets all relevant currencies  
-    /// 3. Updates per-currency financial snapshots
+    /// 2. Gets all relevant currencies for the account and date
+    /// 3. Updates BrokerFinancialSnapshot for each currency
     /// </summary>
+    /// <param name="accountId">The broker account ID</param>
+    /// <param name="date">The snapshot date</param>
+    /// <returns>Task that completes when all snapshots are updated</returns>
     let updateBrokerAccountSnapshotExtended (accountId: int, date: DateTimePattern) =
         task {
             let snapshotDate = getDateOnly date
@@ -259,10 +276,14 @@ module internal BrokerAccountSnapshotManager =
         }
 
     /// <summary>
-    /// Handles cascade updates for retroactive changes.
+    /// Handles cascade updates for retroactive changes that affect future snapshots.
     /// 1. Runs one-day update for the specified date
-    /// 2. Loads all future snapshots and re-applies per-currency updates in order
+    /// 2. Loads all future snapshots and re-applies per-currency updates in chronological order
+    /// This ensures data consistency when historical changes are made.
     /// </summary>
+    /// <param name="accountId">The broker account ID</param>
+    /// <param name="date">The date of the retroactive change</param>
+    /// <returns>Task that completes when all affected snapshots are updated</returns>
     let private updateBrokerAccountSnapshotWithCascade (accountId: int, date: DateTimePattern) =
         task {
             let startDate = getDateOnly date
@@ -283,10 +304,16 @@ module internal BrokerAccountSnapshotManager =
         }
 
     /// <summary>
-    /// Public API for handling broker account changes.
-    /// - If date = today: runs one-day update
-    /// - Else: runs cascade update for retroactive changes
+    /// Public API for handling broker account changes with multi-currency support.
+    /// Automatically determines whether to use one-day or cascade update based on the date:
+    /// - If date = today: runs one-day update (updateBrokerAccountSnapshotExtended)
+    /// - Else: runs cascade update for retroactive changes (updateBrokerAccountSnapshotWithCascade)
+    /// 
+    /// This is the recommended entry point for triggering snapshot updates after account changes.
     /// </summary>
+    /// <param name="accountId">The broker account ID that changed</param>
+    /// <param name="date">The date of the change</param>
+    /// <returns>Task that completes when the appropriate update strategy finishes</returns>
     let handleBrokerAccountChange (accountId: int, date: DateTimePattern) =
         task {
             let snapshotDate = getDateOnly date
