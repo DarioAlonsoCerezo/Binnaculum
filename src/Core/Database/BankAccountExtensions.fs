@@ -40,6 +40,14 @@ type Do() =
     static member delete(bankAccount: BankAccount) = Database.Do.deleteEntity bankAccount
 
     static member getAll() = Database.Do.getAllEntities Do.read BankAccountsQuery.getAll
-    [<Extension>]
 
     static member getById(id: int) = Database.Do.getById Do.read id BankAccountsQuery.getById
+
+    static member getByBankId(bankId: int) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- BankAccountsQuery.getByBankId
+            command.Parameters.AddWithValue(SQLParameterName.BankId, bankId) |> ignore
+            let! accounts = Database.Do.readAll<BankAccount>(command, Do.read)
+            return accounts
+        }

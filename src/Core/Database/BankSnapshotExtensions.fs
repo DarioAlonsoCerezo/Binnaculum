@@ -7,7 +7,7 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
-open Binnaculum.Core.Patterns
+open Binnaculum.Core.Patterns        
 
 [<Extension>]
 type Do() =
@@ -87,3 +87,13 @@ type Do() =
             let! snapshots = Database.Do.readAll<BankSnapshot>(command, Do.read)
             return snapshots
         }
+
+    static member getBankSnapshotsAfterDate(bankId: int, date: Binnaculum.Core.Patterns.DateTimePattern) =
+            task {
+                let! command = Database.Do.createCommand()
+                command.CommandText <- BankSnapshotQuery.getBankSnapshotsAfterDate
+                command.Parameters.AddWithValue(SQLParameterName.BankId, bankId) |> ignore
+                command.Parameters.AddWithValue(SQLParameterName.Date, date.ToString()) |> ignore
+                let! snapshots = Database.Do.readAll<BankSnapshot>(command, Do.read)
+                return snapshots
+            }

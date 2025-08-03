@@ -16,7 +16,7 @@ module internal SnapshotManager =
             match bankAccount with
             | Some account ->
                 do! BankAccountSnapshotManager.updateBankAccountSnapshot(movement.BankAccountId, movement.TimeStamp, movement.CurrencyId)
-                do! BankSnapshotManager.handleBankMovementSnapshot(account.BankId, movement.TimeStamp)
+                do! BankSnapshotManager.handleBankAccountChange(account.BankId, movement.TimeStamp)
             | None -> ()
         }
 
@@ -31,7 +31,6 @@ module internal SnapshotManager =
         }
 
     let recalculateBankAccountSnapshotsFromDate = BankAccountSnapshotManager.recalculateBankAccountSnapshotsFromDate
-    let recalculateBankSnapshotsFromDate = BankSnapshotManager.recalculateBankSnapshotsFromDate
     let recalculateBrokerAccountSnapshotsFromDate = BrokerAccountSnapshotManager.recalculateBrokerAccountSnapshotsFromDate
     let recalculateBrokerSnapshotsFromDate = BrokerSnapshotManager.recalculateBrokerSnapshotsFromDate
 

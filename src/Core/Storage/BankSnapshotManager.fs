@@ -4,52 +4,55 @@ open System
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
-open BankSnapshotExtensions
 open Binnaculum.Core.Storage.SnapshotManagerUtils
 
 /// <summary>
-/// Handles creation, updating, and recalculation of BankSnapshots.
+/// Handles creation, updating, and recalculation of BankSnapshots and BankAccountSnapshots in a standardized way.
 /// </summary>
 module internal BankSnapshotManager =
+    /// Helper type for bank snapshot calculation
+    type private BankSnapshotCalculationData = {
+        BankId: int
+        Date: DateTimePattern
+        AccountSnapshots: BankAccountSnapshot list
+    }
+
+    /// Create a default BankSnapshot with zeroed metrics
+    let private createDefaultBankSnapshot (bankId: int) (date: DateTimePattern) =
+        let snapshotDate = getDateOnly date
+        {
+            Base = createBaseSnapshot snapshotDate
+            BankId = bankId
+            TotalBalance = Money.FromAmount(0.0m)
+            InterestEarned = Money.FromAmount(0.0m)
+            FeesPaid = Money.FromAmount(0.0m)
+            AccountCount = 0
+        }
+
+    /// Calculate a BankSnapshot from calculation data
+    let private calculateBankSnapshot (data: BankSnapshotCalculationData) =
+        let totalBalance = data.AccountSnapshots |> List.sumBy (fun s -> s.Balance.Value) |> Money.FromAmount
+        let totalInterestEarned = data.AccountSnapshots |> List.sumBy (fun s -> s.InterestEarned.Value) |> Money.FromAmount
+        let totalFeesPaid = data.AccountSnapshots |> List.sumBy (fun s -> s.FeesPaid.Value) |> Money.FromAmount
+        let accountCount = data.AccountSnapshots.Length
+        {
+            Base = createBaseSnapshot (getDateOnly data.Date)
+            BankId = data.BankId
+            TotalBalance = totalBalance
+            InterestEarned = totalInterestEarned
+            FeesPaid = totalFeesPaid
+            AccountCount = accountCount
+        }
+
     /// <summary>
-    /// Calculates BankSnapshot for a specific bank on a specific date
-    /// by aggregating all BankAccountSnapshots for that bank on that date
+    /// Handles snapshot initialization when a new bank is created.
+    /// Creates initial BankSnapshot and BankAccountSnapshots for today's date.
     /// </summary>
-    let calculateBankSnapshot (bankId: int, date: DateTimePattern) =
+    let handleNewBank (bank: Bank) =
         task {
-            let snapshotDate = getDateOnly date
-            let! allBankAccounts = BankAccountExtensions.Do.getAll()
-            let bankAccounts = allBankAccounts |> List.filter (fun acc -> acc.BankId = bankId)
-            let! accountSnapshots = 
-                bankAccounts
-                |> List.map (fun account -> 
-                    BankAccountSnapshotExtensions.Do.getByBankAccountIdAndDate(account.Id, snapshotDate))
-                |> System.Threading.Tasks.Task.WhenAll
-            let snapshots = 
-                accountSnapshots
-                |> Array.choose id // Only use existing snapshots
-                |> Array.toList
-            let totalBalance = 
-                snapshots
-                |> List.sumBy (fun s -> s.Balance.Value)
-                |> Money.FromAmount
-            let totalInterestEarned =
-                snapshots
-                |> List.sumBy (fun s -> s.InterestEarned.Value)
-                |> Money.FromAmount
-            let totalFeesPaid =
-                snapshots
-                |> List.sumBy (fun s -> s.FeesPaid.Value)
-                |> Money.FromAmount
-            let accountCount = snapshots.Length
-            return {
-                Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
-                BankId = bankId
-                TotalBalance = totalBalance
-                InterestEarned = totalInterestEarned
-                FeesPaid = totalFeesPaid
-                AccountCount = accountCount
-            }
+            let today = DateTimePattern.FromDateTime(DateTime.Today)
+            let defaultBankSnapshot = createDefaultBankSnapshot bank.Id today
+            do! BankSnapshotExtensions.Do.save(defaultBankSnapshot)
         }
 
     /// <summary>
@@ -59,29 +62,44 @@ module internal BankSnapshotManager =
         task {
             let snapshotDate = getDateOnly date
             let! existingSnapshot = BankSnapshotExtensions.Do.getByBankIdAndDate(bankId, snapshotDate)
-            let! newSnapshot = calculateBankSnapshot(bankId, snapshotDate)
-            match existingSnapshot with
-            | Some existing ->
-                let updatedSnapshot = { newSnapshot with Base = { newSnapshot.Base with Id = existing.Base.Id } }
-                do! updatedSnapshot.save()
-            | None ->
-                do! newSnapshot.save()
+            let! bankAccounts = BankAccountExtensions.Do.getByBankId(bankId)
+            let! accountSnapshots =
+                bankAccounts
+                |> List.map (fun account -> BankAccountSnapshotExtensions.Do.getByBankAccountIdAndDate(account.Id, snapshotDate))
+                |> System.Threading.Tasks.Task.WhenAll
+            let snapshots = accountSnapshots |> Array.choose id |> Array.toList
+            let calcData = { BankId = bankId; Date = date; AccountSnapshots = snapshots }
+            let newSnapshot = calculateBankSnapshot calcData
+            let newSnapshotWithId =
+                match existingSnapshot with
+                | Some s -> { newSnapshot with Base = { newSnapshot.Base with Id = s.Base.Id } }
+                | None -> newSnapshot
+            do! BankSnapshotExtensions.Do.save(newSnapshotWithId)
         }
 
     /// <summary>
-    /// Recalculates all bank snapshots from a given date forward for a specific bank
-    /// This is used when a retroactive movement affects existing snapshots
+    /// Handles bank-related changes for a specific date, cascading updates if future snapshots exist.
     /// </summary>
-    let recalculateBankSnapshotsFromDate (bankId: int, fromDate: DateTimePattern) =
+    let handleBankChange (bankId: int, date: DateTimePattern) =
         task {
-            let startDate = getDateOnly fromDate
-            let! futureSnapshots = BankSnapshotExtensions.Do.getByDateRange(bankId, startDate, DateTimePattern.FromDateTime(DateTime.MaxValue))
-            for snapshot in futureSnapshots do
-                do! updateBankSnapshot(bankId, snapshot.Base.Date)
+            let! futureSnapshots = BankSnapshotExtensions.Do.getBankSnapshotsAfterDate(bankId, date)
+            if futureSnapshots |> List.isEmpty then
+                do! updateBankSnapshot(bankId, date)
+            else
+                do! updateBankSnapshot(bankId, date)
+                for snapshot in futureSnapshots do
+                    do! updateBankSnapshot(bankId, snapshot.Base.Date)
         }
 
     /// <summary>
-    /// Handles the bank snapshot update part when a bank movement occurs
+    /// Handles bank account-related changes for a specific date, updating parent bank snapshot as needed.
     /// </summary>
-    let handleBankMovementSnapshot (bankId: int, date: DateTimePattern) =
-        updateBankSnapshot(bankId, date)
+    let handleBankAccountChange (bankAccountId: int, date: DateTimePattern) =
+        task {
+            let! bankAccount = BankAccountExtensions.Do.getById(bankAccountId)
+            match bankAccount with
+            | None -> ()
+            | Some bankAccount ->
+                // Only trigger BankSnapshot recalculation, do not modify BankAccountSnapshot
+                do! handleBankChange(bankAccount.BankId, date)
+        }

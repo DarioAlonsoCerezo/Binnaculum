@@ -94,3 +94,9 @@ module internal BankAccountsQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
+
+    let getByBankId =
+        $"""
+        SELECT * FROM {BankAccounts}
+        WHERE {BankId} = {SQLParameterName.BankId}
+        """

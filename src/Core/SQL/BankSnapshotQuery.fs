@@ -138,3 +138,11 @@ module internal BankSnapshotQuery =
             {Date} BETWEEN {SQLParameterName.Date} AND {SQLParameterName.DateEnd}
         ORDER BY {Date} ASC
         """
+
+    let getBankSnapshotsAfterDate =
+        $"""
+        SELECT * FROM {BankSnapshots}
+        WHERE {BankId} = {SQLParameterName.BankId}
+          AND {Date} > {SQLParameterName.Date}
+        ORDER BY {Date} ASC
+        """
