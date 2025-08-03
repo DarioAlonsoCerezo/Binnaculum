@@ -126,4 +126,13 @@ module internal BrokerAccountSnapshotQuery =
             {Date} BETWEEN {SQLParameterName.Date} AND {SQLParameterName.DateEnd}
         ORDER BY {Date} ASC
         """
+        
+    let getBrokerAccountSnapshotsAfterDate =
+        $"""
+        SELECT * FROM {BrokerAccountSnapshots}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId} AND
+            {Date} > {SQLParameterName.Date}
+        ORDER BY {Date} ASC
+        """
 
