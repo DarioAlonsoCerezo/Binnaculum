@@ -29,21 +29,9 @@ module internal BrokerAccountSnapshotManager =
             let snapshotDate = getDateOnly date
             // Aggregate all movements up to and including the date
             let! movements = BrokerMovementExtensions.Do.getByBrokerAccountIdAndDateRange(brokerAccountId, snapshotDate)
-            let netCash = 
-                movements
-                |> List.sumBy (fun m -> 
-                    match m.MovementType with
-                    | BrokerMovementType.Deposit -> m.Amount.Value
-                    | BrokerMovementType.Withdrawal -> -m.Amount.Value
-                    | BrokerMovementType.Fee -> -m.Amount.Value
-                    | BrokerMovementType.InterestsGained -> m.Amount.Value
-                    | BrokerMovementType.InterestsPaid -> -m.Amount.Value
-                    | _ -> 0m)
-                |> Money.FromAmount
             return {
                 Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
                 BrokerAccountId = brokerAccountId
-                PortfolioValue = netCash
             }
         }
 
@@ -285,7 +273,6 @@ module internal BrokerAccountSnapshotManager =
                 {
                     Base = createBaseSnapshot today
                     BrokerAccountId = brokerAccount.Id
-                    PortfolioValue = Money.FromAmount(0m)
                 }
             // 2. Save the default BrokerAccountSnapshot to the database
             do! defaultAccountSnapshot.save()

@@ -18,7 +18,6 @@ type Do() =
             [
                 (SQLParameterName.Date, snapshot.Base.Date.ToString());
                 (SQLParameterName.BrokerId, snapshot.BrokerId);
-                (SQLParameterName.PortfoliosValue, snapshot.PortfoliosValue.Value);
                 (SQLParameterName.AccountCount, snapshot.AccountCount);
             ], snapshot)
 
@@ -31,7 +30,6 @@ type Do() =
                 Audit = reader.getAudit()
             }
             BrokerId = reader.getInt32 FieldName.BrokerId
-            PortfoliosValue = reader.getMoney FieldName.PortfoliosValue
             AccountCount = reader.getInt32 FieldName.AccountCount
         }
 

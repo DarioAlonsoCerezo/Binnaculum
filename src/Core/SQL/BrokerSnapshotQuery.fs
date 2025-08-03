@@ -12,7 +12,6 @@ module internal BrokerSnapshotQuery =
             {Id} INTEGER PRIMARY KEY,
             {Date} TEXT NOT NULL,
             {BrokerId} INTEGER NOT NULL,
-            {PortfoliosValue} TEXT NOT NULL,
             {AccountCount} INTEGER NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
@@ -46,7 +45,6 @@ module internal BrokerSnapshotQuery =
         (
             {Date},
             {BrokerId},
-            {PortfoliosValue},
             {AccountCount},
             {CreatedAt},
             {UpdatedAt}
@@ -55,7 +53,6 @@ module internal BrokerSnapshotQuery =
         (
             {SQLParameterName.Date},
             {SQLParameterName.BrokerId},
-            {SQLParameterName.PortfoliosValue},
             {SQLParameterName.AccountCount},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
@@ -68,7 +65,6 @@ module internal BrokerSnapshotQuery =
         SET
             {Date} = {SQLParameterName.Date},
             {BrokerId} = {SQLParameterName.BrokerId},
-            {PortfoliosValue} = {SQLParameterName.PortfoliosValue},
             {AccountCount} = {SQLParameterName.AccountCount},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
