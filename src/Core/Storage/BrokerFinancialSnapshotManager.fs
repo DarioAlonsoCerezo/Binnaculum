@@ -185,6 +185,52 @@ module internal BrokerFinancialSnapshotManager =
         }
 
     /// <summary>
+    /// Implements SCENARIO G: Validates and corrects an existing financial snapshot to match a previous snapshot if discrepancies are found.
+    /// Used for consistency checks when no movements exist but both previous and existing snapshots are present for a currency and date.
+    /// </summary>
+    let private validateAndCorrectSnapshotConsistency
+        (previous: BrokerFinancialSnapshot)
+        (existing: BrokerFinancialSnapshot)
+        =
+        task {
+            let snapshotsDiffer =
+                previous.RealizedGains <> existing.RealizedGains ||
+                previous.RealizedPercentage <> existing.RealizedPercentage ||
+                previous.UnrealizedGains <> existing.UnrealizedGains ||
+                previous.UnrealizedGainsPercentage <> existing.UnrealizedGainsPercentage ||
+                previous.Invested <> existing.Invested ||
+                previous.Commissions <> existing.Commissions ||
+                previous.Fees <> existing.Fees ||
+                previous.Deposited <> existing.Deposited ||
+                previous.Withdrawn <> existing.Withdrawn ||
+                previous.DividendsReceived <> existing.DividendsReceived ||
+                previous.OptionsIncome <> existing.OptionsIncome ||
+                previous.OtherIncome <> existing.OtherIncome ||
+                previous.OpenTrades <> existing.OpenTrades ||
+                previous.MovementCounter <> existing.MovementCounter
+            if snapshotsDiffer then
+                let correctedSnapshot = {
+                    existing with
+                        RealizedGains = previous.RealizedGains
+                        RealizedPercentage = previous.RealizedPercentage
+                        UnrealizedGains = previous.UnrealizedGains
+                        UnrealizedGainsPercentage = previous.UnrealizedGainsPercentage
+                        Invested = previous.Invested
+                        Commissions = previous.Commissions
+                        Fees = previous.Fees
+                        Deposited = previous.Deposited
+                        Withdrawn = previous.Withdrawn
+                        DividendsReceived = previous.DividendsReceived
+                        OptionsIncome = previous.OptionsIncome
+                        OtherIncome = previous.OtherIncome
+                        OpenTrades = previous.OpenTrades
+                        MovementCounter = previous.MovementCounter
+                }
+                do! correctedSnapshot.save()
+            // If no difference, do nothing
+        }
+
+    /// <summary>
     /// Updates an existing financial snapshot directly with new movements without a previous snapshot baseline.
     /// This is used for SCENARIO D: when new movements exist for a currency with an existing snapshot,
     /// but no previous snapshot is found. The existing snapshot itself serves as the baseline.
@@ -512,53 +558,11 @@ module internal BrokerFinancialSnapshotManager =
                 
                 // SCENARIO G: No movements, has previous snapshot, has existing snapshot
                 | None, Some previous, Some existing ->
-                    // Verify existing snapshot matches previous (data consistency check)
-                    // 📋 TODO: Implement consistency validation and correction if needed
-                    // Scenario G is a consistency check where both a previous snapshot and an existing
-                    // snapshot are found for a currency, but no new movements have occurred.
-                    //
-                    // The existing snapshot should theoretically match the previous snapshot, and this
-                    // scenario serves to validate that consistency.
-                    //
-                    // Steps to implement:
-                    // - Compare the existing snapshot with the previous snapshot for the currency.
-                    // - If discrepancies are found, investigate and correct the existing snapshot to match
-                    //   the previous snapshot.
-                    // - This may involve reverting erroneous changes or resetting the snapshot to a known
-                    //   good state.
-                    //
-                    // Expected Outcome:
-                    // - The existing snapshot is validated or corrected to ensure it matches the previous
-                    //   snapshot.
-                    //
-                    // This ensures data integrity and consistency within the financial snapshot records.
-                    // TODO: Implement validation logic to compare existing and previous snapshots
-                    ()
-                
+                    do! validateAndCorrectSnapshotConsistency previous existing
                 // SCENARIO H: No movements, no previous snapshot, has existing snapshot  
                 | None, None, Some existing ->
                     // Existing snapshot should be validated or cleaned up
-                    // This might indicate data inconsistency
-                    // 📋 TODO: Implement validation and cleanup logic
-                    // Scenario H deals with the potential orphaning of snapshots where an existing
-                    // snapshot is found without a corresponding previous snapshot or new movements.
-                    //
-                    // This may occur due to errors in data processing or could indicate that the
-                    // snapshot belongs to a now-inactive currency.
-                    //
-                    // Steps to implement:
-                    // - Validate the existing snapshot to ensure it contains all necessary data and
-                    //   makes sense in the current context.
-                    // - If the snapshot is determined to be orphaned or invalid, remove it or archive
-                    //   it as necessary to prevent confusion.
-                    //
-                    // Expected Outcome:
-                    // - The existing snapshot is either validated and kept or cleaned up if found
-                    //   unnecessary or erroneous.
-                    //
-                    // This helps maintain a clean and accurate set of financial snapshots for the
-                    // broker accounts.
-                    // TODO: Implement logic to validate or remove orphaned snapshots
+                    // TODO: Implement validation and cleanup logic
                     ()
             
             return()
