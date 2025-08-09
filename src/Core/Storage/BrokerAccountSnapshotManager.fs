@@ -159,7 +159,16 @@ module internal BrokerAccountSnapshotManager =
             // CURRENT RETURN: All movement types implemented (5/5 financial movement types)
             // 1. Broker Movements ✅, 2. Trades ✅, 3. Dividends ✅, 4. Dividend Taxes ✅, 5. Option Trades ✅
             // TODO: Expand to return structured data with all movement types - ready for implementation
-            return()
+            
+            // Create structured movement data using the new BrokerAccountMovementData type
+            return BrokerAccountMovementData.create 
+                snapshotDate 
+                brokerAccountId 
+                brokerMovements 
+                trades 
+                dividends 
+                dividendTaxes 
+                optionTrades
         }
 
     let private getAllSnapshotsAfterDate(brokerAccountId, snapshotDate) =
@@ -207,28 +216,29 @@ module internal BrokerAccountSnapshotManager =
             
             // 1. Get all movements FROM this date onwards (inclusive) - using START OF DAY to capture entire day
             let movementRetrievalDate = getDateOnlyStartOfDay date
-            //let! allMovementsFromDate = getAllMovementsFromDate(brokerAccountId, movementRetrievalDate)
+            let! allMovementsFromDate = getAllMovementsFromDate(brokerAccountId, movementRetrievalDate)
             let! futureSnapshots = getAllSnapshotsAfterDate(brokerAccountId, snapshotDate)
             
             // 2. Extract affected dates from movement data (reuse the same data)
-            //let datesWithMovements = extractUniqueDatesFromMovements(allMovementsFromDate)
-            //let datesWithSnapshots = extractDatesFromSnapshots(futureSnapshots)
-            //let missingSnapshotDates = datesWithMovements - datesWithSnapshots
+            let datesWithMovements = allMovementsFromDate.UniqueDates
+            let datesWithSnapshots = extractDatesFromSnapshots(futureSnapshots)
+            let missingSnapshotDates = Set.difference datesWithMovements datesWithSnapshots
             
             // 3. Decision logic using the pre-fetched data
-            //match (allMovementsFromDate.IsEmpty, futureSnapshots.IsEmpty, missingSnapshotDates.IsEmpty) with
-            //| (true, true, _) -> 
-            //    // No future activity - simple one-day update
-            //    do! brokerAccountOneDayUpdate snapshot
-            //| (false, _, false) ->
-            //    // Future movements exist with missing snapshots - create missing snapshots then cascade
-            //    let! missedSnapshots = createAndGetMissingSnapshots(brokerAccountId, missingSnapshotDates)
-            //    do! brokerAccountCascadeUpdate snapshot (futureSnapshots @ missedSnapshots) allMovementsFromDate
-            //| (false, false, true) ->
-            //    // Future movements exist, all snapshots present - standard cascade
-            //    do! brokerAccountCascadeUpdate snapshot futureSnapshots allMovementsFromDate
-            //| _ ->
-            //    // Edge cases - default to cascade for safety
-            //    do! brokerAccountCascadeUpdate snapshot futureSnapshots allMovementsFromDate
+            match allMovementsFromDate.HasMovements, futureSnapshots.IsEmpty, missingSnapshotDates.IsEmpty with
+            | false, true, _ -> 
+                // No future activity - simple one-day update
+                do! BrokerFinancialSnapshotManager.brokerAccountOneDayUpdate snapshot
+            | true, _, false ->
+                // Future movements exist with missing snapshots - create missing snapshots then cascade
+                //let! missedSnapshots = createAndGetMissingSnapshots(brokerAccountId, missingSnapshotDates)
+                //do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot (futureSnapshots @ missedSnapshots) allMovementsFromDate
+                printfn "TODO: Implement cascade update with missing snapshots for account %d" brokerAccountId
+            | true, false, true ->
+                // Future movements exist, all snapshots present - standard cascade
+                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot futureSnapshots
+            | _ ->
+                // Edge cases - default to cascade for safety
+                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot futureSnapshots
             return()
         }
