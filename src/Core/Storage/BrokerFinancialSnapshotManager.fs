@@ -913,8 +913,6 @@ module internal BrokerFinancialSnapshotManager =
                 
                 // SCENARIO C: New movements, has previous snapshot, has existing snapshot
                 | Some movements, Some previous, Some existing ->
-                    // Update existing snapshot by recalculating with all movements (existing + new)
-                    // This ensures accuracy during data corrections or reprocessing
                     do! updateExistingFinancialSnapshot targetDate currencyId brokerAccountId brokerAccountSnapshot.Base.Id movements previous existing
 
                 // SCENARIO D: New movements, no previous snapshot, has existing snapshot
