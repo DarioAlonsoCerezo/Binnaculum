@@ -539,72 +539,280 @@ module internal BrokerFinancialSnapshotManager =
             do! newSnapshot.save()
         }
     
-    let private defaultFinancialSnapshot
-        (snapshotDate: DateTimePattern)
-        (brokerId: int)
+    /// <summary>
+    /// Updates an existing financial snapshot with new movements while considering previous snapshot values.
+    /// This is used for SCENARIO C: when new movements are added to a date that already has a snapshot,
+    /// requiring a recalculation that combines previous baseline + all movements (existing + new).
+    /// This ensures data consistency during corrections, reprocessing, or late movement additions.
+    /// </summary>
+    /// <param name="targetDate">The date for the snapshot to update</param>
+    /// <param name="currencyId">The currency ID for this snapshot</param>
+    /// <param name="brokerAccountId">The broker account ID</param>
+    /// <param name="brokerAccountSnapshotId">The broker account snapshot ID to associate with</param>
+    /// <param name="currencyMovements">The currency-specific movements (includes both new and existing movements)</param>
+    /// <param name="previousSnapshot">The previous financial snapshot for baseline calculations</param>
+    /// <param name="existingSnapshot">The existing snapshot that needs to be updated</param>
+    /// <returns>Task that completes when the snapshot is updated and saved</returns>
+    let private updateExistingFinancialSnapshot
+        (targetDate: DateTimePattern)
+        (currencyId: int)
         (brokerAccountId: int)
-        (brokerSnapshotId: int)
         (brokerAccountSnapshotId: int)
+        (currencyMovements: CurrencyMovementData)
+        (previousSnapshot: BrokerFinancialSnapshot)
+        (existingSnapshot: BrokerFinancialSnapshot)
         =
         task {
-            let! currencyId = getDefaultCurrency()
-            let snapshot = {
-                Base = createBaseSnapshot snapshotDate
-                BrokerId = brokerId
-                BrokerAccountId = brokerAccountId
-                CurrencyId = currencyId
-                MovementCounter = 0
-                BrokerSnapshotId = brokerSnapshotId
-                BrokerAccountSnapshotId = brokerAccountSnapshotId
-                RealizedGains = Money.FromAmount 0m
-                RealizedPercentage = 0m
-                UnrealizedGains = Money.FromAmount 0m
-                UnrealizedGainsPercentage = 0m
-                Invested = Money.FromAmount 0m
-                Commissions = Money.FromAmount 0m
-                Fees = Money.FromAmount 0m
-                Deposited = Money.FromAmount 0m
-                Withdrawn = Money.FromAmount 0m
-                DividendsReceived = Money.FromAmount 0m
-                OptionsIncome = Money.FromAmount 0m
-                OtherIncome = Money.FromAmount 0m
-                OpenTrades = false
-            }
-            do! snapshot.save()
-        }
-
-    let brokerAccountCascadeUpdate
-        (currentBrokerAccountSnapshot: BrokerAccountSnapshot)
-        (snapshotsToUpdate: BrokerAccountSnapshot list)
-        (movementData: BrokerAccountMovementData)
-        =
-        task {
-            // Validate input parameters using the reusable validation method
-            validateSnapshotAndMovementData currentBrokerAccountSnapshot movementData
+            // =================================================================
+            // VALIDATION AND CONSISTENCY CHECKS
+            // =================================================================
             
-            //TODO: Use the movement data for cascade calculations
-            // Now has access to movementData.BrokerMovements, movementData.Trades, etc.
-            // for cascade calculations across multiple snapshots without additional database calls
-            return()
+            // Validate currency consistency across all snapshots
+            if previousSnapshot.CurrencyId <> currencyId then
+                failwithf "Previous snapshot currency (%d) does not match current currency (%d)" 
+                    previousSnapshot.CurrencyId currencyId
+            
+            if existingSnapshot.CurrencyId <> currencyId then
+                failwithf "Existing snapshot currency (%d) does not match current currency (%d)" 
+                    existingSnapshot.CurrencyId currencyId
+            
+            // Validate broker account consistency
+            if existingSnapshot.BrokerAccountId <> brokerAccountId then
+                failwithf "Existing snapshot broker account (%d) does not match expected account (%d)"
+                    existingSnapshot.BrokerAccountId brokerAccountId
+            
+            // Validate date consistency
+            if existingSnapshot.Base.Date <> targetDate then
+                failwithf "Existing snapshot date (%A) does not match target date (%A)"
+                    existingSnapshot.Base.Date.Value targetDate.Value
+            
+            // Validate chronological order of snapshots
+            if previousSnapshot.Base.Date.Value >= targetDate.Value then
+                failwithf "Previous snapshot date (%A) must be before target date (%A)"
+                    previousSnapshot.Base.Date.Value targetDate.Value
+            
+            // =================================================================
+            // RETRIEVE ALL MOVEMENTS FOR TARGET DATE
+            // =================================================================
+            
+            // For accurate recalculation, we need ALL movements from the movement data
+            // The currencyMovements parameter should contain both existing and new movements
+            // This ensures we don't miss any previously processed movements during the update
+            
+            // Process broker movements (deposits, withdrawals, fees, conversions, etc.)
+            let mutable deposited = 0m
+            let mutable withdrawn = 0m  
+            let mutable fees = 0m
+            let mutable commissions = 0m
+            let mutable otherIncome = 0m
+            let mutable interestPaid = 0m
+            let mutable conversionImpact = 0m
+            
+            // Process all broker movements for accurate recalculation
+            for movement in currencyMovements.BrokerMovements do
+                let movementType = movement.MovementType
+                if movementType = BrokerMovementType.Deposit then
+                    deposited <- deposited + movement.Amount.Value
+                elif movementType = BrokerMovementType.Withdrawal then
+                    withdrawn <- withdrawn + movement.Amount.Value
+                elif movementType = BrokerMovementType.Fee then
+                    fees <- fees + movement.Amount.Value
+                elif movementType = BrokerMovementType.InterestsGained then
+                    otherIncome <- otherIncome + movement.Amount.Value
+                elif movementType = BrokerMovementType.InterestsPaid then
+                    interestPaid <- interestPaid + movement.Amount.Value
+                elif movementType = BrokerMovementType.Conversion then
+                    // Handle currency conversion impacts
+                    if movement.CurrencyId = currencyId then
+                        conversionImpact <- conversionImpact + movement.Amount.Value
+                    match movement.FromCurrencyId with
+                    | Some fromCurrencyId when fromCurrencyId = currencyId ->
+                        match movement.AmountChanged with
+                        | Some amountChanged -> conversionImpact <- conversionImpact - amountChanged.Value
+                        | None -> ()
+                    | _ -> ()
+                else
+                    otherIncome <- otherIncome + movement.Amount.Value
+                
+                commissions <- commissions + movement.Commissions.Value
+                fees <- fees + movement.Fees.Value
+            
+            // Apply conversion impact to deposits/withdrawals
+            let (currentDeposited, currentWithdrawn) = 
+                if conversionImpact >= 0m then
+                    (deposited + conversionImpact, withdrawn)
+                else
+                    (deposited, withdrawn + abs(conversionImpact))
+            
+            // =================================================================
+            // TRADES RECALCULATION
+            // =================================================================
+            let mutable invested = 0m
+            let mutable tradeCommissions = 0m
+            let mutable tradeFees = 0m
+            let mutable realizedGains = 0m
+            let mutable hasOpenTrades = false
+            let mutable currentPositions = Map.empty<int, decimal>
+            let mutable costBasisInfo = Map.empty<int, decimal>
+            
+            // Recalculate all trade positions and realized gains from scratch
+            let tradesByTicker = currencyMovements.Trades |> List.groupBy (fun t -> t.TickerId)
+            
+            for (tickerId, trades) in tradesByTicker do
+                let mutable position = 0m
+                let mutable totalInvested = 0m
+                let mutable totalShares = 0m
+                
+                for trade in trades do
+                    tradeCommissions <- tradeCommissions + trade.Commissions.Value
+                    tradeFees <- tradeFees + trade.Fees.Value
+                    
+                    let code = trade.TradeCode
+                    if code = TradeCode.BuyToOpen then
+                        position <- position + trade.Quantity
+                        totalInvested <- totalInvested + (trade.Quantity * trade.Price.Value)
+                        totalShares <- totalShares + trade.Quantity
+                        invested <- invested + (trade.Quantity * trade.Price.Value)
+                    elif code = TradeCode.SellToClose then
+                        let soldQuantity = min trade.Quantity position
+                        position <- position - soldQuantity
+                        if totalShares > 0m then
+                            let avgCostBasis = totalInvested / totalShares
+                            let soldProceeds = soldQuantity * trade.Price.Value
+                            let soldCostBasis = soldQuantity * avgCostBasis
+                            realizedGains <- realizedGains + (soldProceeds - soldCostBasis)
+                            totalInvested <- totalInvested - soldCostBasis
+                            totalShares <- totalShares - soldQuantity
+                    elif code = TradeCode.SellToOpen then
+                        position <- position - trade.Quantity
+                        totalInvested <- totalInvested + (trade.Quantity * trade.Price.Value)
+                        invested <- invested + (trade.Quantity * trade.Price.Value)
+                    elif code = TradeCode.BuyToClose then
+                        let coveredQuantity = min trade.Quantity (abs position)
+                        position <- position + coveredQuantity
+                        if position < 0m then
+                            let avgShortPrice = totalInvested / abs(position + coveredQuantity)
+                            let coveringCost = coveredQuantity * trade.Price.Value
+                            let shortProceeds = coveredQuantity * avgShortPrice
+                            realizedGains <- realizedGains + (shortProceeds - coveringCost)
+                
+                // Track current positions and cost basis
+                if position <> 0m then
+                    hasOpenTrades <- true
+                    currentPositions <- currentPositions.Add(tickerId, position)
+                    if totalShares > 0m then
+                        let avgCostBasis = totalInvested / totalShares
+                        costBasisInfo <- costBasisInfo.Add(tickerId, avgCostBasis)
+            
+            // =================================================================
+            // DIVIDENDS AND OPTIONS RECALCULATION
+            // =================================================================
+            
+            // Recalculate dividend income
+            let mutable dividendIncome = 0m
+            for dividend in currencyMovements.Dividends do
+                dividendIncome <- dividendIncome + dividend.DividendAmount.Value
+            
+            // Recalculate dividend taxes
+            let mutable dividendTaxWithheld = 0m
+            for dividendTax in currencyMovements.DividendTaxes do
+                dividendTaxWithheld <- dividendTaxWithheld + dividendTax.DividendTaxAmount.Value
+            
+            let netDividendIncome = dividendIncome - dividendTaxWithheld
+            
+            // Recalculate options trading
+            let mutable optionsIncome = 0m
+            let mutable optionsInvestment = 0m
+            let mutable optionsCommissions = 0m
+            let mutable optionsFees = 0m
+            let mutable optionsRealizedGains = 0m
+            let mutable hasOpenOptions = false
+            
+            for optionTrade in currencyMovements.OptionTrades do
+                optionsCommissions <- optionsCommissions + optionTrade.Commissions.Value
+                optionsFees <- optionsFees + optionTrade.Fees.Value
+                
+                let code = optionTrade.Code
+                if code = OptionCode.SellToOpen then
+                    optionsIncome <- optionsIncome + optionTrade.NetPremium.Value
+                elif code = OptionCode.BuyToOpen then
+                    optionsInvestment <- optionsInvestment + abs(optionTrade.NetPremium.Value)
+                elif code = OptionCode.BuyToClose || code = OptionCode.SellToClose then
+                    optionsRealizedGains <- optionsRealizedGains + optionTrade.NetPremium.Value
+                
+                if optionTrade.ExpirationDate.Value > targetDate.Value then
+                    hasOpenOptions <- true
+            
+            // =================================================================
+            // CALCULATE CUMULATIVE TOTALS WITH PREVIOUS SNAPSHOT BASELINE
+            // =================================================================
+            
+            // Combine recalculated current period values with previous snapshot baseline
+            // This ensures cumulative metrics are accurate after the update
+            let newDeposited = Money.FromAmount (previousSnapshot.Deposited.Value + currentDeposited)
+            let newWithdrawn = Money.FromAmount (previousSnapshot.Withdrawn.Value + currentWithdrawn)
+            let newCommissions = Money.FromAmount (previousSnapshot.Commissions.Value + commissions + tradeCommissions + optionsCommissions)
+            let newFees = Money.FromAmount (previousSnapshot.Fees.Value + fees + tradeFees + optionsFees)
+            let newOtherIncome = Money.FromAmount (previousSnapshot.OtherIncome.Value + otherIncome - interestPaid)
+            let newInvested = Money.FromAmount (previousSnapshot.Invested.Value + invested + optionsInvestment)
+            let newRealizedGains = Money.FromAmount (previousSnapshot.RealizedGains.Value + realizedGains + optionsRealizedGains)
+            let newDividendsReceived = Money.FromAmount (previousSnapshot.DividendsReceived.Value + netDividendIncome)
+            let newOptionsIncome = Money.FromAmount (previousSnapshot.OptionsIncome.Value + optionsIncome)
+            
+            // Calculate movement counter (total movements including this update)
+            let newMovementCounter = previousSnapshot.MovementCounter + currencyMovements.TotalCount
+            
+            // Calculate unrealized gains from current positions
+            let! (unrealizedGains, unrealizedGainsPercentage) = 
+                calculateUnrealizedGains currentPositions costBasisInfo targetDate currencyId
+            
+            // Calculate realized percentage return
+            let realizedPercentage = 
+                if newInvested.Value > 0m then
+                    (newRealizedGains.Value / newInvested.Value) * 100m
+                else 
+                    0m
+            
+            // =================================================================
+            // UPDATE EXISTING SNAPSHOT
+            // =================================================================
+            
+            // Update the existing snapshot with recalculated values
+            // Keep the original ID and audit information to maintain data integrity
+            let updatedSnapshot = {
+                existingSnapshot with
+                    MovementCounter = newMovementCounter
+                    RealizedGains = newRealizedGains
+                    RealizedPercentage = realizedPercentage
+                    UnrealizedGains = unrealizedGains
+                    UnrealizedGainsPercentage = unrealizedGainsPercentage
+                    Invested = newInvested
+                    Commissions = newCommissions
+                    Fees = newFees
+                    Deposited = newDeposited
+                    Withdrawn = newWithdrawn
+                    DividendsReceived = newDividendsReceived
+                    OptionsIncome = newOptionsIncome
+                    OtherIncome = newOtherIncome
+                    OpenTrades = hasOpenTrades || hasOpenOptions
+            }
+            
+            // Save the updated snapshot to database
+            do! updatedSnapshot.save()
+            
+            // Optional: Log the update for monitoring and debugging
+            // This helps track when snapshots are recalculated due to new movements
+            // System.Diagnostics.Debug.WriteLine($"Updated financial snapshot for currency {currencyId} on {targetDate.Value:yyyy-MM-dd}")
         }
 
     /// <summary>
-    /// Handles changes to existing broker accounts, updating snapshots using a previous date.
-    /// This function is used for one-day updates where the previous snapshot is used to calculate changes.
+    /// Validates and updates broker account snapshots for a given day, processing all necessary currency movements.
+    /// This handles both new movements and adjustments to existing snapshots for accuracy.
     /// </summary>
-    let brokerAccountOneDayWithPrevious
-        (brokerAccountSnapshot: BrokerAccountSnapshot)
-        (previousSnapshot: BrokerAccountSnapshot)
-        =
-        task {
-            //TODO
-            return()
-        }
-
-    /// <summary>
-    /// Handles changes to existing broker accounts, updating snapshots as necessary.
-    /// This function performs a one-day update using the provided movement data.
-    /// </summary>
+    /// <param name="brokerAccountSnapshot">The broker account snapshot for the target date</param>
+    /// <param name="movementData">The movement data for updating snapshots</param>
+    /// <param name="previousSnapshot">The optional previous snapshot for baseline calculations</param>
+    /// <returns>Task that completes when the update is finished</returns>
     let brokerAccountOneDayUpdate
         (brokerAccountSnapshot: BrokerAccountSnapshot)
         (movementData: BrokerAccountMovementData)
@@ -701,45 +909,14 @@ module internal BrokerFinancialSnapshotManager =
                 
                 // SCENARIO B: New movements, no previous snapshot, no existing snapshot  
                 | Some movements, None, None ->
-                    // Create initial financial snapshot for this currency
-                    // This happens when first movement in a new currency occurs
                     do! calculateInitialFinancialSnapshot targetDate currencyId brokerAccountId brokerAccountSnapshot.Base.Id movements
                 
                 // SCENARIO C: New movements, has previous snapshot, has existing snapshot
                 | Some movements, Some previous, Some existing ->
-                    // Update existing snapshot by recalculating with new movements
-                    // This can happen during data corrections or reprocessing
-                    // 📋 TODO: Implement update logic combining movements, previous, and existing
-                    // Scenario C involves updating an existing financial snapshot with new movements
-                    // while considering already processed data in the existing snapshot.
-                    //
-                    // This requires intelligently merging the new movement data with the existing
-                    // snapshot data to ensure accurate and up-to-date financial reporting.
-                    //
-                    // Steps to implement:
-                    // - Retrieve the existing snapshot for the currency and identify the new movements
-                    //   that have occurred since the last snapshot update.
-                    // - For each new movement, update the relevant financial metrics in the existing
-                    //   snapshot (e.g., adjust RealizedGains for realized trades, update Invested
-                    //   amount, etc.).
-                    // - Recalculate any derived metrics (e.g., UnrealizedGains, RealizedPercentage)
-                    //   based on the updated financial data.
-                    // - Save the updated snapshot back to the database, ensuring that it reflects the
-                    //   latest state of the broker account.
-                    //
-                    // This scenario requires careful handling of each movement type and its impact on
-                    // the financial metrics to avoid double-counting or incorrect calculations.
-                    //
-                    // Expected Outcome:
-                    // - The existing financial snapshot is updated with the latest movement data,
-                    //   reflecting the current state of the broker account.
-                    // - All financial metrics are accurately recalculated and persisted.
-                    //
-                    // This ensures that the financial reporting for the currency is complete and
-                    // up-to-date, considering all recent trading activities.
-                    // TODO: Implement logic for updating existing snapshot with new movements
-                    ()
-                
+                    // Update existing snapshot by recalculating with all movements (existing + new)
+                    // This ensures accuracy during data corrections or reprocessing
+                    do! updateExistingFinancialSnapshot targetDate currencyId brokerAccountId brokerAccountSnapshot.Base.Id movements previous existing
+
                 // SCENARIO D: New movements, no previous snapshot, has existing snapshot
                 | Some movements, None, Some existing ->
                     // Update existing snapshot with new movements (rare edge case)
@@ -909,6 +1086,50 @@ module internal BrokerFinancialSnapshotManager =
         }
 
     /// <summary>
+    /// Creates a default financial snapshot with zero values for initial setup.
+    /// This is used when creating initial snapshots for brokers and accounts with no activity.
+    /// </summary>
+    /// <param name="snapshotDate">The date for the snapshot</param>
+    /// <param name="brokerId">The broker ID (0 for account-level snapshots)</param>
+    /// <param name="brokerAccountId">The broker account ID (0 for broker-level snapshots)</param>
+    /// <param name="brokerSnapshotId">The broker snapshot ID (0 for account-level snapshots)</param>
+    /// <param name="brokerAccountSnapshotId">The broker account snapshot ID (0 for broker-level snapshots)</param>
+    /// <returns>Task that completes when the default snapshot is saved</returns>
+    let private defaultFinancialSnapshot
+        (snapshotDate: DateTimePattern)
+        (brokerId: int)
+        (brokerAccountId: int)
+        (brokerSnapshotId: int)
+        (brokerAccountSnapshotId: int)
+        =
+        task {
+            let! currencyId = getDefaultCurrency()
+            let snapshot = {
+                Base = createBaseSnapshot snapshotDate
+                BrokerId = brokerId
+                BrokerAccountId = brokerAccountId
+                CurrencyId = currencyId
+                MovementCounter = 0
+                BrokerSnapshotId = brokerSnapshotId
+                BrokerAccountSnapshotId = brokerAccountSnapshotId
+                RealizedGains = Money.FromAmount 0m
+                RealizedPercentage = 0m
+                UnrealizedGains = Money.FromAmount 0m
+                UnrealizedGainsPercentage = 0m
+                Invested = Money.FromAmount 0m
+                Commissions = Money.FromAmount 0m
+                Fees = Money.FromAmount 0m
+                Deposited = Money.FromAmount 0m
+                Withdrawn = Money.FromAmount 0m
+                DividendsReceived = Money.FromAmount 0m
+                OptionsIncome = Money.FromAmount 0m
+                OtherIncome = Money.FromAmount 0m
+                OpenTrades = false
+            }
+            do! snapshot.save()
+        }
+
+    /// <summary>
     /// Sets up the initial financial snapshot for a specific broker.
     /// This is used when a new broker is created or when initializing snapshots for existing brokers.
     /// </summary>
@@ -945,4 +1166,32 @@ module internal BrokerFinancialSnapshotManager =
                     brokerAccountSnapshot.BrokerAccountId
                     0 // BrokerSnapshotId set to 0 for account-level snapshots
                     brokerAccountSnapshot.Base.Id // Use the snapshot's own ID as BrokerAccountSnapshotId
+        }
+    
+    let brokerAccountCascadeUpdate
+        (currentBrokerAccountSnapshot: BrokerAccountSnapshot)
+        (snapshotsToUpdate: BrokerAccountSnapshot list)
+        (movementData: BrokerAccountMovementData)
+        =
+        task {
+            // Validate input parameters using the reusable validation method
+            validateSnapshotAndMovementData currentBrokerAccountSnapshot movementData
+            
+            //TODO: Use the movement data for cascade calculations
+            // Now has access to movementData.BrokerMovements, movementData.Trades, etc.
+            // for cascade calculations across multiple snapshots without additional database calls
+            return()
+        }
+
+    /// <summary>
+    /// Handles changes to existing broker accounts, updating snapshots using a previous date.
+    /// This function is used for one-day updates where the previous snapshot is used to calculate changes.
+    /// </summary>
+    let brokerAccountOneDayWithPrevious
+        (brokerAccountSnapshot: BrokerAccountSnapshot)
+        (previousSnapshot: BrokerAccountSnapshot)
+        =
+        task {
+            //TODO
+            return()
         }
