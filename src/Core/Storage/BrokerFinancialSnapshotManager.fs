@@ -456,20 +456,12 @@ module internal BrokerFinancialSnapshotManager =
         (movementData: BrokerAccountMovementData)
         =
         task {
-            // =================================================================
-            // PHASE 1: INPUT VALIDATION & SETUP ✅ IMPLEMENTED
-            // =================================================================
-            
             // 1.1. ✅ Validate input parameters using the reusable validation method
             BrokerFinancialValidator.validateSnapshotAndMovementData brokerAccountSnapshot movementData
             
             // 1.2. ✅ Extract validated parameters for calculations
             let targetDate = brokerAccountSnapshot.Base.Date
             let brokerAccountId = brokerAccountSnapshot.BrokerAccountId
-            
-            // =================================================================
-            // PHASE 2: RETRIEVE PREVIOUS FINANCIAL SNAPSHOTS ✅ IMPLEMENTED
-            // =================================================================
             
             // 2.1. ✅ Get all existing financial snapshots for this broker account and target date
             // This handles the case where we might have multiple currency snapshots
@@ -495,10 +487,6 @@ module internal BrokerFinancialSnapshotManager =
                 |> List.map (fun (currencyId, snaps) -> 
                     snaps |> List.maxBy (fun s -> s.Base.Date.Value))
             
-            // =================================================================
-            // PHASE 3: CURRENCY ANALYSIS & SNAPSHOT PLANNING ✅ IMPLEMENTED
-            // =================================================================
-            
             // 3.1. ✅ Determine which currencies have movements on target date
             let currenciesWithMovements = movementData.UniqueCurrencies
             
@@ -516,10 +504,6 @@ module internal BrokerFinancialSnapshotManager =
             // unlike BrokerAccountSnapshotManager where account snapshots need pre-creation
             // Each scenario handles its own financial snapshot creation as needed
             // Existing snapshots are detected per-currency using List.tryFind during processing
-            
-            // =================================================================
-            // PHASE 4: SCENARIO HANDLING & SNAPSHOT PROCESSING ✅ IMPLEMENTED
-            // =================================================================
             
             // ✅ Process each currency that needs attention (framework implemented)
             for currencyId in allRelevantCurrencies do
