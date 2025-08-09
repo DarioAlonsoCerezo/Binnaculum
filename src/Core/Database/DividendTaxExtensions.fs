@@ -102,3 +102,149 @@ type Do() =
         let! dividendTaxes = Database.Do.readAll<DividendTax>(command, Do.read)
         return dividendTaxes
     }
+
+/// <summary>
+/// Financial calculation extension methods for DividendTax collections.
+/// These methods provide reusable calculation logic for dividend tax withholding tracking and financial snapshot processing.
+/// </summary>
+[<Extension>]
+type DividendTaxCalculations() =
+
+    /// <summary>
+    /// Calculates the total dividend tax withholdings paid.
+    /// This represents tax deducted from dividend payments before they reach the investor.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to analyze</param>
+    /// <returns>Total dividend tax withholdings as Money</returns>
+    [<Extension>]
+    static member calculateTotalTaxWithheld(dividendTaxes: DividendTax list) =
+        dividendTaxes
+        |> List.sumBy (fun tax -> tax.DividendTaxAmount.Value)
+        |> Money.FromAmount
+
+    /// <summary>
+    /// Calculates dividend tax withholdings grouped by ticker symbol.
+    /// Useful for understanding tax impact by individual stocks.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to analyze</param>
+    /// <returns>Map of ticker ID to total tax withheld for that ticker</returns>
+    [<Extension>]
+    static member calculateTaxesByTicker(dividendTaxes: DividendTax list) =
+        dividendTaxes
+        |> List.groupBy (fun tax -> tax.TickerId)
+        |> List.map (fun (tickerId, tickerTaxes) ->
+            let totalTax = 
+                tickerTaxes 
+                |> List.sumBy (fun t -> t.DividendTaxAmount.Value)
+                |> Money.FromAmount
+            (tickerId, totalTax))
+        |> Map.ofList
+
+    /// <summary>
+    /// Counts the total number of dividend tax withholding events.
+    /// This can be used for MovementCounter calculations in financial snapshots.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to count</param>
+    /// <returns>Total number of tax withholding events as integer</returns>
+    [<Extension>]
+    static member calculateTaxEventCount(dividendTaxes: DividendTax list) =
+        dividendTaxes.Length
+
+    /// <summary>
+    /// Filters dividend taxes by currency ID.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to filter</param>
+    /// <param name="currencyId">The currency ID to filter by</param>
+    /// <returns>Filtered list of dividend taxes for the specified currency</returns>
+    [<Extension>]
+    static member filterByCurrency(dividendTaxes: DividendTax list, currencyId: int) =
+        dividendTaxes
+        |> List.filter (fun tax -> tax.CurrencyId = currencyId)
+
+    /// <summary>
+    /// Filters dividend taxes by ticker ID.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to filter</param>
+    /// <param name="tickerId">The ticker ID to filter by</param>
+    /// <returns>Filtered list of dividend taxes for the specified ticker</returns>
+    [<Extension>]
+    static member filterByTicker(dividendTaxes: DividendTax list, tickerId: int) =
+        dividendTaxes
+        |> List.filter (fun tax -> tax.TickerId = tickerId)
+
+    /// <summary>
+    /// Gets all unique currency IDs involved in dividend tax withholdings.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to analyze</param>
+    /// <returns>Set of unique currency IDs</returns>
+    [<Extension>]
+    static member getUniqueCurrencyIds(dividendTaxes: DividendTax list) =
+        dividendTaxes 
+        |> List.map (fun tax -> tax.CurrencyId)
+        |> Set.ofList
+
+    /// <summary>
+    /// Gets all unique ticker IDs that had dividend tax withholdings.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to analyze</param>
+    /// <returns>Set of unique ticker IDs</returns>
+    [<Extension>]
+    static member getUniqueTickerIds(dividendTaxes: DividendTax list) =
+        dividendTaxes 
+        |> List.map (fun tax -> tax.TickerId)
+        |> Set.ofList
+
+    /// <summary>
+    /// Calculates dividend tax withholdings for a specific date range.
+    /// Useful for period-specific tax calculations.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to analyze</param>
+    /// <param name="startDate">Start date (inclusive)</param>
+    /// <param name="endDate">End date (inclusive)</param>
+    /// <returns>Total tax withheld in the specified date range</returns>
+    [<Extension>]
+    static member calculateTaxWithheldInDateRange(dividendTaxes: DividendTax list, startDate: DateTimePattern, endDate: DateTimePattern) =
+        dividendTaxes
+        |> List.filter (fun tax -> 
+            tax.TimeStamp.Value >= startDate.Value && tax.TimeStamp.Value <= endDate.Value)
+        |> List.sumBy (fun tax -> tax.DividendTaxAmount.Value)
+        |> Money.FromAmount
+
+    /// <summary>
+    /// Calculates effective tax rate when provided with corresponding dividend data.
+    /// Useful for understanding the overall dividend tax burden.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to analyze</param>
+    /// <param name="dividends">Corresponding dividend payments</param>
+    /// <returns>Effective tax rate as percentage (0-100)</returns>
+    [<Extension>]
+    static member calculateEffectiveTaxRate(dividendTaxes: DividendTax list, dividends: Dividend list) =
+        let totalTax = dividendTaxes.calculateTotalTaxWithheld().Value
+        let totalDividends = dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
+        
+        if totalDividends > 0m then
+            (totalTax / (totalDividends + totalTax)) * 100m
+        else
+            0m
+
+    /// <summary>
+    /// Calculates a comprehensive dividend tax summary.
+    /// Returns a record with all major dividend tax metrics calculated.
+    /// </summary>
+    /// <param name="dividendTaxes">List of dividend taxes to analyze</param>
+    /// <param name="currencyId">Optional currency ID to filter calculations by</param>
+    /// <returns>Dividend tax summary record with calculated totals</returns>
+    [<Extension>]
+    static member calculateDividendTaxSummary(dividendTaxes: DividendTax list, ?currencyId: int) =
+        let relevantTaxes = 
+            match currencyId with
+            | Some id -> dividendTaxes.filterByCurrency(id)
+            | None -> dividendTaxes
+        
+        {|
+            TotalTaxWithheld = relevantTaxes.calculateTotalTaxWithheld()
+            TaxesByTicker = relevantTaxes.calculateTaxesByTicker()
+            TaxEventCount = relevantTaxes.calculateTaxEventCount()
+            UniqueCurrencies = relevantTaxes.getUniqueCurrencyIds()
+            UniqueTickers = relevantTaxes.getUniqueTickerIds()
+        |}

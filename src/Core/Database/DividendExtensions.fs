@@ -103,3 +103,149 @@ type Do() =
         let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
         return dividends
     }
+
+/// <summary>
+/// Financial calculation extension methods for Dividend collections.
+/// These methods provide reusable calculation logic for dividend income tracking and financial snapshot processing.
+/// </summary>
+[<Extension>]
+type DividendCalculations() =
+
+    /// <summary>
+    /// Calculates the total dividend income received from all dividend payments.
+    /// This represents the gross dividend income before any tax withholdings.
+    /// </summary>
+    /// <param name="dividends">List of dividends to analyze</param>
+    /// <returns>Total dividend income as Money</returns>
+    [<Extension>]
+    static member calculateTotalDividendIncome(dividends: Dividend list) =
+        dividends
+        |> List.sumBy (fun dividend -> dividend.DividendAmount.Value)
+        |> Money.FromAmount
+
+    /// <summary>
+    /// Calculates dividend income grouped by ticker symbol.
+    /// Useful for understanding which stocks are the biggest dividend contributors.
+    /// </summary>
+    /// <param name="dividends">List of dividends to analyze</param>
+    /// <returns>Map of ticker ID to total dividend income for that ticker</returns>
+    [<Extension>]
+    static member calculateDividendsByTicker(dividends: Dividend list) =
+        dividends
+        |> List.groupBy (fun dividend -> dividend.TickerId)
+        |> List.map (fun (tickerId, tickerDividends) ->
+            let totalIncome = 
+                tickerDividends 
+                |> List.sumBy (fun d -> d.DividendAmount.Value)
+                |> Money.FromAmount
+            (tickerId, totalIncome))
+        |> Map.ofList
+
+    /// <summary>
+    /// Counts the total number of dividend payments.
+    /// This can be used for MovementCounter calculations in financial snapshots.
+    /// </summary>
+    /// <param name="dividends">List of dividends to count</param>
+    /// <returns>Total number of dividend payments as integer</returns>
+    [<Extension>]
+    static member calculateDividendCount(dividends: Dividend list) =
+        dividends.Length
+
+    /// <summary>
+    /// Filters dividends by currency ID.
+    /// </summary>
+    /// <param name="dividends">List of dividends to filter</param>
+    /// <param name="currencyId">The currency ID to filter by</param>
+    /// <returns>Filtered list of dividends for the specified currency</returns>
+    [<Extension>]
+    static member filterByCurrency(dividends: Dividend list, currencyId: int) =
+        dividends
+        |> List.filter (fun dividend -> dividend.CurrencyId = currencyId)
+
+    /// <summary>
+    /// Filters dividends by ticker ID.
+    /// </summary>
+    /// <param name="dividends">List of dividends to filter</param>
+    /// <param name="tickerId">The ticker ID to filter by</param>
+    /// <returns>Filtered list of dividends for the specified ticker</returns>
+    [<Extension>]
+    static member filterByTicker(dividends: Dividend list, tickerId: int) =
+        dividends
+        |> List.filter (fun dividend -> dividend.TickerId = tickerId)
+
+    /// <summary>
+    /// Gets all unique currency IDs involved in the dividends.
+    /// </summary>
+    /// <param name="dividends">List of dividends to analyze</param>
+    /// <returns>Set of unique currency IDs</returns>
+    [<Extension>]
+    static member getUniqueCurrencyIds(dividends: Dividend list) =
+        dividends 
+        |> List.map (fun dividend -> dividend.CurrencyId)
+        |> Set.ofList
+
+    /// <summary>
+    /// Gets all unique ticker IDs that paid dividends.
+    /// </summary>
+    /// <param name="dividends">List of dividends to analyze</param>
+    /// <returns>Set of unique ticker IDs</returns>
+    [<Extension>]
+    static member getUniqueTickerIds(dividends: Dividend list) =
+        dividends 
+        |> List.map (fun dividend -> dividend.TickerId)
+        |> Set.ofList
+
+    /// <summary>
+    /// Calculates dividend income for a specific date range.
+    /// Useful for period-specific dividend calculations.
+    /// </summary>
+    /// <param name="dividends">List of dividends to analyze</param>
+    /// <param name="startDate">Start date (inclusive)</param>
+    /// <param name="endDate">End date (inclusive)</param>
+    /// <returns>Total dividend income in the specified date range</returns>
+    [<Extension>]
+    static member calculateDividendIncomeInDateRange(dividends: Dividend list, startDate: DateTimePattern, endDate: DateTimePattern) =
+        dividends
+        |> List.filter (fun dividend -> 
+            dividend.TimeStamp.Value >= startDate.Value && dividend.TimeStamp.Value <= endDate.Value)
+        |> List.sumBy (fun dividend -> dividend.DividendAmount.Value)
+        |> Money.FromAmount
+
+    /// <summary>
+    /// Calculates average dividend per payment.
+    /// Useful for dividend yield and frequency analysis.
+    /// </summary>
+    /// <param name="dividends">List of dividends to analyze</param>
+    /// <returns>Average dividend amount per payment as Money</returns>
+    [<Extension>]
+    static member calculateAverageDividend(dividends: Dividend list) =
+        if dividends.IsEmpty then
+            Money.FromAmount 0m
+        else
+            dividends
+            |> List.sumBy (fun dividend -> dividend.DividendAmount.Value)
+            |> fun total -> total / (decimal dividends.Length)
+            |> Money.FromAmount
+
+    /// <summary>
+    /// Calculates a comprehensive dividend summary for dividends.
+    /// Returns a record with all major dividend metrics calculated.
+    /// </summary>
+    /// <param name="dividends">List of dividends to analyze</param>
+    /// <param name="currencyId">Optional currency ID to filter calculations by</param>
+    /// <returns>Dividend summary record with calculated totals</returns>
+    [<Extension>]
+    static member calculateDividendSummary(dividends: Dividend list, ?currencyId: int) =
+        let relevantDividends = 
+            match currencyId with
+            | Some id -> dividends.filterByCurrency(id)
+            | None -> dividends
+        
+        {|
+            TotalDividendIncome = relevantDividends.calculateTotalDividendIncome()
+            DividendsByTicker = relevantDividends.calculateDividendsByTicker()
+            AverageDividend = relevantDividends.calculateAverageDividend()
+            DividendCount = relevantDividends.calculateDividendCount()
+            UniqueCurrencies = relevantDividends.getUniqueCurrencyIds()
+            UniqueTickers = relevantDividends.getUniqueTickerIds()
+        |}

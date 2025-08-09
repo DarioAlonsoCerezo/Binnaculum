@@ -6,6 +6,8 @@ open SnapshotManagerUtils
 open BrokerFinancialSnapshotExtensions
 open BrokerMovementExtensions
 open TradeExtensions
+open DividendExtensions
+open DividendTaxExtensions
 
 module internal BrokerFinancialSnapshotManager =
     
@@ -122,15 +124,26 @@ module internal BrokerFinancialSnapshotManager =
             
             // Process dividend income from holdings
             // Dividends provide additional income beyond trading gains
-            // 📋 TODO: Add dividend amounts to DividendsReceived total
-            // 📋 TODO: Add to OtherIncome or keep separate dividend tracking
-            // 📋 TODO: Handle dividend reinvestment scenarios if applicable
+            let dividendSummary = 
+                currencyMovements.Dividends
+                |> DividendCalculations.calculateDividendSummary
             
             // Process dividend tax withholdings
             // Tax withholdings reduce the net dividend income received
-            // 📋 TODO: Add tax amounts to appropriate tax tracking field
-            // 📋 TODO: Reduce net dividend income accordingly
-            // 📋 TODO: Handle withholding tax vs. additional tax scenarios
+            let dividendTaxSummary = 
+                currencyMovements.DividendTaxes
+                |> DividendTaxCalculations.calculateDividendTaxSummary
+            
+            // Extract calculated values from dividends and taxes
+            let currentDividendIncome = dividendSummary.TotalDividendIncome
+            let currentTaxWithheld = dividendTaxSummary.TotalTaxWithheld
+            let dividendCount = dividendSummary.DividendCount
+            let dividendTaxCount = dividendTaxSummary.TaxEventCount
+            
+            // Calculate net dividend income after tax withholdings
+            // This represents the actual cash received after all tax deductions
+            // Formula: Net Income = Gross Dividends - Tax Withholdings
+            let netDividendIncome = Money.FromAmount (currentDividendIncome.Value - currentTaxWithheld.Value)
             
             // Process options trading for premium income and options-related costs
             // Options can generate income (selling) or costs (buying) and affect realized gains
@@ -159,6 +172,7 @@ module internal BrokerFinancialSnapshotManager =
             let newOtherIncome = Money.FromAmount (previousOtherIncome.Value + currentOtherIncome.Value)
             let newInvested = Money.FromAmount (previousInvested.Value + currentInvested.Value)
             let newRealizedGains = Money.FromAmount (previousRealizedGains.Value + currentRealizedGains.Value)
+            let newDividendsReceived = Money.FromAmount (previousDividendsReceived.Value + netDividendIncome.Value)
             
             // Handle interest paid (typically reduces other income or increases fees)
             let adjustedOtherIncome = Money.FromAmount (newOtherIncome.Value - currentInterestPaid.Value)
@@ -169,8 +183,8 @@ module internal BrokerFinancialSnapshotManager =
             // 📋 TODO: New OptionsIncome = Previous OptionsIncome + Current Period Options Income
             
             // Update movement counter to track activity level over time
-            let newMovementCounter = previousMovementCounter + brokerMovementCount + tradeCount
-            // Additional movements from dividends and options will be added when those sections are implemented
+            let newMovementCounter = previousMovementCounter + brokerMovementCount + tradeCount + dividendCount + dividendTaxCount
+            // Additional movements from options will be added when that section is implemented
             
             // Calculate unrealized gains which requires current market prices and position tracking
             // This is more complex as it requires knowing current positions and market values
@@ -227,7 +241,7 @@ module internal BrokerFinancialSnapshotManager =
                 Fees = newFees
                 Deposited = newDeposited
                 Withdrawn = newWithdrawn
-                DividendsReceived = previousDividendsReceived // 📋 TODO: Update with current dividends
+                DividendsReceived = newDividendsReceived
                 OptionsIncome = previousOptionsIncome // 📋 TODO: Update with current options income
                 OtherIncome = adjustedOtherIncome
                 OpenTrades = hasOpenTrades
