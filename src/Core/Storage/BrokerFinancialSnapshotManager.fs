@@ -102,19 +102,16 @@ module internal BrokerFinancialSnapshotManager =
     /// <summary>
     /// Sets up the initial financial snapshot for a specific broker account.
     /// This is used when a new broker account is created or when initializing snapshots for existing accounts.
-    /// 
-    /// IMPORTANT: Currently creates only ONE financial snapshot using the default currency.
-    /// TODO: Enhance to support multi-currency by creating one financial snapshot per currency.
-    /// This will be essential when processing BrokerAccountMovementData with multiple currencies.
+    /// Creates a single financial snapshot using the default currency, which is appropriate for initial setup
+    /// since no movements exist yet. Multi-currency snapshots will be created later as movements are processed.
     /// </summary>
     let setupInitialFinancialSnapshotForBrokerAccount
         (brokerAccountSnapshot: BrokerAccountSnapshot)
         =
         task {
-            // TODO: Multi-currency enhancement needed
-            // When BrokerAccountMovementData contains movements in multiple currencies,
-            // we should create one BrokerFinancialSnapshot per currency.
-            // Current implementation creates only the default currency snapshot.
+            // Create initial snapshot with default currency
+            // Multi-currency snapshots will be handled during movement processing
+            // when brokerAccountOneDayUpdate and brokerAccountCascadeUpdate are implemented
             do! defaultFinancialSnapshot 
                     brokerAccountSnapshot.Base.Date
                     0 // BrokerId set to 0 for account-level snapshots
