@@ -5,6 +5,7 @@ open Binnaculum.Core.Patterns
 open SnapshotManagerUtils
 open BrokerFinancialSnapshotExtensions
 open BrokerMovementExtensions
+open TradeExtensions
 
 module internal BrokerFinancialSnapshotManager =
     
@@ -102,13 +103,22 @@ module internal BrokerFinancialSnapshotManager =
             
             // Process trade movements for investment tracking and realized gains calculation
             // Trades directly impact invested amounts, commissions, and realized gains when positions are closed
-            // 📋 TODO: Calculate total invested amount (price * quantity + commissions + fees)
-            // 📋 TODO: Add commissions to Commissions total
-            // 📋 TODO: Add fees to Fees total
-            // 📋 TODO: Update Invested total (cumulative investment)
-            // 📋 TODO: Calculate realized gains for closed positions (sell trades)
-            // 📋 TODO: Update RealizedGains total
-            // 📋 TODO: Determine if OpenTrades status should be true (open positions exist)
+            let tradingSummary = 
+                currencyMovements.Trades
+                |> TradeCalculations.calculateTradingSummary
+            
+            // Extract calculated values from trades
+            let currentInvested = tradingSummary.TotalInvested
+            let currentTradeCommissions = tradingSummary.TotalCommissions
+            let currentTradeFees = tradingSummary.TotalFees
+            let currentRealizedGains = tradingSummary.RealizedGains
+            let hasOpenTrades = tradingSummary.HasOpenPositions
+            let currentPositions = tradingSummary.CurrentPositions
+            let costBasisInfo = tradingSummary.CostBasis
+            let tradeCount = tradingSummary.TradeCount
+            
+            // Calculate currency conversion impact for trade-related cash flows
+            // Similar to broker movements, we need to account for any gains or losses due to currency conversion
             
             // Process dividend income from holdings
             // Dividends provide additional income beyond trading gains
@@ -144,9 +154,11 @@ module internal BrokerFinancialSnapshotManager =
             
             let newDeposited = Money.FromAmount (previousDeposited.Value + adjustedDeposited)
             let newWithdrawn = Money.FromAmount (previousWithdrawn.Value + adjustedWithdrawn)
-            let newCommissions = Money.FromAmount (previousCommissions.Value + currentCommissions.Value)
-            let newFees = Money.FromAmount (previousFees.Value + currentFees.Value)
+            let newCommissions = Money.FromAmount (previousCommissions.Value + currentCommissions.Value + currentTradeCommissions.Value)
+            let newFees = Money.FromAmount (previousFees.Value + currentFees.Value + currentTradeFees.Value)
             let newOtherIncome = Money.FromAmount (previousOtherIncome.Value + currentOtherIncome.Value)
+            let newInvested = Money.FromAmount (previousInvested.Value + currentInvested.Value)
+            let newRealizedGains = Money.FromAmount (previousRealizedGains.Value + currentRealizedGains.Value)
             
             // Handle interest paid (typically reduces other income or increases fees)
             let adjustedOtherIncome = Money.FromAmount (newOtherIncome.Value - currentInterestPaid.Value)
@@ -157,8 +169,8 @@ module internal BrokerFinancialSnapshotManager =
             // 📋 TODO: New OptionsIncome = Previous OptionsIncome + Current Period Options Income
             
             // Update movement counter to track activity level over time
-            let newMovementCounter = previousMovementCounter + brokerMovementCount
-            // Additional movements from trades, dividends, options will be added when those sections are implemented
+            let newMovementCounter = previousMovementCounter + brokerMovementCount + tradeCount
+            // Additional movements from dividends and options will be added when those sections are implemented
             
             // Calculate unrealized gains which requires current market prices and position tracking
             // This is more complex as it requires knowing current positions and market values
@@ -203,11 +215,14 @@ module internal BrokerFinancialSnapshotManager =
                 MovementCounter = newMovementCounter
                 BrokerSnapshotId = 0 // Set to 0 for account-level snapshots
                 BrokerAccountSnapshotId = brokerAccountSnapshotId
-                RealizedGains = previousRealizedGains // 📋 TODO: Update with calculated realized gains from trades
-                RealizedPercentage = 0m // 📋 TODO: Calculate based on RealizedGains / Invested
+                RealizedGains = newRealizedGains
+                RealizedPercentage = 
+                    if newInvested.Value > 0m then
+                        (newRealizedGains.Value / newInvested.Value) * 100m
+                    else 0m
                 UnrealizedGains = Money.FromAmount 0m // 📋 TODO: Calculate from market prices
                 UnrealizedGainsPercentage = 0m // 📋 TODO: Calculate based on UnrealizedGains / cost basis
-                Invested = previousInvested // 📋 TODO: Update with current period investment from trades
+                Invested = newInvested
                 Commissions = newCommissions
                 Fees = newFees
                 Deposited = newDeposited
@@ -215,7 +230,7 @@ module internal BrokerFinancialSnapshotManager =
                 DividendsReceived = previousDividendsReceived // 📋 TODO: Update with current dividends
                 OptionsIncome = previousOptionsIncome // 📋 TODO: Update with current options income
                 OtherIncome = adjustedOtherIncome
-                OpenTrades = false // 📋 TODO: Determine from current positions
+                OpenTrades = hasOpenTrades
             }
             
             // Save the snapshot to database with proper error handling
