@@ -139,13 +139,13 @@ module internal BrokerAccountSnapshotManager =
                 // Future movements exist with missing snapshots - create missing snapshots then cascade
                 let! missedSnapshots = createAndGetMissingSnapshots(brokerAccountId, missingSnapshotDates)
                 let allSnapshots = futureSnapshots @ missedSnapshots |> List.sortBy (fun s -> s.Base.Date.Value)
-                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot allSnapshots
+                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot allSnapshots allMovementsFromDate
             | true, false, true ->
                 // Future movements exist, all snapshots present - standard cascade
-                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot futureSnapshots
+                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot futureSnapshots allMovementsFromDate
             | _ ->
                 // Edge cases - default to cascade for safety
-                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot futureSnapshots
+                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot futureSnapshots allMovementsFromDate
             return()
         }
 

@@ -44,9 +44,12 @@ module internal BrokerFinancialSnapshotManager =
     let brokerAccountCascadeUpdate
         (currentBrokerAccountSnapshot: BrokerAccountSnapshot)
         (snapshotsToUpdate: BrokerAccountSnapshot list)
+        (movementData: BrokerAccountMovementData)
         =
         task {
             //TODO: Use the movement data for cascade calculations
+            // Now has access to movementData.BrokerMovements, movementData.Trades, etc.
+            // for cascade calculations across multiple snapshots without additional database calls
             return()
         }
 
