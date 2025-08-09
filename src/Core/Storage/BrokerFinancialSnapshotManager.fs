@@ -9,6 +9,7 @@ open TradeExtensions
 open DividendExtensions
 open DividendTaxExtensions
 open OptionTradeExtensions
+open TickerPriceExtensions
 
 module internal BrokerFinancialSnapshotManager =
     
@@ -40,6 +41,63 @@ module internal BrokerFinancialSnapshotManager =
         if movementData.FromDate.Value > brokerAccountSnapshot.Base.Date.Value then
             failwithf "Movement data FromDate (%A) cannot be later than snapshot date (%A)." 
                 movementData.FromDate.Value brokerAccountSnapshot.Base.Date.Value
+
+    /// <summary>
+    /// Calculates unrealized gains for current positions based on market prices and cost basis.
+    /// This helper function handles the complex logic of matching positions with market data.
+    /// Market prices are retrieved for the target currency to ensure proper currency matching.
+    /// </summary>
+    /// <param name="currentPositions">Map of ticker ID to current position quantity</param>
+    /// <param name="costBasisInfo">Map of ticker ID to average cost basis per share (in the target currency)</param>
+    /// <param name="targetDate">Date to retrieve market prices for</param>
+    /// <param name="targetCurrencyId">Currency ID to ensure price and cost basis alignment</param>
+    /// <returns>Tuple of (UnrealizedGains as Money, UnrealizedGainsPercentage as decimal)</returns>
+    let private calculateUnrealizedGains 
+        (currentPositions: Map<int, decimal>) 
+        (costBasisInfo: Map<int, decimal>) 
+        (targetDate: DateTimePattern) 
+        (targetCurrencyId: int) =
+        task {
+            let mutable totalMarketValue = 0m
+            let mutable totalCostBasis = 0m
+            
+            // Process each ticker with current positions
+            for KeyValue(tickerId, quantity) in currentPositions do
+                // Only process if we have non-zero positions
+                if quantity <> 0m then
+                    // ✅ CURRENCY-SAFE: Get market price for this ticker on the target date in the correct currency
+                    // This ensures that market price and cost basis are in the same currency for accurate comparison
+                    let! marketPrice = TickerPriceExtensions.Do.getPriceByDateOrPreviousAndCurrencyId(tickerId, targetCurrencyId, targetDate.Value.ToString("yyyy-MM-dd"))
+                    
+                    // Get cost basis per share for this ticker (already in target currency from trade calculations)
+                    let costBasisPerShare = costBasisInfo.TryFind(tickerId) |> Option.defaultValue 0m
+                    
+                    // Calculate market value and cost basis for this position
+                    let positionMarketValue = marketPrice * abs(quantity)  // Use abs() to handle both long and short positions
+                    let positionCostBasis = costBasisPerShare * abs(quantity)
+                    
+                    // For short positions, the unrealized gain/loss calculation is inverted
+                    if quantity > 0m then
+                        // Long position: gain when market price > cost basis
+                        totalMarketValue <- totalMarketValue + positionMarketValue
+                        totalCostBasis <- totalCostBasis + positionCostBasis
+                    else
+                        // Short position: gain when market price < cost basis (we sold high, can buy back low)
+                        totalMarketValue <- totalMarketValue - positionMarketValue  // Negative market value for shorts
+                        totalCostBasis <- totalCostBasis - positionCostBasis        // Negative cost basis for shorts
+            
+            // Calculate total unrealized gains: Market Value - Cost Basis
+            let unrealizedGains = totalMarketValue - totalCostBasis
+            
+            // Calculate unrealized gains percentage
+            let unrealizedGainsPercentage = 
+                if totalCostBasis <> 0m then
+                    (unrealizedGains / abs(totalCostBasis)) * 100m  // Use abs() for percentage calculation
+                else 
+                    0m
+            
+            return (Money.FromAmount unrealizedGains, unrealizedGainsPercentage)
+        }
 
     /// <summary>
     /// Calculates a new financial snapshot based on currency movements and previous snapshot values.
@@ -188,47 +246,25 @@ module internal BrokerFinancialSnapshotManager =
             // Handle interest paid (typically reduces other income or increases fees)
             let adjustedOtherIncome = Money.FromAmount (newOtherIncome.Value - currentInterestPaid.Value)
             
-            // 📋 TODO: New Invested = Previous Invested + Current Period Investment (from trades)
-            // 📋 TODO: New RealizedGains = Previous RealizedGains + Current Period Realized Gains (from trades)
-            // 📋 TODO: New DividendsReceived = Previous DividendsReceived + Current Period Dividends
-            // 📋 TODO: New OptionsIncome = Previous OptionsIncome + Current Period Options Income
-            
             // Update movement counter to track activity level over time
             let newMovementCounter = previousMovementCounter + brokerMovementCount + tradeCount + dividendCount + dividendTaxCount + optionsTradeCount
             // All major movement types are now included in the activity counter
             
-            // Calculate unrealized gains which requires current market prices and position tracking
-            // This is more complex as it requires knowing current positions and market values
-            
-            // Calculate current position quantities for each ticker held
-            // Position tracking is essential for unrealized gains and portfolio valuation
-            // 📋 TODO: Calculate current position quantities for each ticker
-            // 📋 TODO: Determine cost basis for each position (FIFO, LIFO, or Average Cost)
-            // 📋 TODO: Track position entry dates for tax calculation implications
-            
-            // Retrieve current market prices for portfolio valuation
-            // Market prices are needed to determine current portfolio value vs. cost basis
-            // 📋 TODO: Retrieve current market prices for all tickers with positions
-            // 📋 TODO: Handle multi-currency price conversions if needed
-            // 📋 TODO: Calculate market value of each position
-            
-            // Compute unrealized gains based on current market values vs. cost basis
-            // 📋 TODO: UnrealizedGains = Total Market Value - Total Cost Basis
-            // 📋 TODO: UnrealizedGainsPercentage = (UnrealizedGains / Total Cost Basis) * 100
-            // 📋 TODO: Handle zero cost basis scenarios (free shares, etc.)
+            // ✅ IMPLEMENTED: Calculate unrealized gains which requires current market prices and position tracking
+            // This is complex as it requires knowing current positions and market values
+            // Note: currentPositions and costBasisInfo are already currency-filtered from currencyMovements.Trades
+            let! (unrealizedGains, unrealizedGainsPercentage) = 
+                calculateUnrealizedGains currentPositions costBasisInfo targetDate currencyId
             
             // Calculate percentage metrics for performance analysis
             // Performance percentages help evaluate investment success over time
             
             // Calculate realized percentage return on invested capital
-            // 📋 TODO: RealizedPercentage = (RealizedGains / Total Invested) * 100
-            // 📋 TODO: Handle zero investment scenarios gracefully
-            // 📋 TODO: Consider time-weighted vs. money-weighted return calculations
-            
-            // Calculate overall portfolio performance metrics
-            // 📋 TODO: Calculate overall portfolio return percentage
-            // 📋 TODO: Consider dividend yield impact on total return
-            // 📋 TODO: Factor in currency conversion gains/losses if applicable
+            let realizedPercentage = 
+                if newInvested.Value > 0m then
+                    (newRealizedGains.Value / newInvested.Value) * 100m
+                else 
+                    0m
             
             // Create the final BrokerFinancialSnapshot with all calculated values
             // This snapshot represents the complete financial state for this currency on the target date
@@ -241,12 +277,9 @@ module internal BrokerFinancialSnapshotManager =
                 BrokerSnapshotId = 0 // Set to 0 for account-level snapshots
                 BrokerAccountSnapshotId = brokerAccountSnapshotId
                 RealizedGains = newRealizedGains
-                RealizedPercentage = 
-                    if newInvested.Value > 0m then
-                        (newRealizedGains.Value / newInvested.Value) * 100m
-                    else 0m
-                UnrealizedGains = Money.FromAmount 0m // 📋 TODO: Calculate from market prices
-                UnrealizedGainsPercentage = 0m // 📋 TODO: Calculate based on UnrealizedGains / cost basis
+                RealizedPercentage = realizedPercentage
+                UnrealizedGains = unrealizedGains // ✅ Now calculated from market prices
+                UnrealizedGainsPercentage = unrealizedGainsPercentage // ✅ Now calculated based on unrealized gains / cost basis
                 Invested = newInvested
                 Commissions = newCommissions
                 Fees = newFees
@@ -261,10 +294,22 @@ module internal BrokerFinancialSnapshotManager =
             // Save the snapshot to database with proper error handling
             do! newSnapshot.save()
             
-            // Validate and log the snapshot creation for monitoring
-            // 📋 TODO: Validate calculated values are reasonable (no negative invested amounts, etc.)
-            // 📋 TODO: Log snapshot creation for monitoring and debugging
-            // 📋 TODO: Track calculation performance metrics if needed
+            // ✅ IMPLEMENTED: Basic validation and logging
+            // Validate calculated values are reasonable
+            if newInvested.Value < 0m then
+                failwithf "Invalid calculated invested amount: %M. Invested amount cannot be negative." newInvested.Value
+            
+            if abs(unrealizedGainsPercentage) > 10000m then // More than 100x gain/loss seems unreasonable
+                failwithf "Unrealized gains percentage appears unreasonable: %M%%. Please verify market data." unrealizedGainsPercentage
+            
+            // Log successful snapshot creation for monitoring
+            // TODO: Replace with proper logging framework when available
+            let logMessage = sprintf "✅ Financial snapshot created successfully - Currency: %d, Date: %s, Unrealized: %M, Realized: %M" 
+                                currencyId 
+                                (targetDate.Value.ToString("yyyy-MM-dd"))
+                                unrealizedGains.Value 
+                                newRealizedGains.Value
+            System.Diagnostics.Debug.WriteLine(logMessage)
             
             return()
         }

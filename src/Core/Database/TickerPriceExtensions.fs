@@ -56,6 +56,20 @@ type Do() =
                 |> Option.defaultValue 0m
         }
 
+    static member getPriceByDateOrPreviousAndCurrencyId(tickerId: int, currencyId: int, priceDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TickerPriceQuery.getPriceByDateOrPreviousAndCurrencyId
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.PriceDate, priceDate) |> ignore
+            let! fromDatabase = Database.Do.readAll<TickerPrice>(command, Do.read)
+            return fromDatabase 
+                |> List.tryHead 
+                |> Option.map (fun p -> p.Price.Value) 
+                |> Option.defaultValue 0m
+        }
+
     static member getCurrenciesByTickerAndDate(tickerId: int, date: string) =
         task {
             let! command = Database.Do.createCommand()
