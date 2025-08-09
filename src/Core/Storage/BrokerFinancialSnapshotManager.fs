@@ -4,6 +4,7 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open SnapshotManagerUtils
 open BrokerFinancialSnapshotExtensions
+open BrokerMovementExtensions
 
 module internal BrokerFinancialSnapshotManager =
     
@@ -59,21 +60,45 @@ module internal BrokerFinancialSnapshotManager =
         task {
             // Extract previous snapshot values as baseline for cumulative calculations
             // We need these totals to build upon for the new snapshot date
-            // 📋 TODO: Get previous RealizedGains, Invested, Deposited, Withdrawn totals
-            // 📋 TODO: Get previous MovementCounter for increment calculation
-            // 📋 TODO: Validate previous snapshot currency matches current currency
+            let previousRealizedGains = previousSnapshot.RealizedGains
+            let previousInvested = previousSnapshot.Invested
+            let previousDeposited = previousSnapshot.Deposited
+            let previousWithdrawn = previousSnapshot.Withdrawn
+            let previousDividendsReceived = previousSnapshot.DividendsReceived
+            let previousOptionsIncome = previousSnapshot.OptionsIncome
+            let previousOtherIncome = previousSnapshot.OtherIncome
+            let previousCommissions = previousSnapshot.Commissions
+            let previousFees = previousSnapshot.Fees
+            let previousMovementCounter = previousSnapshot.MovementCounter
             
-            // Process each movement type and aggregate the financial impact
-            // Different movement types affect different financial metrics in specific ways
+            // Validate previous snapshot currency matches current currency
+            if previousSnapshot.CurrencyId <> currencyId then
+                failwithf "Previous snapshot currency (%d) does not match current currency (%d)" 
+                    previousSnapshot.CurrencyId currencyId
             
-            // Process broker movements (deposits, withdrawals, fees, interest, conversions)
-            // These affect cash flow metrics like Deposited, Withdrawn, Fees, and OtherIncome
-            // 📋 TODO: Deposits - Add to Deposited total and cash available
-            // 📋 TODO: Withdrawals - Add to Withdrawn total and reduce cash available  
-            // 📋 TODO: Fees - Add to Fees total and reduce cash available
-            // 📋 TODO: Interest Gained - Add to OtherIncome and increase cash available
-            // 📋 TODO: Interest Paid - Add to Fees (or separate category) and reduce cash available
-            // 📋 TODO: Currency Conversions - Complex multi-currency impact (handle in edge cases)
+            // Process broker movements using the new extension methods
+            // These calculations provide clean, reusable financial aggregations
+            let brokerMovementSummary = 
+                currencyMovements.BrokerMovements
+                |> FinancialCalculations.calculateFinancialSummary
+            
+            // Extract calculated values from broker movements
+            let currentDeposited = brokerMovementSummary.TotalDeposited
+            let currentWithdrawn = brokerMovementSummary.TotalWithdrawn
+            let currentFees = brokerMovementSummary.TotalFees
+            let currentCommissions = brokerMovementSummary.TotalCommissions
+            let currentOtherIncome = brokerMovementSummary.TotalOtherIncome
+            let currentInterestPaid = brokerMovementSummary.TotalInterestPaid
+            let brokerMovementCount = brokerMovementSummary.MovementCount
+            
+            // Calculate currency conversion impact for this specific currency
+            // This accounts for money gained (positive) or lost (negative) through conversions
+            // Example: Converting $1000 USD to €900 EUR:
+            // - USD currency: conversionImpact = -$1000 (money lost)
+            // - EUR currency: conversionImpact = +€900 (money gained)
+            let conversionImpact = 
+                currencyMovements.BrokerMovements
+                |> fun movements -> FinancialCalculations.calculateConversionImpact(movements, currencyId)
             
             // Process trade movements for investment tracking and realized gains calculation
             // Trades directly impact invested amounts, commissions, and realized gains when positions are closed
@@ -107,19 +132,33 @@ module internal BrokerFinancialSnapshotManager =
             
             // Calculate cumulative values by combining previous snapshot with current movements
             // Most financial metrics are cumulative and build upon previous totals
-            // 📋 TODO: New Invested = Previous Invested + Current Period Investment
-            // 📋 TODO: New RealizedGains = Previous RealizedGains + Current Period Realized Gains  
-            // 📋 TODO: New Deposited = Previous Deposited + Current Period Deposits
-            // 📋 TODO: New Withdrawn = Previous Withdrawn + Current Period Withdrawals
+            
+            // Apply conversion impact to appropriate categories based on whether money was gained or lost
+            let (adjustedDeposited, adjustedWithdrawn) = 
+                if conversionImpact.Value >= 0m then
+                    // Positive conversion impact: money was gained in this currency (e.g., USD -> EUR conversion)
+                    (currentDeposited.Value + conversionImpact.Value, currentWithdrawn.Value)
+                else
+                    // Negative conversion impact: money was lost from this currency (e.g., EUR -> USD conversion)
+                    (currentDeposited.Value, currentWithdrawn.Value + abs(conversionImpact.Value))
+            
+            let newDeposited = Money.FromAmount (previousDeposited.Value + adjustedDeposited)
+            let newWithdrawn = Money.FromAmount (previousWithdrawn.Value + adjustedWithdrawn)
+            let newCommissions = Money.FromAmount (previousCommissions.Value + currentCommissions.Value)
+            let newFees = Money.FromAmount (previousFees.Value + currentFees.Value)
+            let newOtherIncome = Money.FromAmount (previousOtherIncome.Value + currentOtherIncome.Value)
+            
+            // Handle interest paid (typically reduces other income or increases fees)
+            let adjustedOtherIncome = Money.FromAmount (newOtherIncome.Value - currentInterestPaid.Value)
+            
+            // 📋 TODO: New Invested = Previous Invested + Current Period Investment (from trades)
+            // 📋 TODO: New RealizedGains = Previous RealizedGains + Current Period Realized Gains (from trades)
             // 📋 TODO: New DividendsReceived = Previous DividendsReceived + Current Period Dividends
             // 📋 TODO: New OptionsIncome = Previous OptionsIncome + Current Period Options Income
-            // 📋 TODO: New OtherIncome = Previous OtherIncome + Current Period Other Income
-            // 📋 TODO: New Commissions = Previous Commissions + Current Period Commissions
-            // 📋 TODO: New Fees = Previous Fees + Current Period Fees
             
             // Update movement counter to track activity level over time
-            // 📋 TODO: New MovementCounter = Previous MovementCounter + Count of Current Period Movements
-            // 📋 TODO: Or increment by 1 if any movements exist (depends on business logic)
+            let newMovementCounter = previousMovementCounter + brokerMovementCount
+            // Additional movements from trades, dividends, options will be added when those sections are implemented
             
             // Calculate unrealized gains which requires current market prices and position tracking
             // This is more complex as it requires knowing current positions and market values
@@ -156,18 +195,31 @@ module internal BrokerFinancialSnapshotManager =
             
             // Create the final BrokerFinancialSnapshot with all calculated values
             // This snapshot represents the complete financial state for this currency on the target date
-            
-            // Create the snapshot object with all calculated financial metrics
-            // 📋 TODO: Create BrokerFinancialSnapshot with Base = createBaseSnapshot targetDate
-            // 📋 TODO: Set BrokerAccountId, CurrencyId, BrokerAccountSnapshotId correctly
-            // 📋 TODO: Include all calculated financial values (RealizedGains, Invested, etc.)
-            // 📋 TODO: Include calculated percentage values and OpenTrades status
-            // 📋 TODO: Set updated MovementCounter
+            let newSnapshot = {
+                Base = createBaseSnapshot targetDate
+                BrokerId = 0 // Set to 0 for account-level snapshots
+                BrokerAccountId = brokerAccountId
+                CurrencyId = currencyId
+                MovementCounter = newMovementCounter
+                BrokerSnapshotId = 0 // Set to 0 for account-level snapshots
+                BrokerAccountSnapshotId = brokerAccountSnapshotId
+                RealizedGains = previousRealizedGains // 📋 TODO: Update with calculated realized gains from trades
+                RealizedPercentage = 0m // 📋 TODO: Calculate based on RealizedGains / Invested
+                UnrealizedGains = Money.FromAmount 0m // 📋 TODO: Calculate from market prices
+                UnrealizedGainsPercentage = 0m // 📋 TODO: Calculate based on UnrealizedGains / cost basis
+                Invested = previousInvested // 📋 TODO: Update with current period investment from trades
+                Commissions = newCommissions
+                Fees = newFees
+                Deposited = newDeposited
+                Withdrawn = newWithdrawn
+                DividendsReceived = previousDividendsReceived // 📋 TODO: Update with current dividends
+                OptionsIncome = previousOptionsIncome // 📋 TODO: Update with current options income
+                OtherIncome = adjustedOtherIncome
+                OpenTrades = false // 📋 TODO: Determine from current positions
+            }
             
             // Save the snapshot to database with proper error handling
-            // 📋 TODO: Save the new snapshot to database using snapshot.save()
-            // 📋 TODO: Handle database errors gracefully
-            // 📋 TODO: Consider transaction wrapping for data integrity
+            do! newSnapshot.save()
             
             // Validate and log the snapshot creation for monitoring
             // 📋 TODO: Validate calculated values are reasonable (no negative invested amounts, etc.)
