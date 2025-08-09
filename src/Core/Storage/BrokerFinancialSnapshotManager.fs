@@ -185,6 +185,32 @@ module internal BrokerFinancialSnapshotManager =
         }
 
     /// <summary>
+    /// Resets all financial fields of an existing snapshot to zero/default values.
+    /// Used for SCENARIO H: No movements, no previous snapshot, has existing snapshot.
+    /// </summary>
+    let private zeroOutFinancialSnapshot (existing: BrokerFinancialSnapshot) =
+        task {
+            let zeroedSnapshot = {
+                existing with
+                    RealizedGains = Money.FromAmount 0m
+                    RealizedPercentage = 0m
+                    UnrealizedGains = Money.FromAmount 0m
+                    UnrealizedGainsPercentage = 0m
+                    Invested = Money.FromAmount 0m
+                    Commissions = Money.FromAmount 0m
+                    Fees = Money.FromAmount 0m
+                    Deposited = Money.FromAmount 0m
+                    Withdrawn = Money.FromAmount 0m
+                    DividendsReceived = Money.FromAmount 0m
+                    OptionsIncome = Money.FromAmount 0m
+                    OtherIncome = Money.FromAmount 0m
+                    OpenTrades = false
+                    MovementCounter = 0
+            }
+            do! zeroedSnapshot.save()
+        }
+
+    /// <summary>
     /// Implements SCENARIO E: Carries forward the previous financial snapshot to a new date when no movements exist and no existing snapshot is present.
     /// Creates a new snapshot with the same values as the previous snapshot, updating the date and BrokerAccountSnapshotId.
     /// </summary>
@@ -556,8 +582,7 @@ module internal BrokerFinancialSnapshotManager =
                 // SCENARIO H: No movements, no previous snapshot, has existing snapshot  
                 | None, None, Some existing ->
                     // Existing snapshot should be validated or cleaned up
-                    // TODO: Implement validation and cleanup logic
-                    ()
+                    do! zeroOutFinancialSnapshot existing
         }
 
     /// <summary>
@@ -669,4 +694,4 @@ module internal BrokerFinancialSnapshotManager =
         task {
             //TODO
             return()
-        }
+        }       
