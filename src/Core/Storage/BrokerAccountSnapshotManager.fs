@@ -1,6 +1,7 @@
 namespace Binnaculum.Core.Storage
 
 open System
+open System.Threading.Tasks
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
@@ -40,6 +41,26 @@ module internal BrokerAccountSnapshotManager =
                 failwithf "Failed to create default snapshot for broker account %d on date %A" brokerAccountId snapshotDate
                 return { Base = createBaseSnapshot snapshotDate; BrokerAccountId = brokerAccountId }
     }  
+    
+    /// <summary>
+    /// Creates missing snapshots for the specified dates.
+    /// This ensures data continuity for cascade updates by filling gaps in the snapshot history.
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID</param>
+    /// <param name="missingDates">Set of dates that need snapshots created</param>
+    /// <returns>List of newly created snapshots</returns>
+    let private createAndGetMissingSnapshots(brokerAccountId: int, missingDates: Set<DateTimePattern>) = task {
+        let mutable createdSnapshots = []
+
+        // Sort dates to minimize jumps in time (improves cascade update efficiency)
+        let sortedMissingDates = missingDates |> Set.toList |> List.sortBy (fun d -> d.Value)
+        
+        for date in sortedMissingDates do
+            let! snapshot = getOrCreateSnapshot(brokerAccountId, date)
+            createdSnapshots <- snapshot :: createdSnapshots
+        
+        return createdSnapshots
+    }
     
     let private getAllMovementsFromDate(brokerAccountId, snapshotDate) =
         task {
@@ -116,9 +137,9 @@ module internal BrokerAccountSnapshotManager =
                 do! BrokerFinancialSnapshotManager.brokerAccountOneDayUpdate snapshot
             | true, _, false ->
                 // Future movements exist with missing snapshots - create missing snapshots then cascade
-                //let! missedSnapshots = createAndGetMissingSnapshots(brokerAccountId, missingSnapshotDates)
-                //do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot (futureSnapshots @ missedSnapshots) allMovementsFromDate
-                printfn "TODO: Implement cascade update with missing snapshots for account %d" brokerAccountId
+                let! missedSnapshots = createAndGetMissingSnapshots(brokerAccountId, missingSnapshotDates)
+                let allSnapshots = futureSnapshots @ missedSnapshots |> List.sortBy (fun s -> s.Base.Date.Value)
+                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot allSnapshots
             | true, false, true ->
                 // Future movements exist, all snapshots present - standard cascade
                 do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot futureSnapshots
@@ -491,4 +512,3 @@ All strategies maintain compatibility with existing ReactiveUI architecture:
 The performance optimizations are additive and can be implemented incrementally
 without disrupting the current working system.
 *)        
-        }
