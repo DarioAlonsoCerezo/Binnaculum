@@ -391,6 +391,102 @@ module internal BrokerFinancialSnapshotManager =
         }
 
     /// <summary>
+    /// Updates an existing financial snapshot directly with new movements without a previous snapshot baseline.
+    /// This is used for SCENARIO D: when new movements exist for a currency with an existing snapshot,
+    /// but no previous snapshot is found. The existing snapshot itself serves as the baseline.
+    /// This edge case may occur during data reprocessing, corrections, or when historical data is incomplete.
+    /// </summary>
+    /// <param name="targetDate">The date for the snapshot to update</param>
+    /// <param name="currencyId">The currency ID for this snapshot</param>
+    /// <param name="brokerAccountId">The broker account ID</param>
+    /// <param name="brokerAccountSnapshotId">The broker account snapshot ID to associate with</param>
+    /// <param name="currencyMovements">The currency-specific movements for calculations</param>
+    /// <param name="existingSnapshot">The existing snapshot to update directly</param>
+    /// <returns>Task that completes when the snapshot is updated and saved</returns>
+    let private calculateDirectSnapshotUpdate
+        (targetDate: DateTimePattern)
+        (currencyId: int)
+        (brokerAccountId: int)
+        (brokerAccountSnapshotId: int)
+        (currencyMovements: CurrencyMovementData)
+        (existingSnapshot: BrokerFinancialSnapshot)
+        =
+        task {
+            // =================================================================
+            // VALIDATION AND CONSISTENCY CHECKS
+            // =================================================================
+            
+            // Validate currency consistency
+            if existingSnapshot.CurrencyId <> currencyId then
+                failwithf "Existing snapshot currency (%d) does not match current currency (%d)" 
+                    existingSnapshot.CurrencyId currencyId
+            
+            // Validate broker account consistency
+            if existingSnapshot.BrokerAccountId <> brokerAccountId then
+                failwithf "Existing snapshot broker account (%d) does not match expected account (%d)"
+                    existingSnapshot.BrokerAccountId brokerAccountId
+            
+            // Validate date consistency
+            if existingSnapshot.Base.Date <> targetDate then
+                failwithf "Existing snapshot date (%A) does not match target date (%A)"
+                    existingSnapshot.Base.Date.Value targetDate.Value
+            
+            // =================================================================
+            // CALCULATE NEW MOVEMENTS AND UPDATE EXISTING SNAPSHOT
+            // =================================================================
+            
+            // Calculate financial metrics from new movements
+            let calculatedMetrics = calculateFinancialMetricsFromMovements currencyMovements currencyId
+            
+            // Since there's no previous snapshot, we add the new movement metrics directly to the existing snapshot
+            // The existing snapshot serves as the baseline (which represents the state before these new movements)
+            let newDeposited = Money.FromAmount (existingSnapshot.Deposited.Value + calculatedMetrics.Deposited.Value)
+            let newWithdrawn = Money.FromAmount (existingSnapshot.Withdrawn.Value + calculatedMetrics.Withdrawn.Value)
+            let newInvested = Money.FromAmount (existingSnapshot.Invested.Value + calculatedMetrics.Invested.Value)
+            let newRealizedGains = Money.FromAmount (existingSnapshot.RealizedGains.Value + calculatedMetrics.RealizedGains.Value)
+            let newDividendsReceived = Money.FromAmount (existingSnapshot.DividendsReceived.Value + calculatedMetrics.DividendsReceived.Value)
+            let newOptionsIncome = Money.FromAmount (existingSnapshot.OptionsIncome.Value + calculatedMetrics.OptionsIncome.Value)
+            let newOtherIncome = Money.FromAmount (existingSnapshot.OtherIncome.Value + calculatedMetrics.OtherIncome.Value)
+            let newCommissions = Money.FromAmount (existingSnapshot.Commissions.Value + calculatedMetrics.Commissions.Value)
+            let newFees = Money.FromAmount (existingSnapshot.Fees.Value + calculatedMetrics.Fees.Value)
+            let newMovementCounter = existingSnapshot.MovementCounter + calculatedMetrics.MovementCounter
+            
+            // Calculate unrealized gains from current positions (including both existing and new positions)
+            let! (unrealizedGains, unrealizedGainsPercentage) = 
+                calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
+            
+            // Calculate realized percentage return
+            let realizedPercentage = 
+                if newInvested.Value > 0m then
+                    (newRealizedGains.Value / newInvested.Value) * 100m
+                else 
+                    0m
+            
+            // Update the existing snapshot with the combined values
+            // Keep the original ID and audit information to maintain data integrity
+            let updatedSnapshot = {
+                existingSnapshot with
+                    MovementCounter = newMovementCounter
+                    RealizedGains = newRealizedGains
+                    RealizedPercentage = realizedPercentage
+                    UnrealizedGains = unrealizedGains
+                    UnrealizedGainsPercentage = unrealizedGainsPercentage
+                    Invested = newInvested
+                    Commissions = newCommissions
+                    Fees = newFees
+                    Deposited = newDeposited
+                    Withdrawn = newWithdrawn
+                    DividendsReceived = newDividendsReceived
+                    OptionsIncome = newOptionsIncome
+                    OtherIncome = newOtherIncome
+                    OpenTrades = calculatedMetrics.HasOpenPositions
+            }
+            
+            // Save the updated snapshot to database
+            do! updatedSnapshot.save()
+        }
+
+    /// <summary>
     /// Creates an initial financial snapshot from movement data without requiring previous snapshots.
     /// This is used for SCENARIO B: when first movements occur in a new currency with no history.
     /// All financial metrics are calculated solely from the provided movement data.
@@ -643,38 +739,12 @@ module internal BrokerFinancialSnapshotManager =
 
                 // SCENARIO D: New movements, no previous snapshot, has existing snapshot
                 | Some movements, None, Some existing ->
-                    // Update existing snapshot with new movements (rare edge case)
-                    // 📋 TODO: Implement update logic using movements and existing snapshot
-                    // Scenario D is an edge case where new movements are available for a currency
-                    // that already has an existing snapshot, but no previous snapshot is found.
-                    //
-                    // This may occur in situations where movements are reprocessed or adjusted
-                    // without a corresponding update to the previous snapshot.
-                    //
-                    // Steps to implement:
-                    // - Retrieve the existing snapshot for the currency and the new movements data.
-                    // - Update the existing snapshot's metrics (e.g., Deposited, Withdrawn) based on
-                    //   the new movements.
-                    // - Since there's no previous snapshot to compare against, ensure that all metric
-                    //   updates are based solely on the new movement data.
-                    // - Save the updated snapshot to the database.
-                    //
-                    // This scenario is relatively simple as it mainly involves updating the existing
-                    // snapshot with the new data without the need for complex calculations or merges.
-                    //
-                    // Expected Outcome:
-                    // - The existing financial snapshot is updated with the new movement data,
-                    //   accurately reflecting the latest broker account state.
-                    //
-                    // This ensures that the financial information is current, although the absence of
-                    // a previous snapshot may limit some historical calculations.
-                    // TODO: Implement logic for updating existing snapshot with new movements only
-                    ()
+                    do! calculateDirectSnapshotUpdate targetDate currencyId brokerAccountId brokerAccountSnapshot.Base.Id movements existing
                 
                 // SCENARIO E: No movements, has previous snapshot, no existing snapshot
                 | None, Some previous, None ->
                     // Carry forward previous snapshot values (no activity day)
-                    // Create snapshot with same values as previous day but new date
+                    // Create snapshot with same values as previous but new date
                     // 📋 TODO: Implement carry-forward logic from previous snapshot
                     // Scenario E handles passive days where no new movements occur, but a snapshot
                     // for the previous day exists.
@@ -687,9 +757,6 @@ module internal BrokerFinancialSnapshotManager =
                     // - Create a new snapshot using the same values as the previous snapshot, with
                     //   the exception of the date, which should be updated to the target date.
                     // - Save the new snapshot to the database.
-                    //
-                    // This scenario is straightforward as it primarily involves duplicating the
-                    // previous snapshot with a new date.
                     //
                     // Expected Outcome:
                     // - A new financial snapshot is created with the same values as the previous snapshot,
