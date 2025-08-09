@@ -126,3 +126,289 @@ type Do() =
         let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
         return optionTrades
     }
+
+/// <summary>
+/// Financial calculation extension methods for OptionTrade collections.
+/// These methods provide reusable calculation logic for options trading income, costs, and realized gains.
+/// </summary>
+[<Extension>]
+type OptionTradeCalculations() =
+
+    /// <summary>
+    /// Calculates total options income from selling options (SellToOpen, SellToClose).
+    /// This represents premium received when selling options to open or close positions.
+    /// Income is calculated as net premium received after commissions and fees.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <returns>Total options income as Money</returns>
+    [<Extension>]
+    static member calculateOptionsIncome(optionTrades: OptionTrade list) =
+        optionTrades
+        |> List.filter (fun trade -> trade.Code = OptionCode.SellToOpen || trade.Code = OptionCode.SellToClose)
+        |> List.sumBy (fun trade -> 
+            // For sells, NetPremium is already calculated as positive income
+            // NetPremium = (Premium * Multiplier * Quantity) - Commissions - Fees
+            trade.NetPremium.Value)
+        |> Money.FromAmount
+
+    /// <summary>
+    /// Calculates total options investment/costs from buying options (BuyToOpen, BuyToClose).
+    /// This represents premium paid when buying options to open or close positions.
+    /// Cost is calculated as net premium paid including commissions and fees.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <returns>Total options investment as Money</returns>
+    [<Extension>]
+    static member calculateOptionsInvestment(optionTrades: OptionTrade list) =
+        optionTrades
+        |> List.filter (fun trade -> trade.Code = OptionCode.BuyToOpen || trade.Code = OptionCode.BuyToClose)
+        |> List.sumBy (fun trade -> 
+            // For buys, NetPremium includes the cost with commissions and fees
+            // We want the absolute value as this represents money spent
+            abs(trade.NetPremium.Value))
+        |> Money.FromAmount
+
+    /// <summary>
+    /// Calculates the total commission costs from all option trades.
+    /// Sums commission amounts from all option trade types.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <returns>Total commissions as Money</returns>
+    [<Extension>]
+    static member calculateTotalCommissions(optionTrades: OptionTrade list) =
+        optionTrades
+        |> List.sumBy (fun trade -> trade.Commissions.Value)
+        |> Money.FromAmount
+
+    /// <summary>
+    /// Calculates the total fee costs from all option trades.
+    /// Sums fee amounts from all option trade types.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <returns>Total fees as Money</returns>
+    [<Extension>]
+    static member calculateTotalFees(optionTrades: OptionTrade list) =
+        optionTrades
+        |> List.sumBy (fun trade -> trade.Fees.Value)
+        |> Money.FromAmount
+
+    /// <summary>
+    /// Calculates realized gains from closed option positions using FIFO matching.
+    /// Matches closing trades (BuyToClose, SellToClose) with corresponding opening trades.
+    /// Realized gains = Net Premium received from selling - Net Premium paid for buying.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze (should be sorted by timestamp)</param>
+    /// <returns>Total realized gains as Money (can be negative for losses)</returns>
+    [<Extension>]
+    static member calculateRealizedGains(optionTrades: OptionTrade list) =
+        // Group option trades by ticker and option details for FIFO matching
+        let tradesByOption = 
+            optionTrades
+            |> List.sortBy (fun trade -> trade.TimeStamp.Value)
+            |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
+        
+        let mutable totalRealizedGains = 0m
+        
+        // Process each option type/strike/expiration combination separately for FIFO calculation
+        for ((tickerId, optionType, strike, expiration), optionTrades) in tradesByOption do
+            let mutable openPositions = []  // Queue of open positions (FIFO)
+            let mutable realizedGains = 0m
+            
+            for trade in optionTrades do
+                match trade.Code with
+                | OptionCode.SellToOpen | OptionCode.BuyToOpen ->
+                    // Opening position - add to queue
+                    let openPosition = {| 
+                        Code = trade.Code
+                        NetPremium = trade.NetPremium.Value
+                        Quantity = 1  // Options are typically 1 contract per trade
+                        TradeId = trade.Id
+                    |}
+                    openPositions <- openPositions @ [openPosition]
+                
+                | OptionCode.SellToClose | OptionCode.BuyToClose ->
+                    // Closing position - match against open positions using FIFO
+                    let mutable remainingToClose = 1  // Typically 1 contract per option trade
+                    let mutable updatedOpenPositions = openPositions
+                    
+                    while remainingToClose > 0 && not updatedOpenPositions.IsEmpty do
+                        let oldestOpen = updatedOpenPositions.Head
+                        
+                        // Calculate realized gain for this matched pair
+                        let gain = 
+                            match oldestOpen.Code, trade.Code with
+                            // Sold to open, now buying to close: gain = premium received - premium paid
+                            | OptionCode.SellToOpen, OptionCode.BuyToClose -> 
+                                oldestOpen.NetPremium - abs(trade.NetPremium.Value)
+                            // Bought to open, now selling to close: gain = premium received - premium paid
+                            | OptionCode.BuyToOpen, OptionCode.SellToClose -> 
+                                trade.NetPremium.Value - abs(oldestOpen.NetPremium)
+                            // Other combinations should not occur in normal trading
+                            | _ -> 0m
+                        
+                        realizedGains <- realizedGains + gain
+                        remainingToClose <- remainingToClose - 1
+                        
+                        // Remove the matched position from queue
+                        updatedOpenPositions <- updatedOpenPositions.Tail
+                    
+                    openPositions <- updatedOpenPositions
+                
+                // Handle expired, assigned, and cash settled options
+                | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned ->
+                    // These typically close existing positions with specific P&L rules
+                    // For expired options, the premium received/paid becomes the realized gain/loss
+                    if not openPositions.IsEmpty then
+                        let expiredPosition = openPositions.Head
+                        let gain = 
+                            match expiredPosition.Code with
+                            | OptionCode.SellToOpen -> expiredPosition.NetPremium  // Keep premium received
+                            | OptionCode.BuyToOpen -> -abs(expiredPosition.NetPremium)  // Lose premium paid
+                            | _ -> 0m
+                        
+                        realizedGains <- realizedGains + gain
+                        openPositions <- openPositions.Tail
+            
+            totalRealizedGains <- totalRealizedGains + realizedGains
+        
+        Money.FromAmount totalRealizedGains
+
+    /// <summary>
+    /// Determines if there are any open option positions based on trade history.
+    /// Calculates net position for each option and returns true if any positions remain open.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <returns>True if open option positions exist, false otherwise</returns>
+    [<Extension>]
+    static member hasOpenOptions(optionTrades: OptionTrade list) =
+        optionTrades
+        |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
+        |> List.exists (fun (_, trades) ->
+            let netPosition = 
+                trades
+                |> List.sumBy (fun trade ->
+                    match trade.Code with
+                    | OptionCode.SellToOpen -> -1  // Short position
+                    | OptionCode.BuyToOpen -> 1    // Long position
+                    | OptionCode.SellToClose -> 1   // Closing short
+                    | OptionCode.BuyToClose -> -1   // Closing long
+                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned -> 0
+                )
+            netPosition <> 0)
+
+    /// <summary>
+    /// Calculates current open option positions by option details.
+    /// Returns a map of option identifier to net position (positive = long, negative = short).
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <returns>Map of (tickerId, optionType, strike, expiration) to net position</returns>
+    [<Extension>]
+    static member calculateOpenPositions(optionTrades: OptionTrade list) =
+        optionTrades
+        |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
+        |> List.choose (fun (key, trades) ->
+            let netPosition = 
+                trades
+                |> List.sumBy (fun trade ->
+                    match trade.Code with
+                    | OptionCode.SellToOpen -> -1  // Short position
+                    | OptionCode.BuyToOpen -> 1    // Long position  
+                    | OptionCode.SellToClose -> 1   // Closing short
+                    | OptionCode.BuyToClose -> -1   // Closing long
+                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned -> 0
+                )
+            if netPosition <> 0 then Some (key, netPosition) else None)
+        |> Map.ofList
+
+    /// <summary>
+    /// Calculates net options income considering both premiums received and premiums paid.
+    /// Net Income = Total Premiums Received (from sells) - Total Premiums Paid (from buys)
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <returns>Net options income as Money (can be negative if more was paid than received)</returns>
+    [<Extension>]
+    static member calculateNetOptionsIncome(optionTrades: OptionTrade list) =
+        let totalIncome = optionTrades.calculateOptionsIncome().Value
+        let totalInvestment = optionTrades.calculateOptionsInvestment().Value
+        Money.FromAmount (totalIncome - totalInvestment)
+
+    /// <summary>
+    /// Counts the total number of option trades.
+    /// This can be used for MovementCounter calculations in financial snapshots.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to count</param>
+    /// <returns>Total number of option trades as integer</returns>
+    [<Extension>]
+    static member calculateTradeCount(optionTrades: OptionTrade list) =
+        optionTrades.Length
+
+    /// <summary>
+    /// Filters option trades by currency ID.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to filter</param>
+    /// <param name="currencyId">The currency ID to filter by</param>
+    /// <returns>Filtered list of option trades for the specified currency</returns>
+    [<Extension>]
+    static member filterByCurrency(optionTrades: OptionTrade list, currencyId: int) =
+        optionTrades
+        |> List.filter (fun trade -> trade.CurrencyId = currencyId)
+
+    /// <summary>
+    /// Filters option trades by ticker ID.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to filter</param>
+    /// <param name="tickerId">The ticker ID to filter by</param>
+    /// <returns>Filtered list of option trades for the specified ticker</returns>
+    [<Extension>]
+    static member filterByTicker(optionTrades: OptionTrade list, tickerId: int) =
+        optionTrades
+        |> List.filter (fun trade -> trade.TickerId = tickerId)
+
+    /// <summary>
+    /// Filters option trades by option codes.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to filter</param>
+    /// <param name="optionCodes">List of option codes to include</param>
+    /// <returns>Filtered list of option trades</returns>
+    [<Extension>]
+    static member filterByOptionCodes(optionTrades: OptionTrade list, optionCodes: OptionCode list) =
+        optionTrades
+        |> List.filter (fun trade -> optionCodes |> List.contains trade.Code)
+
+    /// <summary>
+    /// Gets all unique currency IDs involved in option trading.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <returns>Set of unique currency IDs</returns>
+    [<Extension>]
+    static member getUniqueCurrencyIds(optionTrades: OptionTrade list) =
+        optionTrades 
+        |> List.map (fun trade -> trade.CurrencyId)
+        |> Set.ofList
+
+    /// <summary>
+    /// Calculates a comprehensive options trading summary.
+    /// Returns a record with all major options trading metrics calculated.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <param name="currencyId">Optional currency ID to filter calculations by</param>
+    /// <returns>Options trading summary record with calculated totals</returns>
+    [<Extension>]
+    static member calculateOptionsSummary(optionTrades: OptionTrade list, ?currencyId: int) =
+        let relevantTrades = 
+            match currencyId with
+            | Some id -> optionTrades.filterByCurrency(id)
+            | None -> optionTrades
+        
+        {|
+            OptionsIncome = relevantTrades.calculateOptionsIncome()
+            OptionsInvestment = relevantTrades.calculateOptionsInvestment()
+            NetOptionsIncome = relevantTrades.calculateNetOptionsIncome()
+            TotalCommissions = relevantTrades.calculateTotalCommissions()
+            TotalFees = relevantTrades.calculateTotalFees()
+            RealizedGains = relevantTrades.calculateRealizedGains()
+            HasOpenOptions = relevantTrades.hasOpenOptions()
+            OpenPositions = relevantTrades.calculateOpenPositions()
+            TradeCount = relevantTrades.calculateTradeCount()
+            UniqueCurrencies = relevantTrades.getUniqueCurrencyIds()
+        |}

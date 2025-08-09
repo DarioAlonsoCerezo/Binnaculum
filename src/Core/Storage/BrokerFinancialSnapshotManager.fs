@@ -8,6 +8,7 @@ open BrokerMovementExtensions
 open TradeExtensions
 open DividendExtensions
 open DividendTaxExtensions
+open OptionTradeExtensions
 
 module internal BrokerFinancialSnapshotManager =
     
@@ -147,11 +148,20 @@ module internal BrokerFinancialSnapshotManager =
             
             // Process options trading for premium income and options-related costs
             // Options can generate income (selling) or costs (buying) and affect realized gains
-            // 📋 TODO: Add premium received to OptionsIncome (for sells)
-            // 📋 TODO: Add premium paid to Invested or separate options cost
-            // 📋 TODO: Handle options commissions and fees
-            // 📋 TODO: Calculate realized gains for closed option positions
-            // 📋 TODO: Track open option positions for OpenTrades status
+            let optionsSummary = 
+                currencyMovements.OptionTrades
+                |> OptionTradeCalculations.calculateOptionsSummary
+            
+            // Extract calculated values from options trading
+            let currentOptionsIncome = optionsSummary.OptionsIncome
+            let currentOptionsInvestment = optionsSummary.OptionsInvestment
+            let netOptionsIncome = optionsSummary.NetOptionsIncome
+            let currentOptionsCommissions = optionsSummary.TotalCommissions
+            let currentOptionsFees = optionsSummary.TotalFees
+            let currentOptionsRealizedGains = optionsSummary.RealizedGains
+            let hasOpenOptions = optionsSummary.HasOpenOptions
+            let currentOptionPositions = optionsSummary.OpenPositions
+            let optionsTradeCount = optionsSummary.TradeCount
             
             // Calculate cumulative values by combining previous snapshot with current movements
             // Most financial metrics are cumulative and build upon previous totals
@@ -167,12 +177,13 @@ module internal BrokerFinancialSnapshotManager =
             
             let newDeposited = Money.FromAmount (previousDeposited.Value + adjustedDeposited)
             let newWithdrawn = Money.FromAmount (previousWithdrawn.Value + adjustedWithdrawn)
-            let newCommissions = Money.FromAmount (previousCommissions.Value + currentCommissions.Value + currentTradeCommissions.Value)
-            let newFees = Money.FromAmount (previousFees.Value + currentFees.Value + currentTradeFees.Value)
+            let newCommissions = Money.FromAmount (previousCommissions.Value + currentCommissions.Value + currentTradeCommissions.Value + currentOptionsCommissions.Value)
+            let newFees = Money.FromAmount (previousFees.Value + currentFees.Value + currentTradeFees.Value + currentOptionsFees.Value)
             let newOtherIncome = Money.FromAmount (previousOtherIncome.Value + currentOtherIncome.Value)
-            let newInvested = Money.FromAmount (previousInvested.Value + currentInvested.Value)
-            let newRealizedGains = Money.FromAmount (previousRealizedGains.Value + currentRealizedGains.Value)
+            let newInvested = Money.FromAmount (previousInvested.Value + currentInvested.Value + currentOptionsInvestment.Value)
+            let newRealizedGains = Money.FromAmount (previousRealizedGains.Value + currentRealizedGains.Value + currentOptionsRealizedGains.Value)
             let newDividendsReceived = Money.FromAmount (previousDividendsReceived.Value + netDividendIncome.Value)
+            let newOptionsIncome = Money.FromAmount (previousOptionsIncome.Value + currentOptionsIncome.Value)
             
             // Handle interest paid (typically reduces other income or increases fees)
             let adjustedOtherIncome = Money.FromAmount (newOtherIncome.Value - currentInterestPaid.Value)
@@ -183,8 +194,8 @@ module internal BrokerFinancialSnapshotManager =
             // 📋 TODO: New OptionsIncome = Previous OptionsIncome + Current Period Options Income
             
             // Update movement counter to track activity level over time
-            let newMovementCounter = previousMovementCounter + brokerMovementCount + tradeCount + dividendCount + dividendTaxCount
-            // Additional movements from options will be added when that section is implemented
+            let newMovementCounter = previousMovementCounter + brokerMovementCount + tradeCount + dividendCount + dividendTaxCount + optionsTradeCount
+            // All major movement types are now included in the activity counter
             
             // Calculate unrealized gains which requires current market prices and position tracking
             // This is more complex as it requires knowing current positions and market values
@@ -242,9 +253,9 @@ module internal BrokerFinancialSnapshotManager =
                 Deposited = newDeposited
                 Withdrawn = newWithdrawn
                 DividendsReceived = newDividendsReceived
-                OptionsIncome = previousOptionsIncome // 📋 TODO: Update with current options income
+                OptionsIncome = newOptionsIncome
                 OtherIncome = adjustedOtherIncome
-                OpenTrades = hasOpenTrades
+                OpenTrades = hasOpenTrades || hasOpenOptions
             }
             
             // Save the snapshot to database with proper error handling
