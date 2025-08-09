@@ -249,10 +249,42 @@ module internal BrokerFinancialSnapshotManager =
     /// <summary>
     /// Validates and updates broker account snapshots for a given day, processing all necessary currency movements.
     /// This handles both new movements and adjustments to existing snapshots for accuracy.
+    /// 
+    /// All 8 scenarios are fully implemented and operational:
+    /// 
+    /// ✅ SCENARIO A: New movements, has previous snapshot, no existing snapshot
+    ///    - Creates a new cumulative snapshot based on previous data + new movements
+    ///    - Handled by calculateNewFinancialSnapshot
+    /// 
+    /// ✅ SCENARIO B: New movements, no previous snapshot, no existing snapshot
+    ///    - Creates initial financial snapshot from just movement data
+    ///    - Handled by calculateInitialFinancialSnapshot
+    /// 
+    /// ✅ SCENARIO C: New movements, has previous snapshot, has existing snapshot
+    ///    - Updates existing snapshot with both previous data and new movements
+    ///    - Handled by BrokerFinancialUpdateExisting.update
+    /// 
+    /// ✅ SCENARIO D: New movements, no previous snapshot, has existing snapshot
+    ///    - Updates existing snapshot with new movements only (existing as baseline)
+    ///    - Handled by calculateDirectSnapshotUpdate
+    /// 
+    /// ✅ SCENARIO E: No movements, has previous snapshot, no existing snapshot
+    ///    - Carries forward previous snapshot values to the new date
+    ///    - Handled by carryForwardPreviousSnapshot
+    /// 
+    /// ✅ SCENARIO F: No movements, no previous snapshot, no existing snapshot
+    ///    - No action needed - no history and no activity for this currency
+    /// 
+    /// ✅ SCENARIO G: No movements, has previous snapshot, has existing snapshot
+    ///    - Validates and corrects any discrepancies between snapshots
+    ///    - Handled by validateAndCorrectSnapshotConsistency
+    /// 
+    /// ✅ SCENARIO H: No movements, no previous snapshot, has existing snapshot
+    ///    - Resets existing snapshot to zero/default values
+    ///    - Handled by zeroOutFinancialSnapshot
     /// </summary>
     /// <param name="brokerAccountSnapshot">The broker account snapshot for the target date</param>
     /// <param name="movementData">The movement data for updating snapshots</param>
-    /// <param name="previousSnapshot">The optional previous snapshot for baseline calculations</param>
     /// <returns>Task that completes when the update is finished</returns>
     let brokerAccountOneDayUpdate
         (brokerAccountSnapshot: BrokerAccountSnapshot)
@@ -303,12 +335,12 @@ module internal BrokerFinancialSnapshotManager =
             let allRelevantCurrencies = 
                 Set.union currenciesWithMovements currenciesWithPreviousSnapshots
             
-            // Note: Financial snapshots are created within the scenario processing loop
+            // Financial snapshots are created within the scenario processing loop
             // unlike BrokerAccountSnapshotManager where account snapshots need pre-creation
             // Each scenario handles its own financial snapshot creation as needed
             // Existing snapshots are detected per-currency using List.tryFind during processing
             
-            // ✅ Process each currency that needs attention (framework implemented)
+            // Process each currency that needs attention
             for currencyId in allRelevantCurrencies do
                 
                 // 4.1. ✅ Get movement data for this specific currency
@@ -325,7 +357,7 @@ module internal BrokerFinancialSnapshotManager =
                     existingFinancialSnapshots 
                     |> List.tryFind (fun snap -> snap.CurrencyId = currencyId)
                 
-                // 4.4. ✅ SCENARIO DECISION TREE (framework implemented, calculations implemented)
+                // 4.4. ✅ SCENARIO DECISION TREE - All scenarios implemented
                 match currencyMovementData, previousSnapshot, existingSnapshot with
                 
                 // SCENARIO A: New movements, has previous snapshot, no existing snapshot
@@ -350,8 +382,7 @@ module internal BrokerFinancialSnapshotManager =
                 
                 // SCENARIO F: No movements, no previous snapshot, no existing snapshot
                 | None, None, None ->
-                    // ✅ No action needed - this currency has no history and no activity
-                    // Skip processing for this currency
+                    // No action needed - this currency has no history and no activity
                     ()                
                 // SCENARIO G: No movements, has previous snapshot, has existing snapshot
                 | None, Some previous, Some existing ->
@@ -401,6 +432,14 @@ module internal BrokerFinancialSnapshotManager =
                     brokerAccountSnapshot.Base.Id // Use the snapshot's own ID as BrokerAccountSnapshotId
         }
     
+    /// <summary>
+    /// Handles cascade updates across multiple broker account snapshots when movements affect a date range.
+    /// This function processes the ripple effects of financial changes across a sequence of snapshots.
+    /// </summary>
+    /// <param name="currentBrokerAccountSnapshot">The current snapshot that triggered the cascade</param>
+    /// <param name="snapshotsToUpdate">List of snapshots that need updating as a result of changes</param>
+    /// <param name="movementData">The movement data containing all financial changes</param>
+    /// <returns>Task that completes when all snapshots in the cascade are updated</returns>
     let brokerAccountCascadeUpdate
         (currentBrokerAccountSnapshot: BrokerAccountSnapshot)
         (snapshotsToUpdate: BrokerAccountSnapshot list)
@@ -410,21 +449,76 @@ module internal BrokerFinancialSnapshotManager =
             // Validate input parameters using the reusable validation method
             BrokerFinancialValidator.validateSnapshotAndMovementData currentBrokerAccountSnapshot movementData
             
-            //TODO: Use the movement data for cascade calculations
-            // Now has access to movementData.BrokerMovements, movementData.Trades, etc.
-            // for cascade calculations across multiple snapshots without additional database calls
+            // 🚧 TODO: Implement cascade update logic for multi-snapshot changes
+            // 
+            // Implementation steps:
+            // 
+            // 1️⃣ Sort snapshots chronologically to ensure proper sequential processing
+            //    - Group snapshots by date to handle multiple snapshots on the same day
+            //    - Process in ascending date order (oldest to newest)
+            // 
+            // 2️⃣ For each date with snapshots:
+            //    - Retrieve existing financial snapshots for that date
+            //    - Identify currencies affected by the movements
+            //    - Find most recent previous snapshots for each currency
+            // 
+            // 3️⃣ Calculate cumulative effects for each currency:
+            //    - Determine which financial metrics need to be recalculated
+            //    - Apply cascading adjustments based on movement types
+            //    - Account for positions that might have been opened/closed
+            // 
+            // 4️⃣ Update each snapshot using the appropriate scenario from brokerAccountOneDayUpdate:
+            //    - Apply changes cumulatively through the chain of snapshots
+            //    - Preserve history and audit integrity while updating financial values
+            // 
+            // 5️⃣ Handle edge cases:
+            //    - Currencies that appear/disappear throughout the snapshot chain
+            //    - Changes to positions that affect unrealized gains across multiple dates
+            //    - Reconciliation of realized gains when trades span snapshot boundaries
+            
             return()
         }
 
     /// <summary>
-    /// Handles changes to existing broker accounts, updating snapshots using a previous date.
-    /// This function is used for one-day updates where the previous snapshot is used to calculate changes.
+    /// Handles changes to existing broker accounts, updating financial snapshots using a previous snapshot as reference.
+    /// This specialized function handles one-day updates where explicit reference to a previous snapshot is needed.
     /// </summary>
+    /// <param name="brokerAccountSnapshot">The current snapshot to update</param>
+    /// <param name="previousSnapshot">The previous snapshot to use as a baseline</param>
+    /// <returns>Task that completes when the update is finished</returns>
     let brokerAccountOneDayWithPrevious
         (brokerAccountSnapshot: BrokerAccountSnapshot)
         (previousSnapshot: BrokerAccountSnapshot)
         =
         task {
-            //TODO
+            // 🚧 TODO: Implement snapshot update logic using explicit previous snapshot
+            //
+            // Implementation steps:
+            //
+            // 1️⃣ Validate inputs:
+            //    - Ensure current and previous snapshots belong to the same broker account
+            //    - Verify previous snapshot date is before current snapshot date
+            //    - Confirm snapshot continuity (no gaps that would affect calculations)
+            //
+            // 2️⃣ Retrieve necessary financial data:
+            //    - Get all financial snapshots associated with both broker account snapshots
+            //    - Grouped by currency to maintain multi-currency support
+            //    - Match currencies between previous and current snapshots
+            //
+            // 3️⃣ Retrieve movement data:
+            //    - Get all movements that occurred between previous and current snapshot dates
+            //    - Filter movements relevant to this broker account
+            //    - Organize by currency for currency-specific calculations
+            //
+            // 4️⃣ Process each currency:
+            //    - Match previous and current financial snapshots by currency
+            //    - Apply relevant movements to update financial metrics
+            //    - Handle position changes and their effect on unrealized gains
+            //
+            // 5️⃣ Handle special cases:
+            //    - New currencies that appear in the current snapshot but not previous
+            //    - Currencies in previous snapshot with no activity in current snapshot
+            //    - Missing or inconsistent data between snapshots
+            
             return()
         }       
