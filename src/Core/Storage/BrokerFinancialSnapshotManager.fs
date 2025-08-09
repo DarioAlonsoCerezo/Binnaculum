@@ -10,7 +10,6 @@ open DividendExtensions
 open DividendTaxExtensions
 open OptionTradeExtensions
 open BrokerFinancialUnrealizedGains
-open BrokerFinancialValidator
 
 module internal BrokerFinancialSnapshotManager =
 
@@ -297,7 +296,7 @@ module internal BrokerFinancialSnapshotManager =
         (existingSnapshot: BrokerFinancialSnapshot)
         =
         task {
-            validateExistingSnapshotConsistency
+            BrokerFinancialValidator.validateExistingSnapshotConsistency
                 existingSnapshot
                 currencyId
                 brokerAccountId
@@ -407,7 +406,7 @@ module internal BrokerFinancialSnapshotManager =
         (previousSnapshot: BrokerFinancialSnapshot)
         =
         task {
-            validatePreviousSnapshotCurrencyConsistency
+            BrokerFinancialValidator.validatePreviousSnapshotCurrencyConsistency
                 previousSnapshot
                 currencyId
             
@@ -449,7 +448,7 @@ module internal BrokerFinancialSnapshotManager =
         =
         task {
             
-            validateFinancialSnapshotsConsistency 
+            BrokerFinancialValidator.validateFinancialSnapshotsConsistency 
                 currencyId 
                 brokerAccountId 
                 targetDate 
@@ -488,7 +487,7 @@ module internal BrokerFinancialSnapshotManager =
             // =================================================================
             
             // 1.1. ✅ Validate input parameters using the reusable validation method
-            validateSnapshotAndMovementData brokerAccountSnapshot movementData
+            BrokerFinancialValidator.validateSnapshotAndMovementData brokerAccountSnapshot movementData
             
             // 1.2. ✅ Extract validated parameters for calculations
             let targetDate = brokerAccountSnapshot.Base.Date
@@ -760,7 +759,7 @@ module internal BrokerFinancialSnapshotManager =
         =
         task {
             // Validate input parameters using the reusable validation method
-            validateSnapshotAndMovementData currentBrokerAccountSnapshot movementData
+            BrokerFinancialValidator.validateSnapshotAndMovementData currentBrokerAccountSnapshot movementData
             
             //TODO: Use the movement data for cascade calculations
             // Now has access to movementData.BrokerMovements, movementData.Trades, etc.
