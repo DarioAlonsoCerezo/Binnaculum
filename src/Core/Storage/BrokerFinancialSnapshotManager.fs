@@ -497,27 +497,12 @@ module internal BrokerFinancialSnapshotManager =
                 | None, Some previous, None ->
                     // Carry forward previous snapshot values (no activity day)
                     // Create snapshot with same values as previous but new date
-                    // 📋 TODO: Implement carry-forward logic from previous snapshot
-                    // Scenario E handles passive days where no new movements occur, but a snapshot
-                    // for the previous day exists.
-                    //
-                    // The goal is to create a new snapshot that mirrors the previous day's snapshot,
-                    // effectively "freezing" the portfolio's state for the day without any changes.
-                    //
-                    // Steps to implement:
-                    // - Retrieve the previous snapshot for the currency.
-                    // - Create a new snapshot using the same values as the previous snapshot, with
-                    //   the exception of the date, which should be updated to the target date.
-                    // - Save the new snapshot to the database.
-                    //
-                    // Expected Outcome:
-                    // - A new financial snapshot is created with the same values as the previous snapshot,
-                    //   indicating no changes in the portfolio for the currency.
-                    //
-                    // This is useful for maintaining accurate daily snapshots even when no trading
-                    // activity occurs.
-                    // previous.Base.Date.AddDays(1) |> createBaseSnapshot |> ignore
-                    ()
+                    let carriedSnapshot = {
+                        previous with
+                            Base = createBaseSnapshot targetDate
+                            BrokerAccountSnapshotId = brokerAccountSnapshot.Base.Id
+                    }
+                    do! carriedSnapshot.save()
                 
                 // SCENARIO F: No movements, no previous snapshot, no existing snapshot
                 | None, None, None ->
