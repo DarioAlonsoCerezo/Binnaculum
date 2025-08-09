@@ -134,7 +134,7 @@ module internal BrokerAccountSnapshotManager =
             match allMovementsFromDate.HasMovements, futureSnapshots.IsEmpty, missingSnapshotDates.IsEmpty with
             | false, true, _ -> 
                 // No future activity - simple one-day update
-                do! BrokerFinancialSnapshotManager.brokerAccountOneDayUpdate snapshot
+                do! BrokerFinancialSnapshotManager.brokerAccountOneDayUpdate snapshot allMovementsFromDate
             | true, _, false ->
                 // Future movements exist with missing snapshots - create missing snapshots then cascade
                 let! missedSnapshots = createAndGetMissingSnapshots(brokerAccountId, missingSnapshotDates)
@@ -511,4 +511,4 @@ All strategies maintain compatibility with existing ReactiveUI architecture:
 
 The performance optimizations are additive and can be implemented incrementally
 without disrupting the current working system.
-*)        
+*)

@@ -65,13 +65,16 @@ module internal BrokerFinancialSnapshotManager =
 
     /// <summary>
     /// Handles changes to existing broker accounts, updating snapshots as necessary.
-    /// This function determines whether to perform a one-day update or a full cascade update based on the date.
+    /// This function performs a one-day update using the provided movement data.
     /// </summary>
     let brokerAccountOneDayUpdate
         (brokerAccountSnapshot: BrokerAccountSnapshot)
+        (movementData: BrokerAccountMovementData)
         =
         task {
-            //TODO
+            //TODO: Implement one-day update logic using movementData
+            // Use movementData.BrokerMovements, movementData.Trades, etc.
+            // to calculate snapshot changes without additional database calls
             return()
         }
 
