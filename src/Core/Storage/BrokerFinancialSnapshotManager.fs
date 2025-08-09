@@ -9,7 +9,6 @@ open TradeExtensions
 open DividendExtensions
 open DividendTaxExtensions
 open OptionTradeExtensions
-open BrokerFinancialUnrealizedGains
 
 module internal BrokerFinancialSnapshotManager =
 
@@ -171,7 +170,7 @@ module internal BrokerFinancialSnapshotManager =
             
             // Calculate unrealized gains from current positions
             let! (unrealizedGains, unrealizedGainsPercentage) = 
-                calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
+                BrokerFinancialUnrealizedGains.calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
             
             // Calculate realized percentage return
             let realizedPercentage = 
@@ -241,7 +240,7 @@ module internal BrokerFinancialSnapshotManager =
             
             // Calculate unrealized gains from current positions
             let! (unrealizedGains, unrealizedGainsPercentage) = 
-                calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
+                BrokerFinancialUnrealizedGains.calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
             
             // Calculate realized percentage return
             let realizedPercentage = 
@@ -320,7 +319,7 @@ module internal BrokerFinancialSnapshotManager =
             
             // Calculate unrealized gains from current positions (including both existing and new positions)
             let! (unrealizedGains, unrealizedGainsPercentage) = 
-                calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
+                BrokerFinancialUnrealizedGains.calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
             
             // Calculate realized percentage return
             let realizedPercentage = 
