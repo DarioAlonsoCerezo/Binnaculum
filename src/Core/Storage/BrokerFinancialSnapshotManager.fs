@@ -586,50 +586,6 @@ module internal BrokerFinancialSnapshotManager =
         }
 
     /// <summary>
-    /// Creates a default financial snapshot with zero values for initial setup.
-    /// This is used when creating initial snapshots for brokers and accounts with no activity.
-    /// </summary>
-    /// <param name="snapshotDate">The date for the snapshot</param>
-    /// <param name="brokerId">The broker ID (0 for account-level snapshots)</param>
-    /// <param name="brokerAccountId">The broker account ID (0 for broker-level snapshots)</param>
-    /// <param name="brokerSnapshotId">The broker snapshot ID (0 for account-level snapshots)</param>
-    /// <param name="brokerAccountSnapshotId">The broker account snapshot ID (0 for broker-level snapshots)</param>
-    /// <returns>Task that completes when the default snapshot is saved</returns>
-    let private defaultFinancialSnapshot
-        (snapshotDate: DateTimePattern)
-        (brokerId: int)
-        (brokerAccountId: int)
-        (brokerSnapshotId: int)
-        (brokerAccountSnapshotId: int)
-        =
-        task {
-            let! currencyId = getDefaultCurrency()
-            let snapshot = {
-                Base = createBaseSnapshot snapshotDate
-                BrokerId = brokerId
-                BrokerAccountId = brokerAccountId
-                CurrencyId = currencyId
-                MovementCounter = 0
-                BrokerSnapshotId = brokerSnapshotId
-                BrokerAccountSnapshotId = brokerAccountSnapshotId
-                RealizedGains = Money.FromAmount 0m
-                RealizedPercentage = 0m
-                UnrealizedGains = Money.FromAmount 0m
-                UnrealizedGainsPercentage = 0m
-                Invested = Money.FromAmount 0m
-                Commissions = Money.FromAmount 0m
-                Fees = Money.FromAmount 0m
-                Deposited = Money.FromAmount 0m
-                Withdrawn = Money.FromAmount 0m
-                DividendsReceived = Money.FromAmount 0m
-                OptionsIncome = Money.FromAmount 0m
-                OtherIncome = Money.FromAmount 0m
-                OpenTrades = false
-            }
-            do! snapshot.save()
-        }
-
-    /// <summary>
     /// Sets up the initial financial snapshot for a specific broker.
     /// This is used when a new broker is created or when initializing snapshots for existing brokers.
     /// </summary>
@@ -639,7 +595,7 @@ module internal BrokerFinancialSnapshotManager =
         (brokerSnapshotId: int)
         =
         task {
-            do! defaultFinancialSnapshot 
+            do! BrokerFinancialDefault.create 
                     snapshotDate
                     brokerId
                     0 // BrokerAccountId set to 0 for broker-level snapshots
@@ -660,7 +616,7 @@ module internal BrokerFinancialSnapshotManager =
             // Create initial snapshot with default currency
             // Multi-currency snapshots will be handled during movement processing
             // when brokerAccountOneDayUpdate and brokerAccountCascadeUpdate are implemented
-            do! defaultFinancialSnapshot 
+            do! BrokerFinancialDefault.create  
                     brokerAccountSnapshot.Base.Date
                     0 // BrokerId set to 0 for account-level snapshots
                     brokerAccountSnapshot.BrokerAccountId

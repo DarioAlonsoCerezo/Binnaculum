@@ -90,6 +90,7 @@
 		<Compile Include="Storage\BrokerFinancialUnrealizedGains.fs" />
 		<Compile Include="Storage\BrokerFinancialValidator.fs" />
 		<Compile Include="Storage\BrokerFinancialsMetricsFromMovements.fs" />
+		<Compile Include="Storage\BrokerFinancialDefault.fs" />
 		<Compile Include="Storage\BrokerFinancialSnapshotManager.fs" />
 		<Compile Include="Storage\BrokerSnapshotManager.fs" />
 		<Compile Include="Storage\BrokerAccountSnapshotManager.fs" />
