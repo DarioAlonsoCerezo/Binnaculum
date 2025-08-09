@@ -87,6 +87,8 @@
 		<Compile Include="Storage\TickerSnapshotManager.fs" />
 		<Compile Include="Storage\BankSnapshotManager.fs" />
 		<Compile Include="Storage\BankAccountSnapshotManager.fs" />
+		<Compile Include="Storage\BrokerFinancialUnrealizedGains.fs" />
+		<Compile Include="Storage\BrokerFinancialValidator.fs" />
 		<Compile Include="Storage\BrokerFinancialSnapshotManager.fs" />
 		<Compile Include="Storage\BrokerSnapshotManager.fs" />
 		<Compile Include="Storage\BrokerAccountSnapshotManager.fs" />

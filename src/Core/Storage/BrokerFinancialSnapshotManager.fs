@@ -1,7 +1,6 @@
 ﻿namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.SnapshotsModel
-open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
 open SnapshotManagerUtils
 open BrokerFinancialSnapshotExtensions
@@ -10,124 +9,10 @@ open TradeExtensions
 open DividendExtensions
 open DividendTaxExtensions
 open OptionTradeExtensions
-open TickerPriceExtensions
+open BrokerFinancialUnrealizedGains
+open BrokerFinancialValidator
 
 module internal BrokerFinancialSnapshotManager =
-    
-    /// <summary>
-    /// Represents calculated financial metrics from movement data that can be combined with previous snapshots.
-    /// This record encapsulates all the financial calculations needed to create or update a financial snapshot.
-    /// </summary>
-    type private CalculatedFinancialMetrics = {
-        // Primary financial flows
-        Deposited: Money
-        Withdrawn: Money
-        Invested: Money
-        RealizedGains: Money
-        
-        // Income sources
-        DividendsReceived: Money
-        OptionsIncome: Money
-        OtherIncome: Money
-        
-        // Costs
-        Commissions: Money
-        Fees: Money
-        
-        // Position tracking
-        CurrentPositions: Map<int, decimal>
-        CostBasisInfo: Map<int, decimal>
-        HasOpenPositions: bool
-        
-        // Activity counters
-        MovementCounter: int
-    }
-
-    /// <summary>
-    /// Validates the input parameters for broker account snapshot operations.
-    /// Throws detailed exceptions if any validation fails, does nothing if all validations pass.
-    /// </summary>
-    /// <param name="brokerAccountSnapshot">The broker account snapshot to validate</param>
-    /// <param name="movementData">The movement data to validate</param>
-    let private validateSnapshotAndMovementData
-        (brokerAccountSnapshot: BrokerAccountSnapshot)
-        (movementData: BrokerAccountMovementData)
-        =
-        // Validate brokerAccountSnapshot parameters
-        if brokerAccountSnapshot.Base.Id <= 0 then
-            failwithf "Invalid broker account snapshot ID: %d. ID must be greater than 0." brokerAccountSnapshot.Base.Id
-        
-        if brokerAccountSnapshot.BrokerAccountId <= 0 then
-            failwithf "Invalid broker account ID: %d. Broker account ID must be greater than 0." brokerAccountSnapshot.BrokerAccountId
-        
-        // Validate movementData parameters
-        if movementData.BrokerAccountId <= 0 then
-            failwithf "Invalid movement data broker account ID: %d. Must be greater than 0." movementData.BrokerAccountId
-        
-        if movementData.BrokerAccountId <> brokerAccountSnapshot.BrokerAccountId then
-            failwithf "Movement data broker account ID (%d) does not match snapshot broker account ID (%d)." 
-                movementData.BrokerAccountId brokerAccountSnapshot.BrokerAccountId
-        
-        if movementData.FromDate.Value > brokerAccountSnapshot.Base.Date.Value then
-            failwithf "Movement data FromDate (%A) cannot be later than snapshot date (%A)." 
-                movementData.FromDate.Value brokerAccountSnapshot.Base.Date.Value
-
-    /// <summary>
-    /// Calculates unrealized gains for current positions based on market prices and cost basis.
-    /// This helper function handles the complex logic of matching positions with market data.
-    /// Market prices are retrieved for the target currency to ensure proper currency matching.
-    /// </summary>
-    /// <param name="currentPositions">Map of ticker ID to current position quantity</param>
-    /// <param name="costBasisInfo">Map of ticker ID to average cost basis per share (in the target currency)</param>
-    /// <param name="targetDate">Date to retrieve market prices for</param>
-    /// <param name="targetCurrencyId">Currency ID to ensure price and cost basis alignment</param>
-    /// <returns>Tuple of (UnrealizedGains as Money, UnrealizedGainsPercentage as decimal)</returns>
-    let private calculateUnrealizedGains 
-        (currentPositions: Map<int, decimal>) 
-        (costBasisInfo: Map<int, decimal>) 
-        (targetDate: DateTimePattern) 
-        (targetCurrencyId: int) =
-        task {
-            let mutable totalMarketValue = 0m
-            let mutable totalCostBasis = 0m
-            
-            // Process each ticker with current positions
-            for KeyValue(tickerId, quantity) in currentPositions do
-                // Only process if we have non-zero positions
-                if quantity <> 0m then
-                    // ✅ CURRENCY-SAFE: Get market price for this ticker on the target date in the correct currency
-                    // This ensures that market price and cost basis are in the same currency for accurate comparison
-                    let! marketPrice = TickerPriceExtensions.Do.getPriceByDateOrPreviousAndCurrencyId(tickerId, targetCurrencyId, targetDate.Value.ToString("yyyy-MM-dd"))
-                    
-                    // Get cost basis per share for this ticker (already in target currency from trade calculations)
-                    let costBasisPerShare = costBasisInfo.TryFind(tickerId) |> Option.defaultValue 0m
-                    
-                    // Calculate market value and cost basis for this position
-                    let positionMarketValue = marketPrice * abs(quantity)  // Use abs() to handle both long and short positions
-                    let positionCostBasis = costBasisPerShare * abs(quantity)
-                    
-                    // For short positions, the unrealized gain/loss calculation is inverted
-                    if quantity > 0m then
-                        // Long position: gain when market price > cost basis
-                        totalMarketValue <- totalMarketValue + positionMarketValue
-                        totalCostBasis <- totalCostBasis + positionCostBasis
-                    else
-                        // Short position: gain when market price < cost basis (we sold high, can buy back low)
-                        totalMarketValue <- totalMarketValue - positionMarketValue  // Negative market value for shorts
-                        totalCostBasis <- totalCostBasis - positionCostBasis        // Negative cost basis for shorts
-            
-            // Calculate total unrealized gains: Market Value - Cost Basis
-            let unrealizedGains = totalMarketValue - totalCostBasis
-            
-            // Calculate unrealized gains percentage
-            let unrealizedGainsPercentage = 
-                if totalCostBasis <> 0m then
-                    (unrealizedGains / abs(totalCostBasis)) * 100m  // Use abs() for percentage calculation
-                else 
-                    0m
-            
-            return (Money.FromAmount unrealizedGains, unrealizedGainsPercentage)
-        }
 
     /// <summary>
     /// Calculates financial metrics from currency movement data using the extension methods.
@@ -412,28 +297,11 @@ module internal BrokerFinancialSnapshotManager =
         (existingSnapshot: BrokerFinancialSnapshot)
         =
         task {
-            // =================================================================
-            // VALIDATION AND CONSISTENCY CHECKS
-            // =================================================================
-            
-            // Validate currency consistency
-            if existingSnapshot.CurrencyId <> currencyId then
-                failwithf "Existing snapshot currency (%d) does not match current currency (%d)" 
-                    existingSnapshot.CurrencyId currencyId
-            
-            // Validate broker account consistency
-            if existingSnapshot.BrokerAccountId <> brokerAccountId then
-                failwithf "Existing snapshot broker account (%d) does not match expected account (%d)"
-                    existingSnapshot.BrokerAccountId brokerAccountId
-            
-            // Validate date consistency
-            if existingSnapshot.Base.Date <> targetDate then
-                failwithf "Existing snapshot date (%A) does not match target date (%A)"
-                    existingSnapshot.Base.Date.Value targetDate.Value
-            
-            // =================================================================
-            // CALCULATE NEW MOVEMENTS AND UPDATE EXISTING SNAPSHOT
-            // =================================================================
+            validateExistingSnapshotConsistency
+                existingSnapshot
+                currencyId
+                brokerAccountId
+                targetDate
             
             // Calculate financial metrics from new movements
             let calculatedMetrics = calculateFinancialMetricsFromMovements currencyMovements currencyId
@@ -539,10 +407,9 @@ module internal BrokerFinancialSnapshotManager =
         (previousSnapshot: BrokerFinancialSnapshot)
         =
         task {
-            // Validate previous snapshot currency matches current currency
-            if previousSnapshot.CurrencyId <> currencyId then
-                failwithf "Previous snapshot currency (%d) does not match current currency (%d)" 
-                    previousSnapshot.CurrencyId currencyId
+            validatePreviousSnapshotCurrencyConsistency
+                previousSnapshot
+                currencyId
             
             // Calculate financial metrics from movements
             let calculatedMetrics = calculateFinancialMetricsFromMovements currencyMovements currencyId
@@ -581,37 +448,13 @@ module internal BrokerFinancialSnapshotManager =
         (existingSnapshot: BrokerFinancialSnapshot)
         =
         task {
-            // =================================================================
-            // VALIDATION AND CONSISTENCY CHECKS
-            // =================================================================
             
-            // Validate currency consistency across all snapshots
-            if previousSnapshot.CurrencyId <> currencyId then
-                failwithf "Previous snapshot currency (%d) does not match current currency (%d)" 
-                    previousSnapshot.CurrencyId currencyId
-            
-            if existingSnapshot.CurrencyId <> currencyId then
-                failwithf "Existing snapshot currency (%d) does not match current currency (%d)" 
-                    existingSnapshot.CurrencyId currencyId
-            
-            // Validate broker account consistency
-            if existingSnapshot.BrokerAccountId <> brokerAccountId then
-                failwithf "Existing snapshot broker account (%d) does not match expected account (%d)"
-                    existingSnapshot.BrokerAccountId brokerAccountId
-            
-            // Validate date consistency
-            if existingSnapshot.Base.Date <> targetDate then
-                failwithf "Existing snapshot date (%A) does not match target date (%A)"
-                    existingSnapshot.Base.Date.Value targetDate.Value
-            
-            // Validate chronological order of snapshots
-            if previousSnapshot.Base.Date.Value >= targetDate.Value then
-                failwithf "Previous snapshot date (%A) must be before target date (%A)"
-                    previousSnapshot.Base.Date.Value targetDate.Value
-            
-            // =================================================================
-            // RECALCULATE FINANCIAL METRICS FROM ALL MOVEMENTS
-            // =================================================================
+            validateFinancialSnapshotsConsistency 
+                currencyId 
+                brokerAccountId 
+                targetDate 
+                previousSnapshot 
+                existingSnapshot
             
             // Calculate financial metrics from ALL movements for this date
             // The currencyMovements parameter should contain both existing and new movements

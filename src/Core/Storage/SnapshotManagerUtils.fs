@@ -53,6 +53,35 @@ module internal SnapshotManagerUtils =
     }
 
 /// <summary>
+/// Represents calculated financial metrics from movement data that can be combined with previous snapshots.
+/// This record encapsulates all the financial calculations needed to create or update a financial snapshot.
+/// </summary>
+type internal CalculatedFinancialMetrics = {
+    // Primary financial flows
+    Deposited: Money
+    Withdrawn: Money
+    Invested: Money
+    RealizedGains: Money
+    
+    // Income sources
+    DividendsReceived: Money
+    OptionsIncome: Money
+    OtherIncome: Money
+    
+    // Costs
+    Commissions: Money
+    Fees: Money
+    
+    // Position tracking
+    CurrentPositions: Map<int, decimal>
+    CostBasisInfo: Map<int, decimal>
+    HasOpenPositions: bool
+    
+    // Activity counters
+    MovementCounter: int
+}
+
+/// <summary>
 /// Comprehensive data structure containing all movement types for a broker account from a specific date onwards.
 /// This type is designed to be returned from movement retrieval methods and used throughout snapshot calculations.
 /// Enhanced with multi-currency support for per-currency financial calculations.
