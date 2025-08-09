@@ -289,3 +289,22 @@ module internal BrokerFinancialSnapshotQuery =
             )
         ORDER BY {MovementCounter} DESC
         """
+
+    let getAllByBrokerAccountIdAfterDate =
+        $"""
+        SELECT * FROM {BrokerFinancialSnapshots}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId} AND
+            {Date} > {SQLParameterName.Date}
+        ORDER BY {Date} ASC
+        """
+
+    let getAllByBrokerAccountIdBrokerAccountSnapshotIdAndDate =
+        $"""
+        SELECT * FROM {BrokerFinancialSnapshots}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId} AND
+            {Date} = {SQLParameterName.Date} AND
+            {BrokerAccountSnapshotId} = {SQLParameterName.BrokerAccountSnapshotId}
+        ORDER BY {MovementCounter} DESC
+        """

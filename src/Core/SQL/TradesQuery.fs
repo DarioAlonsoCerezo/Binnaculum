@@ -206,3 +206,12 @@ module internal TradesQuery =
         AND {TimeStamp} >= {SQLParameterName.StartDate}
         AND {TimeStamp} <= {SQLParameterName.EndDate}
         """
+
+    let getByBrokerAccountIdFromDate =
+        $"""
+        SELECT * FROM {Trades}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND {TimeStamp} >= {SQLParameterName.TimeStamp}
+        ORDER BY {TimeStamp}
+        """

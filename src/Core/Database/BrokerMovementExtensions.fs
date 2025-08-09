@@ -61,11 +61,20 @@ type Do() =
 
     static member getById(id: int) = Database.Do.getById Do.read id BrokerMovementQuery.getById
 
-    static member getByBrokerAccountIdAndDateRange(brokerAccountId: int, endDate: DateTimePattern) = task {
+    static member getByBrokerAccountIdUntilDate(brokerAccountId: int, endDate: DateTimePattern) = task {
         let! command = Database.Do.createCommand()
         command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdAndDateRange
         command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
         command.Parameters.AddWithValue(SQLParameterName.DateEnd, endDate.ToString()) |> ignore
+        let! movements = Database.Do.readAll<BrokerMovement>(command, Do.read)
+        return movements
+    }
+
+    static member getByBrokerAccountIdFromDate(brokerAccountId: int, startDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdFromDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString()) |> ignore
         let! movements = Database.Do.readAll<BrokerMovement>(command, Do.read)
         return movements
     }

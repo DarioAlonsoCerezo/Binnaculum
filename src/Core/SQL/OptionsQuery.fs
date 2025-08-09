@@ -181,3 +181,12 @@ module internal OptionsQuery =
         WHERE {TickerId} = {SQLParameterName.TickerId}
         AND DATE({TimeStamp}) = DATE({SQLParameterName.Date})
         """
+
+    let getByBrokerAccountIdFromDate =
+        $"""
+        SELECT * FROM {Options}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND {TimeStamp} >= {SQLParameterName.TimeStamp}
+        ORDER BY {TimeStamp}
+        """

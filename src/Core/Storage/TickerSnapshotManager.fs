@@ -139,13 +139,8 @@ module internal TickerSnapshotManager =
 
         // If no currencies found, use default currency
         if currencies.IsEmpty then
-            let preferenceCurrency = Preferences.Get(CurrencyKey, DefaultCurrency)
-            let! defaultCurrency = CurrencyExtensions.Do.getByCode(preferenceCurrency)
-            match defaultCurrency with
-            | Some currency -> return [currency.Id]
-            | None -> 
-                failwithf "Default currency %s not found and no fallback currency available" preferenceCurrency
-                return [] // This won't be reached but satisfies the compiler
+            let! currency = getDefaultCurrency()
+            return [currency]
         else
             return currencies
     }
@@ -333,15 +328,12 @@ module internal TickerSnapshotManager =
         }
 
     /// Update a ticker snapshot and cascade the changes to all subsequent dates
-    let private updateTickerSnapshotWithCascade (tickerId: int) (date: DateTimePattern) =
+    let private updateTickerSnapshotWithCascade (tickerId: int) (subsequentSnapshots: TickerSnapshot list) (date: DateTimePattern) =
         task {
             // Step 1: Update the target date
             do! updateTickerSnapshot tickerId date
             
-            // Step 2: Get all subsequent ticker snapshots that need to be updated
-            let! subsequentSnapshots = TickerSnapshotExtensions.Do.getTickerSnapshotsAfterDate(tickerId, date)
-            
-            // Step 3: Update each subsequent snapshot in chronological order
+            // Step 2: Update each subsequent snapshot in chronological order
             // Process snapshots sequentially to maintain proper calculation dependencies
             for snapshot in subsequentSnapshots do
                 do! updateTickerSnapshot tickerId snapshot.Base.Date
@@ -401,6 +393,6 @@ module internal TickerSnapshotManager =
                 do! updateTickerSnapshot tickerId date
             else
                 // Future snapshots exist, use cascade update
-                do! updateTickerSnapshotWithCascade tickerId date
+                do! updateTickerSnapshotWithCascade tickerId subsequentSnapshots date
         }
 

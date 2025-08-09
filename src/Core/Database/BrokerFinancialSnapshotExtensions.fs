@@ -167,3 +167,22 @@ type Do() =
         let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
         return snapshots
     }
+
+    static member getAllByBrokerAccountIdAfterDate(brokerAccountId: int, date: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerFinancialSnapshotQuery.getAllByBrokerAccountIdAfterDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.Date, date.ToString()) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
+        return snapshots
+    }
+
+    static member getAllByBrokerAccountIdBrokerAccountSnapshotIdAndDate(brokerAccountId: int, brokerAccountSnapthotId: int, date: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerFinancialSnapshotQuery.getAllByBrokerAccountIdBrokerAccountSnapshotIdAndDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountSnapshotId, brokerAccountSnapthotId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.Date, date.ToString()) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
+        return snapshots
+    }

@@ -7,6 +7,7 @@ open Binnaculum.Core
 open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
+open Binnaculum.Core.Patterns
 
 [<Extension>]
 type Do() =
@@ -93,3 +94,12 @@ type Do() =
             reader.Close()
             return currencies |> List.rev
         }
+
+    static member getByBrokerAccountIdFromDate(brokerAccountId: int, startDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- DividendsQuery.getByBrokerAccountIdFromDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString()) |> ignore
+        let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
+        return dividends
+    }

@@ -9,6 +9,7 @@ open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
 open OptionExtensions
+open Binnaculum.Core.Patterns
 
 [<Extension>]
 type Do() =
@@ -141,3 +142,12 @@ type Do() =
             let! trades = Database.Do.readAll<Trade>(command, Do.read)
             return trades
           }
+
+    static member getByBrokerAccountIdFromDate(brokerAccountId: int, startDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- TradesQuery.getByBrokerAccountIdFromDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString()) |> ignore
+        let! trades = Database.Do.readAll<Trade>(command, Do.read)
+        return trades
+    }
