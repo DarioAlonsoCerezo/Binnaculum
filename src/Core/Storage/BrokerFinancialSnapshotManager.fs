@@ -5,9 +5,7 @@ open Binnaculum.Core.Patterns
 open SnapshotManagerUtils
 open BrokerFinancialSnapshotExtensions
 
-module internal BrokerFinancialSnapshotManager =
-
-    
+module internal BrokerFinancialSnapshotManager =    
 
     /// <summary>
     /// Resets all financial fields of an existing snapshot to zero/default values.
@@ -247,8 +245,6 @@ module internal BrokerFinancialSnapshotManager =
                     calculatedMetrics 
                     (Some previousSnapshot)
         }
-    
-    
 
     /// <summary>
     /// Validates and updates broker account snapshots for a given day, processing all necessary currency movements.
