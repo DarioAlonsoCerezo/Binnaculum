@@ -185,6 +185,24 @@ module internal BrokerFinancialSnapshotManager =
         }
 
     /// <summary>
+    /// Implements SCENARIO E: Carries forward the previous financial snapshot to a new date when no movements exist and no existing snapshot is present.
+    /// Creates a new snapshot with the same values as the previous snapshot, updating the date and BrokerAccountSnapshotId.
+    /// </summary>
+    let private carryForwardPreviousSnapshot
+        (targetDate: DateTimePattern)
+        (brokerAccountSnapshotId: int)
+        (previous: BrokerFinancialSnapshot)
+        =
+        task {
+            let carriedSnapshot = {
+                previous with
+                    Base = createBaseSnapshot targetDate
+                    BrokerAccountSnapshotId = brokerAccountSnapshotId
+            }
+            do! carriedSnapshot.save()
+        }
+
+    /// <summary>
     /// Implements SCENARIO G: Validates and corrects an existing financial snapshot to match a previous snapshot if discrepancies are found.
     /// Used for consistency checks when no movements exist but both previous and existing snapshots are present for a currency and date.
     /// </summary>
@@ -541,21 +559,13 @@ module internal BrokerFinancialSnapshotManager =
                 
                 // SCENARIO E: No movements, has previous snapshot, no existing snapshot
                 | None, Some previous, None ->
-                    // Carry forward previous snapshot values (no activity day)
-                    // Create snapshot with same values as previous but new date
-                    let carriedSnapshot = {
-                        previous with
-                            Base = createBaseSnapshot targetDate
-                            BrokerAccountSnapshotId = brokerAccountSnapshot.Base.Id
-                    }
-                    do! carriedSnapshot.save()
+                    do! carryForwardPreviousSnapshot targetDate brokerAccountSnapshot.Base.Id previous
                 
                 // SCENARIO F: No movements, no previous snapshot, no existing snapshot
                 | None, None, None ->
                     // ✅ No action needed - this currency has no history and no activity
                     // Skip processing for this currency
-                    ()
-                
+                    ()                
                 // SCENARIO G: No movements, has previous snapshot, has existing snapshot
                 | None, Some previous, Some existing ->
                     do! validateAndCorrectSnapshotConsistency previous existing
@@ -564,8 +574,6 @@ module internal BrokerFinancialSnapshotManager =
                     // Existing snapshot should be validated or cleaned up
                     // TODO: Implement validation and cleanup logic
                     ()
-            
-            return()
         }
 
     /// <summary>
