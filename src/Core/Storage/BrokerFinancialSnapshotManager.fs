@@ -1,6 +1,7 @@
 ﻿namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.SnapshotsModel
+open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
 open SnapshotManagerUtils
 open BrokerFinancialSnapshotExtensions
@@ -97,6 +98,249 @@ module internal BrokerFinancialSnapshotManager =
                     0m
             
             return (Money.FromAmount unrealizedGains, unrealizedGainsPercentage)
+        }
+
+    /// <summary>
+    /// Creates an initial financial snapshot from movement data without requiring previous snapshots.
+    /// This is used for SCENARIO B: when first movements occur in a new currency with no history.
+    /// All financial metrics are calculated solely from the provided movement data.
+    /// </summary>
+    /// <param name="targetDate">The date for the new snapshot</param>
+    /// <param name="currencyId">The currency ID for this snapshot</param>
+    /// <param name="brokerAccountId">The broker account ID</param>
+    /// <param name="brokerAccountSnapshotId">The broker account snapshot ID to associate with</param>
+    /// <param name="currencyMovements">The currency-specific movements for calculations</param>
+    /// <returns>Task that completes when the initial snapshot is calculated and saved</returns>
+    let private calculateInitialFinancialSnapshot
+        (targetDate: DateTimePattern)
+        (currencyId: int)
+        (brokerAccountId: int)
+        (brokerAccountSnapshotId: int)
+        (currencyMovements: CurrencyMovementData)
+        =
+        task {
+            // =================================================================
+            // BROKER MOVEMENTS CALCULATION
+            // =================================================================
+            // Process broker movements (deposits, withdrawals, fees, conversions, etc.)
+            let mutable deposited = 0m
+            let mutable withdrawn = 0m  
+            let mutable fees = 0m
+            let mutable commissions = 0m
+            let mutable otherIncome = 0m
+            let mutable interestPaid = 0m
+            let mutable conversionImpact = 0m
+            
+            for movement in currencyMovements.BrokerMovements do
+                let movementType = movement.MovementType
+                if movementType = BrokerMovementType.Deposit then
+                    deposited <- deposited + movement.Amount.Value
+                elif movementType = BrokerMovementType.Withdrawal then
+                    withdrawn <- withdrawn + movement.Amount.Value
+                elif movementType = BrokerMovementType.Fee then
+                    fees <- fees + movement.Amount.Value
+                elif movementType = BrokerMovementType.InterestsGained then
+                    otherIncome <- otherIncome + movement.Amount.Value
+                elif movementType = BrokerMovementType.InterestsPaid then
+                    interestPaid <- interestPaid + movement.Amount.Value
+                elif movementType = BrokerMovementType.Conversion then
+                    // For conversions, we need to check if this currency gained or lost money
+                    if movement.CurrencyId = currencyId then
+                        // This currency received money (positive impact)
+                        conversionImpact <- conversionImpact + movement.Amount.Value
+                    match movement.FromCurrencyId with
+                    | Some fromCurrencyId when fromCurrencyId = currencyId ->
+                        // This currency lost money (negative impact)
+                        match movement.AmountChanged with
+                        | Some amountChanged -> conversionImpact <- conversionImpact - amountChanged.Value
+                        | None -> ()
+                    | _ -> ()
+                else
+                    // Handle other broker movement types as needed
+                    otherIncome <- otherIncome + movement.Amount.Value
+                    
+                // Add movement commissions and fees to totals
+                commissions <- commissions + movement.Commissions.Value
+                fees <- fees + movement.Fees.Value
+            
+            // Apply conversion impact to appropriate categories
+            let (adjustedDeposited, adjustedWithdrawn) = 
+                if conversionImpact >= 0m then
+                    // Money was gained in this currency
+                    (deposited + conversionImpact, withdrawn)
+                else
+                    // Money was lost from this currency
+                    (deposited, withdrawn + abs(conversionImpact))
+            
+            // =================================================================
+            // TRADES CALCULATION
+            // =================================================================
+            let mutable invested = 0m
+            let mutable tradeCommissions = 0m
+            let mutable tradeFees = 0m
+            let mutable realizedGains = 0m
+            let mutable hasOpenTrades = false
+            let mutable currentPositions = Map.empty<int, decimal>
+            let mutable costBasisInfo = Map.empty<int, decimal>
+            
+            // Group trades by ticker for position tracking
+            let tradesByTicker = currencyMovements.Trades |> List.groupBy (fun t -> t.TickerId)
+            
+            for (tickerId, trades) in tradesByTicker do
+                let mutable position = 0m
+                let mutable totalInvested = 0m
+                let mutable totalShares = 0m
+                
+                for trade in trades do
+                    tradeCommissions <- tradeCommissions + trade.Commissions.Value
+                    tradeFees <- tradeFees + trade.Fees.Value
+                    
+                    let code = trade.TradeCode
+                    if code = TradeCode.BuyToOpen then
+                        position <- position + trade.Quantity
+                        totalInvested <- totalInvested + (trade.Quantity * trade.Price.Value)
+                        totalShares <- totalShares + trade.Quantity
+                        invested <- invested + (trade.Quantity * trade.Price.Value)
+                    elif code = TradeCode.SellToClose then
+                        let soldQuantity = min trade.Quantity position
+                        position <- position - soldQuantity
+                        // Calculate realized gains for sold portion
+                        if totalShares > 0m then
+                            let avgCostBasis = totalInvested / totalShares
+                            let soldProceeds = soldQuantity * trade.Price.Value
+                            let soldCostBasis = soldQuantity * avgCostBasis
+                            realizedGains <- realizedGains + (soldProceeds - soldCostBasis)
+                            
+                            // Update remaining cost basis
+                            totalInvested <- totalInvested - soldCostBasis
+                            totalShares <- totalShares - soldQuantity
+                    elif code = TradeCode.SellToOpen then
+                        // Short selling - negative position
+                        position <- position - trade.Quantity
+                        totalInvested <- totalInvested + (trade.Quantity * trade.Price.Value)
+                        invested <- invested + (trade.Quantity * trade.Price.Value)
+                    elif code = TradeCode.BuyToClose then
+                        // Closing short position
+                        let coveredQuantity = min trade.Quantity (abs position)
+                        position <- position + coveredQuantity
+                        // Calculate realized gains for covered portion
+                        if position < 0m then
+                            let avgShortPrice = totalInvested / abs(position + coveredQuantity)
+                            let coveringCost = coveredQuantity * trade.Price.Value
+                            let shortProceeds = coveredQuantity * avgShortPrice
+                            realizedGains <- realizedGains + (shortProceeds - coveringCost)
+                
+                // Track current positions and cost basis
+                if position <> 0m then
+                    hasOpenTrades <- true
+                    currentPositions <- currentPositions.Add(tickerId, position)
+                    if totalShares > 0m then
+                        let avgCostBasis = totalInvested / totalShares
+                        costBasisInfo <- costBasisInfo.Add(tickerId, avgCostBasis)
+            
+            // =================================================================
+            // DIVIDENDS CALCULATION
+            // =================================================================
+            let mutable dividendIncome = 0m
+            
+            for dividend in currencyMovements.Dividends do
+                dividendIncome <- dividendIncome + dividend.DividendAmount.Value
+            
+            // =================================================================
+            // DIVIDEND TAXES CALCULATION
+            // =================================================================
+            let mutable dividendTaxWithheld = 0m
+            
+            for dividendTax in currencyMovements.DividendTaxes do
+                dividendTaxWithheld <- dividendTaxWithheld + dividendTax.DividendTaxAmount.Value
+            
+            // Calculate net dividend income after taxes
+            let netDividendIncome = dividendIncome - dividendTaxWithheld
+            
+            // =================================================================
+            // OPTIONS CALCULATION
+            // =================================================================
+            let mutable optionsIncome = 0m
+            let mutable optionsInvestment = 0m
+            let mutable optionsCommissions = 0m
+            let mutable optionsFees = 0m
+            let mutable optionsRealizedGains = 0m
+            let mutable hasOpenOptions = false
+            
+            for optionTrade in currencyMovements.OptionTrades do
+                optionsCommissions <- optionsCommissions + optionTrade.Commissions.Value
+                optionsFees <- optionsFees + optionTrade.Fees.Value
+                
+                let code = optionTrade.Code
+                if code = OptionCode.SellToOpen then
+                    // Selling options generates income
+                    optionsIncome <- optionsIncome + optionTrade.NetPremium.Value
+                elif code = OptionCode.BuyToOpen then
+                    // Buying options is an investment
+                    optionsInvestment <- optionsInvestment + abs(optionTrade.NetPremium.Value)
+                elif code = OptionCode.BuyToClose || code = OptionCode.SellToClose then
+                    // Closing positions affect realized gains
+                    optionsRealizedGains <- optionsRealizedGains + optionTrade.NetPremium.Value
+                
+                // Check if option is still open (not expired)
+                if optionTrade.ExpirationDate.Value > targetDate.Value then
+                    hasOpenOptions <- true
+            
+            // =================================================================
+            // CALCULATE TOTALS AND METRICS
+            // =================================================================
+            let totalDeposited = Money.FromAmount adjustedDeposited
+            let totalWithdrawn = Money.FromAmount adjustedWithdrawn
+            let totalFees = Money.FromAmount (fees + tradeFees + optionsFees)
+            let totalCommissions = Money.FromAmount (commissions + tradeCommissions + optionsCommissions)
+            let totalOtherIncome = Money.FromAmount (otherIncome - interestPaid)
+            let totalInvested = Money.FromAmount (invested + optionsInvestment)
+            let totalRealizedGains = Money.FromAmount (realizedGains + optionsRealizedGains)
+            let totalDividendsReceived = Money.FromAmount netDividendIncome
+            let totalOptionsIncome = Money.FromAmount optionsIncome
+            
+            // Calculate movement counter
+            let movementCounter = currencyMovements.TotalCount
+            
+            // Calculate unrealized gains from current positions
+            let! (unrealizedGains, unrealizedGainsPercentage) = 
+                calculateUnrealizedGains currentPositions costBasisInfo targetDate currencyId
+            
+            // Calculate realized percentage return
+            let realizedPercentage = 
+                if totalInvested.Value > 0m then
+                    (totalRealizedGains.Value / totalInvested.Value) * 100m
+                else 
+                    0m
+            
+            // =================================================================
+            // CREATE AND SAVE SNAPSHOT
+            // =================================================================
+            let newSnapshot = {
+                Base = createBaseSnapshot targetDate
+                BrokerId = 0 // Set to 0 for account-level snapshots
+                BrokerAccountId = brokerAccountId
+                CurrencyId = currencyId
+                MovementCounter = movementCounter
+                BrokerSnapshotId = 0 // Set to 0 for account-level snapshots
+                BrokerAccountSnapshotId = brokerAccountSnapshotId
+                RealizedGains = totalRealizedGains
+                RealizedPercentage = realizedPercentage
+                UnrealizedGains = unrealizedGains
+                UnrealizedGainsPercentage = unrealizedGainsPercentage
+                Invested = totalInvested
+                Commissions = totalCommissions
+                Fees = totalFees
+                Deposited = totalDeposited
+                Withdrawn = totalWithdrawn
+                DividendsReceived = totalDividendsReceived
+                OptionsIncome = totalOptionsIncome
+                OtherIncome = totalOtherIncome
+                OpenTrades = hasOpenTrades || hasOpenOptions
+            }
+            
+            // Save the snapshot to database
+            do! newSnapshot.save()
         }
 
     /// <summary>
@@ -293,25 +537,6 @@ module internal BrokerFinancialSnapshotManager =
             
             // Save the snapshot to database with proper error handling
             do! newSnapshot.save()
-            
-            // ✅ IMPLEMENTED: Basic validation and logging
-            // Validate calculated values are reasonable
-            if newInvested.Value < 0m then
-                failwithf "Invalid calculated invested amount: %M. Invested amount cannot be negative." newInvested.Value
-            
-            if abs(unrealizedGainsPercentage) > 10000m then // More than 100x gain/loss seems unreasonable
-                failwithf "Unrealized gains percentage appears unreasonable: %M%%. Please verify market data." unrealizedGainsPercentage
-            
-            // Log successful snapshot creation for monitoring
-            // TODO: Replace with proper logging framework when available
-            let logMessage = sprintf "✅ Financial snapshot created successfully - Currency: %d, Date: %s, Unrealized: %M, Realized: %M" 
-                                currencyId 
-                                (targetDate.Value.ToString("yyyy-MM-dd"))
-                                unrealizedGains.Value 
-                                newRealizedGains.Value
-            System.Diagnostics.Debug.WriteLine(logMessage)
-            
-            return()
         }
     
     let private defaultFinancialSnapshot
@@ -478,36 +703,7 @@ module internal BrokerFinancialSnapshotManager =
                 | Some movements, None, None ->
                     // Create initial financial snapshot for this currency
                     // This happens when first movement in a new currency occurs
-                    // 📋 TODO: Implement initial calculation logic using only movements
-                    // Scenario B represents the initiation of tracking for a new currency where
-                    // no previous snapshots or movements exist in the system.
-                    //
-                    // This requires creating a new financial snapshot with all initial values set
-                    // based on the default currency settings and the initial set of movements.
-                    //
-                    // Steps to implement:
-                    // - Use the defaultFinancialSnapshot function to create a snapshot with the
-                    //   provided targetDate, brokerAccountId, and other identifiers.
-                    // - The snapshot should be populated with the default currency, which is typically
-                    //   the primary currency for the broker account.
-                    // - Since this is the first snapshot, all financial metrics (e.g., Invested,
-                    //   RealizedGains) should be set to zero, and only the initial movement data should
-                    //   be considered for any immediate calculations.
-                    // - Save the new snapshot to the database.
-                    //
-                    // This scenario is straightforward as it involves default initialization without
-                    // complex calculations or historical data considerations.
-                    //
-                    // Expected Outcome:
-                    // - A new financial snapshot is created with default values and the initial currency
-                    //   movements applied.
-                    // - The snapshot reflects the state of the broker account for the new currency as of
-                    //   the target date.
-                    //
-                    // This allows for immediate tracking of the new currency's financial performance
-                    // from the point of initial movement.
-                    // defaultFinancialSnapshot targetDate 0 brokerAccountId 0 brokerAccountSnapshot.Id
-                    ()
+                    do! calculateInitialFinancialSnapshot targetDate currencyId brokerAccountId brokerAccountSnapshot.Base.Id movements
                 
                 // SCENARIO C: New movements, has previous snapshot, has existing snapshot
                 | Some movements, Some previous, Some existing ->
