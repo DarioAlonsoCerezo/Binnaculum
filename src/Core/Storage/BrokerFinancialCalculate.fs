@@ -7,6 +7,44 @@ open BrokerFinancialSnapshotExtensions
 module internal BrokerFinancialCalculate =
 
     /// <summary>
+    /// Calculates a new financial snapshot based on currency movements and previous snapshot values.
+    /// This is used for SCENARIO A: the most common case where we have new movements for a currency
+    /// with existing historical data, creating a new snapshot for the target date.
+    /// </summary>
+    /// <param name="targetDate">The date for the new snapshot</param>
+    /// <param name="currencyId">The currency ID for this snapshot</param>
+    /// <param name="brokerAccountId">The broker account ID</param>
+    /// <param name="brokerAccountSnapshotId">The broker account snapshot ID to associate with</param>
+    /// <param name="currencyMovements">The currency-specific movements for calculations</param>
+    /// <param name="previousSnapshot">The previous financial snapshot for cumulative calculations</param>
+    /// <returns>Task that completes when the new snapshot is calculated and saved</returns>
+    let internal newFinancialSnapshot
+        (targetDate: DateTimePattern)
+        (currencyId: int)
+        (brokerAccountId: int)
+        (brokerAccountSnapshotId: int)
+        (currencyMovements: CurrencyMovementData)
+        (previousSnapshot: BrokerFinancialSnapshot)
+        =
+        task {
+            BrokerFinancialValidator.validatePreviousSnapshotCurrencyConsistency
+                previousSnapshot
+                currencyId
+            
+            // Calculate financial metrics from movements
+            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId
+            
+            // Create new snapshot with previous snapshot as baseline
+            do! BrokerFinancialCumulativeFinancial.create
+                    targetDate 
+                    currencyId 
+                    brokerAccountId 
+                    brokerAccountSnapshotId 
+                    calculatedMetrics 
+                    (Some previousSnapshot)
+        }
+
+    /// <summary>
     /// Creates an initial financial snapshot from movement data without requiring previous snapshots.
     /// This is used for SCENARIO B: when first movements occur in a new currency with no history.
     /// All financial metrics are calculated solely from the provided movement data.
