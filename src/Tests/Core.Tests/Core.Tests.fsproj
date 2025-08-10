@@ -23,8 +23,14 @@
     <Compile Include="BrokerFinancialSnapshotAggregationTests.fs" />
     <Compile Include="BrokerFinancialSnapshotRefactoredTests.fs" />
     <Compile Include="BrokerAccountFinancialCalculationTests.fs" />
+    <Compile Include="BrokerFinancialSnapshotManagerIntegrationTests.fs" />
+    <Compile Include="BrokerFinancialSnapshotManagerPerformanceTests.fs" />
     <Compile Include="DataLoaderTests.fs" />
     <Compile Include="EmptySnapshotManagementTests.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="BrokerFinancialSnapshotManagerTestingGuide.md" />
   </ItemGroup>
 
   <ItemGroup>
