@@ -2,28 +2,9 @@
 
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
-open SnapshotManagerUtils
 open BrokerFinancialSnapshotExtensions
 
 module internal BrokerFinancialSnapshotManager =    
-
-    /// <summary>
-    /// Implements SCENARIO E: Carries forward the previous financial snapshot to a new date when no movements exist and no existing snapshot is present.
-    /// Creates a new snapshot with the same values as the previous snapshot, updating the date and BrokerAccountSnapshotId.
-    /// </summary>
-    let private carryForwardPreviousSnapshot
-        (targetDate: DateTimePattern)
-        (brokerAccountSnapshotId: int)
-        (previous: BrokerFinancialSnapshot)
-        =
-        task {
-            let carriedSnapshot = {
-                previous with
-                    Base = createBaseSnapshot targetDate
-                    BrokerAccountSnapshotId = brokerAccountSnapshotId
-            }
-            do! carriedSnapshot.save()
-        }
 
     /// <summary>
     /// Implements SCENARIO G: Validates and corrects an existing financial snapshot to match a previous snapshot if discrepancies are found.
@@ -352,7 +333,7 @@ module internal BrokerFinancialSnapshotManager =
                 
                 // SCENARIO E: No movements, has previous snapshot, no existing snapshot
                 | None, Some previous, None ->
-                    do! carryForwardPreviousSnapshot targetDate brokerAccountSnapshot.Base.Id previous
+                    do! BrokerFinancialCarryForward.previousSnapshot targetDate brokerAccountSnapshot.Base.Id previous
                 
                 // SCENARIO F: No movements, no previous snapshot, no existing snapshot
                 | None, None, None ->

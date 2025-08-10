@@ -94,6 +94,7 @@
 		<Compile Include="Storage\BrokerFinancialSnapshotUpdateExistingWithMetrics.fs" />
 		<Compile Include="Storage\BrokerFinancialUpdateExisting.fs" />
 		<Compile Include="Storage\BrokerFinancialReset.fs" />
+		<Compile Include="Storage\BrokerFinancialCarryForward.fs" />
 		<Compile Include="Storage\BrokerFinancialDefault.fs" />
 		<Compile Include="Storage\BrokerFinancialSnapshotManager.fs" />
 		<Compile Include="Storage\BrokerSnapshotManager.fs" />
