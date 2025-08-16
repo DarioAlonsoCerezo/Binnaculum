@@ -129,30 +129,6 @@ module internal DataLoader =
         return()
     }
 
-    let loadBrokers() = task {
-        do! BrokerExtensions.Do.insertIfNotExists() |> Async.AwaitTask
-        let! databaseBrokers = BrokerExtensions.Do.getAll() |> Async.AwaitTask
-        let brokers = databaseBrokers.brokersToModel()
-        Collections.Brokers.EditDiff brokers
-
-        //As we allow users create brokers, we add this default broker to recognize it in the UI (if not already present)
-        let hasDefaultBroker = Collections.Brokers.Items |> Seq.exists (fun b -> b.Id = -1)
-        if not hasDefaultBroker then
-            Collections.Brokers.Add({ Id = -1; Name = "AccountCreator_Create_Broker"; Image = "broker"; SupportedBroker = "Unknown"; })
-    }
-
-    let loadBanks() = task {
-        let! databaseBanks = BankExtensions.Do.getAll() |> Async.AwaitTask
-        let banks = databaseBanks.banksToModel()
-                
-        Collections.Banks.EditDiff banks            
-
-        //As we allow users create banks, we add this default bank to recognize it in the UI (if not already present)
-        let hasDefaultBank = Collections.Banks.Items |> Seq.exists (fun b -> b.Id = -1)
-        if not hasDefaultBank then
-            Collections.Banks.Add({ Id = -1; Name = "AccountCreator_Create_Bank"; Image = Some "bank"; CreatedAt = DateTime.Now; })
-    }
-
     let getOrRefresAvailableImages() = task {
         let directory = FileSystem.AppDataDirectory
     
@@ -456,8 +432,8 @@ module internal DataLoader =
 
     let loadBasicData() = task {
         do! DataLoader.CurrencyLoader.load() |> Async.AwaitTask |> Async.Ignore
-        do! loadBrokers() |> Async.AwaitTask |> Async.Ignore
-        do! loadBanks() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.BrokerLoader.load() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.BankLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefresAvailableImages() |> Async.AwaitTask |> Async.Ignore
         do! loadTickers() |> Async.AwaitTask |> Async.Ignore
     }

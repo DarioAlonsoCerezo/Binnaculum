@@ -83,6 +83,8 @@
 		<Compile Include="Models\ModelsToDatabase.fs" />
 		<Compile Include="Models\DatabaseToModels.fs" />
 		<Compile Include="DataLoader\CurrencyLoader.fs" />
+		<Compile Include="DataLoader\BrokerLoader.fs" />
+		<Compile Include="DataLoader\BankLoader.fs" />
 		<Compile Include="Storage\DataLoader.fs" />
 		<Compile Include="Storage\SnapshotManagerUtils.fs" />
 		<Compile Include="Storage\TickerSnapshotManager.fs" />
