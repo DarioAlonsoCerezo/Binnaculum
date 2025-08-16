@@ -1,6 +1,6 @@
 ﻿namespace Binnaculum.Core.UI
 open Binnaculum.Core.Database.DatabaseModel
-open Binnaculum.Core.Storage.ModelsToDatabase
+open Binnaculum.Core.ModelsToDatabase
 open System
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage

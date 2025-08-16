@@ -1,4 +1,4 @@
-﻿namespace Binnaculum.Core.Storage
+﻿namespace Binnaculum.Core
 
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns

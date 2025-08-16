@@ -1,4 +1,4 @@
-﻿namespace Binnaculum.Core.Storage
+﻿namespace Binnaculum.Core
 
 open System.Runtime.CompilerServices
 open Binnaculum.Core.Models

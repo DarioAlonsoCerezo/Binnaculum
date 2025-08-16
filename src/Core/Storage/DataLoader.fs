@@ -6,7 +6,8 @@ open DynamicData
 open Microsoft.Maui.Storage
 open System.IO
 open System
-open Binnaculum.Core.Storage.DatabaseToModels
+open Binnaculum.Core.DatabaseToModels
+open Binnaculum.Core
 
 /// <summary>
 /// This module serves as a critical layer for managing the transformation and synchronization of data
@@ -126,12 +127,6 @@ module internal DataLoader =
         accounts
         |> List.iter (fun account -> Collections.updateBankAccount account)
         return()
-    }
-
-    let private loadCurrencies() = task {
-        do! CurrencyExtensions.Do.insertDefaultValues() |> Async.AwaitTask 
-        let! databaseCurrencies = CurrencyExtensions.Do.getAll() |> Async.AwaitTask
-        Collections.Currencies.EditDiff(databaseCurrencies.currenciesToModel())
     }
 
     let loadBrokers() = task {
@@ -460,7 +455,7 @@ module internal DataLoader =
     }
 
     let loadBasicData() = task {
-        do! loadCurrencies() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.CurrencyLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! loadBrokers() |> Async.AwaitTask |> Async.Ignore
         do! loadBanks() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefresAvailableImages() |> Async.AwaitTask |> Async.Ignore
