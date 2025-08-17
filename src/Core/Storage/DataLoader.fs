@@ -213,50 +213,6 @@ module internal DataLoader =
             Collections.Accounts.EditDiff allAccounts
     }
 
-    let private loadLatestBrokerAccountSnapshots() = task {
-        let brokerAccounts = 
-            Collections.Accounts.Items 
-            |> Seq.filter (fun a -> a.Broker.IsSome)
-            |> Seq.map (fun a -> a.Broker.Value)
-            |> Seq.toList
-
-        if brokerAccounts.IsEmpty then
-            return ()
-        else
-            let snapshots = 
-                brokerAccounts
-                |> Seq.map (fun brokerAccount ->
-                    async {
-                        let! latestSnapshot = BrokerAccountSnapshotExtensions.Do.getLatestByBrokerAccountId brokerAccount.Id |> Async.AwaitTask
-                        match latestSnapshot with
-                        | Some dbSnapshot ->
-                            return Some (dbSnapshot.brokerAccountSnapshotToOverviewSnapshot(brokerAccount))
-                        | None ->
-                            return Some (DatabaseToModels.Do.createEmptyOverviewSnapshot())
-                    })
-                |> Async.Parallel
-                |> Async.RunSynchronously
-                |> Array.choose id
-                |> Array.toList
-        
-            snapshots
-            |> List.iter (fun newSnapshot ->
-                if newSnapshot.Type = OverviewSnapshotType.BrokerAccount && newSnapshot.BrokerAccount.IsSome then
-                    let brokerAccountId = newSnapshot.BrokerAccount.Value.BrokerAccount.Id
-                    let existingSnapshot = Collections.Snapshots.Items 
-                                         |> Seq.tryFind (fun s -> s.Type = OverviewSnapshotType.BrokerAccount && s.BrokerAccount.IsSome && s.BrokerAccount.Value.BrokerAccount.Id = brokerAccountId)
-                    match existingSnapshot with
-                    | Some existing when existing <> newSnapshot ->
-                        Collections.Snapshots.Replace(existing, newSnapshot)
-                    | None ->
-                        addNonEmptySnapshotWithEmptyCleanup(newSnapshot)
-                    | Some _ -> () // Same snapshot, no action needed
-                else
-                    // For empty snapshots, use the helper function to manage properly
-                    addSnapshotWithEmptyManagement(newSnapshot)
-            )
-    }
-
     let private loadLatestBankAccountSnapshots() = task {
         let bankAccounts = 
             Collections.Accounts.Items 
@@ -333,7 +289,7 @@ module internal DataLoader =
     let loadLatestSnapshots() = task {
         do! DataLoader.BrokerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.BankSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
-        do! loadLatestBrokerAccountSnapshots() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.BrokerAccountSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! loadLatestBankAccountSnapshots() |> Async.AwaitTask |> Async.Ignore
         do! loadLatestTickerSnapshots() |> Async.AwaitTask |> Async.Ignore
     }
