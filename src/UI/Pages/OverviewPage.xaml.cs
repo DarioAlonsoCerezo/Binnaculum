@@ -1,5 +1,4 @@
 using Binnaculum.Core;
-using DynamicData.Aggregation;
 using System.Reactive.Subjects;
 
 namespace Binnaculum.Pages;
@@ -10,8 +9,8 @@ public partial class OverviewPage
     private IDisposable? _animateHistoryMarginDisposable;
     private bool _hiding;
 
-    private ReadOnlyObservableCollection<Models.Account> _accounts;
-    public ReadOnlyObservableCollection<Models.Account> Accounts => _accounts;
+    private ReadOnlyObservableCollection<Models.OverviewSnapshot> _snapshots;
+    public ReadOnlyObservableCollection<Models.OverviewSnapshot> Snapshots => _snapshots;
 
     private ReadOnlyObservableCollection<Models.Movement> _movements;
     public ReadOnlyObservableCollection<Models.Movement> Movements => _movements;
@@ -24,10 +23,13 @@ public partial class OverviewPage
 		InitializeComponent();
         SetupHistory();
 
-        Core.UI.Collections.Accounts.Connect()
+        Core.UI.Collections.Snapshots.Connect()
             .ObserveOn(UiThread)
-            .Bind(out _accounts)
-            .Subscribe();
+            .Bind(out _snapshots)
+            .Subscribe(x =>
+            {
+
+            });
 
         _filterPredicate = _selected
             .Throttle(TimeSpan.FromMilliseconds(300))
@@ -55,7 +57,7 @@ public partial class OverviewPage
             .Select(x => x.AllowCreateAccount)
             .BindTo(AddAccount, x => x.IsVisible);
 
-        AccountsCarousel.ItemsSource = Accounts;
+        AccountsCarousel.ItemsSource = Snapshots;
         MovementsCollectionView.ItemsSource = Movements;
     }
 
