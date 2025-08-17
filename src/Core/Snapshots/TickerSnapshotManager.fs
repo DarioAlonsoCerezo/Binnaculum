@@ -292,7 +292,7 @@ module internal TickerSnapshotManager =
                 TickerId = tickerId
             }
             do! newSnapshot.save()
-            let! createdSnapshot = TickerSnapshotExtensions.Do.getByTickerIdAndDate(tickerId, date)
+            let! createdSnapshot = TickerSnapshotExtensions.Do.getByTickerIdAndDate(tickerId, snapshotDate)
             match createdSnapshot with
             | None -> failwith "Failed to create ticker snapshot"
             | Some snapshot ->

@@ -39,7 +39,7 @@ module internal SnapshotManagerUtils =
         {
             Id = 0
             Date = getDateOnly date
-            Audit = AuditableEntity.Default
+            Audit = AuditableEntity.FromDateTime(DateTime.UtcNow)
         }
 
     let getDefaultCurrency() = task {

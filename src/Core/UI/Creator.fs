@@ -5,6 +5,8 @@ open System
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage
 open Microsoft.FSharp.Core
+open TickerExtensions
+open TickerSnapshotExtensions
 
 /// <summary>
 /// This module handles user-initiated save operations from the UI layer.
@@ -78,11 +80,22 @@ module Creator =
     }
 
     /// <summary>
-    /// Save a new or updated ticker and refresh the tickers collection.
+    /// Save a new or updated ticker and create initial snapshot for new tickers.
     /// </summary>
     let SaveTicker(ticker: Binnaculum.Core.Models.Ticker) = task {
         let! databaseTicker = ticker.tickerToDatabase() |> Async.AwaitTask
+        let isNewTicker = databaseTicker.Id = 0
         do! Saver.saveTicker(databaseTicker) |> Async.AwaitTask |> Async.Ignore
+        
+        // If it's a new ticker, create initial snapshot
+        if isNewTicker then
+            // Get the saved ticker from database to get the assigned ID
+            let! savedTicker = TickerExtensions.Do.getById(databaseTicker.Id)
+            match savedTicker with
+            | Some ticker -> 
+                do! TickerSnapshotManager.handleNewTicker(ticker) |> Async.AwaitTask |> Async.Ignore
+            | None ->
+                failwithf "Failed to retrieve saved ticker with symbol %s" databaseTicker.Symbol
     }
 
     /// <summary>
