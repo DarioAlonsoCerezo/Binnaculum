@@ -219,7 +219,7 @@ module internal DataLoader =
                 Collections.updateBrokerAccount updatedAccount
         } |> Async.StartImmediate
 
-    let loadMovementsFor(account: Account option) = task {
+    let loadMovementsFor() = task {
 
         // TODO: Performance Optimization Needed
         // This method currently loads ALL movements from the database regardless of the account parameter.
