@@ -181,16 +181,7 @@ module internal DataLoader =
 
         if Collections.Snapshots.Items.Count = 0 then
             // If no snapshots are available, add an empty snapshot to the collection
-            let emptySnapshot = 
-                {
-                    Type = OverviewSnapshotType.Empty
-                    InvestmentOverview = None
-                    Broker = None
-                    Bank = None
-                    BrokerAccount = None
-                    BankAccount = None
-                }
-            Collections.Snapshots.Add(emptySnapshot)
+            Collections.Snapshots.Add(DatabaseToModels.Do.createEmptyOverviewSnapshot())
     }
 
     let loadBasicData() = task {
