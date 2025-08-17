@@ -121,13 +121,6 @@ module internal DataLoader =
             Collections.AvailableImages.Clear()
     }
 
-    let loadTickers() = task {
-        do! TickerExtensions.Do.insertIfNotExists() |> Async.AwaitTask
-        let! databaseTickers = TickerExtensions.Do.getAll() |> Async.AwaitTask
-        let tickers = databaseTickers.tickersToModel()
-        Collections.Tickers.EditDiff tickers
-    }
-    
     let private loadBrokerAccounts() = task {
         let! databaseBrokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
         let brokerAccounts = 
@@ -226,7 +219,7 @@ module internal DataLoader =
         do! DataLoader.BrokerLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.BankLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! getOrRefresAvailableImages() |> Async.AwaitTask |> Async.Ignore
-        do! loadTickers() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.TikerLoader.load() |> Async.AwaitTask |> Async.Ignore
     }
 
     let initialization() = task {

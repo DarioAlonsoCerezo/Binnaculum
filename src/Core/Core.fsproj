@@ -84,8 +84,9 @@
 		<Compile Include="Models\DatabaseToModels.fs" />
 		<Compile Include="DataLoader\CurrencyLoader.fs" />
 		<Compile Include="DataLoader\BrokerLoader.fs" />
-		<Compile Include="DataLoader\BrokerSnapshotLoader.fs" />
 		<Compile Include="DataLoader\BankLoader.fs" />
+		<Compile Include="DataLoader\TikerLoader.fs" />
+		<Compile Include="DataLoader\BrokerSnapshotLoader.fs" />
 		<Compile Include="DataLoader\BankSnapshotLoader.fs" />
 		<Compile Include="DataLoader\BrokerAccountSnapshotLoader.fs" />
 		<Compile Include="DataLoader\BankAccountSnapshotLoader.fs" />

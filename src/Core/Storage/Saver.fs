@@ -90,7 +90,7 @@ module internal Saver =
     /// </summary>
     let saveTicker(ticker: Ticker) = task {
         do! ticker.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadTickers() |> Async.AwaitTask |> Async.Ignore
+        do! Binnaculum.Core.DataLoader.TikerLoader.load() |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>
