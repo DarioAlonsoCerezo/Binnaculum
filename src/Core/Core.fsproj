@@ -86,6 +86,7 @@
 		<Compile Include="DataLoader\BrokerLoader.fs" />
 		<Compile Include="DataLoader\BrokerSnapshotLoader.fs" />
 		<Compile Include="DataLoader\BankLoader.fs" />
+		<Compile Include="DataLoader\BankSnapshotLoader.fs" />
 		<Compile Include="Storage\DataLoader.fs" />
 		<Compile Include="Storage\SnapshotManagerUtils.fs" />
 		<Compile Include="Storage\TickerSnapshotManager.fs" />
