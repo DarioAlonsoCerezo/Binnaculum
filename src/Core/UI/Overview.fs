@@ -21,5 +21,5 @@ module Overview =
 
     let LoadMovements(account: Account) = DataLoader.loadMovementsFor(Some account)
     
-    let RefreshSnapshots() = DataLoader.loadLatestSnapshots()
+    let RefreshSnapshots() = DataLoader.loadOverviewSnapshots()
     

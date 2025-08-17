@@ -173,12 +173,24 @@ module internal DataLoader =
             Collections.Accounts.EditDiff allAccounts
     }
 
-    let loadLatestSnapshots() = task {
+    let loadOverviewSnapshots() = task {
         do! DataLoader.BrokerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.BankSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.BrokerAccountSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.BankAccountSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.TickerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
+
+        if Collections.Snapshots.Items.Count = 0 then
+            // If no snapshots are available, add an empty snapshot to the collection
+            let emptySnapshot = 
+                {
+                    Type = OverviewSnapshotType.Empty
+                    InvestmentOverview = None
+                    Broker = None
+                    Bank = None
+                    BrokerAccount = None
+                    BankAccount = None
+                }
+            Collections.Snapshots.Add(emptySnapshot)
     }
 
     let loadBasicData() = task {
@@ -191,7 +203,8 @@ module internal DataLoader =
 
     let initialization() = task {
         do! getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
-        do! loadLatestSnapshots() |> Async.AwaitTask |> Async.Ignore
+        do! loadOverviewSnapshots() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.TickerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
     }
 
     let private updateBankAccount(account: Account, movements: Movement list) = 
