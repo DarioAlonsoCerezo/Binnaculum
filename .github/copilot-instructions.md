@@ -28,6 +28,14 @@
 - For UI changes, ensure XAML is styled according to the project’s configuration.
 - Do not change the target framework unless explicitly required.
 
+## Error Handling Guidelines
+- **No Try-Catch in Core Logic**: Avoid using try-catch blocks, try-with expressions, or similar error handling constructs in F# core logic or data access layers.
+- **Let Exceptions Bubble Up**: Allow exceptions to naturally propagate from the core to the UI layer where they can be properly handled.
+- **Use CatchCoreError in UI**: In C# UI code, use the `CatchCoreError` extension method from `RxExtensions` to handle exceptions from core operations.
+- **Fail Fast with failwith**: In F# code, use `failwith` or `failwithf` to signal errors with descriptive messages rather than returning option types for exceptional cases.
+- **UI-Driven Error Display**: All error messages should be displayed through UI components (popups, alerts) rather than being swallowed or logged silently.
+- **Debug vs Release Behavior**: Error popups are shown automatically in DEBUG mode but require explicit `informUser: true` parameter in Release mode.
+
 ## Additional Notes
 - For database model changes, update only the relevant F# files in `src/Core/Database/`.
 - Refer to the README for more details on project setup and resources.
