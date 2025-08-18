@@ -39,19 +39,10 @@ public partial class AccountCreatorPage
 
         BindableLayout.SetItemsSource(BrokersLayout, Brokers);
         BindableLayout.SetItemsSource(BanksLayout, Banks);
-    }    
+    }
 
     protected override void StartLoad()
     {
-        ButtonSaveOrDiscard.Events().SaveClicked
-            .Select(async _ =>
-            {
-                await SaveAccounts();
-                await Navigation.PopModalAsync();
-            })
-            .Subscribe()
-            .DisposeWith(Disposables);
-
         ButtonSaveOrDiscard.Events().DiscardClicked
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
@@ -102,6 +93,39 @@ public partial class AccountCreatorPage
             .ObserveOn(UiThread)
             .Select(CheckActiveButton)
             .BindTo(ButtonSaveOrDiscard, x => x.IsButtonSaveEnabled)
+            .DisposeWith(Disposables);
+
+        //Save BrokerAccount
+        ButtonSaveOrDiscard.Events().SaveClicked
+            .Where(_ => ButtonSaveOrDiscard.IsButtonSaveEnabled)
+            .Where(_ => !SelectedBank.IsVisible)
+            .Where(_ => SelectedBroker.IsVisible && BrokerAccountEntry.Text?.Length > 2)
+            .CatchCoreError(() => Creator.SaveBrokerAccount(SelectedBroker.Broker.Id, BrokerAccountEntry.Text))
+            .ObserveOn(UiThread)
+            .DoAsync(Navigation.PopModalAsync)
+            .Subscribe()
+            .DisposeWith(Disposables);
+
+        //Save BankAccount
+        ButtonSaveOrDiscard.Events().SaveClicked
+            .Where(_ => ButtonSaveOrDiscard.IsButtonSaveEnabled)
+            .Where(_ => !SelectedBroker.IsVisible)
+            .Where(_ => SelectedBank.IsVisible && BankAccountEntry.Text?.Length > 2)
+            .Select(_ =>
+            {
+                var currency = Collections.Currencies.Items.Single(x => x.Code.Equals(BankAccountEntry.SelectedCurrencyText));
+                return new Core.Models.BankAccount(
+                    0,
+                    SelectedBank.Bank,
+                    BankAccountEntry.Text,
+                    null,
+                    currency
+                );
+            })
+            .CatchCoreError(Creator.SaveBankAccount)
+            .ObserveOn(UiThread)
+            .DoAsync(Navigation.PopModalAsync)
+            .Subscribe()
             .DisposeWith(Disposables);
     }
 
@@ -188,24 +212,5 @@ public partial class AccountCreatorPage
         await BrokerAccountEntry.Unfocus(hideKeyboard: true);
     }
 
-    private async Task SaveAccounts()
-    {
-        if(SelectedBroker.IsVisible && BrokerAccountEntry.Text?.Length > 2)
-        {
-            await Creator.SaveBrokerAccount(SelectedBroker.Broker.Id, BrokerAccountEntry.Text);
-        }
-
-        if(SelectedBank.IsVisible && BankAccountEntry.Text?.Length > 2)
-        {
-            var currency = Collections.Currencies.Items.Single(x => x.Code.Equals(BankAccountEntry.SelectedCurrencyText));
-            var bankAccount = new Core.Models.BankAccount(
-                0,
-                SelectedBank.Bank,
-                BankAccountEntry.Text,
-                null,
-                currency
-            );
-            await Creator.SaveBankAccount(bankAccount);
-        }
-    }
+    
 }
