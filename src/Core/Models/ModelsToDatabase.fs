@@ -43,6 +43,15 @@ module internal ModelsToDatabase =
             else
                 return! broker.updateBrokerToDatabase() |> Async.AwaitTask
         }
+
+        [<Extension>]
+        static member brokerAccountToDatabase(brokerAccount: Binnaculum.Core.Models.BrokerAccount) =
+            { 
+                Id = brokerAccount.Id; 
+                BrokerId = brokerAccount.Broker.Id; 
+                AccountNumber = brokerAccount.AccountNumber; 
+                Audit = AuditableEntity.FromDateTime(DateTime.Now);
+            }
         
         [<Extension>]
         static member createBankToDatabase(bank: Binnaculum.Core.Models.Bank) =

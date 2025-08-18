@@ -64,6 +64,7 @@ module internal Saver =
     let saveBrokerAccount(brokerAccount: BrokerAccount) = task {
         do! brokerAccount.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadOverviewSnapshots() |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>

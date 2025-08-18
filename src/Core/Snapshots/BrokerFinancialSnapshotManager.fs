@@ -236,9 +236,9 @@ module internal BrokerFinancialSnapshotManager =
             do! BrokerFinancialDefault.create 
                     snapshotDate
                     brokerId
-                    0 // BrokerAccountId set to 0 for broker-level snapshots
+                    -1 // BrokerAccountId set to 0 for broker-level snapshots
                     brokerSnapshotId
-                    0 // BrokerAccountSnapshotId set to 0 for broker-level snapshots
+                    -1 // BrokerAccountSnapshotId set to 0 for broker-level snapshots
         }
 
     /// <summary>
@@ -256,9 +256,9 @@ module internal BrokerFinancialSnapshotManager =
             // when brokerAccountOneDayUpdate and brokerAccountCascadeUpdate are implemented
             do! BrokerFinancialDefault.create  
                     brokerAccountSnapshot.Base.Date
-                    0 // BrokerId set to 0 for account-level snapshots
+                    -1 // BrokerId set to -1 for account-level snapshots
                     brokerAccountSnapshot.BrokerAccountId
-                    0 // BrokerSnapshotId set to 0 for account-level snapshots
+                    -1 // BrokerSnapshotId set to -1 for account-level snapshots
                     brokerAccountSnapshot.Base.Id // Use the snapshot's own ID as BrokerAccountSnapshotId
         }
     

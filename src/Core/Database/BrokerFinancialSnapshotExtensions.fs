@@ -144,6 +144,15 @@ type Do() =
         return snapshots
     }
 
+    static member getByBrokerAccountIdAndDate(brokerAccountId: int, date: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerFinancialSnapshotQuery.getByBrokerAccountIdAndDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.Date, date.ToString()) |> ignore
+        let! snapshots = Database.Do.readAll<BrokerFinancialSnapshot>(command, Do.read)
+        return snapshots
+    }
+
     static member getLatestByBrokerAccountId(brokerAccountId: int) = task {
         let! command = Database.Do.createCommand()
         command.CommandText <- BrokerFinancialSnapshotQuery.getLatestByBrokerAccountId

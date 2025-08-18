@@ -101,6 +101,14 @@ module Collections =
         |> Seq.find(fun b -> b.Broker.IsSome && b.Broker.Value.Id = id)
         |> fun b -> b.Broker.Value
 
+    let internal getBrokerAccountByAccountNumber(accountNumber: string) =
+        Accounts.Items 
+        |> Seq.tryFind(fun b -> b.Broker.IsSome && b.Broker.Value.AccountNumber = accountNumber)
+        |> fun b -> 
+            match b with
+            | Some account ->  Some account.Broker.Value
+            | None -> None
+
     /// <summary>
     /// This function is used to get a bank by its ID.
     /// It searches through the Banks collection and returns the first bank that matches the provided ID.

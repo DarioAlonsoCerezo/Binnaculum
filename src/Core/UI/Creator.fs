@@ -39,9 +39,6 @@ module Creator =
         let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
         let account = { Id = 0; BrokerId = brokerId; AccountNumber = accountNumber; Audit = audit }
         do! Saver.saveBrokerAccount(account) |> Async.AwaitTask |> Async.Ignore
-        
-        // Create initial snapshots for the new account
-        do! SnapshotManager.handleNewBrokerAccount(account) |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBrokerMovement(movement: Binnaculum.Core.Models.BrokerMovement) = task {

@@ -15,8 +15,8 @@ module internal BrokerFinancialSnapshotQuery =
             {BrokerAccountId} INTEGER NOT NULL DEFAULT -1,
             {CurrencyId} INTEGER NOT NULL,
             {MovementCounter} INTEGER NOT NULL,
-            {BrokerSnapshotId} INTEGER NOT NULL,
-            {BrokerAccountSnapshotId} INTEGER NOT NULL,
+            {BrokerSnapshotId} INTEGER NOT NULL DEFAULT -1,
+            {BrokerAccountSnapshotId} INTEGER NOT NULL DEFAULT -1,
             {RealizedGains} TEXT NOT NULL,
             {RealizedPercentage} TEXT NOT NULL,
             {UnrealizedGains} TEXT NOT NULL,
@@ -32,16 +32,11 @@ module internal BrokerFinancialSnapshotQuery =
             {OpenTrades} INTEGER NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
-            -- Foreign key to ensure CurrencyId references a valid Currency in the Currencies table
-            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
-            -- Foreign key to ensure BrokerId references a valid Broker (when not -1)
-            FOREIGN KEY ({BrokerId}) REFERENCES {Brokers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
-            -- Foreign key to ensure BrokerAccountId references a valid BrokerAccount (when not -1)
-            FOREIGN KEY ({BrokerAccountId}) REFERENCES {BrokerAccounts}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
-            -- Foreign key to ensure BrokerSnapshotId references a valid BrokerSnapshot in the BrokerSnapshots table
-            FOREIGN KEY ({BrokerSnapshotId}) REFERENCES {BrokerSnapshots}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
-            -- Foreign key to ensure BrokerAccountSnapshotId references a valid BrokerAccountSnapshot in the BrokerAccountSnapshots table
-            FOREIGN KEY ({BrokerAccountSnapshotId}) REFERENCES {BrokerAccountSnapshots}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+            -- Essential foreign key constraints (these are always required and valid)
+            FOREIGN KEY ({CurrencyId}) REFERENCES {Currencies}({Id}) ON DELETE CASCADE ON UPDATE CASCADE
+            -- Note: Removed problematic foreign keys for snapshot references to avoid circular dependencies during initialization
+            -- Application logic handles referential integrity for BrokerId, BrokerAccountId, BrokerSnapshotId, and BrokerAccountSnapshotId
+            -- These fields use -1 as sentinel value meaning "no reference"
         );
 
         -- Index to optimize queries filtering by CurrencyId
@@ -253,6 +248,14 @@ module internal BrokerFinancialSnapshotQuery =
         WHERE
             {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
         ORDER BY {Date} DESC
+        """
+
+    let getByBrokerAccountIdAndDate =
+        $"""
+        SELECT * FROM {BrokerFinancialSnapshots}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId} AND
+            {Date} = {SQLParameterName.Date}
         """
         
     let getLatestByBrokerAccountId =
