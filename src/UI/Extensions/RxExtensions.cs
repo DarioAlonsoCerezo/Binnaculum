@@ -2,6 +2,7 @@
 
 using Binnaculum.Popups;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 public static class RxExtensions
@@ -20,49 +21,65 @@ public static class RxExtensions
     }
 
     /// <summary>
+    /// Executes a task and return Unit.Default 
+    /// Useful when we need to handle navigation or other side effects without returning a value.
+    /// </summary>
+    public static IObservable<Unit> DoAsync<T>(this IObservable<T> source, Func<Task> task)
+    {
+        return source.SelectMany(async item =>
+        {
+            await task.Invoke();
+            return Unit.Default;
+            
+        });
+    }
+
+    /// <summary>
     /// Executes a task and catches any exceptions that might occur.
     /// </summary>
     public static IObservable<T> CatchCoreError<T>(this IObservable<T> source, Func<Task> task, bool informUser = false)
     {
-        Task.Run(async () =>
+        return source.Do(_ => 
         {
-            try
+            Task.Run(async () =>
             {
-                await task.Invoke();
-            }
-            catch (AggregateException agEx)
-            {
-                var innerException = agEx.InnerException ?? agEx;
-                System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {innerException.Message}]");
+                try
+                {
+                    await task.Invoke();
+                }
+                catch (AggregateException agEx)
+                {
+                    var innerException = agEx.InnerException ?? agEx;
+                    System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {innerException.Message}]");
 
 #if DEBUG
-                // In DEBUG mode, always show the error
-                await ShowErrorPopup(innerException);
-#else
-                // In Release mode, only show if informUser is true
-                if (informUser)
-                {
+                    // In DEBUG mode, always show the error
                     await ShowErrorPopup(innerException);
-                }
+#else
+                    // In Release mode, only show if informUser is true
+                    if (informUser)
+                    {
+                        await ShowErrorPopup(innerException);
+                    }
 #endif
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {ex.Message}]");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {ex.Message}]");
 
 #if DEBUG
-                // In DEBUG mode, always show the error
-                await ShowErrorPopup(ex);
-#else
-                // In Release mode, only show if informUser is true
-                if (informUser)
-                {
+                    // In DEBUG mode, always show the error
                     await ShowErrorPopup(ex);
-                }
+#else
+                    // In Release mode, only show if informUser is true
+                    if (informUser)
+                    {
+                        await ShowErrorPopup(ex);
+                    }
 #endif
-            }
+                }
+            });
         });
-        return source;
     }
 
     /// <summary>
@@ -145,11 +162,17 @@ public static class RxExtensions
     private static string FormatExceptionMessage(Exception exception)
     {
         string safeStackTrace = exception.StackTrace ?? "No stack trace available";
-        
-        return "# Error\n" +
+
+        var formattedMessage = "# Error\n" +
                "**Message:** " + exception.Message + "\n\n" +
                "**Type:** " + exception.GetType().Name + "\n\n" +
                "**Stack Trace:**\n" +
                "```\n" + safeStackTrace + "\n```";
+
+#if DEBUG
+        System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - FormatExceptionMessage]: {formattedMessage}");
+#endif
+
+        return formattedMessage;
     }
 }
