@@ -120,7 +120,7 @@ public partial class BrokerMovementCreatorPage
             .Select(GetBrokerMovement)
             .WhereNotNull()
             .CatchCoreError(Core.UI.Creator.SaveBrokerMovement)
-            .Select(async _ => await Navigation.PopModalAsync())
+            .DoAsync(Navigation.PopModalAsync)
             .Subscribe()
             .DisposeWith(Disposables);
 
@@ -135,7 +135,7 @@ public partial class BrokerMovementCreatorPage
             .Select(_ => TradeMovement.Trade)
             .WhereNotNull()
             .CatchCoreError(Core.UI.Creator.SaveTrade)
-            .Select(async _ => await Navigation.PopModalAsync())
+            .DoAsync(Navigation.PopModalAsync)
             .Subscribe()
             .DisposeWith(Disposables);
 

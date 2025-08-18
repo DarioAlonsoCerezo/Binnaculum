@@ -16,7 +16,7 @@ public partial class OverviewPage
     public ReadOnlyObservableCollection<Models.Movement> Movements => _movements;
 
     IObservable<Func<Models.Movement, bool>> _filterPredicate;
-    BehaviorSubject<Models.Account?> _selected = new(null);
+    BehaviorSubject<Models.OverviewSnapshot?> _selected = new(null);
 
     public OverviewPage()
     {
@@ -96,9 +96,9 @@ public partial class OverviewPage
             .Select(x => x.CurrentItem)
             .Subscribe(x =>
             {
-                if(x is Core.Models.Account account)
+                if(x is Core.Models.OverviewSnapshot snapshot)
                 {
-                    _selected.OnNext(account);
+                    _selected.OnNext(snapshot);
                 }
             })
             .DisposeWith(Disposables);
@@ -212,7 +212,7 @@ public partial class OverviewPage
                 _animateHistoryMarginDisposable?.Dispose();
         });
 
-    private Func<Models.Movement, bool> BuildFilterPredicate(Models.Account? selected)
+    private Func<Models.Movement, bool> BuildFilterPredicate(Models.OverviewSnapshot? selected)
     {
         if (selected == null)
             return _ => true;
@@ -222,7 +222,7 @@ public partial class OverviewPage
             return x =>
             {
                 if (x.Type.IsBankAccountMovement)
-                    return x.BankAccountMovement.Value.BankAccount.Id.Equals(selected.Bank.Value.Id);
+                    return x.BankAccountMovement.Value.BankAccount.Id.Equals(selected.Bank.Value.Bank.Id);
 
                 return false;
             };
@@ -235,22 +235,22 @@ public partial class OverviewPage
                 return false;
 
             if(x.Type.IsBrokerMovement)
-                return x.BrokerMovement.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+                return x.BrokerMovement.Value.BrokerAccount.Id.Equals(selected.BrokerAccount.Value.BrokerAccount.Id);
             
             if(x.Type.IsTrade)
-                return x.Trade.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+                return x.Trade.Value.BrokerAccount.Id.Equals(selected.BrokerAccount.Value.BrokerAccount.Id);
 
             if(x.Type.IsDividend)
-                return x.Dividend.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+                return x.Dividend.Value.BrokerAccount.Id.Equals(selected.BrokerAccount.Value.BrokerAccount.Id);
 
             if(x.Type.IsDividendDate)
-                return x.DividendDate.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+                return x.DividendDate.Value.BrokerAccount.Id.Equals(selected.BrokerAccount.Value.BrokerAccount.Id);
 
             if(x.Type.IsDividendTax)
-                return x.DividendTax.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+                return x.DividendTax.Value.BrokerAccount.Id.Equals(selected.BrokerAccount.Value.BrokerAccount.Id);
 
             if(x.Type.IsOptionTrade)
-                return x.OptionTrade.Value.BrokerAccount.Id.Equals(selected.Broker.Value.Id);
+                return x.OptionTrade.Value.BrokerAccount.Id.Equals(selected.BrokerAccount.Value.BrokerAccount.Id);
 
             return false;
         };
