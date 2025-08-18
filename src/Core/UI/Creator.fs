@@ -65,7 +65,9 @@ module Creator =
         do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask |> Async.Ignore
         
         // Update snapshots for this movement
-        do! SnapshotManager.handleBrokerMovementSnapshot(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        let datePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        do! DataLoader.loadOverviewSnapshots() |> Async.AwaitTask |> Async.Ignore
     }
 
     let SaveBankMovement(movement: Binnaculum.Core.Models.BankAccountMovement) = task {

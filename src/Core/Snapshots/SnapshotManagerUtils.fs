@@ -34,6 +34,12 @@ module internal SnapshotManagerUtils =
         let pattern = DateTimePattern.FromDateTime(dateTime)
         getDateOnlyStartOfDay pattern
 
+    /// Normalizes a DateTimePattern to start of day for consistent snapshot date comparison
+    /// This ensures all movement dates are treated as date-only for proper snapshot processing
+    let normalizeToStartOfDay (dateTime: DateTimePattern) =
+        let date = dateTime.Value.Date.AddSeconds(1.0) // 00:00:01 for start of day
+        DateTimePattern.FromDateTime(date)
+
     /// Creates a base snapshot with the given date
     let createBaseSnapshot (date: DateTimePattern) : BaseSnapshot =
         {
@@ -111,7 +117,7 @@ type internal BrokerAccountMovementData = {
     /// Total count of all movements for quick reference
     TotalMovementCount: int
     
-    /// Set of unique dates that have movements (useful for snapshot gap detection)
+    /// Set of unique dates that have movements (normalized to start-of-day for proper snapshot comparison)
     UniqueDates: Set<DateTimePattern>
     
     /// Set of unique currencies that have movements (critical for multi-currency processing)
@@ -152,7 +158,7 @@ and internal CurrencyMovementData = {
     /// Total count for this currency
     TotalCount: int
     
-    /// Unique dates with movements in this currency
+    /// Unique dates with movements in this currency (normalized to start-of-day)
     UniqueDates: Set<DateTimePattern>
 }
 
@@ -170,11 +176,12 @@ module internal BrokerAccountMovementData =
         (dividendTaxes: DividendTax list)
         (optionTrades: OptionTrade list) =
         
-        let brokerMovementDates = brokerMovements |> List.map (fun m -> m.TimeStamp) |> Set.ofList
-        let tradeDates = trades |> List.map (fun t -> t.TimeStamp) |> Set.ofList  
-        let dividendDates = dividends |> List.map (fun d -> d.TimeStamp) |> Set.ofList
-        let dividendTaxDates = dividendTaxes |> List.map (fun dt -> dt.TimeStamp) |> Set.ofList
-        let optionTradeDates = optionTrades |> List.map (fun ot -> ot.TimeStamp) |> Set.ofList
+        // Extract and normalize dates to start of day for proper snapshot comparison
+        let brokerMovementDates = brokerMovements |> List.map (fun m -> SnapshotManagerUtils.normalizeToStartOfDay m.TimeStamp) |> Set.ofList
+        let tradeDates = trades |> List.map (fun t -> SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp) |> Set.ofList  
+        let dividendDates = dividends |> List.map (fun d -> SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp) |> Set.ofList
+        let dividendTaxDates = dividendTaxes |> List.map (fun dt -> SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp) |> Set.ofList
+        let optionTradeDates = optionTrades |> List.map (fun ot -> SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp) |> Set.ofList
         
         let allDatesForCurrency = Set.unionMany [brokerMovementDates; tradeDates; dividendDates; dividendTaxDates; optionTradeDates]
         let totalCountForCurrency = brokerMovements.Length + trades.Length + dividends.Length + dividendTaxes.Length + optionTrades.Length
@@ -200,12 +207,13 @@ module internal BrokerAccountMovementData =
         (dividendTaxes: DividendTax list)
         (optionTrades: OptionTrade list) =
         
-        // Extract all unique dates from all movement types
-        let brokerMovementDates = brokerMovements |> List.map (fun m -> m.TimeStamp) |> Set.ofList
-        let tradeDates = trades |> List.map (fun t -> t.TimeStamp) |> Set.ofList  
-        let dividendDates = dividends |> List.map (fun d -> d.TimeStamp) |> Set.ofList
-        let dividendTaxDates = dividendTaxes |> List.map (fun dt -> dt.TimeStamp) |> Set.ofList
-        let optionTradeDates = optionTrades |> List.map (fun ot -> ot.TimeStamp) |> Set.ofList
+        // Extract all unique dates from all movement types and normalize to start of day
+        // This ensures proper date-only comparison for snapshot management
+        let brokerMovementDates = brokerMovements |> List.map (fun m -> SnapshotManagerUtils.normalizeToStartOfDay m.TimeStamp) |> Set.ofList
+        let tradeDates = trades |> List.map (fun t -> SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp) |> Set.ofList  
+        let dividendDates = dividends |> List.map (fun d -> SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp) |> Set.ofList
+        let dividendTaxDates = dividendTaxes |> List.map (fun dt -> SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp) |> Set.ofList
+        let optionTradeDates = optionTrades |> List.map (fun ot -> SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp) |> Set.ofList
         
         let allDates = Set.unionMany [brokerMovementDates; tradeDates; dividendDates; dividendTaxDates; optionTradeDates]
         
@@ -237,7 +245,7 @@ module internal BrokerAccountMovementData =
         // Calculate total movement count
         let totalCount = brokerMovements.Length + trades.Length + dividends.Length + dividendTaxes.Length + optionTrades.Length
         
-        // Determine date range (if any movements exist)
+        // Determine date range (if any movements exist) - use normalized dates for consistency
         let dateRange = 
             if allDates.IsEmpty then
                 (fromDate, fromDate)
@@ -268,11 +276,12 @@ module internal BrokerAccountMovementData =
     
     /// Gets movements for a specific date
     let getMovementsForDate (date: DateTimePattern) (data: BrokerAccountMovementData) =
-        let brokerMovementsForDate = data.BrokerMovements |> List.filter (fun m -> m.TimeStamp = date)
-        let tradesForDate = data.Trades |> List.filter (fun t -> t.TimeStamp = date)
-        let dividendsForDate = data.Dividends |> List.filter (fun d -> d.TimeStamp = date)
-        let dividendTaxesForDate = data.DividendTaxes |> List.filter (fun dt -> dt.TimeStamp = date)
-        let optionTradesForDate = data.OptionTrades |> List.filter (fun ot -> ot.TimeStamp = date)
+        let normalizedDate = SnapshotManagerUtils.normalizeToStartOfDay date
+        let brokerMovementsForDate = data.BrokerMovements |> List.filter (fun m -> SnapshotManagerUtils.normalizeToStartOfDay m.TimeStamp = normalizedDate)
+        let tradesForDate = data.Trades |> List.filter (fun t -> SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp = normalizedDate)
+        let dividendsForDate = data.Dividends |> List.filter (fun d -> SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp = normalizedDate)
+        let dividendTaxesForDate = data.DividendTaxes |> List.filter (fun dt -> SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp = normalizedDate)
+        let optionTradesForDate = data.OptionTrades |> List.filter (fun ot -> SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp = normalizedDate)
         
         create date data.BrokerAccountId brokerMovementsForDate tradesForDate dividendsForDate dividendTaxesForDate optionTradesForDate
     
@@ -284,11 +293,12 @@ module internal BrokerAccountMovementData =
     let getMovementsForCurrencyAndDate (currencyId: int) (date: DateTimePattern) (data: BrokerAccountMovementData) =
         match data.MovementsByCurrency.TryFind(currencyId) with
         | Some currencyData ->
-            let brokerMovementsForDate = currencyData.BrokerMovements |> List.filter (fun m -> m.TimeStamp = date)
-            let tradesForDate = currencyData.Trades |> List.filter (fun t -> t.TimeStamp = date)
-            let dividendsForDate = currencyData.Dividends |> List.filter (fun d -> d.TimeStamp = date)
-            let dividendTaxesForDate = currencyData.DividendTaxes |> List.filter (fun dt -> dt.TimeStamp = date)
-            let optionTradesForDate = currencyData.OptionTrades |> List.filter (fun ot -> ot.TimeStamp = date)
+            let normalizedDate = SnapshotManagerUtils.normalizeToStartOfDay date
+            let brokerMovementsForDate = currencyData.BrokerMovements |> List.filter (fun m -> SnapshotManagerUtils.normalizeToStartOfDay m.TimeStamp = normalizedDate)
+            let tradesForDate = currencyData.Trades |> List.filter (fun t -> SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp = normalizedDate)
+            let dividendsForDate = currencyData.Dividends |> List.filter (fun d -> SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp = normalizedDate)
+            let dividendTaxesForDate = currencyData.DividendTaxes |> List.filter (fun dt -> SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp = normalizedDate)
+            let optionTradesForDate = currencyData.OptionTrades |> List.filter (fun ot -> SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp = normalizedDate)
             
             Some (createCurrencyMovementData currencyId brokerMovementsForDate tradesForDate dividendsForDate dividendTaxesForDate optionTradesForDate)
         | None -> None

@@ -23,6 +23,8 @@ module internal BrokerAccountSnapshotManager =
     let private getOrCreateSnapshot(brokerAccountId: int, snapshotDate: DateTimePattern) = task {
         
         // Check if a snapshot already exists for this broker account on the given date
+        // Ensure snapshotDate is always end of date 
+        let snapshotDate = getDateOnly snapshotDate
         let! existingSnapshot = BrokerAccountSnapshotExtensions.Do.getByBrokerAccountIdAndDate(brokerAccountId, snapshotDate)
         match existingSnapshot with
         | Some snapshot -> 
