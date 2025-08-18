@@ -25,6 +25,12 @@ internal class AccountTemplateSelector : DataTemplateSelector
                 return BankAccountTemplate;
         }
 
+        if(item is Models.OverviewSnapshot snapshot)
+        {
+            if(snapshot.Type.IsBrokerAccount)
+                return BrokerAccountTemplate;
+        }
+
         return EmptyAccountTemplate;
     }
 }

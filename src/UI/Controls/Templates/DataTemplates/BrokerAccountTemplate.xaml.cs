@@ -4,9 +4,9 @@ namespace Binnaculum.Controls;
 
 public partial class BrokerAccountTemplate
 {
-    private Core.Models.Account? _account;
     private Core.Models.BrokerAccount? _brokerAccount;
     private Core.Models.Broker? _broker;
+    private bool _hasMovements = false;
 
     public BrokerAccountTemplate()
 	{
@@ -22,14 +22,14 @@ public partial class BrokerAccountTemplate
     {
         base.OnBindingContextChanged();
 
-        if (BindingContext is Core.Models.Account account)
+        if (BindingContext is Core.Models.OverviewSnapshot snapshot)
         {
             Disposables?.Clear();
-            _account = account;
-            _brokerAccount = account.Broker.Value;
-            _broker = account.Broker.Value?.Broker;
+            _brokerAccount = snapshot.BrokerAccount.Value.BrokerAccount;
+            _broker = _brokerAccount.Broker;
+            _hasMovements = snapshot.BrokerAccount.Value.Financial.MovementCounter > 0;
 
-            SetupValues();            
+            SetupValues();
         }
     }
 
@@ -38,16 +38,16 @@ public partial class BrokerAccountTemplate
         Icon.ImagePath = _broker!.Image;
         BrokerName.Text = _brokerAccount!.AccountNumber;
         
-        AddMovementContainer.VerticalOptions = _account!.HasMovements 
+        AddMovementContainer.VerticalOptions = _hasMovements 
             ? LayoutOptions.End 
             : LayoutOptions.Center;
 
-        AddMovementContainer.HorizontalOptions = _account!.HasMovements
+        AddMovementContainer.HorizontalOptions = _hasMovements
             ? LayoutOptions.Start 
             : LayoutOptions.Center;
 
-        Add.Scale = _account!.HasMovements ? 0.6 : 1;
-        AddMovementContainer.Spacing = _account!.HasMovements ? 0 : 12;
+        Add.Scale = _hasMovements ? 0.6 : 1;
+        AddMovementContainer.Spacing = _hasMovements ? 0 : 12;
 
         Observable
             .Merge(
