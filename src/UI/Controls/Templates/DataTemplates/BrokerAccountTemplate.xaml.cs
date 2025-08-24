@@ -4,6 +4,7 @@ namespace Binnaculum.Controls;
 
 public partial class BrokerAccountTemplate
 {
+    private Core.Models.OverviewSnapshot? _snapshot;
     private Core.Models.BrokerAccount? _brokerAccount;
     private Core.Models.Broker? _broker;
     private bool _hasMovements = false;
@@ -25,6 +26,7 @@ public partial class BrokerAccountTemplate
         if (BindingContext is Core.Models.OverviewSnapshot snapshot)
         {
             Disposables?.Clear();
+            _snapshot = snapshot;
             _brokerAccount = snapshot.BrokerAccount.Value.BrokerAccount;
             _broker = _brokerAccount.Broker;
             _hasMovements = snapshot.BrokerAccount.Value.Financial.MovementCounter > 0;
@@ -48,6 +50,9 @@ public partial class BrokerAccountTemplate
 
         Add.Scale = _hasMovements ? 0.6 : 1;
         AddMovementContainer.Spacing = _hasMovements ? 0 : 12;
+        Percentage.IsVisible = _hasMovements;
+
+        Percentage.Percentage = _snapshot!.BrokerAccount.Value.Financial.RealizedPercentage;
 
         Observable
             .Merge(

@@ -24,11 +24,11 @@
                 Style="{StaticResource CenteredSubHeadline}" />
 
             <controls:PercentageControl
+                x:Name="Percentage"
                 Grid.Row="0"
                 Grid.RowSpan="2"
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
-                Percentage="-3"
                 IsVisible="False"
                 HorizontalOptions="Center"
                 VerticalOptions="Center" />
