@@ -5,6 +5,29 @@
 ## Project Overview
 Binnaculum is a cross-platform investment tracking app built with .NET 9 and .NET MAUI. The solution includes F# and C# projects, focusing on investment, portfolio, and bank account management. It targets Android, iOS, MacCatalyst, and Windows platforms using SQLite for data persistence and ReactiveUI for MVVM patterns.
 
+## Copilot Task Guidelines
+
+### ? Ideal Tasks for Copilot Assignment
+- **TestUtils Implementation**: Device testing infrastructure, assertion extensions, test data builders
+- **UI Component Testing**: BrokerAccountTemplate tests, PercentageControl validation, cross-platform UI testing
+- **Bug Fixes**: Specific compilation errors, test failures, package reference issues
+- **Code Quality**: XAML formatting, code style compliance, adding missing tests
+- **Documentation**: Update README files, add code comments, create examples
+- **Performance Optimization**: Memory leak detection, Observable chain cleanup
+
+### ? Tasks to Handle Manually (Complex/Critical)
+- **Core Financial Logic**: Complex percentage calculations, portfolio balance algorithms
+- **Database Schema Changes**: SQLite model updates, migration scripts
+- **Architecture Decisions**: Multi-platform targeting, project structure changes
+- **Security Concerns**: Authentication flows, sensitive data handling
+- **Production Issues**: Critical bugs affecting user data
+
+### ?? Task Scoping Best Practices
+- **Be Specific**: "Implement BrokerAccountTemplate device tests for layout states" vs "Add some tests"  
+- **Include Acceptance Criteria**: "Tests must run on Android, iOS, Windows, MacCatalyst"
+- **Reference Examples**: "Follow patterns in Microsoft MAUI TestUtils: [URL]"
+- **Specify Files**: "Update files in src/Tests/TestUtils/UI.DeviceTests/"
+
 ## Working Effectively
 
 ### Prerequisites and Setup

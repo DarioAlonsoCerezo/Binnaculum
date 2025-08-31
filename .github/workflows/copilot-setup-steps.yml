@@ -21,3 +21,45 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install MAUI workloads
+        run: |
+          dotnet workload install maui-android
+          echo "? MAUI Android workload installed"
+
+      - name: Restore NuGet packages
+        run: |
+          dotnet restore
+          echo "? NuGet packages restored"
+
+      - name: Build F# Core project
+        run: |
+          dotnet build src/Core/Core.fsproj --no-restore
+          echo "? F# Core project built successfully"
+
+      - name: Build F# Core.Tests
+        run: |
+          dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --no-restore
+          echo "? F# Core.Tests built successfully"
+
+      - name: Build TestUtils DeviceTests for Android
+        run: |
+          dotnet build src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj -f net9.0-android --no-restore
+          echo "? TestUtils DeviceTests (Android) built successfully"
+
+      - name: Verify test execution
+        run: |
+          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj --no-build --verbosity minimal
+          echo "? Core tests verified (expect 80/87 to pass - 7 MAUI-dependent tests fail in headless environment)"
+
+      - name: Display environment info
+        run: |
+          echo "??? Build environment ready for Binnaculum development"
+          echo "?? Platforms available: Android (iOS/MacCatalyst require macOS)"
+          echo "?? TestUtils infrastructure: Ready for device testing"
+          echo "?? Investment tracking: F# core + C# MAUI UI"
