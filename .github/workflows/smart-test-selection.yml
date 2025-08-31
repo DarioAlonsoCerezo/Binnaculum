@@ -238,13 +238,64 @@ jobs:
           dotnet restore src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj
           dotnet build src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj \
             --framework ${{ matrix.target }} --configuration Release --no-restore
+          dotnet restore src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.csproj
+          dotnet build src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.csproj \
+            --framework ${{ matrix.target }} --configuration Release --no-restore
+
+      - name: Run Smart Device Tests with HeadlessRunner
+        run: |
+          # Determine filter based on test level and changes
+          FILTER=""
+          if [[ "${{ needs.analyze-changes.outputs.test-level }}" == "smoke" ]]; then
+            FILTER="*BasicTests*"
+          elif [[ "${{ needs.analyze-changes.outputs.test-level }}" == "performance" ]]; then
+            FILTER="*Performance*"
+          elif [[ "${{ needs.analyze-changes.outputs.core-changes }}" == "true" ]]; then
+            FILTER="*Core*"
+          elif [[ "${{ needs.analyze-changes.outputs.ui-changes }}" == "true" ]]; then
+            FILTER="*UI*"
+          fi
+          
+          # Use HeadlessRunner with intelligent filtering
+          ./scripts/run-headless-tests.sh \
+            --platform ${{ matrix.platform }} \
+            --filter "${FILTER}" \
+            --output-format xml \
+            --output-path smart-device-results-${{ matrix.platform }}.xml \
+            --headless \
+            --collect-artifacts \
+            --artifact-path ./smart-test-artifacts \
+            --verbosity detailed \
+            --timeout 600 \
+            --parallel \
+            --target-framework ${{ matrix.target }}
+
+      - name: Publish Smart Device Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Smart Device Tests Results (${{ matrix.platform }})
+          path: '**/smart-device-results-${{ matrix.platform }}.xml'
+          reporter: dotnet-trx
+          fail-on-error: false
+
+      - name: Upload Smart Device Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-device-artifacts-${{ matrix.platform }}
+          path: |
+            smart-test-artifacts/
+            smart-device-results-${{ matrix.platform }}.xml
+          retention-days: 7
 
       - name: Report platform support
         run: |
-          echo "✅ ${{ matrix.platform }} build successful for ${{ matrix.target }}"
+          echo "✅ ${{ matrix.platform }} HeadlessRunner tests completed for ${{ matrix.target }}"
           echo "Platform: ${{ matrix.platform }}"
           echo "Target: ${{ matrix.target }}"
           echo "Test Level: ${{ needs.analyze-changes.outputs.test-level }}"
+          echo "Applied Filter: ${FILTER:-'All tests'}"
 
   # Test Summary
   smart-test-summary:
