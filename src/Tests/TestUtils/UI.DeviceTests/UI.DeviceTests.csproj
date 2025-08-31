@@ -68,4 +68,11 @@
 	  <ProjectReference Include="..\..\..\Core\Core.fsproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<!-- F# Interop Package -->
+		<PackageReference Include="FSharp.Core" />
+		<!-- System.Reactive for Observable testing -->
+		<PackageReference Include="System.Reactive" />
+	</ItemGroup>
+
 </Project>

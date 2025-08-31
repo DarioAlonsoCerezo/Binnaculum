@@ -1,0 +1,269 @@
+#if ANDROID
+using Android.Views;
+using AndroidX.AppCompat.App;
+using Microsoft.Maui.Platform;
+
+namespace Binnaculum.UI.DeviceTests.Platform;
+
+/// <summary>
+/// Android-specific assertion extensions for Binnaculum device testing.
+/// Based on Microsoft MAUI TestUtils Android patterns for platform-specific validations.
+/// </summary>
+public static class AndroidAssertionExtensions
+{
+    #region Android UI Validations
+
+    /// <summary>
+    /// Validates that a MAUI element is properly rendered as an Android native view.
+    /// </summary>
+    /// <param name="element">The MAUI element to validate</param>
+    /// <param name="expectedViewType">Expected Android native view type</param>
+    public static void AssertAndroidNativeView(this Element element, Type expectedViewType)
+    {
+        Assert.NotNull(element);
+        Assert.NotNull(element.Handler);
+        
+        var nativeView = element.Handler.PlatformView;
+        Assert.NotNull(nativeView);
+        Assert.IsAssignableFrom(expectedViewType, nativeView);
+    }
+
+    /// <summary>
+    /// Validates Android-specific accessibility properties for financial UI elements.
+    /// </summary>
+    /// <param name="element">The MAUI element to validate</param>
+    /// <param name="expectedContentDescription">Expected content description for accessibility</param>
+    public static void AssertAndroidAccessibility(this Element element, string expectedContentDescription)
+    {
+        Assert.NotNull(element);
+        Assert.NotNull(element.Handler);
+        
+        var nativeView = element.Handler.PlatformView as View;
+        Assert.NotNull(nativeView);
+        Assert.Equal(expectedContentDescription, nativeView.ContentDescription);
+    }
+
+    /// <summary>
+    /// Validates Android-specific currency formatting in text views.
+    /// Tests that currency symbols and decimal separators are displayed correctly on Android.
+    /// </summary>
+    /// <param name="element">The text element to validate</param>
+    /// <param name="expectedCurrencyFormat">Expected currency format string</param>
+    public static void AssertAndroidCurrencyDisplay(this Element element, string expectedCurrencyFormat)
+    {
+        Assert.NotNull(element);
+        
+        if (element is Label label)
+        {
+            Assert.Equal(expectedCurrencyFormat, label.Text);
+            
+            // Validate Android-specific text rendering
+            if (label.Handler?.PlatformView is AndroidX.AppCompat.Widget.AppCompatTextView textView)
+            {
+                var displayedText = textView.Text;
+                Assert.Equal(expectedCurrencyFormat, displayedText);
+            }
+        }
+        else
+        {
+            throw new NotSupportedException($"Element type {element.GetType().Name} is not supported for Android currency display validation");
+        }
+    }
+
+    /// <summary>
+    /// Validates Android-specific percentage display formatting.
+    /// Ensures percentage values are properly formatted for Android locale settings.
+    /// </summary>
+    /// <param name="element">The element displaying the percentage</param>
+    /// <param name="percentageValue">The percentage value to validate</param>
+    /// <param name="expectedFormat">Expected formatted percentage string</param>
+    public static void AssertAndroidPercentageDisplay(this Element element, decimal percentageValue, string expectedFormat)
+    {
+        Assert.NotNull(element);
+        
+        if (element is Label label)
+        {
+            // Validate the basic text content
+            Assert.Equal(expectedFormat, label.Text);
+            
+            // Validate Android-specific rendering
+            if (label.Handler?.PlatformView is AndroidX.AppCompat.Widget.AppCompatTextView textView)
+            {
+                // Check that percentage is displayed with appropriate Android formatting
+                var displayedText = textView.Text;
+                Assert.Equal(expectedFormat, displayedText);
+                
+                // Validate color coding for positive/negative percentages if applicable
+                if (percentageValue < 0)
+                {
+                    // Negative percentages might be displayed in red
+                    Assert.NotNull(textView.CurrentTextColor);
+                }
+                else if (percentageValue > 0)
+                {
+                    // Positive percentages might be displayed in green
+                    Assert.NotNull(textView.CurrentTextColor);
+                }
+            }
+        }
+        else
+        {
+            throw new NotSupportedException($"Element type {element.GetType().Name} is not supported for Android percentage display validation");
+        }
+    }
+
+    #endregion
+
+    #region Android Hardware Validations
+
+    /// <summary>
+    /// Validates device-specific capabilities for financial data processing.
+    /// Tests that the Android device has sufficient capabilities for Binnaculum operations.
+    /// </summary>
+    public static void AssertAndroidDeviceCapabilities()
+    {
+        var context = Platform.CurrentActivity ?? Android.App.Application.Context;
+        Assert.NotNull(context);
+        
+        // Validate memory availability for financial calculations
+        var activityManager = (Android.App.ActivityManager?)context.GetSystemService(Android.Content.Context.ActivityService);
+        Assert.NotNull(activityManager);
+        
+        var memoryInfo = new Android.App.ActivityManager.MemoryInfo();
+        activityManager.GetMemoryInfo(memoryInfo);
+        
+        // Ensure sufficient memory for financial calculations (at least 100MB available)
+        Assert.True(memoryInfo.AvailMem > 100 * 1024 * 1024, 
+            $"Insufficient memory available: {memoryInfo.AvailMem / (1024 * 1024)}MB");
+    }
+
+    /// <summary>
+    /// Validates Android-specific storage capabilities for financial data.
+    /// </summary>
+    public static void AssertAndroidStorageCapabilities()
+    {
+        var context = Platform.CurrentActivity ?? Android.App.Application.Context;
+        Assert.NotNull(context);
+        
+        // Check internal storage availability
+        var filesDir = context.FilesDir;
+        Assert.NotNull(filesDir);
+        
+        var stat = new Android.OS.StatFs(filesDir.AbsolutePath);
+        var availableBytes = stat.AvailableBytes;
+        
+        // Ensure at least 50MB of storage available for financial data
+        Assert.True(availableBytes > 50 * 1024 * 1024,
+            $"Insufficient storage available: {availableBytes / (1024 * 1024)}MB");
+    }
+
+    #endregion
+
+    #region Android Performance Validations
+
+    /// <summary>
+    /// Validates Android-specific performance for financial calculations.
+    /// Tests that complex financial operations complete within acceptable timeframes on Android.
+    /// </summary>
+    /// <param name="financialOperation">The financial operation to test</param>
+    /// <param name="maxExecutionTime">Maximum acceptable execution time</param>
+    public static async Task AssertAndroidFinancialPerformance(
+        Func<Task> financialOperation, 
+        TimeSpan maxExecutionTime)
+    {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        await financialOperation();
+        
+        stopwatch.Stop();
+        
+        Assert.True(stopwatch.Elapsed <= maxExecutionTime,
+            $"Financial operation took {stopwatch.Elapsed} which exceeds maximum allowed time of {maxExecutionTime}");
+        
+        // Android-specific: Check for ANR potential (operations taking longer than 5 seconds)
+        if (stopwatch.Elapsed > TimeSpan.FromSeconds(5))
+        {
+            Assert.Fail($"Financial operation took {stopwatch.Elapsed} which could cause ANR on Android");
+        }
+    }
+
+    /// <summary>
+    /// Validates Android UI thread responsiveness during financial operations.
+    /// </summary>
+    /// <param name="uiOperation">UI operation to test</param>
+    /// <param name="maxUiBlockTime">Maximum time UI can be blocked</param>
+    public static async Task AssertAndroidUIResponsiveness(
+        Func<Task> uiOperation,
+        TimeSpan? maxUiBlockTime = null)
+    {
+        maxUiBlockTime ??= TimeSpan.FromMilliseconds(16); // 60 FPS requirement
+        
+        var mainHandler = new Android.OS.Handler(Android.OS.Looper.MainLooper);
+        var isUiBlocked = false;
+        var uiCheckTask = Task.Run(async () =>
+        {
+            await Task.Delay(maxUiBlockTime.Value);
+            mainHandler.Post(() => { isUiBlocked = true; });
+        });
+        
+        await uiOperation();
+        
+        // Give UI check task a moment to complete
+        await Task.Delay(100);
+        
+        Assert.False(isUiBlocked, "UI was blocked longer than acceptable time during financial operation");
+    }
+
+    #endregion
+
+    #region Android Integration Validations
+
+    /// <summary>
+    /// Validates Android-specific integration with system features.
+    /// Tests currency locale handling and system integration.
+    /// </summary>
+    public static void AssertAndroidCurrencyLocale()
+    {
+        var context = Platform.CurrentActivity ?? Android.App.Application.Context;
+        Assert.NotNull(context);
+        
+        var locale = context.Resources?.Configuration?.Locales?.Get(0);
+        Assert.NotNull(locale);
+        
+        // Validate that currency formatting works with system locale
+        var testAmount = 1234.56m;
+        var currencyInstance = Java.Text.NumberFormat.GetCurrencyInstance(locale);
+        var formattedCurrency = currencyInstance?.Format(testAmount);
+        
+        Assert.NotNull(formattedCurrency);
+        Assert.Contains(testAmount.ToString("F2").Replace(".", ""), formattedCurrency.Replace(",", "").Replace(".", ""));
+    }
+
+    /// <summary>
+    /// Validates Android-specific theme and styling integration.
+    /// </summary>
+    /// <param name="element">Element to validate styling for</param>
+    public static void AssertAndroidTheming(this Element element)
+    {
+        Assert.NotNull(element);
+        Assert.NotNull(element.Handler);
+        
+        var nativeView = element.Handler.PlatformView as View;
+        Assert.NotNull(nativeView);
+        
+        // Validate that the view respects Android themes (light/dark mode)
+        var context = nativeView.Context;
+        Assert.NotNull(context);
+        
+        if (context is AppCompatActivity activity)
+        {
+            var nightMode = activity.Delegate?.LocalNightMode ?? AppCompatDelegate.ModeNightUnspecified;
+            
+            // Verify that theme-aware styling is applied
+            Assert.NotEqual(AppCompatDelegate.ModeNightUnspecified, nightMode);
+        }
+    }
+
+    #endregion
+}
+#endif

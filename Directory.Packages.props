@@ -33,6 +33,7 @@
 		<PackageVersion Include="ReactiveUI" Version="$(ReactiveUiVersion)" />
 		<PackageVersion Include="ReactiveUI.Maui" Version="$(ReactiveUiVersion)" />
 		<PackageVersion Include="DynamicData" Version="9.4.1" />
+		<PackageVersion Include="System.Reactive" Version="6.0.1" />
 	</ItemGroup>
 	
 	<!-- Microfost extensions -->
