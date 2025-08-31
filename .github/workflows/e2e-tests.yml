@@ -103,16 +103,28 @@ jobs:
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
           dotnet restore src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj
           dotnet build src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj --configuration Release --no-restore
+          dotnet restore src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.csproj
+          dotnet build src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.csproj \
+            --framework net9.0-android --configuration Release --no-restore
 
-      - name: Run Android E2E Tests
+      - name: Run Android E2E Tests with HeadlessRunner
         run: |
           export ANDROID_DEVICE_ID=$(adb devices | grep emulator | awk '{print $1}')
           export APPIUM_SERVER_URL="http://localhost:4723"
           
-          dotnet test src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj \
-            --configuration Release --no-build \
-            --logger "trx;LogFileName=android-e2e-results.trx" \
-            --verbosity normal
+          # Use HeadlessRunner to orchestrate E2E tests with enhanced artifact collection
+          ./scripts/run-headless-tests.sh \
+            --platform android \
+            --filter "*UITest.Appium*" \
+            --output-format xml \
+            --output-path android-e2e-results.xml \
+            --headless \
+            --collect-artifacts \
+            --artifact-path ./test-artifacts/android \
+            --verbosity detailed \
+            --timeout 1200 \
+            --retry-count 1 \
+            --target-framework net9.0-android
         continue-on-error: true
         timeout-minutes: 20
 
@@ -129,11 +141,10 @@ jobs:
         if: always()
         run: |
           mkdir -p test-artifacts/android
-          # Collect screenshots if available
+          # HeadlessRunner artifacts are already collected in ./test-artifacts/android
+          # Additional manual artifact collection for completeness
           find . -name "*.png" -path "*/test*" -exec cp {} test-artifacts/android/ \; 2>/dev/null || true
-          # Collect logs
           adb logcat -d > test-artifacts/android/device.log 2>/dev/null || true
-          # Collect Appium logs
           if [ -f appium.log ]; then cp appium.log test-artifacts/android/; fi
 
       - name: Upload test artifacts
@@ -225,16 +236,28 @@ jobs:
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
           dotnet restore src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj
           dotnet build src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj --configuration Release --no-restore
+          dotnet restore src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.csproj
+          dotnet build src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.csproj \
+            --framework net9.0-ios --configuration Release --no-restore
 
-      - name: Run iOS E2E Tests
+      - name: Run iOS E2E Tests with HeadlessRunner
         run: |
           export IOS_SIMULATOR_ID=$(cat simulator.id)
           export APPIUM_SERVER_URL="http://localhost:4723"
           
-          dotnet test src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj \
-            --configuration Release --no-build \
-            --logger "trx;LogFileName=ios-e2e-results.trx" \
-            --verbosity normal
+          # Use HeadlessRunner to orchestrate iOS E2E tests
+          ./scripts/run-headless-tests.sh \
+            --platform ios \
+            --filter "*UITest.Appium*" \
+            --output-format xml \
+            --output-path ios-e2e-results.xml \
+            --headless \
+            --collect-artifacts \
+            --artifact-path ./test-artifacts/ios \
+            --verbosity detailed \
+            --timeout 1200 \
+            --retry-count 1 \
+            --target-framework net9.0-ios
         continue-on-error: true
         timeout-minutes: 20
 

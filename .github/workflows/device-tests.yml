@@ -176,13 +176,53 @@ jobs:
           dotnet build src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj \
             --framework ${{ matrix.target }} --configuration Release --no-restore
 
-      - name: Upload build artifacts
+      - name: Build HeadlessRunner for CI
+        run: |
+          dotnet restore src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.csproj
+          dotnet build src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.csproj \
+            --framework ${{ matrix.target }} --configuration Release --no-restore
+
+      - name: Run HeadlessRunner Device Tests (${{ matrix.platform }})
+        run: |
+          ./scripts/run-headless-tests.sh \
+            --platform ${{ matrix.platform }} \
+            --output-format xml \
+            --output-path test-results-${{ matrix.platform }}.xml \
+            --headless \
+            --collect-artifacts \
+            --artifact-path ./test-artifacts \
+            --verbosity detailed \
+            --timeout 600 \
+            --target-framework ${{ matrix.target }}
+        continue-on-error: true
+
+      - name: Publish HeadlessRunner Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: HeadlessRunner Tests Results (${{ matrix.platform }})
+          path: '**/test-results-${{ matrix.platform }}.xml'
+          reporter: dotnet-trx
+          fail-on-error: false
+
+      - name: Upload HeadlessRunner artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: headless-runner-artifacts-${{ matrix.platform }}
+          path: |
+            test-artifacts/
+            test-results-${{ matrix.platform }}.xml
+          retention-days: 7
+
+      - name: Upload build artifacts (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: build-logs-${{ matrix.platform }}
           path: |
             src/Tests/TestUtils/UI.DeviceTests/bin/Release/${{ matrix.target }}/
+            src/Tests/TestUtils/UI.DeviceTests.Runners/bin/Release/${{ matrix.target }}/
             **/*.binlog
           retention-days: 7
 
