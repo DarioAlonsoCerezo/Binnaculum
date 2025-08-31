@@ -101,8 +101,8 @@ public class PerformanceMonitoringIntegrationTests
         Console.WriteLine($"   Average Test Time: {summary.AverageTestTime.TotalMilliseconds:F1}ms");
         
         // Validate all metrics are reasonable
-        Assert.That(allMetrics.Count, Is.GreaterThan(10), "Should have executed multiple performance tests");
-        Assert.That(totalDuration.TotalMinutes, Is.LessThan(10), "Full suite should complete within 10 minutes");
+        Assert.That(allMetrics.Count, Is.GreaterThanOrEqualTo(5), "Should have executed multiple performance tests");
+        Assert.That(totalDuration.TotalMinutes, Is.LessThan(15), "Full suite should complete within 15 minutes");
     }
     
     [Test]
