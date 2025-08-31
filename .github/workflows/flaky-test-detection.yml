@@ -120,36 +120,35 @@ jobs:
               test_results = defaultdict(list)  # test_name -> [pass/fail/skip]
               total_runs = 0
               
-              # Parse all JUnit XML files
+              # Parse all TRX files (Visual Studio Test Results format)
               for xml_file in glob.glob("**/run-*-results.trx", recursive=True):
                   try:
                       tree = ET.parse(xml_file)
                       root = tree.getroot()
                       total_runs += 1
                       
-                      # Handle different JUnit XML formats
-                      testcases = root.findall('.//testcase')
-                      if not testcases:
-                          testsuites = root.findall('.//testsuite')
-                          for testsuite in testsuites:
-                              testcases.extend(testsuite.findall('testcase'))
+                      # Handle TRX format (namespace aware)
+                      namespace = {'': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
+                      testresults = root.findall('.//UnitTestResult', namespace)
+                      if not testresults:
+                          # Fallback without namespace
+                          testresults = root.findall('.//UnitTestResult')
                       
-                      for testcase in testcases:
-                          name = testcase.get('name', 'Unknown')
-                          classname = testcase.get('classname', 'Unknown')
-                          full_name = f"{classname}.{name}"
+                      for testresult in testresults:
+                          name = testresult.get('testName', 'Unknown')
+                          outcome = testresult.get('outcome', 'Unknown')
                           
-                          # Determine test result
-                          if testcase.find('failure') is not None:
+                          # Determine test result from TRX outcome
+                          if outcome.lower() == 'passed':
+                              result = 'pass'
+                          elif outcome.lower() == 'failed':
                               result = 'fail'
-                          elif testcase.find('error') is not None:
-                              result = 'error'
-                          elif testcase.find('skipped') is not None:
+                          elif outcome.lower() in ['skipped', 'notexecuted']:
                               result = 'skip'
                           else:
-                              result = 'pass'
+                              result = 'error'
                           
-                          test_results[full_name].append(result)
+                          test_results[name].append(result)
                   except Exception as e:
                       print(f"Error parsing {xml_file}: {e}")
               

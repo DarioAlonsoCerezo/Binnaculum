@@ -100,6 +100,9 @@ jobs:
           if [ -f TestResults/performance-results.trx ]; then
             grep -o 'duration="[^"]*"' TestResults/performance-results.trx | \
               sed 's/duration="//g' | sed 's/"//g' > performance-data/test-durations.txt || true
+          elif [ -f src/Tests/Core.Tests/TestResults/performance-results.trx ]; then
+            grep -o 'duration="[^"]*"' src/Tests/Core.Tests/TestResults/performance-results.trx | \
+              sed 's/duration="//g' | sed 's/"//g' > performance-data/test-durations.txt || true
           fi
           
           # Get system info
