@@ -11,7 +11,7 @@ namespace Binnaculum.UITest.Appium.Apps;
 /// </summary>
 public class BinnaculumMacCatalystApp : AppiumApp
 {
-    public BinnaculumMacCatalystApp(MacDriver<IWebElement> driver, IConfig config) 
+    public BinnaculumMacCatalystApp(MacDriver driver, IConfig config) 
         : base(driver, config)
     {
     }
@@ -43,7 +43,7 @@ public class BinnaculumMacCatalystApp : AppiumApp
         CloseApp();
         
         // For MacCatalyst, we can activate the app by bundle ID
-        if (_driver is MacDriver<IWebElement> macDriver && !string.IsNullOrEmpty(_config.AppPackage))
+        if (_driver is MacDriver macDriver && !string.IsNullOrEmpty(_config.AppPackage))
         {
             macDriver.ActivateApp(_config.AppPackage);
         }
@@ -68,7 +68,7 @@ public class BinnaculumMacCatalystApp : AppiumApp
     /// </summary>
     public void MinimizeWindow()
     {
-        if (_driver is MacDriver<IWebElement> macDriver)
+        if (_driver is MacDriver macDriver)
         {
             var actions = new OpenQA.Selenium.Interactions.Actions(macDriver);
             actions.KeyDown(OpenQA.Selenium.Keys.Command)
@@ -83,7 +83,7 @@ public class BinnaculumMacCatalystApp : AppiumApp
     /// </summary>
     public void CloseWindow()
     {
-        if (_driver is MacDriver<IWebElement> macDriver)
+        if (_driver is MacDriver macDriver)
         {
             var actions = new OpenQA.Selenium.Interactions.Actions(macDriver);
             actions.KeyDown(OpenQA.Selenium.Keys.Command)
@@ -98,7 +98,7 @@ public class BinnaculumMacCatalystApp : AppiumApp
     /// </summary>
     public void AccessMenu(string menuName)
     {
-        if (_driver is MacDriver<IWebElement> macDriver)
+        if (_driver is MacDriver macDriver)
         {
             // Click on menu bar
             var menuBar = Query().ByClass("MenuBar").First();

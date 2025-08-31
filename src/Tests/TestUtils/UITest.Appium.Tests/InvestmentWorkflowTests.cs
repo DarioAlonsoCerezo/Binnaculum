@@ -10,26 +10,29 @@ namespace Binnaculum.UITest.Appium.Tests;
 /// End-to-end tests for investment portfolio workflows in Binnaculum.
 /// These tests validate complete user journeys from dashboard to movement creation.
 /// </summary>
+[Collection("AppiumServer")]  // NEW: Use the collection fixture
 public class InvestmentWorkflowTests : IDisposable
 {
     private readonly IApp _app;
     private readonly IConfig _config;
+    private readonly AppiumServerFixture _serverFixture;
 
-    public InvestmentWorkflowTests()
+    public InvestmentWorkflowTests(AppiumServerFixture serverFixture)  // NEW: Inject fixture
     {
+        _serverFixture = serverFixture;
+        
         // Configure for Android testing - would need to be made configurable for CI/CD
         _config = AppiumConfig.ForBinnaculumAndroid();
         
-        // Note: This would require Appium server to be running
-        // In practice, this would be set up in test infrastructure
+        // NEW: Use the fixture-managed server
         try
         {
-            _app = BinnaculumAppFactory.CreateApp(_config);
+            _app = BinnaculumAppFactory.CreateAppWithAutoServer(_config, _serverFixture);
         }
-        catch
+        catch (Exception ex)
         {
-            // If Appium server is not available, skip tests
-            Skip.If(true, "Appium server not available - skipping E2E tests");
+            // If server is not available, skip tests with detailed reason
+            Skip.If(true, $"Appium server not available: {ex.Message}");
             _app = null!;
         }
     }
@@ -37,9 +40,6 @@ public class InvestmentWorkflowTests : IDisposable
     [Fact]
     public async Task AddInvestmentMovement_WithValidData_CreatesMovementSuccessfully()
     {
-        // Skip if app not initialized (Appium not available)
-        Skip.If(_app == null, "Appium not available");
-
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         var testData = InvestmentTestData.CreateProfitableMovement();
@@ -59,9 +59,6 @@ public class InvestmentWorkflowTests : IDisposable
     [Fact]
     public void Dashboard_OnAppStart_DisplaysPortfolioData()
     {
-        // Skip if app not initialized
-        Skip.If(_app == null, "Appium not available");
-
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         
@@ -79,9 +76,6 @@ public class InvestmentWorkflowTests : IDisposable
     [Fact]
     public void BrokerAccount_Navigation_WorksCorrectly()
     {
-        // Skip if app not initialized
-        Skip.If(_app == null, "Appium not available");
-
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         mainPage.WaitForPageToLoad();
@@ -99,9 +93,6 @@ public class InvestmentWorkflowTests : IDisposable
     [Fact]
     public void MovementCreator_WithDividendData_CreatesSuccessfully()
     {
-        // Skip if app not initialized
-        Skip.If(_app == null, "Appium not available");
-
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         var testData = InvestmentTestData.CreateDividendMovement();
@@ -122,9 +113,6 @@ public class InvestmentWorkflowTests : IDisposable
     [Fact]
     public void Portfolio_MultipleMovements_ShowsCorrectBalance()
     {
-        // Skip if app not initialized
-        Skip.If(_app == null, "Appium not available");
-
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         var movements = InvestmentTestData.CreateCompletePortfolioScenario();
@@ -152,9 +140,6 @@ public class InvestmentWorkflowTests : IDisposable
     [Fact]
     public void CrossScreenNavigation_BackAndForth_MaintainsState()
     {
-        // Skip if app not initialized
-        Skip.If(_app == null, "Appium not available");
-
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         

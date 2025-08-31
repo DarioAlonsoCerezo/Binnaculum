@@ -12,14 +12,14 @@ namespace Binnaculum.UITest.Appium;
 public class AppiumQuery : IQuery
 {
     private readonly List<QueryPart> _queryParts = new();
-    private readonly AppiumDriver<IWebElement> _driver;
+    private readonly AppiumDriver _driver;
 
-    public AppiumQuery(AppiumDriver<IWebElement> driver)
+    public AppiumQuery(AppiumDriver driver)
     {
         _driver = driver ?? throw new ArgumentNullException(nameof(driver));
     }
 
-    private AppiumQuery(AppiumDriver<IWebElement> driver, List<QueryPart> queryParts)
+    private AppiumQuery(AppiumDriver driver, List<QueryPart> queryParts)
     {
         _driver = driver;
         _queryParts = new List<QueryPart>(queryParts);

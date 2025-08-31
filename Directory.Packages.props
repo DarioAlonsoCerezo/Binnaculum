@@ -57,6 +57,9 @@
 		<!-- Appium for E2E Testing -->
 		<PackageVersion Include="Appium.WebDriver" Version="8.0.0" />
 		<PackageVersion Include="Selenium.WebDriver" Version="4.35.0" />
+		<!-- Server management packages -->
+		<PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
 		
 		<!-- Performance Testing -->
 		<PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />

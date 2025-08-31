@@ -11,11 +11,11 @@ namespace Binnaculum.UITest.Appium;
 /// </summary>
 public abstract class AppiumApp : IApp
 {
-    protected readonly AppiumDriver<IWebElement> _driver;
+    protected readonly AppiumDriver _driver;
     protected readonly IConfig _config;
     private readonly ICommandExecution _commandExecutor;
 
-    protected AppiumApp(AppiumDriver<IWebElement> driver, IConfig config)
+    protected AppiumApp(AppiumDriver driver, IConfig config)
     {
         _driver = driver ?? throw new ArgumentNullException(nameof(driver));
         _config = config ?? throw new ArgumentNullException(nameof(config));
