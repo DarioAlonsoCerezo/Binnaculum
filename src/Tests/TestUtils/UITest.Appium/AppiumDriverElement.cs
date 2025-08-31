@@ -11,9 +11,9 @@ namespace Binnaculum.UITest.Appium;
 public class AppiumDriverElement : IUIElement
 {
     private readonly IWebElement _element;
-    private readonly AppiumDriver<IWebElement> _driver;
+    private readonly AppiumDriver _driver;
 
-    public AppiumDriverElement(IWebElement element, AppiumDriver<IWebElement> driver)
+    public AppiumDriverElement(IWebElement element, AppiumDriver driver)
     {
         _element = element ?? throw new ArgumentNullException(nameof(element));
         _driver = driver ?? throw new ArgumentNullException(nameof(driver));

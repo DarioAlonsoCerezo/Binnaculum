@@ -11,7 +11,7 @@ namespace Binnaculum.UITest.Appium.Apps;
 /// </summary>
 public class BinnaculumWindowsApp : AppiumApp
 {
-    public BinnaculumWindowsApp(WindowsDriver<IWebElement> driver, IConfig config) 
+    public BinnaculumWindowsApp(WindowsDriver driver, IConfig config) 
         : base(driver, config)
     {
     }
@@ -44,7 +44,7 @@ public class BinnaculumWindowsApp : AppiumApp
         
         // For Windows, we need to launch the app again
         // This would typically involve launching via app ID or executable path
-        if (_driver is WindowsDriver<IWebElement> windowsDriver)
+        if (_driver is WindowsDriver windowsDriver)
         {
             // Windows-specific restart logic would go here
             // Could involve Process.Start or WinUI app activation
@@ -69,7 +69,7 @@ public class BinnaculumWindowsApp : AppiumApp
     /// </summary>
     public void MinimizeWindow()
     {
-        if (_driver is WindowsDriver<IWebElement> windowsDriver)
+        if (_driver is WindowsDriver windowsDriver)
         {
             var actions = new OpenQA.Selenium.Interactions.Actions(windowsDriver);
             actions.KeyDown(OpenQA.Selenium.Keys.Alt)
@@ -84,7 +84,7 @@ public class BinnaculumWindowsApp : AppiumApp
     /// </summary>
     public void MaximizeWindow()
     {
-        if (_driver is WindowsDriver<IWebElement> windowsDriver)
+        if (_driver is WindowsDriver windowsDriver)
         {
             var actions = new OpenQA.Selenium.Interactions.Actions(windowsDriver);
             actions.KeyDown(OpenQA.Selenium.Keys.Alt)
@@ -99,7 +99,7 @@ public class BinnaculumWindowsApp : AppiumApp
     /// </summary>
     public void CloseWindow()
     {
-        if (_driver is WindowsDriver<IWebElement> windowsDriver)
+        if (_driver is WindowsDriver windowsDriver)
         {
             var actions = new OpenQA.Selenium.Interactions.Actions(windowsDriver);
             actions.KeyDown(OpenQA.Selenium.Keys.Alt)

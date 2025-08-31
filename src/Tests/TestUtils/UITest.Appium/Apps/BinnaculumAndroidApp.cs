@@ -11,14 +11,14 @@ namespace Binnaculum.UITest.Appium.Apps;
 /// </summary>
 public class BinnaculumAndroidApp : AppiumApp
 {
-    public BinnaculumAndroidApp(AndroidDriver<IWebElement> driver, IConfig config) 
+    public BinnaculumAndroidApp(AndroidDriver driver, IConfig config) 
         : base(driver, config)
     {
     }
 
     public override void Back()
     {
-        if (_driver is AndroidDriver<IWebElement> androidDriver)
+        if (_driver is AndroidDriver androidDriver)
         {
             androidDriver.PressKeyCode(AndroidKeyCode.Back);
         }
@@ -33,7 +33,7 @@ public class BinnaculumAndroidApp : AppiumApp
         CloseApp();
         
         // For Android, we can activate the app by package name
-        if (_driver is AndroidDriver<IWebElement> androidDriver && !string.IsNullOrEmpty(_config.AppPackage))
+        if (_driver is AndroidDriver androidDriver && !string.IsNullOrEmpty(_config.AppPackage))
         {
             androidDriver.ActivateApp(_config.AppPackage);
         }
@@ -58,7 +58,7 @@ public class BinnaculumAndroidApp : AppiumApp
     /// </summary>
     public void PressHome()
     {
-        if (_driver is AndroidDriver<IWebElement> androidDriver)
+        if (_driver is AndroidDriver androidDriver)
         {
             androidDriver.PressKeyCode(AndroidKeyCode.Home);
         }
@@ -69,7 +69,7 @@ public class BinnaculumAndroidApp : AppiumApp
     /// </summary>
     public void PressMenu()
     {
-        if (_driver is AndroidDriver<IWebElement> androidDriver)
+        if (_driver is AndroidDriver androidDriver)
         {
             androidDriver.PressKeyCode(AndroidKeyCode.Menu);
         }
@@ -80,7 +80,7 @@ public class BinnaculumAndroidApp : AppiumApp
     /// </summary>
     public void OpenNotifications()
     {
-        if (_driver is AndroidDriver<IWebElement> androidDriver)
+        if (_driver is AndroidDriver androidDriver)
         {
             androidDriver.OpenNotifications();
         }
@@ -91,7 +91,7 @@ public class BinnaculumAndroidApp : AppiumApp
     /// </summary>
     public void RotateScreen(ScreenOrientation orientation)
     {
-        if (_driver is AndroidDriver<IWebElement> androidDriver)
+        if (_driver is AndroidDriver androidDriver)
         {
             androidDriver.Orientation = orientation;
         }

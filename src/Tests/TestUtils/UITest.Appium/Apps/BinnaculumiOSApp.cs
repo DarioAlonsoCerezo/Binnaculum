@@ -11,7 +11,7 @@ namespace Binnaculum.UITest.Appium.Apps;
 /// </summary>
 public class BinnaculumiOSApp : AppiumApp
 {
-    public BinnaculumiOSApp(IOSDriver<IWebElement> driver, IConfig config) 
+    public BinnaculumiOSApp(IOSDriver driver, IConfig config) 
         : base(driver, config)
     {
     }
@@ -38,7 +38,7 @@ public class BinnaculumiOSApp : AppiumApp
         CloseApp();
         
         // For iOS, we can activate the app by bundle ID
-        if (_driver is IOSDriver<IWebElement> iosDriver && !string.IsNullOrEmpty(_config.AppPackage))
+        if (_driver is IOSDriver iosDriver && !string.IsNullOrEmpty(_config.AppPackage))
         {
             iosDriver.ActivateApp(_config.AppPackage);
         }
@@ -63,7 +63,7 @@ public class BinnaculumiOSApp : AppiumApp
     /// </summary>
     public void PressHome()
     {
-        if (_driver is IOSDriver<IWebElement> iosDriver)
+        if (_driver is IOSDriver iosDriver)
         {
             iosDriver.ExecuteScript("mobile: pressButton", new Dictionary<string, object> { ["name"] = "home" });
         }
@@ -74,7 +74,7 @@ public class BinnaculumiOSApp : AppiumApp
     /// </summary>
     public void ActivateSiri()
     {
-        if (_driver is IOSDriver<IWebElement> iosDriver)
+        if (_driver is IOSDriver iosDriver)
         {
             iosDriver.ExecuteScript("mobile: activateSiri");
         }
@@ -85,7 +85,7 @@ public class BinnaculumiOSApp : AppiumApp
     /// </summary>
     public void RotateScreen(ScreenOrientation orientation)
     {
-        if (_driver is IOSDriver<IWebElement> iosDriver)
+        if (_driver is IOSDriver iosDriver)
         {
             iosDriver.Orientation = orientation;
         }
