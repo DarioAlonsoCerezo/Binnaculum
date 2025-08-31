@@ -547,7 +547,7 @@ public class BrokerAccountTemplateTests
     /// Creates a test OverviewSnapshot with specified parameters for testing.
     /// This version creates proper F# Core model instances.
     /// </summary>
-    private static OverviewSnapshot CreateTestOverviewSnapshot(
+    public static OverviewSnapshot CreateTestOverviewSnapshot(
         bool hasMovements = true,
         string brokerImage = "default_broker.png",
         string accountNumber = "TEST123456",
