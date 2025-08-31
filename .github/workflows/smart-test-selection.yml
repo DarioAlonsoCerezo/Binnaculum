@@ -95,20 +95,23 @@ jobs:
         run: |
           # Manual workflow dispatch takes priority
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "platforms=${{ github.event.inputs.platforms }}" >> $GITHUB_OUTPUT
-            echo "📝 Manual platforms: ${{ github.event.inputs.platforms }}"
+            # Convert comma-separated input to JSON array format
+            PLATFORMS="${{ github.event.inputs.platforms }}"
+            PLATFORMS_ARRAY=$(echo "$PLATFORMS" | tr ',' '\n' | sed 's/^ *//g' | sed 's/ *$//g' | jq -R . | jq -s .)
+            echo "platforms=$(echo $PLATFORMS_ARRAY | jq -c .)" >> $GITHUB_OUTPUT
+            echo "📝 Manual platforms: $(echo $PLATFORMS_ARRAY | jq -c .)"
             exit 0
           fi
           
           # For PR, smart platform selection
           if [[ "${{ steps.determine-level.outputs.level }}" == "performance" ]]; then
-            echo "platforms=android,windows,ios,maccatalyst" >> $GITHUB_OUTPUT
+            echo 'platforms=["android","windows","ios","maccatalyst"]' >> $GITHUB_OUTPUT
             echo "🔄 All platforms for performance testing"
           elif [[ "${{ steps.determine-level.outputs.level }}" == "full" ]]; then
-            echo "platforms=android,windows" >> $GITHUB_OUTPUT
+            echo 'platforms=["android","windows"]' >> $GITHUB_OUTPUT
             echo "🔄 Core platforms for full testing"
           else
-            echo "platforms=android" >> $GITHUB_OUTPUT
+            echo 'platforms=["android"]' >> $GITHUB_OUTPUT
             echo "🔄 Android only for smoke testing"
           fi
 
@@ -175,7 +178,7 @@ jobs:
         uses: codecov/codecov-action@v3
         if: always()
         with:
-          files: '**/coverage.cobertura.trx'
+          files: '**/coverage.cobertura.xml'
           flags: core-tests
           name: core-coverage
 
@@ -187,7 +190,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ fromJson(format('[{0}]', needs.analyze-changes.outputs.platforms)) }}
+        platform: ${{ fromJson(needs.analyze-changes.outputs.platforms) }}
         include:
           - platform: android
             os: ubuntu-latest

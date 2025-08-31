@@ -68,7 +68,6 @@ jobs:
             --configuration Release --no-build --verbosity normal \
             $FILTER_ARGS \
             --logger "trx;LogFileName=run-${{ matrix.run }}-results.trx" \
-            --logger "trx;LogFileName=run-${{ matrix.run }}-results.trx" \
             --collect:"XPlat Code Coverage"
         continue-on-error: true
 
@@ -79,7 +78,7 @@ jobs:
           name: flaky-test-results-run-${{ matrix.run }}
           path: |
             TestResults/run-${{ matrix.run }}-results.*
-            **/*coverage*.trx
+            **/*coverage*.xml
           retention-days: 7
 
   # Analyze results for flakiness

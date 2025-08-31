@@ -66,7 +66,6 @@ jobs:
             --configuration Release --no-build --verbosity normal \
             --filter "BrokerFinancialSnapshotManager" \
             --logger "trx;LogFileName=performance-results.trx" \
-            --logger "trx;LogFileName=performance-results.trx" \
             --collect:"XPlat Code Coverage" \
             --settings performance.runsettings
         continue-on-error: true
@@ -78,7 +77,6 @@ jobs:
           dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
             --configuration Release --no-build --verbosity normal \
             --filter "BrokerFinancialSnapshotManager" \
-            --logger "trx;LogFileName=stress-results.trx" \
             --logger "trx;LogFileName=stress-results.trx"
         timeout-minutes: 20
         continue-on-error: true
@@ -90,7 +88,6 @@ jobs:
           dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
             --configuration Release --no-build --verbosity normal \
             --filter "TestCategory=Memory" \
-            --logger "trx;LogFileName=memory-results.trx" \
             --logger "trx;LogFileName=memory-results.trx"
         continue-on-error: true
 
@@ -136,7 +133,7 @@ jobs:
           path: |
             performance-data/
             TestResults/
-            **/coverage.cobertura.trx
+            **/coverage.cobertura.xml
           retention-days: 30
 
   # Build Performance Tests
