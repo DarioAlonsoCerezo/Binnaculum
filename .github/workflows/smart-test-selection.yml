@@ -142,7 +142,7 @@ jobs:
           dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
             --configuration Release --no-build --verbosity normal \
             --filter "TestCategory!=Performance" \
-            --logger "junit;LogFileName=smoke-results.xml" \
+            --logger "trx;LogFileName=smoke-results.trx" \
             --collect:"XPlat Code Coverage"
 
       - name: Run Full Tests
@@ -150,7 +150,7 @@ jobs:
         run: |
           dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
             --configuration Release --no-build --verbosity normal \
-            --logger "junit;LogFileName=full-results.xml" \
+            --logger "trx;LogFileName=full-results.trx" \
             --collect:"XPlat Code Coverage"
 
       - name: Run Performance Tests
@@ -159,7 +159,7 @@ jobs:
           dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
             --configuration Release --no-build --verbosity normal \
             --filter "BrokerFinancialSnapshotManager" \
-            --logger "junit;LogFileName=performance-results.xml" \
+            --logger "trx;LogFileName=performance-results.trx" \
             --collect:"XPlat Code Coverage"
 
       - name: Publish Test Results
@@ -167,15 +167,15 @@ jobs:
         if: always()
         with:
           name: Smart Core Tests Results (${{ needs.analyze-changes.outputs.test-level }})
-          path: '**/*-results.xml'
-          reporter: java-junit
+          path: '**/*-results.trx'
+          reporter: dotnet-trx
           fail-on-error: false
 
       - name: Upload Coverage
         uses: codecov/codecov-action@v3
         if: always()
         with:
-          files: '**/coverage.cobertura.xml'
+          files: '**/coverage.cobertura.trx'
           flags: core-tests
           name: core-coverage
 

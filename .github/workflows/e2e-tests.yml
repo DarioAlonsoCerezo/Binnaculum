@@ -124,7 +124,6 @@ jobs:
           dotnet test src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj \
             --configuration Release --no-build \
             --logger "trx;LogFileName=android-e2e-results.trx" \
-            --logger "junit;LogFileName=android-e2e-results.xml" \
             --verbosity normal
         continue-on-error: true
         timeout-minutes: 20
@@ -134,8 +133,8 @@ jobs:
         if: always()
         with:
           name: Android E2E Tests Results
-          path: '**/android-e2e-results.xml'
-          reporter: java-junit
+          path: '**/android-e2e-results.trx'
+          reporter: dotnet-trx
           fail-on-error: false
 
       - name: Collect test artifacts
@@ -247,7 +246,6 @@ jobs:
           dotnet test src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj \
             --configuration Release --no-build \
             --logger "trx;LogFileName=ios-e2e-results.trx" \
-            --logger "junit;LogFileName=ios-e2e-results.xml" \
             --verbosity normal
         continue-on-error: true
         timeout-minutes: 20
@@ -257,8 +255,8 @@ jobs:
         if: always()
         with:
           name: iOS E2E Tests Results
-          path: '**/ios-e2e-results.xml'
-          reporter: java-junit
+          path: '**/ios-e2e-results.trx'
+          reporter: dotnet-trx
           fail-on-error: false
 
       - name: Collect test artifacts

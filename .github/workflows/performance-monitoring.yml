@@ -66,7 +66,7 @@ jobs:
             --configuration Release --no-build --verbosity normal \
             --filter "BrokerFinancialSnapshotManager" \
             --logger "trx;LogFileName=performance-results.trx" \
-            --logger "junit;LogFileName=performance-results.xml" \
+            --logger "trx;LogFileName=performance-results.trx" \
             --collect:"XPlat Code Coverage" \
             --settings performance.runsettings
         continue-on-error: true
@@ -79,7 +79,7 @@ jobs:
             --configuration Release --no-build --verbosity normal \
             --filter "BrokerFinancialSnapshotManager" \
             --logger "trx;LogFileName=stress-results.trx" \
-            --logger "junit;LogFileName=stress-results.xml"
+            --logger "trx;LogFileName=stress-results.trx"
         timeout-minutes: 20
         continue-on-error: true
 
@@ -91,7 +91,7 @@ jobs:
             --configuration Release --no-build --verbosity normal \
             --filter "TestCategory=Memory" \
             --logger "trx;LogFileName=memory-results.trx" \
-            --logger "junit;LogFileName=memory-results.xml"
+            --logger "trx;LogFileName=memory-results.trx"
         continue-on-error: true
 
       - name: Extract performance metrics
@@ -124,8 +124,8 @@ jobs:
         if: always()
         with:
           name: Performance Test Results
-          path: '**/*-results.xml'
-          reporter: java-junit
+          path: '**/*-results.trx'
+          reporter: dotnet-trx
           fail-on-error: false
 
       - name: Upload performance artifacts
@@ -136,7 +136,7 @@ jobs:
           path: |
             performance-data/
             TestResults/
-            **/coverage.cobertura.xml
+            **/coverage.cobertura.trx
           retention-days: 30
 
   # Build Performance Tests
