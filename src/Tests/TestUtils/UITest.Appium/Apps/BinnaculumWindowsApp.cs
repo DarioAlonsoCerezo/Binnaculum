@@ -51,16 +51,16 @@ public class BinnaculumWindowsApp : AppiumApp
         }
     }
 
-    public override AppState GetAppState()
+    public override ApplicationState GetAppState()
     {
         try
         {
             // For Windows, we can check if the app window is visible/active
-            return AppState.RunningInForeground;
+            return ApplicationState.RunningInForeground;
         }
         catch
         {
-            return AppState.Unknown;
+            return ApplicationState.Unknown;
         }
     }
 

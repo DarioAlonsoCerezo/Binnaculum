@@ -13,11 +13,70 @@ public abstract class AppiumApp : IApp
 {
     protected readonly AppiumDriver<IWebElement> _driver;
     protected readonly IConfig _config;
+    private readonly ICommandExecution _commandExecutor;
 
     protected AppiumApp(AppiumDriver<IWebElement> driver, IConfig config)
     {
         _driver = driver ?? throw new ArgumentNullException(nameof(driver));
         _config = config ?? throw new ArgumentNullException(nameof(config));
+        _commandExecutor = new DefaultCommandExecution();
+    }
+
+    // IApp required properties
+    public IConfig Config => _config;
+    
+    public ApplicationState AppState => GetAppState();
+    
+    public ICommandExecution CommandExecutor => _commandExecutor;
+
+    // IUIElementQueryable implementation
+    public string ElementTree => GetElementTree();
+
+    public IUIElement? FindElement(IQuery query)
+    {
+        var appiumQuery = query as AppiumQuery ?? new AppiumQuery(_driver);
+        var element = appiumQuery.FindElement();
+        return element != null ? new AppiumDriverElement(element, _driver) : null;
+    }
+
+    public IReadOnlyCollection<IUIElement> FindElements(IQuery query)
+    {
+        var appiumQuery = query as AppiumQuery ?? new AppiumQuery(_driver);
+        var elements = appiumQuery.FindElements();
+        return elements.Select(e => new AppiumDriverElement(e, _driver)).ToList();
+    }
+
+    public bool ElementExists(IQuery query)
+    {
+        return FindElement(query) != null;
+    }
+
+    // IApp FindElement by string ID
+    public IUIElement FindElement(string id)
+    {
+        var element = FindElement(Binnaculum.UITest.Core.By.Id(id));
+        if (element == null)
+            throw new ElementNotFoundException(id);
+        return element;
+    }
+
+    // IScreenshotSupportedApp implementation
+    public void SaveScreenshot(string filePath)
+    {
+        var screenshot = Screenshot();
+        File.WriteAllBytes(filePath, screenshot);
+    }
+
+    private string GetElementTree()
+    {
+        try
+        {
+            return _driver.PageSource;
+        }
+        catch
+        {
+            return "Unable to retrieve element tree";
+        }
     }
 
     public virtual IQuery Query(string? query = null)
@@ -133,7 +192,7 @@ public abstract class AppiumApp : IApp
             Thread.Sleep(100);
         }
 
-        throw new TimeoutException($"Element not found within {wait} using query: {query.GetQueryString()}");
+        throw new Binnaculum.UITest.Core.TimeoutException($"Element not found within {wait} using query: {query.GetQueryString()}");
     }
 
     public virtual void WaitForNoElement(IQuery query, TimeSpan? timeout = null)
@@ -150,7 +209,7 @@ public abstract class AppiumApp : IApp
             Thread.Sleep(100);
         }
 
-        throw new TimeoutException($"Element still present after {wait} using query: {query.GetQueryString()}");
+        throw new Binnaculum.UITest.Core.TimeoutException($"Element still present after {wait} using query: {query.GetQueryString()}");
     }
 
     protected virtual IUIElement? TryFindElement(IQuery query)
@@ -184,16 +243,16 @@ public abstract class AppiumApp : IApp
         }
     }
 
-    public virtual AppState GetAppState()
+    public virtual ApplicationState GetAppState()
     {
         try
         {
             // Basic implementation - could be enhanced per platform
-            return AppState.RunningInForeground;
+            return ApplicationState.RunningInForeground;
         }
         catch
         {
-            return AppState.Unknown;
+            return ApplicationState.Unknown;
         }
     }
 

@@ -4,10 +4,34 @@ namespace Binnaculum.UITest.Core;
 /// Main interface for cross-platform app interaction during UI testing.
 /// Based on Microsoft MAUI UITest.Core IApp pattern.
 /// </summary>
-public interface IApp
+public interface IApp : IScreenshotSupportedApp, IUIElementQueryable, IDisposable
 {
     /// <summary>
-    /// Query for UI elements using various selectors.
+    /// Configuration used by this app instance.
+    /// </summary>
+    IConfig Config { get; }
+
+    /// <summary>
+    /// Current application state.
+    /// </summary>
+    ApplicationState AppState { get; }
+
+    /// <summary>
+    /// Command execution framework.
+    /// </summary>
+    ICommandExecution CommandExecutor { get; }
+
+    /// <summary>
+    /// Find a single element by AutomationId.
+    /// </summary>
+    /// <param name="id">AutomationId to search for</param>
+    /// <returns>Found element</returns>
+    /// <exception cref="ElementNotFoundException">Thrown if element is not found</exception>
+    IUIElement FindElement(string id);
+
+    /// <summary>
+    /// Query for UI elements using various selectors (legacy method).
+    /// Use By.* methods and IUIElementQueryable interface for better type safety.
     /// </summary>
     IQuery Query(string? query = null);
 
@@ -47,19 +71,22 @@ public interface IApp
     void ScrollTo(IQuery query, ScrollDirection direction = ScrollDirection.Down);
 
     /// <summary>
-    /// Wait for an element to appear.
+    /// Wait for an element to appear (legacy method).
+    /// This method is inherited from IUIElementQueryable.
     /// </summary>
-    IUIElement WaitForElement(IQuery query, TimeSpan? timeout = null);
+    // IUIElement WaitForElement(IQuery query, TimeSpan? timeout = null); // Inherited from IUIElementQueryable
 
     /// <summary>
-    /// Wait for an element to disappear.
+    /// Wait for an element to disappear (legacy method).
+    /// This method is inherited from IUIElementQueryable.
     /// </summary>
-    void WaitForNoElement(IQuery query, TimeSpan? timeout = null);
+    // void WaitForNoElement(IQuery query, TimeSpan? timeout = null); // Inherited from IUIElementQueryable
 
     /// <summary>
-    /// Take a screenshot.
+    /// Take a screenshot (legacy method).
+    /// This method is inherited from IScreenshotSupportedApp.
     /// </summary>
-    byte[] Screenshot();
+    // byte[] Screenshot(); // Inherited from IScreenshotSupportedApp
 
     /// <summary>
     /// Navigate back (Android back button, iOS navigation back).
@@ -74,7 +101,7 @@ public interface IApp
     /// <summary>
     /// Get the current app state.
     /// </summary>
-    AppState GetAppState();
+    ApplicationState GetAppState();
 
     /// <summary>
     /// Restart the app.
@@ -87,9 +114,10 @@ public interface IApp
     void CloseApp();
 
     /// <summary>
-    /// Dispose of the app and clean up resources.
+    /// Dispose of the app and clean up resources (legacy method).
+    /// This method is inherited from IDisposable.
     /// </summary>
-    void Dispose();
+    // void Dispose(); // Inherited from IDisposable
 }
 
 /// <summary>
@@ -104,13 +132,25 @@ public enum ScrollDirection
 }
 
 /// <summary>
-/// Current state of the app.
+/// Current state of the application.
 /// </summary>
-public enum AppState
+public enum ApplicationState
 {
     Unknown,
     NotInstalled,
     NotRunning,
     RunningInBackground,
     RunningInForeground
+}
+
+/// <summary>
+/// Legacy alias for ApplicationState - kept for compatibility.
+/// </summary>
+public enum AppState
+{
+    Unknown = ApplicationState.Unknown,
+    NotInstalled = ApplicationState.NotInstalled,
+    NotRunning = ApplicationState.NotRunning,
+    RunningInBackground = ApplicationState.RunningInBackground,
+    RunningInForeground = ApplicationState.RunningInForeground
 }
