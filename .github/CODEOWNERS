@@ -1,0 +1,32 @@
+# CODEOWNERS for Binnaculum
+# 
+# This file defines who must review PRs for different parts of the codebase.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global fallback - all changes require review from repository owner
+* @DarioAlonsoCerezo
+
+# Core F# business logic - critical financial calculations
+src/Core/ @DarioAlonsoCerezo
+src/Tests/Core.Tests/ @DarioAlonsoCerezo
+
+# Database schema and models - data integrity critical
+src/Core/Database/ @DarioAlonsoCerezo
+src/Core/Models/ @DarioAlonsoCerezo
+src/Core/SQL/ @DarioAlonsoCerezo
+
+# Critical financial snapshots and calculations
+src/Core/Snapshots/ @DarioAlonsoCerezo
+
+# CI/CD workflows - infrastructure changes
+.github/workflows/ @DarioAlonsoCerezo
+
+# MAUI UI - can be more flexible for UI changes
+# src/UI/ @DarioAlonsoCerezo
+
+# Testing infrastructure
+src/Tests/TestUtils/ @DarioAlonsoCerezo
+
+# Documentation and configuration
+README.md @DarioAlonsoCerezo
+.github/copilot-instructions.md @DarioAlonsoCerezo
