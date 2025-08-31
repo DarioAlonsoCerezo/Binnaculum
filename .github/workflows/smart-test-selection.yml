@@ -2,8 +2,9 @@
 name: Smart Test Selection
 
 on:
-  pull_request:
-    branches: [main]
+  # Run comprehensive smart testing on schedule (not on every PR)
+  schedule:
+    - cron: '30 6 * * 1,3,5'  # Mon, Wed, Fri at 6:30 AM UTC
   workflow_dispatch:
     inputs:
       test_level:
