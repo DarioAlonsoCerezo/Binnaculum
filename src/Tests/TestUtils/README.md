@@ -1,38 +1,66 @@
-# MAUI Device Testing Infrastructure
+# Binnaculum TestUtils - Investment App Testing Infrastructure
 
-This directory contains the MAUI device testing infrastructure for Binnaculum, providing device-level tests that run on actual Android, iOS, macOS, and Windows platforms.
+A comprehensive testing framework for Binnaculum's cross-platform investment tracking application. This infrastructure provides device-level testing, investment-specific assertions, and platform-specific utilities for Android, iOS, MacCatalyst, and Windows.
 
-## Project Structure
+## 🎯 Overview
 
-### UI.DeviceTests
-- **Purpose**: Contains device-specific UI tests that run on actual devices or emulators
-- **Target Frameworks**: 
-  - `net9.0-android` (Android devices/emulators)
-  - `net9.0-ios` (iOS devices/simulators) 
-  - `net9.0-maccatalyst` (macOS)
-  - `net9.0-windows10.0.19041.0` (Windows)
-- **Output Type**: Executable MAUI application
-- **Dependencies**: 
-  - Core project (F# business logic)
-  - XUnit testing framework
-  - Microsoft.Maui packages
+The TestUtils framework enables thorough testing of investment functionality across platforms, including:
 
-### UI.DeviceTests.Runners
-- **Purpose**: Test runner infrastructure and utilities for coordinating device test execution
-- **Target Frameworks**: Same as UI.DeviceTests
-- **Output Type**: Library
-- **Dependencies**: 
-  - Core project
-  - UI.DeviceTests project
-  - XUnit testing framework
+- **Investment-Specific Testing**: Currency formatting, percentage calculations, portfolio balance validation
+- **Multi-Platform Support**: Native testing on Android, iOS, MacCatalyst, and Windows  
+- **Realistic Test Data**: Investment scenarios based on real-world trading patterns
+- **Memory Leak Detection**: Observable chain testing for ReactiveUI components
+- **F# Integration**: Seamless testing of F# business logic from C# device tests
+- **Visual & Headless Runners**: Interactive development testing and automated CI/CD execution
 
-## Key Features
+## 🏗️ Project Architecture
 
-1. **Multi-Platform Support**: Tests can run on all MAUI-supported platforms
-2. **XUnit Integration**: Uses XUnit as the testing framework for consistency with modern .NET testing practices
-3. **Core Integration**: Direct access to F# core business logic for comprehensive testing
-4. **MAUI Controls Testing**: Ability to test MAUI UI controls in their native platform environments
-5. **Extensible Structure**: Organized folder structure for different test categories
+### Core Components
+
+#### UI.DeviceTests
+- **Purpose**: Component-level testing of MAUI UI controls and investment templates
+- **Target Frameworks**: `net9.0-android`, `net9.0-ios`, `net9.0-maccatalyst`, `net9.0-windows10.0.19041.0`
+- **Key Features**:
+  - Investment-specific assertion extensions (`AssertCurrencyFormat`, `AssertPercentageCalculation`)
+  - Fluent test data builders for realistic investment scenarios
+  - Observable memory leak detection for ReactiveUI components
+  - Platform-specific testing extensions
+
+#### UI.DeviceTests.Runners  
+- **Purpose**: Test execution infrastructure for both interactive and automated testing
+- **Components**:
+  - **Visual Runner**: Interactive XAML-based test discovery and execution
+  - **Headless Runner**: Command-line runner optimized for CI/CD environments
+- **Features**: Real-time progress, result export (XML/JSON), parallel execution
+
+#### UITest.Appium
+- **Purpose**: Cross-platform end-to-end UI automation using Appium
+- **Coverage**: Complete user workflows across Android, iOS, MacCatalyst, and Windows
+- **Pattern**: Page Object Model with investment-specific components
+
+#### UITest.Core
+- **Purpose**: Foundational interfaces and utilities for cross-platform UI testing
+- **Abstraction**: Platform-agnostic APIs with platform-specific implementations
+
+## 📚 Documentation
+
+### Quick Start
+- **[Writing Your First Device Test](docs/getting-started/first-test.md)** - Step-by-step tutorial for investment component testing
+- **[Developer Setup Guide](docs/getting-started/setup-guide.md)** - Complete environment setup instructions
+- **[Platform-Specific Setup](docs/getting-started/platform-setup/)** - Detailed platform configuration guides
+
+### Examples & Templates  
+- **[Component Test Examples](docs/examples/component-tests/)** - Real investment control testing scenarios
+- **[End-to-End Test Examples](docs/examples/e2e-tests/)** - Complete user workflow testing
+- **[Performance Test Examples](docs/examples/performance-tests/)** - Mobile performance validation
+
+### Best Practices & Architecture
+- **[Investment App Testing Best Practices](docs/best-practices.md)** - Guidelines for financial application testing
+- **[TestUtils Architecture](docs/architecture.md)** - System design and component relationships
+- **[API Documentation](docs/api/)** - Detailed API reference for all components
+
+### Support
+- **[Troubleshooting Guide](docs/troubleshooting.md)** - Common issues and platform-specific solutions
 
 ## Folder Structure
 
