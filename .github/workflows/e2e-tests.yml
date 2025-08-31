@@ -210,8 +210,8 @@ jobs:
           # List available simulators
           xcrun simctl list devices available
 
-          # Create and boot iPhone simulator
-          SIMULATOR_ID=$(xcrun simctl create "TestiPhone" "iPhone 15" "iOS-17.5")
+          # Create and boot iPhone simulator (use latest available iOS runtime)
+          SIMULATOR_ID=$(xcrun simctl create "TestiPhone" "iPhone 15")
           echo "Created simulator: $SIMULATOR_ID"
           echo "$SIMULATOR_ID" > simulator.id
 

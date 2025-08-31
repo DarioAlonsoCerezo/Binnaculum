@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        run: ${{ fromJson(format('[{0}]', join(range(1, fromJson(github.event.inputs.test_runs || '10') + 1), ','))) }}
+        run: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     
     steps:
       - name: Checkout code
