@@ -9,14 +9,15 @@ namespace Binnaculum.UITest.Appium;
 /// </summary>
 public class AppiumServerFixture : IAsyncLifetime
 {
-    private readonly ILogger<AppiumServerFixture> _logger;
     private AppiumServerManager? _serverManager;
 
     public AppiumServerFixture()
     {
         using var factory = LoggerFactory.Create(builder =>
             builder.AddConsole().SetMinimumLevel(LogLevel.Information));
-        _logger = factory.CreateLogger<AppiumServerFixture>();
+        var logger = factory.CreateLogger<AppiumServerManager>();
+        
+        _serverManager = new AppiumServerManager(logger);
     }
 
     /// <summary>
@@ -34,14 +35,12 @@ public class AppiumServerFixture : IAsyncLifetime
     /// </summary>
     public async Task InitializeAsync()
     {
-        _logger.LogInformation("Initializing Appium server fixture...");
-        
-        _serverManager = new AppiumServerManager(_logger);
-        
+        if (_serverManager == null)
+            return;
+            
         var started = await _serverManager.StartServerAsync(TimeSpan.FromMinutes(3));
         if (!started)
         {
-            _logger.LogWarning("Failed to start Appium server - tests will be skipped");
             return;
         }
 
@@ -49,13 +48,9 @@ public class AppiumServerFixture : IAsyncLifetime
         await Task.Delay(TimeSpan.FromSeconds(2));
         
         var healthy = await _serverManager.IsHealthyAsync();
-        if (!healthy)
+        if (healthy)
         {
-            _logger.LogWarning("Appium server started but health check failed - tests may be unstable");
-        }
-        else
-        {
-            _logger.LogInformation("Appium server is running and healthy at {Url}", ServerUrl);
+            // Server is running and healthy
         }
     }
 
@@ -64,15 +59,12 @@ public class AppiumServerFixture : IAsyncLifetime
     /// </summary>
     public async Task DisposeAsync()
     {
-        _logger.LogInformation("Disposing Appium server fixture...");
-        
         if (_serverManager != null)
         {
             _serverManager.Dispose();
             _serverManager = null;
         }
         
-        _logger.LogInformation("Appium server fixture disposed");
         await Task.CompletedTask;
     }
 }

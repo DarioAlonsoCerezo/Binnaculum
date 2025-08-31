@@ -1,42 +1,46 @@
-using OpenQA.Selenium.Appium.Service;
-using OpenQA.Selenium.Appium.Service.Options;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Text;
 
 namespace Binnaculum.UITest.Appium;
 
 /// <summary>
-/// Manages Appium server lifecycle for automated testing.
+/// Manages Appium server lifecycle for automated testing using process-based approach.
 /// Handles starting, stopping, and health checking of Appium server instances.
 /// </summary>
 public class AppiumServerManager : IDisposable
 {
     private readonly ILogger<AppiumServerManager> _logger;
-    private AppiumLocalService? _service;
+    private readonly AppiumServerOptions _options;
+    private Process? _appiumProcess;
     private bool _disposed = false;
-
-    public AppiumServerManager(ILogger<AppiumServerManager>? logger = null)
+    private readonly string _logFilePath;
+    
+    public AppiumServerManager(ILogger<AppiumServerManager>? logger = null, AppiumServerOptions? options = null)
     {
         _logger = logger ?? CreateDefaultLogger();
+        _options = options ?? new AppiumServerOptions();
+        _logFilePath = Path.Combine(Path.GetTempPath(), $"appium-{Guid.NewGuid():N}.log");
     }
 
     /// <summary>
     /// Gets the server URL if the service is running, null otherwise.
     /// </summary>
-    public Uri? ServerUrl => _service?.ServiceUrl;
+    public Uri? ServerUrl { get; private set; }
 
     /// <summary>
     /// Indicates whether the Appium server is currently running.
     /// </summary>
-    public bool IsRunning => _service?.IsRunning == true;
+    public bool IsRunning => _appiumProcess != null && !_appiumProcess.HasExited;
 
     /// <summary>
-    /// Start the Appium server with default configuration.
+    /// Start the Appium server with configuration options.
     /// </summary>
     public async Task<bool> StartServerAsync(TimeSpan? timeout = null)
     {
-        if (_service?.IsRunning == true)
+        if (IsRunning)
         {
-            _logger.LogInformation("Appium server is already running at {Url}", _service.ServiceUrl);
+            _logger.LogInformation("Appium server is already running at {Url}", ServerUrl);
             return true;
         }
 
@@ -44,33 +48,75 @@ public class AppiumServerManager : IDisposable
         {
             _logger.LogInformation("Starting Appium server...");
             
-            var builder = new AppiumServiceBuilder()
-                .WithIPAddress("127.0.0.1")
-                .UsingAnyFreePort()
-                .WithTimeout(timeout ?? TimeSpan.FromMinutes(2))
-                .WithArgument(GeneralOptionList.SessionOverride)
-                .WithArgument(GeneralOptionList.LogLevel, "info");
+            var actualTimeout = timeout ?? _options.StartupTimeout;
+            var port = _options.Port ?? GetAvailablePort();
+            var url = $"http://{_options.IPAddress}:{port}";
+            
+            // Build command arguments
+            var args = new StringBuilder();
+            args.Append($"--address {_options.IPAddress} ");
+            args.Append($"--port {port} ");
+            args.Append("--session-override ");
+            args.Append($"--log-level {_options.LogLevel.ToString().ToLower()} ");
+            args.Append($"--log {_logFilePath} ");
+            
+            if (_options.EnableCors)
+                args.Append("--allow-cors ");
+                
+            if (_options.RelaxedSecurity)
+                args.Append("--relaxed-security ");
+                
+            // Platform-specific arguments
+            if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+                args.Append("--allow-insecure chromedriver_autodownload ");
 
-            // Add platform-specific arguments based on current OS
-            ConfigurePlatformSpecificOptions(builder);
-
-            _service = builder.Build();
-            _service.Start();
-
-            if (_service.IsRunning)
+            _appiumProcess = new Process
             {
-                _logger.LogInformation("Appium server started successfully at {Url}", _service.ServiceUrl);
-                return true;
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "appium",
+                    Arguments = args.ToString().Trim(),
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+
+            _appiumProcess.OutputDataReceived += OnOutputDataReceived;
+            _appiumProcess.ErrorDataReceived += OnErrorDataReceived;
+
+            var started = _appiumProcess.Start();
+            if (started)
+            {
+                _appiumProcess.BeginOutputReadLine();
+                _appiumProcess.BeginErrorReadLine();
+                
+                // Wait for server to be ready
+                var isReady = await WaitForServerReady(url, actualTimeout);
+                if (isReady)
+                {
+                    ServerUrl = new Uri(url);
+                    _logger.LogInformation("Appium server started successfully at {Url}", ServerUrl);
+                    return true;
+                }
+                else
+                {
+                    _logger.LogError("Appium server started but did not become ready within timeout");
+                    StopServer();
+                    return false;
+                }
             }
             else
             {
-                _logger.LogError("Failed to start Appium server - service reports not running");
+                _logger.LogError("Failed to start Appium server process");
                 return false;
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to start Appium server");
+            StopServer();
             return false;
         }
     }
@@ -80,21 +126,42 @@ public class AppiumServerManager : IDisposable
     /// </summary>
     public void StopServer()
     {
-        if (_service?.IsRunning == true)
+        if (_appiumProcess != null)
         {
-            _logger.LogInformation("Stopping Appium server...");
             try
             {
-                _service.Dispose();
+                _logger.LogInformation("Stopping Appium server...");
+                
+                if (!_appiumProcess.HasExited)
+                {
+                    _appiumProcess.Kill();
+                    _appiumProcess.WaitForExit(5000); // Wait up to 5 seconds
+                }
+                
+                _appiumProcess.Dispose();
                 _logger.LogInformation("Appium server stopped successfully");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error stopping Appium server");
             }
+            finally
+            {
+                _appiumProcess = null;
+                ServerUrl = null;
+            }
         }
-        
-        _service = null;
+
+        // Clean up log file
+        try
+        {
+            if (File.Exists(_logFilePath))
+                File.Delete(_logFilePath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Failed to delete Appium log file: {LogFile}", _logFilePath);
+        }
     }
 
     /// <summary>
@@ -117,22 +184,74 @@ public class AppiumServerManager : IDisposable
         }
     }
 
-    private void ConfigurePlatformSpecificOptions(AppiumServiceBuilder builder)
+    private async Task<bool> WaitForServerReady(string url, TimeSpan timeout)
     {
-        // Add platform-specific drivers and capabilities
-        if (OperatingSystem.IsWindows())
+        var endTime = DateTime.UtcNow.Add(timeout);
+        
+        while (DateTime.UtcNow < endTime)
         {
-            builder.WithArgument(GeneralOptionList.AllowCors);
+            if (_appiumProcess?.HasExited == true)
+                return false;
+                
+            try
+            {
+                using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
+                var response = await client.GetAsync($"{url}/status");
+                if (response.IsSuccessStatusCode)
+                    return true;
+            }
+            catch
+            {
+                // Server not ready yet
+            }
+            
+            await Task.Delay(1000); // Wait 1 second between checks
         }
         
-        if (OperatingSystem.IsMacOS())
+        return false;
+    }
+
+    private static int GetAvailablePort()
+    {
+        // Find an available port starting from 4723 (default Appium port)
+        for (int port = 4723; port < 4800; port++)
         {
-            // macOS can support iOS and MacCatalyst
-            builder.WithArgument(GeneralOptionList.RelaxedSecurityEnabled);
+            try
+            {
+                using var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, port);
+                listener.Start();
+                listener.Stop();
+                return port;
+            }
+            catch
+            {
+                // Port is in use, try next
+            }
         }
         
-        // Android is supported on all platforms
-        builder.WithArgument(GeneralOptionList.AllowInsecure, "chromedriver_autodownload");
+        // Fallback to random port
+        using var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, 0);
+        listener.Start();
+        var availablePort = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
+        listener.Stop();
+        return availablePort;
+    }
+
+    private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Data))
+        {
+            _logger.LogDebug("Appium stdout: {Output}", e.Data);
+        }
+    }
+
+    private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.Data))
+        {
+            // Don't log as error since Appium writes normal logs to stderr
+            _logger.LogDebug("Appium stderr: {Output}", e.Data);
+        }
     }
 
     private static ILogger<AppiumServerManager> CreateDefaultLogger()
