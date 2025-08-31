@@ -33,6 +33,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UITest.Appium", "src\Tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UITest.Appium.Tests", "src\Tests\TestUtils\UITest.Appium.Tests\UITest.Appium.Tests.csproj", "{6F2G5H78-9C1G-4D6E-AF3H-5D0H8G1E2C9G}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{22675D6F-86F6-4B40-B079-2C60A5CEF861}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E292D0CB-4B30-40DC-B5B7-CB1AED6289A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Build.IntegrationTests", "src\Tests\Build.IntegrationTests\Build.IntegrationTests.csproj", "{163EA172-B8E1-4B7B-9534-39DE564448CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -140,11 +146,27 @@ Global
 		{6F2G5H78-9C1G-4D6E-AF3H-5D0H8G1E2C9G}.Release|x64.Build.0 = Release|Any CPU
 		{6F2G5H78-9C1G-4D6E-AF3H-5D0H8G1E2C9G}.Release|x86.ActiveCfg = Release|Any CPU
 		{6F2G5H78-9C1G-4D6E-AF3H-5D0H8G1E2C9G}.Release|x86.Build.0 = Release|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Debug|x64.Build.0 = Debug|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Debug|x86.Build.0 = Debug|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Release|x64.ActiveCfg = Release|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Release|x64.Build.0 = Release|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Release|x86.ActiveCfg = Release|Any CPU
+		{163EA172-B8E1-4B7B-9534-39DE564448CC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0FB26A01-D27F-4CF4-993F-0CF179C801FE}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E292D0CB-4B30-40DC-B5B7-CB1AED6289A4} = {22675D6F-86F6-4B40-B079-2C60A5CEF861}
+		{163EA172-B8E1-4B7B-9534-39DE564448CC} = {E292D0CB-4B30-40DC-B5B7-CB1AED6289A4}
 	EndGlobalSection
 EndGlobal
