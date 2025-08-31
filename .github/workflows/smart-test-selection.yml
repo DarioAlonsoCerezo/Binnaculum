@@ -1,0 +1,279 @@
+---
+name: Smart Test Selection
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      test_level:
+        description: 'Test level to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+          - smoke
+          - full
+          - performance
+      platforms:
+        description: 'Platforms to test (comma-separated)'
+        required: false
+        default: 'android,windows'
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # Analyze changes to determine test selection
+  analyze-changes:
+    name: Analyze Changes
+    runs-on: ubuntu-latest
+    outputs:
+      core-changes: ${{ steps.changes.outputs.core }}
+      ui-changes: ${{ steps.changes.outputs.ui }}
+      test-changes: ${{ steps.changes.outputs.tests }}
+      performance-changes: ${{ steps.changes.outputs.performance }}
+      test-level: ${{ steps.determine-level.outputs.level }}
+      platforms: ${{ steps.determine-platforms.outputs.platforms }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for file changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            core:
+              - 'src/Core/**'
+            ui:
+              - 'src/UI/**'
+            tests:
+              - 'src/Tests/**'
+            performance:
+              - 'src/Core/Snapshots/**'
+              - 'src/Tests/Core.Tests/*Performance*'
+              - 'src/Tests/Build.IntegrationTests/*Performance*'
+
+      - name: Determine test level
+        id: determine-level
+        run: |
+          # Manual workflow dispatch takes priority
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "level=${{ github.event.inputs.test_level }}" >> $GITHUB_OUTPUT
+            echo "📝 Manual test level: ${{ github.event.inputs.test_level }}"
+            exit 0
+          fi
+          
+          # For PR, determine based on changes
+          if [[ "${{ steps.changes.outputs.performance }}" == "true" ]]; then
+            echo "level=performance" >> $GITHUB_OUTPUT
+            echo "🚀 Performance tests needed due to core changes"
+          elif [[ "${{ steps.changes.outputs.core }}" == "true" ]]; then
+            echo "level=full" >> $GITHUB_OUTPUT
+            echo "🔍 Full tests needed due to core logic changes"
+          elif [[ "${{ steps.changes.outputs.ui }}" == "true" ]]; then
+            echo "level=smoke" >> $GITHUB_OUTPUT
+            echo "💨 Smoke tests sufficient for UI changes"
+          else
+            echo "level=smoke" >> $GITHUB_OUTPUT
+            echo "💨 Smoke tests for other changes"
+          fi
+
+      - name: Determine platforms
+        id: determine-platforms
+        run: |
+          # Manual workflow dispatch takes priority
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "platforms=${{ github.event.inputs.platforms }}" >> $GITHUB_OUTPUT
+            echo "📝 Manual platforms: ${{ github.event.inputs.platforms }}"
+            exit 0
+          fi
+          
+          # For PR, smart platform selection
+          if [[ "${{ steps.determine-level.outputs.level }}" == "performance" ]]; then
+            echo "platforms=android,windows,ios,maccatalyst" >> $GITHUB_OUTPUT
+            echo "🔄 All platforms for performance testing"
+          elif [[ "${{ steps.determine-level.outputs.level }}" == "full" ]]; then
+            echo "platforms=android,windows" >> $GITHUB_OUTPUT
+            echo "🔄 Core platforms for full testing"
+          else
+            echo "platforms=android" >> $GITHUB_OUTPUT
+            echo "🔄 Android only for smoke testing"
+          fi
+
+  # Smart Core Tests
+  smart-core-tests:
+    name: Smart Core Tests (${{ needs.analyze-changes.outputs.test-level }})
+    needs: [analyze-changes]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
+
+      - name: Build Core project
+        run: dotnet build src/Core/Core.fsproj --configuration Release --no-restore
+
+      - name: Build Core.Tests
+        run: dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
+
+      - name: Run Smoke Tests
+        if: needs.analyze-changes.outputs.test-level == 'smoke'
+        run: |
+          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+            --configuration Release --no-build --verbosity normal \
+            --filter "TestCategory!=Performance" \
+            --logger "junit;LogFileName=smoke-results.xml" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Run Full Tests
+        if: needs.analyze-changes.outputs.test-level == 'full'
+        run: |
+          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+            --configuration Release --no-build --verbosity normal \
+            --logger "junit;LogFileName=full-results.xml" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Run Performance Tests
+        if: needs.analyze-changes.outputs.test-level == 'performance'
+        run: |
+          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+            --configuration Release --no-build --verbosity normal \
+            --filter "BrokerFinancialSnapshotManager" \
+            --logger "junit;LogFileName=performance-results.xml" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Smart Core Tests Results (${{ needs.analyze-changes.outputs.test-level }})
+          path: '**/*-results.xml'
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          files: '**/coverage.cobertura.xml'
+          flags: core-tests
+          name: core-coverage
+
+  # Smart Device Tests (based on platform selection)
+  smart-device-tests:
+    name: Smart Device Tests (${{ matrix.platform }})
+    needs: [analyze-changes, smart-core-tests]
+    if: needs.smart-core-tests.result == 'success'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJson(format('[{0}]', needs.analyze-changes.outputs.platforms)) }}
+        include:
+          - platform: android
+            os: ubuntu-latest
+            target: net9.0-android
+          - platform: windows
+            os: windows-latest
+            target: net9.0-windows10.0.19041.0
+          - platform: ios
+            os: macos-latest
+            target: net9.0-ios
+          - platform: maccatalyst
+            os: macos-latest
+            target: net9.0-maccatalyst
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install MAUI workloads (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: dotnet workload install maui-android
+        timeout-minutes: 5
+
+      - name: Install MAUI workloads (macOS)
+        if: matrix.os == 'macos-latest'
+        run: dotnet workload install maui-android maui-ios maui-maccatalyst
+        timeout-minutes: 10
+
+      - name: Install MAUI workloads (Windows)
+        if: matrix.os == 'windows-latest'
+        run: dotnet workload install maui-android maui-windows
+        timeout-minutes: 10
+
+      - name: Build Device Tests (${{ matrix.target }})
+        run: |
+          dotnet restore src/Core/Core.fsproj
+          dotnet build src/Core/Core.fsproj --configuration Release --no-restore
+          dotnet restore src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj
+          dotnet build src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj \
+            --framework ${{ matrix.target }} --configuration Release --no-restore
+
+      - name: Report platform support
+        run: |
+          echo "✅ ${{ matrix.platform }} build successful for ${{ matrix.target }}"
+          echo "Platform: ${{ matrix.platform }}"
+          echo "Target: ${{ matrix.target }}"
+          echo "Test Level: ${{ needs.analyze-changes.outputs.test-level }}"
+
+  # Test Summary
+  smart-test-summary:
+    name: Smart Test Summary
+    needs: [analyze-changes, smart-core-tests, smart-device-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Generate test summary
+        run: |
+          echo "## 🧪 Smart Test Selection Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Level**: ${{ needs.analyze-changes.outputs.test-level }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Platforms**: ${{ needs.analyze-changes.outputs.platforms }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Changes Detected:" >> $GITHUB_STEP_SUMMARY
+          echo "- Core changes: ${{ needs.analyze-changes.outputs.core-changes }}" >> $GITHUB_STEP_SUMMARY
+          echo "- UI changes: ${{ needs.analyze-changes.outputs.ui-changes }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Test changes: ${{ needs.analyze-changes.outputs.test-changes }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance changes: ${{ needs.analyze-changes.outputs.performance-changes }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- Core Tests: ${{ needs.smart-core-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Device Tests: ${{ needs.smart-device-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.smart-core-tests.result }}" == "failure" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Core tests failed - blocking merge**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Smart test selection completed successfully**" >> $GITHUB_STEP_SUMMARY
+          fi

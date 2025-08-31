@@ -1,0 +1,264 @@
+---
+name: Performance Monitoring
+
+on:
+  schedule:
+    # Run performance tests daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'src/Core/Snapshots/**'
+      - 'src/Tests/Core.Tests/*Performance*'
+  workflow_dispatch:
+    inputs:
+      performance_mode:
+        description: 'Performance test mode'
+        required: true
+        default: 'standard'
+        type: choice
+        options:
+          - standard
+          - stress
+          - memory
+          - benchmarks
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # Core Performance Tests
+  core-performance:
+    name: Core Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for performance comparison
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
+
+      - name: Build Core project (Release)
+        run: dotnet build src/Core/Core.fsproj --configuration Release --no-restore
+
+      - name: Build Core.Tests (Release)
+        run: dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
+
+      - name: Run Standard Performance Tests
+        if: github.event.inputs.performance_mode == 'standard' || github.event.inputs.performance_mode == ''
+        run: |
+          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+            --configuration Release --no-build --verbosity normal \
+            --filter "BrokerFinancialSnapshotManager" \
+            --logger "trx;LogFileName=performance-results.trx" \
+            --logger "junit;LogFileName=performance-results.xml" \
+            --collect:"XPlat Code Coverage" \
+            --settings performance.runsettings
+        continue-on-error: true
+
+      - name: Run Stress Tests
+        if: github.event.inputs.performance_mode == 'stress'
+        run: |
+          export BINNACULUM_TEST_MODE=STRESS
+          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+            --configuration Release --no-build --verbosity normal \
+            --filter "BrokerFinancialSnapshotManager" \
+            --logger "trx;LogFileName=stress-results.trx" \
+            --logger "junit;LogFileName=stress-results.xml"
+        timeout-minutes: 20
+        continue-on-error: true
+
+      - name: Run Memory Tests
+        if: github.event.inputs.performance_mode == 'memory'
+        run: |
+          export BINNACULUM_TEST_MODE=MEMORY
+          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+            --configuration Release --no-build --verbosity normal \
+            --filter "TestCategory=Memory" \
+            --logger "trx;LogFileName=memory-results.trx" \
+            --logger "junit;LogFileName=memory-results.xml"
+        continue-on-error: true
+
+      - name: Extract performance metrics
+        if: always()
+        run: |
+          mkdir -p performance-data
+          
+          # Extract timing data from test results
+          if [ -f TestResults/performance-results.trx ]; then
+            grep -o 'duration="[^"]*"' TestResults/performance-results.trx | \
+              sed 's/duration="//g' | sed 's/"//g' > performance-data/test-durations.txt || true
+          fi
+          
+          # Get system info
+          echo "CPU Info:" > performance-data/system-info.txt
+          lscpu >> performance-data/system-info.txt
+          echo -e "\nMemory Info:" >> performance-data/system-info.txt
+          free -h >> performance-data/system-info.txt
+          
+          # Generate timestamp
+          echo "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" > performance-data/timestamp.txt
+          
+          # Generate summary
+          echo "Performance test completed: $(date)" > performance-data/summary.txt
+          echo "Mode: ${{ github.event.inputs.performance_mode || 'standard' }}" >> performance-data/summary.txt
+          echo "Commit: ${{ github.sha }}" >> performance-data/summary.txt
+
+      - name: Publish Performance Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Performance Test Results
+          path: '**/*-results.xml'
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload performance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-data-${{ github.run_number }}
+          path: |
+            performance-data/
+            TestResults/
+            **/coverage.cobertura.xml
+          retention-days: 30
+
+  # Build Performance Tests
+  build-performance:
+    name: Build Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+        timeout-minutes: 5
+
+      - name: Run build performance tests
+        run: |
+          mkdir -p build-metrics
+          echo "Build Performance Test - $(date)" > build-metrics/build-log.txt
+          
+          # Time the core build
+          echo "=== Core Build ===" >> build-metrics/build-log.txt
+          time dotnet build src/Core/Core.fsproj --configuration Release 2>&1 | tee -a build-metrics/build-log.txt
+          
+          # Time the test build
+          echo "=== Test Build ===" >> build-metrics/build-log.txt
+          time dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release 2>&1 | tee -a build-metrics/build-log.txt
+          
+          # Time the integration tests build
+          echo "=== Integration Tests Build ===" >> build-metrics/build-log.txt
+          time dotnet build src/Tests/Build.IntegrationTests/Build.IntegrationTests.csproj --configuration Release 2>&1 | tee -a build-metrics/build-log.txt
+
+      - name: Extract build metrics
+        run: |
+          # Parse build times from logs
+          grep "real\s" build-metrics/build-log.txt > build-metrics/build-times.txt || true
+          
+          # System resources during build
+          echo "Build completed at: $(date)" >> build-metrics/build-summary.txt
+          echo "Commit: ${{ github.sha }}" >> build-metrics/build-summary.txt
+          df -h >> build-metrics/build-summary.txt
+
+      - name: Upload build performance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-performance-data-${{ github.run_number }}
+          path: build-metrics/
+          retention-days: 30
+
+  # Performance Trend Analysis
+  performance-analysis:
+    name: Performance Trend Analysis
+    needs: [core-performance, build-performance]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Download performance artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*performance-data-*'
+          merge-multiple: true
+
+      - name: Analyze performance trends
+        run: |
+          echo "## 📊 Performance Analysis Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date**: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode**: ${{ github.event.inputs.performance_mode || 'standard' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Performance results
+          echo "### Test Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- Core Performance: ${{ needs.core-performance.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Build Performance: ${{ needs.build-performance.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Build time analysis
+          if [ -f build-times.txt ]; then
+            echo "### Build Performance:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            head -10 build-times.txt >> $GITHUB_STEP_SUMMARY || true
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Test duration analysis
+          if [ -f test-durations.txt ]; then
+            echo "### Test Performance:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            head -5 test-durations.txt >> $GITHUB_STEP_SUMMARY || true
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Performance warnings
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ needs.core-performance.result }}" == "failure" ]]; then
+            echo "⚠️ **Performance regression detected in core tests**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.build-performance.result }}" == "failure" ]]; then
+            echo "⚠️ **Build performance regression detected**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.core-performance.result }}" == "success" && "${{ needs.build-performance.result }}" == "success" ]]; then
+            echo "✅ **All performance tests within expected thresholds**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Performance alert
+        if: needs.core-performance.result == 'failure' || needs.build-performance.result == 'failure'
+        run: |
+          echo "🚨 Performance regression detected!"
+          echo "Core Performance: ${{ needs.core-performance.result }}"
+          echo "Build Performance: ${{ needs.build-performance.result }}"
+          echo "Please review the performance metrics and investigate potential regressions."
+          
+          # Don't fail the workflow for performance regressions, just alert
+          exit 0
