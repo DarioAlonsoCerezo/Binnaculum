@@ -3,6 +3,7 @@ using static Binnaculum.Core.Models;
 using System.Globalization;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using Microsoft.FSharp.Core;
 
 namespace Binnaculum.UI.DeviceTests;
 
@@ -93,17 +94,17 @@ public static class BinnaculumAssertionExtensions
         
         switch (snapshot.Type)
         {
-            case OverviewSnapshotType.InvestmentOverview when snapshot.InvestmentOverview.HasValue:
+            case var t when t.Equals(OverviewSnapshotType.InvestmentOverview) && FSharpOption<InvestmentOverviewSnapshot>.get_IsSome(snapshot.InvestmentOverview):
                 var investmentOverview = snapshot.InvestmentOverview.Value;
                 Assert.Equal(expectedRealizedPercentage, investmentOverview.RealizedPercentage);
                 break;
                 
-            case OverviewSnapshotType.Broker when snapshot.Broker.HasValue:
+            case var t when t.Equals(OverviewSnapshotType.Broker) && FSharpOption<BrokerSnapshot>.get_IsSome(snapshot.Broker):
                 var brokerSnapshot = snapshot.Broker.Value;
                 AssertFinancialPercentages(brokerSnapshot.Financial, expectedRealizedPercentage, expectedUnrealizedPercentage);
                 break;
                 
-            case OverviewSnapshotType.BrokerAccount when snapshot.BrokerAccount.HasValue:
+            case var t when t.Equals(OverviewSnapshotType.BrokerAccount) && FSharpOption<BrokerAccountSnapshot>.get_IsSome(snapshot.BrokerAccount):
                 var brokerAccountSnapshot = snapshot.BrokerAccount.Value;
                 AssertFinancialPercentages(brokerAccountSnapshot.Financial, expectedRealizedPercentage, expectedUnrealizedPercentage);
                 break;
@@ -249,8 +250,13 @@ public static class BinnaculumAssertionExtensions
             Assert.Equal(mainSnapshot.Date, otherSnapshot.Date);
             
             // Verify same broker and broker account references
-            Assert.Equal(mainSnapshot.Broker?.Id, otherSnapshot.Broker?.Id);
-            Assert.Equal(mainSnapshot.BrokerAccount?.Id, otherSnapshot.BrokerAccount?.Id);
+            var mainBroker = FSharpOption<Broker>.get_IsSome(mainSnapshot.Broker) ? mainSnapshot.Broker.Value : null;
+            var otherBroker = FSharpOption<Broker>.get_IsSome(otherSnapshot.Broker) ? otherSnapshot.Broker.Value : null;
+            var mainBrokerAccount = FSharpOption<BrokerAccount>.get_IsSome(mainSnapshot.BrokerAccount) ? mainSnapshot.BrokerAccount.Value : null;
+            var otherBrokerAccount = FSharpOption<BrokerAccount>.get_IsSome(otherSnapshot.BrokerAccount) ? otherSnapshot.BrokerAccount.Value : null;
+            
+            Assert.Equal(mainBroker?.Id, otherBroker?.Id);
+            Assert.Equal(mainBrokerAccount?.Id, otherBrokerAccount?.Id);
             
             // Verify different currencies
             Assert.NotEqual(mainSnapshot.Currency.Id, otherSnapshot.Currency.Id);

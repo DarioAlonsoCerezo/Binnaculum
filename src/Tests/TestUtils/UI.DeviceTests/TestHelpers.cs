@@ -403,7 +403,7 @@ public static class TestHelpers
             conditionName: "Observable sequence completion");
         
         if (error != null)
-            throw new AssertionException($"Observable completed with error: {error}");
+            throw new InvalidOperationException($"Observable completed with error: {error}");
             
         Assert.True(completed, "Observable should have completed");
         Assert.Equal(expectedValues.ToArray(), receivedValues.ToArray());
