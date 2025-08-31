@@ -16,7 +16,9 @@ jobs:
       contents: read
     steps:
       - name: Disable Copilot agent firewall
-        run: echo "disable-firewall" > /etc/copilot-agent/firewall
+        run: |
+          # Skip firewall config in GitHub Actions environment
+          echo "Skipping firewall configuration in CI environment"
         continue-on-error: true
 
       - name: Checkout code

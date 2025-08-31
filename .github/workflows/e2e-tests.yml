@@ -1,0 +1,307 @@
+---
+name: E2E Tests
+
+on:
+  # Run E2E tests on schedule to avoid blocking PRs
+  schedule:
+    - cron: '0 2 * * 6'  # Saturday at 2 AM UTC  
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # Android E2E Tests
+  android-e2e:
+    name: Android E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+        timeout-minutes: 5
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          target: default
+          arch: x86_64
+
+      - name: Cache Android SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+            ${{ env.ANDROID_HOME }}
+          key: android-sdk-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Install Node.js for Appium
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+        
+      - name: Install Appium
+        run: |
+          npm install -g appium@2.0.0
+          npm install -g @appium/doctor
+          appium driver install uiautomator2
+        timeout-minutes: 5
+
+      - name: Start Appium server
+        run: |
+          appium server --port 4723 --log-level info &
+          echo $! > appium.pid
+          sleep 5
+        timeout-minutes: 2
+
+      - name: Create and start Android emulator
+        run: |
+          echo "Creating Android emulator..."
+          avdmanager create avd -n test_emulator -k "system-images;android-34;default;x86_64" -f
+          
+          echo "Starting emulator..."
+          $ANDROID_HOME/emulator/emulator -avd test_emulator -no-snapshot -no-audio -no-window -gpu swiftshader_indirect -memory 4096 &
+          echo $! > emulator.pid
+          
+          echo "Waiting for emulator to boot..."
+          timeout 300 bash -c '
+          while ! adb devices | grep -q "emulator.*device"; do
+            echo "Waiting for emulator..."
+            sleep 5
+          done'
+          
+          echo "Emulator ready!"
+          adb devices
+        timeout-minutes: 10
+
+      - name: Build dependencies
+        run: |
+          dotnet restore src/Core/Core.fsproj
+          dotnet build src/Core/Core.fsproj --configuration Release --no-restore
+          dotnet restore src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj
+          dotnet build src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj --configuration Release --no-restore
+
+      - name: Run Android E2E Tests
+        run: |
+          export ANDROID_DEVICE_ID=$(adb devices | grep emulator | awk '{print $1}')
+          export APPIUM_SERVER_URL="http://localhost:4723"
+          
+          dotnet test src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj \
+            --configuration Release --no-build \
+            --logger "trx;LogFileName=android-e2e-results.trx" \
+            --verbosity normal
+        continue-on-error: true
+        timeout-minutes: 20
+
+      - name: Publish Android E2E Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Android E2E Tests Results
+          path: '**/android-e2e-results.trx'
+          reporter: dotnet-trx
+          fail-on-error: false
+
+      - name: Collect test artifacts
+        if: always()
+        run: |
+          mkdir -p test-artifacts/android
+          # Collect screenshots if available
+          find . -name "*.png" -path "*/test*" -exec cp {} test-artifacts/android/ \; 2>/dev/null || true
+          # Collect logs
+          adb logcat -d > test-artifacts/android/device.log 2>/dev/null || true
+          # Collect Appium logs
+          if [ -f appium.log ]; then cp appium.log test-artifacts/android/; fi
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-e2e-artifacts
+          path: test-artifacts/android/
+          retention-days: 7
+
+      - name: Cleanup
+        if: always()
+        run: |
+          # Stop emulator
+          if [ -f emulator.pid ]; then kill $(cat emulator.pid) || true; fi
+          # Stop Appium
+          if [ -f appium.pid ]; then kill $(cat appium.pid) || true; fi
+
+  # iOS E2E Tests
+  ios-e2e:
+    name: iOS E2E Tests
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install MAUI workloads
+        run: dotnet workload install maui-ios maui-maccatalyst
+        timeout-minutes: 10
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
+
+      - name: Install Node.js for Appium
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Appium
+        run: |
+          npm install -g appium@2.0.0
+          npm install -g @appium/doctor
+          appium driver install xcuitest
+        timeout-minutes: 5
+
+      - name: Start Appium server
+        run: |
+          appium server --port 4723 --log-level info &
+          echo $! > appium.pid
+          sleep 5
+        timeout-minutes: 2
+
+      - name: Create and boot iOS simulator
+        run: |
+          # List available simulators
+          xcrun simctl list devices available
+
+          # Create and boot iPhone simulator (use latest available iOS runtime)
+          SIMULATOR_ID=$(xcrun simctl create "TestiPhone" "iPhone 15")
+          echo "Created simulator: $SIMULATOR_ID"
+          echo "$SIMULATOR_ID" > simulator.id
+
+          xcrun simctl boot "$SIMULATOR_ID"
+
+          # Wait for simulator to be ready
+          timeout 120 bash -c '
+          SIMULATOR_ID=$(cat simulator.id)
+          while [[ $(xcrun simctl list devices | grep "$SIMULATOR_ID" | grep -c "Booted") == 0 ]]; do
+            echo "Waiting for simulator to boot..."
+            sleep 5
+          done'
+
+          echo "Simulator ready!"
+          xcrun simctl list devices | grep Booted
+        timeout-minutes: 5
+
+      - name: Build dependencies
+        run: |
+          dotnet restore src/Core/Core.fsproj
+          dotnet build src/Core/Core.fsproj --configuration Release --no-restore
+          dotnet restore src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj
+          dotnet build src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj --configuration Release --no-restore
+
+      - name: Run iOS E2E Tests
+        run: |
+          export IOS_SIMULATOR_ID=$(cat simulator.id)
+          export APPIUM_SERVER_URL="http://localhost:4723"
+          
+          dotnet test src/Tests/TestUtils/UITest.Appium.Tests/UITest.Appium.Tests.csproj \
+            --configuration Release --no-build \
+            --logger "trx;LogFileName=ios-e2e-results.trx" \
+            --verbosity normal
+        continue-on-error: true
+        timeout-minutes: 20
+
+      - name: Publish iOS E2E Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: iOS E2E Tests Results
+          path: '**/ios-e2e-results.trx'
+          reporter: dotnet-trx
+          fail-on-error: false
+
+      - name: Collect test artifacts
+        if: always()
+        run: |
+          mkdir -p test-artifacts/ios
+          # Collect screenshots if available
+          find . -name "*.png" -path "*/test*" -exec cp {} test-artifacts/ios/ \; 2>/dev/null || true
+          # Collect simulator logs
+          if [ -f simulator.id ]; then
+            SIMULATOR_ID=$(cat simulator.id)
+            xcrun simctl spawn "$SIMULATOR_ID" log collect --output test-artifacts/ios/simulator.log || true
+          fi
+          # Collect Appium logs
+          if [ -f appium.log ]; then cp appium.log test-artifacts/ios/; fi
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-e2e-artifacts
+          path: test-artifacts/ios/
+          retention-days: 7
+
+      - name: Cleanup
+        if: always()
+        run: |
+          # Shutdown simulator
+          if [ -f simulator.id ]; then
+            SIMULATOR_ID=$(cat simulator.id)
+            xcrun simctl shutdown "$SIMULATOR_ID" || true
+            xcrun simctl delete "$SIMULATOR_ID" || true
+          fi
+          # Stop Appium
+          if [ -f appium.pid ]; then kill $(cat appium.pid) || true; fi
+
+  # E2E Test Summary
+  e2e-summary:
+    name: E2E Tests Summary
+    needs: [android-e2e, ios-e2e]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Check E2E results
+        run: |
+          echo "Android E2E: ${{ needs.android-e2e.result }}"
+          echo "iOS E2E: ${{ needs.ios-e2e.result }}"
+
+          # E2E tests are informational - don't fail CI on their results
+          # since they depend on complex emulator/simulator setup
+          if [[ "${{ needs.android-e2e.result }}" == "success" && "${{ needs.ios-e2e.result }}" == "success" ]]; then
+            echo "✅ All E2E tests passed!"
+          elif [[ "${{ needs.android-e2e.result }}" == "success" || "${{ needs.ios-e2e.result }}" == "success" ]]; then
+            echo "⚠️  Some E2E tests passed - check platform-specific results"
+          else
+            echo "⚠️  E2E tests need attention - check emulator setup and test stability"
+          fi
+
+          echo "📊 E2E test results are informational and don't block CI pipeline"

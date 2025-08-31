@@ -528,16 +528,15 @@ public static class TestDataBuilders
             decimal commissions = 150m,
             decimal fees = 75m)
         {
-            _investmentOverview = new InvestmentOverviewSnapshot
-            {
-                Date = DateOnly.FromDateTime(DateTime.Today),
-                PortfoliosValue = portfoliosValue,
-                RealizedGains = realizedGains,
-                RealizedPercentage = realizedPercentage,
-                Invested = invested,
-                Commissions = commissions,
-                Fees = fees
-            };
+            _investmentOverview = new InvestmentOverviewSnapshot(
+                DateOnly.FromDateTime(DateTime.Today),
+                portfoliosValue,
+                realizedGains,
+                realizedPercentage,
+                invested,
+                commissions,
+                fees
+            );
             _type = OverviewSnapshotType.InvestmentOverview;
             return this;
         }
@@ -556,29 +555,27 @@ public static class TestDataBuilders
                 .AsProfitableScenario()
                 .Build();
 
-            _brokerAccount = new BrokerAccountSnapshot
-            {
-                Date = DateOnly.FromDateTime(DateTime.Today),
-                BrokerAccount = brokerAccount,
-                PortfolioValue = portfolioValue,
-                Financial = financial,
-                FinancialOtherCurrencies = new List<BrokerFinancialSnapshot>()
-            };
+            _brokerAccount = new BrokerAccountSnapshot(
+                DateOnly.FromDateTime(DateTime.Today),
+                brokerAccount,
+                portfolioValue,
+                financial,
+                Microsoft.FSharp.Collections.FSharpList<BrokerFinancialSnapshot>.Empty
+            );
             _type = OverviewSnapshotType.BrokerAccount;
             return this;
         }
 
         public OverviewSnapshot Build()
         {
-            return new OverviewSnapshot
-            {
-                Type = _type,
-                InvestmentOverview = _investmentOverview,
-                Broker = _broker,
-                Bank = _bank,
-                BrokerAccount = _brokerAccount,
-                BankAccount = _bankAccount
-            };
+            return new OverviewSnapshot(
+                _type,
+                _investmentOverview,
+                _broker,
+                _bank,
+                _brokerAccount,
+                _bankAccount
+            );
         }
     }
 

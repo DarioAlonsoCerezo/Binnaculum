@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <!-- Maximum time allowed for a test run -->
+    <TestSessionTimeout>600000</TestSessionTimeout>
+    
+    <!-- Parallel execution settings -->
+    <MaxCpuCount>0</MaxCpuCount>
+    <TargetPlatform>x64</TargetPlatform>
+    
+    <!-- Framework settings -->
+    <TargetFrameworkVersion>net9.0</TargetFrameworkVersion>
+    
+    <!-- Results directory -->
+    <ResultsDirectory>./TestResults</ResultsDirectory>
+  </RunConfiguration>
+
+  <!-- Data collector for performance -->
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <!-- Code coverage data collector -->
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Exclude>[*.Tests]*,[*.Test]*</Exclude>
+          <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+
+  <!-- Performance test specific settings -->
+  <TestRunParameters>
+    <!-- Performance thresholds -->
+    <Parameter name="MaxTestDuration" value="30000" />
+    <Parameter name="MaxMemoryUsageMB" value="512" />
+    <Parameter name="MaxCpuUsagePercent" value="80" />
+    
+    <!-- Snapshot manager performance settings -->
+    <Parameter name="MaxSnapshotProcessingTimeMs" value="5000" />
+    <Parameter name="MaxConcurrentProcessingTasks" value="4" />
+    
+    <!-- Mobile simulation settings -->
+    <Parameter name="SimulateMobileConstraints" value="true" />
+    <Parameter name="MobileMemoryLimitMB" value="256" />
+    <Parameter name="MobileCpuCores" value="2" />
+  </TestRunParameters>
+
+  <!-- MSTest settings for performance tests -->
+  <MSTest>
+    <!-- Increase timeout for performance tests -->
+    <AssemblyCleanupTimeout>300000</AssemblyCleanupTimeout>
+    <ClassCleanupTimeout>60000</ClassCleanupTimeout>
+    <TestTimeout>60000</TestTimeout>
+    
+    <!-- Parallel execution -->
+    <Parallelize>
+      <Workers>4</Workers>
+      <Scope>MethodLevel</Scope>
+    </Parallelize>
+  </MSTest>
+
+  <!-- NUnit settings (if using NUnit for any tests) -->
+  <NUnit>
+    <NumberOfTestWorkers>4</NumberOfTestWorkers>
+    <DefaultTimeout>60000</DefaultTimeout>
+  </NUnit>
+
+  <!-- Logging settings -->
+  <LoggerRunSettings>
+    <Loggers>
+      <Logger friendlyName="trx" enabled="true">
+        <Configuration>
+          <LogFileName>performance-test-results.trx</LogFileName>
+        </Configuration>
+      </Logger>
+      <Logger friendlyName="console" enabled="true">
+        <Configuration>
+          <Verbosity>normal</Verbosity>
+        </Configuration>
+      </Logger>
+    </Loggers>
+  </LoggerRunSettings>
+</RunSettings>
