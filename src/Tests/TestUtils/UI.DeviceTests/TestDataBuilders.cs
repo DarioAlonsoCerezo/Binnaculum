@@ -1,4 +1,5 @@
 using static Binnaculum.Core.Models;
+using Microsoft.FSharp.Core;
 
 namespace Binnaculum.UI.DeviceTests;
 
@@ -76,13 +77,7 @@ public static class TestDataBuilders
 
         public Broker Build()
         {
-            return new Broker
-            {
-                Id = _id,
-                Name = _name,
-                Image = _image,
-                SupportedBroker = _supportedBroker
-            };
+            return new Broker(_id, _name, _image, _supportedBroker);
         }
     }
 
@@ -146,12 +141,7 @@ public static class TestDataBuilders
 
         public BrokerAccount Build()
         {
-            return new BrokerAccount
-            {
-                Id = _id,
-                Broker = _broker,
-                AccountNumber = _accountNumber
-            };
+            return new BrokerAccount(_id, _broker, _accountNumber);
         }
     }
 
@@ -225,13 +215,7 @@ public static class TestDataBuilders
 
         public Currency Build()
         {
-            return new Currency
-            {
-                Id = _id,
-                Title = _title,
-                Code = _code,
-                Symbol = _symbol
-            };
+            return new Currency(_id, _title, _code, _symbol);
         }
     }
 
@@ -444,28 +428,35 @@ public static class TestDataBuilders
 
         public BrokerFinancialSnapshot Build()
         {
-            return new BrokerFinancialSnapshot
-            {
-                Id = _id,
-                Date = _date,
-                Broker = _broker,
-                BrokerAccount = _brokerAccount,
-                Currency = _currency,
-                MovementCounter = _movementCounter,
-                RealizedGains = _realizedGains,
-                RealizedPercentage = _realizedPercentage,
-                UnrealizedGains = _unrealizedGains,
-                UnrealizedGainsPercentage = _unrealizedGainsPercentage,
-                Invested = _invested,
-                Commissions = _commissions,
-                Fees = _fees,
-                Deposited = _deposited,
-                Withdrawn = _withdrawn,
-                DividendsReceived = _dividendsReceived,
-                OptionsIncome = _optionsIncome,
-                OtherIncome = _otherIncome,
-                OpenTrades = _openTrades
-            };
+            // F# records require all parameters in constructor
+            // Let's check how DateOnly is handled from F# side
+            var dateOnly = _date;
+            
+            // Use F# option types properly
+            var brokerOption = _broker != null ? FSharpOption<Broker>.Some(_broker) : FSharpOption<Broker>.None;
+            var brokerAccountOption = _brokerAccount != null ? FSharpOption<BrokerAccount>.Some(_brokerAccount) : FSharpOption<BrokerAccount>.None;
+            
+            return new BrokerFinancialSnapshot(
+                _id,
+                dateOnly,
+                brokerOption,
+                brokerAccountOption, 
+                _currency,
+                _movementCounter,
+                _realizedGains,
+                _realizedPercentage,
+                _unrealizedGains,
+                _unrealizedGainsPercentage,
+                _invested,
+                _commissions,
+                _fees,
+                _deposited,
+                _withdrawn,
+                _dividendsReceived,
+                _optionsIncome,
+                _otherIncome,
+                _openTrades
+            );
         }
     }
 

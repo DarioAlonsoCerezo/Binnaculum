@@ -38,7 +38,7 @@ public static class AndroidAssertionExtensions
         Assert.NotNull(element);
         Assert.NotNull(element.Handler);
         
-        var nativeView = element.Handler.PlatformView as View;
+        var nativeView = element.Handler.PlatformView as Android.Views.View;
         Assert.NotNull(nativeView);
         Assert.Equal(expectedContentDescription, nativeView.ContentDescription);
     }
