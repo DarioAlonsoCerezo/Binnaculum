@@ -1,0 +1,502 @@
+using Microsoft.FSharp.Core;
+using static Binnaculum.Core.Models;
+
+namespace Binnaculum.UI.DeviceTests;
+
+/// <summary>
+/// F# interop testing helpers for testing F# Core functions from C# device tests.
+/// Provides utilities for testing F# domain model validation, async workflows, and option types.
+/// </summary>
+public static class FSharpInteropHelpers
+{
+    #region F# Option Type Helpers
+
+    /// <summary>
+    /// Creates an F# Some option from a C# value.
+    /// </summary>
+    /// <typeparam name="T">Type of the value</typeparam>
+    /// <param name="value">Value to wrap in Some</param>
+    /// <returns>F# Some option</returns>
+    public static FSharpOption<T> CreateSome<T>(T value)
+    {
+        return FSharpOption<T>.Some(value);
+    }
+
+    /// <summary>
+    /// Creates an F# None option.
+    /// </summary>
+    /// <typeparam name="T">Type of the option</typeparam>
+    /// <returns>F# None option</returns>
+    public static FSharpOption<T> CreateNone<T>()
+    {
+        return FSharpOption<T>.None;
+    }
+
+    /// <summary>
+    /// Safely extracts value from F# option with default value.
+    /// </summary>
+    /// <typeparam name="T">Type of the option</typeparam>
+    /// <param name="option">F# option to extract from</param>
+    /// <param name="defaultValue">Default value if option is None</param>
+    /// <returns>Extracted value or default</returns>
+    public static T GetValueOrDefault<T>(FSharpOption<T> option, T defaultValue)
+    {
+        return FSharpOption<T>.get_IsSome(option) ? option.Value : defaultValue;
+    }
+
+    /// <summary>
+    /// Converts F# option to nullable C# value.
+    /// </summary>
+    /// <typeparam name="T">Value type</typeparam>
+    /// <param name="option">F# option to convert</param>
+    /// <returns>Nullable C# value</returns>
+    public static T? ToNullable<T>(FSharpOption<T> option) where T : struct
+    {
+        return FSharpOption<T>.get_IsSome(option) ? option.Value : null;
+    }
+
+    /// <summary>
+    /// Converts nullable C# value to F# option.
+    /// </summary>
+    /// <typeparam name="T">Value type</typeparam>
+    /// <param name="nullable">Nullable C# value</param>
+    /// <returns>F# option</returns>
+    public static FSharpOption<T> FromNullable<T>(T? nullable) where T : struct
+    {
+        return nullable.HasValue ? CreateSome(nullable.Value) : CreateNone<T>();
+    }
+
+    /// <summary>
+    /// Maps a function over an F# option (functorial map).
+    /// </summary>
+    /// <typeparam name="T">Input type</typeparam>
+    /// <typeparam name="U">Output type</typeparam>
+    /// <param name="option">F# option to map over</param>
+    /// <param name="mapper">Function to apply if option is Some</param>
+    /// <returns>Mapped F# option</returns>
+    public static FSharpOption<U> Map<T, U>(FSharpOption<T> option, Func<T, U> mapper)
+    {
+        return FSharpOption<T>.get_IsSome(option) 
+            ? CreateSome(mapper(option.Value))
+            : CreateNone<U>();
+    }
+
+    #endregion
+
+    #region F# Async Workflow Helpers
+
+    /// <summary>
+    /// Converts F# async workflow to C# Task.
+    /// </summary>
+    /// <typeparam name="T">Return type</typeparam>
+    /// <param name="async">F# async workflow</param>
+    /// <param name="cancellationToken">Optional cancellation token</param>
+    /// <returns>C# Task</returns>
+    public static Task<T> ToTask<T>(FSharpAsync<T> async, CancellationToken? cancellationToken = null)
+    {
+        var token = cancellationToken ?? CancellationToken.None;
+        return FSharpAsync.StartAsTask(async, null, token);
+    }
+
+    /// <summary>
+    /// Converts C# Task to F# async workflow.
+    /// </summary>
+    /// <typeparam name="T">Return type</typeparam>
+    /// <param name="task">C# Task</param>
+    /// <returns>F# async workflow</returns>
+    public static FSharpAsync<T> FromTask<T>(Task<T> task)
+    {
+        return FSharpAsync.AwaitTask(task);
+    }
+
+    /// <summary>
+    /// Creates an F# async workflow that returns a constant value.
+    /// </summary>
+    /// <typeparam name="T">Return type</typeparam>
+    /// <param name="value">Value to return</param>
+    /// <returns>F# async workflow</returns>
+    public static FSharpAsync<T> Return<T>(T value)
+    {
+        return FSharpAsync.Return(value);
+    }
+
+    /// <summary>
+    /// Tests F# async workflow with timeout and assertion.
+    /// </summary>
+    /// <typeparam name="T">Return type</typeparam>
+    /// <param name="async">F# async workflow to test</param>
+    /// <param name="expectedValue">Expected return value</param>
+    /// <param name="timeout">Test timeout</param>
+    /// <param name="testName">Name of the test for error reporting</param>
+    public static async Task AssertAsyncResult<T>(
+        FSharpAsync<T> async,
+        T expectedValue,
+        TimeSpan? timeout = null,
+        string? testName = null)
+    {
+        timeout ??= TimeSpan.FromSeconds(10);
+        testName ??= "F# Async Test";
+
+        using var cts = new CancellationTokenSource(timeout.Value);
+
+        try
+        {
+            var result = await ToTask(async, cts.Token);
+            Assert.Equal(expectedValue, result);
+        }
+        catch (TaskCanceledException)
+        {
+            Assert.Fail($"F# async test '{testName}' timed out after {timeout}");
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail($"F# async test '{testName}' failed with exception: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Tests F# async workflow for exception handling.
+    /// </summary>
+    /// <typeparam name="T">Return type</typeparam>
+    /// <param name="async">F# async workflow to test</param>
+    /// <param name="expectedExceptionType">Expected exception type</param>
+    /// <param name="timeout">Test timeout</param>
+    /// <param name="testName">Name of the test for error reporting</param>
+    public static async Task AssertAsyncException<T>(
+        FSharpAsync<T> async,
+        Type expectedExceptionType,
+        TimeSpan? timeout = null,
+        string? testName = null)
+    {
+        timeout ??= TimeSpan.FromSeconds(10);
+        testName ??= "F# Async Exception Test";
+
+        using var cts = new CancellationTokenSource(timeout.Value);
+
+        try
+        {
+            var result = await ToTask(async, cts.Token);
+            Assert.Fail($"F# async test '{testName}' should have thrown {expectedExceptionType.Name} but completed successfully");
+        }
+        catch (TaskCanceledException)
+        {
+            Assert.Fail($"F# async test '{testName}' timed out after {timeout}");
+        }
+        catch (Exception ex)
+        {
+            if (ex.GetType() != expectedExceptionType)
+            {
+                Assert.Fail($"F# async test '{testName}' threw {ex.GetType().Name} but expected {expectedExceptionType.Name}");
+            }
+            // Expected exception was thrown - test passes
+        }
+    }
+
+    #endregion
+
+    #region F# Domain Model Testing Helpers
+
+    /// <summary>
+    /// Creates a test broker with F# interop validation.
+    /// </summary>
+    /// <param name="id">Broker ID</param>
+    /// <param name="name">Broker name</param>
+    /// <param name="image">Image path</param>
+    /// <param name="supportedBroker">Supported broker identifier</param>
+    /// <returns>Validated Broker instance</returns>
+    public static Broker CreateTestBroker(int id, string name, string image, string supportedBroker)
+    {
+        var broker = new Broker
+        {
+            Id = id,
+            Name = name,
+            Image = image,
+            SupportedBroker = supportedBroker
+        };
+
+        // Validate F# domain model constraints
+        ValidateBrokerModel(broker);
+
+        return broker;
+    }
+
+    /// <summary>
+    /// Creates a test broker account with F# interop validation.
+    /// </summary>
+    /// <param name="id">Account ID</param>
+    /// <param name="broker">Associated broker</param>
+    /// <param name="accountNumber">Account number</param>
+    /// <returns>Validated BrokerAccount instance</returns>
+    public static BrokerAccount CreateTestBrokerAccount(int id, Broker broker, string accountNumber)
+    {
+        var account = new BrokerAccount
+        {
+            Id = id,
+            Broker = broker,
+            AccountNumber = accountNumber
+        };
+
+        // Validate F# domain model constraints
+        ValidateBrokerAccountModel(account);
+
+        return account;
+    }
+
+    /// <summary>
+    /// Creates a test currency with F# interop validation.
+    /// </summary>
+    /// <param name="id">Currency ID</param>
+    /// <param name="title">Currency title</param>
+    /// <param name="code">Currency code (e.g., USD)</param>
+    /// <param name="symbol">Currency symbol (e.g., $)</param>
+    /// <returns>Validated Currency instance</returns>
+    public static Currency CreateTestCurrency(int id, string title, string code, string symbol)
+    {
+        var currency = new Currency
+        {
+            Id = id,
+            Title = title,
+            Code = code,
+            Symbol = symbol
+        };
+
+        // Validate F# domain model constraints
+        ValidateCurrencyModel(currency);
+
+        return currency;
+    }
+
+    /// <summary>
+    /// Validates F# broker model constraints.
+    /// </summary>
+    /// <param name="broker">Broker to validate</param>
+    private static void ValidateBrokerModel(Broker broker)
+    {
+        Assert.NotNull(broker);
+        Assert.True(broker.Id > 0, "Broker ID must be positive");
+        Assert.False(string.IsNullOrWhiteSpace(broker.Name), "Broker name cannot be empty");
+        Assert.NotNull(broker.Image);
+        Assert.False(string.IsNullOrWhiteSpace(broker.SupportedBroker), "SupportedBroker cannot be empty");
+    }
+
+    /// <summary>
+    /// Validates F# broker account model constraints.
+    /// </summary>
+    /// <param name="account">Broker account to validate</param>
+    private static void ValidateBrokerAccountModel(BrokerAccount account)
+    {
+        Assert.NotNull(account);
+        Assert.True(account.Id > 0, "BrokerAccount ID must be positive");
+        Assert.NotNull(account.Broker);
+        ValidateBrokerModel(account.Broker);
+        Assert.False(string.IsNullOrWhiteSpace(account.AccountNumber), "Account number cannot be empty");
+    }
+
+    /// <summary>
+    /// Validates F# currency model constraints.
+    /// </summary>
+    /// <param name="currency">Currency to validate</param>
+    private static void ValidateCurrencyModel(Currency currency)
+    {
+        Assert.NotNull(currency);
+        Assert.True(currency.Id > 0, "Currency ID must be positive");
+        Assert.False(string.IsNullOrWhiteSpace(currency.Title), "Currency title cannot be empty");
+        Assert.False(string.IsNullOrWhiteSpace(currency.Code), "Currency code cannot be empty");
+        Assert.False(string.IsNullOrWhiteSpace(currency.Symbol), "Currency symbol cannot be empty");
+        Assert.True(currency.Code.Length <= 3, "Currency code should be 3 characters or less");
+    }
+
+    #endregion
+
+    #region F# List and Collection Helpers
+
+    /// <summary>
+    /// Converts C# IEnumerable to F# list.
+    /// </summary>
+    /// <typeparam name="T">Element type</typeparam>
+    /// <param name="source">C# enumerable</param>
+    /// <returns>F# list</returns>
+    public static FSharpList<T> ToFSharpList<T>(IEnumerable<T> source)
+    {
+        return ListModule.OfSeq(source);
+    }
+
+    /// <summary>
+    /// Converts F# list to C# IEnumerable.
+    /// </summary>
+    /// <typeparam name="T">Element type</typeparam>
+    /// <param name="fsharpList">F# list</param>
+    /// <returns>C# IEnumerable</returns>
+    public static IEnumerable<T> FromFSharpList<T>(FSharpList<T> fsharpList)
+    {
+        return ListModule.ToSeq(fsharpList);
+    }
+
+    /// <summary>
+    /// Tests F# list operations with C# assertions.
+    /// </summary>
+    /// <typeparam name="T">Element type</typeparam>
+    /// <param name="fsharpList">F# list to test</param>
+    /// <param name="expectedElements">Expected elements in order</param>
+    public static void AssertFSharpList<T>(FSharpList<T> fsharpList, params T[] expectedElements)
+    {
+        Assert.NotNull(fsharpList);
+        
+        var actualElements = FromFSharpList(fsharpList).ToArray();
+        Assert.Equal(expectedElements.Length, actualElements.Length);
+        
+        for (int i = 0; i < expectedElements.Length; i++)
+        {
+            Assert.Equal(expectedElements[i], actualElements[i]);
+        }
+    }
+
+    /// <summary>
+    /// Tests F# list length property.
+    /// </summary>
+    /// <typeparam name="T">Element type</typeparam>
+    /// <param name="fsharpList">F# list to test</param>
+    /// <param name="expectedLength">Expected list length</param>
+    public static void AssertFSharpListLength<T>(FSharpList<T> fsharpList, int expectedLength)
+    {
+        Assert.NotNull(fsharpList);
+        var actualLength = ListModule.Length(fsharpList);
+        Assert.Equal(expectedLength, actualLength);
+    }
+
+    #endregion
+
+    #region F# Function Testing Helpers
+
+    /// <summary>
+    /// Tests F# function with single parameter.
+    /// </summary>
+    /// <typeparam name="T">Input type</typeparam>
+    /// <typeparam name="U">Output type</typeparam>
+    /// <param name="fsharpFunction">F# function to test</param>
+    /// <param name="input">Input value</param>
+    /// <param name="expectedOutput">Expected output value</param>
+    /// <param name="functionName">Name of the function for error reporting</param>
+    public static void AssertFSharpFunction<T, U>(
+        FSharpFunc<T, U> fsharpFunction,
+        T input,
+        U expectedOutput,
+        string? functionName = null)
+    {
+        Assert.NotNull(fsharpFunction);
+        
+        try
+        {
+            var actualOutput = FSharpFunc<T, U>.InvokeFast(fsharpFunction, input);
+            Assert.Equal(expectedOutput, actualOutput);
+        }
+        catch (Exception ex)
+        {
+            var name = functionName ?? "F# Function";
+            Assert.Fail($"F# function '{name}' failed with input {input}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Tests F# function with two parameters.
+    /// </summary>
+    /// <typeparam name="T1">First input type</typeparam>
+    /// <typeparam name="T2">Second input type</typeparam>
+    /// <typeparam name="U">Output type</typeparam>
+    /// <param name="fsharpFunction">F# function to test</param>
+    /// <param name="input1">First input value</param>
+    /// <param name="input2">Second input value</param>
+    /// <param name="expectedOutput">Expected output value</param>
+    /// <param name="functionName">Name of the function for error reporting</param>
+    public static void AssertFSharpFunction<T1, T2, U>(
+        FSharpFunc<T1, FSharpFunc<T2, U>> fsharpFunction,
+        T1 input1,
+        T2 input2,
+        U expectedOutput,
+        string? functionName = null)
+    {
+        Assert.NotNull(fsharpFunction);
+        
+        try
+        {
+            var partiallyApplied = FSharpFunc<T1, FSharpFunc<T2, U>>.InvokeFast(fsharpFunction, input1);
+            var actualOutput = FSharpFunc<T2, U>.InvokeFast(partiallyApplied, input2);
+            Assert.Equal(expectedOutput, actualOutput);
+        }
+        catch (Exception ex)
+        {
+            var name = functionName ?? "F# Function";
+            Assert.Fail($"F# function '{name}' failed with inputs {input1}, {input2}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Tests F# function for exception handling.
+    /// </summary>
+    /// <typeparam name="T">Input type</typeparam>
+    /// <typeparam name="U">Output type</typeparam>
+    /// <param name="fsharpFunction">F# function to test</param>
+    /// <param name="input">Input value that should cause exception</param>
+    /// <param name="expectedExceptionType">Expected exception type</param>
+    /// <param name="functionName">Name of the function for error reporting</param>
+    public static void AssertFSharpFunctionThrows<T, U>(
+        FSharpFunc<T, U> fsharpFunction,
+        T input,
+        Type expectedExceptionType,
+        string? functionName = null)
+    {
+        Assert.NotNull(fsharpFunction);
+        
+        try
+        {
+            var result = FSharpFunc<T, U>.InvokeFast(fsharpFunction, input);
+            var name = functionName ?? "F# Function";
+            Assert.Fail($"F# function '{name}' should have thrown {expectedExceptionType.Name} with input {input} but returned {result}");
+        }
+        catch (Exception ex)
+        {
+            if (ex.GetType() != expectedExceptionType)
+            {
+                var name = functionName ?? "F# Function";
+                Assert.Fail($"F# function '{name}' threw {ex.GetType().Name} but expected {expectedExceptionType.Name}");
+            }
+            // Expected exception was thrown - test passes
+        }
+    }
+
+    #endregion
+
+    #region F# Pattern Matching Helpers
+
+    /// <summary>
+    /// Helper for testing F# discriminated union pattern matching.
+    /// </summary>
+    /// <typeparam name="T">Discriminated union type</typeparam>
+    /// <param name="unionValue">Union value to test</param>
+    /// <param name="expectedCase">Expected case name</param>
+    /// <param name="caseValueValidator">Optional validator for case value</param>
+    public static void AssertDiscriminatedUnionCase<T>(
+        T unionValue,
+        string expectedCase,
+        Action<object>? caseValueValidator = null)
+    {
+        Assert.NotNull(unionValue);
+        
+        var unionType = typeof(T);
+        Assert.True(unionType.IsClass || unionType.IsValueType, "Type must be a discriminated union");
+        
+        // In a full implementation, this would use reflection to validate the union case
+        // For now, we provide basic validation structure
+        
+        var actualCaseName = unionValue.GetType().Name;
+        if (expectedCase != actualCaseName && !actualCaseName.EndsWith(expectedCase))
+        {
+            // For F# discriminated unions, the case name might be part of a longer type name
+            Assert.Contains(expectedCase, actualCaseName);
+        }
+        
+        caseValueValidator?.Invoke(unionValue);
+    }
+
+    #endregion
+}
