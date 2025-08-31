@@ -1,0 +1,180 @@
+---
+name: Setup Branch Protection
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run - show what would be configured without making changes'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+  contents: read
+  administration: write
+
+jobs:
+  setup-branch-protection:
+    name: Configure Main Branch Protection
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Branch Protection Rules
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = 'main';
+            const dryRun = '${{ inputs.dry_run }}' === 'true';
+            
+            console.log(`🛡️ Setting up branch protection for ${owner}/${repo}:${branch}`);
+            console.log(`Dry run mode: ${dryRun}`);
+            
+            // Define the branch protection configuration
+            const protectionConfig = {
+              owner,
+              repo,
+              branch,
+              required_status_checks: {
+                strict: true, // Require branches to be up to date before merging
+                checks: [
+                  { context: 'essential-checks' },
+                  { context: 'android-build' },
+                  { context: 'pr-check-summary' }
+                ]
+              },
+              enforce_admins: true, // Include administrators in restrictions
+              required_pull_request_reviews: {
+                required_approving_review_count: 1,
+                dismiss_stale_reviews: true,
+                require_code_owner_reviews: true,
+                require_last_push_approval: false
+              },
+              restrictions: null, // No user/team restrictions, but other settings apply
+              allow_force_pushes: false,
+              allow_deletions: false,
+              block_creations: false,
+              required_conversation_resolution: false
+            };
+            
+            if (dryRun) {
+              console.log('🔍 DRY RUN - Branch protection configuration:');
+              console.log(JSON.stringify(protectionConfig, null, 2));
+              console.log('\n✅ This would be applied to the main branch');
+              console.log('Re-run without dry_run=true to apply these settings');
+              return;
+            }
+            
+            try {
+              // Apply the branch protection rules
+              console.log('🔧 Applying branch protection rules...');
+              
+              const response = await github.rest.repos.updateBranchProtection(protectionConfig);
+              
+              console.log('✅ Branch protection rules successfully applied!');
+              console.log('\n📋 Applied Configuration:');
+              console.log(`• Required status checks: ${protectionConfig.required_status_checks.checks.map(c => c.context).join(', ')}`);
+              console.log(`• Required PR reviews: ${protectionConfig.required_pull_request_reviews.required_approving_review_count}`);
+              console.log(`• Code owner reviews: ${protectionConfig.required_pull_request_reviews.require_code_owner_reviews}`);
+              console.log(`• Dismiss stale reviews: ${protectionConfig.required_pull_request_reviews.dismiss_stale_reviews}`);
+              console.log(`• Enforce for admins: ${protectionConfig.enforce_admins}`);
+              console.log(`• Up-to-date branches required: ${protectionConfig.required_status_checks.strict}`);
+              
+              console.log('\n🛡️ Your main branch is now protected!');
+              
+              // Create a summary
+              core.summary
+                .addHeading('🛡️ Branch Protection Setup Complete')
+                .addTable([
+                  [{data: 'Setting', header: true}, {data: 'Value', header: true}],
+                  ['Branch', 'main'],
+                  ['Required Reviews', '1 approval'],
+                  ['Code Owner Reviews', 'Required'],
+                  ['Status Checks', 'essential-checks, android-build, pr-check-summary'],
+                  ['Up-to-date Required', 'Yes'],
+                  ['Admin Enforcement', 'Yes'],
+                  ['Direct Pushes', 'Blocked']
+                ])
+                .addRaw('\n### ✅ Benefits\n')
+                .addList([
+                  'All changes must go through pull requests',
+                  'Your approval required via CODEOWNERS file',
+                  'CI/CD validation enforced before merge',
+                  'Branches must be current with main',
+                  'Protection applies even to repository admins'
+                ])
+                .write();
+                
+            } catch (error) {
+              console.error('❌ Failed to apply branch protection rules:', error);
+              
+              if (error.status === 403) {
+                console.error('🔒 Permission denied. Make sure the GITHUB_TOKEN has admin permissions.');
+                console.error('You may need to run this workflow with elevated permissions or apply rules manually.');
+              }
+              
+              core.setFailed(`Branch protection setup failed: ${error.message}`);
+              throw error;
+            }
+
+      - name: Verify Protection Status
+        if: inputs.dry_run != 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = 'main';
+            
+            try {
+              console.log('🔍 Verifying branch protection status...');
+              
+              const response = await github.rest.repos.getBranchProtection({
+                owner,
+                repo,
+                branch
+              });
+              
+              const protection = response.data;
+              console.log('✅ Branch protection verification successful!');
+              console.log('\n📊 Current Protection Status:');
+              console.log(`• Required status checks: ${protection.required_status_checks?.checks?.map(c => c.context).join(', ') || 'None'}`);
+              console.log(`• Strict mode: ${protection.required_status_checks?.strict || false}`);
+              console.log(`• Required reviews: ${protection.required_pull_request_reviews?.required_approving_review_count || 0}`);
+              console.log(`• Code owner reviews: ${protection.required_pull_request_reviews?.require_code_owner_reviews || false}`);
+              console.log(`• Admin enforcement: ${protection.enforce_admins?.enabled || false}`);
+              
+            } catch (error) {
+              console.warn('⚠️  Could not verify protection status:', error.message);
+              // Don't fail the workflow for verification issues
+            }
+
+      - name: Next Steps
+        if: inputs.dry_run != 'true'
+        run: |
+          echo "## 🎉 Branch Protection Setup Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Your main branch is now protected with:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Required pull request reviews (1 approval)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code owner review enforcement (via .github/CODEOWNERS)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Required CI status checks (essential-checks, android-build, pr-check-summary)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Up-to-date branch requirements" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Admin enforcement (applies to all users including you)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### What this means:" >> $GITHUB_STEP_SUMMARY
+          echo "- All changes to main must go through pull requests" >> $GITHUB_STEP_SUMMARY
+          echo "- Your approval is required for all PRs (you're the code owner)" >> $GITHUB_STEP_SUMMARY
+          echo "- CI/CD tests must pass before merging" >> $GITHUB_STEP_SUMMARY
+          echo "- PRs must be up-to-date with main branch" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Branch Protection Settings](https://github.com/${{ github.repository }}/settings/branches)" >> $GITHUB_STEP_SUMMARY
