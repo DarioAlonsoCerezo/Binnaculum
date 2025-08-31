@@ -58,6 +58,9 @@
 		<PackageVersion Include="Appium.WebDriver" Version="4.4.5" />
 		<PackageVersion Include="Selenium.WebDriver" Version="4.15.0" />
 		
+		<!-- Performance Testing -->
+		<PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
+		
 		<!-- MAUI TestUtils - Note: Currently commented out in projects as it may not be available -->
 		<!-- <PackageVersion Include="Microsoft.Maui.TestUtils.DeviceTests" Version="$(MauiVersion)" /> -->
 	</ItemGroup>
