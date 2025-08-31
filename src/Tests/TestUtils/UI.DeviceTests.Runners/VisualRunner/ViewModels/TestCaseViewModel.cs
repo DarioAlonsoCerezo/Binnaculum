@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace Binnaculum.UI.DeviceTests.Runners.VisualRunner.ViewModels;
 
 /// <summary>
@@ -14,6 +16,10 @@ public class TestCaseViewModel : BaseViewModel
     private string _stackTrace = string.Empty;
     private TimeSpan _duration = TimeSpan.Zero;
     private bool _isSelected = false;
+
+    // Store method info for execution
+    private Type? _testType;
+    private MethodInfo? _testMethod;
 
     public string Name
     {
@@ -71,6 +77,23 @@ public class TestCaseViewModel : BaseViewModel
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
     public bool IsCompleted => Status is TestCaseStatus.Passed or TestCaseStatus.Failed or TestCaseStatus.Skipped;
+
+    /// <summary>
+    /// Sets the reflection method information for this test case.
+    /// </summary>
+    public void SetMethodInfo(Type testType, MethodInfo testMethod)
+    {
+        _testType = testType;
+        _testMethod = testMethod;
+    }
+
+    /// <summary>
+    /// Gets the reflection method information for this test case.
+    /// </summary>
+    public (Type? testType, MethodInfo? testMethod) GetMethodInfo()
+    {
+        return (_testType, _testMethod);
+    }
 }
 
 /// <summary>

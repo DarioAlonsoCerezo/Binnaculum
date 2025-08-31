@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Binnaculum.UI.DeviceTests.Runners.VisualRunner.Services;
 
 namespace Binnaculum.UI.DeviceTests.Runners.VisualRunner.ViewModels;
 
@@ -9,16 +10,20 @@ namespace Binnaculum.UI.DeviceTests.Runners.VisualRunner.ViewModels;
 public class TestRunnerViewModel : BaseViewModel
 {
     private readonly ILogger<TestRunnerViewModel>? _logger;
+    private readonly VisualDeviceRunner _deviceRunner;
     private string _searchText = string.Empty;
     private bool _isDiscovering = false;
     private bool _isRunning = false;
     private double _progress = 0;
     private string _statusMessage = "Ready";
     private TestRunnerState _state = TestRunnerState.Ready;
+    private CancellationTokenSource? _cancellationTokenSource;
 
     public TestRunnerViewModel(ILogger<TestRunnerViewModel>? logger = null)
     {
         _logger = logger;
+        // Create device runner with a compatible logger
+        _deviceRunner = new VisualDeviceRunner(CreateCompatibleLogger(logger));
         TestAssemblies = new ObservableCollection<TestAssemblyViewModel>();
         
         // Initialize commands
@@ -30,6 +35,13 @@ public class TestRunnerViewModel : BaseViewModel
         UnselectAllCommand = new Command(() => SelectAllTests(false));
         
         _logger?.LogInformation("TestRunnerViewModel initialized");
+    }
+
+    private static ILogger<VisualDeviceRunner>? CreateCompatibleLogger(ILogger<TestRunnerViewModel>? logger)
+    {
+        // For now, just return null as the logger is optional
+        // In a real implementation, you'd use a proper logger factory
+        return null;
     }
 
     #region Properties
@@ -113,7 +125,8 @@ public class TestRunnerViewModel : BaseViewModel
                     foreach (var testCase in testClass.TestCases)
                     {
                         if (testCase.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                            testCase.FullName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                            testCase.FullName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                            testCase.DisplayName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
                         {
                             filteredClass.TestCases.Add(testCase);
                         }
@@ -127,6 +140,7 @@ public class TestRunnerViewModel : BaseViewModel
 
                 if (filteredAssembly.TestClasses.Count > 0)
                 {
+                    filteredAssembly.UpdateTestCounts();
                     filtered.Add(filteredAssembly);
                 }
             }
@@ -163,17 +177,22 @@ public class TestRunnerViewModel : BaseViewModel
             // Clear existing tests
             TestAssemblies.Clear();
 
-            // TODO: Implement actual test discovery
-            // For now, create some sample test data
-            await Task.Delay(1000); // Simulate discovery time
+            // Discover tests using the actual test discovery service
+            var discoveredAssemblies = await _deviceRunner.DiscoverTestsAsync();
+            
+            foreach (var assembly in discoveredAssemblies)
+            {
+                TestAssemblies.Add(assembly);
+            }
 
-            var sampleAssembly = CreateSampleTestAssembly();
-            TestAssemblies.Add(sampleAssembly);
-
-            StatusMessage = $"Discovered {GetTotalTestCount()} tests";
+            var totalTestCount = GetTotalTestCount();
+            StatusMessage = totalTestCount > 0 ? $"Discovered {totalTestCount} tests" : "No tests found";
             State = TestRunnerState.Ready;
 
-            _logger?.LogInformation($"Test discovery completed. Found {GetTotalTestCount()} tests");
+            // Refresh the filtered view
+            OnPropertyChanged(nameof(FilteredTestAssemblies));
+
+            _logger?.LogInformation($"Test discovery completed. Found {totalTestCount} tests");
         }
         catch (Exception ex)
         {
@@ -187,29 +206,97 @@ public class TestRunnerViewModel : BaseViewModel
         }
     }
 
-    #endregion
-
-    #region Private Methods
-
-    private bool CanRunTests() => !IsRunning && GetSelectedTestCount() > 0;
-    private bool CanStopTests() => IsRunning;
-
-    private async Task RunSelectedTestsAsync()
+    public async Task RunSelectedTestsAsync()
     {
-        // TODO: Implement test execution
-        await Task.Delay(100);
+        var selectedTests = GetSelectedTests();
+        if (!selectedTests.Any())
+        {
+            StatusMessage = "No tests selected";
+            return;
+        }
+
+        await ExecuteTestsAsync(selectedTests);
     }
 
-    private async Task RunAllTestsAsync()
+    public async Task RunAllTestsAsync()
     {
         SelectAllTests(true);
         await RunSelectedTestsAsync();
     }
 
-    private async Task StopTestsAsync()
+    public Task StopTestsAsync()
     {
-        // TODO: Implement test stopping
-        await Task.Delay(100);
+        if (_cancellationTokenSource != null)
+        {
+            _cancellationTokenSource.Cancel();
+            StatusMessage = "Stopping tests...";
+            _logger?.LogInformation("Test execution cancellation requested");
+        }
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private bool CanRunTests() => !IsRunning && !IsDiscovering && GetSelectedTestCount() > 0;
+    private bool CanStopTests() => IsRunning;
+
+    private async Task ExecuteTestsAsync(IEnumerable<TestCaseViewModel> selectedTests)
+    {
+        try
+        {
+            IsRunning = true;
+            State = TestRunnerState.Running;
+            Progress = 0;
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            var progress = new Progress<TestExecutionProgress>(OnTestExecutionProgress);
+            
+            _logger?.LogInformation($"Starting execution of {selectedTests.Count()} selected tests");
+
+            var results = await _deviceRunner.ExecuteTestsAsync(
+                selectedTests,
+                progress,
+                _cancellationTokenSource.Token);
+
+            // Update final status
+            StatusMessage = $"Execution completed: {results.PassedCount} passed, {results.FailedCount} failed, {results.SkippedCount} skipped";
+            State = TestRunnerState.Completed;
+            Progress = 1.0;
+
+            _logger?.LogInformation($"Test execution completed. Results: {results.PassedCount} passed, {results.FailedCount} failed, {results.SkippedCount} skipped");
+        }
+        catch (OperationCanceledException)
+        {
+            StatusMessage = "Test execution cancelled";
+            State = TestRunnerState.Ready;
+            _logger?.LogInformation("Test execution was cancelled");
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Error during test execution");
+            StatusMessage = $"Execution failed: {ex.Message}";
+            State = TestRunnerState.Error;
+        }
+        finally
+        {
+            IsRunning = false;
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
+            
+            // Update test counts
+            foreach (var assembly in TestAssemblies)
+            {
+                assembly.UpdateTestCounts();
+            }
+        }
+    }
+
+    private void OnTestExecutionProgress(TestExecutionProgress progress)
+    {
+        Progress = progress.Progress;
+        StatusMessage = progress.StatusMessage;
     }
 
     private void SelectAllTests(bool isSelected)
@@ -230,42 +317,13 @@ public class TestRunnerViewModel : BaseViewModel
         return TestAssemblies.Sum(a => a.TestClasses.Sum(c => c.TestCases.Count(tc => tc.IsSelected)));
     }
 
-    private TestAssemblyViewModel CreateSampleTestAssembly()
+    private List<TestCaseViewModel> GetSelectedTests()
     {
-        var assembly = new TestAssemblyViewModel
-        {
-            Name = "UI.DeviceTests.dll",
-            FullPath = "UI.DeviceTests.dll"
-        };
-
-        // Add sample test class
-        var testClass = new TestClassViewModel
-        {
-            Name = "BasicDeviceTests",
-            FullName = "Binnaculum.UI.DeviceTests.BasicDeviceTests"
-        };
-
-        // Add sample test cases
-        testClass.TestCases.Add(new TestCaseViewModel
-        {
-            Name = "BasicDeviceTest_Infrastructure_ShouldPass",
-            FullName = "Binnaculum.UI.DeviceTests.BasicDeviceTests.BasicDeviceTest_Infrastructure_ShouldPass",
-            DisplayName = "Basic Infrastructure Test",
-            Status = TestCaseStatus.Pending
-        });
-
-        testClass.TestCases.Add(new TestCaseViewModel
-        {
-            Name = "BasicDeviceTest_CanAccessMauiControls",
-            FullName = "Binnaculum.UI.DeviceTests.BasicDeviceTests.BasicDeviceTest_CanAccessMauiControls",
-            DisplayName = "MAUI Controls Access Test",
-            Status = TestCaseStatus.Pending
-        });
-
-        assembly.TestClasses.Add(testClass);
-        assembly.UpdateTestCounts();
-
-        return assembly;
+        return TestAssemblies
+            .SelectMany(a => a.TestClasses)
+            .SelectMany(c => c.TestCases)
+            .Where(tc => tc.IsSelected)
+            .ToList();
     }
 
     #endregion
