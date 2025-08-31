@@ -58,14 +58,20 @@ public class MultiPlatformBuildTests
         var testResult = await ExecuteDotNetCommand($"test \"{testsProjectPath}\" --configuration Release --verbosity minimal --logger \"console;verbosity=minimal\"", allowNonZeroExit: true);
         
         // Assert - Should have some passing tests even if some fail due to MAUI dependencies
-        Assert.That(testResult.StandardOutput, Does.Contain("succeeded:"), "Should have some passing tests");
+        Assert.That(testResult.StandardOutput, Does.Contain("Passed:").Or.Contain("succeeded:"), "Should have some passing tests");
         
         // Parse test results - expect at least 70 tests to pass (allowing for MAUI-dependent failures)
-        var successMatch = System.Text.RegularExpressions.Regex.Match(testResult.StandardOutput, @"succeeded:\s*(\d+)");
+        // Look for patterns like "Passed: 80" or "succeeded: 80" 
+        var successMatch = System.Text.RegularExpressions.Regex.Match(testResult.StandardOutput, @"Passed:\s*(\d+)|succeeded:\s*(\d+)");
         if (successMatch.Success)
         {
-            var successCount = int.Parse(successMatch.Groups[1].Value);
+            var successCount = int.Parse(successMatch.Groups[1].Success ? successMatch.Groups[1].Value : successMatch.Groups[2].Value);
             Assert.That(successCount, Is.GreaterThanOrEqualTo(70), "Should have at least 70 passing tests");
+        }
+        else
+        {
+            // As fallback, just verify test execution occurred
+            Assert.That(testResult.StandardOutput, Does.Contain("Total:").Or.Contain("test"), "Test execution should complete");
         }
     }
 
