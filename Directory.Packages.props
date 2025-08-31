@@ -54,6 +54,10 @@
 		<PackageVersion Include="xunit" Version="2.7.0" />
 		<PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
 		
+		<!-- Appium for E2E Testing -->
+		<PackageVersion Include="Appium.WebDriver" Version="4.4.5" />
+		<PackageVersion Include="Selenium.WebDriver" Version="4.15.0" />
+		
 		<!-- MAUI TestUtils - Note: Currently commented out in projects as it may not be available -->
 		<!-- <PackageVersion Include="Microsoft.Maui.TestUtils.DeviceTests" Version="$(MauiVersion)" /> -->
 	</ItemGroup>
