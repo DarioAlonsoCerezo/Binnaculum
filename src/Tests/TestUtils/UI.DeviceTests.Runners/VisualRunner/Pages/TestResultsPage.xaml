@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="Binnaculum.UI.DeviceTests.Runners.VisualRunner.Pages.TestResultsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Test Results"
+             Style="{StaticResource BasePageStyle}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Results Summary -->
+        <StackLayout Grid.Row="0" 
+                     BackgroundColor="{StaticResource SurfaceColor}"
+                     Padding="16">
+            <Label Text="Test Results Summary"
+                   Style="{StaticResource TestTitleStyle}"
+                   HorizontalOptions="Center" />
+            
+            <Grid Margin="0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <StackLayout Grid.Column="0" HorizontalOptions="Center">
+                    <Label Text="0" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource AccentTextColor}" HorizontalOptions="Center" />
+                    <Label Text="Total" Style="{StaticResource TestDescriptionStyle}" HorizontalOptions="Center" />
+                </StackLayout>
+                
+                <StackLayout Grid.Column="1" HorizontalOptions="Center">
+                    <Label Text="0" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource TestPassedColor}" HorizontalOptions="Center" />
+                    <Label Text="Passed" Style="{StaticResource TestDescriptionStyle}" HorizontalOptions="Center" />
+                </StackLayout>
+                
+                <StackLayout Grid.Column="2" HorizontalOptions="Center">
+                    <Label Text="0" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource TestFailedColor}" HorizontalOptions="Center" />
+                    <Label Text="Failed" Style="{StaticResource TestDescriptionStyle}" HorizontalOptions="Center" />
+                </StackLayout>
+                
+                <StackLayout Grid.Column="3" HorizontalOptions="Center">
+                    <Label Text="0" FontSize="24" FontAttributes="Bold" TextColor="{StaticResource TestSkippedColor}" HorizontalOptions="Center" />
+                    <Label Text="Skipped" Style="{StaticResource TestDescriptionStyle}" HorizontalOptions="Center" />
+                </StackLayout>
+            </Grid>
+        </StackLayout>
+
+        <!-- Results Details -->
+        <ScrollView Grid.Row="1">
+            <StackLayout Padding="16">
+                <Label Text="Detailed test results will appear here after test execution."
+                       Style="{StaticResource TestDescriptionStyle}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="CenterAndExpand" />
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
