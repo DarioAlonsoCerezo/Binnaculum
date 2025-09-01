@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    
+    <!-- Multi-platform targeting for MAUI platform tests -->
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">net9.0;net9.0-android;net9.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">net9.0;net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('linux'))">net9.0;net9.0-android</TargetFrameworks>
+    
+    <!-- Fallback for any OS -->
+    <TargetFramework Condition="'$(TargetFrameworks)' == ''">net9.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="coverlet.collector" />
+    
+    <!-- MAUI packages for platform testing -->
+    <PackageReference Include="Microsoft.Maui.Controls" Condition="$(TargetFramework.Contains('android')) or $(TargetFramework.Contains('ios')) or $(TargetFramework.Contains('maccatalyst')) or $(TargetFramework.Contains('windows'))" />
+    <PackageReference Include="Microsoft.Maui.Essentials" Condition="$(TargetFramework.Contains('android')) or $(TargetFramework.Contains('ios')) or $(TargetFramework.Contains('maccatalyst')) or $(TargetFramework.Contains('windows'))" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="PlatformTestEnvironment.fs" />
+    <Compile Include="SavedPreferencesTests.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core.fsproj" />
+  </ItemGroup>
+
+</Project>
