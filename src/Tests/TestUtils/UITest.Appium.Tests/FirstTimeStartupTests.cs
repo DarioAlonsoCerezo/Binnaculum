@@ -121,7 +121,7 @@ public class FirstTimeStartupTests : IDisposable
                 var collectionIndicator = _app.WaitForElement(collectionIndicatorQuery, TimeSpan.FromSeconds(5));
                 WaitForIndicatorsToDisappear(carouseIndicator, collectionIndicator, TimeSpan.FromSeconds(30));
             }
-            catch (UITest.Core.TimeoutException)
+            catch (Binnaculum.UITest.Core.TimeoutException)
             {
                 // Indicators might already be hidden - that's fine for this test
                 Console.WriteLine("ℹ️ Loading indicators not found - app may have loaded quickly");
@@ -279,7 +279,7 @@ public class FirstTimeStartupTests : IDisposable
                 var overviewElement = _app?.WaitForElement(overviewTitleQuery, TimeSpan.FromSeconds(5));
                 Console.WriteLine("📋 Overview page title found - page structure verified");
             }
-            catch (UITest.Core.TimeoutException)
+            catch (Binnaculum.UITest.Core.TimeoutException)
             {
                 Console.WriteLine("ℹ️ Overview title not found by text - checking for other elements");
             }
