@@ -57,7 +57,18 @@ public class AppiumServerManager : IDisposable
             args.Append($"--address {_options.IPAddress} ");
             args.Append($"--port {port} ");
             args.Append("--session-override ");
-            args.Append($"--log-level {_options.LogLevel.ToString().ToLower()} ");
+
+            // Convert .NET LogLevel to Appium log level format
+            var appiumLogLevel = _options.LogLevel switch
+            {
+                LogLevel.Debug => "debug",
+                LogLevel.Information => "info",
+                LogLevel.Warning => "warn",
+                LogLevel.Error => "error",
+                LogLevel.Critical => "error",
+                _ => "info"
+            };
+            args.Append($"--log-level {appiumLogLevel} ");
             args.Append($"--log {_logFilePath} ");
             
             if (_options.EnableCors)
@@ -70,11 +81,41 @@ public class AppiumServerManager : IDisposable
             if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
                 args.Append("--allow-insecure chromedriver_autodownload ");
 
+            // Determine the correct Appium executable name based on platform
+            string appiumExecutable;
+            if (OperatingSystem.IsWindows())
+            {
+                // On Windows, try multiple approaches to find Appium
+                var npmPath = Environment.GetEnvironmentVariable("APPDATA");
+                if (!string.IsNullOrEmpty(npmPath))
+                {
+                    var appiumCmdPath = Path.Combine(npmPath, "npm", "appium.cmd");
+                    if (File.Exists(appiumCmdPath))
+                    {
+                        appiumExecutable = appiumCmdPath;
+                    }
+                    else
+                    {
+                        // Fallback to just "appium.cmd" and let Windows find it in PATH
+                        appiumExecutable = "appium.cmd";
+                    }
+                }
+                else
+                {
+                    appiumExecutable = "appium.cmd";
+                }
+            }
+            else
+            {
+                // On Unix systems, use "appium" directly
+                appiumExecutable = "appium";
+            }
+
             _appiumProcess = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "appium",
+                    FileName = appiumExecutable,
                     Arguments = args.ToString().Trim(),
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -187,27 +228,39 @@ public class AppiumServerManager : IDisposable
     private async Task<bool> WaitForServerReady(string url, TimeSpan timeout)
     {
         var endTime = DateTime.UtcNow.Add(timeout);
+        _logger.LogInformation("Waiting for Appium server to be ready at {Url}, timeout: {Timeout}", url, timeout);
         
         while (DateTime.UtcNow < endTime)
         {
             if (_appiumProcess?.HasExited == true)
+            {
+                _logger.LogError("Appium process has exited unexpectedly");
                 return false;
+            }
                 
             try
             {
                 using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
                 var response = await client.GetAsync($"{url}/status");
                 if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("Appium server responded with status: {StatusCode}", response.StatusCode);
                     return true;
+                }
+                else
+                {
+                    _logger.LogDebug("Appium server responded but not ready yet: {StatusCode}", response.StatusCode);
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                // Server not ready yet
+                _logger.LogDebug("Health check attempt failed: {Error}", ex.Message);
             }
             
             await Task.Delay(1000); // Wait 1 second between checks
         }
         
+        _logger.LogError("Appium server did not become ready within {Timeout}", timeout);
         return false;
     }
 
@@ -241,7 +294,7 @@ public class AppiumServerManager : IDisposable
     {
         if (!string.IsNullOrEmpty(e.Data))
         {
-            _logger.LogDebug("Appium stdout: {Output}", e.Data);
+            _logger.LogInformation("Appium stdout: {Output}", e.Data);
         }
     }
 
@@ -250,7 +303,7 @@ public class AppiumServerManager : IDisposable
         if (!string.IsNullOrEmpty(e.Data))
         {
             // Don't log as error since Appium writes normal logs to stderr
-            _logger.LogDebug("Appium stderr: {Output}", e.Data);
+            _logger.LogInformation("Appium stderr: {Output}", e.Data);
         }
     }
 

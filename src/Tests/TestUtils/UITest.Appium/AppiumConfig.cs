@@ -31,7 +31,7 @@ public class AppiumConfig : IConfig
                 ["platformName"] = "Android",
                 ["automationName"] = "UiAutomator2",
                 ["appPackage"] = "com.darioalonso.binnacle",
-                ["appActivity"] = "crc64e1fb321c08285b90.MainActivity", // MAUI default activity
+                ["appActivity"] = "crc6460ce1c2ed4fc81a9.MainActivity", // Updated to actual activity name from ADB
                 ["noReset"] = false,
                 ["newCommandTimeout"] = 300
             }
