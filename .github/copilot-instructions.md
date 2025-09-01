@@ -107,11 +107,19 @@ Since the MAUI app cannot run in headless environments, validate UI changes by:
 - **Headless environments**: Cannot run MAUI apps but can build and test core logic
 
 ### Multi-Platform Considerations
-The UI project uses conditional compilation:
+The UI project uses OS-aware conditional compilation:
 ```xml
-<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+<TargetFrameworks>net9.0-android</TargetFrameworks>
+<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">net9.0-android;net9.0-windows10.0.19041.0</TargetFrameworks>
+<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
 ```
+
+**Platform Support Matrix:**
+| Operating System | Available Targets | MAUI Workloads Required |
+|-----------------|-------------------|-------------------------|
+| **Linux/Ubuntu** | Android | `maui-android` |
+| **Windows** | Android, Windows | `maui-android`, `maui-windows` |
+| **macOS** | Android, iOS, macOS | `maui-android`, `maui-ios`, `maui-maccatalyst` |
 
 ## Project Structure and Key Components
 
