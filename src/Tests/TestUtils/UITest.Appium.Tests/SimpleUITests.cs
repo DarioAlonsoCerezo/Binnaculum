@@ -19,23 +19,10 @@ public class SimpleUITests : IDisposable
         // This test requires you to manually start Appium first:
         // appium --address 127.0.0.1 --port 4723 --relaxed-security
         
-        // First verify Appium server is accessible
-        using var httpClient = new HttpClient();
-        try 
-        {
-            var response = httpClient.GetAsync("http://127.0.0.1:4723/status").GetAwaiter().GetResult();
-            if (!response.IsSuccessStatusCode)
-            {
-                Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
-            }
-        }
-        catch (HttpRequestException)
+        // Check if Appium server is accessible with safer synchronous approach
+        if (!IsAppiumServerRunning("http://127.0.0.1:4723/status"))
         {
             Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
-        }
-        catch (TaskCanceledException)
-        {
-            Skip.If(true, "Appium server is not running (request timed out). Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
         }
         
         try
@@ -73,23 +60,10 @@ public class SimpleUITests : IDisposable
         // This test uses the CI-friendly approach (no hardcoded activity)
         // appium --address 127.0.0.1 --port 4723 --relaxed-security
         
-        // First verify Appium server is accessible
-        using var httpClient = new HttpClient();
-        try 
-        {
-            var response = httpClient.GetAsync("http://127.0.0.1:4723/status").GetAwaiter().GetResult();
-            if (!response.IsSuccessStatusCode)
-            {
-                Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
-            }
-        }
-        catch (HttpRequestException)
+        // Check if Appium server is accessible with safer synchronous approach
+        if (!IsAppiumServerRunning("http://127.0.0.1:4723/status"))
         {
             Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
-        }
-        catch (TaskCanceledException)
-        {
-            Skip.If(true, "Appium server is not running (request timed out). Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
         }
         
         try
@@ -189,6 +163,44 @@ public class SimpleUITests : IDisposable
         }
         
         throw new System.TimeoutException($"App did not become ready within {actualTimeout.TotalSeconds} seconds");
+    }
+
+    /// <summary>
+    /// Safely checks if Appium server is running using synchronous HTTP request.
+    /// Avoids async anti-patterns in test methods.
+    /// </summary>
+    private static bool IsAppiumServerRunning(string statusUrl)
+    {
+        try
+        {
+            using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+            
+            // Use Task.Run to safely execute async operation synchronously in tests
+            // This avoids deadlock issues while maintaining synchronous test behavior
+            var task = Task.Run(async () =>
+            {
+                try
+                {
+                    var response = await httpClient.GetAsync(statusUrl);
+                    return response.IsSuccessStatusCode;
+                }
+                catch (HttpRequestException)
+                {
+                    return false; // Server not running
+                }
+                catch (TaskCanceledException)
+                {
+                    return false; // Request timed out
+                }
+            });
+
+            // Wait for the task with a reasonable timeout
+            return task.Wait(TimeSpan.FromSeconds(10)) && task.Result;
+        }
+        catch
+        {
+            return false; // Any other error means server is not accessible
+        }
     }
 
     public void Dispose()
