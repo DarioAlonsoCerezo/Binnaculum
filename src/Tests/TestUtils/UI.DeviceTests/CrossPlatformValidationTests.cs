@@ -48,23 +48,19 @@ public class CrossPlatformValidationTests
     [Fact]
     public void LayoutOptions_AreConsistentAcrossPlatforms()
     {
-        // Arrange - Test all standard layout options
+        // Arrange - Test standard layout options (removed deprecated *AndExpand options)
         var layoutOptions = new[]
         {
             LayoutOptions.Start,
             LayoutOptions.Center,
             LayoutOptions.End,
-            LayoutOptions.Fill,
-            LayoutOptions.StartAndExpand,
-            LayoutOptions.CenterAndExpand,
-            LayoutOptions.EndAndExpand,
-            LayoutOptions.FillAndExpand
+            LayoutOptions.Fill
         };
         
         // Act & Assert - All layout options should be available and have expected properties
         foreach (var option in layoutOptions)
         {
-            Assert.NotNull(option);
+            // LayoutOptions is a value type - no null check needed
             
             // Test basic properties
             if (option.Alignment == LayoutAlignment.Start)
@@ -298,6 +294,9 @@ public class CrossPlatformValidationTests
             if (exception != null)
             {
                 Assert.IsType<CultureNotFoundException>(exception);
+                
+                // Verify amount is available for formatting tests when culture becomes available
+                Assert.True(amount > 0, $"Amount {amount} should be positive for currency formatting tests");
             }
         }
     }
@@ -346,6 +345,6 @@ public class MockDevicePlatform
     }
     
     public override string ToString() => Name;
-    public override bool Equals(object obj) => obj is MockDevicePlatform other && Name == other.Name;
+    public override bool Equals(object? obj) => obj is MockDevicePlatform other && Name == other.Name;
     public override int GetHashCode() => Name.GetHashCode();
 }
