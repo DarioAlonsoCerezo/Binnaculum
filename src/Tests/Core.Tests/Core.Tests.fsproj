@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="SavedPreferencesTests.fs" />
     <Compile Include="BrokerAccountSnapshotTests.fs" />
     <Compile Include="BrokerAccountMultiCurrencySnapshotTests.fs" />
     <Compile Include="BrokerSnapshotTests.fs" />
