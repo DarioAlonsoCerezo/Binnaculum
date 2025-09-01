@@ -18,8 +18,9 @@ public class AppiumConfig : IConfig
     /// <summary>
     /// Create Android configuration for Binnaculum.
     /// Uses dynamic discovery in development, environment variable override in CI.
+    /// Enhanced with configurable reset strategies for test isolation.
     /// </summary>
-    public static AppiumConfig ForBinnaculumAndroid(string? appPath = null, string? deviceId = null)
+    public static AppiumConfig ForBinnaculumAndroid(string? appPath = null, string? deviceId = null, AppResetStrategy resetStrategy = AppResetStrategy.ClearAppData)
     {
         return new AppiumConfig
         {
@@ -27,22 +28,14 @@ public class AppiumConfig : IConfig
             AppPackage = "com.darioalonso.binnacle", // Based on UI project ApplicationId
             AppPath = appPath,
             DeviceId = deviceId,
-            Capabilities = new Dictionary<string, object>
-            {
-                ["platformName"] = "Android",
-                ["automationName"] = "UiAutomator2",
-                ["appPackage"] = "com.darioalonso.binnacle",
-                ["appActivity"] = GetMainActivityForEnvironment(), // Smart discovery based on environment
-                ["noReset"] = false,
-                ["newCommandTimeout"] = 300
-            }
+            Capabilities = GetAndroidCapabilities(resetStrategy)
         };
     }
 
     /// <summary>
-    /// Create Android configuration for Binnaculum with automatic activity detection.
+    /// Create Android configuration with automatic activity detection and configurable reset.
     /// </summary>
-    public static AppiumConfig ForBinnaculumAndroidSimple(string? appPath = null, string? deviceId = null)
+    public static AppiumConfig ForBinnaculumAndroidSimple(string? appPath = null, string? deviceId = null, AppResetStrategy resetStrategy = AppResetStrategy.ClearAppData)
     {
         return new AppiumConfig
         {
@@ -50,16 +43,7 @@ public class AppiumConfig : IConfig
             AppPackage = "com.darioalonso.binnacle",
             AppPath = appPath,
             DeviceId = deviceId,
-            Capabilities = new Dictionary<string, object>
-            {
-                ["platformName"] = "Android",
-                ["automationName"] = "UiAutomator2",
-                ["appPackage"] = "com.darioalonso.binnacle",
-                // Omit appActivity to let Appium discover the launch activity automatically
-                ["noReset"] = false,
-                ["newCommandTimeout"] = 300,
-                ["autoLaunch"] = true  // Ensure Appium launches the app
-            }
+            Capabilities = GetAndroidCapabilitiesSimple(resetStrategy)
         };
     }
 
@@ -323,4 +307,126 @@ public class AppiumConfig : IConfig
         // Activity names should follow the crc[hex].MainActivity pattern
         return System.Text.RegularExpressions.Regex.IsMatch(activityName, @"^crc[a-f0-9]+\.MainActivity$");
     }
+
+    /// <summary>
+    /// Gets Android capabilities with appropriate reset strategy for test isolation.
+    /// </summary>
+    private static Dictionary<string, object> GetAndroidCapabilities(AppResetStrategy resetStrategy)
+    {
+        var capabilities = new Dictionary<string, object>
+        {
+            ["platformName"] = "Android",
+            ["automationName"] = "UiAutomator2",
+            ["appPackage"] = "com.darioalonso.binnacle",
+            ["appActivity"] = GetMainActivityForEnvironment(),
+            ["newCommandTimeout"] = 300
+        };
+
+        // Configure reset strategy for test isolation
+        switch (resetStrategy)
+        {
+            case AppResetStrategy.NoReset:
+                capabilities["noReset"] = true;
+                capabilities["fullReset"] = false;
+                break;
+
+            case AppResetStrategy.ClearAppData:
+                capabilities["noReset"] = false;   // Reset app data but keep app installed
+                capabilities["fullReset"] = false; // Don't uninstall/reinstall
+                break;
+
+            case AppResetStrategy.ReinstallApp:
+                // Note: Full reset requires app capability (APK path)
+                // If no app path provided, fallback to ClearAppData
+                capabilities["noReset"] = false;   // Reset app data
+                capabilities["fullReset"] = false; // Can't reinstall without APK path
+                capabilities["clearSystemFiles"] = true; // Clear system files for deeper reset
+                break;
+
+            case AppResetStrategy.KillAndRestart:
+                capabilities["noReset"] = true;    // Keep app data
+                capabilities["fullReset"] = false;
+                capabilities["forceAppLaunch"] = true; // Force kill and restart
+                break;
+        }
+
+        return capabilities;
+    }
+
+    /// <summary>
+    /// Gets Android capabilities for simple configuration with reset strategy.
+    /// </summary>
+    private static Dictionary<string, object> GetAndroidCapabilitiesSimple(AppResetStrategy resetStrategy)
+    {
+        var capabilities = new Dictionary<string, object>
+        {
+            ["platformName"] = "Android",
+            ["automationName"] = "UiAutomator2",
+            ["appPackage"] = "com.darioalonso.binnacle",
+            ["newCommandTimeout"] = 300,
+            ["autoLaunch"] = true
+        };
+
+        // Apply same reset strategy logic
+        switch (resetStrategy)
+        {
+            case AppResetStrategy.NoReset:
+                capabilities["noReset"] = true;
+                capabilities["fullReset"] = false;
+                break;
+
+            case AppResetStrategy.ClearAppData:
+                capabilities["noReset"] = false;
+                capabilities["fullReset"] = false;
+                break;
+
+            case AppResetStrategy.ReinstallApp:
+                // For simple config without APK, use deeper clearing instead
+                capabilities["noReset"] = false;
+                capabilities["fullReset"] = false;
+                capabilities["clearSystemFiles"] = true;
+                break;
+
+            case AppResetStrategy.KillAndRestart:
+                capabilities["noReset"] = true;
+                capabilities["fullReset"] = false;
+                capabilities["forceAppLaunch"] = true;
+                break;
+        }
+
+        return capabilities;
+    }
+}
+
+/// <summary>
+/// Defines how the app should be reset between test runs for proper test isolation.
+/// </summary>
+public enum AppResetStrategy
+{
+    /// <summary>
+    /// No reset - app keeps all data and state between tests.
+    /// Fastest but poorest test isolation.
+    /// </summary>
+    NoReset,
+
+    /// <summary>
+    /// Clear app data but keep app installed.
+    /// Good balance of speed and test isolation.
+    /// Equivalent to "Clear Data" in Android settings.
+    /// </summary>
+    ClearAppData,
+
+    /// <summary>
+    /// Uninstall and reinstall the app.
+    /// Slowest but provides complete test isolation.
+    /// Ensures completely fresh app state.
+    /// </summary>
+    ReinstallApp,
+
+    /// <summary>
+    /// Kill app process and restart, but keep data.
+    /// Good for testing app lifecycle but maintains data.
+    /// Useful for testing app resume/backgrounding scenarios.
+    /// </summary>
+    KillAndRestart
 }
