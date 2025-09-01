@@ -275,7 +275,7 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
         // Test handling of large datasets without memory issues
         let (_, elapsedMs) = measureTime (fun () ->
             let processChunk (chunk: int list) =
-                chunk |> List.map (fun x -> {| Id = x; Square = x * x |}) |> List.sumBy (fun x -> x.Square)
+                chunk |> List.map (fun x -> {| Id = x; Square = int64 x * int64 x |}) |> List.sumBy (fun x -> x.Square)
             
             let result = [1..10000]
                         |> List.chunkBySize 500
