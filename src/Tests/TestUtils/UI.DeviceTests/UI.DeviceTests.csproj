@@ -75,4 +75,21 @@
 		<PackageReference Include="System.Reactive" />
 	</ItemGroup>
 
+	<!-- F#-specific Android linker configuration to fix FSharp.Core embedded resource warnings -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+		<!-- Disable Android resource linking to preserve F# compiler metadata -->
+		<AndroidLinkResources>false</AndroidLinkResources>
+		<!-- Use SdkOnly linking mode to avoid aggressive resource stripping -->
+		<AndroidLinkMode>SdkOnly</AndroidLinkMode>
+		<!-- Preserve F# reflection data -->
+		<TrimMode>partial</TrimMode>
+		<!-- Disable AOT for test projects to avoid XUnit compatibility issues -->
+		<RunAOTCompilation>false</RunAOTCompilation>
+	</PropertyGroup>
+
+	<!-- Preserve F# Core assembly from trimming -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+		<TrimmerRootAssembly Include="FSharp.Core" RootMode="library" />
+	</ItemGroup>
+
 </Project>
