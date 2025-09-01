@@ -27,12 +27,12 @@ jobs:
         run: dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
       - name: Run Core.Tests (Allow MAUI failures)
         run: |
-          # Run tests and capture exit code - allow 7 MAUI failures in headless environment
+          # Run tests - expect 100% pass rate (MAUI tests moved to Core.Platform.Tests)
           dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
             --configuration Release --no-build --verbosity normal \
-            --logger "trx;LogFileName=core-tests-results.trx" || true
+            --logger "trx;LogFileName=core-tests-results.trx"
           
-          # Check results - we expect 7 MAUI failures in headless environment
+          # Check results - expect all tests to pass
           RESULTS_FILE="src/Tests/Core.Tests/TestResults/core-tests-results.trx"
           if [ -f "$RESULTS_FILE" ]; then
             TOTAL_TESTS=$(grep -o 'total="[0-9]*"' "$RESULTS_FILE" | grep -o '[0-9]*' || echo "0")
@@ -41,13 +41,13 @@ jobs:
             echo "Total tests: $TOTAL_TESTS"
             echo "Passed tests: $PASSED_TESTS"
             
-            # Accept either 80/87 (expected) or 87/87 (if MAUI somehow works)
-            if [ "$TOTAL_TESTS" = "87" ] && ([ "$PASSED_TESTS" = "80" ] || [ "$PASSED_TESTS" = "87" ]); then
-              echo "✅ Core tests passed with acceptable results ($PASSED_TESTS/$TOTAL_TESTS)"
+            # Expect 81/81 tests passing (100% success rate)
+            if [ "$TOTAL_TESTS" = "81" ] && [ "$PASSED_TESTS" = "81" ]; then
+              echo "✅ Core tests passed with clean results ($PASSED_TESTS/$TOTAL_TESTS)"
               exit 0
             else
               echo "❌ Unexpected test results: $PASSED_TESTS/$TOTAL_TESTS"
-              echo "Expected 80/87 or 87/87"
+              echo "Expected 81/81 passing tests (100% success rate - MAUI tests moved to separate project)"
               exit 1
             fi
           else

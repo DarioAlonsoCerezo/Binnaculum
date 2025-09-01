@@ -141,12 +141,9 @@ jobs:
           echo "  Passed: $PASSED_TESTS"
           echo "  Failed: $FAILED_TESTS"
           
-          # Validate expected test pattern (80 pass + 7 MAUI failures = 87 total)
-          if [ "$TOTAL_TESTS" = "87" ] && [ "$PASSED_TESTS" = "80" ] && [ "$FAILED_TESTS" = "7" ]; then
-            echo "✅ Test results match expected pattern: 80/87 pass (7 MAUI failures expected in headless environment)"
-            echo "📋 F# Core business logic validation: SUCCESS"
-          elif [ "$TOTAL_TESTS" = "87" ] && [ "$PASSED_TESTS" = "87" ] && [ "$FAILED_TESTS" = "0" ]; then
-            echo "🎉 All tests passed! (MAUI tests may be working in this environment)"
+          # Validate expected test pattern (81 tests all passing = 100% success rate)
+          if [ "$TOTAL_TESTS" = "81" ] && [ "$PASSED_TESTS" = "81" ] && [ "$FAILED_TESTS" = "0" ]; then
+            echo "✅ Test results match expected pattern: 81/81 pass (100% success rate - MAUI tests moved to separate project)"
             echo "📋 F# Core business logic validation: SUCCESS"
           elif [ "$PASSED_TESTS" -ge "80" ] && [ "$TOTAL_TESTS" -ge "80" ]; then
             echo "✅ Core business logic tests passing ($PASSED_TESTS/$TOTAL_TESTS)"
