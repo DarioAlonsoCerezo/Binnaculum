@@ -14,8 +14,8 @@ on:
           - 'false'
 
 permissions:
-  contents: read
-  administration: write
+  contents: write
+  pull-requests: write
 
 jobs:
   setup-branch-protection:
