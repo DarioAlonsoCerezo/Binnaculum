@@ -192,7 +192,7 @@ public abstract class AppiumApp : IApp
             Thread.Sleep(100);
         }
 
-        throw new Binnaculum.UITest.Core.TimeoutException($"Element not found within {wait} using query: {query.GetQueryString()}");
+        throw new Binnaculum.UITest.Core.TimeoutException("Element not found", wait);
     }
 
     public virtual void WaitForNoElement(IQuery query, TimeSpan? timeout = null)
@@ -209,7 +209,7 @@ public abstract class AppiumApp : IApp
             Thread.Sleep(100);
         }
 
-        throw new Binnaculum.UITest.Core.TimeoutException($"Element still present after {wait} using query: {query.GetQueryString()}");
+        throw new Binnaculum.UITest.Core.TimeoutException("Element still present", wait);
     }
 
     protected virtual IUIElement? TryFindElement(IQuery query)
@@ -264,7 +264,16 @@ public abstract class AppiumApp : IApp
 
     public virtual void CloseApp()
     {
-        _driver.CloseApp();
+        try
+        {
+            // In Appium 8.0, CloseApp() is removed. Use Quit() to close the driver session
+            // For mobile apps, this effectively closes the app
+            _driver.Quit();
+        }
+        catch (Exception)
+        {
+            // Ignore errors during quit - the app may already be closed
+        }
     }
 
     public virtual void Dispose()

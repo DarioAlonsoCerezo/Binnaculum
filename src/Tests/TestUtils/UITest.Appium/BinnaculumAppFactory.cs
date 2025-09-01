@@ -56,24 +56,24 @@ public static class BinnaculumAppFactory
     {
         var options = new AppiumOptions();
         
-        // Set required capabilities
-        options.AddAdditionalCapability("platformName", "Android");
-        options.AddAdditionalCapability("automationName", "UiAutomator2");
+        // Set required capabilities using AddAdditionalOption
+        options.AddAdditionalOption("platformName", "Android");
+        options.AddAdditionalOption("automationName", "UiAutomator2");
         
         // Add device-specific capabilities
         if (!string.IsNullOrEmpty(config.DeviceId))
-            options.AddAdditionalCapability("udid", config.DeviceId);
+            options.AddAdditionalOption("udid", config.DeviceId);
         
         if (!string.IsNullOrEmpty(config.AppPackage))
-            options.AddAdditionalCapability("appPackage", config.AppPackage);
+            options.AddAdditionalOption("appPackage", config.AppPackage);
         
         if (!string.IsNullOrEmpty(config.AppPath))
-            options.AddAdditionalCapability("app", config.AppPath);
+            options.AddAdditionalOption("app", config.AppPath);
         
         // Add any additional capabilities
         foreach (var capability in config.Capabilities)
         {
-            options.AddAdditionalCapability(capability.Key, capability.Value);
+            options.AddAdditionalOption(capability.Key, capability.Value);
         }
 
         var driver = new AndroidDriver(serverUri, options, config.DefaultTimeout);
@@ -84,24 +84,24 @@ public static class BinnaculumAppFactory
     {
         var options = new AppiumOptions();
         
-        // Set required capabilities
-        options.AddAdditionalCapability("platformName", "iOS");
-        options.AddAdditionalCapability("automationName", "XCUITest");
+        // Set required capabilities using AddAdditionalOption
+        options.AddAdditionalOption("platformName", "iOS");
+        options.AddAdditionalOption("automationName", "XCUITest");
         
         // Add device-specific capabilities
         if (!string.IsNullOrEmpty(config.DeviceId))
-            options.AddAdditionalCapability("udid", config.DeviceId);
+            options.AddAdditionalOption("udid", config.DeviceId);
         
         if (!string.IsNullOrEmpty(config.AppPackage))
-            options.AddAdditionalCapability("bundleId", config.AppPackage);
+            options.AddAdditionalOption("bundleId", config.AppPackage);
         
         if (!string.IsNullOrEmpty(config.AppPath))
-            options.AddAdditionalCapability("app", config.AppPath);
+            options.AddAdditionalOption("app", config.AppPath);
         
         // Add any additional capabilities
         foreach (var capability in config.Capabilities)
         {
-            options.AddAdditionalCapability(capability.Key, capability.Value);
+            options.AddAdditionalOption(capability.Key, capability.Value);
         }
 
         var driver = new IOSDriver(serverUri, options, config.DefaultTimeout);
@@ -112,19 +112,19 @@ public static class BinnaculumAppFactory
     {
         var options = new AppiumOptions();
         
-        // Set required capabilities
-        options.AddAdditionalCapability("platformName", "Windows");
-        options.AddAdditionalCapability("automationName", "Windows");
+        // Set required capabilities using AddAdditionalOption
+        options.AddAdditionalOption("platformName", "Windows");
+        options.AddAdditionalOption("automationName", "Windows");
         
         if (!string.IsNullOrEmpty(config.AppPath))
-            options.AddAdditionalCapability("app", config.AppPath);
+            options.AddAdditionalOption("app", config.AppPath);
         else if (!string.IsNullOrEmpty(config.AppPackage))
-            options.AddAdditionalCapability("app", config.AppPackage);
+            options.AddAdditionalOption("app", config.AppPackage);
         
         // Add any additional capabilities
         foreach (var capability in config.Capabilities)
         {
-            options.AddAdditionalCapability(capability.Key, capability.Value);
+            options.AddAdditionalOption(capability.Key, capability.Value);
         }
 
         var driver = new WindowsDriver(serverUri, options, config.DefaultTimeout);
@@ -135,20 +135,20 @@ public static class BinnaculumAppFactory
     {
         var options = new AppiumOptions();
         
-        // Set required capabilities
-        options.AddAdditionalCapability("platformName", "Mac");
-        options.AddAdditionalCapability("automationName", "Mac2");
+        // Set required capabilities using AddAdditionalOption
+        options.AddAdditionalOption("platformName", "Mac");
+        options.AddAdditionalOption("automationName", "Mac2");
         
         if (!string.IsNullOrEmpty(config.AppPackage))
-            options.AddAdditionalCapability("bundleId", config.AppPackage);
+            options.AddAdditionalOption("bundleId", config.AppPackage);
         
         if (!string.IsNullOrEmpty(config.AppPath))
-            options.AddAdditionalCapability("app", config.AppPath);
+            options.AddAdditionalOption("app", config.AppPath);
         
         // Add any additional capabilities
         foreach (var capability in config.Capabilities)
         {
-            options.AddAdditionalCapability(capability.Key, capability.Value);
+            options.AddAdditionalOption(capability.Key, capability.Value);
         }
 
         var driver = new MacDriver(serverUri, options, config.DefaultTimeout);

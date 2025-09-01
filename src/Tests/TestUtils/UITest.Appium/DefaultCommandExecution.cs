@@ -10,7 +10,7 @@ internal class DefaultCommandExecution : ICommandExecution
 {
     public TimeSpan DefaultTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
-    public async Task<CommandResponse<T>> ExecuteAsync<T>(ICommand<T> command, TimeSpan? timeout = null)
+    public Task<CommandResponse<T>> ExecuteAsync<T>(ICommand<T> command, TimeSpan? timeout = null)
     {
         var effectiveTimeout = timeout ?? DefaultTimeout;
         var commandId = command.CommandId;
@@ -23,24 +23,24 @@ internal class DefaultCommandExecution : ICommandExecution
             // are executed synchronously through the driver
             // A full implementation would integrate with actual command execution
             
-            return new CommandResponse<T>(CommandResponseResult.Success, default(T));
+            return Task.FromResult(new CommandResponse<T>(CommandResponseResult.Success, default(T)));
         }
         catch (OperationCanceledException)
         {
-            return new CommandResponse<T>(
+            return Task.FromResult(new CommandResponse<T>(
                 CommandResponseResult.Timeout, 
-                errorMessage: $"Command '{commandId}' timed out after {effectiveTimeout.TotalSeconds} seconds");
+                errorMessage: $"Command '{commandId}' timed out after {effectiveTimeout.TotalSeconds} seconds"));
         }
         catch (Exception ex)
         {
-            return new CommandResponse<T>(
+            return Task.FromResult(new CommandResponse<T>(
                 CommandResponseResult.Failed, 
                 errorMessage: ex.Message, 
-                exception: ex);
+                exception: ex));
         }
     }
 
-    public async Task<ICommandExecutionGroup> ExecuteGroupAsync(IEnumerable<ICommand> commands, TimeSpan? timeout = null)
+    public Task<ICommandExecutionGroup> ExecuteGroupAsync(IEnumerable<ICommand> commands, TimeSpan? timeout = null)
     {
         var responses = new List<CommandResponse>();
         var effectiveTimeout = timeout ?? DefaultTimeout;
@@ -60,7 +60,7 @@ internal class DefaultCommandExecution : ICommandExecution
             }
         }
 
-        return new DefaultCommandExecutionGroup(responses);
+        return Task.FromResult<ICommandExecutionGroup>(new DefaultCommandExecutionGroup(responses));
     }
 }
 

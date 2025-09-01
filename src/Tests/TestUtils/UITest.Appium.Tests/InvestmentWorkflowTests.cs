@@ -1,4 +1,5 @@
 using Xunit;
+using Microsoft.Extensions.Logging;
 using Binnaculum.UITest.Core;
 using Binnaculum.UITest.Appium;
 using Binnaculum.UITest.Appium.PageObjects;
@@ -13,33 +14,29 @@ namespace Binnaculum.UITest.Appium.Tests;
 [Collection("AppiumServer")]  // NEW: Use the collection fixture
 public class InvestmentWorkflowTests : IDisposable
 {
-    private readonly IApp _app;
     private readonly IConfig _config;
-    private readonly AppiumServerFixture _serverFixture;
+    private readonly Binnaculum.UITest.Appium.AppiumServerFixture _serverFixture;
+    private IApp? _app;
 
-    public InvestmentWorkflowTests(AppiumServerFixture serverFixture)  // NEW: Inject fixture
+    public InvestmentWorkflowTests(Binnaculum.UITest.Appium.AppiumServerFixture serverFixture)  // NEW: Inject fixture
     {
         _serverFixture = serverFixture;
         
         // Configure for Android testing - would need to be made configurable for CI/CD
         _config = AppiumConfig.ForBinnaculumAndroid();
         
-        // NEW: Use the fixture-managed server
-        try
-        {
-            _app = BinnaculumAppFactory.CreateAppWithAutoServer(_config, _serverFixture);
-        }
-        catch (Exception ex)
-        {
-            // If server is not available, skip tests with detailed reason
-            Skip.If(true, $"Appium server not available: {ex.Message}");
-            _app = null!;
-        }
+        // Don't create app in constructor - let each test handle it
     }
 
-    [Fact]
-    public async Task AddInvestmentMovement_WithValidData_CreatesMovementSuccessfully()
+    [SkippableFact]
+    public void AddInvestmentMovement_WithValidData_CreatesMovementSuccessfully()
     {
+        // Skip if Appium server is not available
+        Skip.IfNot(_serverFixture.IsServerAvailable, "Appium server is not available");
+        
+        // Create app lazily
+        _app = BinnaculumAppFactory.CreateAppWithAutoServer(_config, _serverFixture);
+        
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         var testData = InvestmentTestData.CreateProfitableMovement();
@@ -56,9 +53,15 @@ public class InvestmentWorkflowTests : IDisposable
         brokerPage.AssertPercentageUpdated();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Dashboard_OnAppStart_DisplaysPortfolioData()
     {
+        // Skip if Appium server is not available
+        Skip.IfNot(_serverFixture.IsServerAvailable, "Appium server is not available");
+        
+        // Create app lazily
+        _app = BinnaculumAppFactory.CreateAppWithAutoServer(_config, _serverFixture);
+        
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         
@@ -73,9 +76,15 @@ public class InvestmentWorkflowTests : IDisposable
         Assert.NotEqual("", portfolioValue);
     }
 
-    [Fact]
+    [SkippableFact]
     public void BrokerAccount_Navigation_WorksCorrectly()
     {
+        // Skip if Appium server is not available
+        Skip.IfNot(_serverFixture.IsServerAvailable, "Appium server is not available");
+        
+        // Create app lazily
+        _app = BinnaculumAppFactory.CreateAppWithAutoServer(_config, _serverFixture);
+        
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         mainPage.WaitForPageToLoad();
@@ -90,9 +99,15 @@ public class InvestmentWorkflowTests : IDisposable
         Assert.Contains("Test Broker", accountName);
     }
 
-    [Fact]
+    [SkippableFact]
     public void MovementCreator_WithDividendData_CreatesSuccessfully()
     {
+        // Skip if Appium server is not available
+        Skip.IfNot(_serverFixture.IsServerAvailable, "Appium server is not available");
+        
+        // Create app lazily
+        _app = BinnaculumAppFactory.CreateAppWithAutoServer(_config, _serverFixture);
+        
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         var testData = InvestmentTestData.CreateDividendMovement();
@@ -110,9 +125,15 @@ public class InvestmentWorkflowTests : IDisposable
         brokerPage.AssertMovementExists(testData.Description);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Portfolio_MultipleMovements_ShowsCorrectBalance()
     {
+        // Skip if Appium server is not available
+        Skip.IfNot(_serverFixture.IsServerAvailable, "Appium server is not available");
+        
+        // Create app lazily
+        _app = BinnaculumAppFactory.CreateAppWithAutoServer(_config, _serverFixture);
+        
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         var movements = InvestmentTestData.CreateCompletePortfolioScenario();
@@ -137,9 +158,15 @@ public class InvestmentWorkflowTests : IDisposable
         Assert.True(mainPage.HasPortfolioData(), "Portfolio should show data after adding movements");
     }
 
-    [Fact]
+    [SkippableFact]
     public void CrossScreenNavigation_BackAndForth_MaintainsState()
     {
+        // Skip if Appium server is not available
+        Skip.IfNot(_serverFixture.IsServerAvailable, "Appium server is not available");
+        
+        // Create app lazily
+        _app = BinnaculumAppFactory.CreateAppWithAutoServer(_config, _serverFixture);
+        
         // Arrange
         var mainPage = new MainDashboardPage(_app);
         
@@ -171,23 +198,11 @@ public class InvestmentWorkflowTests : IDisposable
 }
 
 /// <summary>
-/// Simple Skip utility for conditional test skipping.
+/// xUnit collection definition for Appium server tests.
+/// All test classes that use [Collection("AppiumServer")] will share the same server instance.
 /// </summary>
-public static class Skip
+[CollectionDefinition("AppiumServer")]
+public class AppiumServerCollection : ICollectionFixture<Binnaculum.UITest.Appium.AppiumServerFixture>
 {
-    public static void If(bool condition, string reason)
-    {
-        if (condition)
-        {
-            throw new SkipException(reason);
-        }
-    }
-}
-
-/// <summary>
-/// Exception thrown to skip a test.
-/// </summary>
-public class SkipException : Exception
-{
-    public SkipException(string reason) : base(reason) { }
+    // This class has no code, it exists only to define the collection
 }
