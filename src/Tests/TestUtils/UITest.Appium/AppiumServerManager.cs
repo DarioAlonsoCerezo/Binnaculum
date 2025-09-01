@@ -89,7 +89,7 @@ public class AppiumServerManager : IDisposable
                 var npmPath = Environment.GetEnvironmentVariable("APPDATA");
                 if (!string.IsNullOrEmpty(npmPath))
                 {
-                    var appiumCmdPath = Path.Combine(npmPath, "npm", "appium.cmd");
+                    var appiumCmdPath = Path.Combine(npmPath, "npm", "node_modules", ".bin", "appium.cmd");
                     if (File.Exists(appiumCmdPath))
                     {
                         appiumExecutable = appiumCmdPath;

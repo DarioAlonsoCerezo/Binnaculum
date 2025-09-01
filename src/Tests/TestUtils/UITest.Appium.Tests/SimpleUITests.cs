@@ -23,15 +23,19 @@ public class SimpleUITests : IDisposable
         using var httpClient = new HttpClient();
         try 
         {
-            var response = httpClient.GetAsync("http://127.0.0.1:4723/status").Result;
+            var response = httpClient.GetAsync("http://127.0.0.1:4723/status").GetAwaiter().GetResult();
             if (!response.IsSuccessStatusCode)
             {
                 Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
             }
         }
-        catch 
+        catch (HttpRequestException)
         {
             Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
+        }
+        catch (TaskCanceledException)
+        {
+            Skip.If(true, "Appium server is not running (request timed out). Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
         }
         
         try
@@ -52,13 +56,13 @@ public class SimpleUITests : IDisposable
             Assert.True(screenshot.Length > 0, "Screenshot should contain data");
             
             // Log success
-            Console.WriteLine($"✅ App launched successfully! State: {appState}");
-            Console.WriteLine($"📸 Screenshot size: {screenshot.Length} bytes");
-            Console.WriteLine($"🔧 Used dynamic activity discovery");
+            Console.WriteLine($"\u2705 App launched successfully! State: {appState}");
+            Console.WriteLine($"\ud83d\udcf8 Screenshot size: {screenshot.Length} bytes");
+            Console.WriteLine($"\ud83d\udd27 Used dynamic activity discovery");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Test failed: {ex.Message}");
+            Console.WriteLine($"\u274c Test failed: {ex.Message}");
             throw;
         }
     }
@@ -73,15 +77,19 @@ public class SimpleUITests : IDisposable
         using var httpClient = new HttpClient();
         try 
         {
-            var response = httpClient.GetAsync("http://127.0.0.1:4723/status").Result;
+            var response = httpClient.GetAsync("http://127.0.0.1:4723/status").GetAwaiter().GetResult();
             if (!response.IsSuccessStatusCode)
             {
                 Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
             }
         }
-        catch 
+        catch (HttpRequestException)
         {
             Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
+        }
+        catch (TaskCanceledException)
+        {
+            Skip.If(true, "Appium server is not running (request timed out). Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
         }
         
         try
@@ -102,13 +110,13 @@ public class SimpleUITests : IDisposable
             Assert.True(screenshot.Length > 0, "Screenshot should contain data");
             
             // Log success
-            Console.WriteLine($"✅ App launched successfully! State: {appState}");
-            Console.WriteLine($"📸 Screenshot size: {screenshot.Length} bytes");
-            Console.WriteLine($"🔧 Used automatic activity discovery (CI-friendly)");
+            Console.WriteLine($"\u2705 App launched successfully! State: {appState}");
+            Console.WriteLine($"\ud83d\udcf8 Screenshot size: {screenshot.Length} bytes");
+            Console.WriteLine($"\ud83d\udd27 Used automatic activity discovery (CI-friendly)");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Test failed: {ex.Message}");
+            Console.WriteLine($"\u274c Test failed: {ex.Message}");
             throw;
         }
     }
@@ -125,8 +133,8 @@ public class SimpleUITests : IDisposable
             var serverUri = new Uri("http://127.0.0.1:4723");
             _app = BinnaculumAppFactory.CreateApp(config, serverUri);
             
-            // Wait a bit for the app to fully load
-            Thread.Sleep(3000);
+            // Wait for the app to fully load with proper wait condition
+            WaitForAppReady(_app);
             
             // Try to find any element by XPath (this should work for any MAUI app)
             var query = _app.Query().ByXPath("//*[@clickable='true']").First();
@@ -134,7 +142,7 @@ public class SimpleUITests : IDisposable
             
             Assert.True(elements.Count > 0, "Should find at least one clickable element");
             
-            Console.WriteLine($"✅ Found {elements.Count} clickable elements");
+            Console.WriteLine($"\u2705 Found {elements.Count} clickable elements");
             
             // Log element details
             for (int i = 0; i < Math.Min(3, elements.Count); i++)
@@ -146,9 +154,41 @@ public class SimpleUITests : IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"❌ Test failed: {ex.Message}");
+            Console.WriteLine($"\u274c Test failed: {ex.Message}");
             throw;
         }
+    }
+
+    /// <summary>
+    /// Waits for the app to be ready instead of using hard-coded sleep.
+    /// Uses polling with timeout to ensure the app is in a ready state.
+    /// </summary>
+    private static void WaitForAppReady(IApp app, TimeSpan? timeout = null)
+    {
+        var actualTimeout = timeout ?? TimeSpan.FromSeconds(10);
+        var endTime = DateTime.UtcNow.Add(actualTimeout);
+        
+        while (DateTime.UtcNow < endTime)
+        {
+            try
+            {
+                var appState = app.GetAppState();
+                if (appState == ApplicationState.RunningInForeground)
+                {
+                    // App is ready, give it a small additional moment to fully render
+                    Thread.Sleep(500);
+                    return;
+                }
+            }
+            catch
+            {
+                // App state check failed, continue polling
+            }
+            
+            Thread.Sleep(250); // Poll every 250ms
+        }
+        
+        throw new System.TimeoutException($"App did not become ready within {actualTimeout.TotalSeconds} seconds");
     }
 
     public void Dispose()
