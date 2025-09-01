@@ -1,9 +1,0 @@
-global using Microsoft.Extensions.Logging;
-global using Microsoft.Maui.Controls;
-global using System.ComponentModel;
-global using Xunit;
-global using Xunit.Abstractions;
-global using System;
-global using System.Threading.Tasks;
-global using System.Collections.Generic;
-global using System.Linq;
