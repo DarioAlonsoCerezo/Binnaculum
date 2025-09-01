@@ -218,9 +218,9 @@ public class AppiumServerManager : IDisposable
         {
             try
             {
-                using var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, port);
-                listener.Start();
-                listener.Stop();
+                using var tcpListener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, port);
+                tcpListener.Start();
+                tcpListener.Stop();
                 return port;
             }
             catch

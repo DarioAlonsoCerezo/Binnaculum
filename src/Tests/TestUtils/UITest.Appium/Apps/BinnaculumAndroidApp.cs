@@ -20,7 +20,8 @@ public class BinnaculumAndroidApp : AppiumApp
     {
         if (_driver is AndroidDriver androidDriver)
         {
-            androidDriver.PressKeyCode(AndroidKeyCode.Back);
+            // In Appium 8.0, use the key code value directly instead of AndroidKeyCode enum
+            androidDriver.PressKeyCode(4); // Back key code
         }
         else
         {
@@ -60,7 +61,8 @@ public class BinnaculumAndroidApp : AppiumApp
     {
         if (_driver is AndroidDriver androidDriver)
         {
-            androidDriver.PressKeyCode(AndroidKeyCode.Home);
+            // In Appium 8.0, use the key code value directly instead of AndroidKeyCode enum
+            androidDriver.PressKeyCode(3); // Home key code
         }
     }
 
@@ -71,7 +73,8 @@ public class BinnaculumAndroidApp : AppiumApp
     {
         if (_driver is AndroidDriver androidDriver)
         {
-            androidDriver.PressKeyCode(AndroidKeyCode.Menu);
+            // In Appium 8.0, use the key code value directly instead of AndroidKeyCode enum  
+            androidDriver.PressKeyCode(82); // Menu key code
         }
     }
 
