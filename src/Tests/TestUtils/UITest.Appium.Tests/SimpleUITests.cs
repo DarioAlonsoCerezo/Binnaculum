@@ -36,7 +36,7 @@ public class SimpleUITests : IDisposable
         
         try
         {
-            // Configure for Android testing
+            // Configure for Android testing with dynamic discovery (testing the new approach)
             var config = AppiumConfig.ForBinnaculumAndroid();
             
             // Create app directly with known server
@@ -54,6 +54,57 @@ public class SimpleUITests : IDisposable
             // Log success
             Console.WriteLine($"✅ App launched successfully! State: {appState}");
             Console.WriteLine($"📸 Screenshot size: {screenshot.Length} bytes");
+            Console.WriteLine($"🔧 Used dynamic activity discovery");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Test failed: {ex.Message}");
+            throw;
+        }
+    }
+
+    [Fact]
+    public void SimpleAppLaunch_VerifyAppStarts_CIFriendly()
+    {
+        // This test uses the CI-friendly approach (no hardcoded activity)
+        // appium --address 127.0.0.1 --port 4723 --relaxed-security
+        
+        // First verify Appium server is accessible
+        using var httpClient = new HttpClient();
+        try 
+        {
+            var response = httpClient.GetAsync("http://127.0.0.1:4723/status").Result;
+            if (!response.IsSuccessStatusCode)
+            {
+                Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
+            }
+        }
+        catch 
+        {
+            Skip.If(true, "Appium server is not running. Please start it manually with: appium --address 127.0.0.1 --port 4723 --relaxed-security");
+        }
+        
+        try
+        {
+            // Configure for Android testing with automatic activity discovery (CI-friendly)
+            var config = AppiumConfig.ForBinnaculumAndroidSimple();
+            
+            // Create app directly with known server
+            var serverUri = new Uri("http://127.0.0.1:4723");
+            _app = BinnaculumAppFactory.CreateApp(config, serverUri);
+            
+            // Simple test - just verify the app launches
+            var appState = _app.GetAppState();
+            Assert.NotEqual(ApplicationState.NotRunning, appState);
+            
+            // Take a screenshot to prove it's working
+            var screenshot = _app.Screenshot();
+            Assert.True(screenshot.Length > 0, "Screenshot should contain data");
+            
+            // Log success
+            Console.WriteLine($"✅ App launched successfully! State: {appState}");
+            Console.WriteLine($"📸 Screenshot size: {screenshot.Length} bytes");
+            Console.WriteLine($"🔧 Used automatic activity discovery (CI-friendly)");
         }
         catch (Exception ex)
         {
