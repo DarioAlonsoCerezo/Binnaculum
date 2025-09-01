@@ -10,53 +10,37 @@ on:
     types: [submitted]
 
 jobs:
-  test-core-tests:
+  validate-core-logic:
+    name: Validate Core Business Logic
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-      - name: Restore Core dependencies
+          
+      - name: Restore dependencies
         run: dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
+        
       - name: Build Core project
         run: dotnet build src/Core/Core.fsproj --configuration Release --no-restore
+        
       - name: Build Core.Tests
         run: dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
-      - name: Run Core.Tests (Allow MAUI failures)
+        
+      - name: Run Core Tests
         run: |
-          # Run tests - expect 100% pass rate (MAUI tests moved to Core.Platform.Tests)
           dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
-            --configuration Release --no-build --verbosity normal \
-            --logger "trx;LogFileName=core-tests-results.trx"
-          
-          # Check results - expect all tests to pass
-          RESULTS_FILE="src/Tests/Core.Tests/TestResults/core-tests-results.trx"
-          if [ -f "$RESULTS_FILE" ]; then
-            TOTAL_TESTS=$(grep -o 'total="[0-9]*"' "$RESULTS_FILE" | grep -o '[0-9]*' || echo "0")
-            PASSED_TESTS=$(grep -o 'passed="[0-9]*"' "$RESULTS_FILE" | grep -o '[0-9]*' || echo "0")
-            
-            echo "Total tests: $TOTAL_TESTS"
-            echo "Passed tests: $PASSED_TESTS"
-            
-            # Expect 81/81 tests passing (100% success rate)
-            if [ "$TOTAL_TESTS" = "81" ] && [ "$PASSED_TESTS" = "81" ]; then
-              echo "✅ Core tests passed with clean results ($PASSED_TESTS/$TOTAL_TESTS)"
-              exit 0
-            else
-              echo "❌ Unexpected test results: $PASSED_TESTS/$TOTAL_TESTS"
-              echo "Expected 81/81 passing tests (100% success rate - MAUI tests moved to separate project)"
-              exit 1
-            fi
-          else
-            echo "❌ Test results file not found"
-            exit 1
-          fi
+            --configuration Release --no-build --verbosity normal
+          # Exit code 0 = all tests passed, != 0 = some tests failed
+          # Let dotnet handle the reporting - no manual parsing needed
 
   enable-auto-merge:
-    needs: test-core-tests
+    name: Enable Auto-Merge on Approval
+    needs: validate-core-logic
     runs-on: ubuntu-latest
     if: github.event.review.state == 'approved' && github.event.pull_request.draft == false
     steps:
