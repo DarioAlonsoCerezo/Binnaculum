@@ -1,0 +1,11 @@
+# Include all screenshot files in Git tracking
+# This ensures the Screenshots directory structure is preserved
+# and screenshots are available for review in the repository
+
+# Keep all PNG files (screenshots)
+*.png
+
+# But exclude temporary files that might be created during screenshot capture
+*.tmp
+*~
+.DS_Store

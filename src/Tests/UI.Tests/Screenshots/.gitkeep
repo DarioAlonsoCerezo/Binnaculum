@@ -1,0 +1,5 @@
+# Screenshots Directory
+
+This directory stores UI test screenshots.
+Screenshots are automatically overwritten during test execution.
+Keep this directory tracked in Git to ensure proper test output location.
