@@ -19,9 +19,9 @@
         </Grid.Resources>
         <Label
             Margin="24,24,0,0"
+            AutomationId="OverviewTitle"
             Text="{local:Translate Overview_Title}"
             Style="{StaticResource CenteredSubHeadline}"
-            AutomationId="OverviewTitle"
             HorizontalOptions="Start"
             FontFamily="OpenSansSemibold" />
 
