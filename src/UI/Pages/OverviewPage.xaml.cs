@@ -84,7 +84,7 @@ public partial class OverviewPage
 
         data.Where(x => x.IsDatabaseInitialized)
             .Throttle(TimeSpan.FromMilliseconds(300), UiThread)
-            .Subscribe(x => CarouseIndicator.IsVisible = false)
+            .Subscribe(x => CarouselIndicator.IsVisible = false)
             .DisposeWith(Disposables);
 
         data.Where(x => x.TransactionsLoaded)

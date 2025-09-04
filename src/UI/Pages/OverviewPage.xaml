@@ -52,8 +52,9 @@
                 </CarouselView.ItemsLayout>
             </CarouselView>
             <ActivityIndicator
-                x:Name="CarouseIndicator"
+                x:Name="CarouselIndicator"
                 Grid.Column="1"
+                AutomationId="OverviewCarouselIndicator"
                 IsRunning="True"
                 HorizontalOptions="Center"
                 VerticalOptions="Center" />
@@ -128,6 +129,7 @@
                         <ActivityIndicator
                             x:Name="CollectionIndicator"
                             Grid.Row="1"
+                            AutomationId="OverviewCollectionIndicator"
                             IsRunning="True"
                             VerticalOptions="Center"
                             HorizontalOptions="Center" />
