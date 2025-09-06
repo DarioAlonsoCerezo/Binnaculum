@@ -119,6 +119,7 @@
                                     HeightRequest="90">
                                     <Label
                                         Padding="24,0"
+                                        AutomationId="EmptyMovementCollectionText"
                                         Text="{local:Translate Overview_No_Movements}"
                                         VerticalTextAlignment="Center"
                                         HorizontalTextAlignment="Center" />
