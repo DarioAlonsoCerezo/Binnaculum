@@ -52,7 +52,7 @@ jobs:
 
       - name: Run Core Tests
         run: |
-          # Run tests - expect 100% pass rate (MAUI tests moved to Core.Platform.Tests)
+          # Run tests - expect 81/81 pass rate (MAUI-dependent tests moved to Core.Platform.Tests)
           dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
             --configuration Release --no-build --verbosity normal \
             --logger "trx;LogFileName=core-tests-results.trx"
@@ -65,13 +65,14 @@ jobs:
           echo "Total tests: $TOTAL_TESTS"
           echo "Passed tests: $PASSED_TESTS"
           
-          # Expect 81/81 tests passing (100% success rate)
+          # Expect 81/81 tests passing (100% success rate - MAUI tests moved to separate project)
           if [ "$TOTAL_TESTS" = "81" ] && [ "$PASSED_TESTS" = "81" ]; then
             echo "✅ Core tests passed with clean results ($PASSED_TESTS/$TOTAL_TESTS)"
             exit 0
           else
             echo "❌ Unexpected test results: $PASSED_TESTS/$TOTAL_TESTS"
-            echo "Expected 81/81 passing tests (100% success rate - MAUI tests moved to separate project)"
+            echo "Expected 81/81 passing tests (100% success rate)"
+            echo "Note: MAUI-dependent tests have been moved to Core.Platform.Tests"
             exit 1
           fi
 
@@ -109,16 +110,16 @@ jobs:
           dotnet restore src/Core/Core.fsproj
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
 
-      - name: Build Android DeviceTests (smoke test)
+      - name: Build Android UI project (smoke test)
         run: |
-          dotnet restore src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj
-          dotnet build src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj \
+          dotnet restore src/UI/Binnaculum.csproj
+          dotnet build src/UI/Binnaculum.csproj \
             --framework net9.0-android --configuration Release --no-restore
 
       - name: Build success notification
         run: |
           echo "✅ Android build successful"
-          echo "This confirms MAUI workload and basic Android compilation works"
+          echo "This confirms MAUI workload and basic Android UI compilation works"
 
   # Summary job
   pr-check-summary:

@@ -38,13 +38,13 @@ if [ -f "$RESULTS_FILE" ]; then
   
   echo "📊 Test Results: $PASSED_TESTS/$TOTAL_TESTS passed"
   
-  # Accept 80/87 (expected in headless) or 87/87 (all pass)
-  if [ "$TOTAL_TESTS" = "87" ] && ([ "$PASSED_TESTS" = "80" ] || [ "$PASSED_TESTS" = "87" ]); then
+  # Accept 81/81 (current Core.Tests count)
+  if [ "$TOTAL_TESTS" = "81" ] && [ "$PASSED_TESTS" = "81" ]; then
     echo "✅ Core validation passed locally!"
-    echo "   Expected MAUI failures in headless environment are acceptable"
+    echo "   All Core.Tests passing (MAUI-dependent tests moved to Core.Platform.Tests)"
   else
     echo "❌ Unexpected test results"
-    echo "   Expected 80/87 or 87/87, got $PASSED_TESTS/$TOTAL_TESTS"
+    echo "   Expected 81/81, got $PASSED_TESTS/$TOTAL_TESTS"
     exit 1
   fi
 else

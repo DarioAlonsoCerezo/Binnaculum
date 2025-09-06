@@ -24,8 +24,8 @@ src/Core/Snapshots/ @DarioAlonsoCerezo
 # MAUI UI - can be more flexible for UI changes
 # src/UI/ @DarioAlonsoCerezo
 
-# Testing infrastructure
-src/Tests/TestUtils/ @DarioAlonsoCerezo
+# Platform-specific testing
+src/Tests/Core.Platform.Tests/ @DarioAlonsoCerezo
 
 # Documentation and configuration
 README.md @DarioAlonsoCerezo

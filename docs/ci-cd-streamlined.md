@@ -36,54 +36,23 @@ The Binnaculum CI/CD system has been redesigned to provide **fast feedback** for
 - ✅ Android compilation test
 - ⚠️ Non-blocking (warns only)
 
-### 2. Device Tests (`.github/workflows/device-tests.yml`)
-**Triggers**: Scheduled (Mon/Wed/Fri 6 AM UTC)
-**Timeout**: 30 minutes per job
-**Purpose**: Comprehensive platform validation
+### 2. Auto-Merge (`.github/workflows/auto-merge.yml`)
+**Triggers**: PR review approval
+**Timeout**: 10 minutes  
+**Purpose**: Enable automatic merge after approval and validation
 
-#### Multi-Platform Matrix
-- 🐧 **Linux**: Android builds
-- 🍎 **macOS**: iOS + MacCatalyst builds
-- 🪟 **Windows**: Windows builds
-
-#### Test Stages
-1. Core logic validation (with proper MAUI failure handling)
-2. Build integration tests
-3. Platform-specific builds
-4. Result aggregation
-
-### 3. Smart Test Selection (`.github/workflows/smart-test-selection.yml`)
-**Triggers**: Scheduled (Mon/Wed/Fri 6:30 AM UTC)
-**Purpose**: Intelligent test execution based on change analysis
-
-#### Test Levels
-- **Smoke**: Basic validation (Android only)
-- **Full**: Core + Windows platforms
-- **Performance**: All platforms + perf tests
-
-### 4. Other Workflows
-- **E2E Tests**: Weekly (Saturday 2 AM UTC)
-- **Performance Monitoring**: Daily
-- **Flaky Test Detection**: Weekly
+#### Features
+- Core business logic validation before enabling auto-merge
+- Only activates on approved, non-draft PRs
+- Ensures Core.Tests pass before merge
 
 ## 🧪 Expected Test Results
 
-### Core Tests (87 total)
-- **Headless Environment**: 80/87 pass ✅ (7 MAUI-dependent failures expected)
-- **With MAUI Runtime**: 87/87 pass ✅ (all tests can pass)
+### Core Tests (81 total)
+- **Headless Environment**: 81/81 pass ✅ (MAUI-dependent tests moved to Core.Platform.Tests)
+- **With MAUI Runtime**: 81/81 pass ✅ (all tests pass consistently)
 
-The CI system **accepts both results** as valid, understanding that MAUI components cannot be fully tested in headless GitHub runners.
-
-### MAUI-Dependent Failures
-These 7 tests fail in headless environments (expected):
-- `ChangeAllowCreateAccount updates UserPreferences`
-- `ChangeAppTheme updates UserPreferences`
-- `ChangeCurrency updates UserPreferences`
-- `ChangeDefaultTicker updates UserPreferences`
-- `ChangeGroupOption updates UserPreferences`
-- `ChangeLanguage updates UserPreferences`
-
-**Root Cause**: `Microsoft.Maui.ApplicationModel.NotImplementedInReferenceAssemblyException`
+The CI system expects **81/81 tests to pass** as MAUI-dependent functionality has been separated into the Core.Platform.Tests project which runs separately when platform services are available.
 
 ## 🛠️ Developer Workflow
 
@@ -146,23 +115,23 @@ All jobs have aggressive timeout controls to prevent runaway processes:
 ## 🚀 Migration from Complex System
 
 ### What Changed
-❌ **Removed from PR workflow**:
-- Full platform matrix testing
-- Performance test execution
-- E2E test runs
-- Comprehensive MAUI validation
-
-✅ **Moved to scheduled workflows**:
-- Multi-platform builds
-- Performance monitoring  
-- E2E testing
+❌ **Removed workflows** (referenced missing projects):
+- Device tests workflow
+- E2E test infrastructure  
+- Smart test selection
+- Performance monitoring
 - Flaky test detection
+- Complex TestUtils infrastructure
+
+✅ **Streamlined to essential workflows**:
+- PR check (Core validation + basic Android build)
+- Auto-merge (approval-based merge)
 
 ### Benefits
-- **85% faster PR feedback** (from 45+ minutes to ~5 minutes)
-- **Reduced CI/CD resource consumption**
-- **Better developer experience** (no more cancelled jobs)
-- **Comprehensive quality assurance** (via scheduled testing)
+- **⚡ Faster PR feedback** (~5 minutes for essential checks)
+- **🎯 Focused validation** (Core business logic + basic MAUI build)
+- **🔧 Reliable CI/CD** (no missing project references)
+- **💡 Clear expectations** (81/81 tests must pass)
 
 ## 🔧 Troubleshooting
 
@@ -170,8 +139,8 @@ All jobs have aggressive timeout controls to prevent runaway processes:
 
 #### Core Test Failures
 ```
-❌ Unexpected test results: X/87
-Expected 80/87 or 87/87
+❌ Unexpected test results: X/81
+Expected 81/81
 ```
 **Solution**: Fix core business logic issues. These indicate real problems.
 
@@ -183,22 +152,22 @@ MAUI setup issues - check build logs
 **Solution**: Check MAUI workload installation, but **PR can still be merged**.
 
 ### Scheduled Workflow Failures
-Check individual job logs and fix platform-specific issues. These don't block development but should be addressed for quality assurance.
+Currently, no scheduled workflows are active. All validation happens in the PR workflow for fast feedback.
 
 ## 📝 Manual Testing
 
-When scheduled workflows find issues, test locally:
+For comprehensive testing, use the local validation script:
 
 ```bash
 # Core validation
 ./validate-local.sh
 
-# MAUI Android (optional)
+# MAUI Android (optional, requires workloads)
 dotnet workload install maui-android
-dotnet build src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj -f net9.0-android
+dotnet build src/UI/Binnaculum.csproj -f net9.0-android
 
-# Performance tests  
-dotnet test src/Tests/Core.Tests/Core.Tests.fsproj --filter "BrokerFinancialSnapshotManager"
+# Platform-specific tests (requires platform workloads)  
+dotnet test src/Tests/Core.Platform.Tests/Core.Platform.Tests.fsproj
 ```
 
 ## 💡 Best Practices
