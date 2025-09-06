@@ -8,8 +8,8 @@ Binnaculum is a cross-platform investment tracking app built with .NET 9 and .NE
 ## Copilot Task Guidelines
 
 ### ? Ideal Tasks for Copilot Assignment
-- **TestUtils Implementation**: Device testing infrastructure, assertion extensions, test data builders
-- **UI Component Testing**: BrokerAccountTemplate tests, PercentageControl validation, cross-platform UI testing
+- **Core Logic Implementation**: F# business logic, financial calculations, database operations
+- **UI Component Development**: MAUI pages and controls for investment tracking
 - **Bug Fixes**: Specific compilation errors, test failures, package reference issues
 - **Code Quality**: XAML formatting, code style compliance, adding missing tests
 - **Documentation**: Update README files, add code comments, create examples
@@ -23,10 +23,10 @@ Binnaculum is a cross-platform investment tracking app built with .NET 9 and .NE
 - **Production Issues**: Critical bugs affecting user data
 
 ### ?? Task Scoping Best Practices
-- **Be Specific**: "Implement BrokerAccountTemplate device tests for layout states" vs "Add some tests"  
-- **Include Acceptance Criteria**: "Tests must run on Android, iOS, Windows, MacCatalyst"
-- **Reference Examples**: "Follow patterns in Microsoft MAUI TestUtils: [URL]"
-- **Specify Files**: "Update files in src/Tests/TestUtils/UI.DeviceTests/"
+- **Be Specific**: "Implement BrokerAccountTemplate UI component for investment display" vs "Add some UI"  
+- **Include Acceptance Criteria**: "Components must work on Android, iOS, Windows, MacCatalyst"
+- **Reference Examples**: "Follow patterns in existing MAUI controls and pages"
+- **Specify Files**: "Update files in src/UI/Pages/ or src/UI/Controls/"
 
 ## Working Effectively
 
@@ -55,8 +55,7 @@ dotnet build src/Tests/Core.Tests/Core.Tests.fsproj  # 11-12 seconds. NEVER CANC
 
 Build MAUI UI (Android only on Linux):
 ```bash
-dotnet build src/Tests/TestUtils/UI.DeviceTests/UI.DeviceTests.csproj  # 95 seconds. NEVER CANCEL. Set timeout to 120+ seconds.
-dotnet build src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.csproj  # 7 seconds.
+dotnet build src/UI/Binnaculum.csproj -f net9.0-android  # ~3 minutes. NEVER CANCEL. Set timeout to 300+ seconds.
 ```
 
 **Platform-Specific Builds**:
@@ -67,8 +66,8 @@ dotnet build src/Tests/TestUtils/UI.DeviceTests.Runners/UI.DeviceTests.Runners.c
 
 Run tests:
 ```bash
-dotnet test src/Tests/Core.Tests/Core.Tests.fsproj  # 2-3 seconds. 80/87 tests pass (7 MAUI-dependent tests fail in headless environment - this is expected)
-dotnet test --filter "BrokerFinancialSnapshotManager"  # Run specific performance tests - 51/52 tests pass
+dotnet test src/Tests/Core.Tests/Core.Tests.fsproj  # 2-3 seconds. 81/81 tests pass (MAUI-dependent tests moved to Core.Platform.Tests)
+dotnet test --filter "BrokerFinancialSnapshotManager"  # Run specific performance tests
 ```
 
 ### Build Time Expectations
@@ -76,7 +75,7 @@ dotnet test --filter "BrokerFinancialSnapshotManager"  # Run specific performanc
 - **MAUI workload installation**: ~66 seconds  
 - **F# Core project**: 13-14 seconds
 - **F# Core.Tests**: 11-12 seconds
-- **Android DeviceTests**: 95 seconds (complex MAUI build with resource processing)
+- **Android UI build**: ~3 minutes (complex MAUI build with resource processing)
 - **Test execution**: 2-3 seconds
 
 ## Validation and Quality Checks
@@ -127,7 +126,7 @@ The UI project uses OS-aware conditional compilation:
 - **`src/Core/`**: F# core logic with business rules, database models, and financial calculations
 - **`src/UI/`**: C# MAUI UI project with pages, controls, and platform-specific implementations
 - **`src/Tests/Core.Tests/`**: F# unit tests with comprehensive performance testing
-- **`src/Tests/TestUtils/`**: MAUI device testing infrastructure
+- **`src/Tests/Core.Platform.Tests/`** - MAUI platform-dependent tests (run separately when platform services available)
 
 ### Key Directories
 - **Database Layer**: `src/Core/Database/` - SQLite data access and models
