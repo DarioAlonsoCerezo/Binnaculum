@@ -54,12 +54,11 @@ public class AppInstalation
 
     private static string EnsureApkExists()
     {
-        // Calculate workspace root from test directory
+        // Calculate workspace root from test directory with more flexible detection
         var testDirectory = TestContext.CurrentContext.TestDirectory;
 
-        // Navigate from test directory to workspace root
-        // Need to go up 6 levels: bin -> Debug -> UI.Tests -> Tests -> src -> Binnaculum (workspace root)
-        var workspaceRoot = Path.GetFullPath(Path.Combine(testDirectory, "..", "..", "..", "..", "..", ".."));
+        // Try to find workspace root by looking for solution file or specific directories
+        var workspaceRoot = FindWorkspaceRoot(testDirectory);
 
         // Use Release build for better performance and production-like testing
         var apkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Release", "net9.0-android");
@@ -201,6 +200,49 @@ public class AppInstalation
         return apkPath;
     }
 
+    private static string FindWorkspaceRoot(string startDirectory)
+    {
+        var currentDir = new DirectoryInfo(startDirectory);
+        
+        // Look for workspace indicators (solution files, specific directory structure)
+        while (currentDir != null)
+        {
+            // Check for solution file
+            if (currentDir.GetFiles("*.sln").Length > 0)
+            {
+                TestContext.Out.WriteLine($"Found workspace root by .sln file: {currentDir.FullName}");
+                return currentDir.FullName;
+            }
+            
+            // Check for src directory with expected structure
+            var srcDir = Path.Combine(currentDir.FullName, "src");
+            if (Directory.Exists(srcDir))
+            {
+                var uiDir = Path.Combine(srcDir, "UI");
+                var coreDir = Path.Combine(srcDir, "Core");
+                
+                if (Directory.Exists(uiDir) && Directory.Exists(coreDir))
+                {
+                    TestContext.Out.WriteLine($"Found workspace root by src structure: {currentDir.FullName}");
+                    return currentDir.FullName;
+                }
+            }
+            
+            // Check for git repository
+            if (Directory.Exists(Path.Combine(currentDir.FullName, ".git")))
+            {
+                TestContext.Out.WriteLine($"Found workspace root by .git directory: {currentDir.FullName}");
+                return currentDir.FullName;
+            }
+            
+            currentDir = currentDir.Parent;
+        }
+        
+        // Fallback to original method if no indicators found
+        TestContext.Out.WriteLine("Could not find workspace root by indicators, using fallback method");
+        return Path.GetFullPath(Path.Combine(startDirectory, "..", "..", "..", "..", "..", ".."));
+    }
+
     private static void BuildBinnaculumProject(string workspaceRoot)
     {
         // Correct path based on workspace structure
@@ -227,17 +269,42 @@ public class AppInstalation
 
         TestContext.Out.WriteLine($"Building and signing project in Release mode: {projectPath}");
 
-        // Build the project targeting Android with signing enabled
-        // This matches the Visual Studio build process that creates signed APKs
-        var buildResult = ExecuteCommand("dotnet", 
-            $"build \"{projectPath}\" -f net9.0-android -c Release " +
-            "-p:AndroidPackageFormat=aab " +
-            "-p:AndroidKeyStore=true " +
-            "-p:AndroidSigningKeyStore=\"$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData))\\Xamarin\\Mono for Android\\debug.keystore\" " +
-            "-p:AndroidSigningKeyAlias=androiddebugkey " +
-            "-p:AndroidSigningKeyPass=android " +
-            "-p:AndroidSigningStorePass=android", 
-            workspaceRoot);
+        // Get the debug keystore path first
+        string? debugKeystorePath = null;
+        try
+        {
+            debugKeystorePath = GetDebugKeystorePath();
+        }
+        catch (Exception ex)
+        {
+            TestContext.Out.WriteLine($"⚠️ Could not find debug keystore: {ex.Message}");
+            TestContext.Out.WriteLine("Proceeding with simple build without explicit signing...");
+            debugKeystorePath = null;
+        }
+
+        // Build the project targeting Android with signing enabled (if keystore available)
+        (int ExitCode, string Output, string Error) buildResult;
+        
+        if (!string.IsNullOrEmpty(debugKeystorePath))
+        {
+            // Build with explicit signing parameters
+            buildResult = ExecuteCommand("dotnet", 
+                $"build \"{projectPath}\" -f net9.0-android -c Release " +
+                "-p:AndroidPackageFormat=aab " +
+                "-p:AndroidKeyStore=true " +
+                $"-p:AndroidSigningKeyStore=\"{debugKeystorePath}\" " +
+                "-p:AndroidSigningKeyAlias=androiddebugkey " +
+                "-p:AndroidSigningKeyPass=android " +
+                "-p:AndroidSigningStorePass=android", 
+                workspaceRoot);
+        }
+        else
+        {
+            // Build without explicit signing (let the build system handle it)
+            buildResult = ExecuteCommand("dotnet", 
+                $"build \"{projectPath}\" -f net9.0-android -c Release -p:AndroidPackageFormat=aab", 
+                workspaceRoot);
+        }
 
         if (buildResult.ExitCode != 0)
         {
@@ -293,13 +360,26 @@ public class AppInstalation
             {
                 TestContext.Out.WriteLine($"Creating Universal APK from bundle: {bundlePath}");
                 
+                // Get the debug keystore path (project-specific or fallback)
+                string keystorePath;
+                try
+                {
+                    keystorePath = GetDebugKeystorePath();
+                }
+                catch (Exception ex)
+                {
+                    TestContext.Out.WriteLine($"⚠️ Could not find keystore for Universal APK creation: {ex.Message}");
+                    TestContext.Out.WriteLine("Skipping Universal APK creation...");
+                    return;
+                }
+                
                 // Use bundletool to create universal APK (similar to what Visual Studio does)
                 var bundletoolResult = ExecuteCommand("java", 
                     $"-jar \"{GetBundletoolPath()}\" build-apks " +
                     $"--mode universal " +
                     $"--bundle \"{bundlePath}\" " +
                     $"--output \"{outputApkPath.Replace(".apk", ".apks")}\" " +
-                    $"--ks \"{GetDebugKeystorePath()}\" " +
+                    $"--ks \"{keystorePath}\" " +
                     $"--ks-key-alias androiddebugkey " +
                     $"--key-pass pass:android " +
                     $"--ks-pass pass:android", 
@@ -332,29 +412,169 @@ public class AppInstalation
 
     private static string GetBundletoolPath()
     {
-        // Try to find bundletool in common locations
+        // Try to find bundletool in common locations with dynamic version detection
+        var possibleBasePaths = new[]
+        {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet", "packs"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "dotnet", "packs"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Android", "android-sdk", "cmdline-tools", "latest", "bin"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Android", "android-sdk", "cmdline-tools", "tools", "bin")
+        };
+
+        // Search for Microsoft.Android.Sdk.Windows with any version
+        foreach (var basePath in possibleBasePaths)
+        {
+            if (Directory.Exists(basePath))
+            {
+                // Look for Microsoft.Android.Sdk.Windows directories
+                var androidSdkDirs = Directory.GetDirectories(basePath, "Microsoft.Android.Sdk*", SearchOption.TopDirectoryOnly);
+                
+                foreach (var sdkDir in androidSdkDirs.OrderByDescending(d => d)) // Try newest versions first
+                {
+                    var bundletoolPath = Path.Combine(sdkDir, "tools", "bundletool.jar");
+                    if (File.Exists(bundletoolPath))
+                    {
+                        TestContext.Out.WriteLine($"Found bundletool at: {bundletoolPath}");
+                        return bundletoolPath;
+                    }
+                }
+                
+                // Also check for direct bundletool.jar in cmdline-tools
+                var directBundletoolPath = Path.Combine(basePath, "bundletool.jar");
+                if (File.Exists(directBundletoolPath))
+                {
+                    TestContext.Out.WriteLine($"Found bundletool at: {directBundletoolPath}");
+                    return directBundletoolPath;
+                }
+            }
+        }
+
+        // Try to use dotnet to find the path
+        try
+        {
+            var dotnetResult = ExecuteCommand("dotnet", "--list-sdks");
+            if (dotnetResult.ExitCode == 0)
+            {
+                TestContext.Out.WriteLine("Available .NET SDKs:");
+                TestContext.Out.WriteLine(dotnetResult.Output);
+            }
+        }
+        catch (Exception ex)
+        {
+            TestContext.Out.WriteLine($"Could not query dotnet SDKs: {ex.Message}");
+        }
+
+        // List what we actually found for debugging
+        TestContext.Out.WriteLine("Searched for bundletool in the following locations:");
+        foreach (var basePath in possibleBasePaths)
+        {
+            TestContext.Out.WriteLine($"  - {basePath} (exists: {Directory.Exists(basePath)})");
+            if (Directory.Exists(basePath))
+            {
+                try
+                {
+                    var subdirs = Directory.GetDirectories(basePath);
+                    foreach (var subdir in subdirs.Take(5)) // Limit output
+                    {
+                        TestContext.Out.WriteLine($"    - {Path.GetFileName(subdir)}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TestContext.Out.WriteLine($"    Error listing subdirectories: {ex.Message}");
+                }
+            }
+        }
+
+        throw new FileNotFoundException("bundletool.jar not found in expected locations. Ensure Android SDK or MAUI workload is installed.");
+    }
+
+    private static string GetDebugKeystorePath()
+    {
+        // Try to find workspace root first to locate project-specific keystore
+        var testDirectory = TestContext.CurrentContext.TestDirectory;
+        var workspaceRoot = FindWorkspaceRoot(testDirectory);
+        
+        // Try project-specific keystore first (highest priority)
+        var projectKeystorePath = Path.Combine(workspaceRoot, "debug.keystore");
+        if (File.Exists(projectKeystorePath))
+        {
+            TestContext.Out.WriteLine($"Found project-specific debug keystore at: {projectKeystorePath}");
+            return projectKeystorePath;
+        }
+        else
+        {
+            TestContext.Out.WriteLine($"Project-specific keystore not found at: {projectKeystorePath}");
+        }
+
+        // Fallback to system keystore locations
         var possiblePaths = new[]
         {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet", "packs", "Microsoft.Android.Sdk.Windows", "35.0.78", "tools", "bundletool.jar"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Android", "android-sdk", "cmdline-tools", "latest", "bin", "bundletool.jar")
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Xamarin", "Mono for Android", "debug.keystore"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".android", "debug.keystore"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Xamarin", "Mono for Android", "debug.keystore")
         };
 
         foreach (var path in possiblePaths)
         {
             if (File.Exists(path))
             {
+                TestContext.Out.WriteLine($"Found system debug keystore at: {path}");
                 return path;
+            }
+            else
+            {
+                TestContext.Out.WriteLine($"System keystore not found at: {path}");
             }
         }
 
-        throw new FileNotFoundException("bundletool.jar not found in expected locations");
+        // Create a temporary debug keystore if none found
+        var tempKeystorePath = CreateTemporaryDebugKeystore();
+        if (tempKeystorePath != null)
+        {
+            return tempKeystorePath;
+        }
+
+        throw new FileNotFoundException("Debug keystore not found and could not create temporary keystore. Ensure the project debug.keystore exists at solution root or Android development tools are installed.");
     }
 
-    private static string GetDebugKeystorePath()
+    private static string? CreateTemporaryDebugKeystore()
     {
-        return Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Xamarin", "Mono for Android", "debug.keystore");
+        try
+        {
+            var tempKeystorePath = Path.Combine(Path.GetTempPath(), "debug.keystore");
+            
+            if (File.Exists(tempKeystorePath))
+            {
+                TestContext.Out.WriteLine($"Using existing temporary keystore: {tempKeystorePath}");
+                return tempKeystorePath;
+            }
+
+            TestContext.Out.WriteLine("Creating temporary debug keystore...");
+            
+            // Use keytool to create a debug keystore
+            var keytoolResult = ExecuteCommand("keytool", 
+                $"-genkey -v -keystore \"{tempKeystorePath}\" " +
+                "-alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 " +
+                "-storepass android -keypass android " +
+                "-dname \"CN=Android Debug,O=Android,C=US\"");
+
+            if (keytoolResult.ExitCode == 0 && File.Exists(tempKeystorePath))
+            {
+                TestContext.Out.WriteLine($"✅ Created temporary debug keystore: {tempKeystorePath}");
+                return tempKeystorePath;
+            }
+            else
+            {
+                TestContext.Out.WriteLine($"❌ Failed to create temporary keystore: {keytoolResult.Error}");
+                return null;
+            }
+        }
+        catch (Exception ex)
+        {
+            TestContext.Out.WriteLine($"❌ Error creating temporary keystore: {ex.Message}");
+            return null;
+        }
     }
 
     private static void ExtractApkFromApks(string apksPath, string outputApkPath)
