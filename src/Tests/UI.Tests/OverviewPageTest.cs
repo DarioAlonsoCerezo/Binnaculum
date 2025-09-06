@@ -5,12 +5,23 @@ public class OverviewPageTest : BaseTest
 {    
 
     [Test]
-    public void OverviewTitle_IsDisplayed()
+    public void Sanity()
     {
         TestContext.Out.WriteLine("=== Testing OverviewTitle Display ===");
         
-        // Try multiple strategies to find the OverviewTitle element
-        var element = FindElementWithTimeout("OverviewTitle", 30);
+        var indicators = FindElementsWithTimeout(30, UIElementId.Page.Overview.CarouselIndicator, UIElementId.Page.Overview.CollectionIndicator);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(indicators, Is.Not.Null.And.Not.Empty, "At least one indicator should be found");
+            foreach (var indicator in indicators)
+            {
+                Assert.That(indicator.Displayed, Is.True, $"Indicator '{indicator}' should be visible");
+                TestContext.Out.WriteLine($"✅ Indicator found: '{indicator}'");
+            }
+        });
+
+        var element = FindElementWithTimeout(UIElementId.Page.Overview.Title, 30);
 
         Assert.Multiple(() =>
         {

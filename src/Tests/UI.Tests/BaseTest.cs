@@ -2,13 +2,15 @@
 
 public abstract class BaseTest
 {
+    private const string APP_PACKAGE = "com.darioalonso.binnacle";
+    private const string APPIUM_SERVER_URL = "http://localhost:4723";
     protected AppiumDriver _driver;
 
     [SetUp]
     public void Setup()
     {
         // Ensure app is built and installed fresh on emulator
-        PrepareAndInstallApp();
+        AppInstalation.PrepareAndInstallApp();
 
         // Start Appium server if not already running
         AppiumServerHelper.StartAppiumLocalServer();
@@ -26,10 +28,10 @@ public abstract class BaseTest
 
         driverOptions.AddAdditionalAppiumOption("newCommandTimeout", 300);
 
-        _driver = new AndroidDriver(new Uri("http://localhost:4723"), driverOptions);
+        _driver = new AndroidDriver(new Uri(APPIUM_SERVER_URL), driverOptions);
 
         // Activate app
-        _driver.ActivateApp("com.darioalonso.binnacle");
+        _driver.ActivateApp(APP_PACKAGE);
     }
 
     [TearDown]
@@ -45,7 +47,7 @@ public abstract class BaseTest
     {
         // For MAUI apps, the AutomationId maps to AccessibilityId in Appium
         TestContext.Out.WriteLine($"Looking for element with id '{id}'");
-        id = $"com.darioalonso.binnacle:id/{id}";
+        id = GetFinalId(id);
         TestContext.Out.WriteLine($"Searching for element '{id}' with {timeoutSeconds}s timeout...");
         var endTime = DateTime.Now.AddSeconds(timeoutSeconds);
 
@@ -85,6 +87,130 @@ public abstract class BaseTest
         DumpPageInformation();
 
         throw new TimeoutException($"Element '{id}' not found within {timeoutSeconds} seconds");
+    }
+
+    protected IWebElement[] FindElementsWithTimeout(int timeoutSeconds, params string[] ids)
+    {
+        foreach (var id in ids)
+            TestContext.Out.WriteLine($"Looking for element with id '{id}'");
+
+        var foundElements = new List<IWebElement>();
+        var foundIds = new HashSet<string>(); // Track found IDs efficiently
+        var idsList = ids.Select(id => GetFinalId(id)).ToList();
+        
+        foreach (var id in idsList)
+            TestContext.Out.WriteLine($"Searching for element '{id}' with {timeoutSeconds}s timeout...");
+                
+        var startTime = DateTime.Now;
+        var endTime = startTime.AddSeconds(timeoutSeconds);
+        var lastDebugTime = startTime;
+        
+        while (DateTime.Now < endTime && foundIds.Count < idsList.Count)
+        {
+            var remainingIds = idsList.Where(id => !foundIds.Contains(id)).ToList();
+            
+            foreach (var id in remainingIds)
+            {
+                try
+                {
+                    var element = _driver.FindElement(By.Id(id));
+                    if (element.Displayed)
+                    {
+                        TestContext.Out.WriteLine($"✅ Element '{id}' found and displayed");
+                        foundElements.Add(element);
+                        foundIds.Add(id);
+                    }
+                    else
+                    {
+                        TestContext.Out.WriteLine($"⚠️ Element '{id}' found but not displayed");
+                    }
+                }
+                catch (NoSuchElementException)
+                {
+                    // Element not found yet, continue waiting
+                    var elapsed = (DateTime.Now - startTime).TotalSeconds;
+                    TestContext.Out.WriteLine($"Element '{id}' not found, retrying... ({elapsed:F1}s elapsed)");
+                }
+                catch (StaleElementReferenceException)
+                {
+                    // Element became stale, remove from found collections and retry
+                    TestContext.Out.WriteLine($"⚠️ Element '{id}' became stale, retrying...");
+                    var elementToRemove = foundElements.FirstOrDefault(e => 
+                    {
+                        try 
+                        { 
+                            return e.GetAttribute("resourceId") == id; 
+                        } 
+                        catch 
+                        { 
+                            return false; 
+                        }
+                    });
+                    if (elementToRemove != null)
+                    {
+                        foundElements.Remove(elementToRemove);
+                        foundIds.Remove(id);
+                    }
+                }
+            }
+
+            // Every 5 seconds, dump available elements for debugging
+            var timeSinceLastDebug = (DateTime.Now - lastDebugTime).TotalSeconds;
+            if (timeSinceLastDebug >= 5.0)
+            {
+                DumpAvailableElements();
+                lastDebugTime = DateTime.Now;
+            }
+
+            // Early exit if all elements found
+            if (foundIds.Count == idsList.Count)
+            {
+                TestContext.Out.WriteLine($"✅ All {foundIds.Count} elements found successfully");
+                break;
+            }
+
+            System.Threading.Thread.Sleep(500);
+        }
+
+        // Validate elements are still accessible before returning
+        var validElements = new List<IWebElement>();
+        foreach (var element in foundElements)
+        {
+            try
+            {
+                // Test accessibility by checking if element is still displayed
+                var isDisplayed = element.Displayed;
+                validElements.Add(element);
+            }
+            catch (StaleElementReferenceException)
+            {
+                TestContext.Out.WriteLine("⚠️ Removing stale element from results");
+            }
+        }
+
+        // Final attempt with detailed debugging before failing
+        if (validElements.Count == 0)
+        {
+            TestContext.Out.WriteLine($"❌ Final attempt to find elements '{string.Join(", ", idsList)}' failed. Dumping page information...");
+            DumpPageInformation();
+            throw new TimeoutException($"None of the elements '{string.Join(", ", idsList)}' were found within {timeoutSeconds} seconds");
+        }
+
+        // Check if we found fewer elements than requested
+        if (validElements.Count < idsList.Count)
+        {
+            var missingIds = idsList.Where(id => !foundIds.Contains(id)).ToList();
+            TestContext.Out.WriteLine($"⚠️ Only found {validElements.Count} of {idsList.Count} requested elements. Missing: {string.Join(", ", missingIds)}");
+            DumpPageInformation();
+        }
+
+        return validElements.ToArray();
+    }
+
+    private string GetFinalId(string id)
+    {
+        // For MAUI apps, the AutomationId maps to AccessibilityId in Appium
+        return $"com.darioalonso.binnacle:id/{id}";
     }
 
     private void DumpAvailableElements()
@@ -215,351 +341,4 @@ public abstract class BaseTest
             TestContext.Out.WriteLine($"Screenshot failed: {ex.Message}");
         }
     }
-
-    // ADB-based app management methods
-    private void PrepareAndInstallApp()
-    {
-        const string packageName = "com.darioalonso.binnacle";
-
-        try
-        {
-            TestContext.Out.WriteLine("=== Starting App Preparation and Installation ===");
-
-            // Step 1: Check for APK and build if necessary
-            var apkPath = EnsureApkExists();
-            TestContext.Out.WriteLine($"APK verified at: {apkPath}");
-
-            // Step 2: Check if app is installed on emulator and uninstall if found
-            if (IsAppInstalledOnDevice(packageName))
-            {
-                TestContext.Out.WriteLine($"App {packageName} found on device. Uninstalling...");
-                UninstallAppFromDevice(packageName);
-                TestContext.Out.WriteLine("App uninstalled successfully");
-            }
-            else
-            {
-                TestContext.Out.WriteLine($"App {packageName} not found on device. Proceeding with fresh installation.");
-            }
-
-            // Step 3: Install the app
-            TestContext.Out.WriteLine("Installing app on device...");
-            InstallAppOnDevice(apkPath);
-            TestContext.Out.WriteLine("App installed successfully");
-
-            // Step 4: Verify installation
-            if (IsAppInstalledOnDevice(packageName))
-            {
-                TestContext.Out.WriteLine("✅ App installation verified successfully");
-            }
-            else
-            {
-                throw new Exception("❌ App installation verification failed");
-            }
-
-        }
-        catch (Exception ex)
-        {
-            TestContext.Out.WriteLine($"❌ App preparation failed: {ex.Message}");
-            throw;
-        }
-    }
-
-    private string EnsureApkExists()
-    {
-        // Calculate workspace root from test directory
-        var testDirectory = TestContext.CurrentContext.TestDirectory;
-
-        // Navigate from test directory to workspace root
-        // Test directory structure: C:\repos\Binnaculum\src\Tests\UI.Tests\bin\Debug\net9.0\
-        // Need to go up 6 levels: bin -> Debug -> UI.Tests -> Tests -> src -> Binnaculum (workspace root)
-        var workspaceRoot = Path.GetFullPath(Path.Combine(testDirectory, "..", "..", "..", "..", "..", ".."));
-
-        // Use Release build for better performance and production-like testing
-        var apkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Release", "net9.0-android");
-
-        TestContext.Out.WriteLine($"Test directory: {testDirectory}");
-        TestContext.Out.WriteLine($"Workspace root: {workspaceRoot}");
-        TestContext.Out.WriteLine($"APK directory (Release): {apkDirectory}");
-
-        // Look for common APK naming patterns (including wildcards for generated names)
-        string? apkPath = null;
-
-        if (Directory.Exists(apkDirectory))
-        {
-            // First try exact naming patterns
-            var possibleApkNames = new[]
-            {
-                "com.darioalonso.binnacle-Signed.apk",
-                "com.darioalonso.binnacle.apk",
-                "Binnaculum-Signed.apk",
-                "Binnaculum.apk"
-            };
-
-            foreach (var apkName in possibleApkNames)
-            {
-                var candidatePath = Path.Combine(apkDirectory, apkName);
-                if (File.Exists(candidatePath))
-                {
-                    apkPath = candidatePath;
-                    TestContext.Out.WriteLine($"Found existing APK (Release): {apkPath}");
-                    break;
-                }
-                else
-                {
-                    TestContext.Out.WriteLine($"APK not found: {candidatePath}");
-                }
-            }
-
-            // If no exact match found, look for any APK files
-            if (apkPath == null)
-            {
-                var apkFiles = Directory.GetFiles(apkDirectory, "*.apk");
-                if (apkFiles.Length > 0)
-                {
-                    apkPath = apkFiles[0]; // Use first APK found
-                    TestContext.Out.WriteLine($"Found APK by wildcard search (Release): {apkPath}");
-                }
-            }
-        }
-        else
-        {
-            TestContext.Out.WriteLine($"Release APK directory does not exist: {apkDirectory}");
-        }
-
-        // If no Release APK found, try Debug as fallback
-        if (apkPath == null)
-        {
-            TestContext.Out.WriteLine("No Release APK found. Checking Debug build as fallback...");
-            var debugApkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Debug", "net9.0-android");
-
-            if (Directory.Exists(debugApkDirectory))
-            {
-                var apkFiles = Directory.GetFiles(debugApkDirectory, "*.apk");
-                if (apkFiles.Length > 0)
-                {
-                    apkPath = apkFiles[0];
-                    TestContext.Out.WriteLine($"Found Debug APK as fallback: {apkPath}");
-                }
-            }
-        }
-
-        // If no APK found at all, build the project in Release mode
-        if (apkPath == null)
-        {
-            TestContext.Out.WriteLine("No APK found. Building Binnaculum project in Release mode...");
-            BuildBinnaculumProject(workspaceRoot);
-
-            // Check again for APK after build using wildcard search (Release first, then Debug fallback)
-            if (Directory.Exists(apkDirectory))
-            {
-                var apkFiles = Directory.GetFiles(apkDirectory, "*.apk");
-                if (apkFiles.Length > 0)
-                {
-                    apkPath = apkFiles[0];
-                    TestContext.Out.WriteLine($"APK created after Release build: {apkPath}");
-                }
-            }
-
-            // Fallback to Debug directory after build
-            if (apkPath == null)
-            {
-                var debugApkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Debug", "net9.0-android");
-                if (Directory.Exists(debugApkDirectory))
-                {
-                    var apkFiles = Directory.GetFiles(debugApkDirectory, "*.apk");
-                    if (apkFiles.Length > 0)
-                    {
-                        apkPath = apkFiles[0];
-                        TestContext.Out.WriteLine($"APK created after build (Debug fallback): {apkPath}");
-                    }
-                }
-            }
-
-            if (apkPath == null)
-            {
-                // List all files in both directories for debugging
-                TestContext.Out.WriteLine($"Release directory contents of {apkDirectory}:");
-                if (Directory.Exists(apkDirectory))
-                {
-                    var files = Directory.GetFiles(apkDirectory);
-                    foreach (var file in files)
-                    {
-                        TestContext.Out.WriteLine($"  - {Path.GetFileName(file)}");
-                    }
-                }
-                else
-                {
-                    TestContext.Out.WriteLine("  Release directory does not exist");
-                }
-
-                var debugApkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Debug", "net9.0-android");
-                TestContext.Out.WriteLine($"Debug directory contents of {debugApkDirectory}:");
-                if (Directory.Exists(debugApkDirectory))
-                {
-                    var files = Directory.GetFiles(debugApkDirectory);
-                    foreach (var file in files)
-                    {
-                        TestContext.Out.WriteLine($"  - {Path.GetFileName(file)}");
-                    }
-                }
-                else
-                {
-                    TestContext.Out.WriteLine("  Debug directory does not exist");
-                }
-
-                throw new FileNotFoundException($"APK not found after build in Release or Debug directories");
-            }
-        }
-
-        return apkPath;
-    }
-
-    private void BuildBinnaculumProject(string workspaceRoot)
-    {
-        // Correct path based on workspace structure
-        var projectPath = Path.Combine(workspaceRoot, "src", "UI", "Binnaculum.csproj");
-
-        TestContext.Out.WriteLine($"Looking for project at: {projectPath}");
-
-        if (!File.Exists(projectPath))
-        {
-            // List contents of src directory for debugging
-            var srcDirectory = Path.Combine(workspaceRoot, "src");
-            TestContext.Out.WriteLine($"Contents of {srcDirectory}:");
-            if (Directory.Exists(srcDirectory))
-            {
-                var directories = Directory.GetDirectories(srcDirectory);
-                foreach (var dir in directories)
-                {
-                    TestContext.Out.WriteLine($"  - {Path.GetFileName(dir)}");
-                }
-            }
-
-            throw new FileNotFoundException($"Binnaculum project not found at: {projectPath}");
-        }
-
-        TestContext.Out.WriteLine($"Building project in Release mode: {projectPath}");
-
-        // Build in Release mode for better performance and production-like testing
-        var buildResult = ExecuteCommand("dotnet", $"build \"{projectPath}\" -f net9.0-android -c Release", workspaceRoot);
-
-        if (buildResult.ExitCode != 0)
-        {
-            TestContext.Out.WriteLine("❌ Release build failed. Attempting Debug build as fallback...");
-
-            // Fallback to Debug build if Release fails
-            var debugBuildResult = ExecuteCommand("dotnet", $"build \"{projectPath}\" -f net9.0-android -c Debug", workspaceRoot);
-
-            if (debugBuildResult.ExitCode != 0)
-            {
-                throw new Exception($"Both Release and Debug builds failed. Release error: {buildResult.Error}. Debug error: {debugBuildResult.Error}");
-            }
-            else
-            {
-                TestContext.Out.WriteLine("⚠️ Debug build succeeded as fallback");
-                TestContext.Out.WriteLine($"Debug build output: {debugBuildResult.Output}");
-            }
-        }
-        else
-        {
-            TestContext.Out.WriteLine("✅ Release build completed successfully");
-            TestContext.Out.WriteLine($"Release build output: {buildResult.Output}");
-        }
-    }
-
-    private bool IsAppInstalledOnDevice(string packageName)
-    {
-        var result = ExecuteCommand("adb", $"shell pm list packages {packageName}");
-        var isInstalled = !string.IsNullOrEmpty(result.Output) && result.Output.Contains(packageName);
-
-        TestContext.Out.WriteLine($"Checking if {packageName} is installed: {(isInstalled ? "YES" : "NO")}");
-
-        return isInstalled;
-    }
-
-    private void UninstallAppFromDevice(string packageName)
-    {
-        var result = ExecuteCommand("adb", $"uninstall {packageName}");
-
-        if (result.ExitCode != 0 && !result.Output.Contains("DELETE_FAILED_INTERNAL_ERROR"))
-        {
-            TestContext.Out.WriteLine($"⚠️ Uninstall warning - Exit code: {result.ExitCode}, Output: {result.Output}, Error: {result.Error}");
-        }
-        else
-        {
-            TestContext.Out.WriteLine("App uninstalled successfully");
-        }
-    }
-
-    private void InstallAppOnDevice(string apkPath)
-    {
-        var result = ExecuteCommand("adb", $"install -r \"{apkPath}\"");
-
-        if (result.ExitCode != 0)
-        {
-            throw new Exception($"APK installation failed with exit code {result.ExitCode}. Output: {result.Output}. Error: {result.Error}");
-        }
-
-        if (result.Output.Contains("INSTALL_FAILED") || result.Error.Contains("INSTALL_FAILED"))
-        {
-            throw new Exception($"APK installation failed: {result.Output} {result.Error}");
-        }
-
-        TestContext.Out.WriteLine($"Installation result: {result.Output}");
-    }
-
-    private (int ExitCode, string Output, string Error) ExecuteCommand(string command, string arguments, string? workingDirectory = null)
-    {
-        TestContext.Out.WriteLine($"Executing: {command} {arguments}");
-
-        using var process = new Process();
-        process.StartInfo.FileName = command;
-        process.StartInfo.Arguments = arguments;
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.RedirectStandardError = true;
-        process.StartInfo.CreateNoWindow = true;
-
-        if (!string.IsNullOrEmpty(workingDirectory))
-        {
-            process.StartInfo.WorkingDirectory = workingDirectory;
-        }
-
-        var output = new System.Text.StringBuilder();
-        var error = new System.Text.StringBuilder();
-
-        process.OutputDataReceived += (sender, e) =>
-        {
-            if (e.Data != null)
-            {
-                output.AppendLine(e.Data);
-                TestContext.Out.WriteLine($"[OUT] {e.Data}");
-            }
-        };
-
-        process.ErrorDataReceived += (sender, e) =>
-        {
-            if (e.Data != null)
-            {
-                error.AppendLine(e.Data);
-                TestContext.Out.WriteLine($"[ERR] {e.Data}");
-            }
-        };
-
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-
-        // Set timeout for long-running operations like builds
-        var timeout = command == "dotnet" ? TimeSpan.FromMinutes(5) : TimeSpan.FromMinutes(2);
-
-        if (!process.WaitForExit((int)timeout.TotalMilliseconds))
-        {
-            process.Kill();
-            throw new TimeoutException($"Command '{command} {arguments}' timed out after {timeout.TotalMinutes} minutes");
-        }
-
-        return (process.ExitCode, output.ToString(), error.ToString());
-    }
-
 }
