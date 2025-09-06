@@ -33,7 +33,22 @@ public class OverviewPageTest : BaseTest
             Assert.That(text, Is.Not.Null.And.Not.Empty, "OverviewTitle should have text content");
             TestContext.Out.WriteLine($"✅ OverviewTitle found with text: '{text}'");
         });
-        
+
+        var emptyTexts = FindElementsWithTimeout(30, 
+            UIElementId.Page.Overview.EmptyMovementCollectionText, 
+            UIElementId.Page.Overview.EmptyAccountText);
+
+        Assert.Multiple(() => {
+            Assert.That(emptyTexts, Is.Not.Null.And.Not.Empty, "At least one empty state text should be found");
+            foreach (var emptyText in emptyTexts)
+            {
+                Assert.That(emptyText.Displayed, Is.True, $"Empty state text '{emptyText}' should be visible");
+                var text = emptyText.Text;
+                Assert.That(text, Is.Not.Null.And.Not.Empty, "Empty state text should have content");
+                TestContext.Out.WriteLine($"✅ Empty state text found: '{text}'");
+            }
+        });
+
         TakeScreenshot();
     }
 }

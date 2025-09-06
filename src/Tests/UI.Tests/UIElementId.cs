@@ -9,6 +9,8 @@ public static class UIElementId
             public const string Title = "OverviewTitle";
             public const string CarouselIndicator = "OverviewCarouselIndicator";
             public const string CollectionIndicator = "OverviewCollectionIndicator";
+            public const string EmptyMovementCollectionText = "EmptyMovementCollectionText";
+            public const string EmptyAccountText = "EmptyAccountText";
         }
     }
 }
