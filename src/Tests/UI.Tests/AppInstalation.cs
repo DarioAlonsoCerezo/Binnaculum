@@ -1,10 +1,16 @@
 ﻿using System.IO.Compression;
+using System.Collections.Concurrent;
 
 namespace UI.Tests;
 
 // ADB-based app management methods
 public class AppInstalation
 {
+    private static readonly object _lockObject = new object();
+    private static readonly ConcurrentDictionary<string, string> _builtApkCache = new();
+    private static volatile bool _isBuilding = false;
+    private static readonly ManualResetEventSlim _buildCompleteEvent = new(false);
+    
     public static void PrepareAndInstallApp()
     {
         const string packageName = "com.darioalonso.binnacle";
@@ -13,8 +19,8 @@ public class AppInstalation
         {
             TestContext.Out.WriteLine("=== Starting App Preparation and Installation ===");
 
-            // Step 1: Check for APK and build if necessary
-            var apkPath = EnsureApkExists();
+            // Step 1: Check for APK and build if necessary (thread-safe)
+            var apkPath = EnsureApkExistsThreadSafe();
             TestContext.Out.WriteLine($"APK verified at: {apkPath}");
 
             // Step 2: Check if app is installed on emulator and uninstall if found
@@ -52,18 +58,72 @@ public class AppInstalation
         }
     }
 
-    private static string EnsureApkExists()
+    public static string EnsureApkExistsThreadSafe()
     {
-        // Calculate workspace root from test directory with more flexible detection
         var testDirectory = TestContext.CurrentContext.TestDirectory;
-
-        // Try to find workspace root by looking for solution file or specific directories
         var workspaceRoot = FindWorkspaceRoot(testDirectory);
+        var cacheKey = $"{workspaceRoot}:Release"; // Cache key based on workspace and configuration
 
+        // Check if we already have a built APK for this configuration
+        if (_builtApkCache.TryGetValue(cacheKey, out var cachedApkPath) && File.Exists(cachedApkPath))
+        {
+            TestContext.Out.WriteLine($"✅ Using cached APK: {cachedApkPath}");
+            return cachedApkPath;
+        }
+
+        // Use double-checked locking pattern for thread safety
+        lock (_lockObject)
+        {
+            // Check again inside the lock in case another thread built it while we were waiting
+            if (_builtApkCache.TryGetValue(cacheKey, out cachedApkPath) && File.Exists(cachedApkPath))
+            {
+                TestContext.Out.WriteLine($"✅ Using APK built by another thread: {cachedApkPath}");
+                return cachedApkPath;
+            }
+
+            // If another thread is currently building, wait for it to complete
+            if (_isBuilding)
+            {
+                TestContext.Out.WriteLine("⏳ Another thread is building the APK. Waiting for completion...");
+                _buildCompleteEvent.Wait();
+                
+                // After waiting, check the cache again
+                if (_builtApkCache.TryGetValue(cacheKey, out cachedApkPath) && File.Exists(cachedApkPath))
+                {
+                    TestContext.Out.WriteLine($"✅ Using APK built by another thread after waiting: {cachedApkPath}");
+                    return cachedApkPath;
+                }
+            }
+
+            // Mark that we're building and reset the event
+            _isBuilding = true;
+            _buildCompleteEvent.Reset();
+
+            try
+            {
+                TestContext.Out.WriteLine("🔨 This thread will build the APK...");
+                var apkPath = EnsureApkExists(workspaceRoot);
+                
+                // Cache the result for other threads
+                _builtApkCache.TryAdd(cacheKey, apkPath);
+                TestContext.Out.WriteLine($"✅ APK built and cached: {apkPath}");
+                
+                return apkPath;
+            }
+            finally
+            {
+                // Mark building as complete and notify waiting threads
+                _isBuilding = false;
+                _buildCompleteEvent.Set();
+            }
+        }
+    }
+
+    private static string EnsureApkExists(string workspaceRoot)
+    {
         // Use Release build for better performance and production-like testing
         var apkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Release", "net9.0-android");
 
-        TestContext.Out.WriteLine($"Test directory: {testDirectory}");
         TestContext.Out.WriteLine($"Workspace root: {workspaceRoot}");
         TestContext.Out.WriteLine($"APK directory (Release): {apkDirectory}");
 
@@ -133,7 +193,7 @@ public class AppInstalation
         if (apkPath == null)
         {
             TestContext.Out.WriteLine("No APK found. Building Binnaculum project in Release mode...");
-            BuildBinnaculumProject(workspaceRoot);
+            BuildBinnaculumProjectThreadSafe(workspaceRoot);
 
             // Check again for APK after build using wildcard search (Release first, then Debug fallback)
             if (Directory.Exists(apkDirectory))
@@ -200,7 +260,7 @@ public class AppInstalation
         return apkPath;
     }
 
-    private static string FindWorkspaceRoot(string startDirectory)
+    public static string FindWorkspaceRoot(string startDirectory)
     {
         var currentDir = new DirectoryInfo(startDirectory);
         
@@ -241,6 +301,17 @@ public class AppInstalation
         // Fallback to original method if no indicators found
         TestContext.Out.WriteLine("Could not find workspace root by indicators, using fallback method");
         return Path.GetFullPath(Path.Combine(startDirectory, "..", "..", "..", "..", "..", ".."));
+    }
+
+    private static void BuildBinnaculumProjectThreadSafe(string workspaceRoot)
+    {
+        // Additional safety check - ensure we're not building concurrently
+        lock (_lockObject)
+        {
+            TestContext.Out.WriteLine("🔨 Starting thread-safe build process...");
+            BuildBinnaculumProject(workspaceRoot);
+            TestContext.Out.WriteLine("✅ Thread-safe build process completed");
+        }
     }
 
     private static void BuildBinnaculumProject(string workspaceRoot)
