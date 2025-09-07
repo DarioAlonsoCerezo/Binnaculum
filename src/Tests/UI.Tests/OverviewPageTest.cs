@@ -21,6 +21,18 @@ public class OverviewPageTest : BaseTest
             }
         });
 
+        var tabs = FindElementsWithTimeout(30, UIElementId.Shell.Overview, UIElementId.Shell.Tickers, UIElementId.Shell.Settings);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(tabs, Is.Not.Null.And.Not.Empty, "At least one tab should be found");
+            foreach (var tab in tabs)
+            {
+                Assert.That(tab.Displayed, Is.True, $"Tab '{tab}' should be visible");
+                TestContext.Out.WriteLine($"✅ Tab found: '{tab}'");
+            }
+        });
+
         var element = FindElementWithTimeout(UIElementId.Page.Overview.Title, 30);
 
         Assert.Multiple(() =>

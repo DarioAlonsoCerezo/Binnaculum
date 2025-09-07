@@ -1,5 +1,4 @@
-﻿using System.IO.Compression;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace UI.Tests;
 
@@ -172,30 +171,13 @@ public class AppInstalation
             TestContext.Out.WriteLine($"Release APK directory does not exist: {apkDirectory}");
         }
 
-        // If no Release APK found, try Debug as fallback
-        if (apkPath == null)
-        {
-            TestContext.Out.WriteLine("No Release APK found. Checking Debug build as fallback...");
-            var debugApkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Debug", "net9.0-android");
-
-            if (Directory.Exists(debugApkDirectory))
-            {
-                var apkFiles = Directory.GetFiles(debugApkDirectory, "*.apk");
-                if (apkFiles.Length > 0)
-                {
-                    apkPath = apkFiles[0];
-                    TestContext.Out.WriteLine($"Found Debug APK as fallback: {apkPath}");
-                }
-            }
-        }
-
-        // If no APK found at all, build the project in Release mode
+        // If no Release APK found, build the project in Release mode
         if (apkPath == null)
         {
             TestContext.Out.WriteLine("No APK found. Building Binnaculum project in Release mode...");
             BuildBinnaculumProjectThreadSafe(workspaceRoot);
 
-            // Check again for APK after build using wildcard search (Release first, then Debug fallback)
+            // Check again for APK after build using wildcard search (Release only)
             if (Directory.Exists(apkDirectory))
             {
                 var apkFiles = Directory.GetFiles(apkDirectory, "*.apk");
@@ -206,24 +188,9 @@ public class AppInstalation
                 }
             }
 
-            // Fallback to Debug directory after build
             if (apkPath == null)
             {
-                var debugApkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Debug", "net9.0-android");
-                if (Directory.Exists(debugApkDirectory))
-                {
-                    var apkFiles = Directory.GetFiles(debugApkDirectory, "*.apk");
-                    if (apkFiles.Length > 0)
-                    {
-                        apkPath = apkFiles[0];
-                        TestContext.Out.WriteLine($"APK created after build (Debug fallback): {apkPath}");
-                    }
-                }
-            }
-
-            if (apkPath == null)
-            {
-                // List all files in both directories for debugging
+                // List all files in Release directory for debugging
                 TestContext.Out.WriteLine($"Release directory contents of {apkDirectory}:");
                 if (Directory.Exists(apkDirectory))
                 {
@@ -238,22 +205,7 @@ public class AppInstalation
                     TestContext.Out.WriteLine("  Release directory does not exist");
                 }
 
-                var debugApkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Debug", "net9.0-android");
-                TestContext.Out.WriteLine($"Debug directory contents of {debugApkDirectory}:");
-                if (Directory.Exists(debugApkDirectory))
-                {
-                    var files = Directory.GetFiles(debugApkDirectory);
-                    foreach (var file in files)
-                    {
-                        TestContext.Out.WriteLine($"  - {Path.GetFileName(file)}");
-                    }
-                }
-                else
-                {
-                    TestContext.Out.WriteLine("  Debug directory does not exist");
-                }
-
-                throw new FileNotFoundException($"APK not found after build in Release or Debug directories");
+                throw new FileNotFoundException($"Release APK not found after build in Release directory: {apkDirectory}");
             }
         }
 
@@ -386,27 +338,15 @@ public class AppInstalation
 
             if (simpleBuildResult.ExitCode != 0)
             {
-                TestContext.Out.WriteLine("❌ Simple Release build failed. Attempting Debug build as final fallback...");
-
-                // Final fallback to Debug build
-                var debugBuildResult = ExecuteCommand("dotnet", $"build \"{projectPath}\" -f net9.0-android -c Debug", workspaceRoot);
-
-                if (debugBuildResult.ExitCode != 0)
-                {
-                    throw new Exception($"All build attempts failed. " +
-                        $"Signed Release error: {buildResult.Error}. " +
-                        $"Simple Release error: {simpleBuildResult.Error}. " +
-                        $"Debug error: {debugBuildResult.Error}");
-                }
-                else
-                {
-                    TestContext.Out.WriteLine("⚠️ Debug build succeeded as final fallback");
-                    TestContext.Out.WriteLine($"Debug build output: {debugBuildResult.Output}");
-                }
+                // No Debug fallback - fail immediately
+                throw new Exception($"Release build failed. " +
+                    $"Signed Release error: {buildResult.Error}. " +
+                    $"Simple Release error: {simpleBuildResult.Error}. " +
+                    $"Debug builds are not allowed for testing.");
             }
             else
             {
-                TestContext.Out.WriteLine("⚠️ Simple Release build succeeded as fallback");
+                TestContext.Out.WriteLine("✅ Simple Release build succeeded as fallback");
                 TestContext.Out.WriteLine($"Simple Release build output: {simpleBuildResult.Output}");
             }
         }
