@@ -1,9 +1,29 @@
+using Binnaculum.Core;
+
 namespace Binnaculum.Pages;
 
-public partial class TickersPage : ContentPage
+public partial class TickersPage
 {
-	public TickersPage()
+    private ReadOnlyObservableCollection<Models.TickerSnapshot> _tickers;
+    public ReadOnlyObservableCollection<Models.TickerSnapshot> Tickers => _tickers;
+    
+    public TickersPage()
 	{
 		InitializeComponent();
-	}
+
+        Core.UI.Collections.TickerSnapshots.Connect()
+            .ObserveOn(UiThread)
+            .Bind(out _tickers)
+            .Subscribe(x =>
+            {
+
+            });
+
+        TickersCollectionView.ItemsSource = Tickers;
+    }
+
+    protected override void StartLoad()
+    {
+        
+    }
 }
