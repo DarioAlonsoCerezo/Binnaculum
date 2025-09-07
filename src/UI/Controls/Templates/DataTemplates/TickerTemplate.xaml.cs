@@ -21,6 +21,8 @@ public partial class TickerTemplate
         if(BindingContext is Models.TickerSnapshot snapshot)
         {
             Icon.ImagePath = snapshot.Ticker.Image.Value;
+            TickerName.Text = snapshot.Ticker.Name.Value;
+            Realized.Percentage = snapshot.MainCurrency.Performance;
         }
     }
 }
