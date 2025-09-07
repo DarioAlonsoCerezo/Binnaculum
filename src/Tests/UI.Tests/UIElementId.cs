@@ -8,6 +8,14 @@ public static class UIElementId
         public const string Overview = "navigation_bar_item_large_label_view";
         public const string Tickers = "navigation_bar_item_large_label_view";
         public const string Settings = "navigation_bar_item_large_label_view";
+
+        public static class Accessibility
+        {
+
+            public const string Overview = "Overview";
+            public const string Tickers = "Tickers";
+            public const string Settings = "Settings";
+        }
     }
 
     public static class Page

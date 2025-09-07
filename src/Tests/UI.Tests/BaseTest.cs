@@ -42,6 +42,37 @@ public abstract class BaseTest
         AppiumServerHelper.DisposeAppiumLocalServer();
     }
 
+    protected IWebElement FindElementByAccesibilityId(string id, int timeoutSeconds = 30)
+    {
+        TestContext.Out.WriteLine($"Looking for element with id '{id}'");
+        var endTime = DateTime.Now.AddSeconds(timeoutSeconds);
+
+        while (DateTime.Now < endTime)
+        {
+            try
+            {
+                // For MAUI apps, use MobileBy.AccessibilityId to find elements by AutomationId
+                var element = _driver.FindElement(MobileBy.AccessibilityId(id));
+                if (element.Displayed)
+                {
+                    TestContext.Out.WriteLine($"✅ Element '{id}' found and displayed");
+                    return element;
+                }
+                else
+                {
+                    TestContext.Out.WriteLine($"⚠️ Element '{id}' found but not displayed");
+                }
+            }
+            catch (NoSuchElementException)
+            {
+                // Element not found yet, continue waiting
+                TestContext.Out.WriteLine($"Element '{id}' not found, retrying... ({(DateTime.Now - endTime.AddSeconds(-timeoutSeconds)).TotalSeconds:F1}s elapsed)");
+            }
+            System.Threading.Thread.Sleep(500);
+        }
+        throw new TimeoutException($"Element '{id}' not found within {timeoutSeconds} seconds");
+    }
+
     // Simple helper methods
     protected IWebElement FindElementWithTimeout(string id, int timeoutSeconds)
     {

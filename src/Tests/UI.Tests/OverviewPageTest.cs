@@ -26,6 +26,9 @@ public class OverviewPageTest : BaseTest
         Assert.Multiple(() =>
         {
             Assert.That(tabs, Is.Not.Null.And.Not.Empty, "At least one tab should be found");
+            // There should be exactly 3 tabs: Overview, Tickers, Settings
+            Assert.That(tabs.Count, Is.EqualTo(3), "There should be exactly 3 tabs");
+
             foreach (var tab in tabs)
             {
                 Assert.That(tab.Displayed, Is.True, $"Tab '{tab}' should be visible");
@@ -62,5 +65,21 @@ public class OverviewPageTest : BaseTest
         });
 
         TakeScreenshot();
+
+        var tickerTab = FindElementByAccesibilityId(UIElementId.Shell.Accessibility.Tickers);
+        Assert.That(tickerTab, Is.Not.Null, "Tickers tab should exist");
+
+        tickerTab.Click();
+
+        var tickerTemplate = FindElementWithTimeout(UIElementId.Templates.Ticker.TickerTemplate, 30);
+
+        Assert.That(tickerTemplate, Is.Not.Null, "TickerTemplate element should exist");
+
+        var tickerName = FindElementWithTimeout(UIElementId.Templates.Ticker.TickerName, 30);
+        Assert.That(tickerName, Is.Not.Null, "TickerName element should exist");
+        Assert.That(tickerName.Displayed, Is.True, "TickerName should be visible");
+        TestContext.Out.WriteLine($"✅ TickerName found with text: '{tickerName.Text}'");
+
+        TakeScreenshot("Tickers");
     }
 }
