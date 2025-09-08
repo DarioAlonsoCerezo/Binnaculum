@@ -79,6 +79,7 @@
 		<Compile Include="Memory\Collections.fs" />
 		<Compile Include="Memory\ReactiveCurrencyManager.fs" />
 		<Compile Include="Memory\ReactiveTickerManager.fs" />
+		<Compile Include="Memory\ReactiveBrokerManager.fs" />
 		<Compile Include="Models\PatternExtensions.fs" />
 		<Compile Include="Models\DiscriminatedToDatabase.fs" />
 		<Compile Include="Models\DiscriminatedToModel.fs" />

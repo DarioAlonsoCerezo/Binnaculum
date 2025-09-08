@@ -1,6 +1,8 @@
 namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.DatabaseModel
+open Binnaculum.Core.UI
+open Binnaculum.Core.DatabaseToModels
 open BankExtensions
 open BankAccountExtensions
 open BrokerExtensions
@@ -38,14 +40,18 @@ module internal Saver =
     /// <summary>
     /// Saves a Broker entity to the database and updates the corresponding collections.
     /// - If the Broker is new (Id = 0), after saving, it loads the newly added broker from the database
-    /// - If the Broker is being updated, it refreshes the specific broker
+    /// - If the Broker is being updated, it refreshes the broker in the collection with reactive updates
     /// </summary>
     let saveBroker(broker: Broker) = task {
         do! broker.save() |> Async.AwaitTask |> Async.Ignore
         if broker.Id = 0 then
             do! DataLoader.loadAddedBroker() |> Async.AwaitTask |> Async.Ignore
         else
-            do! DataLoader.refreshSpecificBroker(broker.Id) |> Async.AwaitTask |> Async.Ignore        
+            // Get the updated broker from database and update the collection (triggers reactive update)
+            let! databaseBroker = BrokerExtensions.Do.getById broker.Id |> Async.AwaitTask
+            match databaseBroker with
+            | None -> ()
+            | Some b -> Collections.updateBroker(b.brokerToModel())        
     }
     
     /// <summary>
