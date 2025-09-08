@@ -2,7 +2,9 @@
 
 open System
 open System.Runtime.CompilerServices
+open System.Reactive.Linq
 open Binnaculum.Core.Models
+open Binnaculum.Core.UI
 open DiscriminatedToModel
 open Microsoft.Maui.Storage
 open Binnaculum.Core.Database.SnapshotsModel
@@ -183,7 +185,7 @@ module internal DatabaseToModels =
                         Id = 0
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                         Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
-                        Currency = Binnaculum.Core.UI.Collections.GetCurrency("USD") // Default currency, can be changed later
+                        Currency = "USD".ToFastCurrency() // Updated to use fast O(1) lookup
                         TotalShares = 0m // Default value, not used in this context
                         Weight = 0.0m // Default value, not used in this context
                         CostBasis = 0.0m // Default value, not used in this context
@@ -692,4 +694,106 @@ module internal DatabaseToModels =
                 Bank = None
                 BrokerAccount = None
                 BankAccount = None
+            }
+
+        // Reactive extension methods for ticker snapshot conversion
+        
+        /// <summary>
+        /// Reactive version of tickerSnapshotToModel that automatically updates when currency data changes.
+        /// Returns an observable that emits the updated ticker snapshot when the currency becomes available or changes.
+        /// </summary>
+        [<Extension>]
+        static member tickerSnapshotToModelReactive(dbSnapshot: Binnaculum.Core.Database.SnapshotsModel.TickerSnapshot) : IObservable<Binnaculum.Core.Models.TickerSnapshot> =
+            "USD".ToReactiveCurrency()
+                .Select(fun currency -> 
+                    {
+                        Id = dbSnapshot.Base.Id
+                        Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                        Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                        MainCurrency = 
+                            {
+                                Id = 0
+                                Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                                Currency = currency // Reactive currency lookup
+                                TotalShares = 0m
+                                Weight = 0.0m
+                                CostBasis = 0.0m
+                                RealCost = 0.0m
+                                Dividends = 0.0m
+                                Options = 0.0m
+                                TotalIncomes = 0.0m
+                                Unrealized = 0.0m
+                                Realized = 0.0m
+                                Performance = 0.0m
+                                LatestPrice = 0.0m
+                                OpenTrades = false
+                            }
+                        OtherCurrencies = []
+                    })
+
+        /// <summary>
+        /// Reactive version of tickerSnapshotToModel with custom currency code.
+        /// Returns an observable that emits the updated ticker snapshot when the specified currency becomes available or changes.
+        /// </summary>
+        [<Extension>]
+        static member tickerSnapshotToModelReactive(dbSnapshot: Binnaculum.Core.Database.SnapshotsModel.TickerSnapshot, currencyCode: string) : IObservable<Binnaculum.Core.Models.TickerSnapshot> =
+            currencyCode.ToReactiveCurrency()
+                .Select(fun currency -> 
+                    {
+                        Id = dbSnapshot.Base.Id
+                        Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                        Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                        MainCurrency = 
+                            {
+                                Id = 0
+                                Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                                Currency = currency // Reactive currency lookup
+                                TotalShares = 0m
+                                Weight = 0.0m
+                                CostBasis = 0.0m
+                                RealCost = 0.0m
+                                Dividends = 0.0m
+                                Options = 0.0m
+                                TotalIncomes = 0.0m
+                                Unrealized = 0.0m
+                                Realized = 0.0m
+                                Performance = 0.0m
+                                LatestPrice = 0.0m
+                                OpenTrades = false
+                            }
+                        OtherCurrencies = []
+                    })
+
+        /// <summary>
+        /// Fast version of tickerSnapshotToModel using O(1) currency lookup.
+        /// This provides immediate results with improved performance compared to the original linear search.
+        /// </summary>
+        [<Extension>]
+        static member tickerSnapshotToModelFast(dbSnapshot: Binnaculum.Core.Database.SnapshotsModel.TickerSnapshot) =
+            {
+                Id = dbSnapshot.Base.Id
+                Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                MainCurrency = 
+                    {
+                        Id = 0
+                        Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                        Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                        Currency = "USD".ToFastCurrency() // Fast O(1) currency lookup
+                        TotalShares = 0m
+                        Weight = 0.0m
+                        CostBasis = 0.0m
+                        RealCost = 0.0m
+                        Dividends = 0.0m
+                        Options = 0.0m
+                        TotalIncomes = 0.0m
+                        Unrealized = 0.0m
+                        Realized = 0.0m
+                        Performance = 0.0m
+                        LatestPrice = 0.0m
+                        OpenTrades = false
+                    }
+                OtherCurrencies = []
             }
