@@ -20,9 +20,18 @@ public partial class TickerTemplate
 
         if(BindingContext is Models.TickerSnapshot snapshot)
         {
-            Icon.ImagePath = snapshot.Ticker.Image.Value;
+            SetupIcon(snapshot.Ticker);
+
             TickerName.Text = snapshot.Ticker.Name.Value;
             Realized.Percentage = snapshot.MainCurrency.Performance;
         }
+    }
+
+    private void SetupIcon(Models.Ticker ticker)
+    {
+        if (ticker.Image == null)
+            Icon.PlaceholderText = ticker.Symbol;
+        else
+            Icon.ImagePath = ticker.Image.Value;
     }
 }

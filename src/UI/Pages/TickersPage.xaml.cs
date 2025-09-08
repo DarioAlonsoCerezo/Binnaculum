@@ -12,12 +12,10 @@ public partial class TickersPage
 		InitializeComponent();
 
         Core.UI.Collections.TickerSnapshots.Connect()
+            .Sort(SortExpressionComparer<Models.TickerSnapshot>.Ascending(t => t.Ticker.Symbol))
             .ObserveOn(UiThread)
             .Bind(out _tickers)
-            .Subscribe(x =>
-            {
-
-            });
+            .Subscribe();
 
         TickersCollectionView.ItemsSource = Tickers;
     }

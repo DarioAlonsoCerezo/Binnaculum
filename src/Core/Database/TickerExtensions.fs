@@ -43,6 +43,14 @@ type Do() =
 
     static member getById(id: int) = Database.Do.getById Do.read id TickersQuery.getById
 
+    static member getBySymbol(symbol: string) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- TickersQuery.getByTicker
+        command.Parameters.AddWithValue(SQLParameterName.Symbol, symbol) |> ignore
+        let! ticker = Database.Do.read<Ticker>(command, Do.read)
+        return ticker
+    }
+
     static member tickerList() = 
         let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None; }
         [
