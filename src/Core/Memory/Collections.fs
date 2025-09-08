@@ -142,13 +142,6 @@ module Collections =
         Accounts.Replace(current, updated)
 
     /// <summary>
-    /// This function is used to get a currency by its ID. 
-    /// </summary>
-    /// <param name="id"></param>
-    let internal getCurrency(id: int) =
-        Currencies.Items |> Seq.find(fun c -> c.Id = id)
-
-    /// <summary>
     /// This function is used to get a currency by its code.
     /// It searches through the Currencies collection and returns the first currency that matches the provided code.
     /// </summary>

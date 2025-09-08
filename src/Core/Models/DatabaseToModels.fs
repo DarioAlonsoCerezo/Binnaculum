@@ -45,16 +45,6 @@ module internal DatabaseToModels =
             currencies |> List.map (fun c -> c.currencyToModel())
 
         [<Extension>]
-        static member bankAccountToModel(bankAccount: Binnaculum.Core.Database.DatabaseModel.BankAccount, bank: Binnaculum.Core.Models.Bank, currency: Binnaculum.Core.Models.Currency) =
-            {
-                Id = bankAccount.Id
-                Bank = bank
-                Name = bankAccount.Name
-                Description = bankAccount.Description
-                Currency = currency
-            }
-            
-        [<Extension>]
         static member bankAccountToModel(bankAccount: Binnaculum.Core.Database.DatabaseModel.BankAccount) = 
             {
                 Id = bankAccount.Id
