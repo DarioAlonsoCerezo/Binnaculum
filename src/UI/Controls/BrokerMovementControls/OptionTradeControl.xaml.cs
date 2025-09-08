@@ -102,7 +102,7 @@ public partial class OptionTradeControl
             .SelectMany(_ => Observable.FromAsync(async () =>
             {
                 var ticker = _ticker.ToFastTicker();
-                var currency = Core.UI.Collections.GetCurrency(_currency);
+                var currency = _currency.ToFastCurrency();
                 var popupResult = await new OptionBuilderPopup(
                         currency, 
                         BrokerAccount, 
