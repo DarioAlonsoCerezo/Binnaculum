@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using Binnaculum.Core.UI;
 using Binnaculum.Popups;
 
 namespace Binnaculum.Controls;
@@ -31,7 +32,7 @@ public partial class TradeControl
         Core.UI.SavedPrefereces.UserPreferences
             .Do(p =>
             {                
-                var ticker = Core.UI.Collections.GetTicker(p.Ticker);
+                var ticker = p.Ticker.ToFastTicker();
                 Icon.PlaceholderText = ticker.Symbol;
                 Icon.ImagePath = ticker.Image?.Value ?? string.Empty;
                 Currency.Text = p.Currency;
@@ -121,7 +122,7 @@ public partial class TradeControl
         var fees = FeesAndCommissions.Fee;
         var commissions = FeesAndCommissions.Commission;
         var currency = Core.UI.Collections.GetCurrency(_currency);
-        var ticker = Core.UI.Collections.GetTicker(_ticker);
+        var ticker = _ticker.ToFastTicker();
         var totalInvested = quantity * price + fees + commissions;
         var notes = string.IsNullOrWhiteSpace(Notes.Text)
             ? Microsoft.FSharp.Core.FSharpOption<string>.None
