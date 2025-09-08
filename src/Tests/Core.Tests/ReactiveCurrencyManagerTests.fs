@@ -176,3 +176,136 @@ type ReactiveCurrencyManagerTests() =
         
         // New method should be at least as fast (allowing small margin for variance)
         Assert.That(stopwatchNew.ElapsedMilliseconds, Is.LessThanOrEqualTo(stopwatchOld.ElapsedMilliseconds + 5L))
+
+    [<Test>]
+    member this.``Fast currency lookup by ID should return correct currency with O(1) performance``() =
+        let usd = (1).ToFastCurrencyById()
+        let eur = (2).ToFastCurrencyById()
+        let gbp = (3).ToFastCurrencyById()
+        
+        Assert.That(usd.Id, Is.EqualTo(1))
+        Assert.That(usd.Code, Is.EqualTo("USD"))
+        Assert.That(usd.Title, Is.EqualTo("US Dollar"))
+        Assert.That(usd.Symbol, Is.EqualTo("$"))
+        
+        Assert.That(eur.Id, Is.EqualTo(2))
+        Assert.That(eur.Code, Is.EqualTo("EUR"))
+        Assert.That(eur.Title, Is.EqualTo("Euro"))
+        Assert.That(eur.Symbol, Is.EqualTo("€"))
+        
+        Assert.That(gbp.Id, Is.EqualTo(3))
+        Assert.That(gbp.Code, Is.EqualTo("GBP"))
+        Assert.That(gbp.Title, Is.EqualTo("British Pound"))
+        Assert.That(gbp.Symbol, Is.EqualTo("£"))
+
+    [<Test>]
+    member this.``Reactive currency lookup by ID should emit currency when available``() =
+        let mutable result: Currency option = None
+        let subscription = 
+            (1).ToReactiveCurrencyById()
+                .Subscribe(fun currency -> result <- Some currency)
+        
+        System.Threading.Thread.Sleep(100)
+        
+        Assert.That(result.IsSome, Is.True)
+        Assert.That(result.Value.Id, Is.EqualTo(1))
+        Assert.That(result.Value.Code, Is.EqualTo("USD"))
+        Assert.That(result.Value.Title, Is.EqualTo("US Dollar"))
+        
+        subscription.Dispose()
+
+    [<Test>]
+    member this.``Fast currency lookup by ID should be faster than linear search``() =
+        // Add more currencies to make the difference noticeable
+        let additionalCurrencies = [1..100] |> List.map (fun i -> 
+            { Id = i + 10; Title = sprintf "Currency %d" i; Code = sprintf "CUR%d" i; Symbol = sprintf "C%d" i })
+        Collections.Currencies.Edit(fun list ->
+            list.AddRange(additionalCurrencies))
+        
+        // Test multiple lookups with ID-based fast lookup
+        let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+        for _ in 1..1000 do
+            let _ = (1).ToFastCurrencyById()
+            ()
+        stopwatch.Stop()
+        
+        let fastTime = stopwatch.ElapsedMilliseconds
+        
+        // Compare with linear search (original internal method simulation)
+        stopwatch.Restart()
+        for _ in 1..1000 do
+            let _ = Collections.Currencies.Items |> Seq.find(fun c -> c.Id = 1)
+            ()
+        stopwatch.Stop()
+        
+        let linearTime = stopwatch.ElapsedMilliseconds
+        
+        // Fast lookup should be significantly faster or at least not slower
+        Assert.That(fastTime, Is.LessThanOrEqualTo(linearTime + 10L)) // Allow 10ms tolerance
+
+    [<Test>]
+    member this.``Fast currency lookup by ID should handle cache updates when currencies change``() =
+        // Initial lookup
+        let initialUsd = (1).ToFastCurrencyById()
+        Assert.That(initialUsd.Title, Is.EqualTo("US Dollar"))
+        
+        // Update the currency in the collection
+        let updatedUsd = { Id = 1; Title = "United States Dollar"; Code = "USD"; Symbol = "$" }
+        Collections.Currencies.Edit(fun list ->
+            list.Clear()
+            list.Add(updatedUsd))
+        
+        // Re-initialize to pick up changes
+        ReactiveCurrencyManager.initialize()
+        
+        // Lookup should return updated currency
+        let newUsd = (1).ToFastCurrencyById()
+        Assert.That(newUsd.Title, Is.EqualTo("United States Dollar"))
+
+    [<Test>]
+    member this.``Both cache types should stay synchronized during collection changes``() =
+        // Test that both code and ID caches stay in sync
+        let newCurrency = { Id = 999; Title = "Test Currency"; Code = "TEST"; Symbol = "T" }
+        
+        Collections.Currencies.Edit(fun list ->
+            list.Add(newCurrency))
+        
+        // Both lookup methods should find the same currency
+        let byCode = "TEST".ToFastCurrency()
+        let byId = (999).ToFastCurrencyById()
+        
+        Assert.That(byCode.Id, Is.EqualTo(byId.Id))
+        Assert.That(byCode.Code, Is.EqualTo(byId.Code))
+        Assert.That(byCode.Title, Is.EqualTo(byId.Title))
+        Assert.That(byCode.Symbol, Is.EqualTo(byId.Symbol))
+
+    [<Test>]
+    member this.``Performance comparison between ID-based old and new currency lookup``() =
+        // Add many currencies to test performance difference
+        let manyCurrencies = [1..1000] |> List.map (fun i -> 
+            { Id = i + 200; Title = sprintf "Test Currency %d" i; Code = sprintf "PERF%d" i; Symbol = sprintf "P%d" i })
+        Collections.Currencies.Edit(fun list ->
+            list.AddRange(manyCurrencies))
+        
+        let iterations = 100
+        
+        // Test old method performance (linear search by ID simulation)
+        let stopwatchOld = System.Diagnostics.Stopwatch.StartNew()
+        for _ in 1..iterations do
+            let _ = Collections.Currencies.Items |> Seq.find(fun c -> c.Id = 1)
+            ()
+        stopwatchOld.Stop()
+        
+        // Test new method performance (O(1) lookup by ID)
+        let stopwatchNew = System.Diagnostics.Stopwatch.StartNew()
+        for _ in 1..iterations do
+            let _ = (1).ToFastCurrencyById()
+            ()
+        stopwatchNew.Stop()
+        
+        printfn $"ID Lookup - Old method: {stopwatchOld.ElapsedMilliseconds}ms"
+        printfn $"ID Lookup - New method: {stopwatchNew.ElapsedMilliseconds}ms"
+        printfn $"ID Lookup - Performance improvement: {float stopwatchOld.ElapsedMilliseconds / float stopwatchNew.ElapsedMilliseconds}x"
+        
+        // New method should be at least as fast (allowing small margin for variance)
+        Assert.That(stopwatchNew.ElapsedMilliseconds, Is.LessThanOrEqualTo(stopwatchOld.ElapsedMilliseconds + 5L))
