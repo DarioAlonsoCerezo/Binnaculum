@@ -121,7 +121,7 @@ public partial class TradeControl
         var date = DateTimePicker.Date;
         var fees = FeesAndCommissions.Fee;
         var commissions = FeesAndCommissions.Commission;
-        var currency = Core.UI.Collections.GetCurrency(_currency);
+        var currency = _currency.ToFastCurrency();
         var ticker = _ticker.ToFastTicker();
         var totalInvested = quantity * price + fees + commissions;
         var notes = string.IsNullOrWhiteSpace(Notes.Text)

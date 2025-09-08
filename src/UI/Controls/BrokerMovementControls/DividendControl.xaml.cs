@@ -122,7 +122,7 @@ public partial class DividendControl
             return null;
 
         var ticker = _ticker.ToFastTicker();
-        var currency = Core.UI.Collections.GetCurrency(AmountEntry.SelectedCurrencyText);
+        var currency = AmountEntry.SelectedCurrencyText.ToFastCurrency();
         var date = DateTimePicker.Date;
 
         return new Models.Dividend(
@@ -140,7 +140,7 @@ public partial class DividendControl
             return null;
 
         var ticker = _ticker.ToFastTicker();
-        var currency = Core.UI.Collections.GetCurrency(AmountEntry.SelectedCurrencyText);
+        var currency = AmountEntry.SelectedCurrencyText.ToFastCurrency();
         var date = DateTimePicker.Date;
         var code = DividendEditor == DividenEditor.ExDividendDate
             ? Models.DividendCode.ExDividendDate
@@ -162,7 +162,7 @@ public partial class DividendControl
             return null;
 
         var ticker = _ticker.ToFastTicker();
-        var currency = Core.UI.Collections.GetCurrency(AmountEntry.SelectedCurrencyText);
+        var currency = AmountEntry.SelectedCurrencyText.ToFastCurrency();
         var date = DateTimePicker.Date;
         
         return new Models.DividendTax(

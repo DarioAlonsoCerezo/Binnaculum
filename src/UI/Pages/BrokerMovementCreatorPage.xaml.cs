@@ -1,5 +1,6 @@
 using Binnaculum.Controls;
 using Binnaculum.Core;
+using Binnaculum.Core.UI;
 using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Pages;
@@ -221,7 +222,7 @@ public partial class BrokerMovementCreatorPage
                             0,
                             BrokerMovement.DepositData.TimeStamp,
                             BrokerMovement.DepositData.Amount,
-                            Core.UI.Collections.GetCurrency(BrokerMovement.DepositData.Currency),
+                            BrokerMovement.DepositData.Currency.ToFastCurrency(),
                             _account,
                             BrokerMovement.DepositData.Commissions,
                             BrokerMovement.DepositData.Fees,
@@ -241,13 +242,13 @@ public partial class BrokerMovementCreatorPage
                             0,
                             BrokerMovement.DepositData.TimeStamp,
                             BrokerMovement.ConversionData.AmountTo, 
-                            Core.UI.Collections.GetCurrency(BrokerMovement.ConversionData.CurrencyTo),
+                            BrokerMovement.ConversionData.CurrencyTo.ToFastCurrency(),
                             _account,
                             BrokerMovement.ConversionData.Commissions,
                             BrokerMovement.ConversionData.Fees,
                             brokerMovementType.Value,
                             notes,
-                            Core.UI.Collections.GetCurrency(BrokerMovement.ConversionData.CurrencyFrom),
+                            BrokerMovement.ConversionData.CurrencyFrom.ToFastCurrency(),
                             BrokerMovement.ConversionData.AmountFrom,
                             Microsoft.FSharp.Core.FSharpOption<Models.Ticker>.None,
                             Microsoft.FSharp.Core.FSharpOption<decimal>.None);
@@ -261,7 +262,7 @@ public partial class BrokerMovementCreatorPage
                             0,
                             BrokerMovement.DepositData.TimeStamp,
                             0m,
-                            Core.UI.Collections.GetCurrency(Core.UI.SavedPrefereces.UserPreferences.Value.Currency),
+                            SavedPrefereces.UserPreferences.Value.Currency.ToFastCurrency(),
                             _account,
                             BrokerMovement.ACATData.Commissions,
                             BrokerMovement.ACATData.Fees,

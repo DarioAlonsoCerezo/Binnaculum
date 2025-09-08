@@ -74,7 +74,7 @@ public partial class BankMovementCreator
         Save.Events().SaveClicked
             .Select(_ =>
             {
-                var currency = Collections.GetCurrency(Deposit.DepositData.Currency);
+                var currency = Deposit.DepositData.Currency.ToFastCurrency();
 
                 return new Models.BankAccountMovement(
                     0, 
