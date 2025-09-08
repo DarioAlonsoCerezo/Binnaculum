@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using Binnaculum.Core.UI;
 using Binnaculum.Popups;
 using System.Xml.Schema;
 
@@ -109,7 +110,7 @@ public partial class BrokerMovementControl
         Core.UI.SavedPrefereces.UserPreferences
             .Do(p =>
             {
-                var ticker = Core.UI.Collections.GetTicker(p.Ticker);
+                var ticker = p.Ticker.ToFastTicker();
                 TickerIcon.PlaceholderText = ticker.Symbol;
                 TickerIcon.ImagePath = ticker.Image?.Value ?? string.Empty;
             })
@@ -136,7 +137,7 @@ public partial class BrokerMovementControl
 
         _acat = new ACATControl(
             TimeStamp: DateTime.Now,
-            Ticker: Core.UI.Collections.GetTicker(Core.UI.SavedPrefereces.UserPreferences.Value.Ticker),
+            Ticker: Core.UI.SavedPrefereces.UserPreferences.Value.Ticker.ToFastTicker(),
             Quantity: 0m,
             Commissions: 0m,
             Fees: 0m,

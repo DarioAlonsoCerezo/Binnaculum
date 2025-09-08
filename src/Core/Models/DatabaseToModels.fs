@@ -127,7 +127,7 @@ module internal DatabaseToModels =
             let brokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(movement.BrokerAccountId)
             let currency = movement.CurrencyId.ToFastCurrencyById()
             let fromCurrency = movement.FromCurrencyId |> Option.map (fun id -> id.ToFastCurrencyById())
-            let ticker = movement.TickerId |> Option.map (fun id -> Binnaculum.Core.UI.Collections.getTickerById(id))
+            let ticker = movement.TickerId |> Option.map (fun id -> id.ToFastTickerById())
             let brokerMovement =
                 {
                     Id = movement.Id
@@ -179,12 +179,12 @@ module internal DatabaseToModels =
             {
                 Id = dbSnapshot.Base.Id
                 Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                Ticker = dbSnapshot.TickerId.ToFastTickerById()
                 MainCurrency = 
                     {
                         Id = 0
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                        Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                        Ticker = dbSnapshot.TickerId.ToFastTickerById()
                         Currency = "USD".ToFastCurrency() // Updated to use fast O(1) lookup
                         TotalShares = 0m // Default value, not used in this context
                         Weight = 0.0m // Default value, not used in this context
@@ -215,7 +215,7 @@ module internal DatabaseToModels =
                 Id = trade.Id
                 TimeStamp = trade.TimeStamp.Value
                 TotalInvestedAmount = totalInvestedAmount
-                Ticker = Binnaculum.Core.UI.Collections.getTickerById(trade.TickerId)
+                Ticker = trade.TickerId.ToFastTickerById()
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(trade.BrokerAccountId)
                 Currency = trade.CurrencyId.ToFastCurrencyById()
                 Quantity = trade.Quantity
@@ -258,7 +258,7 @@ module internal DatabaseToModels =
                 Id = dividend.Id
                 TimeStamp = dividend.TimeStamp.Value
                 Amount = dividend.DividendAmount.Value
-                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dividend.TickerId)
+                Ticker = dividend.TickerId.ToFastTickerById()
                 Currency = dividend.CurrencyId.ToFastCurrencyById()
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
             }
@@ -293,7 +293,7 @@ module internal DatabaseToModels =
                 Id = dividend.Id
                 TimeStamp = dividend.TimeStamp.Value
                 TaxAmount = dividend.DividendTaxAmount.Value
-                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dividend.TickerId)
+                Ticker = dividend.TickerId.ToFastTickerById()
                 Currency = dividend.CurrencyId.ToFastCurrencyById()
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
             }
@@ -328,7 +328,7 @@ module internal DatabaseToModels =
                 Id = dividend.Id
                 TimeStamp = dividend.TimeStamp.Value
                 Amount = dividend.Amount.Value
-                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dividend.TickerId)
+                Ticker = dividend.TickerId.ToFastTickerById()
                 Currency = dividend.CurrencyId.ToFastCurrencyById()
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
                 DividendCode = dividend.DividendCode.databaseToDividendCode()
@@ -366,7 +366,7 @@ module internal DatabaseToModels =
                 ExpirationDate = optionTrade.ExpirationDate.Value
                 Premium = optionTrade.Premium.Value
                 NetPremium = optionTrade.NetPremium.Value
-                Ticker = Binnaculum.Core.UI.Collections.getTickerById(optionTrade.TickerId)
+                Ticker = optionTrade.TickerId.ToFastTickerById()
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(optionTrade.BrokerAccountId)
                 Currency = optionTrade.CurrencyId.ToFastCurrencyById()
                 OptionType = optionTrade.OptionType.databaseToOptionType()
@@ -709,12 +709,12 @@ module internal DatabaseToModels =
                     {
                         Id = dbSnapshot.Base.Id
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                        Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                        Ticker = dbSnapshot.TickerId.ToFastTickerById()
                         MainCurrency = 
                             {
                                 Id = 0
                                 Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                                Ticker = dbSnapshot.TickerId.ToFastTickerById()
                                 Currency = currency // Reactive currency lookup
                                 TotalShares = 0m
                                 Weight = 0.0m
@@ -743,12 +743,12 @@ module internal DatabaseToModels =
                     {
                         Id = dbSnapshot.Base.Id
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                        Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                        Ticker = dbSnapshot.TickerId.ToFastTickerById()
                         MainCurrency = 
                             {
                                 Id = 0
                                 Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                                Ticker = dbSnapshot.TickerId.ToFastTickerById()
                                 Currency = currency // Reactive currency lookup
                                 TotalShares = 0m
                                 Weight = 0.0m
@@ -775,12 +775,12 @@ module internal DatabaseToModels =
             {
                 Id = dbSnapshot.Base.Id
                 Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                Ticker = dbSnapshot.TickerId.ToFastTickerById()
                 MainCurrency = 
                     {
                         Id = 0
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
-                        Ticker = Binnaculum.Core.UI.Collections.getTickerById(dbSnapshot.TickerId)
+                        Ticker = dbSnapshot.TickerId.ToFastTickerById()
                         Currency = "USD".ToFastCurrency() // Fast O(1) currency lookup
                         TotalShares = 0m
                         Weight = 0.0m

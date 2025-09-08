@@ -25,6 +25,7 @@
     <Compile Include="BrokerFinancialSnapshotManagerIntegrationTests.fs" />
     <Compile Include="BrokerFinancialSnapshotManagerPerformanceTests.fs" />
     <Compile Include="ReactiveCurrencyManagerTests.fs" />
+    <Compile Include="ReactiveTickerManagerTests.fs" />
     <Compile Include="DataLoaderTests.fs" />
     <Compile Include="EmptySnapshotManagementTests.fs" />
   </ItemGroup>
