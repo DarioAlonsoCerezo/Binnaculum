@@ -61,7 +61,7 @@ module internal DatabaseToModels =
                 Bank = Binnaculum.Core.UI.Collections.getBank(bankAccount.BankId)
                 Name = bankAccount.Name
                 Description = bankAccount.Description
-                Currency = Binnaculum.Core.UI.Collections.getCurrency(bankAccount.CurrencyId)
+                Currency = bankAccount.CurrencyId.ToFastCurrencyById()
             }
 
         [<Extension>]
@@ -75,7 +75,7 @@ module internal DatabaseToModels =
                     Id = movement.Id
                     TimeStamp = movement.TimeStamp.Value
                     Amount = movement.Amount.Value
-                    Currency = Binnaculum.Core.UI.Collections.getCurrency(movement.CurrencyId)
+                    Currency = movement.CurrencyId.ToFastCurrencyById()
                     BankAccount = Binnaculum.Core.UI.Collections.getBankAccount(movement.BankAccountId)
                     MovementType = movement.MovementType.bankMovementTypeToModel()
                 }
@@ -125,8 +125,8 @@ module internal DatabaseToModels =
         [<Extension>]
         static member brokerMovementToModel(movement: Binnaculum.Core.Database.DatabaseModel.BrokerMovement) =
             let brokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(movement.BrokerAccountId)
-            let currency = Binnaculum.Core.UI.Collections.getCurrency(movement.CurrencyId)
-            let fromCurrency = movement.FromCurrencyId |> Option.map (fun id -> Binnaculum.Core.UI.Collections.getCurrency(id))
+            let currency = movement.CurrencyId.ToFastCurrencyById()
+            let fromCurrency = movement.FromCurrencyId |> Option.map (fun id -> id.ToFastCurrencyById())
             let ticker = movement.TickerId |> Option.map (fun id -> Binnaculum.Core.UI.Collections.getTickerById(id))
             let brokerMovement =
                 {
@@ -217,7 +217,7 @@ module internal DatabaseToModels =
                 TotalInvestedAmount = totalInvestedAmount
                 Ticker = Binnaculum.Core.UI.Collections.getTickerById(trade.TickerId)
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(trade.BrokerAccountId)
-                Currency = Binnaculum.Core.UI.Collections.getCurrency(trade.CurrencyId)
+                Currency = trade.CurrencyId.ToFastCurrencyById()
                 Quantity = trade.Quantity
                 Price = trade.Price.Value
                 Commissions = trade.Commissions.Value
@@ -259,7 +259,7 @@ module internal DatabaseToModels =
                 TimeStamp = dividend.TimeStamp.Value
                 Amount = dividend.DividendAmount.Value
                 Ticker = Binnaculum.Core.UI.Collections.getTickerById(dividend.TickerId)
-                Currency = Binnaculum.Core.UI.Collections.getCurrency(dividend.CurrencyId)
+                Currency = dividend.CurrencyId.ToFastCurrencyById()
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
             }
 
@@ -294,7 +294,7 @@ module internal DatabaseToModels =
                 TimeStamp = dividend.TimeStamp.Value
                 TaxAmount = dividend.DividendTaxAmount.Value
                 Ticker = Binnaculum.Core.UI.Collections.getTickerById(dividend.TickerId)
-                Currency = Binnaculum.Core.UI.Collections.getCurrency(dividend.CurrencyId)
+                Currency = dividend.CurrencyId.ToFastCurrencyById()
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
             }
 
@@ -329,7 +329,7 @@ module internal DatabaseToModels =
                 TimeStamp = dividend.TimeStamp.Value
                 Amount = dividend.Amount.Value
                 Ticker = Binnaculum.Core.UI.Collections.getTickerById(dividend.TickerId)
-                Currency = Binnaculum.Core.UI.Collections.getCurrency(dividend.CurrencyId)
+                Currency = dividend.CurrencyId.ToFastCurrencyById()
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
                 DividendCode = dividend.DividendCode.databaseToDividendCode()
             }
@@ -368,7 +368,7 @@ module internal DatabaseToModels =
                 NetPremium = optionTrade.NetPremium.Value
                 Ticker = Binnaculum.Core.UI.Collections.getTickerById(optionTrade.TickerId)
                 BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(optionTrade.BrokerAccountId)
-                Currency = Binnaculum.Core.UI.Collections.getCurrency(optionTrade.CurrencyId)
+                Currency = optionTrade.CurrencyId.ToFastCurrencyById()
                 OptionType = optionTrade.OptionType.databaseToOptionType()
                 Code = optionTrade.Code.databaseToOptionCode()
                 Strike = optionTrade.Strike.Value
@@ -460,7 +460,7 @@ module internal DatabaseToModels =
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                         Broker = None // Default value indicating not for specific broker
                         BrokerAccount = None // Default value indicating not for specific broker account
-                        Currency = Binnaculum.Core.UI.Collections.getCurrency(0) // TODO: Use default currency
+                        Currency = (1).ToFastCurrencyById() // USD as default currency
                         MovementCounter = 0
                         RealizedGains = 0.0m
                         RealizedPercentage = 0.0m
@@ -486,7 +486,7 @@ module internal DatabaseToModels =
                             Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
                             Broker = if dbFinancial.BrokerId = -1 then None else Some (Binnaculum.Core.UI.Collections.getBroker(dbFinancial.BrokerId))
                             BrokerAccount = if dbFinancial.BrokerAccountId = -1 then None else Some (Binnaculum.Core.UI.Collections.getBrokerAccount(dbFinancial.BrokerAccountId))
-                            Currency = Binnaculum.Core.UI.Collections.getCurrency(dbFinancial.CurrencyId)
+                            Currency = dbFinancial.CurrencyId.ToFastCurrencyById()
                             MovementCounter = dbFinancial.MovementCounter
                             RealizedGains = dbFinancial.RealizedGains.Value
                             RealizedPercentage = dbFinancial.RealizedPercentage
@@ -514,7 +514,7 @@ module internal DatabaseToModels =
                             Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                             Broker = None // Default value indicating not for specific broker
                             BrokerAccount = None // Default value indicating not for specific broker account
-                            Currency = Binnaculum.Core.UI.Collections.getCurrency(0) // TODO: Use default currency
+                            Currency = (1).ToFastCurrencyById() // USD as default currency
                             MovementCounter = 0
                             RealizedGains = 0.0m
                             RealizedPercentage = 0.0m
@@ -576,7 +576,7 @@ module internal DatabaseToModels =
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                         Broker = None // Default value indicating not for specific broker
                         BrokerAccount = Some brokerAccount // This is for a specific broker account
-                        Currency = Binnaculum.Core.UI.Collections.getCurrency(0) // Default currency (USD)
+                        Currency = (1).ToFastCurrencyById() // USD as default currency
                         MovementCounter = 0
                         RealizedGains = 0.0m
                         RealizedPercentage = 0.0m
@@ -602,7 +602,7 @@ module internal DatabaseToModels =
                             Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
                             Broker = None // For broker account snapshots, broker is not specific
                             BrokerAccount = Some brokerAccount // This is for a specific broker account
-                            Currency = Binnaculum.Core.UI.Collections.getCurrency(dbFinancial.CurrencyId)
+                            Currency = dbFinancial.CurrencyId.ToFastCurrencyById()
                             MovementCounter = dbFinancial.MovementCounter
                             RealizedGains = dbFinancial.RealizedGains.Value
                             RealizedPercentage = dbFinancial.RealizedPercentage
@@ -630,7 +630,7 @@ module internal DatabaseToModels =
                             Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
                             Broker = None // Default value indicating not for specific broker
                             BrokerAccount = Some brokerAccount // This is for a specific broker account
-                            Currency = Binnaculum.Core.UI.Collections.getCurrency(0) // Default currency (USD)
+                            Currency = (1).ToFastCurrencyById() // USD as default currency
                             MovementCounter = 0
                             RealizedGains = 0.0m
                             RealizedPercentage = 0.0m
