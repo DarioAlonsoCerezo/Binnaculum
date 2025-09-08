@@ -57,17 +57,6 @@ module internal DataLoader =
     }
     
     /// <summary>
-    /// Refreshes a specific broker in the collections.
-    /// This is used when updating existing brokers to ensure the UI reflects the changes.
-    /// </summary>
-    let internal refreshSpecificBroker(brokerId) = task {
-        let! databaseBroker = BrokerExtensions.Do.getById brokerId |> Async.AwaitTask
-        match databaseBroker with
-        | None -> return()
-        | Some b -> Collections.updateBroker(b.brokerToModel())
-    }
-    
-    /// <summary>
     /// Refreshes a specific bank and its associated bank accounts in the collections.
     /// This is used when updating existing banks to ensure the UI reflects the changes.
     /// </summary>

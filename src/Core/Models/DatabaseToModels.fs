@@ -104,7 +104,7 @@ module internal DatabaseToModels =
         static member brokerAccountToModel(brokerAccount: Binnaculum.Core.Database.DatabaseModel.BrokerAccount) =
             {
                 Id = brokerAccount.Id
-                Broker = Binnaculum.Core.UI.Collections.getBroker(brokerAccount.BrokerId)
+                Broker = brokerAccount.BrokerId.ToFastBrokerById()
                 AccountNumber = brokerAccount.AccountNumber
             }
 
@@ -474,7 +474,7 @@ module internal DatabaseToModels =
                         |> List.map (fun dbFinancial -> {
                             Id = dbFinancial.Base.Id
                             Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
-                            Broker = if dbFinancial.BrokerId = -1 then None else Some (Binnaculum.Core.UI.Collections.getBroker(dbFinancial.BrokerId))
+                            Broker = if dbFinancial.BrokerId = -1 then None else Some (dbFinancial.BrokerId.ToFastBrokerById())
                             BrokerAccount = if dbFinancial.BrokerAccountId = -1 then None else Some (Binnaculum.Core.UI.Collections.getBrokerAccount(dbFinancial.BrokerAccountId))
                             Currency = dbFinancial.CurrencyId.ToFastCurrencyById()
                             MovementCounter = dbFinancial.MovementCounter
