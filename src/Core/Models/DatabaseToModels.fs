@@ -66,7 +66,7 @@ module internal DatabaseToModels =
                     TimeStamp = movement.TimeStamp.Value
                     Amount = movement.Amount.Value
                     Currency = movement.CurrencyId.ToFastCurrencyById()
-                    BankAccount = Binnaculum.Core.UI.Collections.getBankAccount(movement.BankAccountId)
+                    BankAccount = movement.BankAccountId.ToFastBankAccountById()
                     MovementType = movement.MovementType.bankMovementTypeToModel()
                 }
 

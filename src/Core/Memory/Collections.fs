@@ -117,23 +117,6 @@ module Collections =
         Banks.Items |> Seq.find(fun b -> b.Id = id)
 
     /// <summary>
-    /// This function is used to get a bank by its ID.
-    /// It searches through the Banks collection and returns the first bank that matches the provided ID.
-    /// </summary>
-    let internal getBankAccount(id: int) =
-        Accounts.Items 
-        |> Seq.find(fun b -> b.Bank.IsSome && b.Bank.Value.Id = id)
-        |> fun b -> b.Bank.Value
-
-    /// <summary>
-    /// This function is used to update the list of accounts in the UI.
-    /// It finds the current account in the list by its ID and replaces it with the updated account information.
-    /// </summary>
-    let internal updateBankAccount(updated: Account) =
-        let current = Accounts.Items |> Seq.find(fun b -> b.Bank.IsSome && b.Bank.Value.Id = updated.Bank.Value.Id)
-        Accounts.Replace(current, updated)
-
-    /// <summary>
     /// This function is used to update the list of broker accounts in the UI.
     /// It finds the current broker account in the list by its ID and replaces it with the updated broker account information.
     /// </summary>

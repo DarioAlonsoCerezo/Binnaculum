@@ -165,7 +165,9 @@ module internal DataLoader =
             |> List.length > 0
         if hasMovements <> account.HasMovements then
             let updatedAccount = { account with HasMovements = hasMovements }
-            Collections.updateBankAccount updatedAccount
+            // Update the account directly in the collection instead of using updateBankAccount
+            let current = Collections.Accounts.Items |> Seq.find(fun a -> a.Bank.IsSome && a.Bank.Value.Id = account.Bank.Value.Id)
+            Collections.Accounts.Replace(current, updatedAccount)
 
     let private updateBrokerAccount(account: Account, movements: Movement list) = 
         // Use the database query to directly check if the account has any movements
