@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using Binnaculum.Core.UI;
 using Binnaculum.Popups;
 using Microsoft.FSharp.Collections;
 
@@ -39,7 +40,7 @@ public partial class OptionTradeControl
         Core.UI.SavedPrefereces.UserPreferences
             .Do(p =>
             {
-                var ticker = Core.UI.Collections.GetTicker(p.Ticker);
+                var ticker = p.Ticker.ToFastTicker();
                 Icon.PlaceholderText = ticker.Symbol;
                 Icon.ImagePath = ticker.Image?.Value ?? string.Empty;
                 CurrencyLabel.Text = p.Currency;
@@ -100,7 +101,7 @@ public partial class OptionTradeControl
         AddLegGesture.Events().Tapped
             .SelectMany(_ => Observable.FromAsync(async () =>
             {
-                var ticker = Core.UI.Collections.GetTicker(_ticker);
+                var ticker = _ticker.ToFastTicker();
                 var currency = Core.UI.Collections.GetCurrency(_currency);
                 var popupResult = await new OptionBuilderPopup(
                         currency, 

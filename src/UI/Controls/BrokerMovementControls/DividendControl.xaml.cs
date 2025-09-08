@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using Binnaculum.Core.UI;
 using Binnaculum.Popups;
 
 namespace Binnaculum.Controls;
@@ -58,7 +59,7 @@ public partial class DividendControl
         Core.UI.SavedPrefereces.UserPreferences
             .Do(p =>
             {
-                var ticker = Core.UI.Collections.GetTicker(p.Ticker);
+                var ticker = p.Ticker.ToFastTicker();
                 Icon.PlaceholderText = ticker.Symbol;
                 Icon.ImagePath = ticker.Image?.Value ?? string.Empty;
                 _ticker = ticker.Symbol;
@@ -120,7 +121,7 @@ public partial class DividendControl
         if (_amount <= 0)
             return null;
 
-        var ticker = Core.UI.Collections.GetTicker(_ticker);
+        var ticker = _ticker.ToFastTicker();
         var currency = Core.UI.Collections.GetCurrency(AmountEntry.SelectedCurrencyText);
         var date = DateTimePicker.Date;
 
@@ -138,7 +139,7 @@ public partial class DividendControl
         if(_amount <= 0) 
             return null;
 
-        var ticker = Core.UI.Collections.GetTicker(_ticker);
+        var ticker = _ticker.ToFastTicker();
         var currency = Core.UI.Collections.GetCurrency(AmountEntry.SelectedCurrencyText);
         var date = DateTimePicker.Date;
         var code = DividendEditor == DividenEditor.ExDividendDate
@@ -160,7 +161,7 @@ public partial class DividendControl
         if (_amount <= 0)
             return null;
 
-        var ticker = Core.UI.Collections.GetTicker(_ticker);
+        var ticker = _ticker.ToFastTicker();
         var currency = Core.UI.Collections.GetCurrency(AmountEntry.SelectedCurrencyText);
         var date = DateTimePicker.Date;
         
