@@ -48,7 +48,7 @@ module internal DatabaseToModels =
         static member bankAccountToModel(bankAccount: Binnaculum.Core.Database.DatabaseModel.BankAccount) = 
             {
                 Id = bankAccount.Id
-                Bank = Binnaculum.Core.UI.Collections.getBank(bankAccount.BankId)
+                Bank = bankAccount.BankId.ToFastBankById()
                 Name = bankAccount.Name
                 Description = bankAccount.Description
                 Currency = bankAccount.CurrencyId.ToFastCurrencyById()

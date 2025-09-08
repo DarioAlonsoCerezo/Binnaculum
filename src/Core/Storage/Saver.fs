@@ -27,14 +27,18 @@ module internal Saver =
     /// <summary>
     /// Saves a Bank entity to the database and updates the corresponding collections.
     /// - If the Bank is new (Id = 0), after saving, it loads the newly added bank from the database
-    /// - If the Bank is being updated, it refreshes the specific bank and its associated accounts
+    /// - If the Bank is being updated, it directly updates the bank in the collection (reactive system handles propagation)
     /// </summary>
     let saveBank(bank: Bank) = task {
         do! bank.save() |> Async.AwaitTask |> Async.Ignore
         if bank.Id = 0 then
             do! DataLoader.loadAddedBank() |> Async.AwaitTask |> Async.Ignore
         else
-            do! DataLoader.refreshSpecificBank(bank.Id) |> Async.AwaitTask |> Async.Ignore        
+            // Direct update to collection - reactive system will handle automatic updates to dependencies
+            let! databaseBank = BankExtensions.Do.getById bank.Id |> Async.AwaitTask
+            match databaseBank with
+            | None -> ()
+            | Some b -> Collections.updateBank(b.bankToModel())
     }
     
     /// <summary>
