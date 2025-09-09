@@ -88,6 +88,7 @@
 		<Compile Include="Models\DiscriminatedToModel.fs" />
 		<Compile Include="Models\ModelsToDatabase.fs" />
 		<Compile Include="Models\DatabaseToModels.fs" />
+		<Compile Include="Memory\ReactiveMovementManager.fs" />
 		<Compile Include="Snapshots\SnapshotManagerUtils.fs" />
 		<Compile Include="Snapshots\TickerSnapshotManager.fs" />
 		<Compile Include="Snapshots\BankSnapshotManager.fs" />
