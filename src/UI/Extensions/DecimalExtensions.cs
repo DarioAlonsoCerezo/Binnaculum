@@ -82,6 +82,16 @@ public static class OptionTradeExtensions
         if (code.IsAssigned)
             return ResourceKeys.OptionCode_Assigned_Extended;
 
+        // Handle the missing OptionCode cases
+        if (code == Models.OptionCode.CashSettledAssigned)
+            return ResourceKeys.OptionCode_CashSettledAssigned_Extended;
+
+        if (code == Models.OptionCode.CashSettledExercised)
+            return ResourceKeys.OptionCode_CashSettledExercised_Extended;
+
+        if (code == Models.OptionCode.Exercised)
+            return ResourceKeys.OptionCode_Exercised_Extended;
+
         return ResourceKeys.OptionCode_Expired_Extended;
     }
 
