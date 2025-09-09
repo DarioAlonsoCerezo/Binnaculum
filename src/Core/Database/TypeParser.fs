@@ -34,6 +34,14 @@ module internal TypeParser =
         | "CP;O" -> OptionCode.SellToOpen
         | "EXPIRED" -> OptionCode.Expired
         | "ASSIGNED" -> OptionCode.Assigned
+        | "CASH_SETTLED_ASSIGNED" -> OptionCode.CashSettledAssigned
+        | "CASH_SETTLED_EXCERCICED" -> OptionCode.CashSettledExercised
+        | "EXCERCICED" -> OptionCode.Exercised
+        | "OPEN" -> OptionCode.SellToOpen
+        | "CLOSE" -> OptionCode.BuyToClose
+        | "ASSIGN" -> OptionCode.Assigned
+        | "EXPIRE" -> OptionCode.Expired
+        | "CASH_SETTLED" -> OptionCode.CashSettledAssigned
         | _ -> failwith $"Invalid Option Code: {code}"
 
     let fromOptionCodeToDatabase(code: OptionCode) =
@@ -45,6 +53,8 @@ module internal TypeParser =
         | OptionCode.Expired -> SQLConstants.Expired
         | OptionCode.Assigned -> SQLConstants.Assigned
         | OptionCode.CashSettledAssigned -> SQLConstants.CashSettledAssigned
+        | OptionCode.CashSettledExercised -> SQLConstants.CashSettledExercided
+        | OptionCode.Exercised -> SQLConstants.Excerciced
 
     let fromDatabaseToOptionCode(code: string) =
         match code with
@@ -55,6 +65,8 @@ module internal TypeParser =
         | SQLConstants.Expired -> OptionCode.Expired
         | SQLConstants.Assigned -> OptionCode.Assigned
         | SQLConstants.CashSettledAssigned -> OptionCode.CashSettledAssigned
+        | SQLConstants.CashSettledExercided -> OptionCode.CashSettledExercised
+        | SQLConstants.Excerciced -> OptionCode.Exercised
         | _ -> failwith $"Invalid Option Code: {code}"
 
     let fromOptionTypeToDatabase(optionType: OptionType) =

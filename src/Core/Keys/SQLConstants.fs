@@ -79,4 +79,9 @@ module internal SQLConstants =
 
     [<Literal>]
     let CashSettledAssigned = "CASH_SETTLED_ASSIGNED"
+
+    [<Literal>]
+    let CashSettledExercided = "CASH_SETTLED_EXCERCICED"
     
+    [<Literal>]
+    let Excerciced = "EXCERCICED"

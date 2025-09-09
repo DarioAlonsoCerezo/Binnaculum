@@ -76,3 +76,5 @@ module internal DiscriminatedToModel =
             | Database.DatabaseModel.OptionCode.Assigned -> OptionCode.Assigned
             | Database.DatabaseModel.OptionCode.Expired -> OptionCode.Expired
             | Database.DatabaseModel.OptionCode.CashSettledAssigned -> OptionCode.CashSettledAssigned
+            | Database.DatabaseModel.OptionCode.CashSettledExercised -> OptionCode.CashSettledExercised
+            | Database.DatabaseModel.OptionCode.Exercised -> OptionCode.Exercised

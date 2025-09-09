@@ -26,8 +26,10 @@ module internal DatabaseModel =
         | BuyToClose
         | SellToClose
         | Assigned
-        | Expired
         | CashSettledAssigned
+        | CashSettledExercised
+        | Expired
+        | Exercised
 
     type OptionType =
         | Call

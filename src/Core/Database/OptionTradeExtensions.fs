@@ -255,7 +255,7 @@ type OptionTradeCalculations() =
                     openPositions <- updatedOpenPositions
                 
                 // Handle expired, assigned, and cash settled options
-                | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned ->
+                | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised ->
                     // These typically close existing positions with specific P&L rules
                     // For expired options, the premium received/paid becomes the realized gain/loss
                     if not openPositions.IsEmpty then
@@ -292,7 +292,7 @@ type OptionTradeCalculations() =
                     | OptionCode.BuyToOpen -> 1    // Long position
                     | OptionCode.SellToClose -> 1   // Closing short
                     | OptionCode.BuyToClose -> -1   // Closing long
-                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned -> 0
+                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised -> 0
                 )
             netPosition <> 0)
 
@@ -315,7 +315,7 @@ type OptionTradeCalculations() =
                     | OptionCode.BuyToOpen -> 1    // Long position  
                     | OptionCode.SellToClose -> 1   // Closing short
                     | OptionCode.BuyToClose -> -1   // Closing long
-                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned -> 0
+                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised -> 0
                 )
             if netPosition <> 0 then Some (key, netPosition) else None)
         |> Map.ofList
