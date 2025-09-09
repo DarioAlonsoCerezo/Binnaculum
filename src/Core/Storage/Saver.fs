@@ -74,7 +74,8 @@ module internal Saver =
     let saveBrokerAccount(brokerAccount: BrokerAccount) = task {
         do! brokerAccount.save() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadOverviewSnapshots() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive snapshot manager instead of manual loading
+        ReactiveSnapshotManager.refresh()
     }
 
     /// <summary>
@@ -83,7 +84,8 @@ module internal Saver =
     /// </summary>
     let saveBrokerMovement(brokerMovement: BrokerMovement) = task {
         do! brokerMovement.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive movement manager instead of manual loading
+        ReactiveMovementManager.refresh()
     }
 
     /// <summary>
@@ -92,7 +94,8 @@ module internal Saver =
     /// </summary>
     let saveBankMovement(bankMovement: BankAccountMovement) = task {
         do! bankMovement.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive movement manager instead of manual loading
+        ReactiveMovementManager.refresh()
     }
 
     /// <summary>
@@ -110,7 +113,8 @@ module internal Saver =
     /// </summary>
     let saveTrade(trade: Trade) = task {
         do! trade.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive movement manager instead of manual loading
+        ReactiveMovementManager.refresh()
     }
 
     /// <summary>
@@ -119,7 +123,8 @@ module internal Saver =
     /// </summary>
     let saveDividend(dividend: Dividend) = task {
         do! dividend.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive movement manager instead of manual loading
+        ReactiveMovementManager.refresh()
     }
 
     /// <summary>
@@ -128,7 +133,8 @@ module internal Saver =
     /// </summary>
     let saveDividendDate(dividendDate: DividendDate) = task {
         do! dividendDate.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive movement manager instead of manual loading
+        ReactiveMovementManager.refresh()
     }
 
     /// <summary>
@@ -137,7 +143,8 @@ module internal Saver =
     /// </summary>
     let saveDividendTax(dividendTax: DividendTax) = task {
         do! dividendTax.save() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive movement manager instead of manual loading
+        ReactiveMovementManager.refresh()
     }
 
     /// <summary>
@@ -156,5 +163,6 @@ module internal Saver =
             |> Async.Ignore
         
         // Refresh the movements collection to reflect the new option trades
-        do! DataLoader.loadMovementsFor() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive movement manager instead of manual loading
+        ReactiveMovementManager.refresh()
     }

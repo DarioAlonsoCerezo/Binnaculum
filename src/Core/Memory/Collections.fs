@@ -90,45 +90,12 @@ module Collections =
     let TickerSnapshots = new SourceList<TickerSnapshot>()
 
     /// <summary>
-    /// This function is used to get a broker by its ID.
-    /// It searches through the Brokers collection and returns the first broker that matches the provided ID.
-    /// </summary>
-    let internal getBroker(id: int) =
-        Brokers.Items |> Seq.find(fun b -> b.Id = id)
-
-    let internal getBrokerAccount(id: int) =
-        Accounts.Items 
-        |> Seq.find(fun b -> b.Broker.IsSome && b.Broker.Value.Id = id)
-        |> fun b -> b.Broker.Value
-
-    let internal getBrokerAccountByAccountNumber(accountNumber: string) =
-        Accounts.Items 
-        |> Seq.tryFind(fun b -> b.Broker.IsSome && b.Broker.Value.AccountNumber = accountNumber)
-        |> fun b -> 
-            match b with
-            | Some account ->  Some account.Broker.Value
-            | None -> None
-
-    /// <summary>
-    /// This function is used to get a bank by its ID.
-    /// It searches through the Banks collection and returns the first bank that matches the provided ID.
-    /// </summary>
-    let internal getBank(id: int) =
-        Banks.Items |> Seq.find(fun b -> b.Id = id)
-
-    /// <summary>
     /// This function is used to update the list of broker accounts in the UI.
     /// It finds the current broker account in the list by its ID and replaces it with the updated broker account information.
     /// </summary>
     let internal updateBrokerAccount(updated: Account) =
         let current = Accounts.Items |> Seq.find(fun b -> b.Broker.IsSome && b.Broker.Value.Id = updated.Broker.Value.Id)
         Accounts.Replace(current, updated)
-
-    /// <summary>
-    /// This function is used to get a currency by its code.
-    /// It searches through the Currencies collection and returns the first currency that matches the provided code.
-    /// </summary>
-    let GetCurrency code = Currencies.Items |> Seq.find(fun c -> c.Code = code)
 
     /// <summary>
     /// This function is used to update the list of brokers in the UI.
@@ -145,20 +112,6 @@ module Collections =
     let internal updateBank(updated: Bank) =
         let current = Banks.Items |> Seq.find(fun b -> b.Id = updated.Id)
         Banks.Replace(current, updated)
-
-    /// <summary>
-    /// This function is used to get a ticker by its symbol.
-    /// It searches through the Tickers collection and returns the first ticker that matches the provided symbol.
-    /// </summary>
-    let GetTicker (ticker: string) =
-        Tickers.Items |> Seq.find(fun t -> t.Symbol = ticker)
-
-    /// <summary>
-    /// This function is used to get a ticker by its ID.
-    /// It searches through the Tickers collection and returns the first ticker that matches the provided ID.
-    /// </summary>
-    let internal getTickerById(id: int) =
-        Tickers.Items |> Seq.find(fun t -> t.Id = id)
 
     /// <summary>
     /// This function is used to get the latest ticker snapshot by ticker ID.

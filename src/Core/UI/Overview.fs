@@ -15,11 +15,18 @@ module Overview =
 
     let LoadData() = task {
         do! DataLoader.initialization() |> Async.AwaitTask |> Async.Ignore
-        do! DataLoader.loadMovementsFor() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive movement manager instead of manual loading
+        ReactiveMovementManager.refresh()
         Data.OnNext { Data.Value with TransactionsLoaded = true; }
     }
 
-    let LoadMovements() = DataLoader.loadMovementsFor()
+    let LoadMovements() = 
+        // Use reactive movement manager instead of manual DataLoader
+        ReactiveMovementManager.refresh()
+        System.Threading.Tasks.Task.CompletedTask
     
-    let RefreshSnapshots() = DataLoader.loadOverviewSnapshots()
+    let RefreshSnapshots() = 
+        // Use reactive snapshot manager instead of manual DataLoader
+        ReactiveSnapshotManager.refresh()
+        System.Threading.Tasks.Task.CompletedTask
     
