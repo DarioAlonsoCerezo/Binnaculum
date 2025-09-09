@@ -114,7 +114,7 @@ module internal DatabaseToModels =
 
         [<Extension>]
         static member brokerMovementToModel(movement: Binnaculum.Core.Database.DatabaseModel.BrokerMovement) =
-            let brokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(movement.BrokerAccountId)
+            let brokerAccount = movement.BrokerAccountId.ToFastBrokerAccountById()
             let currency = movement.CurrencyId.ToFastCurrencyById()
             let fromCurrency = movement.FromCurrencyId |> Option.map (fun id -> id.ToFastCurrencyById())
             let ticker = movement.TickerId |> Option.map (fun id -> id.ToFastTickerById())
@@ -206,7 +206,7 @@ module internal DatabaseToModels =
                 TimeStamp = trade.TimeStamp.Value
                 TotalInvestedAmount = totalInvestedAmount
                 Ticker = trade.TickerId.ToFastTickerById()
-                BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(trade.BrokerAccountId)
+                BrokerAccount = trade.BrokerAccountId.ToFastBrokerAccountById()
                 Currency = trade.CurrencyId.ToFastCurrencyById()
                 Quantity = trade.Quantity
                 Price = trade.Price.Value
@@ -250,7 +250,7 @@ module internal DatabaseToModels =
                 Amount = dividend.DividendAmount.Value
                 Ticker = dividend.TickerId.ToFastTickerById()
                 Currency = dividend.CurrencyId.ToFastCurrencyById()
-                BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
+                BrokerAccount = dividend.BrokerAccountId.ToFastBrokerAccountById()
             }
 
         [<Extension>]
@@ -285,7 +285,7 @@ module internal DatabaseToModels =
                 TaxAmount = dividend.DividendTaxAmount.Value
                 Ticker = dividend.TickerId.ToFastTickerById()
                 Currency = dividend.CurrencyId.ToFastCurrencyById()
-                BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
+                BrokerAccount = dividend.BrokerAccountId.ToFastBrokerAccountById()
             }
 
         [<Extension>]
@@ -320,7 +320,7 @@ module internal DatabaseToModels =
                 Amount = dividend.Amount.Value
                 Ticker = dividend.TickerId.ToFastTickerById()
                 Currency = dividend.CurrencyId.ToFastCurrencyById()
-                BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(dividend.BrokerAccountId)
+                BrokerAccount = dividend.BrokerAccountId.ToFastBrokerAccountById()
                 DividendCode = dividend.DividendCode.databaseToDividendCode()
             }
 
@@ -357,7 +357,7 @@ module internal DatabaseToModels =
                 Premium = optionTrade.Premium.Value
                 NetPremium = optionTrade.NetPremium.Value
                 Ticker = optionTrade.TickerId.ToFastTickerById()
-                BrokerAccount = Binnaculum.Core.UI.Collections.getBrokerAccount(optionTrade.BrokerAccountId)
+                BrokerAccount = optionTrade.BrokerAccountId.ToFastBrokerAccountById()
                 Currency = optionTrade.CurrencyId.ToFastCurrencyById()
                 OptionType = optionTrade.OptionType.databaseToOptionType()
                 Code = optionTrade.Code.databaseToOptionCode()
@@ -475,7 +475,7 @@ module internal DatabaseToModels =
                             Id = dbFinancial.Base.Id
                             Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
                             Broker = if dbFinancial.BrokerId = -1 then None else Some (dbFinancial.BrokerId.ToFastBrokerById())
-                            BrokerAccount = if dbFinancial.BrokerAccountId = -1 then None else Some (Binnaculum.Core.UI.Collections.getBrokerAccount(dbFinancial.BrokerAccountId))
+                            BrokerAccount = if dbFinancial.BrokerAccountId = -1 then None else Some (dbFinancial.BrokerAccountId.ToFastBrokerAccountById())
                             Currency = dbFinancial.CurrencyId.ToFastCurrencyById()
                             MovementCounter = dbFinancial.MovementCounter
                             RealizedGains = dbFinancial.RealizedGains.Value
