@@ -30,6 +30,8 @@
     <Compile Include="ReactiveBrokerAccountManagerTests.fs" />
     <Compile Include="ReactiveBankManagerTests.fs" />
     <Compile Include="ReactiveBankAccountManagerTests.fs" />
+    <Compile Include="ReactiveSnapshotManagerTests.fs" />
+    <Compile Include="ReactiveApplicationManagerTests.fs" />
     <Compile Include="ReactiveTickerIntegrationTests.fs" />
     <Compile Include="DataLoaderTests.fs" />
     <Compile Include="EmptySnapshotManagementTests.fs" />
