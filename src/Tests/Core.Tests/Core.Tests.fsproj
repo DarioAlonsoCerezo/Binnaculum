@@ -27,6 +27,7 @@
     <Compile Include="ReactiveCurrencyManagerTests.fs" />
     <Compile Include="ReactiveTickerManagerTests.fs" />
     <Compile Include="ReactiveBrokerManagerTests.fs" />
+    <Compile Include="ReactiveBrokerAccountManagerTests.fs" />
     <Compile Include="ReactiveBankManagerTests.fs" />
     <Compile Include="ReactiveBankAccountManagerTests.fs" />
     <Compile Include="ReactiveTickerIntegrationTests.fs" />
