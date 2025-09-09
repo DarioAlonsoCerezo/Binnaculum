@@ -83,12 +83,12 @@
 		<Compile Include="Memory\ReactiveBrokerAccountManager.fs" />
 		<Compile Include="Memory\ReactiveBankManager.fs" />
 		<Compile Include="Memory\ReactiveBankAccountManager.fs" />
-		<Compile Include="Memory\ReactiveMovementManager.fs" />
 		<Compile Include="Models\PatternExtensions.fs" />
 		<Compile Include="Models\DiscriminatedToDatabase.fs" />
 		<Compile Include="Models\DiscriminatedToModel.fs" />
 		<Compile Include="Models\ModelsToDatabase.fs" />
 		<Compile Include="Models\DatabaseToModels.fs" />
+		<Compile Include="Memory\ReactiveMovementManager.fs" />
 		<Compile Include="Snapshots\SnapshotManagerUtils.fs" />
 		<Compile Include="Snapshots\TickerSnapshotManager.fs" />
 		<Compile Include="Snapshots\BankSnapshotManager.fs" />
