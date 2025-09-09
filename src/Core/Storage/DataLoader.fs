@@ -133,6 +133,17 @@ module internal DataLoader =
             Collections.Accounts.EditDiff allAccounts
     }
 
+    /// <summary>
+    /// [DEPRECATED] Manual snapshot loading method - use ReactiveSnapshotManager instead.
+    /// This method will be removed in a future version. Use ReactiveApplicationManager.initializeReactiveApplication() 
+    /// or ReactiveSnapshotManager.initialize() + refresh() for automatic reactive snapshot updates.
+    /// 
+    /// TRANSITION STATUS: 4 usages remaining to convert:
+    /// - DataLoader.fs initialization() 
+    /// - Saver.fs (line 77)
+    /// - Overview.fs (line 24)
+    /// - Creator.fs (line 71)
+    /// </summary>
     let loadOverviewSnapshots() = task {
         do! DataLoader.BrokerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
         do! DataLoader.BankSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
