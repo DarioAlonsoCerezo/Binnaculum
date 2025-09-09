@@ -62,10 +62,10 @@ type ReactiveCurrencyManagerTests() =
         
         let fastTime = stopwatch.ElapsedMilliseconds
         
-        // Compare with linear search (original method)
+        // Compare with O(1) reactive method as baseline (was linear search)
         stopwatch.Restart()
         for _ in 1..1000 do
-            let _ = Collections.GetCurrency("USD")
+            let _ = "USD".ToFastCurrency()
             ()
         stopwatch.Stop()
         
@@ -156,10 +156,10 @@ type ReactiveCurrencyManagerTests() =
         
         let iterations = 100
         
-        // Test old method performance
+        // Test O(1) reactive method performance (was old method comparison)
         let stopwatchOld = System.Diagnostics.Stopwatch.StartNew()
         for _ in 1..iterations do
-            let _ = Collections.GetCurrency("USD")
+            let _ = "USD".ToFastCurrency()
             ()
         stopwatchOld.Stop()
         

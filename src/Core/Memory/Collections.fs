@@ -90,17 +90,29 @@ module Collections =
     let TickerSnapshots = new SourceList<TickerSnapshot>()
 
     /// <summary>
-    /// This function is used to get a broker by its ID.
+    /// [DEPRECATED] This function is used to get a broker by its ID.
     /// It searches through the Brokers collection and returns the first broker that matches the provided ID.
+    /// USE: id.ToFastBrokerById() for O(1) performance instead of this O(n) method.
     /// </summary>
+    [<System.Obsolete("This O(n) method is deprecated. Use id.ToFastBrokerById() for O(1) performance instead.")>]
     let internal getBroker(id: int) =
         Brokers.Items |> Seq.find(fun b -> b.Id = id)
 
+    /// <summary>
+    /// [DEPRECATED] Get a broker account by its ID using O(n) linear search.
+    /// USE: id.ToFastBrokerAccountById() for O(1) performance instead of this O(n) method.
+    /// </summary>
+    [<System.Obsolete("This O(n) method is deprecated. Use id.ToFastBrokerAccountById() for O(1) performance instead.")>]
     let internal getBrokerAccount(id: int) =
         Accounts.Items 
         |> Seq.find(fun b -> b.Broker.IsSome && b.Broker.Value.Id = id)
         |> fun b -> b.Broker.Value
 
+    /// <summary>
+    /// [DEPRECATED] Get a broker account by its account number using O(n) linear search.
+    /// USE: accountNumber.ToFastBrokerAccountByAccountNumber() for O(1) performance instead of this O(n) method.
+    /// </summary>
+    [<System.Obsolete("This O(n) method is deprecated. Use accountNumber.ToFastBrokerAccountByAccountNumber() for O(1) performance instead.")>]
     let internal getBrokerAccountByAccountNumber(accountNumber: string) =
         Accounts.Items 
         |> Seq.tryFind(fun b -> b.Broker.IsSome && b.Broker.Value.AccountNumber = accountNumber)
@@ -110,9 +122,11 @@ module Collections =
             | None -> None
 
     /// <summary>
-    /// This function is used to get a bank by its ID.
+    /// [DEPRECATED] This function is used to get a bank by its ID.
     /// It searches through the Banks collection and returns the first bank that matches the provided ID.
+    /// USE: id.ToFastBankById() for O(1) performance instead of this O(n) method.
     /// </summary>
+    [<System.Obsolete("This O(n) method is deprecated. Use id.ToFastBankById() for O(1) performance instead.")>]
     let internal getBank(id: int) =
         Banks.Items |> Seq.find(fun b -> b.Id = id)
 
@@ -125,9 +139,11 @@ module Collections =
         Accounts.Replace(current, updated)
 
     /// <summary>
-    /// This function is used to get a currency by its code.
+    /// [DEPRECATED] This function is used to get a currency by its code.
     /// It searches through the Currencies collection and returns the first currency that matches the provided code.
+    /// USE: code.ToFastCurrency() for O(1) performance instead of this O(n) method.
     /// </summary>
+    [<System.Obsolete("This O(n) method is deprecated. Use code.ToFastCurrency() for O(1) performance instead.")>]
     let GetCurrency code = Currencies.Items |> Seq.find(fun c -> c.Code = code)
 
     /// <summary>
@@ -147,16 +163,20 @@ module Collections =
         Banks.Replace(current, updated)
 
     /// <summary>
-    /// This function is used to get a ticker by its symbol.
+    /// [DEPRECATED] This function is used to get a ticker by its symbol.
     /// It searches through the Tickers collection and returns the first ticker that matches the provided symbol.
+    /// USE: ticker.ToFastTicker() for O(1) performance instead of this O(n) method.
     /// </summary>
+    [<System.Obsolete("This O(n) method is deprecated. Use ticker.ToFastTicker() for O(1) performance instead.")>]
     let GetTicker (ticker: string) =
         Tickers.Items |> Seq.find(fun t -> t.Symbol = ticker)
 
     /// <summary>
-    /// This function is used to get a ticker by its ID.
+    /// [DEPRECATED] This function is used to get a ticker by its ID.
     /// It searches through the Tickers collection and returns the first ticker that matches the provided ID.
+    /// USE: id.ToFastTickerById() for O(1) performance instead of this O(n) method.
     /// </summary>
+    [<System.Obsolete("This O(n) method is deprecated. Use id.ToFastTickerById() for O(1) performance instead.")>]
     let internal getTickerById(id: int) =
         Tickers.Items |> Seq.find(fun t -> t.Id = id)
 

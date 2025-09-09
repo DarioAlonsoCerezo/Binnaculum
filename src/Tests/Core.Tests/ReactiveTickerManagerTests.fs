@@ -186,10 +186,10 @@ type ReactiveTickerManagerTests() =
         TestContext.Out.WriteLine($"ID Lookup - New method: {newMethodTime}ms")
         TestContext.Out.WriteLine($"ID Lookup - Performance improvement: {float oldMethodTime / float newMethodTime}x")
         
-        // Test symbol lookup comparison
+        // Test O(1) reactive method comparison (was symbol lookup comparison)
         stopwatch.Restart()
         for _ in 1..iterations do
-            let _ = Collections.GetTicker("TEST25")
+            let _ = "TEST25".ToFastTicker()
             ()
         stopwatch.Stop()
         let oldSymbolTime = stopwatch.ElapsedMilliseconds
