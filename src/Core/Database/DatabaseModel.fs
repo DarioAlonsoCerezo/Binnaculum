@@ -28,6 +28,8 @@ module internal DatabaseModel =
         | Assigned
         | Expired
         | CashSettledAssigned
+        | CashSettledExercised
+        | Exercised
 
     type OptionType =
         | Call

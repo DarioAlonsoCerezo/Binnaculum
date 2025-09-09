@@ -82,7 +82,20 @@ public static class OptionTradeExtensions
         if (code.IsAssigned)
             return ResourceKeys.OptionCode_Assigned_Extended;
 
-        return ResourceKeys.OptionCode_Expired_Extended;
+        if (code.IsExpired)
+            return ResourceKeys.OptionCode_Expired_Extended;
+
+        // Add missing cases:
+        if (code == Models.OptionCode.CashSettledAssigned)
+            return ResourceKeys.OptionCode_CashSettledAssigned_Extended;
+
+        if (code == Models.OptionCode.CashSettledExercised)
+            return ResourceKeys.OptionCode_CashSettledExercised_Extended;
+
+        if (code == Models.OptionCode.Exercised)
+            return ResourceKeys.OptionCode_Exercised_Extended;
+
+        return ResourceKeys.OptionCode_Expired_Extended; // fallback
     }
 
     public static bool IsPaid(this Models.OptionCode code)

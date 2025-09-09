@@ -1000,6 +1000,15 @@ Una opción PUT te da el **derecho a vender** el activo subyacente a un precio e
   <data name="OptionCode_Expired_Extended" xml:space="preserve">
     <value>Expirado</value>
   </data>
+  <data name="OptionCode_CashSettledAssigned_Extended" xml:space="preserve">
+    <value>Asignado Liquidado en Efectivo</value>
+  </data>
+  <data name="OptionCode_CashSettledExercised_Extended" xml:space="preserve">
+    <value>Ejercido Liquidado en Efectivo</value>
+  </data>
+  <data name="OptionCode_Exercised_Extended" xml:space="preserve">
+    <value>Ejercido</value>
+  </data>
   <data name="Settings_Section_General_Group_Option_Trades" xml:space="preserve">
     <value>Agrupar opcions</value>
   </data>

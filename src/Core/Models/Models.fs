@@ -12,6 +12,8 @@ module Models =
         | Assigned
         | Expired
         | CashSettledAssigned
+        | CashSettledExercised
+        | Exercised
 
     type OptionType =
         | Call

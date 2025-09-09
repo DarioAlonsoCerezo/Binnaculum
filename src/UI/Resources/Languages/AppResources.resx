@@ -999,6 +999,15 @@ A PUT option gives you the **right to sell** the underlying asset at a specific 
   <data name="OptionCode_Expired_Extended" xml:space="preserve">
     <value>Expired</value>
   </data>
+  <data name="OptionCode_CashSettledAssigned_Extended" xml:space="preserve">
+    <value>Cash Settled Assigned</value>
+  </data>
+  <data name="OptionCode_CashSettledExercised_Extended" xml:space="preserve">
+    <value>Cash Settled Exercised</value>
+  </data>
+  <data name="OptionCode_Exercised_Extended" xml:space="preserve">
+    <value>Exercised</value>
+  </data>
   <data name="Settings_Section_General_Group_Option_Trades" xml:space="preserve">
     <value>Group options</value>
   </data>
