@@ -165,7 +165,8 @@ module internal DataLoader =
 
     let initialization() = task {
         do! getOrRefreshAllAccounts() |> Async.AwaitTask |> Async.Ignore
-        do! loadOverviewSnapshots() |> Async.AwaitTask |> Async.Ignore
+        // Use reactive snapshot manager instead of manual loading
+        ReactiveSnapshotManager.refresh()
         do! DataLoader.TickerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
     }
 
