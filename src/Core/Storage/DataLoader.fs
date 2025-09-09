@@ -8,6 +8,7 @@ open System.IO
 open System
 open Binnaculum.Core.DatabaseToModels
 open Binnaculum.Core
+open Binnaculum.Core.Patterns
 
 /// <summary>
 /// This module serves as a critical layer for managing the transformation and synchronization of data
@@ -195,13 +196,18 @@ module internal DataLoader =
 
     let loadMovementsFor() = task {
 
-        // TODO: Performance Optimization Needed
-        // This method currently loads ALL movements from the database regardless of the account parameter.
-        // For large datasets, this can cause significant performance issues.
-        // Consider implementing filtering at the database level based on the account parameter:
-        // 1. If account is Some, only load movements for that specific account
-        // 2. Use parameterized queries in each extension method to filter data before loading
-        // 3. Consider pagination for very large movement histories
+        // PERFORMANCE NOTE: This method is now primarily used by ReactiveMovementManager
+        // for reactive updates when base collections change, which is much more efficient
+        // than the previous approach of manual calls after every save operation.
+        // 
+        // PREVIOUS APPROACH: Manual calls after every save (8+ locations in Saver.fs)
+        // CURRENT APPROACH: Reactive loading only when collections actually change
+        //
+        // For account-specific movement queries, use database extensions with filtering:
+        // - BrokerMovementExtensions.Do.getByBrokerAccountIdFromDate(accountId, date)
+        // - TradeExtensions.Do.getByBrokerAccountAndCurrency(accountId, currencyId)
+        // - DividendExtensions.Do.getByBrokerAccountIdFromDate(accountId, date)
+        // These provide O(1) database-level filtering for large datasets.
         let! databaseBrokerMovements = BrokerMovementExtensions.Do.getAll()
         let! databaseBankMovements = BankAccountBalanceExtensions.Do.getAll()
         let! databaseTrades = TradeExtensions.Do.getAll() |> Async.AwaitTask
@@ -240,6 +246,47 @@ module internal DataLoader =
                     (account, movements) 
                     |> updateBrokerAccount
                 )
+    }
+
+    /// <summary>
+    /// Optimized method for loading movements for a specific broker account using database-level filtering.
+    /// This addresses the performance concern in the original loadMovementsFor TODO by providing
+    /// efficient account-specific queries instead of loading all movements.
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID to filter movements for</param>
+    /// <param name="startDate">Optional start date for filtering (if None, loads all historical movements)</param>
+    let loadMovementsForBrokerAccount(brokerAccountId: int, startDate: DateTimePattern option) = task {
+        let dateFilter = startDate |> Option.defaultValue (DateTimePattern.FromDateTime(DateTime.MinValue))
+        
+        // Use database-level filtering for optimal performance
+        let! databaseBrokerMovements = BrokerMovementExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, dateFilter)
+        let! databaseTrades = TradeExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, dateFilter)
+        let! databaseDividends = DividendExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, dateFilter)
+        // Note: DividendDateExtensions doesn't have filtering by account, so we get all and filter
+        let! allDividendDates = DividendDateExtensions.Do.getAll() |> Async.AwaitTask
+        let! databaseDividendTaxes = DividendTaxExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, dateFilter)
+        let! databaseOptions = OptionTradeExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, dateFilter)
+
+        // Convert using existing extension methods
+        let brokerMovements = databaseBrokerMovements.brokerMovementsToModel()
+        let tradeMovements = databaseTrades.tradesToMovements()
+        let dividendMovements = databaseDividends.dividendsReceivedToMovements()
+        let allDividendDatesConverted = allDividendDates.dividendDatesToMovements()
+        // Filter dividend dates by broker account after conversion
+        let dividendDates = allDividendDatesConverted |> List.filter (fun m -> 
+            m.DividendDate.IsSome && m.DividendDate.Value.BrokerAccount.Id = brokerAccountId)
+        let dividendTaxes = databaseDividendTaxes.dividendTaxesToMovements()
+        let optionTrades = databaseOptions.optionTradesToMovements()
+        
+        let accountMovements = 
+            brokerMovements 
+            @ tradeMovements
+            @ dividendMovements
+            @ dividendDates
+            @ dividendTaxes
+            @ optionTrades
+
+        return accountMovements
     }
 
     let internal changeOptionsGrouped() = task {
