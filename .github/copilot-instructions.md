@@ -66,7 +66,7 @@ dotnet build src/UI/Binnaculum.csproj -f net9.0-android  # ~3 minutes. NEVER CAN
 
 Run tests:
 ```bash
-dotnet test src/Tests/Core.Tests/Core.Tests.fsproj  # 2-3 seconds. 81/81 tests pass (MAUI-dependent tests moved to Core.Platform.Tests)
+dotnet test src/Tests/Core.Tests/Core.Tests.fsproj  # 2-3 seconds. Validates business logic correctness
 dotnet test --filter "BrokerFinancialSnapshotManager"  # Run specific performance tests
 ```
 
@@ -82,7 +82,7 @@ dotnet test --filter "BrokerFinancialSnapshotManager"  # Run specific performanc
 
 Always validate changes with these steps:
 1. **Build Core project**: Ensures F# business logic compiles
-2. **Run Core tests**: Validates business logic correctness (expect 80/87 to pass)
+2. **Run Core tests**: Validates business logic correctness (all tests should pass)
 3. **Build Android target**: Validates MAUI integration (if on supported platform)
 4. **Run BrokerFinancialSnapshotManager tests**: Validates performance characteristics
 

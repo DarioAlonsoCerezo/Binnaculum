@@ -50,7 +50,7 @@ Enhanced the "Restore NuGet packages" step with:
 - ✅ Local restore works correctly (39s with cleared cache)
 - ✅ F# Core project builds successfully (0.6s)
 - ✅ F# Core.Tests builds successfully (16.9s)
-- ✅ Test execution shows expected results: 80/87 tests pass (7 MAUI-dependent failures expected in headless environment)
+- ✅ Test execution shows expected results: Core business logic validated (MAUI-dependent tests isolated in separate project)
 
 ## Impact
 - **Fixes CI/CD blocking issue** in GitHub Actions environment

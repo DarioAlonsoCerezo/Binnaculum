@@ -25,30 +25,17 @@ echo "🏗️  Building Core.Tests..."
 dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
 
 echo "🧪 Running Core Tests..."
-# Run tests and capture results for analysis
-dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+# Run tests - using exit code for validation (standard practice)
+if dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
   --configuration Release --no-build --verbosity normal \
-  --logger "trx;LogFileName=local-test-results.trx" || true
-
-# Check results
-RESULTS_FILE="src/Tests/Core.Tests/TestResults/local-test-results.trx"
-if [ -f "$RESULTS_FILE" ]; then
-  TOTAL_TESTS=$(grep -o 'total="[0-9]*"' "$RESULTS_FILE" | grep -o '[0-9]*' || echo "0")
-  PASSED_TESTS=$(grep -o 'passed="[0-9]*"' "$RESULTS_FILE" | grep -o '[0-9]*' || echo "0")
+  --logger "trx;LogFileName=local-test-results.trx"; then
   
-  echo "📊 Test Results: $PASSED_TESTS/$TOTAL_TESTS passed"
-  
-  # Accept 81/81 (current Core.Tests count)
-  if [ "$TOTAL_TESTS" = "81" ] && [ "$PASSED_TESTS" = "81" ]; then
-    echo "✅ Core validation passed locally!"
-    echo "   All Core.Tests passing (MAUI-dependent tests moved to Core.Platform.Tests)"
-  else
-    echo "❌ Unexpected test results"
-    echo "   Expected 81/81, got $PASSED_TESTS/$TOTAL_TESTS"
-    exit 1
-  fi
+  echo "✅ Core validation passed locally!"
+  echo "   All Core business logic tests passing"
+  echo "   (MAUI-dependent tests are in separate Core.Platform.Tests project)"
 else
-  echo "❌ Test results file not found"
+  echo "❌ Core tests failed"
+  echo "   Check test output above for details"
   exit 1
 fi
 
