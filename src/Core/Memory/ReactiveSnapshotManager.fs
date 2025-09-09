@@ -1,0 +1,85 @@
+namespace Binnaculum.Core.UI
+
+open System
+open System.Reactive.Linq
+open DynamicData
+open Binnaculum.Core.Models
+open Binnaculum.Core.Database
+open Binnaculum.Core.DatabaseToModels
+open Binnaculum.Core.DataLoader
+open Binnaculum.Core
+
+/// <summary>
+/// Reactive snapshot manager that provides automatic snapshot updates when underlying collections change.
+/// This replaces the manual DataLoader.loadOverviewSnapshots() method with reactive patterns.
+/// </summary>
+module ReactiveSnapshotManager =
+    
+    /// <summary>
+    /// Subscription for managing reactive updates from all base collections
+    /// </summary>
+    let mutable private baseCollectionsSubscription: System.IDisposable option = None
+    
+    /// <summary>
+    /// Load snapshots from database and update Collections.Snapshots
+    /// This is the core function that does the same work as DataLoader.loadOverviewSnapshots()
+    /// </summary>
+    let private loadSnapshots() =
+        async {
+            try
+                // Load all snapshot types (same as original loadOverviewSnapshots)
+                do! BrokerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
+                do! BankSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
+                do! BrokerAccountSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
+                do! BankAccountSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
+
+                // Add empty snapshot if no snapshots are available (same as original)
+                if Collections.Snapshots.Items.Count = 0 then
+                    Collections.Snapshots.Add(DatabaseToModels.Do.createEmptyOverviewSnapshot())
+                    
+            with
+            | ex -> 
+                // Log error but don't crash the application
+                printfn "Error loading snapshots: %s" ex.Message
+        }
+    
+    /// <summary>
+    /// Create observable that triggers when any base collection changes
+    /// Snapshots depend on all collections because they aggregate financial data from all entities
+    /// </summary>
+    let private createBaseCollectionsObservable() =
+        [
+            Collections.Movements.Connect().Select(fun _ -> ()) // Snapshots depend on movements
+            Collections.Currencies.Connect().Select(fun _ -> ()) // Financial snapshots need currencies
+            Collections.Brokers.Connect().Select(fun _ -> ()) // Broker snapshots need brokers
+            Collections.Banks.Connect().Select(fun _ -> ()) // Bank snapshots need banks
+            Collections.Accounts.Connect().Select(fun _ -> ()) // All snapshots reference accounts
+        ]
+        |> Observable.Merge
+    
+    /// <summary>
+    /// Initialize the reactive snapshot manager by subscribing to base collection changes
+    /// </summary>
+    let initialize() =
+        if baseCollectionsSubscription.IsNone then
+            let observable = createBaseCollectionsObservable()
+            let sub = 
+                observable.Subscribe(fun _ ->
+                    // Trigger snapshot loading when any base collection changes
+                    loadSnapshots() |> Async.StartImmediate
+                )
+            baseCollectionsSubscription <- Some sub
+    
+    /// <summary>
+    /// Trigger a manual snapshot refresh (for compatibility during transition)
+    /// This provides the same interface as the original DataLoader.loadOverviewSnapshots()
+    /// </summary>
+    let refresh() =
+        loadSnapshots() |> Async.StartImmediate
+    
+    /// <summary>
+    /// Dispose all subscriptions (should be called at application shutdown)
+    /// </summary>
+    let dispose() =
+        baseCollectionsSubscription |> Option.iter (fun sub -> sub.Dispose())
+        baseCollectionsSubscription <- None
