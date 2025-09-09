@@ -28,7 +28,7 @@ The Binnaculum CI/CD system has been redesigned to provide **fast feedback** for
 - ✅ .NET 9 setup
 - ✅ Core project build
 - ✅ Core.Tests build  
-- ✅ Core logic tests (accepts 80/87 with MAUI failures)
+- ✅ Core logic tests (validates business logic)
 - ✅ Test result reporting
 
 #### Android Build Check (3 min)
@@ -48,11 +48,11 @@ The Binnaculum CI/CD system has been redesigned to provide **fast feedback** for
 
 ## 🧪 Expected Test Results
 
-### Core Tests (81 total)
-- **Headless Environment**: 81/81 pass ✅ (MAUI-dependent tests moved to Core.Platform.Tests)
-- **With MAUI Runtime**: 81/81 pass ✅ (all tests pass consistently)
+### Core Tests (Comprehensive Business Logic Validation)
+- **Headless Environment**: All tests pass ✅ (MAUI-dependent tests moved to Core.Platform.Tests)
+- **With MAUI Runtime**: All tests pass ✅ (comprehensive test coverage)
 
-The CI system expects **81/81 tests to pass** as MAUI-dependent functionality has been separated into the Core.Platform.Tests project which runs separately when platform services are available.
+The CI system expects **all Core tests to pass** as MAUI-dependent functionality has been separated into the Core.Platform.Tests project which runs separately when platform services are available.
 
 ## 🛠️ Developer Workflow
 
@@ -131,7 +131,7 @@ All jobs have aggressive timeout controls to prevent runaway processes:
 - **⚡ Faster PR feedback** (~5 minutes for essential checks)
 - **🎯 Focused validation** (Core business logic + basic MAUI build)
 - **🔧 Reliable CI/CD** (no missing project references)
-- **💡 Clear expectations** (81/81 tests must pass)
+- **💡 Clear expectations** (all tests must pass)
 
 ## 🔧 Troubleshooting
 
@@ -139,8 +139,8 @@ All jobs have aggressive timeout controls to prevent runaway processes:
 
 #### Core Test Failures
 ```
-❌ Unexpected test results: X/81
-Expected 81/81
+❌ Test failures detected in Core business logic
+Check test output for specific failure details
 ```
 **Solution**: Fix core business logic issues. These indicate real problems.
 
