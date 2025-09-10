@@ -32,61 +32,86 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: 
-          - net9.0
-          - net9.0-windows10.0.19041.0
         include:
+          - target: net9.0
+            platform: "Basic .NET"
+          - target: net9.0-windows10.0.19041.0  
+            platform: "Windows MAUI"
           - target: net9.0-android
-            condition: ${{ github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
+            platform: "Android MAUI"
 
     steps:
+      - name: Skip conditional targets
+        if: ${{ matrix.target == 'net9.0-android' && github.event.inputs.run_all_targets != 'true' && github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "Skipping ${{ matrix.target }} - only runs when run_all_targets=true or on push/PR"
+          exit 0
+          
       - name: Checkout code
+        if: ${{ matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
         uses: actions/checkout@v4
         
       - name: Setup .NET 9
+        if: ${{ matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
           
       - name: Install MAUI workloads
+        if: ${{ matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
         run: |
           echo "Installing MAUI workloads for Windows platform testing..."
-          dotnet workload install maui-windows maui-android
+          dotnet workload install maui-windows maui-android --verbosity normal
           # Wait for workload installation to complete
-          Start-Sleep -Seconds 5
-        timeout-minutes: 5
+          Start-Sleep -Seconds 10
+        timeout-minutes: 15
         
       - name: Restore dependencies
+        if: ${{ matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
         run: |
           echo "Restoring Core.Platform.Tests dependencies..."
           dotnet restore src/Tests/Core.Platform.Tests/Core.Platform.Tests.fsproj
         timeout-minutes: 3
         
       - name: Build Core project
+        if: ${{ matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
         run: |
           echo "Building Core F# project..."
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
         timeout-minutes: 2
         
-      - name: Build Core.Platform.Tests
+      - name: Verify workloads installation
+        if: ${{ matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
         run: |
-          echo "Building Core.Platform.Tests for target: ${{ matrix.target }}"
-          dotnet build src/Tests/Core.Platform.Tests/Core.Platform.Tests.fsproj --configuration Release --no-restore -f ${{ matrix.target }}
-        timeout-minutes: 3
+          echo "Checking installed workloads..."
+          dotnet workload list
+          echo "Checking .NET info..."
+          dotnet --info
+        
+      - name: Build Core.Platform.Tests
+        if: ${{ matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
+        run: |
+          echo "Building Core.Platform.Tests for target: ${{ matrix.target }} with verbose output"
+          dotnet build src/Tests/Core.Platform.Tests/Core.Platform.Tests.fsproj --configuration Release --no-restore -f ${{ matrix.target }} --verbosity detailed
+        timeout-minutes: 5
         
       - name: Run Platform Integration Tests
+        if: ${{ matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
         run: |
           echo "Running platform integration tests on ${{ matrix.target }}..."
           echo "These tests validate real MAUI platform integration using public Core API"
-          dotnet test src/Tests/Core.Platform.Tests/Core.Platform.Tests.fsproj --configuration Release --no-build -f ${{ matrix.target }} --logger "trx;LogFileName=platform-tests-${{ matrix.target }}.trx" --verbosity normal
-        timeout-minutes: 8
+          dotnet test src/Tests/Core.Platform.Tests/Core.Platform.Tests.fsproj --configuration Release --no-build -f ${{ matrix.target }} --logger "trx;LogFileName=platform-tests-${{ matrix.target }}.trx" --verbosity detailed
+        timeout-minutes: 10
         env:
           # Ensure tests run with platform services available
           DOTNET_ENVIRONMENT: Testing
+          CI_ENVIRONMENT: true
+          GITHUB_ACTIONS: true
+          MAUI_CI_MODE: true
           
       - name: Upload test results
         uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ always() && (matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch') }}
         with:
           name: platform-test-results-${{ matrix.target }}
           path: |
@@ -95,7 +120,7 @@ jobs:
           retention-days: 7
           
       - name: Test Summary
-        if: always()
+        if: ${{ always() && (matrix.target != 'net9.0-android' || github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch') }}
         run: |
           echo "## Platform Integration Test Summary (${{ matrix.target }}) :test_tube:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
