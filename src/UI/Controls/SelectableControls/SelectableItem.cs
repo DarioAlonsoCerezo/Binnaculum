@@ -148,17 +148,17 @@ public class SelectableItem
             },
             new SelectableItem
             {
-                Title = ResourceKeys.OptionCode_CashSettledAssigned_Extended,
+                Title = ResourceKeys.OptionCode_CashSettledAssigned,
                 ItemValue = Models.OptionCode.CashSettledAssigned
             },
             new SelectableItem
             {
-                Title = ResourceKeys.OptionCode_CashSettledExercised_Extended,
+                Title = ResourceKeys.OptionCode_CashSettledExercised,
                 ItemValue = Models.OptionCode.CashSettledExercised
             },
             new SelectableItem
             {
-                Title = ResourceKeys.OptionCode_Exercised_Extended,
+                Title = ResourceKeys.OptionCode_Exercised,
                 ItemValue = Models.OptionCode.Exercised
             }
         };
