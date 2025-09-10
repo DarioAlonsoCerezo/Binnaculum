@@ -919,6 +919,15 @@ Remember that most leveraged traders ultimately lose money. Consider paper tradi
   <data name="OptionCode_Expired" xml:space="preserve">
     <value>Expired</value>
   </data>
+  <data name="OptionCode_CashSettledAssigned" xml:space="preserve">
+    <value>Cash Settled Assigned</value>
+  </data>
+  <data name="OptionCode_CashSettledExercised" xml:space="preserve">
+    <value>Cash Settled Exercised</value>
+  </data>
+  <data name="OptionCode_Exercised" xml:space="preserve">
+    <value>Exercised</value>
+  </data>
   <data name="OptionType_Title" xml:space="preserve">
     <value>Option type:</value>
   </data>

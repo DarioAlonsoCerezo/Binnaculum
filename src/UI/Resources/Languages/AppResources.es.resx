@@ -920,6 +920,15 @@ Recuerde que la mayoría de los operadores que utilizan apalancamiento terminan 
   <data name="OptionCode_Expired" xml:space="preserve">
     <value>Expirado</value>
   </data>
+  <data name="OptionCode_CashSettledAssigned" xml:space="preserve">
+    <value>Asignado Liquidado en Efectivo</value>
+  </data>
+  <data name="OptionCode_CashSettledExercised" xml:space="preserve">
+    <value>Ejercido Liquidado en Efectivo</value>
+  </data>
+  <data name="OptionCode_Exercised" xml:space="preserve">
+    <value>Ejercido</value>
+  </data>
   <data name="OptionType_Title" xml:space="preserve">
     <value>Tipo de opción</value>
   </data>

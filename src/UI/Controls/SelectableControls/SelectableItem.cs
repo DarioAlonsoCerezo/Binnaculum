@@ -135,6 +135,31 @@ public class SelectableItem
             {
                 Title = ResourceKeys.OptionCode_BTC,
                 ItemValue = Models.OptionCode.BuyToClose
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_Assigned,
+                ItemValue = Models.OptionCode.Assigned
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_Expired,
+                ItemValue = Models.OptionCode.Expired
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_CashSettledAssigned,
+                ItemValue = Models.OptionCode.CashSettledAssigned
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_CashSettledExercised,
+                ItemValue = Models.OptionCode.CashSettledExercised
+            },
+            new SelectableItem
+            {
+                Title = ResourceKeys.OptionCode_Exercised,
+                ItemValue = Models.OptionCode.Exercised
             }
         };
     }

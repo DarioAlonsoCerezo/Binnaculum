@@ -146,6 +146,15 @@ module ResourceKeys =
     let OptionCode_Expired = "OptionCode_Expired"
 
     [<Literal>]
+    let OptionCode_CashSettledAssigned = "OptionCode_CashSettledAssigned"
+
+    [<Literal>]
+    let OptionCode_CashSettledExercised = "OptionCode_CashSettledExercised"
+
+    [<Literal>]
+    let OptionCode_Exercised = "OptionCode_Exercised"
+
+    [<Literal>]
     let OptionCode_BTC_Extended = "OptionCode_BTC_Extended"
     
     [<Literal>]
