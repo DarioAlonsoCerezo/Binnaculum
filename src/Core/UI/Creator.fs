@@ -117,6 +117,11 @@ module Creator =
     let SaveTrade(trade: Binnaculum.Core.Models.Trade) = task {
         let databaseTrade = trade.tradeToDatabase()
         do! Saver.saveTrade(databaseTrade) |> Async.AwaitTask |> Async.Ignore
+        
+        // Update snapshots for this trade using reactive manager
+        let datePattern = DateTimePattern.FromDateTime(trade.TimeStamp)
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(trade.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        ReactiveSnapshotManager.refresh()
     }
 
     /// <summary>
@@ -125,6 +130,11 @@ module Creator =
     let SaveDividend(dividend: Binnaculum.Core.Models.Dividend) = task {
         let databaseDividend = dividend.dividendReceivedToDatabase()
         do! Saver.saveDividend(databaseDividend) |> Async.AwaitTask |> Async.Ignore
+        
+        // Update snapshots for this dividend using reactive manager
+        let datePattern = DateTimePattern.FromDateTime(dividend.TimeStamp)
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividend.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        ReactiveSnapshotManager.refresh()
     }
 
     /// <summary>
@@ -133,6 +143,11 @@ module Creator =
     let SaveDividendDate(dividendDate: Binnaculum.Core.Models.DividendDate) = task {
         let databaseModel = dividendDate.dividendDateToDatabase()
         do! Saver.saveDividendDate(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        
+        // Update snapshots for this dividend date using reactive manager
+        let datePattern = DateTimePattern.FromDateTime(dividendDate.TimeStamp)
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividendDate.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        ReactiveSnapshotManager.refresh()
     }
 
     /// <summary>
@@ -141,6 +156,11 @@ module Creator =
     let SaveDividendTax(dividendTax: Binnaculum.Core.Models.DividendTax) = task {
         let databaseModel = dividendTax.dividendTaxToDatabase()
         do! Saver.saveDividendTax(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        
+        // Update snapshots for this dividend tax using reactive manager
+        let datePattern = DateTimePattern.FromDateTime(dividendTax.TimeStamp)
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividendTax.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        ReactiveSnapshotManager.refresh()
     }
 
     /// <summary>
@@ -160,6 +180,18 @@ module Creator =
         
         let databaseModels = expandedTrades.optionTradesToDatabase()
         do! Saver.saveOptionsTrade(databaseModels) |> Async.AwaitTask |> Async.Ignore
+        
+        // Update snapshots for all affected broker accounts using reactive manager
+        let uniqueBrokerAccountDates = 
+            expandedTrades
+            |> List.map (fun trade -> (trade.BrokerAccount.Id, trade.TimeStamp))
+            |> List.distinct
+        
+        for (brokerAccountId, timeStamp) in uniqueBrokerAccountDates do
+            let datePattern = DateTimePattern.FromDateTime(timeStamp)
+            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(brokerAccountId, datePattern) |> Async.AwaitTask |> Async.Ignore
+            
+        ReactiveSnapshotManager.refresh()
     }
 
     let UpdateOptionsTimestampNotesAndMultiplier(timestamp: DateTime, notes: string option, multiplier: decimal, trade: Binnaculum.Core.Models.OptionTrade) =
