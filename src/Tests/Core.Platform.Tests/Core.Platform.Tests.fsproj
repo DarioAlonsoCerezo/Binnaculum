@@ -30,6 +30,7 @@
   <ItemGroup>
     <Compile Include="PlatformTestEnvironment.fs" />
     <Compile Include="SavedPreferencesTests.fs" />
+    <Compile Include="ReactiveSnapshotManagerTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
