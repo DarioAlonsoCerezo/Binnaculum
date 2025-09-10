@@ -79,7 +79,7 @@ module Creator =
         
         // Update snapshots for this movement using reactive manager
         let datePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, datePattern) |> Async.AwaitTask
         ReactiveSnapshotManager.refresh()
     }
 
@@ -120,7 +120,7 @@ module Creator =
         
         // Update snapshots for this trade using reactive manager
         let datePattern = DateTimePattern.FromDateTime(trade.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(trade.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(trade.BrokerAccount.Id, datePattern) |> Async.AwaitTask
         ReactiveSnapshotManager.refresh()
     }
 
@@ -133,7 +133,7 @@ module Creator =
         
         // Update snapshots for this dividend using reactive manager
         let datePattern = DateTimePattern.FromDateTime(dividend.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividend.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividend.BrokerAccount.Id, datePattern) |> Async.AwaitTask
         ReactiveSnapshotManager.refresh()
     }
 
@@ -146,7 +146,7 @@ module Creator =
         
         // Update snapshots for this dividend date using reactive manager
         let datePattern = DateTimePattern.FromDateTime(dividendDate.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividendDate.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividendDate.BrokerAccount.Id, datePattern) |> Async.AwaitTask
         ReactiveSnapshotManager.refresh()
     }
 
@@ -159,7 +159,7 @@ module Creator =
         
         // Update snapshots for this dividend tax using reactive manager
         let datePattern = DateTimePattern.FromDateTime(dividendTax.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividendTax.BrokerAccount.Id, datePattern) |> Async.AwaitTask |> Async.Ignore
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividendTax.BrokerAccount.Id, datePattern) |> Async.AwaitTask
         ReactiveSnapshotManager.refresh()
     }
 
@@ -189,7 +189,7 @@ module Creator =
         
         for (brokerAccountId, timeStamp) in uniqueBrokerAccountDates do
             let datePattern = DateTimePattern.FromDateTime(timeStamp)
-            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(brokerAccountId, datePattern) |> Async.AwaitTask |> Async.Ignore
+            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(brokerAccountId, datePattern) |> Async.AwaitTask
             
         ReactiveSnapshotManager.refresh()
     }
