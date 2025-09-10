@@ -102,13 +102,13 @@ public partial class BrokerMovementCreatorPage
 
         BrokerMovement.Events().DepositChanged
             .Where(_ => BrokerMovement.IsVisible)
-            .Select(x => x.Amount > 0)
+            .Select(_ => BrokerMovement.DepositData.Amount > 0)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
         BrokerMovement.Events().ConversionChanged
             .Where(_ => BrokerMovement.IsVisible)
-            .Select(x => x.AmountTo > 0 && x.AmountFrom > 0)
+            .Select(_ => BrokerMovement.ConversionData.AmountTo > 0 && BrokerMovement.ConversionData.AmountFrom > 0)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
