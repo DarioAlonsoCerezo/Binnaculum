@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-		<MauiVersion>9.0.100</MauiVersion>
+		<MauiVersion>9.0.110</MauiVersion>
 		<ReactiveUiVersion>21.0.1</ReactiveUiVersion>
 	</PropertyGroup>
 	<!-- MAUI -->
@@ -23,7 +23,7 @@
 	</ItemGroup>
 	<!-- SQLite -->
 	<ItemGroup>
-		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="9.0.8" />
+		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="9.0.9" />
 		<PackageVersion Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
 	</ItemGroup>
 	<!-- ReactiveUI -->
@@ -38,7 +38,7 @@
 		<PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.8" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.8" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.9" />
 	</ItemGroup>
 	<!-- Testing -->
 	<ItemGroup>
