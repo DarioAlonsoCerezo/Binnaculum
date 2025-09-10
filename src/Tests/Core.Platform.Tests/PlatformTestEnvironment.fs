@@ -25,13 +25,10 @@ module PlatformTestEnvironment =
     /// Enhanced MAUI platform availability check
     let isMauiPlatformAvailable() =
         try
-            #if ANDROID || IOS || MACCATALYST || WINDOWS
-            // For platform-specific targets, assume MAUI is available
-            // More sophisticated checks can be added later
+            // For net9.0 target with MAUI.Essentials, try to access basic platform APIs
+            // to determine if MAUI platform services are available
+            let _ = Microsoft.Maui.ApplicationModel.MainThread.IsMainThread
             true
-            #else
-            false
-            #endif
         with
         | :? System.NotImplementedException -> false
         | :? System.PlatformNotSupportedException -> false
@@ -41,13 +38,12 @@ module PlatformTestEnvironment =
     /// Initialize MAUI platform for CI testing
     let initializePlatformForCI() =
         try
-            #if ANDROID || WINDOWS
             // Add CI-specific MAUI initialization here
             // This might include setting up mock platform services
             printfn "Initializing MAUI platform services for CI environment"
-            #else
-            printfn "Platform initialization not required for this target"
-            #endif
+            // Try to access basic platform services to verify availability
+            let _ = Microsoft.Maui.ApplicationModel.MainThread.IsMainThread
+            printfn "Basic MAUI platform services are accessible"
         with
         | ex -> 
             printfn "Platform initialization failed in CI: %s" ex.Message
