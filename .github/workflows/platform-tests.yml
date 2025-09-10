@@ -1,0 +1,132 @@
+---
+name: Platform Integration Tests
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - 'src/Tests/Core.Platform.Tests/**'
+      - 'src/Core/**'
+      - '.github/workflows/platform-tests.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/Tests/Core.Platform.Tests/**'
+      - 'src/Core/**'
+  workflow_dispatch:
+    inputs:
+      run_all_targets:
+        description: 'Run tests on all available Windows targets'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  platform-integration-tests:
+    name: Platform Integration Tests (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        target: 
+          - net9.0
+          - net9.0-windows10.0.19041.0
+        include:
+          - target: net9.0-android
+            condition: ${{ github.event.inputs.run_all_targets == 'true' || github.event_name != 'workflow_dispatch' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          
+      - name: Install MAUI workloads
+        run: |
+          echo "Installing MAUI workloads for Windows platform testing..."
+          dotnet workload install maui-windows maui-android
+          # Wait for workload installation to complete
+          Start-Sleep -Seconds 5
+        timeout-minutes: 5
+        
+      - name: Restore dependencies
+        run: |
+          echo "Restoring Core.Platform.Tests dependencies..."
+          dotnet restore src/Tests/Core.Platform.Tests/Core.Platform.Tests.fsproj
+        timeout-minutes: 3
+        
+      - name: Build Core project
+        run: |
+          echo "Building Core F# project..."
+          dotnet build src/Core/Core.fsproj --configuration Release --no-restore
+        timeout-minutes: 2
+        
+      - name: Build Core.Platform.Tests
+        run: |
+          echo "Building Core.Platform.Tests for target: ${{ matrix.target }}"
+          dotnet build src/Tests/Core.Platform.Tests/Core.Platform.Tests.fsproj --configuration Release --no-restore -f ${{ matrix.target }}
+        timeout-minutes: 3
+        
+      - name: Run Platform Integration Tests
+        run: |
+          echo "Running platform integration tests on ${{ matrix.target }}..."
+          echo "These tests validate real MAUI platform integration using public Core API"
+          dotnet test src/Tests/Core.Platform.Tests/Core.Platform.Tests.fsproj --configuration Release --no-build -f ${{ matrix.target }} --logger "trx;LogFileName=platform-tests-${{ matrix.target }}.trx" --verbosity normal
+        timeout-minutes: 8
+        env:
+          # Ensure tests run with platform services available
+          DOTNET_ENVIRONMENT: Testing
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: platform-test-results-${{ matrix.target }}
+          path: |
+            **/*platform-tests-*.trx
+            **/TestResults/**
+          retention-days: 7
+          
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "## Platform Integration Test Summary (${{ matrix.target }}) :test_tube:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target Framework**: ${{ matrix.target }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Platform**: Windows with MAUI workloads" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Type**: Real integration tests using public Core API" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage**: Overview.InitDatabase(), Overview.LoadData(), Collections validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "These tests validate the same workflows that the MAUI app uses in production." >> $GITHUB_STEP_SUMMARY
+
+  platform-test-summary:
+    name: Platform Test Summary
+    needs: platform-integration-tests
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Overall Summary
+        run: |
+          echo "## Platform Integration Testing Complete :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Platform integration tests have completed on Windows with MAUI platform services." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### What was tested:" >> $GITHUB_STEP_SUMMARY
+          echo "- :gear: **Core.InitDatabase()** - Real SQLite database initialization" >> $GITHUB_STEP_SUMMARY
+          echo "- :gear: **Core.LoadData()** - Actual data loading and reactive collection population" >> $GITHUB_STEP_SUMMARY  
+          echo "- :gear: **Collections.Currencies** - Verification of populated reactive collections" >> $GITHUB_STEP_SUMMARY
+          echo "- :gear: **Platform Services** - FileSystem.AppDataDirectory and MAUI platform integration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Complementary Testing:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ubuntu CI**: Validates F# core business logic (fast feedback)" >> $GITHUB_STEP_SUMMARY  
+          echo "- **Windows CI**: Validates MAUI platform integration (comprehensive coverage)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This ensures both rapid development feedback and thorough platform validation." >> $GITHUB_STEP_SUMMARY
