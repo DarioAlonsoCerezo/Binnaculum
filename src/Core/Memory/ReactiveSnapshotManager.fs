@@ -26,21 +26,29 @@ module ReactiveSnapshotManager =
     /// </summary>
     let private loadSnapshots() =
         async {
-            try
-                // Load all snapshot types (same as original loadOverviewSnapshots)
-                do! BrokerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
-                do! BankSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
-                do! BrokerAccountSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
-                do! BankAccountSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
+            // Load all snapshot types (same as original loadOverviewSnapshots)
+            do! BrokerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
+            do! BankSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
+            do! BrokerAccountSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
+            do! BankAccountSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
 
-                // Add empty snapshot if no snapshots are available (same as original)
-                if Collections.Snapshots.Items.Count = 0 then
-                    Collections.Snapshots.Add(DatabaseToModels.Do.createEmptyOverviewSnapshot())
-                    
-            with
-            | ex -> 
-                // Log error but don't crash the application
-                printfn "Error loading snapshots: %s" ex.Message
+            // Check for empty snapshots and real snapshots
+            let emptySnapshots = 
+                Collections.Snapshots.Items 
+                |> Seq.filter (fun s -> s.Type = Models.OverviewSnapshotType.Empty)
+                |> Seq.toList
+            
+            let realSnapshots = 
+                Collections.Snapshots.Items 
+                |> Seq.filter (fun s -> s.Type <> Models.OverviewSnapshotType.Empty)
+                |> Seq.toList
+
+            // If we have real snapshots, remove any empty snapshots
+            if not (List.isEmpty realSnapshots) then
+                emptySnapshots |> List.iter (Collections.Snapshots.Remove >> ignore)
+            // If we have no snapshots at all, add empty snapshot
+            elif Collections.Snapshots.Items.Count = 0 then
+                Collections.Snapshots.Add(DatabaseToModels.Do.createEmptyOverviewSnapshot())
         }
     
     /// <summary>
