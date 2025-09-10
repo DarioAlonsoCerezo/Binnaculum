@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Core.Platform.MauiTester.Services;
 
 namespace Core.Platform.MauiTester
 {
@@ -14,6 +15,11 @@ namespace Core.Platform.MauiTester
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+
+            // Register services for dependency injection
+            builder.Services.AddSingleton<LogService>();
+            builder.Services.AddSingleton<TestRunner>();
+            builder.Services.AddSingleton<MainPage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();
