@@ -7,6 +7,7 @@ open Binnaculum.Core.Storage
 open Microsoft.FSharp.Core
 open TickerExtensions
 open TickerSnapshotExtensions
+open BrokerAccountExtensions
 open Binnaculum.Core.DataLoader
 
 /// <summary>
@@ -39,7 +40,18 @@ module Creator =
     let SaveBrokerAccount(brokerId: int, accountNumber: string) = task {
         let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None }
         let account = { Id = 0; BrokerId = brokerId; AccountNumber = accountNumber; Audit = audit }
+        let isNewAccount = account.Id = 0
         do! Saver.saveBrokerAccount(account) |> Async.AwaitTask |> Async.Ignore
+        
+        // If it's a new account, create initial snapshots
+        if isNewAccount then
+            // Get the saved account from database to get the assigned ID
+            let! savedAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
+            match savedAccounts |> List.tryFind (fun a -> a.BrokerId = brokerId && a.AccountNumber = accountNumber) with
+            | Some databaseAccount -> 
+                do! SnapshotManager.handleNewBrokerAccount(databaseAccount) |> Async.AwaitTask |> Async.Ignore
+            | None ->
+                failwithf "Failed to retrieve saved broker account for broker %d with account number %s" brokerId accountNumber
     }
 
     let SaveBrokerMovement(movement: Binnaculum.Core.Models.BrokerMovement) = task {
