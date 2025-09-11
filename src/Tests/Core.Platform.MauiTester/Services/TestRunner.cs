@@ -280,6 +280,113 @@ namespace Core.Platform.MauiTester.Services
                 : (false, "", $"Expected exactly 1 Empty snapshot but found {snapshotCount} total snapshots ({emptySnapshotCount} Empty)");
         }
 
+        /// <summary>
+        /// Execute the BrokerAccount creation test that validates creating a new broker account and verifying snapshot generation
+        /// </summary>
+        public async Task<OverallTestResult> ExecuteBrokerAccountCreationTestAsync(Action<string> progressCallback)
+        {
+            var result = new OverallTestResult();
+            var steps = new List<TestStepResult>();
+
+            try
+            {
+                result.IsRunning = true;
+                result.OverallStatus = "Running BrokerAccount Creation validation test...";
+                progressCallback("Starting BrokerAccount Creation validation test...");
+
+                // Step 1: Initialize MAUI platform services
+                if (!await ExecuteStepAsync(steps, result, "Initialize MAUI Platform Services", progressCallback, InitializePlatformServicesAsync))
+                    return result;
+
+                // Step 2: Call Overview.InitDatabase() 
+                if (!await ExecuteStepAsync(steps, result, "Overview.InitDatabase()", progressCallback, InitializeDatabaseAsync))
+                    return result;
+
+                // Step 3: Call Overview.LoadData()
+                if (!await ExecuteStepAsync(steps, result, "Overview.LoadData()", progressCallback, LoadDataAsync))
+                    return result;
+
+                // Step 4: Wait for reactive collections to populate
+                progressCallback("Waiting for reactive collections to populate...");
+                _logService.Log("Allowing time for reactive collections to populate...");
+                await Task.Delay(300); // Same delay as in original test
+
+                // Step 5: Find Tastytrade Broker
+                if (!await ExecuteVerificationStepAsync(steps, result, "Find Tastytrade Broker", progressCallback, FindTastytradeBroker))
+                    return result;
+
+                // Step 6: Create BrokerAccount
+                if (!await ExecuteStepAsync(steps, result, "Create BrokerAccount", progressCallback, CreateBrokerAccountAsync))
+                    return result;
+
+                // Step 7: Verify single snapshot exists
+                if (!await ExecuteVerificationStepAsync(steps, result, "Verify Single Snapshot Created", progressCallback, VerifySingleSnapshotExists))
+                    return result;
+
+                // Step 8: Verify snapshot is BrokerAccount type
+                if (!await ExecuteVerificationStepAsync(steps, result, "Verify Snapshot is BrokerAccount Type", progressCallback, VerifySnapshotIsBrokerAccountType))
+                    return result;
+
+                // All tests passed!
+                result.IsRunning = false;
+                result.IsCompleted = true;
+                result.AllTestsPassed = true;
+                result.OverallStatus = "All BrokerAccount creation tests completed successfully!";
+                progressCallback("✅ All BrokerAccount creation tests passed!");
+                _logService.Log("All BrokerAccount creation tests completed successfully");
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError($"Unexpected error during BrokerAccount creation test: {ex.Message}");
+                return await CompleteTestWithError(result, $"Unexpected error: {ex.Message}");
+            }
+        }
+
+        // BrokerAccount creation test specific methods
+        private int _tastytradeId = 0;
+
+        private (bool success, string details, string error) FindTastytradeBroker()
+        {
+            var tastytradeBroker = Collections.Brokers.Items.FirstOrDefault(b => b.Name == "Tastytrade");
+            if (tastytradeBroker != null)
+            {
+                _tastytradeId = tastytradeBroker.Id;
+                return (true, $"Tastytrade Broker Found: ID = {_tastytradeId}", "");
+            }
+            return (false, "", "Tastytrade broker not found in Collections.Brokers.Items");
+        }
+
+        private async Task<(bool success, string details)> CreateBrokerAccountAsync()
+        {
+            if (_tastytradeId == 0)
+                return (false, "Tastytrade broker ID is 0, cannot create account");
+
+            await Creator.SaveBrokerAccount(_tastytradeId, "Trading");
+            return (true, "BrokerAccount created successfully");
+        }
+
+        private (bool success, string details, string error) VerifySingleSnapshotExists()
+        {
+            var snapshotCount = Collections.Snapshots.Items.Count;
+            return snapshotCount == 1
+                ? (true, $"Single Snapshot Found: Count = {snapshotCount}", "")
+                : (false, "", $"Expected exactly 1 snapshot but found {snapshotCount}");
+        }
+
+        private (bool success, string details, string error) VerifySnapshotIsBrokerAccountType()
+        {
+            if (Collections.Snapshots.Items.Count == 0)
+                return (false, "", "No snapshots found to verify type");
+
+            var snapshot = Collections.Snapshots.Items.First();
+            var isBrokerAccount = snapshot.Type == Binnaculum.Core.Models.OverviewSnapshotType.BrokerAccount;
+            return isBrokerAccount
+                ? (true, "Snapshot Type: BrokerAccount", "")
+                : (false, "", $"Expected BrokerAccount snapshot type but found {snapshot.Type}");
+        }
+
         private Task<OverallTestResult> CompleteTestWithError(OverallTestResult result, string errorMessage)
         {
             result.IsRunning = false;

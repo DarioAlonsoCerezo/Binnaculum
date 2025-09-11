@@ -22,10 +22,20 @@ namespace Core.Platform.MauiTester
 
         private async void OnRunTestClicked(object? sender, EventArgs e)
         {
+            await ExecuteTestAsync(_testRunner.ExecuteOverviewTestAsync, "Run Overview Test", "Overview");
+        }
+
+        private async void OnRunBrokerAccountTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync(_testRunner.ExecuteBrokerAccountCreationTestAsync, "Run BrokerAccount Creation Test", "BrokerAccount Creation");
+        }
+
+        private async Task ExecuteTestAsync(Func<Action<string>, Task<OverallTestResult>> testMethod, string buttonText, string testName)
+        {
             try
             {
                 _logService.Clear();
-                _logService.Log("Starting Core Platform validation test...");
+                _logService.Log($"Starting {testName} validation test...");
 
                 // Create new test result and bind to UI
                 _currentResult = new OverallTestResult();
@@ -33,9 +43,10 @@ namespace Core.Platform.MauiTester
 
                 // Update UI to show test is running
                 RunTestButton.Text = "Running Test...";
+                RunBrokerAccountTestButton.Text = "Running Test...";
 
                 // Execute the test with progress updates
-                var result = await _testRunner.ExecuteOverviewTestAsync(UpdateProgressStatus);
+                var result = await testMethod(UpdateProgressStatus);
 
                 // Update the UI with final results
                 _currentResult = result;
@@ -43,12 +54,13 @@ namespace Core.Platform.MauiTester
 
                 // Reset button text
                 RunTestButton.Text = "Run Overview Test";
+                RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
 
-                _logService.Log($"Test execution completed. Overall result: {result.AllTestsPassed}");
+                _logService.Log($"{testName} test execution completed. Overall result: {result.AllTestsPassed}");
             }
             catch (Exception ex)
             {
-                _logService.LogError($"Error running test: {ex.Message}");
+                _logService.LogError($"Error running {testName} test: {ex.Message}");
                 
                 // Show error in UI
                 if (_currentResult != null)
@@ -60,8 +72,9 @@ namespace Core.Platform.MauiTester
                 }
 
                 RunTestButton.Text = "Run Overview Test";
+                RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
 
-                await DisplayAlert("Test Error", $"An error occurred while running the test:\n\n{ex.Message}", "OK");
+                await DisplayAlert("Test Error", $"An error occurred while running the {testName} test:\n\n{ex.Message}", "OK");
             }
         }
 
