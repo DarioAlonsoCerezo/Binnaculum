@@ -34,7 +34,7 @@ type Do() =
 
     [<Extension>]
     static member read(reader: SqliteDataReader) =
-        {
+        let movement = {
             Id = reader.getInt32 FieldName.Id
             TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
             Amount = reader.getMoney FieldName.Amount
@@ -50,6 +50,8 @@ type Do() =
             Quantity = reader.getDecimalOrNone FieldName.Quantity
             Audit = reader.getAudit()        
         }
+        System.Diagnostics.Debug.WriteLine($"[BrokerMovementExtensions] Read movement - ID: {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}, BrokerAccountId: {movement.BrokerAccountId}")
+        movement
 
     [<Extension>]
     static member save(brokerMovement: BrokerMovement) = Database.Do.saveEntity brokerMovement (fun t c -> t.fill c) 

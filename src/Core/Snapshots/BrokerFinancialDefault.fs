@@ -24,6 +24,7 @@ module internal BrokerFinancialDefault =
         (brokerAccountSnapshotId: int)
         =
         task {
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Creating default snapshot for BrokerAccountId: {brokerAccountId}, Date: {snapshotDate}")
             let! currencyId = SnapshotManagerUtils.getDefaultCurrency()
             let snapshot = {
                 Base = SnapshotManagerUtils.createBaseSnapshot snapshotDate
@@ -47,6 +48,8 @@ module internal BrokerFinancialDefault =
                 OtherIncome = Money.FromAmount 0m
                 OpenTrades = false
             }
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] About to save default snapshot with CurrencyId: {currencyId}, Deposited: {snapshot.Deposited.Value}")
             do! snapshot.save()
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Default snapshot saved successfully")
         }
 

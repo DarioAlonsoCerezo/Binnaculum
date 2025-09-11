@@ -53,8 +53,18 @@ open Binnaculum.Core
             if reader.IsDBNull(ordinal) then
                 None
             else
-                let value = reader.getDecimal columName
-                Some(Money.FromAmount(decimal value))
+                try
+                    let textValue = reader.getString columName
+                    System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Reading MoneyOrNone from column {columName} - Raw text value: '{textValue}'")
+                    let decimalValue = System.Decimal.Parse(textValue, System.Globalization.CultureInfo.InvariantCulture)
+                    System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Parsed MoneyOrNone decimal value: {decimalValue}")
+                    Some(Money.FromAmount(decimalValue))
+                with
+                | ex ->
+                    System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Error reading MoneyOrNone from column {columName}: {ex.Message}")
+                    let fallbackValue = reader.getDecimal columName
+                    System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] MoneyOrNone fallback decimal read: {fallbackValue}")
+                    Some(Money.FromAmount(decimal fallbackValue))
 
         [<Extension>]
         static member getStringOrNone(reader: SqliteDataReader, columName: string) =
