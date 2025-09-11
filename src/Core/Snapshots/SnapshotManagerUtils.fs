@@ -227,6 +227,7 @@ module internal BrokerAccountMovementData =
         let allCurrencies = Set.unionMany [brokerMovementCurrencies; tradeCurrencies; dividendCurrencies; dividendTaxCurrencies; optionTradeCurrencies]
         
         // Group movements by currency
+        System.Diagnostics.Debug.WriteLine($"[BrokerAccountMovementData] Creating movement data - Total BrokerMovements: {brokerMovements.Length}, UniqueCurrencies: {allCurrencies.Count}")
         let movementsByCurrency = 
             allCurrencies
             |> Set.toList
@@ -236,6 +237,10 @@ module internal BrokerAccountMovementData =
                 let dividendsForCurrency = dividends |> List.filter (fun d -> d.CurrencyId = currencyId)
                 let dividendTaxesForCurrency = dividendTaxes |> List.filter (fun dt -> dt.CurrencyId = currencyId)
                 let optionTradesForCurrency = optionTrades |> List.filter (fun ot -> ot.CurrencyId = currencyId)
+                
+                System.Diagnostics.Debug.WriteLine($"[BrokerAccountMovementData] Currency {currencyId} - BrokerMovements: {brokerMovementsForCurrency.Length}")
+                brokerMovementsForCurrency |> List.iter (fun m -> 
+                    System.Diagnostics.Debug.WriteLine($"[BrokerAccountMovementData] Movement for currency {currencyId} - ID: {m.Id}, Type: {m.MovementType}, Amount: {m.Amount.Value}"))
                 
                 let currencyData = createCurrencyMovementData currencyId brokerMovementsForCurrency tradesForCurrency dividendsForCurrency dividendTaxesForCurrency optionTradesForCurrency
                 (currencyId, currencyData)

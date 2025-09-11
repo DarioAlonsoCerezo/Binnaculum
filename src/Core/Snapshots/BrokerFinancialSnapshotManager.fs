@@ -110,6 +110,13 @@ module internal BrokerFinancialSnapshotManager =
                 let currencyMovementData = 
                     movementData.MovementsByCurrency.TryFind(currencyId)
                 
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currency {currencyId} movement data - Found: {currencyMovementData.IsSome}")
+                match currencyMovementData with
+                | Some data -> 
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currency {currencyId} has {data.BrokerMovements.Length} broker movements")
+                | None -> 
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] No movement data found for currency {currencyId}")
+                
                 // 4.2. ✅ Get previous snapshot for this currency (for cumulative calculations)
                 let previousSnapshot = 
                     relevantPreviousSnapshots 

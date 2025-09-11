@@ -14,6 +14,7 @@ type Do() =
     
     [<Extension>]
     static member fill(snapshot: BrokerFinancialSnapshot, command: SqliteCommand) =
+        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: {snapshot.Deposited.Value}, MovementCounter: {snapshot.MovementCounter}")
         command.fillEntityAuditable<BrokerFinancialSnapshot>(
             [
                 (SQLParameterName.Date, snapshot.Base.Date.ToString());
