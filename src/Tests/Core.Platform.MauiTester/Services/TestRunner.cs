@@ -31,459 +31,47 @@ namespace Core.Platform.MauiTester.Services
                 progressCallback("Starting Core Platform validation tests...");
 
                 // Step 1: Initialize MAUI platform services
-                var platformStep = new TestStepResult { StepName = "Initialize MAUI Platform Services" };
-                steps.Add(platformStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Initializing MAUI platform services...");
-                    _logService.Log("Checking MAUI platform services availability...");
-                    
-                    // Verify platform services are available (this is what fails in headless tests)
-                    var isMainThread = Microsoft.Maui.ApplicationModel.MainThread.IsMainThread;
-                    var appDataPath = Microsoft.Maui.Storage.FileSystem.AppDataDirectory;
-                    
-                    platformStep.IsCompleted = true;
-                    platformStep.IsSuccessful = true;
-                    platformStep.Details = $"Platform services available. AppData: {appDataPath}";
-                    _logService.Log($"MAUI platform services initialized successfully. AppData directory: {appDataPath}");
-                }
-                catch (Exception ex)
-                {
-                    platformStep.IsCompleted = true;
-                    platformStep.IsSuccessful = false;
-                    platformStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"Platform initialization failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "Platform services not available");
-                }
+                if (!await ExecuteStepAsync(steps, result, "Initialize MAUI Platform Services", progressCallback, InitializePlatformServicesAsync))
+                    return result;
 
                 // Step 2: Call Overview.InitDatabase() 
-                var initDbStep = new TestStepResult { StepName = "Overview.InitDatabase()" };
-                steps.Add(initDbStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Calling Overview.InitDatabase()...");
-                    _logService.Log("Executing Overview.InitDatabase()...");
-                    
-                    await Overview.InitDatabase();
-                    
-                    initDbStep.IsCompleted = true;
-                    initDbStep.IsSuccessful = true;
-                    initDbStep.Details = "Database initialization completed";
-                    _logService.Log("Overview.InitDatabase() completed successfully");
-                }
-                catch (Exception ex)
-                {
-                    initDbStep.IsCompleted = true;
-                    initDbStep.IsSuccessful = false;
-                    initDbStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"InitDatabase failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "Database initialization failed");
-                }
+                if (!await ExecuteStepAsync(steps, result, "Overview.InitDatabase()", progressCallback, InitializeDatabaseAsync))
+                    return result;
 
                 // Step 3: Call Overview.LoadData()
-                var loadDataStep = new TestStepResult { StepName = "Overview.LoadData()" };
-                steps.Add(loadDataStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Calling Overview.LoadData()...");
-                    _logService.Log("Executing Overview.LoadData()...");
-                    
-                    await Overview.LoadData();
-                    
-                    loadDataStep.IsCompleted = true;
-                    loadDataStep.IsSuccessful = true;
-                    loadDataStep.Details = "Data loading completed";
-                    _logService.Log("Overview.LoadData() completed successfully");
-                }
-                catch (Exception ex)
-                {
-                    loadDataStep.IsCompleted = true;
-                    loadDataStep.IsSuccessful = false;
-                    loadDataStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"LoadData failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "Data loading failed");
-                }
+                if (!await ExecuteStepAsync(steps, result, "Overview.LoadData()", progressCallback, LoadDataAsync))
+                    return result;
 
                 // Step 4: Verify database initialization state
-                var verifyInitStep = new TestStepResult { StepName = "Verify Database Initialized" };
-                steps.Add(verifyInitStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Verifying database state...");
-                    _logService.Log("Checking Overview.Data.Value.IsDatabaseInitialized...");
-                    
-                    var isInitialized = Overview.Data.Value.IsDatabaseInitialized;
-                    
-                    if (isInitialized)
-                    {
-                        verifyInitStep.IsCompleted = true;
-                        verifyInitStep.IsSuccessful = true;
-                        verifyInitStep.Details = "Database initialized: True";
-                        _logService.Log("Database initialization verified successfully");
-                    }
-                    else
-                    {
-                        verifyInitStep.IsCompleted = true;
-                        verifyInitStep.IsSuccessful = false;
-                        verifyInitStep.ErrorMessage = "Database should be initialized but state shows false";
-                        _logService.LogError("Database initialization state verification failed");
-                        return await CompleteTestWithError(result, "Database state verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifyInitStep.IsCompleted = true;
-                    verifyInitStep.IsSuccessful = false;
-                    verifyInitStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"Database state verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "Database state verification failed");
-                }
+                if (!await ExecuteVerificationStepAsync(steps, result, "Verify Database Initialized", progressCallback, VerifyDatabaseInitialized))
+                    return result;
 
                 // Step 5: Verify data loading state
-                var verifyLoadStep = new TestStepResult { StepName = "Verify Data Loaded" };
-                steps.Add(verifyLoadStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Verifying data loading state...");
-                    _logService.Log("Checking Overview.Data.Value.TransactionsLoaded...");
-                    
-                    var isLoaded = Overview.Data.Value.TransactionsLoaded;
-                    
-                    if (isLoaded)
-                    {
-                        verifyLoadStep.IsCompleted = true;
-                        verifyLoadStep.IsSuccessful = true;
-                        verifyLoadStep.Details = "Data loaded: True";
-                        _logService.Log("Data loading state verified successfully");
-                    }
-                    else
-                    {
-                        verifyLoadStep.IsCompleted = true;
-                        verifyLoadStep.IsSuccessful = false;
-                        verifyLoadStep.ErrorMessage = "Data should be loaded but state shows false";
-                        _logService.LogError("Data loading state verification failed");
-                        return await CompleteTestWithError(result, "Data loading state verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifyLoadStep.IsCompleted = true;
-                    verifyLoadStep.IsSuccessful = false;
-                    verifyLoadStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"Data loading state verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "Data loading state verification failed");
-                }
+                if (!await ExecuteVerificationStepAsync(steps, result, "Verify Data Loaded", progressCallback, VerifyDataLoaded))
+                    return result;
 
                 // Step 6: Wait for reactive collections to populate
                 progressCallback("Waiting for reactive collections to populate...");
                 _logService.Log("Allowing time for reactive collections to populate...");
                 await Task.Delay(300); // Same delay as in original test
 
-                // Step 7: Verify currencies collection
-                var verifyCurrenciesStep = new TestStepResult { StepName = "Verify Currencies Collection" };
-                steps.Add(verifyCurrenciesStep);
-                result.Steps = new List<TestStepResult>(steps);
+                // Step 7-14: Collection and data verifications
+                var verificationSteps = new[]
+                {
+                    ("Verify Currencies Collection", new Func<(bool success, string details, string error)>(VerifyCurrenciesCollection)),
+                    ("Verify USD Currency Exists", new Func<(bool success, string details, string error)>(VerifyUsdCurrency)),
+                    ("Verify Brokers Collection", new Func<(bool success, string details, string error)>(VerifyBrokersCollection)),
+                    ("Verify IBKR Broker Exists", new Func<(bool success, string details, string error)>(VerifyIbkrBroker)),
+                    ("Verify Tastytrade Broker Exists", new Func<(bool success, string details, string error)>(VerifyTastytradeBroker)),
+                    ("Verify SigmaTrade Broker Exists", new Func<(bool success, string details, string error)>(VerifySigmaTradeBroker)),
+                    ("Verify SPY Ticker Exists", new Func<(bool success, string details, string error)>(VerifySpyTicker)),
+                    ("Verify Snapshots Collection", new Func<(bool success, string details, string error)>(VerifySnapshotsCollection))
+                };
 
-                try
+                foreach (var (stepName, verification) in verificationSteps)
                 {
-                    progressCallback("Verifying currencies collection...");
-                    _logService.Log("Checking Collections.Currencies.Items.Count...");
-                    
-                    var currencyCount = Collections.Currencies.Items.Count;
-                    
-                    if (currencyCount > 0)
-                    {
-                        verifyCurrenciesStep.IsCompleted = true;
-                        verifyCurrenciesStep.IsSuccessful = true;
-                        verifyCurrenciesStep.Details = $"Currencies: {currencyCount}";
-                        _logService.Log($"Currencies collection verified: {currencyCount} items");
-                    }
-                    else
-                    {
-                        verifyCurrenciesStep.IsCompleted = true;
-                        verifyCurrenciesStep.IsSuccessful = false;
-                        verifyCurrenciesStep.ErrorMessage = "Currencies collection should not be empty after LoadData";
-                        _logService.LogError("Currencies collection is empty");
-                        return await CompleteTestWithError(result, "Currencies collection verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifyCurrenciesStep.IsCompleted = true;
-                    verifyCurrenciesStep.IsSuccessful = false;
-                    verifyCurrenciesStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"Currencies collection verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "Currencies collection verification failed");
-                }
-
-                // Step 8: Verify USD currency exists
-                var verifyUsdStep = new TestStepResult { StepName = "Verify USD Currency Exists" };
-                steps.Add(verifyUsdStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Verifying USD currency exists...");
-                    _logService.Log("Checking for USD currency in Collections.Currencies.Items...");
-                    
-                    var usdExists = Collections.Currencies.Items.Any(c => c.Code == "USD");
-                    
-                    if (usdExists)
-                    {
-                        verifyUsdStep.IsCompleted = true;
-                        verifyUsdStep.IsSuccessful = true;
-                        verifyUsdStep.Details = "USD Found: True";
-                        _logService.Log("USD currency found successfully");
-                    }
-                    else
-                    {
-                        verifyUsdStep.IsCompleted = true;
-                        verifyUsdStep.IsSuccessful = false;
-                        verifyUsdStep.ErrorMessage = "Should contain USD currency";
-                        _logService.LogError("USD currency not found in collection");
-                        return await CompleteTestWithError(result, "USD currency verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifyUsdStep.IsCompleted = true;
-                    verifyUsdStep.IsSuccessful = false;
-                    verifyUsdStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"USD currency verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "USD currency verification failed");
-                }
-
-                // Step 9: Verify brokers collection
-                var verifyBrokersStep = new TestStepResult { StepName = "Verify Brokers Collection" };
-                steps.Add(verifyBrokersStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Verifying brokers collection...");
-                    _logService.Log("Checking Collections.Brokers.Items.Count...");
-                    
-                    var brokerCount = Collections.Brokers.Items.Count;
-                    
-                    if (brokerCount >= 3)
-                    {
-                        verifyBrokersStep.IsCompleted = true;
-                        verifyBrokersStep.IsSuccessful = true;
-                        verifyBrokersStep.Details = $"Brokers: {brokerCount}";
-                        _logService.Log($"Brokers collection verified: {brokerCount} items");
-                    }
-                    else
-                    {
-                        verifyBrokersStep.IsCompleted = true;
-                        verifyBrokersStep.IsSuccessful = false;
-                        verifyBrokersStep.ErrorMessage = $"Expected at least 3 brokers but found {brokerCount}";
-                        _logService.LogError($"Brokers collection has insufficient items: {brokerCount}");
-                        return await CompleteTestWithError(result, "Brokers collection verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifyBrokersStep.IsCompleted = true;
-                    verifyBrokersStep.IsSuccessful = false;
-                    verifyBrokersStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"Brokers collection verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "Brokers collection verification failed");
-                }
-
-                // Step 10: Verify IBKR broker exists
-                var verifyIbkrStep = new TestStepResult { StepName = "Verify IBKR Broker Exists" };
-                steps.Add(verifyIbkrStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Verifying IBKR broker exists...");
-                    _logService.Log("Checking for IBKR broker in Collections.Brokers.Items...");
-                    
-                    var ibkrExists = Collections.Brokers.Items.Any(b => b.Name == "Interactive Brokers");
-                    
-                    if (ibkrExists)
-                    {
-                        verifyIbkrStep.IsCompleted = true;
-                        verifyIbkrStep.IsSuccessful = true;
-                        verifyIbkrStep.Details = "IBKR Found: True";
-                        _logService.Log("IBKR broker found successfully");
-                    }
-                    else
-                    {
-                        verifyIbkrStep.IsCompleted = true;
-                        verifyIbkrStep.IsSuccessful = false;
-                        verifyIbkrStep.ErrorMessage = "Should contain IBKR broker (Interactive Brokers)";
-                        _logService.LogError("IBKR broker not found in collection");
-                        return await CompleteTestWithError(result, "IBKR broker verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifyIbkrStep.IsCompleted = true;
-                    verifyIbkrStep.IsSuccessful = false;
-                    verifyIbkrStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"IBKR broker verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "IBKR broker verification failed");
-                }
-
-                // Step 11: Verify Tastytrade broker exists
-                var verifyTastytradeStep = new TestStepResult { StepName = "Verify Tastytrade Broker Exists" };
-                steps.Add(verifyTastytradeStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Verifying Tastytrade broker exists...");
-                    _logService.Log("Checking for Tastytrade broker in Collections.Brokers.Items...");
-                    
-                    var tastytradeExists = Collections.Brokers.Items.Any(b => b.Name == "Tastytrade");
-                    
-                    if (tastytradeExists)
-                    {
-                        verifyTastytradeStep.IsCompleted = true;
-                        verifyTastytradeStep.IsSuccessful = true;
-                        verifyTastytradeStep.Details = "Tastytrade Found: True";
-                        _logService.Log("Tastytrade broker found successfully");
-                    }
-                    else
-                    {
-                        verifyTastytradeStep.IsCompleted = true;
-                        verifyTastytradeStep.IsSuccessful = false;
-                        verifyTastytradeStep.ErrorMessage = "Should contain Tastytrade broker (Tastytrade)";
-                        _logService.LogError("Tastytrade broker not found in collection");
-                        return await CompleteTestWithError(result, "Tastytrade broker verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifyTastytradeStep.IsCompleted = true;
-                    verifyTastytradeStep.IsSuccessful = false;
-                    verifyTastytradeStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"Tastytrade broker verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "Tastytrade broker verification failed");
-                }
-
-                // Step 12: Verify SigmaTrade broker exists
-                var verifySigmaTradeStep = new TestStepResult { StepName = "Verify SigmaTrade Broker Exists" };
-                steps.Add(verifySigmaTradeStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Verifying SigmaTrade broker exists...");
-                    _logService.Log("Checking for SigmaTrade broker in Collections.Brokers.Items...");
-                    
-                    var sigmaTradeExists = Collections.Brokers.Items.Any(b => b.Name == "Sigma Trade");
-                    
-                    if (sigmaTradeExists)
-                    {
-                        verifySigmaTradeStep.IsCompleted = true;
-                        verifySigmaTradeStep.IsSuccessful = true;
-                        verifySigmaTradeStep.Details = "SigmaTrade Found: True";
-                        _logService.Log("SigmaTrade broker found successfully");
-                    }
-                    else
-                    {
-                        verifySigmaTradeStep.IsCompleted = true;
-                        verifySigmaTradeStep.IsSuccessful = false;
-                        verifySigmaTradeStep.ErrorMessage = "Should contain SigmaTrade broker (Sigma Trade)";
-                        _logService.LogError("SigmaTrade broker not found in collection");
-                        return await CompleteTestWithError(result, "SigmaTrade broker verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifySigmaTradeStep.IsCompleted = true;
-                    verifySigmaTradeStep.IsSuccessful = false;
-                    verifySigmaTradeStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"SigmaTrade broker verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "SigmaTrade broker verification failed");
-                }
-
-                // Step 13: Verify tickers collection contains SPY
-                var verifySpyTickerStep = new TestStepResult { StepName = "Verify SPY Ticker Exists" };
-                steps.Add(verifySpyTickerStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Verifying SPY ticker exists...");
-                    _logService.Log("Checking for SPY ticker in Collections.Tickers.Items...");
-                    
-                    var spyExists = Collections.Tickers.Items.Any(t => t.Symbol == "SPY");
-                    
-                    if (spyExists)
-                    {
-                        verifySpyTickerStep.IsCompleted = true;
-                        verifySpyTickerStep.IsSuccessful = true;
-                        verifySpyTickerStep.Details = "SPY Ticker Found: True";
-                        _logService.Log("SPY ticker found successfully");
-                    }
-                    else
-                    {
-                        verifySpyTickerStep.IsCompleted = true;
-                        verifySpyTickerStep.IsSuccessful = false;
-                        verifySpyTickerStep.ErrorMessage = "Should contain SPY ticker";
-                        _logService.LogError("SPY ticker not found in collection");
-                        return await CompleteTestWithError(result, "SPY ticker verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifySpyTickerStep.IsCompleted = true;
-                    verifySpyTickerStep.IsSuccessful = false;
-                    verifySpyTickerStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"SPY ticker verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "SPY ticker verification failed");
-                }
-
-                // Step 14: Verify snapshots collection contains exactly one Empty snapshot
-                var verifySnapshotsStep = new TestStepResult { StepName = "Verify Snapshots Collection" };
-                steps.Add(verifySnapshotsStep);
-                result.Steps = new List<TestStepResult>(steps);
-
-                try
-                {
-                    progressCallback("Verifying snapshots collection...");
-                    _logService.Log("Checking Collections.Snapshots.Items for single Empty snapshot...");
-                    
-                    var snapshotCount = Collections.Snapshots.Items.Count;
-                    var emptySnapshotCount = Collections.Snapshots.Items.Count(s => s.Type == Binnaculum.Core.Models.OverviewSnapshotType.Empty);
-                    
-                    if (snapshotCount == 1 && emptySnapshotCount == 1)
-                    {
-                        verifySnapshotsStep.IsCompleted = true;
-                        verifySnapshotsStep.IsSuccessful = true;
-                        verifySnapshotsStep.Details = "Single Empty Snapshot Found: True";
-                        _logService.Log("Snapshots collection verified: exactly 1 Empty snapshot");
-                    }
-                    else
-                    {
-                        verifySnapshotsStep.IsCompleted = true;
-                        verifySnapshotsStep.IsSuccessful = false;
-                        verifySnapshotsStep.ErrorMessage = $"Expected exactly 1 Empty snapshot but found {snapshotCount} total snapshots ({emptySnapshotCount} Empty)";
-                        _logService.LogError($"Snapshots collection verification failed: {snapshotCount} total, {emptySnapshotCount} Empty");
-                        return await CompleteTestWithError(result, "Snapshots collection verification failed");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    verifySnapshotsStep.IsCompleted = true;
-                    verifySnapshotsStep.IsSuccessful = false;
-                    verifySnapshotsStep.ErrorMessage = ex.Message;
-                    _logService.LogError($"Snapshots collection verification failed: {ex.Message}");
-                    return await CompleteTestWithError(result, "Snapshots collection verification failed");
+                    if (!await ExecuteVerificationStepAsync(steps, result, stepName, progressCallback, verification))
+                        return result;
                 }
 
                 // All tests passed!
@@ -501,6 +89,195 @@ namespace Core.Platform.MauiTester.Services
                 _logService.LogError($"Unexpected error during test execution: {ex.Message}");
                 return await CompleteTestWithError(result, $"Unexpected error: {ex.Message}");
             }
+        }
+
+        private async Task<bool> ExecuteStepAsync(List<TestStepResult> steps, OverallTestResult result, string stepName, 
+            Action<string> progressCallback, Func<Task<(bool success, string details)>> stepAction)
+        {
+            var step = new TestStepResult { StepName = stepName };
+            steps.Add(step);
+            result.Steps = new List<TestStepResult>(steps);
+
+            try
+            {
+                progressCallback($"Executing {stepName}...");
+                _logService.Log($"Executing {stepName}...");
+
+                var (success, details) = await stepAction();
+
+                step.IsCompleted = true;
+                step.IsSuccessful = success;
+                step.Details = details;
+                
+                if (success)
+                {
+                    _logService.Log($"{stepName} completed successfully");
+                    return true;
+                }
+                else
+                {
+                    step.ErrorMessage = details;
+                    _logService.LogError($"{stepName} failed: {details}");
+                    await CompleteTestWithError(result, $"{stepName} failed");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                step.IsCompleted = true;
+                step.IsSuccessful = false;
+                step.ErrorMessage = ex.Message;
+                _logService.LogError($"{stepName} failed: {ex.Message}");
+                await CompleteTestWithError(result, $"{stepName} failed");
+                return false;
+            }
+        }
+
+        private async Task<bool> ExecuteVerificationStepAsync(List<TestStepResult> steps, OverallTestResult result, string stepName,
+            Action<string> progressCallback, Func<(bool success, string details, string error)> verification)
+        {
+            var step = new TestStepResult { StepName = stepName };
+            steps.Add(step);
+            result.Steps = new List<TestStepResult>(steps);
+
+            try
+            {
+                progressCallback($"Verifying {stepName.Replace("Verify ", "").ToLower()}...");
+                _logService.Log($"Executing {stepName}...");
+
+                var (success, details, error) = verification();
+
+                step.IsCompleted = true;
+                step.IsSuccessful = success;
+                step.Details = details;
+
+                if (success)
+                {
+                    _logService.Log($"{stepName} verified successfully");
+                    return true;
+                }
+                else
+                {
+                    step.ErrorMessage = error;
+                    _logService.LogError(error);
+                    await CompleteTestWithError(result, $"{stepName} failed");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                step.IsCompleted = true;
+                step.IsSuccessful = false;
+                step.ErrorMessage = ex.Message;
+                _logService.LogError($"{stepName} failed: {ex.Message}");
+                await CompleteTestWithError(result, $"{stepName} failed");
+                return false;
+            }
+        }
+
+        // Step action methods
+        private Task<(bool success, string details)> InitializePlatformServicesAsync()
+        {
+            // Verify platform services are available (this is what fails in headless tests)
+            var isMainThread = Microsoft.Maui.ApplicationModel.MainThread.IsMainThread;
+            var appDataPath = Microsoft.Maui.Storage.FileSystem.AppDataDirectory;
+            
+            return Task.FromResult((true, $"Platform services available. AppData: {appDataPath}"));
+        }
+
+        private async Task<(bool success, string details)> InitializeDatabaseAsync()
+        {
+            await Overview.InitDatabase();
+            return (true, "Database initialization completed");
+        }
+
+        private async Task<(bool success, string details)> LoadDataAsync()
+        {
+            await Overview.LoadData();
+            return (true, "Data loading completed");
+        }
+
+        // Verification methods
+        private (bool success, string details, string error) VerifyDatabaseInitialized()
+        {
+            var isInitialized = Overview.Data.Value.IsDatabaseInitialized;
+            return isInitialized 
+                ? (true, "Database initialized: True", "")
+                : (false, "", "Database should be initialized but state shows false");
+        }
+
+        private (bool success, string details, string error) VerifyDataLoaded()
+        {
+            var isLoaded = Overview.Data.Value.TransactionsLoaded;
+            return isLoaded
+                ? (true, "Data loaded: True", "")
+                : (false, "", "Data should be loaded but state shows false");
+        }
+
+        private (bool success, string details, string error) VerifyCurrenciesCollection()
+        {
+            var currencyCount = Collections.Currencies.Items.Count;
+            return currencyCount > 0
+                ? (true, $"Currencies: {currencyCount}", "")
+                : (false, "", "Currencies collection should not be empty after LoadData");
+        }
+
+        private (bool success, string details, string error) VerifyUsdCurrency()
+        {
+            var usdExists = Collections.Currencies.Items.Any(c => c.Code == "USD");
+            return usdExists
+                ? (true, "USD Found: True", "")
+                : (false, "", "Should contain USD currency");
+        }
+
+        private (bool success, string details, string error) VerifyBrokersCollection()
+        {
+            var brokerCount = Collections.Brokers.Items.Count;
+            return brokerCount >= 3
+                ? (true, $"Brokers: {brokerCount}", "")
+                : (false, "", $"Expected at least 3 brokers but found {brokerCount}");
+        }
+
+        private (bool success, string details, string error) VerifyIbkrBroker()
+        {
+            var ibkrExists = Collections.Brokers.Items.Any(b => b.Name == "Interactive Brokers");
+            return ibkrExists
+                ? (true, "IBKR Found: True", "")
+                : (false, "", "Should contain IBKR broker (Interactive Brokers)");
+        }
+
+        private (bool success, string details, string error) VerifyTastytradeBroker()
+        {
+            var tastytradeExists = Collections.Brokers.Items.Any(b => b.Name == "Tastytrade");
+            return tastytradeExists
+                ? (true, "Tastytrade Found: True", "")
+                : (false, "", "Should contain Tastytrade broker (Tastytrade)");
+        }
+
+        private (bool success, string details, string error) VerifySigmaTradeBroker()
+        {
+            var sigmaTradeExists = Collections.Brokers.Items.Any(b => b.Name == "Sigma Trade");
+            return sigmaTradeExists
+                ? (true, "SigmaTrade Found: True", "")
+                : (false, "", "Should contain SigmaTrade broker (Sigma Trade)");
+        }
+
+        private (bool success, string details, string error) VerifySpyTicker()
+        {
+            var spyExists = Collections.Tickers.Items.Any(t => t.Symbol == "SPY");
+            return spyExists
+                ? (true, "SPY Ticker Found: True", "")
+                : (false, "", "Should contain SPY ticker");
+        }
+
+        private (bool success, string details, string error) VerifySnapshotsCollection()
+        {
+            var snapshotCount = Collections.Snapshots.Items.Count;
+            var emptySnapshotCount = Collections.Snapshots.Items.Count(s => s.Type == Binnaculum.Core.Models.OverviewSnapshotType.Empty);
+            
+            return (snapshotCount == 1 && emptySnapshotCount == 1)
+                ? (true, "Single Empty Snapshot Found: True", "")
+                : (false, "", $"Expected exactly 1 Empty snapshot but found {snapshotCount} total snapshots ({emptySnapshotCount} Empty)");
         }
 
         private Task<OverallTestResult> CompleteTestWithError(OverallTestResult result, string errorMessage)
