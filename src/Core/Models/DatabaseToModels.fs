@@ -558,9 +558,11 @@ module internal DatabaseToModels =
 
         [<Extension>]
         static member brokerAccountSnapshotToOverviewSnapshot(dbSnapshot: BrokerAccountSnapshot, financialSnapshots: BrokerFinancialSnapshot list, brokerAccount: BrokerAccount) =
+            System.Diagnostics.Debug.WriteLine($"[DatabaseToModels] Converting broker account snapshot - BrokerAccountId: {brokerAccount.Id}, FinancialSnapshots count: {financialSnapshots.Length}")
             let (mainFinancial, otherFinancials) =
                 if financialSnapshots.IsEmpty then
                     // Create empty financial snapshot if no data available
+                    System.Diagnostics.Debug.WriteLine("[DatabaseToModels] No financial snapshots found for BrokerAccount - creating empty financial data")
                     let emptySnapshot = {
                         Id = 0
                         Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
@@ -585,9 +587,12 @@ module internal DatabaseToModels =
                     (emptySnapshot, [])
                 else
                     // Convert database snapshots to model snapshots
+                    System.Diagnostics.Debug.WriteLine($"[DatabaseToModels] Converting {financialSnapshots.Length} financial snapshots for BrokerAccount")
                     let modelSnapshots = 
                         financialSnapshots
-                        |> List.map (fun dbFinancial -> {
+                        |> List.map (fun dbFinancial -> 
+                            System.Diagnostics.Debug.WriteLine($"[DatabaseToModels] Financial snapshot - Deposited: {dbFinancial.Deposited.Value}, MovementCounter: {dbFinancial.MovementCounter}")
+                            {
                             Id = dbFinancial.Base.Id
                             Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
                             Broker = None // For broker account snapshots, broker is not specific

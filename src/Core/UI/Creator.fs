@@ -78,8 +78,17 @@ module Creator =
         do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask
         
         // Update snapshots for this movement using reactive manager
-        let datePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, datePattern) |> Async.AwaitTask
+        let movementDatePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
+        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, movementDatePattern) |> Async.AwaitTask
+        
+        // If this is a historical movement (not today), also update today's snapshot to reflect the new data
+        let today = DateTime.Now.Date
+        let movementDate = movement.TimeStamp.Date
+        if movementDate < today then
+            System.Diagnostics.Debug.WriteLine($"[Creator] Historical movement detected - also updating today's snapshot")
+            let todayPattern = DateTimePattern.FromDateTime(today.AddDays(1).AddTicks(-1)) // End of today
+            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, todayPattern) |> Async.AwaitTask
+        
         ReactiveSnapshotManager.refresh()
     }
 
