@@ -18,6 +18,7 @@
   <ItemGroup>
     <Compile Include="BrokerAccountSnapshotTests.fs" />
     <Compile Include="BrokerAccountMultiCurrencySnapshotTests.fs" />
+    <Compile Include="BrokerAccountDepositTest.fs" />
     <Compile Include="BrokerSnapshotTests.fs" />
     <Compile Include="BrokerFinancialSnapshotAggregationTests.fs" />
     <Compile Include="BrokerFinancialSnapshotRefactoredTests.fs" />
