@@ -11,7 +11,10 @@ module internal BrokerAccountSnapshotLoader =
     
     let private loadFinancialSnapshotsForBrokerAccountSnapshot (brokerAccountId: int) (snapshotDate: DateTimePattern) = task {
         // Load financial snapshots for the specific broker account snapshot
-        return! BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountIdAndDate(brokerAccountId, snapshotDate)
+        System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotLoader] Loading financial snapshots for BrokerAccountId: {brokerAccountId}, SnapshotDate: {snapshotDate}")
+        let! financialSnapshots = BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountIdAndDate(brokerAccountId, snapshotDate)
+        System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotLoader] Found {financialSnapshots.Length} financial snapshots")
+        return financialSnapshots
     }
 
     let load() = task {

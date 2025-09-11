@@ -50,6 +50,9 @@ module internal BrokerFinancialSnapshotManager =
         (movementData: BrokerAccountMovementData)
         =
         task {
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Starting brokerAccountOneDayUpdate - BrokerAccountId: {brokerAccountSnapshot.BrokerAccountId}, Date: {brokerAccountSnapshot.Base.Date}")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] MovementData - HasMovements: {movementData.HasMovements}, TotalMovementCount: {movementData.TotalMovementCount}, UniqueCurrencies: {movementData.UniqueCurrencies.Count}")
+            
             // 1.1. ✅ Validate input parameters using the reusable validation method
             BrokerFinancialValidator.validateSnapshotAndMovementData brokerAccountSnapshot movementData
             
@@ -101,6 +104,7 @@ module internal BrokerFinancialSnapshotManager =
             
             // Process each currency that needs attention
             for currencyId in allRelevantCurrencies do
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Processing currency ID: {currencyId}")
                 
                 // 4.1. ✅ Get movement data for this specific currency
                 let currencyMovementData = 
@@ -117,14 +121,17 @@ module internal BrokerFinancialSnapshotManager =
                     |> List.tryFind (fun snap -> snap.CurrencyId = currencyId)
                 
                 // 4.4. ✅ SCENARIO DECISION TREE - All scenarios implemented
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currency {currencyId} - HasMovements: {currencyMovementData.IsSome}, HasPrevious: {previousSnapshot.IsSome}, HasExisting: {existingSnapshot.IsSome}")
                 match currencyMovementData, previousSnapshot, existingSnapshot with
                 
                 // SCENARIO A: New movements, has previous snapshot, no existing snapshot
                 | Some movements, Some previous, None ->
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] SCENARIO A: New movements, has previous snapshot, no existing snapshot")
                     do! BrokerFinancialCalculate.newFinancialSnapshot targetDate currencyId brokerAccountId brokerAccountSnapshot.Base.Id movements previous
                 
                 // SCENARIO B: New movements, no previous snapshot, no existing snapshot  
                 | Some movements, None, None ->
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] SCENARIO B: New movements, no previous snapshot, no existing snapshot")
                     do! BrokerFinancialCalculate.initialFinancialSnapshot targetDate currencyId brokerAccountId brokerAccountSnapshot.Base.Id movements
                 
                 // SCENARIO C: New movements, has previous snapshot, has existing snapshot
