@@ -34,8 +34,18 @@ open Binnaculum.Core
 
         [<Extension>]
         static member getMoney(reader: SqliteDataReader, columName: string) =
-            let value = reader.getDecimal columName
-            Money.FromAmount(decimal value)
+            try
+                let textValue = reader.getString columName
+                System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Reading Money from column {columName} - Raw text value: '{textValue}'")
+                let decimalValue = System.Decimal.Parse(textValue, System.Globalization.CultureInfo.InvariantCulture)
+                System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Parsed decimal value: {decimalValue}")
+                Money.FromAmount(decimalValue)
+            with
+            | ex ->
+                System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Error reading Money from column {columName}: {ex.Message}")
+                let fallbackValue = reader.getDecimal columName
+                System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Fallback decimal read: {fallbackValue}")
+                Money.FromAmount(decimal fallbackValue)
 
         [<Extension>]
         static member getMoneyOrNone(reader: SqliteDataReader, columName: string) =
