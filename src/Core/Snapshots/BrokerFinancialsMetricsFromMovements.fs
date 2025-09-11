@@ -20,15 +20,22 @@ module internal BrokerFinancialsMetricsFromMovements =
         (currencyMovements: CurrencyMovementData) 
         (currencyId: int) =
         
+        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialsMetricsFromMovements] Starting calculate for currency {currencyId}")
+        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialsMetricsFromMovements] Input movements - BrokerMovements: {currencyMovements.BrokerMovements.Length}, Trades: {currencyMovements.Trades.Length}, Dividends: {currencyMovements.Dividends.Length}")
+        
         // Process broker movements using extension methods
         let brokerMovementSummary = 
             currencyMovements.BrokerMovements
             |> FinancialCalculations.calculateFinancialSummary
         
+        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialsMetricsFromMovements] BrokerMovement summary - TotalDeposited: {brokerMovementSummary.TotalDeposited.Value}, TotalWithdrawn: {brokerMovementSummary.TotalWithdrawn.Value}")
+        
         // Calculate currency conversion impact
         let conversionImpact = 
             currencyMovements.BrokerMovements
             |> fun movements -> FinancialCalculations.calculateConversionImpact(movements, currencyId)
+        
+        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialsMetricsFromMovements] Conversion impact: {conversionImpact.Value}")
         
         // Apply conversion impact to deposits/withdrawals
         let (adjustedDeposited, adjustedWithdrawn) = 
@@ -40,6 +47,8 @@ module internal BrokerFinancialsMetricsFromMovements =
                 // Negative conversion impact: money was lost from this currency
                 (brokerMovementSummary.TotalDeposited.Value, 
                  brokerMovementSummary.TotalWithdrawn.Value + abs(conversionImpact.Value))
+        
+        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialsMetricsFromMovements] After conversion adjustment - Deposited: {adjustedDeposited}, Withdrawn: {adjustedWithdrawn}")
         
         // Process trades using extension methods
         let tradingSummary = 
@@ -75,8 +84,7 @@ module internal BrokerFinancialsMetricsFromMovements =
             dividendTaxSummary.TaxEventCount + 
             optionsSummary.TradeCount
         
-        // Return comprehensive metrics record
-        {
+        let result = {
             Deposited = Money.FromAmount adjustedDeposited
             Withdrawn = Money.FromAmount adjustedWithdrawn
             Invested = Money.FromAmount (tradingSummary.TotalInvested.Value + optionsSummary.OptionsInvestment.Value)
@@ -91,4 +99,9 @@ module internal BrokerFinancialsMetricsFromMovements =
             HasOpenPositions = tradingSummary.HasOpenPositions || optionsSummary.HasOpenOptions
             MovementCounter = totalMovementCounter
         }
+        
+        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialsMetricsFromMovements] Final calculated metrics - Deposited: {result.Deposited.Value}, MovementCounter: {result.MovementCounter}")
+        
+        // Return comprehensive metrics record
+        result
 

@@ -27,11 +27,20 @@ module internal BrokerFinancialCumulativeFinancial =
         (previousSnapshot: BrokerFinancialSnapshot option)
         =
         task {
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialCumulativeFinancial] Starting create for currency {currencyId}, date {targetDate}")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialCumulativeFinancial] Calculated metrics - Deposited: {calculatedMetrics.Deposited.Value}, MovementCounter: {calculatedMetrics.MovementCounter}")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialCumulativeFinancial] Has previous snapshot: {previousSnapshot.IsSome}")
+            
             // Calculate cumulative values by adding previous snapshot values (if any) to current metrics
             let cumulativeDeposited = 
                 match previousSnapshot with
-                | Some prev -> Money.FromAmount (prev.Deposited.Value + calculatedMetrics.Deposited.Value)
-                | None -> calculatedMetrics.Deposited
+                | Some prev -> 
+                    let result = Money.FromAmount (prev.Deposited.Value + calculatedMetrics.Deposited.Value)
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialCumulativeFinancial] Cumulative Deposited: previous {prev.Deposited.Value} + current {calculatedMetrics.Deposited.Value} = {result.Value}")
+                    result
+                | None -> 
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialCumulativeFinancial] No previous snapshot, using calculated Deposited: {calculatedMetrics.Deposited.Value}")
+                    calculatedMetrics.Deposited
             
             let cumulativeWithdrawn = 
                 match previousSnapshot with
@@ -113,7 +122,11 @@ module internal BrokerFinancialCumulativeFinancial =
                 OpenTrades = calculatedMetrics.HasOpenPositions
             }
             
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialCumulativeFinancial] Created snapshot to save - Deposited: {newSnapshot.Deposited.Value}, MovementCounter: {newSnapshot.MovementCounter}")
+            
             // Save the snapshot to database
             do! newSnapshot.save()
+            
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialCumulativeFinancial] Snapshot saved successfully with ID: {newSnapshot.Base.Id}")
         }
 
