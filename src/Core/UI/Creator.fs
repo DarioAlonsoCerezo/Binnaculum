@@ -75,7 +75,7 @@ module Creator =
             | _ -> movement
         
         let databaseModel = movementWithDefaults.brokerMovementToDatabase()
-        do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask
         
         // Update snapshots for this movement using reactive manager
         let datePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
@@ -85,10 +85,10 @@ module Creator =
 
     let SaveBankMovement(movement: Binnaculum.Core.Models.BankAccountMovement) = task {
         let databaseModel = movement.bankAccountMovementToDatabase()
-        do! Saver.saveBankMovement(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveBankMovement(databaseModel) |> Async.AwaitTask
         
         // Update snapshots for this movement
-        do! SnapshotManager.handleBankMovementSnapshot(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        do! SnapshotManager.handleBankMovementSnapshot(databaseModel) |> Async.AwaitTask
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ module Creator =
     /// </summary>
     let SaveTrade(trade: Binnaculum.Core.Models.Trade) = task {
         let databaseTrade = trade.tradeToDatabase()
-        do! Saver.saveTrade(databaseTrade) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveTrade(databaseTrade) |> Async.AwaitTask
         
         // Update snapshots for this trade using reactive manager
         let datePattern = DateTimePattern.FromDateTime(trade.TimeStamp)
@@ -129,7 +129,7 @@ module Creator =
     /// </summary>
     let SaveDividend(dividend: Binnaculum.Core.Models.Dividend) = task {
         let databaseDividend = dividend.dividendReceivedToDatabase()
-        do! Saver.saveDividend(databaseDividend) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveDividend(databaseDividend) |> Async.AwaitTask
         
         // Update snapshots for this dividend using reactive manager
         let datePattern = DateTimePattern.FromDateTime(dividend.TimeStamp)
@@ -142,7 +142,7 @@ module Creator =
     /// </summary>
     let SaveDividendDate(dividendDate: Binnaculum.Core.Models.DividendDate) = task {
         let databaseModel = dividendDate.dividendDateToDatabase()
-        do! Saver.saveDividendDate(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveDividendDate(databaseModel) |> Async.AwaitTask
         
         // Update snapshots for this dividend date using reactive manager
         let datePattern = DateTimePattern.FromDateTime(dividendDate.TimeStamp)
@@ -155,7 +155,7 @@ module Creator =
     /// </summary>
     let SaveDividendTax(dividendTax: Binnaculum.Core.Models.DividendTax) = task {
         let databaseModel = dividendTax.dividendTaxToDatabase()
-        do! Saver.saveDividendTax(databaseModel) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveDividendTax(databaseModel) |> Async.AwaitTask
         
         // Update snapshots for this dividend tax using reactive manager
         let datePattern = DateTimePattern.FromDateTime(dividendTax.TimeStamp)
@@ -179,7 +179,7 @@ module Creator =
             )
         
         let databaseModels = expandedTrades.optionTradesToDatabase()
-        do! Saver.saveOptionsTrade(databaseModels) |> Async.AwaitTask |> Async.Ignore
+        do! Saver.saveOptionsTrade(databaseModels) |> Async.AwaitTask
         
         // Update snapshots for all affected broker accounts using reactive manager
         let uniqueBrokerAccountDates = 
