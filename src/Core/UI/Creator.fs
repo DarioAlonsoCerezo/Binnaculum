@@ -79,15 +79,21 @@ module Creator =
         
         // Update snapshots for this movement using reactive manager
         let movementDatePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
+        System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement - About to update snapshots for movement date: {movementDatePattern}, Amount: {movement.Amount}, Type: {movement.MovementType}")
         do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, movementDatePattern) |> Async.AwaitTask
+        System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement - Historical movement date snapshot update completed")
         
         // If this is a historical movement (not today), also update today's snapshot to reflect the new data
         let today = DateTime.Now.Date
         let movementDate = movement.TimeStamp.Date
         if movementDate < today then
-            System.Diagnostics.Debug.WriteLine($"[Creator] Historical movement detected - also updating today's snapshot")
+            System.Diagnostics.Debug.WriteLine($"[Creator] Historical movement detected - Movement date: {movementDate}, Today: {today}")
+            System.Diagnostics.Debug.WriteLine($"[Creator] About to update today's snapshot to reflect historical deposit of {movement.Amount}")
             let todayPattern = DateTimePattern.FromDateTime(today.AddDays(1).AddTicks(-1)) // End of today
             do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, todayPattern) |> Async.AwaitTask
+            System.Diagnostics.Debug.WriteLine($"[Creator] Today's snapshot update completed after historical movement")
+        else
+            System.Diagnostics.Debug.WriteLine($"[Creator] Movement is for today - no additional snapshot update needed")
         
         ReactiveSnapshotManager.refresh()
     }
