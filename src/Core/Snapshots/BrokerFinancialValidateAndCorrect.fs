@@ -14,6 +14,10 @@ module internal BrokerFinancialValidateAndCorrect =
         (existing: BrokerFinancialSnapshot)
         =
         task {
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Starting snapshotConsistency check")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Previous: Deposited={previous.Deposited.Value}, MovementCounter={previous.MovementCounter}")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Existing: Deposited={existing.Deposited.Value}, MovementCounter={existing.MovementCounter}")
+            
             let snapshotsDiffer =
                 previous.RealizedGains <> existing.RealizedGains ||
                 previous.RealizedPercentage <> existing.RealizedPercentage ||
@@ -30,6 +34,7 @@ module internal BrokerFinancialValidateAndCorrect =
                 previous.OpenTrades <> existing.OpenTrades ||
                 previous.MovementCounter <> existing.MovementCounter
             if snapshotsDiffer then
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Snapshots differ - applying correction")
                 let correctedSnapshot = {
                     existing with
                         RealizedGains = previous.RealizedGains
@@ -48,6 +53,9 @@ module internal BrokerFinancialValidateAndCorrect =
                         MovementCounter = previous.MovementCounter
                 }
                 do! correctedSnapshot.save()
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Corrected snapshot saved - Deposited: {correctedSnapshot.Deposited.Value}, MovementCounter: {correctedSnapshot.MovementCounter}")
+            else
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Snapshots are consistent - no correction needed")
             // If no difference, do nothing
         }
 

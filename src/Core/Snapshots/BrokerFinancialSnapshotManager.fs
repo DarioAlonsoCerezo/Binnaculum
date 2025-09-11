@@ -159,7 +159,11 @@ module internal BrokerFinancialSnapshotManager =
                     ()                
                 // SCENARIO G: No movements, has previous snapshot, has existing snapshot
                 | None, Some previous, Some existing ->
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] SCENARIO G: No movements, has previous snapshot, has existing snapshot")
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Previous snapshot - Deposited: {previous.Deposited.Value}, MovementCounter: {previous.MovementCounter}")
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Existing snapshot - Deposited: {existing.Deposited.Value}, MovementCounter: {existing.MovementCounter}")
                     do! BrokerFinancialValidateAndCorrect.snapshotConsistency previous existing
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] SCENARIO G completed - snapshot consistency validation/correction applied")
                 // SCENARIO H: No movements, no previous snapshot, has existing snapshot  
                 | None, None, Some existing ->
                     // Existing snapshot should be validated or cleaned up
