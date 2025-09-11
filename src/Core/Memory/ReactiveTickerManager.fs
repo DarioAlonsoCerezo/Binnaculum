@@ -79,9 +79,12 @@ module ReactiveTickerManager =
         | true, ticker -> ticker
         | false, _ ->
             // Fallback to linear search and cache the result
-            let ticker = Collections.Tickers.Items |> Seq.find(fun t -> t.Symbol = symbol)
-            tickerCache.TryAdd(symbol, ticker) |> ignore
-            ticker
+            match Collections.Tickers.Items |> Seq.tryFind(fun t -> t.Symbol = symbol) with
+            | Some ticker ->
+                tickerCache.TryAdd(symbol, ticker) |> ignore
+                ticker
+            | None ->
+                raise (System.Collections.Generic.KeyNotFoundException($"Ticker with symbol '{symbol}' not found in Collections.Tickers"))
     
     /// <summary>
     /// Get a reactive observable that emits the ticker when it becomes available
@@ -104,9 +107,12 @@ module ReactiveTickerManager =
         | true, ticker -> ticker
         | false, _ ->
             // Fallback to linear search and cache the result
-            let ticker = Collections.Tickers.Items |> Seq.find(fun t -> t.Id = id)
-            tickerCacheById.TryAdd(id, ticker) |> ignore
-            ticker
+            match Collections.Tickers.Items |> Seq.tryFind(fun t -> t.Id = id) with
+            | Some ticker ->
+                tickerCacheById.TryAdd(id, ticker) |> ignore
+                ticker
+            | None ->
+                raise (System.Collections.Generic.KeyNotFoundException($"Ticker with ID {id} not found in Collections.Tickers"))
     
     /// <summary>
     /// Get a reactive observable that emits the ticker when it becomes available by ID

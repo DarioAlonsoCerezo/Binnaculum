@@ -108,12 +108,14 @@ module ReactiveBrokerAccountManager =
         | true, brokerAccount -> brokerAccount
         | false, _ ->
             // Fallback to linear search and cache the result
-            let account = Collections.Accounts.Items 
-                         |> Seq.find(fun b -> b.Broker.IsSome && b.Broker.Value.Id = id)
-            let brokerAccount = account.Broker.Value
-            brokerAccountCacheById.TryAdd(id, brokerAccount) |> ignore
-            brokerAccountCacheByAccountNumber.TryAdd(brokerAccount.AccountNumber, brokerAccount) |> ignore
-            brokerAccount
+            match Collections.Accounts.Items |> Seq.tryFind(fun b -> b.Broker.IsSome && b.Broker.Value.Id = id) with
+            | Some account ->
+                let brokerAccount = account.Broker.Value
+                brokerAccountCacheById.TryAdd(id, brokerAccount) |> ignore
+                brokerAccountCacheByAccountNumber.TryAdd(brokerAccount.AccountNumber, brokerAccount) |> ignore
+                brokerAccount
+            | None ->
+                raise (System.Collections.Generic.KeyNotFoundException($"Broker account with ID {id} not found in Collections.Accounts"))
     
     /// <summary>
     /// Get a broker account by account number with O(1) lookup performance.

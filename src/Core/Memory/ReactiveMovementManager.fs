@@ -66,8 +66,11 @@ module ReactiveMovementManager =
                             |> List.length > 0
                         if hasMovements <> account.HasMovements then
                             let updatedAccount = { account with HasMovements = hasMovements }
-                            let current = Collections.Accounts.Items |> Seq.find(fun a -> a.Bank.IsSome && a.Bank.Value.Id = account.Bank.Value.Id)
-                            Collections.Accounts.Replace(current, updatedAccount)
+                            match Collections.Accounts.Items |> Seq.tryFind(fun a -> a.Bank.IsSome && a.Bank.Value.Id = account.Bank.Value.Id) with
+                            | Some current -> Collections.Accounts.Replace(current, updatedAccount)
+                            | None -> 
+                                // Log the issue but don't fail the entire operation since this is a background update
+                                System.Diagnostics.Debug.WriteLine($"[ReactiveMovementManager] Bank account with ID {account.Bank.Value.Id} not found in Collections.Accounts for movement update - this may indicate a race condition")
 
                     if account.Broker.IsSome then
                         // Use async database query for broker accounts (same as original)
