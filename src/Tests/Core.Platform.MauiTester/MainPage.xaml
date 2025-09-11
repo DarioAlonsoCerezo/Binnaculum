@@ -1,15 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Core.Platform.MauiTester.MainPage"
-             Title="Core Platform Tester">
+<ContentPage
+    x:Class="Core.Platform.MauiTester.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Core Platform Tester">
 
     <ScrollView>
         <VerticalStackLayout
             Padding="20"
             Spacing="20">
-            
-            <!-- Header -->
+
+            <!--  Header  -->
             <Label
                 Text="Core Platform Tester"
                 FontSize="24"
@@ -23,7 +24,7 @@
                 HorizontalTextAlignment="Center"
                 TextColor="Gray" />
 
-            <!-- Main Test Button -->
+            <!--  Main Test Button  -->
             <Button
                 x:Name="RunTestButton"
                 Text="Run Overview Test"
@@ -36,12 +37,11 @@
                 SemanticProperties.Hint="Runs Core Platform validation tests"
                 HorizontalOptions="Fill" />
 
-            <!-- Status Display -->
-            <Frame 
-                BackgroundColor="LightGray"
+            <!--  Status Display  -->
+            <Border
                 Padding="15"
-                CornerRadius="5"
-                HasShadow="False">
+                BackgroundColor="LightGray"
+                StrokeShape="RoundRectangle 5">
                 <VerticalStackLayout Spacing="10">
                     <Label
                         Text="Status:"
@@ -57,32 +57,38 @@
                         FontAttributes="Bold"
                         HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
-            <!-- Test Results Section -->
-            <Frame 
-                BackgroundColor="White"
+            <!--  Test Results Section  -->
+            <Border
                 Padding="15"
-                CornerRadius="5"
-                HasShadow="True"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 5"
                 IsVisible="{Binding IsCompleted}">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="Black"
+                        Radius="5"
+                        Opacity="0.3"
+                        Offset="2,2" />
+                </Border.Shadow>
                 <VerticalStackLayout Spacing="10">
                     <Label
                         Text="Test Results"
                         FontSize="18"
                         FontAttributes="Bold"
                         HorizontalTextAlignment="Center" />
-                    
-                    <!-- Results List -->
+
+                    <!--  Results List  -->
                     <CollectionView
                         x:Name="ResultsCollectionView"
                         ItemsSource="{Binding Steps}"
                         HeightRequest="300">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid 
+                                <Grid
                                     Padding="10,5"
-                                    ColumnDefinitions="30,*,Auto">
+                                    ColumnDefinitions="30,*,120">
                                     <Label
                                         Grid.Column="0"
                                         Text="{Binding StatusIcon}"
@@ -95,19 +101,25 @@
                                         VerticalTextAlignment="Center" />
                                     <Label
                                         Grid.Column="2"
+                                        Margin="0,0,0,12"
                                         Text="{Binding Details}"
                                         FontSize="12"
                                         TextColor="Gray"
                                         VerticalTextAlignment="Center" />
+                                    <Border
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="3"
+                                        StrokeThickness="1"
+                                        VerticalOptions="End" />
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
-            <!-- Action Buttons -->
-            <StackLayout 
+            <!--  Action Buttons  -->
+            <StackLayout
                 Orientation="Horizontal"
                 HorizontalOptions="Center"
                 Spacing="10"
