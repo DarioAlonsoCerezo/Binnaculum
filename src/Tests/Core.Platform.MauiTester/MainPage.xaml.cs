@@ -30,6 +30,11 @@ namespace Core.Platform.MauiTester
             await ExecuteTestAsync(_testRunner.ExecuteBrokerAccountCreationTestAsync, "Run BrokerAccount Creation Test", "BrokerAccount Creation");
         }
 
+        private async void OnRunBrokerAccountDepositTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync(_testRunner.ExecuteBrokerAccountDepositTestAsync, "Run BrokerAccount + Deposit Test", "BrokerAccount + Deposit");
+        }
+
         private async Task ExecuteTestAsync(Func<Action<string>, Task<OverallTestResult>> testMethod, string buttonText, string testName)
         {
             try
@@ -44,6 +49,7 @@ namespace Core.Platform.MauiTester
                 // Update UI to show test is running
                 RunTestButton.Text = "Running Test...";
                 RunBrokerAccountTestButton.Text = "Running Test...";
+                RunBrokerAccountDepositTestButton.Text = "Running Test...";
 
                 // Execute the test with progress updates
                 var result = await testMethod(UpdateProgressStatus);
@@ -55,6 +61,7 @@ namespace Core.Platform.MauiTester
                 // Reset button text
                 RunTestButton.Text = "Run Overview Test";
                 RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
+                RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
 
                 _logService.Log($"{testName} test execution completed. Overall result: {result.AllTestsPassed}");
             }
@@ -73,6 +80,7 @@ namespace Core.Platform.MauiTester
 
                 RunTestButton.Text = "Run Overview Test";
                 RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
+                RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
 
                 await DisplayAlert("Test Error", $"An error occurred while running the {testName} test:\n\n{ex.Message}", "OK");
             }
@@ -111,6 +119,8 @@ namespace Core.Platform.MauiTester
             _currentResult = new OverallTestResult();
             BindingContext = _currentResult;
             RunTestButton.Text = "Run Overview Test";
+            RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
+            RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
         }
     }
 }
