@@ -35,6 +35,11 @@ namespace Core.Platform.MauiTester
             await ExecuteTestAsync(_testRunner.ExecuteBrokerAccountDepositTestAsync, "Run BrokerAccount + Deposit Test", "BrokerAccount + Deposit");
         }
 
+        private async void OnRunBrokerAccountMultipleMovementsTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync(_testRunner.ExecuteBrokerAccountMultipleMovementsTestAsync, "Run BrokerAccount Multiple Movements Test", "BrokerAccount Multiple Movements");
+        }
+
         private async Task ExecuteTestAsync(Func<Action<string>, Task<OverallTestResult>> testMethod, string buttonText, string testName)
         {
             try
@@ -50,6 +55,7 @@ namespace Core.Platform.MauiTester
                 RunTestButton.Text = "Running Test...";
                 RunBrokerAccountTestButton.Text = "Running Test...";
                 RunBrokerAccountDepositTestButton.Text = "Running Test...";
+                RunBrokerAccountMultipleMovementsTestButton.Text = "Running Test...";
 
                 // Execute the test with progress updates
                 var result = await testMethod(UpdateProgressStatus);
@@ -62,6 +68,7 @@ namespace Core.Platform.MauiTester
                 RunTestButton.Text = "Run Overview Test";
                 RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
                 RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
+                RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
 
                 _logService.Log($"{testName} test execution completed. Overall result: {result.AllTestsPassed}");
             }
@@ -81,6 +88,7 @@ namespace Core.Platform.MauiTester
                 RunTestButton.Text = "Run Overview Test";
                 RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
                 RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
+                RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
 
                 await DisplayAlert("Test Error", $"An error occurred while running the {testName} test:\n\n{ex.Message}", "OK");
             }
@@ -121,6 +129,7 @@ namespace Core.Platform.MauiTester
             RunTestButton.Text = "Run Overview Test";
             RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
             RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
+            RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
         }
     }
 }
