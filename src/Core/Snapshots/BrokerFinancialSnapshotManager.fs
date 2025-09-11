@@ -81,12 +81,25 @@ module internal BrokerFinancialSnapshotManager =
             // 2.3. ✅ Filter and group to get the most recent previous snapshot per currency
             // This finds the actual latest snapshot before target date for each currency,
             // regardless of whether it was yesterday, last week, or months ago
-            let relevantPreviousSnapshots = 
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Target date for comparison: {targetDate.Value}")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Filtering snapshots before target date...")
+            let filteredSnapshots = 
                 allPreviousFinancialSnapshots
-                |> List.filter (fun snap -> snap.Base.Date.Value < targetDate.Value)
+                |> List.filter (fun snap -> 
+                    let isBeforeTarget = snap.Base.Date.Value < targetDate.Value
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Snapshot Date={snap.Base.Date.Value}, IsBeforeTarget={isBeforeTarget}, CurrencyId={snap.CurrencyId}, Deposited={snap.Deposited.Value}")
+                    isBeforeTarget)
+            
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Filtered snapshots count: {filteredSnapshots.Length}")
+            
+            let relevantPreviousSnapshots = 
+                filteredSnapshots
                 |> List.groupBy (fun snap -> snap.CurrencyId)
                 |> List.map (fun (currencyId, snaps) -> 
-                    snaps |> List.maxBy (fun s -> s.Base.Date.Value))
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Processing currency {currencyId} with {snaps.Length} snapshots")
+                    let latestSnap = snaps |> List.maxBy (fun s -> s.Base.Date.Value)
+                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Latest snapshot for currency {currencyId}: Date={latestSnap.Base.Date.Value}, Deposited={latestSnap.Deposited.Value}")
+                    latestSnap)
             
             System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Relevant previous snapshots: {relevantPreviousSnapshots.Length}")
             for snap in relevantPreviousSnapshots do
@@ -107,6 +120,13 @@ module internal BrokerFinancialSnapshotManager =
             let allRelevantCurrencies = 
                 Set.union currenciesWithMovements currenciesWithPreviousSnapshots
             System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] All relevant currencies to process: {allRelevantCurrencies |> Set.toList}")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currency processing summary:")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] - Currencies with movements: {currenciesWithMovements |> Set.count}")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] - Currencies with previous snapshots: {currenciesWithPreviousSnapshots |> Set.count}")
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] - Total currencies to process: {allRelevantCurrencies |> Set.count}")
+            
+            if Set.isEmpty allRelevantCurrencies then
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] *** WARNING: No currencies to process! This may indicate a problem with previous snapshot detection. ***")
             
             // Financial snapshots are created within the scenario processing loop
             // unlike BrokerAccountSnapshotManager where account snapshots need pre-creation
