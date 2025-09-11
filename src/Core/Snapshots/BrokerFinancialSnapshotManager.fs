@@ -68,11 +68,11 @@ module internal BrokerFinancialSnapshotManager =
                     brokerAccountSnapshot.Base.Id, 
                     targetDate)
             
-            // 2.2. ✅ Get all previous financial snapshots for historical continuity
-            // We need these as baseline for cumulative calculations (RealizedGains, Invested, etc.)
-            // This gets ALL previous snapshots and we'll filter to find the most recent ones per currency
+            // 2.2. ✅ Get ALL financial snapshots for this broker account from database
+            // This includes snapshots from all dates (yesterday, last week, months ago)
+            // We need the complete historical context to make informed decisions about previous snapshots
             let! allPreviousFinancialSnapshots = 
-                BrokerFinancialSnapshotExtensions.Do.getLatestByBrokerAccountIdGroupedByDate(brokerAccountId)
+                BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountId(brokerAccountId)
             
             System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] All previous snapshots loaded: {allPreviousFinancialSnapshots.Length}")
             for snap in allPreviousFinancialSnapshots do

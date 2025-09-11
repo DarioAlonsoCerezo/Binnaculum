@@ -82,6 +82,7 @@ module internal SnapshotManagerUtils =
             | None -> 
                 System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - Error: Currency {preferenceCurrency} not found")
                 failwithf "Default currency %s not found and no fallback currency available" preferenceCurrency
+                return -1 // This line will never be reached but satisfies the compiler
         with
         | ex ->
             System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - EXCEPTION: {ex.Message}")
@@ -89,6 +90,7 @@ module internal SnapshotManagerUtils =
             let innerMsg = if ex.InnerException <> null then ex.InnerException.Message else "None"
             System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - INNER EXCEPTION: {innerMsg}")
             raise ex
+            return -1 // This line will never be reached but satisfies the compiler
     }
 
 /// <summary>
