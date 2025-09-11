@@ -68,7 +68,9 @@ type Do() =
         }
 
     [<Extension>]
-    static member save(snapshot: BrokerFinancialSnapshot) = Database.Do.saveEntity snapshot (fun s c -> s.fill c)
+    static member save(snapshot: BrokerFinancialSnapshot) = 
+        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: {snapshot.Base.Id}, CurrencyId: {snapshot.CurrencyId}, Deposited: {snapshot.Deposited.Value}, MovementCounter: {snapshot.MovementCounter}")
+        Database.Do.saveEntity snapshot (fun s c -> s.fill c)
 
     [<Extension>]
     static member delete(snapshot: BrokerFinancialSnapshot) = Database.Do.deleteEntity snapshot
