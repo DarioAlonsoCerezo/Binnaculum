@@ -79,9 +79,12 @@ module ReactiveCurrencyManager =
         | true, currency -> currency
         | false, _ ->
             // Fallback to linear search and cache the result
-            let currency = Collections.Currencies.Items |> Seq.find(fun c -> c.Code = code)
-            currencyCache.TryAdd(code, currency) |> ignore
-            currency
+            match Collections.Currencies.Items |> Seq.tryFind(fun c -> c.Code = code) with
+            | Some currency ->
+                currencyCache.TryAdd(code, currency) |> ignore
+                currency
+            | None ->
+                raise (System.Collections.Generic.KeyNotFoundException($"Currency with code '{code}' not found in Collections.Currencies"))
     
     /// <summary>
     /// Get a reactive observable that emits the currency when it becomes available
@@ -104,9 +107,12 @@ module ReactiveCurrencyManager =
         | true, currency -> currency
         | false, _ ->
             // Fallback to linear search and cache the result
-            let currency = Collections.Currencies.Items |> Seq.find(fun c -> c.Id = id)
-            currencyCacheById.TryAdd(id, currency) |> ignore
-            currency
+            match Collections.Currencies.Items |> Seq.tryFind(fun c -> c.Id = id) with
+            | Some currency ->
+                currencyCacheById.TryAdd(id, currency) |> ignore
+                currency
+            | None ->
+                raise (System.Collections.Generic.KeyNotFoundException($"Currency with ID {id} not found in Collections.Currencies"))
     
     /// <summary>
     /// Get a reactive observable that emits the currency when it becomes available by ID

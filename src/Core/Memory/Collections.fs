@@ -94,24 +94,27 @@ module Collections =
     /// It finds the current broker account in the list by its ID and replaces it with the updated broker account information.
     /// </summary>
     let internal updateBrokerAccount(updated: Account) =
-        let current = Accounts.Items |> Seq.find(fun b -> b.Broker.IsSome && b.Broker.Value.Id = updated.Broker.Value.Id)
-        Accounts.Replace(current, updated)
+        match Accounts.Items |> Seq.tryFind(fun b -> b.Broker.IsSome && b.Broker.Value.Id = updated.Broker.Value.Id) with
+        | Some current -> Accounts.Replace(current, updated)
+        | None -> failwithf "Broker account with ID %d not found for update" updated.Broker.Value.Id
 
     /// <summary>
     /// This function is used to update the list of brokers in the UI.
     /// It finds the current broker in the list by its ID and replaces it with the updated broker information.
     /// </summary>
     let internal updateBroker(broker: Broker) =
-        let current = Brokers.Items |> Seq.find(fun b -> b.Id = broker.Id)
-        Brokers.Replace(current, broker)
+        match Brokers.Items |> Seq.tryFind(fun b -> b.Id = broker.Id) with
+        | Some current -> Brokers.Replace(current, broker)
+        | None -> failwithf "Broker with ID %d not found for update" broker.Id
 
     /// <summary>
     /// This function is used to update the list of banks in the UI.
     /// It finds the current bank in the list by its ID and replaces it with the updated bank information.
     /// </summary>
     let internal updateBank(updated: Bank) =
-        let current = Banks.Items |> Seq.find(fun b -> b.Id = updated.Id)
-        Banks.Replace(current, updated)
+        match Banks.Items |> Seq.tryFind(fun b -> b.Id = updated.Id) with
+        | Some current -> Banks.Replace(current, updated)
+        | None -> failwithf "Bank with ID %d not found for update" updated.Id
 
     /// <summary>
     /// This function is used to get the latest ticker snapshot by ticker ID.

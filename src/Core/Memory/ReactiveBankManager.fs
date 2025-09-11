@@ -69,9 +69,12 @@ module ReactiveBankManager =
         | true, bank -> bank
         | false, _ ->
             // Fallback to linear search and cache the result
-            let bank = Collections.Banks.Items |> Seq.find(fun b -> b.Id = id)
-            bankCacheById.TryAdd(id, bank) |> ignore
-            bank
+            match Collections.Banks.Items |> Seq.tryFind(fun b -> b.Id = id) with
+            | Some bank ->
+                bankCacheById.TryAdd(id, bank) |> ignore
+                bank
+            | None ->
+                raise (System.Collections.Generic.KeyNotFoundException($"Bank with ID {id} not found in Collections.Banks"))
     
     /// <summary>
     /// Get a reactive observable that emits the bank when it becomes available by ID

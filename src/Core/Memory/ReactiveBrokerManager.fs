@@ -69,9 +69,12 @@ module ReactiveBrokerManager =
         | true, broker -> broker
         | false, _ ->
             // Fallback to linear search and cache the result
-            let broker = Collections.Brokers.Items |> Seq.find(fun b -> b.Id = id)
-            brokerCacheById.TryAdd(id, broker) |> ignore
-            broker
+            match Collections.Brokers.Items |> Seq.tryFind(fun b -> b.Id = id) with
+            | Some broker ->
+                brokerCacheById.TryAdd(id, broker) |> ignore
+                broker
+            | None ->
+                raise (System.Collections.Generic.KeyNotFoundException($"Broker with ID {id} not found in Collections.Brokers"))
     
     /// <summary>
     /// Get a reactive observable that emits the broker when it becomes available by ID

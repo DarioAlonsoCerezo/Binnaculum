@@ -119,12 +119,13 @@ module ReactiveBankAccountManager =
         | true, bankAccount -> bankAccount
         | false, _ ->
             // Fallback to linear search and cache the result
-            let bankAccount = 
-                Collections.Accounts.Items 
-                |> Seq.find(fun account -> account.Bank.IsSome && account.Bank.Value.Id = id)
-                |> fun account -> account.Bank.Value
-            bankAccountCacheById.TryAdd(id, bankAccount) |> ignore
-            bankAccount
+            match Collections.Accounts.Items |> Seq.tryFind(fun account -> account.Bank.IsSome && account.Bank.Value.Id = id) with
+            | Some account ->
+                let bankAccount = account.Bank.Value
+                bankAccountCacheById.TryAdd(id, bankAccount) |> ignore
+                bankAccount
+            | None ->
+                raise (System.Collections.Generic.KeyNotFoundException($"Bank account with ID {id} not found in Collections.Accounts"))
     
     /// <summary>
     /// Get a reactive observable that emits the bank account when it becomes available by ID
