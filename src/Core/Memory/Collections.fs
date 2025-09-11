@@ -126,3 +126,26 @@ module Collections =
     /// </summary>
     let internal getTickerSnapshotsByTickerId(tickerId: int) =
         TickerSnapshots.Items |> Seq.filter(fun s -> s.Ticker.Id = tickerId) |> Seq.toList
+
+    /// <summary>
+    /// 🚨 WARNING: TEST-ONLY METHOD - DO NOT USE IN PRODUCTION! 🚨
+    /// Clears all in-memory collections for testing purposes only.
+    /// This method is intended strictly for integration tests to reset all collections
+    /// to a clean state as if the app was freshly installed.
+    /// </summary>
+    let clearAllCollectionsForTesting() =
+        // Clear all SourceList collections
+        Brokers.Clear()
+        Currencies.Clear()
+        Banks.Clear()
+        Accounts.Clear()
+        Movements.Clear()
+        AccountMovements.Clear()
+        AvailableImages.Clear()
+        Tickers.Clear()
+        Snapshots.Clear()
+        TickerSnapshots.Clear()
+        
+        // Reset BehaviorSubject collections to their empty/default states
+        AccountDetails.OnNext({ Type = AccountType.EmptyAccount; Broker = None; Bank = None; HasMovements = false; })
+        MovementDetails.OnNext(emptyMovement())

@@ -4,6 +4,7 @@ open Microsoft.Data.Sqlite
 open System.IO
 open Microsoft.Maui.Storage
 open System.Data
+open Binnaculum.Core.TableName
 
 module internal Do =
     type IEntity =
@@ -155,4 +156,44 @@ module internal Do =
 
     let init() = task {
         return connect() |> Async.AwaitTask |> Async.Ignore
+    }
+
+    /// <summary>
+    /// 🚨 WARNING: TEST-ONLY METHOD - DO NOT USE IN PRODUCTION! 🚨
+    /// Wipes all data from all database tables for testing purposes only.
+    /// This method is intended strictly for integration tests to reset the database
+    /// to a clean state as if the app was freshly installed.
+    /// </summary>
+    let wipeAllTablesForTesting() = task {
+        // List of all table names in the order they should be wiped
+        // (reverse order of dependencies to avoid foreign key constraints)
+        let tableNames = [
+            InvestmentOverviewSnapshots
+            BrokerFinancialSnapshots
+            BankSnapshots
+            BankAccountSnapshots
+            BrokerSnapshots
+            BrokerAccountSnapshots
+            TickerCurrencySnapshots
+            TickerSnapshots
+            BankAccountMovements
+            BankAccounts
+            Banks
+            Options
+            DividendDates
+            DividendTaxes
+            Dividends
+            Trades
+            TickerSplits
+            TickerPrices
+            Tickers
+            BrokerMovements
+            Currencies
+            BrokerAccounts
+            Brokers
+        ]
+
+        // Clean all tables sequentially to avoid foreign key constraint issues
+        for tableName in tableNames do
+            do! cleanTable(tableName) |> Async.AwaitTask |> Async.Ignore
     }
