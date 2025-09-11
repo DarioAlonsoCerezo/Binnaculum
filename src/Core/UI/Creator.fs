@@ -55,41 +55,65 @@ module Creator =
     }
 
     let SaveBrokerMovement(movement: Binnaculum.Core.Models.BrokerMovement) = task {
-        // Validate FromCurrency based on MovementType
-        match movement.MovementType, movement.FromCurrency with
-        | Binnaculum.Core.Models.BrokerMovementType.Conversion, None ->
-            failwith "FromCurrency is required when MovementType is Conversion"
-        | Binnaculum.Core.Models.BrokerMovementType.Conversion, Some _ ->
-            () // Valid: Conversion with FromCurrency
-        | _, Some _ ->
-            failwith "FromCurrency should only be set when MovementType is Conversion"
-        | _, None ->
-            () // Valid: Non-conversion without FromCurrency
-        
-        // Set default AmountChanged for Conversion movements if not provided
-        let movementWithDefaults = 
-            match movement.MovementType, movement.AmountChanged with
+        try
+            System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement ENTRY - Amount: {movement.Amount}, Type: {movement.MovementType}, BrokerAccountId: {movement.BrokerAccount.Id}, Date: {movement.TimeStamp}")
+            
+            // Validate FromCurrency based on MovementType
+            System.Diagnostics.Debug.WriteLine($"[Creator] Validating movement type and FromCurrency...")
+            match movement.MovementType, movement.FromCurrency with
             | Binnaculum.Core.Models.BrokerMovementType.Conversion, None ->
-                // Set default value for AmountChanged (using the same amount as the main Amount for now)
-                { movement with AmountChanged = Some movement.Amount }
-            | _ -> movement
-        
-        let databaseModel = movementWithDefaults.brokerMovementToDatabase()
-        do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask
-        
-        // Update snapshots for this movement using reactive manager
-        let movementDatePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, movementDatePattern) |> Async.AwaitTask
-        
-        // If this is a historical movement (not today), also update today's snapshot to reflect the new data
-        let today = DateTime.Now.Date
-        let movementDate = movement.TimeStamp.Date
-        if movementDate < today then
-            System.Diagnostics.Debug.WriteLine($"[Creator] Historical movement detected - also updating today's snapshot")
-            let todayPattern = DateTimePattern.FromDateTime(today.AddDays(1).AddTicks(-1)) // End of today
-            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, todayPattern) |> Async.AwaitTask
-        
-        ReactiveSnapshotManager.refresh()
+                failwith "FromCurrency is required when MovementType is Conversion"
+            | Binnaculum.Core.Models.BrokerMovementType.Conversion, Some _ ->
+                () // Valid: Conversion with FromCurrency
+            | _, Some _ ->
+                failwith "FromCurrency should only be set when MovementType is Conversion"
+            | _, None ->
+                () // Valid: Non-conversion without FromCurrency
+            
+            System.Diagnostics.Debug.WriteLine($"[Creator] Movement validation passed")
+            
+            // Set default AmountChanged for Conversion movements if not provided
+            let movementWithDefaults = 
+                match movement.MovementType, movement.AmountChanged with
+                | Binnaculum.Core.Models.BrokerMovementType.Conversion, None ->
+                    // Set default value for AmountChanged (using the same amount as the main Amount for now)
+                    { movement with AmountChanged = Some movement.Amount }
+                | _ -> movement
+            
+            System.Diagnostics.Debug.WriteLine($"[Creator] Converting movement to database model...")
+            let databaseModel = movementWithDefaults.brokerMovementToDatabase()
+            System.Diagnostics.Debug.WriteLine($"[Creator] Database model created, saving movement...")
+            do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask
+            System.Diagnostics.Debug.WriteLine($"[Creator] Movement saved to database successfully")
+            
+            // Update snapshots for this movement using reactive manager
+            let movementDatePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
+            System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement - About to update snapshots for movement date: {movementDatePattern}, Amount: {movement.Amount}, Type: {movement.MovementType}")
+            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, movementDatePattern) |> Async.AwaitTask
+            System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement - Historical movement date snapshot update completed")
+            
+            // If this is a historical movement (not today), also update today's snapshot to reflect the new data
+            let today = DateTime.Now.Date
+            let movementDate = movement.TimeStamp.Date
+            System.Diagnostics.Debug.WriteLine($"[Creator] Checking if historical movement - Movement date: {movementDate}, Today: {today}")
+            if movementDate < today then
+                System.Diagnostics.Debug.WriteLine($"[Creator] *** HISTORICAL MOVEMENT DETECTED *** - Movement date: {movementDate}, Today: {today}")
+                System.Diagnostics.Debug.WriteLine($"[Creator] About to update today's snapshot to reflect historical deposit of {movement.Amount}")
+                let todayPattern = DateTimePattern.FromDateTime(today.AddDays(1).AddTicks(-1)) // End of today
+                System.Diagnostics.Debug.WriteLine($"[Creator] Today pattern calculated: {todayPattern}")
+                do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, todayPattern) |> Async.AwaitTask
+                System.Diagnostics.Debug.WriteLine($"[Creator] *** TODAY'S SNAPSHOT UPDATE COMPLETED AFTER HISTORICAL MOVEMENT ***")
+            else
+                System.Diagnostics.Debug.WriteLine($"[Creator] Movement is for today - no additional snapshot update needed")
+            
+            System.Diagnostics.Debug.WriteLine($"[Creator] Refreshing reactive snapshot manager...")
+            ReactiveSnapshotManager.refresh()
+            System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement COMPLETED SUCCESSFULLY")
+        with
+        | ex ->
+            System.Diagnostics.Debug.WriteLine($"[Creator] *** ERROR IN SaveBrokerMovement *** - Exception: {ex.Message}")
+            System.Diagnostics.Debug.WriteLine($"[Creator] *** STACK TRACE *** - {ex.StackTrace}")
+            raise ex
     }
 
     let SaveBankMovement(movement: Binnaculum.Core.Models.BankAccountMovement) = task {

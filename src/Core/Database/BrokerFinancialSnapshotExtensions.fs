@@ -14,6 +14,7 @@ type Do() =
     
     [<Extension>]
     static member fill(snapshot: BrokerFinancialSnapshot, command: SqliteCommand) =
+        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: {snapshot.Deposited.Value}, MovementCounter: {snapshot.MovementCounter}")
         command.fillEntityAuditable<BrokerFinancialSnapshot>(
             [
                 (SQLParameterName.Date, snapshot.Base.Date.ToString());
@@ -68,7 +69,22 @@ type Do() =
         }
 
     [<Extension>]
-    static member save(snapshot: BrokerFinancialSnapshot) = Database.Do.saveEntity snapshot (fun s c -> s.fill c)
+    static member save(snapshot: BrokerFinancialSnapshot) = 
+        task {
+            try
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: {snapshot.Base.Id}, CurrencyId: {snapshot.CurrencyId}, Deposited: {snapshot.Deposited.Value}, MovementCounter: {snapshot.MovementCounter}")
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...")
+                let! result = Database.Do.saveEntity snapshot (fun s c -> s.fill c)
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully")
+                return result
+            with
+            | ex ->
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] *** EXCEPTION IN SAVE *** - {ex.Message}")
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] *** STACK TRACE *** - {ex.StackTrace}")
+                let innerMsg = if ex.InnerException <> null then ex.InnerException.Message else "None"
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] *** INNER EXCEPTION *** - {innerMsg}")
+                raise ex
+        }
 
     [<Extension>]
     static member delete(snapshot: BrokerFinancialSnapshot) = Database.Do.deleteEntity snapshot

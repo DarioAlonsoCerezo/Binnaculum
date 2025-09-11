@@ -34,7 +34,7 @@ type Do() =
 
     [<Extension>]
     static member read(reader: SqliteDataReader) =
-        {
+        let movement = {
             Id = reader.getInt32 FieldName.Id
             TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
             Amount = reader.getMoney FieldName.Amount
@@ -50,6 +50,8 @@ type Do() =
             Quantity = reader.getDecimalOrNone FieldName.Quantity
             Audit = reader.getAudit()        
         }
+        System.Diagnostics.Debug.WriteLine($"[BrokerMovementExtensions] Read movement - ID: {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}, BrokerAccountId: {movement.BrokerAccountId}")
+        movement
 
     [<Extension>]
     static member save(brokerMovement: BrokerMovement) = Database.Do.saveEntity brokerMovement (fun t c -> t.fill c) 
@@ -95,16 +97,27 @@ type FinancialCalculations() =
     /// <returns>Total deposited amount as Money</returns>
     [<Extension>]
     static member calculateTotalDeposited(movements: BrokerMovement list) =
-        movements
-        |> List.filter (fun movement ->
-            match movement.MovementType with
-            | BrokerMovementType.Deposit -> true
-            | BrokerMovementType.ACATMoneyTransferReceived -> true
-            | BrokerMovementType.Conversion -> true // Conversion adds money to target currency
-            | _ -> false
+        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] calculateTotalDeposited - Processing {movements.Length} total movements")
+        
+        // Log each movement before filtering
+        movements |> List.iter (fun movement ->
+            System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Movement ID {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}")
         )
-        |> List.sumBy (fun movement -> movement.Amount.Value)
-        |> Money.FromAmount
+        
+        let depositMovements = 
+            movements
+            |> List.filter (fun movement ->
+                match movement.MovementType with
+                | BrokerMovementType.Deposit -> true
+                | BrokerMovementType.ACATMoneyTransferReceived -> true
+                | BrokerMovementType.Conversion -> true // Conversion adds money to target currency
+                | _ -> false
+            )
+            
+        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Found {depositMovements.Length} deposit movements")
+        let totalAmount = depositMovements |> List.sumBy (fun movement -> movement.Amount.Value)
+        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Total deposited amount calculated: {totalAmount}")
+        Money.FromAmount totalAmount
 
     /// <summary>
     /// Calculates the total withdrawn amount from broker movements.
@@ -281,12 +294,16 @@ type FinancialCalculations() =
     /// <returns>Financial summary record with calculated totals</returns>
     [<Extension>]
     static member calculateFinancialSummary(movements: BrokerMovement list, ?currencyId: int) =
+        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] calculateFinancialSummary - Processing {movements.Length} movements, CurrencyFilter: {currencyId}")
         let relevantMovements = 
             match currencyId with
-            | Some id -> movements.filterByCurrency(id)
+            | Some id -> 
+                let filtered = movements.filterByCurrency(id)
+                System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Filtered to {filtered.Length} movements for currency {id}")
+                filtered
             | None -> movements
         
-        {|
+        let summary = {|
             TotalDeposited = relevantMovements.calculateTotalDeposited()
             TotalWithdrawn = relevantMovements.calculateTotalWithdrawn()
             TotalFees = relevantMovements.calculateTotalFees()
@@ -300,3 +317,6 @@ type FinancialCalculations() =
             MovementCount = relevantMovements.calculateMovementCount()
             UniqueCurrencies = relevantMovements.getUniqueCurrencyIds()
         |}
+        
+        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Financial summary calculated - TotalDeposited: {summary.TotalDeposited.Value}, MovementCount: {summary.MovementCount}")
+        summary
