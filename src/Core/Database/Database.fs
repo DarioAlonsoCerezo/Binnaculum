@@ -105,18 +105,61 @@ module internal Do =
     }
 
     let executeNonQuery(command: SqliteCommand) = task {
-        do! connect() |> Async.AwaitTask |> Async.Ignore
-        do! command.ExecuteNonQueryAsync() |> Async.AwaitTask |> Async.Ignore
-        command.Dispose()
+        try
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] Step 1: Connecting to database...")
+            do! connect() |> Async.AwaitTask |> Async.Ignore
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] Step 2: Database connected, executing command...")
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] CommandText: {command.CommandText}")
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] Parameters count: {command.Parameters.Count}")
+            
+            do! command.ExecuteNonQueryAsync() |> Async.AwaitTask |> Async.Ignore
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] Step 3: Command executed successfully")
+            
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] Step 4: Disposing command...")
+            command.Dispose()
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] Step 5: Command disposed successfully")
+        with
+        | ex ->
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] *** EXCEPTION *** - {ex.Message}")
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] *** STACK TRACE *** - {ex.StackTrace}")
+            let innerMsg = if ex.InnerException <> null then ex.InnerException.Message else "None"
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] *** INNER EXCEPTION *** - {innerMsg}")
+            // Don't forget to dispose on error
+            try command.Dispose() with | _ -> ()
+            raise ex
     }
 
     let saveEntity<'T when 'T :> IEntity> (entity: 'T) (fill: 'T -> SqliteCommand -> SqliteCommand) = task {
-        let! command = createCommand()
-        command.CommandText <- 
-            match entity.Id with
-            | 0 -> entity.InsertSQL
-            | _ -> entity.UpdateSQL
-        do! executeNonQuery(fill entity command) |> Async.AwaitTask |> Async.Ignore
+        try
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 1: Creating database command...")
+            let! command = createCommand()
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 2: Command created successfully")
+            
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 3: Setting CommandText based on entity ID = {entity.Id}")
+            command.CommandText <- 
+                match entity.Id with
+                | 0 -> 
+                    System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 4a: Using INSERT SQL (new entity)")
+                    entity.InsertSQL
+                | _ -> 
+                    System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 4b: Using UPDATE SQL (existing entity)")
+                    entity.UpdateSQL
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 5: CommandText set to: {command.CommandText}")
+            
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 6: Calling fill method to populate parameters...")
+            let filledCommand = fill entity command
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 7: Fill method completed, command has {filledCommand.Parameters.Count} parameters")
+            
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 8: Calling executeNonQuery...")
+            do! executeNonQuery(filledCommand) |> Async.AwaitTask |> Async.Ignore
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 9: executeNonQuery completed successfully")
+        with
+        | ex ->
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] *** EXCEPTION *** - {ex.Message}")
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] *** STACK TRACE *** - {ex.StackTrace}")
+            let innerMsg = if ex.InnerException <> null then ex.InnerException.Message else "None"
+            System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] *** INNER EXCEPTION *** - {innerMsg}")
+            raise ex
     }
 
     let deleteEntity<'T when 'T :> IEntity> (entity: 'T) = task {

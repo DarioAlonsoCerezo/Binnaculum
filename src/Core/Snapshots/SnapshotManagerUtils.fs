@@ -42,20 +42,53 @@ module internal SnapshotManagerUtils =
 
     /// Creates a base snapshot with the given date
     let createBaseSnapshot (date: DateTimePattern) : BaseSnapshot =
-        {
-            Id = 0
-            Date = getDateOnly date
-            Audit = AuditableEntity.FromDateTime(DateTime.UtcNow)
-        }
+        try
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date {date}")
+            let normalizedDate = getDateOnly date
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = {normalizedDate}")
+            
+            let auditEntity = AuditableEntity.FromDateTime(DateTime.UtcNow)
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity")
+            
+            let baseSnapshot = {
+                Id = 0
+                Date = normalizedDate
+                Audit = auditEntity
+            }
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = {baseSnapshot.Id}")
+            baseSnapshot
+        with
+        | ex ->
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] createBaseSnapshot - EXCEPTION: {ex.Message}")
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] createBaseSnapshot - STACK TRACE: {ex.StackTrace}")
+            let innerMsg = if ex.InnerException <> null then ex.InnerException.Message else "None"
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] createBaseSnapshot - INNER EXCEPTION: {innerMsg}")
+            raise ex
 
     let getDefaultCurrency() = task {
-        let preferenceCurrency = Preferences.Get(CurrencyKey, DefaultCurrency)
-        let! defaultCurrency = CurrencyExtensions.Do.getByCode(preferenceCurrency)
-        match defaultCurrency with
-        | Some currency -> return currency.Id
-        | None -> 
-            failwithf "Default currency %s not found and no fallback currency available" preferenceCurrency
-            return -1
+        try
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - Step 1: Getting preference currency...")
+            let preferenceCurrency = Preferences.Get(CurrencyKey, DefaultCurrency)
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - Step 2: Preference currency = {preferenceCurrency}")
+            
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - Step 3: Calling CurrencyExtensions.Do.getByCode...")
+            let! defaultCurrency = CurrencyExtensions.Do.getByCode(preferenceCurrency)
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - Step 4: CurrencyExtensions.Do.getByCode completed")
+            
+            match defaultCurrency with
+            | Some currency -> 
+                System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - Success: Found currency ID = {currency.Id}")
+                return currency.Id
+            | None -> 
+                System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - Error: Currency {preferenceCurrency} not found")
+                failwithf "Default currency %s not found and no fallback currency available" preferenceCurrency
+        with
+        | ex ->
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - EXCEPTION: {ex.Message}")
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - STACK TRACE: {ex.StackTrace}")
+            let innerMsg = if ex.InnerException <> null then ex.InnerException.Message else "None"
+            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] getDefaultCurrency - INNER EXCEPTION: {innerMsg}")
+            raise ex
     }
 
 /// <summary>
