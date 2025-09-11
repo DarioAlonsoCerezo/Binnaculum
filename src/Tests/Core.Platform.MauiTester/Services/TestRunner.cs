@@ -30,6 +30,10 @@ namespace Core.Platform.MauiTester.Services
                 result.OverallStatus = "Running Core Platform validation tests...";
                 progressCallback("Starting Core Platform validation tests...");
 
+                // Step 0: Wipe all data for fresh test environment
+                if (!await ExecuteStepAsync(steps, result, "Wipe All Data for Testing", progressCallback, WipeDataForTestingAsync))
+                    return result;
+
                 // Step 1: Initialize MAUI platform services
                 if (!await ExecuteStepAsync(steps, result, "Initialize MAUI Platform Services", progressCallback, InitializePlatformServicesAsync))
                     return result;
@@ -176,6 +180,14 @@ namespace Core.Platform.MauiTester.Services
         }
 
         // Step action methods
+        private async Task<(bool success, string details)> WipeDataForTestingAsync()
+        {
+            // 🚨 TEST-ONLY: Wipe all data to ensure fresh test environment
+            // This prevents data leakage between test runs and ensures consistent, reliable results
+            await Overview.WipeAllDataForTesting();
+            return (true, "All data wiped for fresh test environment");
+        }
+
         private Task<(bool success, string details)> InitializePlatformServicesAsync()
         {
             // Verify platform services are available (this is what fails in headless tests)
@@ -293,6 +305,10 @@ namespace Core.Platform.MauiTester.Services
                 result.IsRunning = true;
                 result.OverallStatus = "Running BrokerAccount Creation validation test...";
                 progressCallback("Starting BrokerAccount Creation validation test...");
+
+                // Step 0: Wipe all data for fresh test environment
+                if (!await ExecuteStepAsync(steps, result, "Wipe All Data for Testing", progressCallback, WipeDataForTestingAsync))
+                    return result;
 
                 // Step 1: Initialize MAUI platform services
                 if (!await ExecuteStepAsync(steps, result, "Initialize MAUI Platform Services", progressCallback, InitializePlatformServicesAsync))
