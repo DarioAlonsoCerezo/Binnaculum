@@ -70,8 +70,21 @@ type Do() =
 
     [<Extension>]
     static member save(snapshot: BrokerFinancialSnapshot) = 
-        System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: {snapshot.Base.Id}, CurrencyId: {snapshot.CurrencyId}, Deposited: {snapshot.Deposited.Value}, MovementCounter: {snapshot.MovementCounter}")
-        Database.Do.saveEntity snapshot (fun s c -> s.fill c)
+        task {
+            try
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: {snapshot.Base.Id}, CurrencyId: {snapshot.CurrencyId}, Deposited: {snapshot.Deposited.Value}, MovementCounter: {snapshot.MovementCounter}")
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...")
+                let! result = Database.Do.saveEntity snapshot (fun s c -> s.fill c)
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully")
+                return result
+            with
+            | ex ->
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] *** EXCEPTION IN SAVE *** - {ex.Message}")
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] *** STACK TRACE *** - {ex.StackTrace}")
+                let innerMsg = if ex.InnerException <> null then ex.InnerException.Message else "None"
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotExtensions] *** INNER EXCEPTION *** - {innerMsg}")
+                raise ex
+        }
 
     [<Extension>]
     static member delete(snapshot: BrokerFinancialSnapshot) = Database.Do.deleteEntity snapshot
