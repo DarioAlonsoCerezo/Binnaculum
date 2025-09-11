@@ -24,7 +24,7 @@
                 HorizontalTextAlignment="Center"
                 TextColor="Gray" />
 
-            <!--  Main Test Button  -->
+            <!--  Test Buttons  -->
             <Button
                 x:Name="RunTestButton"
                 Text="Run Overview Test"
@@ -35,6 +35,18 @@
                 Clicked="OnRunTestClicked"
                 IsEnabled="{Binding CanRunTest}"
                 SemanticProperties.Hint="Runs Core Platform validation tests"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="RunBrokerAccountTestButton"
+                Text="Run BrokerAccount Creation Test"
+                FontSize="16"
+                BackgroundColor="Green"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunBrokerAccountTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs BrokerAccount creation validation test"
                 HorizontalOptions="Fill" />
 
             <!--  Status Display  -->
