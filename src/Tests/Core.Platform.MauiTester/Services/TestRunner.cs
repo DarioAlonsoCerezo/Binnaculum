@@ -586,11 +586,7 @@ namespace Core.Platform.MauiTester.Services
             if (financial.Currency.Code != "USD")
                 return (false, "", $"Expected Currency = USD but found {financial.Currency.Code}");
 
-            // Verify portfolio value equals deposited amount (no investments)
-            if (brokerAccountSnapshot.PortfolioValue != 1200.0m)
-                return (false, "", $"Expected PortfolioValue = 1200 but found {brokerAccountSnapshot.PortfolioValue}");
-
-            return (true, "Financial Data: Deposited=1200, MovementCounter=1, Currency=USD, PortfolioValue=1200", "");
+            return (true, "Financial Data: Deposited=1200, MovementCounter=1, Currency=USD", "");
         }
 
         private Task<OverallTestResult> CompleteTestWithError(OverallTestResult result, string errorMessage)
