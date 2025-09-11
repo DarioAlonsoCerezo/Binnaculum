@@ -74,6 +74,10 @@ module internal BrokerFinancialSnapshotManager =
             let! allPreviousFinancialSnapshots = 
                 BrokerFinancialSnapshotExtensions.Do.getLatestByBrokerAccountIdGroupedByDate(brokerAccountId)
             
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] All previous snapshots loaded: {allPreviousFinancialSnapshots.Length}")
+            for snap in allPreviousFinancialSnapshots do
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Previous snapshot: Date={snap.Base.Date}, CurrencyId={snap.CurrencyId}, Deposited={snap.Deposited.Value}")
+            
             // 2.3. ✅ Filter and group to get the most recent previous snapshot per currency
             // This finds the actual latest snapshot before target date for each currency,
             // regardless of whether it was yesterday, last week, or months ago
@@ -84,18 +88,25 @@ module internal BrokerFinancialSnapshotManager =
                 |> List.map (fun (currencyId, snaps) -> 
                     snaps |> List.maxBy (fun s -> s.Base.Date.Value))
             
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Relevant previous snapshots: {relevantPreviousSnapshots.Length}")
+            for snap in relevantPreviousSnapshots do
+                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Relevant previous: Date={snap.Base.Date}, CurrencyId={snap.CurrencyId}, Deposited={snap.Deposited.Value}")
+            
             // 3.1. ✅ Determine which currencies have movements on target date
             let currenciesWithMovements = movementData.UniqueCurrencies
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currencies with movements: {currenciesWithMovements |> Set.toList}")
             
             // 3.2. ✅ Determine which currencies had previous snapshots
             let currenciesWithPreviousSnapshots = 
                 relevantPreviousSnapshots 
                 |> List.map (fun snap -> snap.CurrencyId) 
                 |> Set.ofList
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currencies with previous snapshots: {currenciesWithPreviousSnapshots |> Set.toList}")
             
             // 3.3. ✅ Calculate which currencies need processing (union of movements and historical)
             let allRelevantCurrencies = 
                 Set.union currenciesWithMovements currenciesWithPreviousSnapshots
+            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] All relevant currencies to process: {allRelevantCurrencies |> Set.toList}")
             
             // Financial snapshots are created within the scenario processing loop
             // unlike BrokerAccountSnapshotManager where account snapshots need pre-creation
