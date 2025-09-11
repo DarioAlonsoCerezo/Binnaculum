@@ -767,42 +767,34 @@ namespace Core.Platform.MauiTester.Services
             var actualWithdrawn = financial.Withdrawn;
             var netAmount = actualDeposited - actualWithdrawn;
             
-            // The issue states "Deposited should be 1200". This could mean:
-            // 1. Total deposits = 1200 (but math shows this should be 1800)
-            // 2. Net deposited = 1200 (which matches: 1800 - 600 = 1200)
-            // Let's test both interpretations and provide clear error messages
+            // Based on test requirements, we have these movements:
+            // - Deposit $1200 USD (60 days ago)
+            // - Withdrawal $300 USD (55 days ago) 
+            // - Withdrawal $300 USD (50 days ago)
+            // - Deposit $600 USD (10 days ago)
+            // Expected totals: Deposited=$1800, Withdrawn=$600, Net=$1200
             
-            var expectedNetDeposited = 1200.0m;
             var expectedTotalDeposited = 1800.0m; // 1200 + 600
             var expectedTotalWithdrawn = 600.0m;  // 300 + 300
+            var expectedNetDeposited = 1200.0m;   // 1800 - 600
             
-            // First check if the issue means NET deposited = 1200
-            if (netAmount == expectedNetDeposited)
-            {
-                // Net amount matches, verify currency and return success
-                if (financial.Currency.Code != "USD")
-                    return (false, "", $"Expected Currency = USD but found {financial.Currency.Code}");
-                
-                return (true, $"Financial Data: TotalDeposited={actualDeposited}, TotalWithdrawn={actualWithdrawn}, NetDeposited={netAmount}, MovementCounter={financial.MovementCounter}, Currency=USD", "");
-            }
+            // Verify total deposited amount
+            if (actualDeposited != expectedTotalDeposited)
+                return (false, "", $"Expected Total Deposited = {expectedTotalDeposited} but found {actualDeposited}");
             
-            // If net doesn't match, check if issue literally meant total deposited = 1200
-            if (actualDeposited == 1200.0m)
-            {
-                // This would be unexpected based on our movement calculations, but let's handle it
-                if (financial.Currency.Code != "USD")
-                    return (false, "", $"Expected Currency = USD but found {financial.Currency.Code}");
-                
-                return (true, $"Financial Data: TotalDeposited={actualDeposited}, TotalWithdrawn={actualWithdrawn}, NetDeposited={netAmount}, MovementCounter={financial.MovementCounter}, Currency=USD", "");
-            }
+            // Verify total withdrawn amount
+            if (actualWithdrawn != expectedTotalWithdrawn)
+                return (false, "", $"Expected Total Withdrawn = {expectedTotalWithdrawn} but found {actualWithdrawn}");
             
-            // Neither interpretation matches, provide detailed error
-            return (false, "", $"Financial data mismatch. " +
-                               $"Expected Net Deposited = {expectedNetDeposited}, got {netAmount}. " +
-                               $"Expected Total Deposited = {expectedTotalDeposited}, got {actualDeposited}. " +
-                               $"Expected Total Withdrawn = {expectedTotalWithdrawn}, got {actualWithdrawn}. " +
-                               $"MovementCounter = {financial.MovementCounter}. " +
-                               $"Issue states 'Deposited should be 1200' - unclear if this means total or net.");
+            // Verify net deposited amount (this satisfies "Deposited should be 1200" requirement)
+            if (netAmount != expectedNetDeposited)
+                return (false, "", $"Expected Net Deposited = {expectedNetDeposited} but found {netAmount}");
+            
+            // Verify currency
+            if (financial.Currency.Code != "USD")
+                return (false, "", $"Expected Currency = USD but found {financial.Currency.Code}");
+
+            return (true, $"Financial Data: TotalDeposited={actualDeposited}, TotalWithdrawn={actualWithdrawn}, NetDeposited={netAmount}, MovementCounter={financial.MovementCounter}, Currency=USD", "");
         }
 
         private Task<OverallTestResult> CompleteTestWithError(OverallTestResult result, string errorMessage)
