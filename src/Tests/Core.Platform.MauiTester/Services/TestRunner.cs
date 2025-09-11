@@ -12,6 +12,8 @@ namespace Core.Platform.MauiTester.Services
 
         // BrokerAccount creation test specific methods
         private int _tastytradeId = 0;
+        private int _brokerAccountId = 0;
+        private int _usdCurrencyId = 0;
 
         public TestRunner(LogService logService)
         {
@@ -162,6 +164,96 @@ namespace Core.Platform.MauiTester.Services
             catch (Exception ex)
             {
                 _logService.LogError($"Unexpected error during BrokerAccount creation test: {ex.Message}");
+                return await CompleteTestWithError(result, $"Unexpected error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Execute the BrokerAccount creation + Deposit movement test that validates the complete flow:
+        /// 1. Create a BrokerAccount, 2. Add a Deposit movement, 3. Verify snapshot contains correct financial data
+        /// </summary>
+        public async Task<OverallTestResult> ExecuteBrokerAccountDepositTestAsync(Action<string> progressCallback)
+        {
+            var result = new OverallTestResult();
+            var steps = new List<TestStepResult>();
+
+            try
+            {
+                result.IsRunning = true;
+                result.OverallStatus = "Running BrokerAccount + Deposit validation test...";
+                progressCallback("Starting BrokerAccount + Deposit validation test...");
+
+                // Step 0: Wipe all data for fresh test environment
+                if (!await ExecuteStepAsync(steps, result, "Wipe All Data for Testing", progressCallback, WipeDataForTestingAsync))
+                    return result;
+
+                // Step 1: Initialize MAUI platform services
+                if (!await ExecuteStepAsync(steps, result, "Initialize MAUI Platform Services", progressCallback, InitializePlatformServicesAsync))
+                    return result;
+
+                // Step 2: Call Overview.InitDatabase() 
+                if (!await ExecuteStepAsync(steps, result, "Overview.InitDatabase()", progressCallback, InitializeDatabaseAsync))
+                    return result;
+
+                // Step 3: Call Overview.LoadData()
+                if (!await ExecuteStepAsync(steps, result, "Overview.LoadData()", progressCallback, LoadDataAsync))
+                    return result;
+
+                // Step 4: Wait for reactive collections to populate
+                progressCallback("Waiting for reactive collections to populate...");
+                _logService.Log("Allowing time for reactive collections to populate...");
+                await Task.Delay(300); // Same delay as in original test
+
+                // Step 5: Find Tastytrade Broker
+                if (!await ExecuteVerificationStepAsync(steps, result, "Find Tastytrade Broker", progressCallback, FindTastytradeBroker))
+                    return result;
+
+                // Step 6: Find USD Currency
+                if (!await ExecuteVerificationStepAsync(steps, result, "Find USD Currency", progressCallback, FindUsdCurrency))
+                    return result;
+
+                // Step 7: Create BrokerAccount
+                if (!await ExecuteStepAsync(steps, result, "Create BrokerAccount", progressCallback, CreateBrokerAccountAsync))
+                    return result;
+
+                // Step 8: Find Created BrokerAccount
+                if (!await ExecuteVerificationStepAsync(steps, result, "Find Created BrokerAccount", progressCallback, FindCreatedBrokerAccount))
+                    return result;
+
+                // Step 9: Create Historical Deposit Movement
+                if (!await ExecuteStepAsync(steps, result, "Create Historical Deposit Movement", progressCallback, CreateHistoricalDepositMovementAsync))
+                    return result;
+
+                // Step 10: Wait for snapshots to update
+                progressCallback("Waiting for snapshots to update...");
+                _logService.Log("Allowing time for snapshots to update after movement creation...");
+                await Task.Delay(500);
+
+                // Step 11: Verify single snapshot exists
+                if (!await ExecuteVerificationStepAsync(steps, result, "Verify Single Snapshot Created", progressCallback, VerifySingleSnapshotExists))
+                    return result;
+
+                // Step 12: Verify snapshot is BrokerAccount type
+                if (!await ExecuteVerificationStepAsync(steps, result, "Verify Snapshot is BrokerAccount Type", progressCallback, VerifySnapshotIsBrokerAccountType))
+                    return result;
+
+                // Step 13: Verify snapshot financial data
+                if (!await ExecuteVerificationStepAsync(steps, result, "Verify Snapshot Financial Data", progressCallback, VerifySnapshotFinancialData))
+                    return result;
+
+                // All tests passed!
+                result.IsRunning = false;
+                result.IsCompleted = true;
+                result.AllTestsPassed = true;
+                result.OverallStatus = "All BrokerAccount + Deposit tests completed successfully!";
+                progressCallback("✅ All BrokerAccount + Deposit tests passed!");
+                _logService.Log("All BrokerAccount + Deposit tests completed successfully");
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError($"Unexpected error during BrokerAccount + Deposit test: {ex.Message}");
                 return await CompleteTestWithError(result, $"Unexpected error: {ex.Message}");
             }
         }
@@ -401,6 +493,104 @@ namespace Core.Platform.MauiTester.Services
             return isBrokerAccount
                 ? (true, "Snapshot Type: BrokerAccount", "")
                 : (false, "", $"Expected BrokerAccount snapshot type but found {snapshot.Type}");
+        }
+
+        private (bool success, string details, string error) FindUsdCurrency()
+        {
+            var usdCurrency = Collections.Currencies.Items.FirstOrDefault(c => c.Code == "USD");
+            if (usdCurrency != null)
+            {
+                _usdCurrencyId = usdCurrency.Id;
+                return (true, $"USD Currency Found: ID = {_usdCurrencyId}", "");
+            }
+            return (false, "", "USD currency not found in Collections.Currencies.Items");
+        }
+
+        private (bool success, string details, string error) FindCreatedBrokerAccount()
+        {
+            var brokerAccount = Collections.Accounts.Items
+                .Where(a => a.Type == Binnaculum.Core.Models.AccountType.BrokerAccount)
+                .FirstOrDefault(a => a.Broker != null && a.Broker.Value.Broker.Id == _tastytradeId);
+            
+            if (brokerAccount?.Broker != null)
+            {
+                _brokerAccountId = brokerAccount.Broker.Value.Id;
+                return (true, $"BrokerAccount Found: ID = {_brokerAccountId}", "");
+            }
+            return (false, "", "Created BrokerAccount not found in Collections.Accounts.Items");
+        }
+
+        private async Task<(bool success, string details)> CreateHistoricalDepositMovementAsync()
+        {
+            if (_brokerAccountId == 0)
+                return (false, "BrokerAccount ID is 0, cannot create movement");
+            
+            if (_usdCurrencyId == 0)
+                return (false, "USD Currency ID is 0, cannot create movement");
+
+            // Get the actual BrokerAccount and Currency objects
+            var brokerAccount = Collections.Accounts.Items
+                .Where(a => a.Type == Binnaculum.Core.Models.AccountType.BrokerAccount)
+                .FirstOrDefault(a => a.Broker != null && a.Broker.Value.Id == _brokerAccountId)?.Broker?.Value;
+            
+            var usdCurrency = Collections.Currencies.Items.FirstOrDefault(c => c.Id == _usdCurrencyId);
+            
+            if (brokerAccount == null)
+                return (false, "Could not find BrokerAccount object for movement creation");
+            
+            if (usdCurrency == null)
+                return (false, "Could not find USD Currency object for movement creation");
+
+            // Create a historical deposit (2 months ago)
+            var historicalDate = DateTime.Now.AddMonths(-2);
+            
+            var depositMovement = new Binnaculum.Core.Models.BrokerMovement(
+                id: 0,  // Will be assigned by database 
+                timeStamp: historicalDate,
+                amount: 1200.0m,
+                currency: usdCurrency,
+                brokerAccount: brokerAccount,
+                commissions: 0.0m,
+                fees: 0.0m,
+                movementType: Binnaculum.Core.Models.BrokerMovementType.Deposit,
+                notes: Microsoft.FSharp.Core.FSharpOption<string>.Some("Historical deposit test"),
+                fromCurrency: Microsoft.FSharp.Core.FSharpOption<Binnaculum.Core.Models.Currency>.None,
+                amountChanged: Microsoft.FSharp.Core.FSharpOption<decimal>.None,
+                ticker: Microsoft.FSharp.Core.FSharpOption<Binnaculum.Core.Models.Ticker>.None,
+                quantity: Microsoft.FSharp.Core.FSharpOption<decimal>.None
+            );
+
+            await Creator.SaveBrokerMovement(depositMovement);
+            return (true, $"Historical Deposit Movement Created: $1200 USD on {historicalDate:yyyy-MM-dd}");
+        }
+
+        private (bool success, string details, string error) VerifySnapshotFinancialData()
+        {
+            if (Collections.Snapshots.Items.Count == 0)
+                return (false, "", "No snapshots found to verify financial data");
+
+            var snapshot = Collections.Snapshots.Items.First();
+            if (snapshot.BrokerAccount == null)
+                return (false, "", "Snapshot does not contain BrokerAccount data");
+
+            var brokerAccountSnapshot = snapshot.BrokerAccount.Value;
+            var financial = brokerAccountSnapshot.Financial;
+            
+            // Verify the key financial data from the deposit
+            if (financial.Deposited != 1200.0m)
+                return (false, "", $"Expected Deposited = 1200 but found {financial.Deposited}");
+            
+            if (financial.MovementCounter != 1)
+                return (false, "", $"Expected MovementCounter = 1 but found {financial.MovementCounter}");
+            
+            if (financial.Currency.Code != "USD")
+                return (false, "", $"Expected Currency = USD but found {financial.Currency.Code}");
+
+            // Verify portfolio value equals deposited amount (no investments)
+            if (brokerAccountSnapshot.PortfolioValue != 1200.0m)
+                return (false, "", $"Expected PortfolioValue = 1200 but found {brokerAccountSnapshot.PortfolioValue}");
+
+            return (true, "Financial Data: Deposited=1200, MovementCounter=1, Currency=USD, PortfolioValue=1200", "");
         }
 
         private Task<OverallTestResult> CompleteTestWithError(OverallTestResult result, string errorMessage)

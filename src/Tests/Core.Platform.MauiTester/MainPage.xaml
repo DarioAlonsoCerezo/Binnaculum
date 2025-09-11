@@ -49,6 +49,18 @@
                 SemanticProperties.Hint="Runs BrokerAccount creation validation test"
                 HorizontalOptions="Fill" />
 
+            <Button
+                x:Name="RunBrokerAccountDepositTestButton"
+                Text="Run BrokerAccount + Deposit Test"
+                FontSize="16"
+                BackgroundColor="Orange"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunBrokerAccountDepositTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs BrokerAccount creation + Deposit movement validation test"
+                HorizontalOptions="Fill" />
+
             <!--  Status Display  -->
             <Border
                 Padding="15"
