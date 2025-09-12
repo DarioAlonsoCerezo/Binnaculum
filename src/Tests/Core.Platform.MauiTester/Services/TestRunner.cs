@@ -5,15 +5,21 @@ namespace Core.Platform.MauiTester.Services
 {
     /// <summary>
     /// Service for executing Core Platform validation tests that recreate the logic from PublicApiIntegrationTests.fs
+    /// This class has been modernized with fluent API support, enhanced reporting, and test discovery capabilities
     /// </summary>
     public class TestRunner
     {
+        #region Private Fields and Dependencies
+        
         private readonly LogService _logService;
+        private readonly TestDiscoveryService _discoveryService;
 
-        // BrokerAccount creation test specific methods
+        // BrokerAccount creation test specific state
         private int _tastytradeId = 0;
         private int _brokerAccountId = 0;
         private int _usdCurrencyId = 0;
+
+        #endregion
 
         #region Step Name Constants
         private const string STEP_WIPE_DATA = "Wipe All Data for Testing";
@@ -40,10 +46,61 @@ namespace Core.Platform.MauiTester.Services
         private const string STEP_VERIFY_FINANCIAL_DATA = "Verify Snapshot Financial Data";
         #endregion
 
+        #region Constructors and Initialization
+
         public TestRunner(LogService logService)
         {
             _logService = logService;
+            _discoveryService = new TestDiscoveryService();
+            RegisterBuiltInTests();
         }
+
+        /// <summary>
+        /// Register the built-in test scenarios with the discovery service
+        /// </summary>
+        private void RegisterBuiltInTests()
+        {
+            // Overview Test - Basic platform validation
+            _discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("Overview Platform Validation")
+                .WithDescription("Validates Overview.InitDatabase() and Overview.LoadData() work in MAUI environment")
+                .WithTags(TestTags.Overview, TestTags.Database, TestTags.Collection, TestTags.Smoke)
+                .AddCommonSetup(this)
+                .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
+                .AddVerificationStep("Verify Database Initialized", TestVerifications.VerifyDatabaseInitialized)
+                .AddVerificationStep("Verify Data Loaded", TestVerifications.VerifyDataLoaded)
+                .AddVerificationStep("Verify Currencies Collection", TestVerifications.VerifyCurrenciesCollection)
+                .AddVerificationStep("Verify USD Currency", TestVerifications.VerifyUsdCurrency)
+                .AddVerificationStep("Verify Brokers Collection", TestVerifications.VerifyBrokersCollection)
+                .AddVerificationStep("Verify IBKR Broker", TestVerifications.VerifyIbkrBroker)
+                .AddVerificationStep("Verify Tastytrade Broker", TestVerifications.VerifyTastytradeBroker)
+                .AddVerificationStep("Verify Sigma Trade Broker", TestVerifications.VerifySigmaTradeBroker)
+                .AddVerificationStep("Verify SPY Ticker", TestVerifications.VerifySpyTicker)
+                .AddVerificationStep("Verify Snapshots Collection", TestVerifications.VerifySnapshotsCollection));
+
+            // BrokerAccount Creation Test
+            _discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("BrokerAccount Creation")
+                .WithDescription("Validates creating a new broker account and verifying snapshot generation")
+                .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Integration)
+                .AddCommonSetup(this)
+                .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
+                .AddVerificationStep("Find Tastytrade Broker", () => {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) _tastytradeId = id;
+                    return (success, details, error);
+                })
+                .AddAsyncStep("Create BrokerAccount", () => CreateBrokerAccountAsync("Trading"))
+                .AddVerificationStep("Verify Single Snapshot", TestVerifications.VerifySingleSnapshotExists)
+                .AddVerificationStep("Verify Snapshot Type", TestVerifications.VerifySnapshotIsBrokerAccountType));
+        }
+
+        /// <summary>
+        /// Get the discovery service for accessing registered tests
+        /// </summary>
+        public TestDiscoveryService Discovery => _discoveryService;
+
+        #endregion
 
         #region Common Setup Steps
         private static readonly (string stepName, Func<TestRunner, Task<(bool success, string details)>> action)[] CommonSetupSteps = new (string, Func<TestRunner, Task<(bool success, string details)>>)[]
@@ -55,14 +112,72 @@ namespace Core.Platform.MauiTester.Services
         };
         #endregion
 
-        #region Unified Step Execution
+        #region Unified Step Execution and Scenario Runner
+
         /// <summary>
-        /// Executes a test step using the TestStep abstraction and handles common success/failure logic
+        /// Execute a test scenario using the modern fluent API
+        /// </summary>
+        public async Task<OverallTestResult> ExecuteScenarioAsync(TestScenario scenario, Action<string> progressCallback)
+        {
+            var result = new OverallTestResult();
+            var steps = new List<TestStepResult>();
+
+            try
+            {
+                result.MarkStarted(scenario.Name);
+                result.Tags = new List<string>(scenario.Tags);
+                result.OverallStatus = $"Running {scenario.Name}...";
+                progressCallback($"Starting {scenario.Name}...");
+                _logService.Log($"Starting test scenario: {scenario.Name}");
+
+                foreach (var testStep in scenario.Steps)
+                {
+                    if (!await ExecuteStep(steps, result, progressCallback, testStep))
+                    {
+                        result.MarkCompleted(false, $"Test failed at step: {testStep.StepName}");
+                        return result;
+                    }
+                }
+
+                // All tests passed!
+                result.MarkCompleted(true, $"All {scenario.Steps.Count} steps completed successfully");
+                result.OverallStatus = $"{scenario.Name} completed successfully!";
+                progressCallback($"✅ {scenario.Name} passed!");
+                _logService.Log($"{scenario.Name} completed successfully");
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError($"Unexpected error during {scenario.Name}: {ex.Message}");
+                result.MarkCompleted(false, $"Unexpected error: {ex.Message}");
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Execute a registered test scenario by name
+        /// </summary>
+        public async Task<OverallTestResult> ExecuteScenarioByNameAsync(string scenarioName, Action<string> progressCallback)
+        {
+            var scenario = _discoveryService.GetTestByName(scenarioName);
+            if (scenario == null)
+            {
+                var result = new OverallTestResult();
+                result.MarkCompleted(false, $"Test scenario '{scenarioName}' not found");
+                return result;
+            }
+
+            return await ExecuteScenarioAsync(scenario, progressCallback);
+        }
+        /// <summary>
+        /// Executes a test step using the TestStep abstraction and handles common success/failure logic with enhanced reporting
         /// </summary>
         private async Task<bool> ExecuteStep(List<TestStepResult> steps, OverallTestResult result, 
             Action<string> progressCallback, TestStep testStep)
         {
             var step = new TestStepResult { StepName = testStep.StepName };
+            step.MarkStarted();
             steps.Add(step);
             result.Steps = new List<TestStepResult>(steps);
 
@@ -73,29 +188,27 @@ namespace Core.Platform.MauiTester.Services
 
                 var (success, details, error) = await testStep.ExecuteAsync();
 
-                step.IsCompleted = true;
-                step.IsSuccessful = success;
+                step.MarkCompleted(success);
                 step.Details = details;
                 
                 if (success)
                 {
-                    _logService.Log($"{testStep.StepName} completed successfully");
+                    _logService.Log($"{testStep.StepName} completed successfully in {step.DurationText}");
                     return true;
                 }
                 else
                 {
                     step.ErrorMessage = error ?? details;
-                    _logService.LogError($"{testStep.StepName} failed: {error ?? details}");
+                    _logService.LogError($"{testStep.StepName} failed in {step.DurationText}: {error ?? details}");
                     await CompleteTestWithError(result, $"{testStep.StepName} failed");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                step.IsCompleted = true;
-                step.IsSuccessful = false;
+                step.MarkCompleted(false);
                 step.ErrorMessage = ex.Message;
-                _logService.LogError($"{testStep.StepName} failed: {ex.Message}");
+                _logService.LogError($"{testStep.StepName} failed in {step.DurationText}: {ex.Message}");
                 await CompleteTestWithError(result, $"{testStep.StepName} failed");
                 return false;
             }
@@ -146,74 +259,22 @@ namespace Core.Platform.MauiTester.Services
         }
         #endregion
 
+        #region Public Helper Methods for TestScenarioBuilder
+
+        // Note: The helper methods (WipeDataForTestingAsync, InitializePlatformServicesAsync, etc.) 
+        // are defined as public in the "Step Action Methods" region below for use by TestScenarioBuilder
+
+        #endregion
+
+        #region Legacy Test Methods (Preserved for Backward Compatibility)
+
         /// <summary>
         /// Execute the main test that validates Overview.InitDatabase() and Overview.LoadData() work in MAUI environment
         /// This recreates the exact logic from PublicApiIntegrationTests.fs
         /// </summary>
         public async Task<OverallTestResult> ExecuteOverviewTestAsync(Action<string> progressCallback)
         {
-            var result = new OverallTestResult();
-            var steps = new List<TestStepResult>();
-
-            try
-            {
-                result.IsRunning = true;
-                result.OverallStatus = "Running Core Platform validation tests...";
-                progressCallback("Starting Core Platform validation tests...");
-
-                // Execute common setup steps
-                if (!await ExecuteCommonSetupAsync(steps, result, progressCallback))
-                    return result;
-
-                // Step 4: Verify database initialization state
-                var dbInitStep = new VerificationTestStep(STEP_VERIFY_DB_INIT, VerifyDatabaseInitialized);
-                if (!await ExecuteStep(steps, result, progressCallback, dbInitStep))
-                    return result;
-
-                // Step 5: Verify data loading state
-                var dataLoadedStep = new VerificationTestStep(STEP_VERIFY_DATA_LOADED, VerifyDataLoaded);
-                if (!await ExecuteStep(steps, result, progressCallback, dataLoadedStep))
-                    return result;
-
-                // Step 6: Wait for reactive collections to populate
-                progressCallback("Waiting for reactive collections to populate...");
-                _logService.Log("Allowing time for reactive collections to populate...");
-                await Task.Delay(300); // Same delay as in original test
-
-                // Step 7-14: Collection and data verifications
-                var verificationSteps = new[]
-                {
-                    new VerificationTestStep(STEP_VERIFY_CURRENCIES, VerifyCurrenciesCollection),
-                    new VerificationTestStep(STEP_VERIFY_USD, VerifyUsdCurrency),
-                    new VerificationTestStep(STEP_VERIFY_BROKERS, VerifyBrokersCollection),
-                    new VerificationTestStep(STEP_VERIFY_IBKR, VerifyIbkrBroker),
-                    new VerificationTestStep(STEP_VERIFY_TASTYTRADE, VerifyTastytradeBroker),
-                    new VerificationTestStep(STEP_VERIFY_SIGMATRADE, VerifySigmaTradeBroker),
-                    new VerificationTestStep(STEP_VERIFY_SPY, VerifySpyTicker),
-                    new VerificationTestStep(STEP_VERIFY_SNAPSHOTS, VerifySnapshotsCollection)
-                };
-
-                foreach (var verificationStep in verificationSteps)
-                {
-                    if (!await ExecuteStep(steps, result, progressCallback, verificationStep))
-                        return result;
-                }
-
-                // All tests passed!
-                result.IsRunning = false;
-                result.IsCompleted = true;
-                result.AllTestsPassed = true;
-                result.OverallStatus = "All tests completed successfully!";
-                progressCallback("✅ All Core Platform validation tests passed!");
-                _logService.Log("All Core Platform validation tests completed successfully");
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logService.LogError($"Unexpected error during test execution: {ex.Message}");
-                return await CompleteTestWithError(result, $"Unexpected error: {ex.Message}");
-            }
+            return await ExecuteScenarioByNameAsync("Overview Platform Validation", progressCallback);
         }
 
         /// <summary>
@@ -221,59 +282,7 @@ namespace Core.Platform.MauiTester.Services
         /// </summary>
         public async Task<OverallTestResult> ExecuteBrokerAccountCreationTestAsync(Action<string> progressCallback)
         {
-            var result = new OverallTestResult();
-            var steps = new List<TestStepResult>();
-
-            try
-            {
-                result.IsRunning = true;
-                result.OverallStatus = "Running BrokerAccount Creation validation test...";
-                progressCallback("Starting BrokerAccount Creation validation test...");
-
-                // Execute common setup steps
-                if (!await ExecuteCommonSetupAsync(steps, result, progressCallback))
-                    return result;
-
-                // Step 4: Wait for reactive collections to populate
-                progressCallback("Waiting for reactive collections to populate...");
-                _logService.Log("Allowing time for reactive collections to populate...");
-                await Task.Delay(300); // Same delay as in original test
-
-                // Step 5: Find Tastytrade Broker
-                var findTastytradeStep = new VerificationTestStep(STEP_FIND_TASTYTRADE, FindTastytradeBroker);
-                if (!await ExecuteStep(steps, result, progressCallback, findTastytradeStep))
-                    return result;
-
-                // Step 6: Create BrokerAccount
-                var createAccountStep = new AsyncTestStep(STEP_CREATE_BROKER_ACCOUNT, () => CreateBrokerAccountAsync("Trading"));
-                if (!await ExecuteStep(steps, result, progressCallback, createAccountStep))
-                    return result;
-
-                // Step 7: Verify single snapshot exists
-                var verifySingleSnapshotStep = new VerificationTestStep(STEP_VERIFY_SINGLE_SNAPSHOT, VerifySingleSnapshotExists);
-                if (!await ExecuteStep(steps, result, progressCallback, verifySingleSnapshotStep))
-                    return result;
-
-                // Step 8: Verify snapshot is BrokerAccount type
-                var verifySnapshotTypeStep = new VerificationTestStep(STEP_VERIFY_SNAPSHOT_TYPE, VerifySnapshotIsBrokerAccountType);
-                if (!await ExecuteStep(steps, result, progressCallback, verifySnapshotTypeStep))
-                    return result;
-
-                // All tests passed!
-                result.IsRunning = false;
-                result.IsCompleted = true;
-                result.AllTestsPassed = true;
-                result.OverallStatus = "All BrokerAccount creation tests completed successfully!";
-                progressCallback("✅ All BrokerAccount creation tests passed!");
-                _logService.Log("All BrokerAccount creation tests completed successfully");
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logService.LogError($"Unexpected error during BrokerAccount creation test: {ex.Message}");
-                return await CompleteTestWithError(result, $"Unexpected error: {ex.Message}");
-            }
+            return await ExecuteScenarioByNameAsync("BrokerAccount Creation", progressCallback);
         }
 
         /// <summary>
@@ -454,8 +463,14 @@ namespace Core.Platform.MauiTester.Services
             }
         }
 
-        #region Step Action Methods
-        private async Task<(bool success, string details)> WipeDataForTestingAsync()
+        #endregion
+
+        #region Step Action Methods (Public for TestScenarioBuilder)
+        
+        /// <summary>
+        /// Wipe all data to ensure fresh test environment (used by TestScenarioBuilder)
+        /// </summary>
+        public async Task<(bool success, string details)> WipeDataForTestingAsync()
         {
             // 🚨 TEST-ONLY: Wipe all data to ensure fresh test environment
             // This prevents data leakage between test runs and ensures consistent, reliable results
@@ -463,16 +478,25 @@ namespace Core.Platform.MauiTester.Services
             return (true, "All data wiped for fresh test environment");
         }
 
-        private Task<(bool success, string details)> InitializePlatformServicesAsync() =>
+        /// <summary>
+        /// Initialize platform services (used by TestScenarioBuilder)
+        /// </summary>
+        public Task<(bool success, string details)> InitializePlatformServicesAsync() =>
             Task.FromResult((true, $"Platform services available. AppData: {Microsoft.Maui.Storage.FileSystem.AppDataDirectory}"));
 
-        private async Task<(bool success, string details)> InitializeDatabaseAsync()
+        /// <summary>
+        /// Initialize database (used by TestScenarioBuilder)
+        /// </summary>
+        public async Task<(bool success, string details)> InitializeDatabaseAsync()
         {
             await Overview.InitDatabase();
             return (true, "Database initialization completed");
         }
 
-        private async Task<(bool success, string details)> LoadDataAsync()
+        /// <summary>
+        /// Load data from database (used by TestScenarioBuilder)
+        /// </summary>
+        public async Task<(bool success, string details)> LoadDataAsync()
         {
             await Overview.LoadData();
             return (true, "Data loading completed");
