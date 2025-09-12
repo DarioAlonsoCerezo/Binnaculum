@@ -34,7 +34,8 @@
                             x:Name="DefaultCurrency"
                             Grid.Column="1"
                             Padding="0"
-                            Style="{StaticResource LabelSettingsGroup}">
+                            Style="{StaticResource LabelSettingsGroup}"
+                            TextDecorations="Underline">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer x:Name="DefaultCurrencyGesture" />
                             </Label.GestureRecognizers>
@@ -51,7 +52,8 @@
                             x:Name="DefaultTicker"
                             Grid.Column="1"
                             Padding="0"
-                            Style="{StaticResource LabelSettingsGroup}">
+                            Style="{StaticResource LabelSettingsGroup}"
+                            TextDecorations="Underline">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer x:Name="DefaultTickerGesture" />
                             </Label.GestureRecognizers>
