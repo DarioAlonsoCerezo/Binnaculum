@@ -36,6 +36,7 @@
     <Compile Include="DataLoaderTests.fs" />
     <Compile Include="EmptySnapshotManagementTests.fs" />
     <Compile Include="OverviewWipingTests.fs" />
+    <!-- <Compile Include="SavedPreferencesTests.fs" /> Disabled - MAUI platform APIs don't work in headless test environment -->
   </ItemGroup>
 
   <ItemGroup>

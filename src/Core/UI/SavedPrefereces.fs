@@ -5,6 +5,7 @@ open Microsoft.Maui.Storage
 open System.Reactive.Subjects
 open Binnaculum.Core.Storage
 open System.Threading.Tasks
+open System
 open Binnaculum.Core.Keys // Added for key access
 
 module SavedPrefereces =
@@ -30,6 +31,7 @@ module SavedPrefereces =
         AllowCreateAccount: bool
         Ticker: string
         GroupOptions: bool
+        PolygonApiKey: string option
     }
 
     let private loadPreferences() = 
@@ -39,9 +41,38 @@ module SavedPrefereces =
         let allowCreateAccount = Preferences.Get(AllowCreateAccountKey, true)
         let defaultTicker = Preferences.Get(TickerKey, DefaultTicker)
         let groupOptions = Preferences.Get(GroupOptionsKey, true)
-        { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount; Ticker = defaultTicker; GroupOptions = groupOptions }
+        { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount; Ticker = defaultTicker; GroupOptions = groupOptions; PolygonApiKey = None }
+
+    let private loadPreferencesAsync() = task {
+        let theme = Preferences.Get(ThemeKey, parseTheme AppTheme.Unspecified)
+        let language = Preferences.Get(LanguageKey, DefaultLanguage)
+        let currency = Preferences.Get(CurrencyKey, DefaultCurrency)
+        let allowCreateAccount = Preferences.Get(AllowCreateAccountKey, true)
+        let defaultTicker = Preferences.Get(TickerKey, DefaultTicker)
+        let groupOptions = Preferences.Get(GroupOptionsKey, true)
+        
+        // Load Polygon API Key from SecureStorage with error handling
+        let! polygonApiKey = task {
+            try
+                let! key = SecureStorage.GetAsync(PolygonApiKeyKey)
+                return if String.IsNullOrEmpty(key) then None else Some key
+            with
+            | ex ->
+                // Log error if needed, but don't throw - just return None as default
+                System.Diagnostics.Debug.WriteLine($"Failed to load Polygon API Key from SecureStorage: {ex.Message}")
+                return None
+        }
+        
+        return { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount; Ticker = defaultTicker; GroupOptions = groupOptions; PolygonApiKey = polygonApiKey }
+    }
 
     let UserPreferences = new BehaviorSubject<PreferencesCollection>(loadPreferences())
+
+    /// Load the Polygon API Key asynchronously from SecureStorage and update UserPreferences
+    let LoadPolygonApiKeyAsync() = task {
+        let! currentPrefs = loadPreferencesAsync()
+        UserPreferences.OnNext(currentPrefs)
+    }
 
     let ChangeAppTheme theme =
         Preferences.Set(ThemeKey, parseTheme theme)
@@ -82,6 +113,24 @@ module SavedPrefereces =
         // If the value has changed, reload option trades
         if currentValue <> group then            
             fireAndForget(fun () -> DataLoader.changeOptionsGrouped())
+
+    /// Change the Polygon API Key, saving it to SecureStorage and updating UserPreferences
+    let ChangePolygonApiKey(apiKey: string option) = task {
+        try
+            // Save to SecureStorage
+            match apiKey with
+            | Some key -> do! SecureStorage.SetAsync(PolygonApiKeyKey, key)
+            | None -> SecureStorage.Remove(PolygonApiKeyKey) |> ignore
+            
+            // Update UserPreferences
+            UserPreferences.OnNext({ UserPreferences.Value with PolygonApiKey = apiKey })
+        with
+        | ex ->
+            // Log error but don't throw - this maintains app stability
+            System.Diagnostics.Debug.WriteLine($"Failed to save Polygon API Key to SecureStorage: {ex.Message}")
+            // Still update the in-memory preferences for consistency
+            UserPreferences.OnNext({ UserPreferences.Value with PolygonApiKey = apiKey })
+    }
 
     // TODO: Add Information button to all settings where we need to explain the user
     // what the setting does.
