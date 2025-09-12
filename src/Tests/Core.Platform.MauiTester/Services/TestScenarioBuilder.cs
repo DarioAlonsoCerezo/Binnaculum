@@ -1,0 +1,148 @@
+using Core.Platform.MauiTester.Models;
+
+namespace Core.Platform.MauiTester.Services
+{
+    /// <summary>
+    /// Fluent API for building and configuring test scenarios
+    /// </summary>
+    public class TestScenarioBuilder
+    {
+        private readonly List<TestStep> _steps = new();
+        private readonly List<string> _tags = new();
+        private string _name = "Test Scenario";
+        private string _description = "";
+        private int _retryCount = 0;
+        private TimeSpan _stepTimeout = TimeSpan.FromMinutes(2);
+
+        /// <summary>
+        /// Set the name of the test scenario
+        /// </summary>
+        public TestScenarioBuilder Named(string name)
+        {
+            _name = name;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the description of the test scenario
+        /// </summary>
+        public TestScenarioBuilder WithDescription(string description)
+        {
+            _description = description;
+            return this;
+        }
+
+        /// <summary>
+        /// Add tags to categorize the test scenario
+        /// </summary>
+        public TestScenarioBuilder WithTags(params string[] tags)
+        {
+            _tags.AddRange(tags);
+            return this;
+        }
+
+        /// <summary>
+        /// Set the retry count for failed steps
+        /// </summary>
+        public TestScenarioBuilder WithRetryCount(int retryCount)
+        {
+            _retryCount = retryCount;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the timeout for individual steps
+        /// </summary>
+        public TestScenarioBuilder WithStepTimeout(TimeSpan timeout)
+        {
+            _stepTimeout = timeout;
+            return this;
+        }
+
+        /// <summary>
+        /// Add an async test step
+        /// </summary>
+        public TestScenarioBuilder AddAsyncStep(string stepName, Func<Task<(bool success, string details)>> action)
+        {
+            _steps.Add(new AsyncTestStep(stepName, action));
+            return this;
+        }
+
+        /// <summary>
+        /// Add a sync test step
+        /// </summary>
+        public TestScenarioBuilder AddSyncStep(string stepName, Func<(bool success, string details)> action)
+        {
+            _steps.Add(new SyncTestStep(stepName, action));
+            return this;
+        }
+
+        /// <summary>
+        /// Add a verification step
+        /// </summary>
+        public TestScenarioBuilder AddVerificationStep(string stepName, Func<(bool success, string details, string error)> verification)
+        {
+            _steps.Add(new VerificationTestStep(stepName, verification));
+            return this;
+        }
+
+        /// <summary>
+        /// Add the common setup steps (Wipe Data, Init Platform, Init Database, Load Data)
+        /// </summary>
+        public TestScenarioBuilder AddCommonSetup(TestRunner testRunner)
+        {
+            AddAsyncStep("Wipe All Data for Testing", () => testRunner.WipeDataForTestingAsync());
+            AddSyncStep("Initialize MAUI Platform Services", () => testRunner.InitializePlatformServicesAsync().Result);
+            AddAsyncStep("Overview.InitDatabase()", () => testRunner.InitializeDatabaseAsync());
+            AddAsyncStep("Overview.LoadData()", () => testRunner.LoadDataAsync());
+            return this;
+        }
+
+        /// <summary>
+        /// Add a delay step for waiting
+        /// </summary>
+        public TestScenarioBuilder AddDelay(string stepName, TimeSpan delay)
+        {
+            AddAsyncStep(stepName, async () =>
+            {
+                await Task.Delay(delay);
+                return (true, $"Waited {delay.TotalMilliseconds}ms");
+            });
+            return this;
+        }
+
+        /// <summary>
+        /// Build the test scenario
+        /// </summary>
+        public TestScenario Build()
+        {
+            return new TestScenario
+            {
+                Name = _name,
+                Description = _description,
+                Tags = new List<string>(_tags),
+                Steps = new List<TestStep>(_steps),
+                RetryCount = _retryCount,
+                StepTimeout = _stepTimeout
+            };
+        }
+
+        /// <summary>
+        /// Create a new builder instance
+        /// </summary>
+        public static TestScenarioBuilder Create() => new TestScenarioBuilder();
+    }
+
+    /// <summary>
+    /// Represents a complete test scenario with metadata and steps
+    /// </summary>
+    public class TestScenario
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public List<string> Tags { get; set; } = new();
+        public List<TestStep> Steps { get; set; } = new();
+        public int RetryCount { get; set; } = 0;
+        public TimeSpan StepTimeout { get; set; } = TimeSpan.FromMinutes(2);
+    }
+}

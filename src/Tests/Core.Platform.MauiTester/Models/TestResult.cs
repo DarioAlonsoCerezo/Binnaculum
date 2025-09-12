@@ -3,7 +3,7 @@ using System.ComponentModel;
 namespace Core.Platform.MauiTester.Models
 {
     /// <summary>
-    /// Represents the result of a test step in the Core Platform validation
+    /// Represents the result of a test step in the Core Platform validation with enhanced reporting
     /// </summary>
     public class TestStepResult : INotifyPropertyChanged
     {
@@ -12,6 +12,10 @@ namespace Core.Platform.MauiTester.Models
         private bool _isSuccessful;
         private string _details = string.Empty;
         private string _errorMessage = string.Empty;
+        private DateTime? _startTime;
+        private DateTime? _endTime;
+        private int _retryCount = 0;
+        private List<string> _tags = new();
 
         public string StepName
         {
@@ -31,6 +35,7 @@ namespace Core.Platform.MauiTester.Models
                 _isCompleted = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(StatusIcon));
+                OnPropertyChanged(nameof(Duration));
             }
         }
 
@@ -65,7 +70,72 @@ namespace Core.Platform.MauiTester.Models
             }
         }
 
+        public DateTime? StartTime
+        {
+            get => _startTime;
+            set
+            {
+                _startTime = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Duration));
+            }
+        }
+
+        public DateTime? EndTime
+        {
+            get => _endTime;
+            set
+            {
+                _endTime = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Duration));
+            }
+        }
+
+        public int RetryCount
+        {
+            get => _retryCount;
+            set
+            {
+                _retryCount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<string> Tags
+        {
+            get => _tags;
+            set
+            {
+                _tags = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string StatusIcon => IsCompleted ? (IsSuccessful ? "✅" : "❌") : "⏳";
+
+        public TimeSpan? Duration
+        {
+            get
+            {
+                if (StartTime == null) return null;
+                return (EndTime ?? DateTime.Now) - StartTime.Value;
+            }
+        }
+
+        public string DurationText => Duration?.ToString(@"mm\:ss\.fff") ?? "--";
+
+        public void MarkStarted()
+        {
+            StartTime = DateTime.Now;
+        }
+
+        public void MarkCompleted(bool success)
+        {
+            EndTime = DateTime.Now;
+            IsCompleted = true;
+            IsSuccessful = success;
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -76,7 +146,7 @@ namespace Core.Platform.MauiTester.Models
     }
 
     /// <summary>
-    /// Represents the overall test execution result for Core Platform validation
+    /// Represents the overall test execution result for Core Platform validation with enhanced metadata and reporting
     /// </summary>
     public class OverallTestResult : INotifyPropertyChanged
     {
@@ -85,6 +155,11 @@ namespace Core.Platform.MauiTester.Models
         private bool _allTestsPassed;
         private List<TestStepResult> _steps = new();
         private string _overallStatus = "Ready";
+        private string _testName = "";
+        private List<string> _tags = new();
+        private DateTime? _startTime;
+        private DateTime? _endTime;
+        private string _summary = "";
 
         public bool IsRunning
         {
@@ -127,6 +202,9 @@ namespace Core.Platform.MauiTester.Models
             {
                 _steps = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(PassedStepCount));
+                OnPropertyChanged(nameof(FailedStepCount));
+                OnPropertyChanged(nameof(TotalStepCount));
             }
         }
 
@@ -140,9 +218,95 @@ namespace Core.Platform.MauiTester.Models
             }
         }
 
+        public string TestName
+        {
+            get => _testName;
+            set
+            {
+                _testName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<string> Tags
+        {
+            get => _tags;
+            set
+            {
+                _tags = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime? StartTime
+        {
+            get => _startTime;
+            set
+            {
+                _startTime = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Duration));
+            }
+        }
+
+        public DateTime? EndTime
+        {
+            get => _endTime;
+            set
+            {
+                _endTime = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Duration));
+            }
+        }
+
+        public string Summary
+        {
+            get => _summary;
+            set
+            {
+                _summary = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool CanRunTest => !IsRunning;
 
         public string OverallStatusIcon => IsCompleted ? (AllTestsPassed ? "✅ PASSED" : "❌ FAILED") : (IsRunning ? "⏳ RUNNING" : "⚪ READY");
+
+        public int PassedStepCount => Steps.Count(s => s.IsCompleted && s.IsSuccessful);
+        
+        public int FailedStepCount => Steps.Count(s => s.IsCompleted && !s.IsSuccessful);
+        
+        public int TotalStepCount => Steps.Count;
+
+        public TimeSpan? Duration
+        {
+            get
+            {
+                if (StartTime == null) return null;
+                return (EndTime ?? DateTime.Now) - StartTime.Value;
+            }
+        }
+
+        public string DurationText => Duration?.ToString(@"mm\:ss\.fff") ?? "--";
+
+        public void MarkStarted(string testName)
+        {
+            TestName = testName;
+            StartTime = DateTime.Now;
+            IsRunning = true;
+            IsCompleted = false;
+        }
+
+        public void MarkCompleted(bool allPassed, string summary = "")
+        {
+            EndTime = DateTime.Now;
+            IsRunning = false;
+            IsCompleted = true;
+            AllTestsPassed = allPassed;
+            Summary = summary;
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
