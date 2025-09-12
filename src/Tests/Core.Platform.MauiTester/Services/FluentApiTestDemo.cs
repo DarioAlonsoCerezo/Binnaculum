@@ -19,10 +19,10 @@ namespace Core.Platform.MauiTester.Services
                 .WithStepTimeout(TimeSpan.FromSeconds(30))
                 
                 // Setup steps using the fluent API
-                .AddAsyncStep("Initialize Test Environment", () => testRunner.WipeDataForTestingAsync())
-                .AddSyncStep("Check Platform Services", () => testRunner.InitializePlatformServicesAsync().Result)
-                .AddAsyncStep("Initialize Database", () => testRunner.InitializeDatabaseAsync())
-                .AddAsyncStep("Load Initial Data", () => testRunner.LoadDataAsync())
+                .AddAsyncStep("Initialize Test Environment", () => testRunner.Actions.WipeDataForTestingAsync())
+                .AddSyncStep("Check Platform Services", () => testRunner.Actions.InitializePlatformServicesAsync().Result)
+                .AddAsyncStep("Initialize Database", () => testRunner.Actions.InitializeDatabaseAsync())
+                .AddAsyncStep("Load Initial Data", () => testRunner.Actions.LoadDataAsync())
                 
                 // Add a delay for reactive collections
                 .AddDelay("Wait for Collections to Populate", TimeSpan.FromMilliseconds(300))
