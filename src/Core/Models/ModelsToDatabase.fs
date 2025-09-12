@@ -269,3 +269,14 @@ module internal ModelsToDatabase =
         [<Extension>]
         static member optionTradesToDatabase(optionTrades: Binnaculum.Core.Models.OptionTrade seq) = 
             optionTrades |> Seq.map (fun trade -> trade.optionTradeToDatabase()) |> Seq.toList
+
+        [<Extension>]
+        static member tickerPriceToDatabase(tickerPrice: Binnaculum.Core.Models.TickerPrice) =
+            { 
+                Id = tickerPrice.Id
+                PriceDate = DateTimePattern.FromDateTime(tickerPrice.PriceDate)
+                TickerId = tickerPrice.Ticker.Id
+                Price = Money.FromAmount(tickerPrice.Price)
+                CurrencyId = tickerPrice.Currency.Id
+                Audit = AuditableEntity.FromDateTime(tickerPrice.PriceDate)
+            }
