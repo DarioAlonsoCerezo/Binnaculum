@@ -55,41 +55,23 @@ namespace Core.Platform.MauiTester.Services
         };
         #endregion
 
-        #region Generalized Step Execution
+        #region Unified Step Execution
         /// <summary>
-        /// Executes a step with the given action and handles common success/failure logic
+        /// Executes a test step using the TestStep abstraction and handles common success/failure logic
         /// </summary>
-        private async Task<bool> ExecuteStepAsync<T>(List<TestStepResult> steps, OverallTestResult result, string stepName, 
-            Action<string> progressCallback, Func<T> stepAction) where T : struct
+        private async Task<bool> ExecuteStep(List<TestStepResult> steps, OverallTestResult result, 
+            Action<string> progressCallback, TestStep testStep)
         {
-            // Handle both (bool, string) and (bool, string, string) return types
-            var step = new TestStepResult { StepName = stepName };
+            var step = new TestStepResult { StepName = testStep.StepName };
             steps.Add(step);
             result.Steps = new List<TestStepResult>(steps);
 
             try
             {
-                progressCallback($"Executing {stepName}...");
-                _logService.Log($"Executing {stepName}...");
+                progressCallback($"Executing {testStep.StepName}...");
+                _logService.Log($"Executing {testStep.StepName}...");
 
-                var actionResult = stepAction();
-                bool success;
-                string details;
-                string? error = null;
-
-                // Handle different return types
-                if (actionResult is ValueTuple<bool, string> basicResult)
-                {
-                    (success, details) = basicResult;
-                }
-                else if (actionResult is ValueTuple<bool, string, string> verificationResult)
-                {
-                    (success, details, error) = verificationResult;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Unsupported return type: {typeof(T)}");
-                }
+                var (success, details, error) = await testStep.ExecuteAsync();
 
                 step.IsCompleted = true;
                 step.IsSuccessful = success;
@@ -97,14 +79,14 @@ namespace Core.Platform.MauiTester.Services
                 
                 if (success)
                 {
-                    _logService.Log($"{stepName} completed successfully");
+                    _logService.Log($"{testStep.StepName} completed successfully");
                     return true;
                 }
                 else
                 {
                     step.ErrorMessage = error ?? details;
-                    _logService.LogError($"{stepName} failed: {error ?? details}");
-                    await CompleteTestWithError(result, $"{stepName} failed");
+                    _logService.LogError($"{testStep.StepName} failed: {error ?? details}");
+                    await CompleteTestWithError(result, $"{testStep.StepName} failed");
                     return false;
                 }
             }
@@ -113,74 +95,51 @@ namespace Core.Platform.MauiTester.Services
                 step.IsCompleted = true;
                 step.IsSuccessful = false;
                 step.ErrorMessage = ex.Message;
-                _logService.LogError($"{stepName} failed: {ex.Message}");
-                await CompleteTestWithError(result, $"{stepName} failed");
+                _logService.LogError($"{testStep.StepName} failed: {ex.Message}");
+                await CompleteTestWithError(result, $"{testStep.StepName} failed");
                 return false;
             }
         }
 
         /// <summary>
-        /// Executes an async step with the given action
+        /// Backward compatibility: Executes a step with generic return type
         /// </summary>
-        private async Task<bool> ExecuteStepAsync(List<TestStepResult> steps, OverallTestResult result, string stepName, 
+        [Obsolete("Use ExecuteStep with TestStep abstraction instead")]
+        private Task<bool> ExecuteStepAsync<T>(List<TestStepResult> steps, OverallTestResult result, string stepName, 
+            Action<string> progressCallback, Func<T> stepAction) where T : struct
+        {
+            return ExecuteStep(steps, result, progressCallback, new GenericSyncTestStep<T>(stepName, stepAction));
+        }
+
+        /// <summary>
+        /// Backward compatibility: Executes an async step
+        /// </summary>
+        [Obsolete("Use ExecuteStep with TestStep abstraction instead")]
+        private Task<bool> ExecuteStepAsync(List<TestStepResult> steps, OverallTestResult result, string stepName, 
             Action<string> progressCallback, Func<Task<(bool success, string details)>> stepAction)
         {
-            var step = new TestStepResult { StepName = stepName };
-            steps.Add(step);
-            result.Steps = new List<TestStepResult>(steps);
-
-            try
-            {
-                progressCallback($"Executing {stepName}...");
-                _logService.Log($"Executing {stepName}...");
-
-                var (success, details) = await stepAction();
-
-                step.IsCompleted = true;
-                step.IsSuccessful = success;
-                step.Details = details;
-                
-                if (success)
-                {
-                    _logService.Log($"{stepName} completed successfully");
-                    return true;
-                }
-                else
-                {
-                    step.ErrorMessage = details;
-                    _logService.LogError($"{stepName} failed: {details}");
-                    await CompleteTestWithError(result, $"{stepName} failed");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                step.IsCompleted = true;
-                step.IsSuccessful = false;
-                step.ErrorMessage = ex.Message;
-                _logService.LogError($"{stepName} failed: {ex.Message}");
-                await CompleteTestWithError(result, $"{stepName} failed");
-                return false;
-            }
+            return ExecuteStep(steps, result, progressCallback, new AsyncTestStep(stepName, stepAction));
         }
 
         /// <summary>
-        /// Executes a verification step
+        /// Backward compatibility: Executes a verification step
         /// </summary>
+        [Obsolete("Use ExecuteStep with TestStep abstraction instead")]
         private Task<bool> ExecuteVerificationStepAsync(List<TestStepResult> steps, OverallTestResult result, string stepName,
             Action<string> progressCallback, Func<(bool success, string details, string error)> verification)
         {
-            return ExecuteStepAsync(steps, result, stepName, progressCallback, () => verification());
+            return ExecuteStep(steps, result, progressCallback, new VerificationTestStep(stepName, verification));
         }
 
         /// <summary>
-        /// Executes common setup steps for all tests
+        /// Executes common setup steps for all tests using the TestStep abstraction
         /// </summary>
         private async Task<bool> ExecuteCommonSetupAsync(List<TestStepResult> steps, OverallTestResult result, Action<string> progressCallback)
         {
             foreach (var (stepName, action) in CommonSetupSteps)
             {
-                if (!await ExecuteStepAsync(steps, result, stepName, progressCallback, () => action(this)))
+                var testStep = new AsyncTestStep(stepName, () => action(this));
+                if (!await ExecuteStep(steps, result, progressCallback, testStep))
                     return false;
             }
             return true;
@@ -207,11 +166,13 @@ namespace Core.Platform.MauiTester.Services
                     return result;
 
                 // Step 4: Verify database initialization state
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_VERIFY_DB_INIT, progressCallback, VerifyDatabaseInitialized))
+                var dbInitStep = new VerificationTestStep(STEP_VERIFY_DB_INIT, VerifyDatabaseInitialized);
+                if (!await ExecuteStep(steps, result, progressCallback, dbInitStep))
                     return result;
 
                 // Step 5: Verify data loading state
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_VERIFY_DATA_LOADED, progressCallback, VerifyDataLoaded))
+                var dataLoadedStep = new VerificationTestStep(STEP_VERIFY_DATA_LOADED, VerifyDataLoaded);
+                if (!await ExecuteStep(steps, result, progressCallback, dataLoadedStep))
                     return result;
 
                 // Step 6: Wait for reactive collections to populate
@@ -222,19 +183,19 @@ namespace Core.Platform.MauiTester.Services
                 // Step 7-14: Collection and data verifications
                 var verificationSteps = new[]
                 {
-                    (STEP_VERIFY_CURRENCIES, new Func<(bool success, string details, string error)>(VerifyCurrenciesCollection)),
-                    (STEP_VERIFY_USD, new Func<(bool success, string details, string error)>(VerifyUsdCurrency)),
-                    (STEP_VERIFY_BROKERS, new Func<(bool success, string details, string error)>(VerifyBrokersCollection)),
-                    (STEP_VERIFY_IBKR, new Func<(bool success, string details, string error)>(VerifyIbkrBroker)),
-                    (STEP_VERIFY_TASTYTRADE, new Func<(bool success, string details, string error)>(VerifyTastytradeBroker)),
-                    (STEP_VERIFY_SIGMATRADE, new Func<(bool success, string details, string error)>(VerifySigmaTradeBroker)),
-                    (STEP_VERIFY_SPY, new Func<(bool success, string details, string error)>(VerifySpyTicker)),
-                    (STEP_VERIFY_SNAPSHOTS, new Func<(bool success, string details, string error)>(VerifySnapshotsCollection))
+                    new VerificationTestStep(STEP_VERIFY_CURRENCIES, VerifyCurrenciesCollection),
+                    new VerificationTestStep(STEP_VERIFY_USD, VerifyUsdCurrency),
+                    new VerificationTestStep(STEP_VERIFY_BROKERS, VerifyBrokersCollection),
+                    new VerificationTestStep(STEP_VERIFY_IBKR, VerifyIbkrBroker),
+                    new VerificationTestStep(STEP_VERIFY_TASTYTRADE, VerifyTastytradeBroker),
+                    new VerificationTestStep(STEP_VERIFY_SIGMATRADE, VerifySigmaTradeBroker),
+                    new VerificationTestStep(STEP_VERIFY_SPY, VerifySpyTicker),
+                    new VerificationTestStep(STEP_VERIFY_SNAPSHOTS, VerifySnapshotsCollection)
                 };
 
-                foreach (var (stepName, verification) in verificationSteps)
+                foreach (var verificationStep in verificationSteps)
                 {
-                    if (!await ExecuteVerificationStepAsync(steps, result, stepName, progressCallback, verification))
+                    if (!await ExecuteStep(steps, result, progressCallback, verificationStep))
                         return result;
                 }
 
@@ -279,19 +240,23 @@ namespace Core.Platform.MauiTester.Services
                 await Task.Delay(300); // Same delay as in original test
 
                 // Step 5: Find Tastytrade Broker
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_FIND_TASTYTRADE, progressCallback, FindTastytradeBroker))
+                var findTastytradeStep = new VerificationTestStep(STEP_FIND_TASTYTRADE, FindTastytradeBroker);
+                if (!await ExecuteStep(steps, result, progressCallback, findTastytradeStep))
                     return result;
 
                 // Step 6: Create BrokerAccount
-                if (!await ExecuteStepAsync(steps, result, STEP_CREATE_BROKER_ACCOUNT, progressCallback, () => CreateBrokerAccountAsync("Trading")))
+                var createAccountStep = new AsyncTestStep(STEP_CREATE_BROKER_ACCOUNT, () => CreateBrokerAccountAsync("Trading"));
+                if (!await ExecuteStep(steps, result, progressCallback, createAccountStep))
                     return result;
 
                 // Step 7: Verify single snapshot exists
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_VERIFY_SINGLE_SNAPSHOT, progressCallback, VerifySingleSnapshotExists))
+                var verifySingleSnapshotStep = new VerificationTestStep(STEP_VERIFY_SINGLE_SNAPSHOT, VerifySingleSnapshotExists);
+                if (!await ExecuteStep(steps, result, progressCallback, verifySingleSnapshotStep))
                     return result;
 
                 // Step 8: Verify snapshot is BrokerAccount type
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_VERIFY_SNAPSHOT_TYPE, progressCallback, VerifySnapshotIsBrokerAccountType))
+                var verifySnapshotTypeStep = new VerificationTestStep(STEP_VERIFY_SNAPSHOT_TYPE, VerifySnapshotIsBrokerAccountType);
+                if (!await ExecuteStep(steps, result, progressCallback, verifySnapshotTypeStep))
                     return result;
 
                 // All tests passed!
@@ -336,23 +301,28 @@ namespace Core.Platform.MauiTester.Services
                 await Task.Delay(300);
 
                 // Step 5: Find Tastytrade Broker
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_FIND_TASTYTRADE, progressCallback, FindTastytradeBroker))
+                var findTastytradeStep = new VerificationTestStep(STEP_FIND_TASTYTRADE, FindTastytradeBroker);
+                if (!await ExecuteStep(steps, result, progressCallback, findTastytradeStep))
                     return result;
 
                 // Step 6: Find USD Currency
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_FIND_USD, progressCallback, FindUsdCurrency))
+                var findUsdStep = new VerificationTestStep(STEP_FIND_USD, FindUsdCurrency);
+                if (!await ExecuteStep(steps, result, progressCallback, findUsdStep))
                     return result;
 
                 // Step 7: Create BrokerAccount
-                if (!await ExecuteStepAsync(steps, result, STEP_CREATE_BROKER_ACCOUNT, progressCallback, () => CreateBrokerAccountAsync("Trading")))
+                var createAccountStep = new AsyncTestStep(STEP_CREATE_BROKER_ACCOUNT, () => CreateBrokerAccountAsync("Trading"));
+                if (!await ExecuteStep(steps, result, progressCallback, createAccountStep))
                     return result;
 
                 // Step 8: Find Created BrokerAccount
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_FIND_BROKER_ACCOUNT, progressCallback, FindCreatedBrokerAccount))
+                var findAccountStep = new VerificationTestStep(STEP_FIND_BROKER_ACCOUNT, FindCreatedBrokerAccount);
+                if (!await ExecuteStep(steps, result, progressCallback, findAccountStep))
                     return result;
 
                 // Step 9: Create Historical Deposit Movement
-                if (!await ExecuteStepAsync(steps, result, STEP_CREATE_DEPOSIT, progressCallback, () => CreateMovementAsync(1200m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -60, "Historical deposit test")))
+                var createDepositStep = new AsyncTestStep(STEP_CREATE_DEPOSIT, () => CreateMovementAsync(1200m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -60, "Historical deposit test"));
+                if (!await ExecuteStep(steps, result, progressCallback, createDepositStep))
                     return result;
 
                 // Step 10: Wait for snapshots to update
@@ -361,15 +331,18 @@ namespace Core.Platform.MauiTester.Services
                 await Task.Delay(500);
 
                 // Step 11: Verify single snapshot exists
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_VERIFY_SINGLE_SNAPSHOT, progressCallback, VerifySingleSnapshotExists))
+                var verifySingleSnapshotStep = new VerificationTestStep(STEP_VERIFY_SINGLE_SNAPSHOT, VerifySingleSnapshotExists);
+                if (!await ExecuteStep(steps, result, progressCallback, verifySingleSnapshotStep))
                     return result;
 
                 // Step 12: Verify snapshot is BrokerAccount type
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_VERIFY_SNAPSHOT_TYPE, progressCallback, VerifySnapshotIsBrokerAccountType))
+                var verifySnapshotTypeStep = new VerificationTestStep(STEP_VERIFY_SNAPSHOT_TYPE, VerifySnapshotIsBrokerAccountType);
+                if (!await ExecuteStep(steps, result, progressCallback, verifySnapshotTypeStep))
                     return result;
 
                 // Step 13: Verify snapshot financial data
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_VERIFY_FINANCIAL_DATA, progressCallback, VerifySnapshotFinancialData))
+                var verifyFinancialDataStep = new VerificationTestStep(STEP_VERIFY_FINANCIAL_DATA, VerifySnapshotFinancialData);
+                if (!await ExecuteStep(steps, result, progressCallback, verifyFinancialDataStep))
                     return result;
 
                 // All tests passed!
@@ -414,19 +387,23 @@ namespace Core.Platform.MauiTester.Services
                 await Task.Delay(300);
 
                 // Step 5: Find Tastytrade Broker
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_FIND_TASTYTRADE, progressCallback, FindTastytradeBroker))
+                var findTastytradeStep = new VerificationTestStep(STEP_FIND_TASTYTRADE, FindTastytradeBroker);
+                if (!await ExecuteStep(steps, result, progressCallback, findTastytradeStep))
                     return result;
 
                 // Step 6: Find USD Currency
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_FIND_USD, progressCallback, FindUsdCurrency))
+                var findUsdStep = new VerificationTestStep(STEP_FIND_USD, FindUsdCurrency);
+                if (!await ExecuteStep(steps, result, progressCallback, findUsdStep))
                     return result;
 
                 // Step 7: Create BrokerAccount for Tastytrade broker named 'Testing'
-                if (!await ExecuteStepAsync(steps, result, "Create BrokerAccount for Tastytrade", progressCallback, () => CreateBrokerAccountAsync("Testing")))
+                var createAccountStep = new AsyncTestStep("Create BrokerAccount for Tastytrade", () => CreateBrokerAccountAsync("Testing"));
+                if (!await ExecuteStep(steps, result, progressCallback, createAccountStep))
                     return result;
 
                 // Step 8: Find Created BrokerAccount
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_FIND_BROKER_ACCOUNT, progressCallback, FindCreatedBrokerAccount))
+                var findAccountStep = new VerificationTestStep(STEP_FIND_BROKER_ACCOUNT, FindCreatedBrokerAccount);
+                if (!await ExecuteStep(steps, result, progressCallback, findAccountStep))
                     return result;
 
                 // Step 9-12: Create multiple historical movements
@@ -440,20 +417,24 @@ namespace Core.Platform.MauiTester.Services
 
                 foreach (var (amount, movementType, daysOffset, stepName) in movements)
                 {
-                    if (!await ExecuteStepAsync(steps, result, stepName, progressCallback, () => CreateMovementAsync(amount, movementType, daysOffset)))
+                    var movementStep = new AsyncTestStep(stepName, () => CreateMovementAsync(amount, movementType, daysOffset));
+                    if (!await ExecuteStep(steps, result, progressCallback, movementStep))
                         return result;
                 }
 
                 // Step 13: Verify single snapshot exists
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_VERIFY_SINGLE_SNAPSHOT, progressCallback, VerifySingleSnapshotExists))
+                var verifySingleSnapshotStep = new VerificationTestStep(STEP_VERIFY_SINGLE_SNAPSHOT, VerifySingleSnapshotExists);
+                if (!await ExecuteStep(steps, result, progressCallback, verifySingleSnapshotStep))
                     return result;
 
                 // Step 14: Verify snapshot is BrokerAccount type
-                if (!await ExecuteVerificationStepAsync(steps, result, STEP_VERIFY_SNAPSHOT_TYPE, progressCallback, VerifySnapshotIsBrokerAccountType))
+                var verifySnapshotTypeStep = new VerificationTestStep(STEP_VERIFY_SNAPSHOT_TYPE, VerifySnapshotIsBrokerAccountType);
+                if (!await ExecuteStep(steps, result, progressCallback, verifySnapshotTypeStep))
                     return result;
 
                 // Step 15: Verify snapshot financial data - MovementCounter=4, Deposited according to requirements, Currency=USD
-                if (!await ExecuteVerificationStepAsync(steps, result, "Verify Snapshot Financial Data (Multiple Movements)", progressCallback, VerifyMultipleMovementsFinancialData))
+                var verifyFinancialDataStep = new VerificationTestStep("Verify Snapshot Financial Data (Multiple Movements)", VerifyMultipleMovementsFinancialData);
+                if (!await ExecuteStep(steps, result, progressCallback, verifyFinancialDataStep))
                     return result;
 
                 // All tests passed!
