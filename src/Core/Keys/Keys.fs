@@ -55,3 +55,6 @@ module internal Keys =
 
     [<Literal>]
     let DefaultTicker = "SPY"
+
+    [<Literal>]
+    let PolygonApiKeyKey = "PolygonApiKey"
