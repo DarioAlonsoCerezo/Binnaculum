@@ -60,6 +60,8 @@ namespace Core.Platform.MauiTester
                 RunBrokerAccountDepositTestButton.Text = "Running Test...";
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Running Test...";
 
+                await Task.Delay(100); // Allow UI to update
+
                 // Execute the test with progress updates
                 var result = await testMethod(UpdateProgressStatus);
 
