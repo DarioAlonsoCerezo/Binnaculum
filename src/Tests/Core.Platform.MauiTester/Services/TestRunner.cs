@@ -13,11 +13,7 @@ namespace Core.Platform.MauiTester.Services
         
         private readonly LogService _logService;
         private readonly TestDiscoveryService _discoveryService;
-
-        // BrokerAccount creation test specific state
-        private int _tastytradeId = 0;
-        private int _brokerAccountId = 0;
-        private int _usdCurrencyId = 0;
+        private readonly TestExecutionContext _context = new();
 
         #endregion
 
@@ -87,7 +83,7 @@ namespace Core.Platform.MauiTester.Services
                 .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
                 .AddVerificationStep("Find Tastytrade Broker", () => {
                     var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
-                    if (success) _tastytradeId = id;
+                    if (success) _context.TastytradeId = id;
                     return (success, details, error);
                 })
                 .AddAsyncStep("Create BrokerAccount", () => CreateBrokerAccountAsync("Trading"))
@@ -214,35 +210,7 @@ namespace Core.Platform.MauiTester.Services
             }
         }
 
-        /// <summary>
-        /// Backward compatibility: Executes a step with generic return type
-        /// </summary>
-        [Obsolete("Use ExecuteStep with TestStep abstraction instead")]
-        private Task<bool> ExecuteStepAsync<T>(List<TestStepResult> steps, OverallTestResult result, string stepName, 
-            Action<string> progressCallback, Func<T> stepAction) where T : struct
-        {
-            return ExecuteStep(steps, result, progressCallback, new GenericSyncTestStep<T>(stepName, stepAction));
-        }
 
-        /// <summary>
-        /// Backward compatibility: Executes an async step
-        /// </summary>
-        [Obsolete("Use ExecuteStep with TestStep abstraction instead")]
-        private Task<bool> ExecuteStepAsync(List<TestStepResult> steps, OverallTestResult result, string stepName, 
-            Action<string> progressCallback, Func<Task<(bool success, string details)>> stepAction)
-        {
-            return ExecuteStep(steps, result, progressCallback, new AsyncTestStep(stepName, stepAction));
-        }
-
-        /// <summary>
-        /// Backward compatibility: Executes a verification step
-        /// </summary>
-        [Obsolete("Use ExecuteStep with TestStep abstraction instead")]
-        private Task<bool> ExecuteVerificationStepAsync(List<TestStepResult> steps, OverallTestResult result, string stepName,
-            Action<string> progressCallback, Func<(bool success, string details, string error)> verification)
-        {
-            return ExecuteStep(steps, result, progressCallback, new VerificationTestStep(stepName, verification));
-        }
 
         /// <summary>
         /// Executes common setup steps for all tests using the TestStep abstraction
@@ -507,10 +475,10 @@ namespace Core.Platform.MauiTester.Services
         /// </summary>
         private async Task<(bool success, string details)> CreateBrokerAccountAsync(string accountName)
         {
-            if (_tastytradeId == 0)
+            if (_context.TastytradeId == 0)
                 return (false, "Tastytrade broker ID is 0, cannot create account");
 
-            await Creator.SaveBrokerAccount(_tastytradeId, accountName);
+            await Creator.SaveBrokerAccount(_context.TastytradeId, accountName);
             return (true, $"BrokerAccount named '{accountName}' created successfully");
         }
 
@@ -520,18 +488,18 @@ namespace Core.Platform.MauiTester.Services
         private async Task<(bool success, string details)> CreateMovementAsync(decimal amount, 
             Binnaculum.Core.Models.BrokerMovementType movementType, int daysOffset, string? description = null)
         {
-            if (_brokerAccountId == 0)
+            if (_context.BrokerAccountId == 0)
                 return (false, "BrokerAccount ID is 0, cannot create movement");
             
-            if (_usdCurrencyId == 0)
+            if (_context.UsdCurrencyId == 0)
                 return (false, "USD Currency ID is 0, cannot create movement");
 
             // Get the actual BrokerAccount and Currency objects
             var brokerAccount = Collections.Accounts.Items
                 .Where(a => a.Type == Binnaculum.Core.Models.AccountType.BrokerAccount)
-                .FirstOrDefault(a => a.Broker != null && a.Broker.Value.Id == _brokerAccountId)?.Broker?.Value;
+                .FirstOrDefault(a => a.Broker != null && a.Broker.Value.Id == _context.BrokerAccountId)?.Broker?.Value;
             
-            var usdCurrency = Collections.Currencies.Items.FirstOrDefault(c => c.Id == _usdCurrencyId);
+            var usdCurrency = Collections.Currencies.Items.FirstOrDefault(c => c.Id == _context.UsdCurrencyId);
             
             if (brokerAccount == null)
                 return (false, "Could not find BrokerAccount object for movement creation");
@@ -639,8 +607,8 @@ namespace Core.Platform.MauiTester.Services
             var tastytradeBroker = Collections.Brokers.Items.FirstOrDefault(b => b.Name == "Tastytrade");
             if (tastytradeBroker != null)
             {
-                _tastytradeId = tastytradeBroker.Id;
-                return (true, $"Tastytrade Broker Found: ID = {_tastytradeId}", "");
+                _context.TastytradeId = tastytradeBroker.Id;
+                return (true, $"Tastytrade Broker Found: ID = {_context.TastytradeId}", "");
             }
             return (false, "", "Tastytrade broker not found in Collections.Brokers.Items");
         }
@@ -650,8 +618,8 @@ namespace Core.Platform.MauiTester.Services
             var usdCurrency = Collections.Currencies.Items.FirstOrDefault(c => c.Code == "USD");
             if (usdCurrency != null)
             {
-                _usdCurrencyId = usdCurrency.Id;
-                return (true, $"USD Currency Found: ID = {_usdCurrencyId}", "");
+                _context.UsdCurrencyId = usdCurrency.Id;
+                return (true, $"USD Currency Found: ID = {_context.UsdCurrencyId}", "");
             }
             return (false, "", "USD currency not found in Collections.Currencies.Items");
         }
@@ -660,12 +628,12 @@ namespace Core.Platform.MauiTester.Services
         {
             var brokerAccount = Collections.Accounts.Items
                 .Where(a => a.Type == Binnaculum.Core.Models.AccountType.BrokerAccount)
-                .FirstOrDefault(a => a.Broker != null && a.Broker.Value.Broker.Id == _tastytradeId);
+                .FirstOrDefault(a => a.Broker != null && a.Broker.Value.Broker.Id == _context.TastytradeId);
             
             if (brokerAccount?.Broker != null)
             {
-                _brokerAccountId = brokerAccount.Broker.Value.Id;
-                return (true, $"BrokerAccount Found: ID = {_brokerAccountId}", "");
+                _context.BrokerAccountId = brokerAccount.Broker.Value.Id;
+                return (true, $"BrokerAccount Found: ID = {_context.BrokerAccountId}", "");
             }
             return (false, "", "Created BrokerAccount not found in Collections.Accounts.Items");
         }
