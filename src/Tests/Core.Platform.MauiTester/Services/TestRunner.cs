@@ -86,6 +86,21 @@ namespace Core.Platform.MauiTester.Services
         /// </summary>
         public void SetTastytradeId(int id) => _context.TastytradeId = id;
 
+        /// <summary>
+        /// Get the Tastytrade broker ID from test execution context
+        /// </summary>
+        public int GetTastytradeId() => _context.TastytradeId;
+
+        /// <summary>
+        /// Set the USD currency ID for test execution (used by built-in scenarios)
+        /// </summary>
+        public void SetUsdCurrencyId(int id) => _context.UsdCurrencyId = id;
+
+        /// <summary>
+        /// Set the broker account ID for test execution (used by built-in scenarios)
+        /// </summary>
+        public void SetBrokerAccountId(int id) => _context.BrokerAccountId = id;
+
         #endregion
 
         #region Common Setup Steps

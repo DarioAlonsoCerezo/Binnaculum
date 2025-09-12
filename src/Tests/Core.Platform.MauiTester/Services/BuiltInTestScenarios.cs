@@ -15,6 +15,8 @@ namespace Core.Platform.MauiTester.Services
         {
             RegisterOverviewTest(discoveryService, testRunner);
             RegisterBrokerAccountCreationTest(discoveryService, testRunner, testActions);
+            RegisterBrokerAccountDepositTest(discoveryService, testRunner, testActions);
+            RegisterBrokerAccountMultipleMovementsTest(discoveryService, testRunner, testActions);
         }
 
         /// <summary>
@@ -59,6 +61,76 @@ namespace Core.Platform.MauiTester.Services
                 .AddAsyncStep("Create BrokerAccount", () => testActions.CreateBrokerAccountAsync("Trading"))
                 .AddVerificationStep("Verify Single Snapshot", TestVerifications.VerifySingleSnapshotExists)
                 .AddVerificationStep("Verify Snapshot Type", TestVerifications.VerifySnapshotIsBrokerAccountType));
+        }
+
+        /// <summary>
+        /// BrokerAccount + Deposit Test - Validates creating a broker account and adding a deposit movement
+        /// </summary>
+        private static void RegisterBrokerAccountDepositTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("BrokerAccount + Deposit")
+                .WithDescription("Validates the complete flow: Create BrokerAccount, Add Deposit movement, Verify snapshot financial data")
+                .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Movement, TestTags.Integration)
+                .AddCommonSetup(testRunner)
+                .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
+                .AddVerificationStep("Find Tastytrade Broker", () => {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddVerificationStep("Find USD Currency", () => {
+                    var (success, details, error, id) = TestVerifications.FindUsdCurrency();
+                    if (success) testRunner.SetUsdCurrencyId(id);
+                    return (success, details, error);
+                })
+                .AddAsyncStep("Create BrokerAccount", () => testActions.CreateBrokerAccountAsync("Trading"))
+                .AddVerificationStep("Find Created BrokerAccount", () => {
+                    var (success, details, error, id) = TestVerifications.FindCreatedBrokerAccount(testRunner.GetTastytradeId());
+                    if (success) testRunner.SetBrokerAccountId(id);
+                    return (success, details, error);
+                })
+                .AddAsyncStep("Create Historical Deposit Movement", () => testActions.CreateMovementAsync(1200m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -60, "Historical deposit test"))
+                .AddDelay("Wait for snapshots to update", TimeSpan.FromMilliseconds(500))
+                .AddVerificationStep("Verify Single Snapshot", TestVerifications.VerifySingleSnapshotExists)
+                .AddVerificationStep("Verify Snapshot Type", TestVerifications.VerifySnapshotIsBrokerAccountType)
+                .AddVerificationStep("Verify Snapshot Financial Data", () => TestVerifications.VerifySnapshotFinancialData(1200.0m, 1)));
+        }
+
+        /// <summary>
+        /// BrokerAccount Multiple Movements Test - Validates creating a broker account and adding multiple deposit/withdrawal movements
+        /// </summary>
+        private static void RegisterBrokerAccountMultipleMovementsTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("BrokerAccount Multiple Movements")
+                .WithDescription("Validates creating a BrokerAccount and adding multiple deposit/withdrawal movements to ensure robust snapshot calculations")
+                .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Movement, TestTags.Integration)
+                .AddCommonSetup(testRunner)
+                .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
+                .AddVerificationStep("Find Tastytrade Broker", () => {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddVerificationStep("Find USD Currency", () => {
+                    var (success, details, error, id) = TestVerifications.FindUsdCurrency();
+                    if (success) testRunner.SetUsdCurrencyId(id);
+                    return (success, details, error);
+                })
+                .AddAsyncStep("Create BrokerAccount for Tastytrade", () => testActions.CreateBrokerAccountAsync("Testing"))
+                .AddVerificationStep("Find Created BrokerAccount", () => {
+                    var (success, details, error, id) = TestVerifications.FindCreatedBrokerAccount(testRunner.GetTastytradeId());
+                    if (success) testRunner.SetBrokerAccountId(id);
+                    return (success, details, error);
+                })
+                .AddAsyncStep("Create Historical Deposit ($1200, 60 days ago)", () => testActions.CreateMovementAsync(1200m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -60))
+                .AddAsyncStep("Create Historical Withdrawal ($300, 55 days ago)", () => testActions.CreateMovementAsync(300m, Binnaculum.Core.Models.BrokerMovementType.Withdrawal, -55))
+                .AddAsyncStep("Create Historical Withdrawal ($300, 50 days ago)", () => testActions.CreateMovementAsync(300m, Binnaculum.Core.Models.BrokerMovementType.Withdrawal, -50))
+                .AddAsyncStep("Create Historical Deposit ($600, 10 days ago)", () => testActions.CreateMovementAsync(600m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -10))
+                .AddVerificationStep("Verify Single Snapshot", TestVerifications.VerifySingleSnapshotExists)
+                .AddVerificationStep("Verify Snapshot Type", TestVerifications.VerifySnapshotIsBrokerAccountType)
+                .AddVerificationStep("Verify Snapshot Financial Data (Multiple Movements)", TestVerifications.VerifyMultipleMovementsFinancialData));
         }
     }
 }
