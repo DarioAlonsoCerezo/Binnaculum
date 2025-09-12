@@ -14,6 +14,7 @@ namespace Core.Platform.MauiTester.Services
         private readonly LogService _logService;
         private readonly TestDiscoveryService _discoveryService;
         private readonly TestExecutionContext _context = new();
+        private readonly TestActions _actions;
 
         #endregion
 
@@ -48,6 +49,7 @@ namespace Core.Platform.MauiTester.Services
         {
             _logService = logService;
             _discoveryService = new TestDiscoveryService();
+            _actions = new TestActions(_context);
             RegisterBuiltInTests();
         }
 
@@ -56,39 +58,7 @@ namespace Core.Platform.MauiTester.Services
         /// </summary>
         private void RegisterBuiltInTests()
         {
-            // Overview Test - Basic platform validation
-            _discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
-                .Named("Overview Platform Validation")
-                .WithDescription("Validates Overview.InitDatabase() and Overview.LoadData() work in MAUI environment")
-                .WithTags(TestTags.Overview, TestTags.Database, TestTags.Collection, TestTags.Smoke)
-                .AddCommonSetup(this)
-                .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
-                .AddVerificationStep("Verify Database Initialized", TestVerifications.VerifyDatabaseInitialized)
-                .AddVerificationStep("Verify Data Loaded", TestVerifications.VerifyDataLoaded)
-                .AddVerificationStep("Verify Currencies Collection", TestVerifications.VerifyCurrenciesCollection)
-                .AddVerificationStep("Verify USD Currency", TestVerifications.VerifyUsdCurrency)
-                .AddVerificationStep("Verify Brokers Collection", TestVerifications.VerifyBrokersCollection)
-                .AddVerificationStep("Verify IBKR Broker", TestVerifications.VerifyIbkrBroker)
-                .AddVerificationStep("Verify Tastytrade Broker", TestVerifications.VerifyTastytradeBroker)
-                .AddVerificationStep("Verify Sigma Trade Broker", TestVerifications.VerifySigmaTradeBroker)
-                .AddVerificationStep("Verify SPY Ticker", TestVerifications.VerifySpyTicker)
-                .AddVerificationStep("Verify Snapshots Collection", TestVerifications.VerifySnapshotsCollection));
-
-            // BrokerAccount Creation Test
-            _discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
-                .Named("BrokerAccount Creation")
-                .WithDescription("Validates creating a new broker account and verifying snapshot generation")
-                .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Integration)
-                .AddCommonSetup(this)
-                .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
-                .AddVerificationStep("Find Tastytrade Broker", () => {
-                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
-                    if (success) _context.TastytradeId = id;
-                    return (success, details, error);
-                })
-                .AddAsyncStep("Create BrokerAccount", () => CreateBrokerAccountAsync("Trading"))
-                .AddVerificationStep("Verify Single Snapshot", TestVerifications.VerifySingleSnapshotExists)
-                .AddVerificationStep("Verify Snapshot Type", TestVerifications.VerifySnapshotIsBrokerAccountType));
+            BuiltInTestScenarios.RegisterAll(_discoveryService, this, _actions);
         }
 
         /// <summary>
@@ -96,15 +66,25 @@ namespace Core.Platform.MauiTester.Services
         /// </summary>
         public TestDiscoveryService Discovery => _discoveryService;
 
+        /// <summary>
+        /// Get the test actions instance for step execution
+        /// </summary>
+        public TestActions Actions => _actions;
+
+        /// <summary>
+        /// Set the Tastytrade broker ID for test execution (used by built-in scenarios)
+        /// </summary>
+        public void SetTastytradeId(int id) => _context.TastytradeId = id;
+
         #endregion
 
         #region Common Setup Steps
-        private static readonly (string stepName, Func<TestRunner, Task<(bool success, string details)>> action)[] CommonSetupSteps = new (string, Func<TestRunner, Task<(bool success, string details)>>)[]
+        private readonly (string stepName, Func<TestActions, Task<(bool success, string details)>> action)[] CommonSetupSteps = new (string, Func<TestActions, Task<(bool success, string details)>>)[]
         {
-            (STEP_WIPE_DATA, (runner) => runner.WipeDataForTestingAsync()),
-            (STEP_INIT_PLATFORM, (runner) => runner.InitializePlatformServicesAsync()),
-            (STEP_INIT_DATABASE, (runner) => runner.InitializeDatabaseAsync()),
-            (STEP_LOAD_DATA, (runner) => runner.LoadDataAsync())
+            (STEP_WIPE_DATA, (actions) => actions.WipeDataForTestingAsync()),
+            (STEP_INIT_PLATFORM, (actions) => actions.InitializePlatformServicesAsync()),
+            (STEP_INIT_DATABASE, (actions) => actions.InitializeDatabaseAsync()),
+            (STEP_LOAD_DATA, (actions) => actions.LoadDataAsync())
         };
         #endregion
 
@@ -219,7 +199,7 @@ namespace Core.Platform.MauiTester.Services
         {
             foreach (var (stepName, action) in CommonSetupSteps)
             {
-                var testStep = new AsyncTestStep(stepName, () => action(this));
+                var testStep = new AsyncTestStep(stepName, () => action(_actions));
                 if (!await ExecuteStep(steps, result, progressCallback, testStep))
                     return false;
             }
@@ -288,7 +268,7 @@ namespace Core.Platform.MauiTester.Services
                     return result;
 
                 // Step 7: Create BrokerAccount
-                var createAccountStep = new AsyncTestStep(STEP_CREATE_BROKER_ACCOUNT, () => CreateBrokerAccountAsync("Trading"));
+                var createAccountStep = new AsyncTestStep(STEP_CREATE_BROKER_ACCOUNT, () => _actions.CreateBrokerAccountAsync("Trading"));
                 if (!await ExecuteStep(steps, result, progressCallback, createAccountStep))
                     return result;
 
@@ -298,7 +278,7 @@ namespace Core.Platform.MauiTester.Services
                     return result;
 
                 // Step 9: Create Historical Deposit Movement
-                var createDepositStep = new AsyncTestStep(STEP_CREATE_DEPOSIT, () => CreateMovementAsync(1200m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -60, "Historical deposit test"));
+                var createDepositStep = new AsyncTestStep(STEP_CREATE_DEPOSIT, () => _actions.CreateMovementAsync(1200m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -60, "Historical deposit test"));
                 if (!await ExecuteStep(steps, result, progressCallback, createDepositStep))
                     return result;
 
@@ -374,7 +354,7 @@ namespace Core.Platform.MauiTester.Services
                     return result;
 
                 // Step 7: Create BrokerAccount for Tastytrade broker named 'Testing'
-                var createAccountStep = new AsyncTestStep("Create BrokerAccount for Tastytrade", () => CreateBrokerAccountAsync("Testing"));
+                var createAccountStep = new AsyncTestStep("Create BrokerAccount for Tastytrade", () => _actions.CreateBrokerAccountAsync("Testing"));
                 if (!await ExecuteStep(steps, result, progressCallback, createAccountStep))
                     return result;
 
@@ -394,7 +374,7 @@ namespace Core.Platform.MauiTester.Services
 
                 foreach (var (amount, movementType, daysOffset, stepName) in movements)
                 {
-                    var movementStep = new AsyncTestStep(stepName, () => CreateMovementAsync(amount, movementType, daysOffset));
+                    var movementStep = new AsyncTestStep(stepName, () => _actions.CreateMovementAsync(amount, movementType, daysOffset));
                     if (!await ExecuteStep(steps, result, progressCallback, movementStep))
                         return result;
                 }
@@ -433,108 +413,7 @@ namespace Core.Platform.MauiTester.Services
 
         #endregion
 
-        #region Step Action Methods (Public for TestScenarioBuilder)
-        
-        /// <summary>
-        /// Wipe all data to ensure fresh test environment (used by TestScenarioBuilder)
-        /// </summary>
-        public async Task<(bool success, string details)> WipeDataForTestingAsync()
-        {
-            // 🚨 TEST-ONLY: Wipe all data to ensure fresh test environment
-            // This prevents data leakage between test runs and ensures consistent, reliable results
-            await Overview.WipeAllDataForTesting();
-            return (true, "All data wiped for fresh test environment");
-        }
 
-        /// <summary>
-        /// Initialize platform services (used by TestScenarioBuilder)
-        /// </summary>
-        public Task<(bool success, string details)> InitializePlatformServicesAsync() =>
-            Task.FromResult((true, $"Platform services available. AppData: {Microsoft.Maui.Storage.FileSystem.AppDataDirectory}"));
-
-        /// <summary>
-        /// Initialize database (used by TestScenarioBuilder)
-        /// </summary>
-        public async Task<(bool success, string details)> InitializeDatabaseAsync()
-        {
-            await Overview.InitDatabase();
-            return (true, "Database initialization completed");
-        }
-
-        /// <summary>
-        /// Load data from database (used by TestScenarioBuilder)
-        /// </summary>
-        public async Task<(bool success, string details)> LoadDataAsync()
-        {
-            await Overview.LoadData();
-            return (true, "Data loading completed");
-        }
-
-        /// <summary>
-        /// Creates a BrokerAccount with the specified name
-        /// </summary>
-        private async Task<(bool success, string details)> CreateBrokerAccountAsync(string accountName)
-        {
-            if (_context.TastytradeId == 0)
-                return (false, "Tastytrade broker ID is 0, cannot create account");
-
-            await Creator.SaveBrokerAccount(_context.TastytradeId, accountName);
-            return (true, $"BrokerAccount named '{accountName}' created successfully");
-        }
-
-        /// <summary>
-        /// Creates a movement with specified parameters and date offset
-        /// </summary>
-        private async Task<(bool success, string details)> CreateMovementAsync(decimal amount, 
-            Binnaculum.Core.Models.BrokerMovementType movementType, int daysOffset, string? description = null)
-        {
-            if (_context.BrokerAccountId == 0)
-                return (false, "BrokerAccount ID is 0, cannot create movement");
-            
-            if (_context.UsdCurrencyId == 0)
-                return (false, "USD Currency ID is 0, cannot create movement");
-
-            // Get the actual BrokerAccount and Currency objects
-            var brokerAccount = Collections.Accounts.Items
-                .Where(a => a.Type == Binnaculum.Core.Models.AccountType.BrokerAccount)
-                .FirstOrDefault(a => a.Broker != null && a.Broker.Value.Id == _context.BrokerAccountId)?.Broker?.Value;
-            
-            var usdCurrency = Collections.Currencies.Items.FirstOrDefault(c => c.Id == _context.UsdCurrencyId);
-            
-            if (brokerAccount == null)
-                return (false, "Could not find BrokerAccount object for movement creation");
-            
-            if (usdCurrency == null)
-                return (false, "Could not find USD Currency object for movement creation");
-
-            // Create movement with specified date offset
-            var movementDate = DateTime.Now.AddDays(daysOffset);
-            var notes = description ?? $"Historical {movementType.ToString().ToLower()} test movement";
-            
-            var movement = new Binnaculum.Core.Models.BrokerMovement(
-                id: 0,  // Will be assigned by database 
-                timeStamp: movementDate,
-                amount: amount,
-                currency: usdCurrency,
-                brokerAccount: brokerAccount,
-                commissions: 0.0m,
-                fees: 0.0m,
-                movementType: movementType,
-                notes: Microsoft.FSharp.Core.FSharpOption<string>.Some(notes),
-                fromCurrency: Microsoft.FSharp.Core.FSharpOption<Binnaculum.Core.Models.Currency>.None,
-                amountChanged: Microsoft.FSharp.Core.FSharpOption<decimal>.None,
-                ticker: Microsoft.FSharp.Core.FSharpOption<Binnaculum.Core.Models.Ticker>.None,
-                quantity: Microsoft.FSharp.Core.FSharpOption<decimal>.None
-            );
-
-            await Creator.SaveBrokerMovement(movement);
-            
-            // Wait a bit after each movement to ensure snapshot calculation
-            await Task.Delay(350);
-            
-            return (true, $"Historical {movementType} Movement Created: ${amount} USD on {movementDate:yyyy-MM-dd}");
-        }
-        #endregion
 
         #region Database and Data Verification Methods
         private (bool success, string details, string error) VerifyDatabaseInitialized() =>

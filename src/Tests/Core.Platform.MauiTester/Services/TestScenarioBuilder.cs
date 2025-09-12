@@ -91,10 +91,10 @@ namespace Core.Platform.MauiTester.Services
         /// </summary>
         public TestScenarioBuilder AddCommonSetup(TestRunner testRunner)
         {
-            AddAsyncStep("Wipe All Data for Testing", () => testRunner.WipeDataForTestingAsync());
-            AddSyncStep("Initialize MAUI Platform Services", () => testRunner.InitializePlatformServicesAsync().Result);
-            AddAsyncStep("Overview.InitDatabase()", () => testRunner.InitializeDatabaseAsync());
-            AddAsyncStep("Overview.LoadData()", () => testRunner.LoadDataAsync());
+            AddAsyncStep("Wipe All Data for Testing", () => testRunner.Actions.WipeDataForTestingAsync());
+            AddSyncStep("Initialize MAUI Platform Services", () => testRunner.Actions.InitializePlatformServicesAsync().Result);
+            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
+            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
             return this;
         }
 
