@@ -73,6 +73,24 @@
                 SemanticProperties.Hint="Runs BrokerAccount with multiple deposits and withdrawals validation test"
                 HorizontalOptions="Fill" />
 
+            <!--  Loading Indicator  -->
+            <StackLayout
+                Orientation="Horizontal"
+                HorizontalOptions="Center"
+                Spacing="10"
+                IsVisible="{Binding IsRunning}">
+                <ActivityIndicator
+                    IsRunning="{Binding IsRunning}"
+                    Color="DodgerBlue"
+                    WidthRequest="20"
+                    HeightRequest="20" />
+                <Label
+                    Text="Test running, please wait..."
+                    FontSize="14"
+                    TextColor="Gray"
+                    VerticalTextAlignment="Center" />
+            </StackLayout>
+
             <!--  Status Display  -->
             <Border
                 Padding="15"

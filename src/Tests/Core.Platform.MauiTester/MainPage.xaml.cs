@@ -51,6 +51,9 @@ namespace Core.Platform.MauiTester
                 _currentResult = new OverallTestResult();
                 BindingContext = _currentResult;
 
+                // Set test as running to disable all buttons
+                _currentResult.IsRunning = true;
+
                 // Update UI to show test is running
                 RunTestButton.Text = "Running Test...";
                 RunBrokerAccountTestButton.Text = "Running Test...";
@@ -85,6 +88,7 @@ namespace Core.Platform.MauiTester
                     _currentResult.OverallStatus = $"Error: {ex.Message}";
                 }
 
+                // Reset button text
                 RunTestButton.Text = "Run Overview Test";
                 RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
                 RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
