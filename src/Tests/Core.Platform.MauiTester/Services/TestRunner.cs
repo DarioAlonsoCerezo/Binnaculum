@@ -4,8 +4,18 @@ using Core.Platform.MauiTester.Models;
 namespace Core.Platform.MauiTester.Services
 {
     /// <summary>
-    /// Service for executing Core Platform validation tests that recreate the logic from PublicApiIntegrationTests.fs
-    /// This class has been modernized with fluent API support, enhanced reporting, and test discovery capabilities
+    /// Orchestrates test execution for Core Platform validation tests
+    /// 
+    /// After refactoring, this class focuses solely on test execution orchestration:
+    /// - Scenario execution and step coordination
+    /// - Progress reporting and result aggregation  
+    /// - Legacy test method compatibility
+    /// 
+    /// Infrastructure has been extracted to dedicated classes:
+    /// - TestActions: Step action methods (WipeDataForTestingAsync, etc.)
+    /// - TestExecutionContext: State management (TastytradeId, BrokerAccountId, etc.)
+    /// - BuiltInTestScenarios: Scenario definitions and registration
+    /// - TestVerifications: Centralized verification utilities
     /// </summary>
     public class TestRunner
     {
@@ -207,12 +217,6 @@ namespace Core.Platform.MauiTester.Services
         }
         #endregion
 
-        #region Public Helper Methods for TestScenarioBuilder
-
-        // Note: The helper methods (WipeDataForTestingAsync, InitializePlatformServicesAsync, etc.) 
-        // are defined as public in the "Step Action Methods" region below for use by TestScenarioBuilder
-
-        #endregion
 
         #region Legacy Test Methods (Preserved for Backward Compatibility)
 
@@ -415,70 +419,9 @@ namespace Core.Platform.MauiTester.Services
 
 
 
-        #region Database and Data Verification Methods
-        private (bool success, string details, string error) VerifyDatabaseInitialized() =>
-            Overview.Data.Value.IsDatabaseInitialized
-                ? (true, "Database initialized: True", "")
-                : (false, "", "Database should be initialized but state shows false");
 
-        private (bool success, string details, string error) VerifyDataLoaded() =>
-            Overview.Data.Value.TransactionsLoaded
-                ? (true, "Data loaded: True", "")
-                : (false, "", "Data should be loaded but state shows false");
-        #endregion
 
-        #region Collection Verification Methods
-        private (bool success, string details, string error) VerifyCurrenciesCollection()
-        {
-            var currencyCount = Collections.Currencies.Items.Count;
-            return currencyCount > 0
-                ? (true, $"Currencies: {currencyCount}", "")
-                : (false, "", "Currencies collection should not be empty after LoadData");
-        }
 
-        private (bool success, string details, string error) VerifyUsdCurrency() =>
-            Collections.Currencies.Items.Any(c => c.Code == "USD")
-                ? (true, "USD Found: True", "")
-                : (false, "", "Should contain USD currency");
-
-        private (bool success, string details, string error) VerifyBrokersCollection()
-        {
-            var brokerCount = Collections.Brokers.Items.Count;
-            return brokerCount >= 3
-                ? (true, $"Brokers: {brokerCount}", "")
-                : (false, "", $"Expected at least 3 brokers but found {brokerCount}");
-        }
-
-        private (bool success, string details, string error) VerifyIbkrBroker() =>
-            Collections.Brokers.Items.Any(b => b.Name == "Interactive Brokers")
-                ? (true, "IBKR Found: True", "")
-                : (false, "", "Should contain IBKR broker (Interactive Brokers)");
-
-        private (bool success, string details, string error) VerifyTastytradeBroker() =>
-            Collections.Brokers.Items.Any(b => b.Name == "Tastytrade")
-                ? (true, "Tastytrade Found: True", "")
-                : (false, "", "Should contain Tastytrade broker (Tastytrade)");
-
-        private (bool success, string details, string error) VerifySigmaTradeBroker() =>
-            Collections.Brokers.Items.Any(b => b.Name == "Sigma Trade")
-                ? (true, "SigmaTrade Found: True", "")
-                : (false, "", "Should contain SigmaTrade broker (Sigma Trade)");
-
-        private (bool success, string details, string error) VerifySpyTicker() =>
-            Collections.Tickers.Items.Any(t => t.Symbol == "SPY")
-                ? (true, "SPY Ticker Found: True", "")
-                : (false, "", "Should contain SPY ticker");
-
-        private (bool success, string details, string error) VerifySnapshotsCollection()
-        {
-            var snapshotCount = Collections.Snapshots.Items.Count;
-            var emptySnapshotCount = Collections.Snapshots.Items.Count(s => s.Type == Binnaculum.Core.Models.OverviewSnapshotType.Empty);
-            
-            return (snapshotCount == 1 && emptySnapshotCount == 1)
-                ? (true, "Single Empty Snapshot Found: True", "")
-                : (false, "", $"Expected exactly 1 Empty snapshot but found {snapshotCount} total snapshots ({emptySnapshotCount} Empty)");
-        }
-        #endregion
 
         #region BrokerAccount Test Verification Methods
         private (bool success, string details, string error) FindTastytradeBroker()
