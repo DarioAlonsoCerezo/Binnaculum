@@ -22,22 +22,22 @@ namespace Core.Platform.MauiTester
 
         private async void OnRunTestClicked(object? sender, EventArgs e)
         {
-            await ExecuteTestAsync(_testRunner.ExecuteOverviewTestAsync, "Run Overview Test", "Overview");
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Overview Platform Validation", callback), "Run Overview Test", "Overview");
         }
 
         private async void OnRunBrokerAccountTestClicked(object? sender, EventArgs e)
         {
-            await ExecuteTestAsync(_testRunner.ExecuteBrokerAccountCreationTestAsync, "Run BrokerAccount Creation Test", "BrokerAccount Creation");
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Creation", callback), "Run BrokerAccount Creation Test", "BrokerAccount Creation");
         }
 
         private async void OnRunBrokerAccountDepositTestClicked(object? sender, EventArgs e)
         {
-            await ExecuteTestAsync(_testRunner.ExecuteBrokerAccountDepositTestAsync, "Run BrokerAccount + Deposit Test", "BrokerAccount + Deposit");
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount + Deposit", callback), "Run BrokerAccount + Deposit Test", "BrokerAccount + Deposit");
         }
 
         private async void OnRunBrokerAccountMultipleMovementsTestClicked(object? sender, EventArgs e)
         {
-            await ExecuteTestAsync(_testRunner.ExecuteBrokerAccountMultipleMovementsTestAsync, "Run BrokerAccount Multiple Movements Test", "BrokerAccount Multiple Movements");
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Multiple Movements", callback), "Run BrokerAccount Multiple Movements Test", "BrokerAccount Multiple Movements");
         }
 
         private async Task ExecuteTestAsync(Func<Action<string>, Task<OverallTestResult>> testMethod, string buttonText, string testName)
