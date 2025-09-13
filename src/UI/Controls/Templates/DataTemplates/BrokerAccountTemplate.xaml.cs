@@ -10,13 +10,13 @@ public partial class BrokerAccountTemplate
     private bool _hasMovements = false;
 
     public BrokerAccountTemplate()
-	{
-		InitializeComponent();        
+    {
+        InitializeComponent();
     }
 
     protected override void StartLoad()
     {
-        
+
     }
 
     protected override void OnBindingContextChanged()
@@ -39,13 +39,13 @@ public partial class BrokerAccountTemplate
     {
         Icon.ImagePath = _broker!.Image;
         BrokerName.Text = _brokerAccount!.AccountNumber;
-        
-        AddMovementContainer.VerticalOptions = _hasMovements 
-            ? LayoutOptions.End 
+
+        AddMovementContainer.VerticalOptions = _hasMovements
+            ? LayoutOptions.End
             : LayoutOptions.Center;
 
         AddMovementContainer.HorizontalOptions = _hasMovements
-            ? LayoutOptions.Start 
+            ? LayoutOptions.Start
             : LayoutOptions.Center;
 
         Add.Scale = _hasMovements ? 0.6 : 1;
@@ -70,7 +70,7 @@ public partial class BrokerAccountTemplate
         BrokerAccountGesture.Events().Tapped
             .Select(async _ =>
             {
-                await Navigation.PushModalAsync(new BrokerAcccountPage());
+                await Navigation.PushModalAsync(new BrokerAcccountPage(_snapshot));
             })
             .Subscribe()
             .DisposeWith(Disposables);

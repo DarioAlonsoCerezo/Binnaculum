@@ -88,4 +88,10 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Core\Core.fsproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Controls\Buttons\ButtonClose.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
 </Project>

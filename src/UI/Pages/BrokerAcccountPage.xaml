@@ -4,12 +4,35 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:Binnaculum.Pages"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
-    <VerticalStackLayout>
-        <Label
-            Text="Welcome to your Broker account page!"
-            VerticalOptions="Center"
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <CollectionView>
+        <CollectionView.Header>
+            <Border Style="{StaticResource Popup}" Padding="0">
+                <Grid Padding="24">
+                    <VerticalStackLayout Spacing="24">
+                        <controls:IconControl
+                            x:Name="Icon"
+                            Scale="1.5" />
+                        <Label
+                            x:Name="AccountName"
+                            Style="{StaticResource CenteredHeadline}" />
+                    </VerticalStackLayout>
+
+                    <controls:TintedImage
+                        ImageSource="close"
+                        HeightRequest="40"
+                        WidthRequest="40"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start"
+                        Style="{StaticResource ImageSettingsGroup}">
+                        <controls:TintedImage.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+                        </controls:TintedImage.GestureRecognizers>
+                    </controls:TintedImage>
+                </Grid>
+            </Border>
+        </CollectionView.Header>
+    </CollectionView>
 </pages:BasePage>
