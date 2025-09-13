@@ -25,9 +25,103 @@
         </Setter>
     </Style>
 
+    <!--  THIS IS HERE TO SET BaseStyle AS DEFAULT FOR ANY Label  -->
     <Style
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}" />
+
+    <!--  Standardized Text Styles for Consistent Typography  -->
+    <Style
+        x:Key="Headline"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="FontFamily" Value="OpenSansBold" />
+    </Style>
+    <Style
+        x:Key="SubHeadline"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontFamily" Value="OpenSansBold" />
+    </Style>
+    <Style
+        x:Key="HeadlineSmall"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
+    <Style
+        x:Key="TitleLarge"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
+    <Style
+        x:Key="TitleMedium"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
+    <Style
+        x:Key="TitleSmall"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
+    <Style
+        x:Key="BodyLarge"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
+    <Style
+        x:Key="BodyMedium"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
+    <Style
+        x:Key="BodySmall"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
+    <Style
+        x:Key="LabelLarge"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
+    <Style
+        x:Key="LabelMedium"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
+    <Style
+        x:Key="LabelMediumSemibold"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+    </Style>
+    <Style
+        x:Key="LabelSmall"
+        TargetType="Label"
+        BasedOn="{StaticResource BaseStyle}">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+    </Style>
 
     <Style
         x:Key="VerticalAndHorizontalTextCentered"
