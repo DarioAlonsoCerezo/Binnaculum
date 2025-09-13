@@ -21,7 +21,9 @@
                 <Label
                     x:Name="AccountName"
                     Padding="0,20,0,0"
-                    Style="{StaticResource CenteredSubHeadline}" />
+                    Style="{StaticResource SubHeadline}"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="Center" />
 
                 <Label
                     Text="{local:Translate MovementCreator_Type}"

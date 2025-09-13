@@ -21,8 +21,10 @@
             Margin="24,24,0,0"
             AutomationId="OverviewTitle"
             Text="{local:Translate Overview_Title}"
-            Style="{StaticResource CenteredSubHeadline}"
+            Style="{StaticResource SubHeadline}"
             HorizontalOptions="Start"
+            HorizontalTextAlignment="Center"
+            VerticalTextAlignment="Center"
             FontFamily="OpenSansSemibold" />
 
         <Grid

@@ -124,34 +124,11 @@
     </Style>
 
     <Style
-        x:Key="VerticalAndHorizontalTextCentered"
-        TargetType="Label"
-        BasedOn="{StaticResource BaseStyle}">
-        <Setter Property="VerticalTextAlignment" Value="Center" />
-        <Setter Property="HorizontalTextAlignment" Value="Center" />
-    </Style>
-
-    <Style
         x:Key="VerticalTextCentered"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="VerticalTextAlignment" Value="Center" />
         <Setter Property="HorizontalTextAlignment" Value="Start" />
-    </Style>
-
-    <Style
-        x:Key="CenteredHeadline"
-        TargetType="Label"
-        BasedOn="{StaticResource VerticalAndHorizontalTextCentered}">
-        <Setter Property="FontSize" Value="32" />
-        <Setter Property="FontFamily" Value="OpenSansBold" />
-    </Style>
-
-    <Style
-        x:Key="CenteredSubHeadline"
-        TargetType="Label"
-        BasedOn="{StaticResource CenteredHeadline}">
-        <Setter Property="FontSize" Value="24" />
     </Style>
 
     <Style

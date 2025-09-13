@@ -16,7 +16,8 @@
                                  Light={StaticResource Gray200}}">
         <Label
             AutomationId="EmptyAccountText"
-            Style="{StaticResource VerticalAndHorizontalTextCentered}"
+            VerticalTextAlignment="Center"
+            HorizontalTextAlignment="Center"
             Text="{local:Translate Overview_Empty_Account_Info}" />
 
         <Border.StrokeShape>

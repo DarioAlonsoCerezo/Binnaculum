@@ -9,7 +9,9 @@
     Shell.NavBarIsVisible="False">
     <CollectionView>
         <CollectionView.Header>
-            <Border Style="{StaticResource Popup}" Padding="0">
+            <Border
+                Padding="0"
+                Style="{StaticResource Popup}">
                 <Grid Padding="24">
                     <VerticalStackLayout Spacing="24">
                         <controls:IconControl
@@ -17,7 +19,9 @@
                             Scale="1.5" />
                         <Label
                             x:Name="AccountName"
-                            Style="{StaticResource CenteredHeadline}" />
+                            Style="{StaticResource Headline}"
+                            HorizontalTextAlignment="Center"
+                            VerticalTextAlignment="Center" />
                     </VerticalStackLayout>
 
                     <controls:TintedImage

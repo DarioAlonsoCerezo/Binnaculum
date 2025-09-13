@@ -21,7 +21,9 @@
             <Label
                 x:Name="AccountNumber"
                 Grid.Column="1"
-                Style="{StaticResource CenteredSubHeadline}" />
+                Style="{StaticResource SubHeadline}"
+                HorizontalTextAlignment="Center"
+                VerticalTextAlignment="Center" />
             <HorizontalStackLayout
                 x:Name="AddMovementContainer"
                 Grid.Row="1"
