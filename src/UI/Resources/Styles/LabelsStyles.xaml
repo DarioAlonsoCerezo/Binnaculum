@@ -30,7 +30,7 @@
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}" />
 
-    <!--  Standardized Text Styles for Consistent Typography  -->
+    <!--  Standardized Text Styles for Consistent Typography to reflect Figma design  -->
     <Style
         x:Key="Headline"
         TargetType="Label"
