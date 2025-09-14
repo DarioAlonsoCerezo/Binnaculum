@@ -11,7 +11,7 @@ type BrokerFinancialSnapshotAggregationTests () =
     member _.``Aggregates financial snapshots with highest MovementCounter as main`` () =
         // Arrange
         let mockCurrency1 = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
-        let mockCurrency2 = { Id = 2; Title = "EUR"; Code = "EUR"; Symbol = "€" }
+        let mockCurrency2 = { Id = 2; Title = "EUR"; Code = "EUR"; Symbol = "ï¿½" }
         let mockBroker = {
             Id = 1
             Name = "Test Broker"
@@ -38,6 +38,7 @@ type BrokerFinancialSnapshotAggregationTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 2000.0m - 0.0m - 10.0m - 5.0m + 25.0m + 0.0m + 0.0m // 2010.0m
         }
         let mockFinancial2 = {
             Id = 2
@@ -59,6 +60,7 @@ type BrokerFinancialSnapshotAggregationTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 4000.0m - 0.0m - 20.0m - 10.0m + 50.0m + 0.0m + 0.0m // 4020.0m
         }
         // Simulate aggregation logic: highest MovementCounter is main, others are in FinancialOtherCurrencies
         let mainFinancial = if mockFinancial1.MovementCounter > mockFinancial2.MovementCounter then mockFinancial1 else mockFinancial2
@@ -111,6 +113,7 @@ type BrokerFinancialSnapshotAggregationTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         let snapshot = {
             Date = DateOnly.FromDateTime(DateTime.Now)
@@ -156,6 +159,7 @@ type BrokerFinancialSnapshotAggregationTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 3000.0m - 0.0m - 15.0m - 7.5m + 37.5m + 0.0m + 0.0m // 3015.0m
         }
         let snapshot = {
             Date = DateOnly.FromDateTime(DateTime.Now)

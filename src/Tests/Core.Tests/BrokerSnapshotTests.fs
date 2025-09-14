@@ -37,6 +37,7 @@ type BrokerSnapshotTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 2000.0m - 0.0m - 20.0m - 10.0m + 50.0m + 0.0m + 0.0m // 2020.0m
         }
         let snapshot = {
             Date = DateOnly.FromDateTime(DateTime.Now)
@@ -58,7 +59,7 @@ type BrokerSnapshotTests () =
     member _.``BrokerSnapshot has FinancialOtherCurrencies property of type BrokerFinancialSnapshot list`` () =
         // Arrange
         let mockCurrency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
-        let mockCurrency2 = { Id = 2; Title = "EUR"; Code = "EUR"; Symbol = "€" }
+        let mockCurrency2 = { Id = 2; Title = "EUR"; Code = "EUR"; Symbol = "ï¿½" }
         let mockBroker = {
             Id = 1
             Name = "Test Broker"
@@ -85,6 +86,7 @@ type BrokerSnapshotTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 2000.0m - 0.0m - 20.0m - 10.0m + 50.0m + 0.0m + 0.0m // 2020.0m
         }
         let mockFinancialOtherCurrency = {
             Id = 2
@@ -106,6 +108,7 @@ type BrokerSnapshotTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 1500.0m - 0.0m - 15.0m - 7.5m + 37.5m + 0.0m + 0.0m // 1515.0m
         }
         let snapshot = {
             Date = DateOnly.FromDateTime(DateTime.Now)
