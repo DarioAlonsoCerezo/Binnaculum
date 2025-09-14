@@ -465,6 +465,7 @@ module internal DatabaseToModels =
                         OptionsIncome = 0.0m
                         OtherIncome = 0.0m
                         OpenTrades = false
+                        NetCashFlow = 0.0m // Empty snapshot has no cash flow
                     }
                     (emptySnapshot, [])
                 else
@@ -491,6 +492,7 @@ module internal DatabaseToModels =
                             OptionsIncome = dbFinancial.OptionsIncome.Value
                             OtherIncome = dbFinancial.OtherIncome.Value
                             OpenTrades = dbFinancial.OpenTrades
+                            NetCashFlow = dbFinancial.Deposited.Value - dbFinancial.Withdrawn.Value - dbFinancial.Commissions.Value - dbFinancial.Fees.Value + dbFinancial.DividendsReceived.Value + dbFinancial.OptionsIncome.Value + dbFinancial.OtherIncome.Value
                         })
                     
                     // Find the snapshot with the highest MovementCounter
@@ -519,6 +521,7 @@ module internal DatabaseToModels =
                             OptionsIncome = 0.0m
                             OtherIncome = 0.0m
                             OpenTrades = false
+                            NetCashFlow = 0.0m // Empty snapshot has no cash flow
                         }
                         (emptySnapshot, [])
             
@@ -583,6 +586,7 @@ module internal DatabaseToModels =
                         OptionsIncome = 0.0m
                         OtherIncome = 0.0m
                         OpenTrades = false
+                        NetCashFlow = 0.0m // Empty snapshot has no cash flow
                     }
                     (emptySnapshot, [])
                 else
@@ -612,6 +616,7 @@ module internal DatabaseToModels =
                             OptionsIncome = dbFinancial.OptionsIncome.Value
                             OtherIncome = dbFinancial.OtherIncome.Value
                             OpenTrades = dbFinancial.OpenTrades
+                            NetCashFlow = dbFinancial.Deposited.Value - dbFinancial.Withdrawn.Value - dbFinancial.Commissions.Value - dbFinancial.Fees.Value + dbFinancial.DividendsReceived.Value + dbFinancial.OptionsIncome.Value + dbFinancial.OtherIncome.Value
                         })
                     
                     // Find the snapshot with the highest MovementCounter
@@ -640,6 +645,7 @@ module internal DatabaseToModels =
                             OptionsIncome = 0.0m
                             OtherIncome = 0.0m
                             OpenTrades = false
+                            NetCashFlow = 0.0m // Empty snapshot has no cash flow
                         }
                         (emptySnapshot, [])
 

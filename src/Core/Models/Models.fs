@@ -268,6 +268,8 @@ module Models =
         OptionsIncome: decimal
         OtherIncome: decimal
         OpenTrades: bool
+        /// <summary>Derived cash flow for this account and currency; not persisted.</summary>
+        NetCashFlow: decimal
     }
     
     // Broker account snapshot - represents the state of a broker account at a specific point in time

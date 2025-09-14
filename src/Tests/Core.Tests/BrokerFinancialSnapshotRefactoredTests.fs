@@ -36,6 +36,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
         Assert.That(snapshot.Id, NUnit.Framework.Is.EqualTo(123))
@@ -75,6 +76,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
         Assert.That(snapshot.Broker.IsSome, NUnit.Framework.Is.True)
@@ -120,6 +122,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
         Assert.That(snapshot.BrokerAccount.IsSome, NUnit.Framework.Is.True)
@@ -155,6 +158,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
         Assert.That(snapshot.Currency.Code, NUnit.Framework.Is.EqualTo("USD"))
@@ -190,6 +194,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
             OptionsIncome = 0.0m
             OtherIncome = 0.0m
             OpenTrades = false
+            NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
         Assert.That(snapshot.Broker.IsNone, NUnit.Framework.Is.True)
