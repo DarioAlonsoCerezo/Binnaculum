@@ -67,10 +67,12 @@ public partial class BrokerMovementCreatorPage
                 
                 return false;
             })
+            .ObserveOn(UiThread)
             .BindTo(BrokerMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
         selection.Select(x => x == Models.MovementType.Trade)
+            .ObserveOn(UiThread)
             .BindTo(TradeMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
@@ -93,22 +95,26 @@ public partial class BrokerMovementCreatorPage
                 }
                 return false;
             })
+            .ObserveOn(UiThread)
             .BindTo(DividendMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
         selection.Select(x => x == Models.MovementType.OptionTrade)
+            .ObserveOn(UiThread)
             .BindTo(OptionTradeMovement, x => x.IsVisible)
             .DisposeWith(Disposables);
 
         BrokerMovement.Events().DepositChanged
             .Where(_ => BrokerMovement.IsVisible)
             .Select(_ => BrokerMovement.DepositData.Amount > 0)
+            .ObserveOn(UiThread)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
         BrokerMovement.Events().ConversionChanged
             .Where(_ => BrokerMovement.IsVisible)
             .Select(_ => BrokerMovement.ConversionData.AmountTo > 0 && BrokerMovement.ConversionData.AmountFrom > 0)
+            .ObserveOn(UiThread)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
@@ -128,6 +134,7 @@ public partial class BrokerMovementCreatorPage
         TradeMovement.Events().TradeChanged
             .Where(_ => TradeMovement.IsVisible)
             .Select(x => x != null)
+            .ObserveOn(UiThread)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
@@ -150,6 +157,7 @@ public partial class BrokerMovementCreatorPage
                        || DividendMovement.DividendDate != null
                        || DividendMovement.DividendTax != null;
             })
+            .ObserveOn(UiThread)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
@@ -187,6 +195,7 @@ public partial class BrokerMovementCreatorPage
         OptionTradeMovement.Events().OptionTradesChanged
             .Where(_ => OptionTradeMovement.IsVisible)
             .Select(x => x != null && x.Count > 0)
+            .ObserveOn(UiThread)
             .BindTo(Save, x => x.IsVisible)
             .DisposeWith(Disposables);
 
