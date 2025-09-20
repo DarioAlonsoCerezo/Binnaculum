@@ -23,8 +23,7 @@ public partial class BrokerAcccountPage
 
         _filterPredicate = _selected
             .Throttle(TimeSpan.FromMilliseconds(300))
-            .Select(BuildFilterPredicate)
-            .ObserveOn(UiThread);
+            .Select(BuildFilterPredicate);
 
         Core.UI.Collections.Movements.Connect()
             .Filter(_filterPredicate)
@@ -34,6 +33,8 @@ public partial class BrokerAcccountPage
             .Subscribe();
 
         SetupData();
+        MovementsCollectionView.ItemsSource = Movements;
+        _selected.OnNext(snapshot);
     }
 
     private void SetupData()
