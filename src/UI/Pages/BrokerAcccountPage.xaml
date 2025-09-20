@@ -5,24 +5,36 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:Binnaculum.Pages"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
+    xmlns:local="clr-namespace:Binnaculum"
     NavigationPage.HasNavigationBar="False"
     Shell.NavBarIsVisible="False">
-    <CollectionView>
+    <Page.Resources>
+        <ResourceDictionary>
+            <controls:MovementTemplateSelector x:Key="MovementTemplateSelector" />
+        </ResourceDictionary>
+    </Page.Resources>
+    <CollectionView
+        x:Name="MovementsCollectionView"
+        ItemTemplate="{StaticResource MovementTemplateSelector}"
+        ItemSizingStrategy="MeasureFirstItem">
         <CollectionView.Header>
             <Border
                 Padding="0"
                 Style="{StaticResource Popup}">
-                <Grid Padding="24">
-                    <VerticalStackLayout Spacing="24">
-                        <controls:IconControl
-                            x:Name="Icon"
-                            Scale="1.5" />
-                        <Label
-                            x:Name="AccountName"
-                            Style="{StaticResource Headline}"
-                            HorizontalTextAlignment="Center"
-                            VerticalTextAlignment="Center" />
-                    </VerticalStackLayout>
+                <Grid
+                    Padding="24"
+                    RowDefinitions="Auto,*">
+
+                    <controls:IconControl
+                        x:Name="Icon"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Start"
+                        Scale="1.5" />
+                    <Label
+                        x:Name="AccountName"
+                        Style="{StaticResource Headline}"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center" />
 
                     <controls:TintedImage
                         ImageSource="close"
@@ -35,8 +47,32 @@
                             <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
                         </controls:TintedImage.GestureRecognizers>
                     </controls:TintedImage>
+                    <SearchBar
+                        x:Name="MovementSearcher"
+                        Grid.Row="1"
+                        Margin="24,0" />
                 </Grid>
             </Border>
         </CollectionView.Header>
+        <CollectionView.ItemsLayout>
+            <LinearItemsLayout
+                Orientation="Vertical"
+                ItemSpacing="4"
+                SnapPointsType="Mandatory"
+                SnapPointsAlignment="Start" />
+        </CollectionView.ItemsLayout>
+        <CollectionView.EmptyView>
+            <Grid
+                VerticalOptions="Start"
+                HeightRequest="90">
+                <Label
+                    Padding="24,0"
+                    AutomationId="EmptyMovementCollectionText"
+                    Text="{local:Translate Overview_No_Movements}"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="Center" />
+                <Line Style="{StaticResource LineSettingsGroup}" />
+            </Grid>
+        </CollectionView.EmptyView>
     </CollectionView>
 </pages:BasePage>

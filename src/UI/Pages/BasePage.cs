@@ -46,6 +46,11 @@ public abstract class BasePage : ContentPage, IDisposable
         Application.Current!.RequestedThemeChanged -= Current_RequestedThemeChanged;
         Disposables?.Dispose();
     }
+
+    protected Task PopModal()
+    {
+        return Navigation.PopModalAsync();
+    }
 }
 
 public abstract class NonDismissablePage : BasePage
