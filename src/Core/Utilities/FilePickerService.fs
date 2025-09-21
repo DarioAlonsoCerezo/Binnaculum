@@ -60,7 +60,7 @@ module FilePickerService =
     }
 
     /// <summary>
-    /// Opens a file picker to select CSV or ZIP files.
+    /// Opens a file picker to select any type of file.
     /// </summary>
     /// <returns>A Task containing file information or default values on cancel/failure</returns>
     let pickDataFileAsync(pickerTitle) = task {
@@ -71,24 +71,10 @@ module FilePickerService =
             if status <> PermissionStatus.Granted then
                 return { FileName = ""; FilePath = ""; ContentType = ""; Success = false }
             else
-                // Define custom file types for CSV and ZIP
-                let customFileType = new FilePickerFileType(
-                    dict [
-                        // Windows file extensions
-                        DevicePlatform.WinUI, ["csv"; "zip"]
-                        // macOS UTIs (Uniform Type Identifiers)
-                        DevicePlatform.macOS, ["public.comma-separated-values-text"; "public.zip-archive"] 
-                        // iOS UTIs
-                        DevicePlatform.iOS, ["public.comma-separated-values-text"; "public.zip-archive"]
-                        // Android MIME types
-                        DevicePlatform.Android, ["text/csv"; "application/zip"; "application/x-zip-compressed"]
-                    ]
-                )
-            
                 // Define options for the file picker
                 let options = PickOptions()
                 options.PickerTitle <- pickerTitle
-                options.FileTypes <- customFileType
+                // Allow any file type by not specifying FileTypes
             
                 // Pick a file
                 let! result = FilePicker.Default.PickAsync(options)

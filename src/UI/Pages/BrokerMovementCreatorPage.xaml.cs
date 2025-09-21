@@ -249,13 +249,13 @@ public partial class BrokerMovementCreatorPage
         SelectFileButton.Clicked += async (sender, e) => {
             try 
             {
-                var options = GetFilePickerOptions();
-                var file = await FilePicker.PickAsync(options);
+
+                var file = await FilePickerService.pickDataFileAsync("Testing");
                 
                 if (file != null)
                 {
                     ShowImportProgress();
-                    var result = await ImportManager.importFile(_account.Broker.Id, file.FullPath);
+                    var result = await ImportManager.importFile(_account.Broker.Id, file.FilePath);
                     HandleImportResult(result);
                 }
             }
@@ -360,32 +360,6 @@ public partial class BrokerMovementCreatorPage
         return false;
     }
 
-    private PickOptions GetFilePickerOptions()
-    {
-        var fileTypes = _account.Broker.SupportedBroker switch
-        {
-            SupportedBroker.IBKR => new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
-            {
-                { DevicePlatform.Android, new[] { "text/csv", "application/zip" } },
-                { DevicePlatform.iOS, new[] { "public.comma-separated-values-text", "public.zip-archive" } },
-                { DevicePlatform.WinUI, new[] { ".csv", ".zip" } }
-            }),
-            SupportedBroker.Tastytrade => new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
-            {
-                { DevicePlatform.Android, new[] { "text/csv" } },
-                { DevicePlatform.iOS, new[] { "public.comma-separated-values-text" } },
-                { DevicePlatform.WinUI, new[] { ".csv" } }
-            }),
-            _ => FilePickerFileType.All
-        };
-
-        return new PickOptions
-        {
-            PickerTitle = "Select broker statement file",
-            FileTypes = fileTypes
-        };
-    }
-
     private void ShowImportProgress()
     {
         ImportProgress.IsVisible = true;
@@ -405,14 +379,6 @@ public partial class BrokerMovementCreatorPage
         {
             ImportStatusLabel.Text = $"Import completed successfully";
             ImportDetailsLabel.Text = $"Imported {result.ProcessedRecords} transactions";
-            
-            // Navigate back to account view after a short delay
-            Device.StartTimer(TimeSpan.FromSeconds(2), () => {
-                Device.BeginInvokeOnMainThread(async () => {
-                    await Navigation.PopModalAsync();
-                });
-                return false;
-            });
         }
         else
         {
