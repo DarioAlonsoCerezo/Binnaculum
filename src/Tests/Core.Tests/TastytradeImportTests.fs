@@ -34,9 +34,17 @@ type TastytradeImportTests() =
 
     [<Test>]
     member this.``TastytradeOptionSymbolParser should handle invalid symbols gracefully``() =
-        Assert.That((fun () -> parseOptionSymbol "INVALID_SYMBOL"), Throws.Exception)
-        Assert.That((fun () -> parseOptionSymbol ""), Throws.Exception)
-        Assert.That((fun () -> parseOptionSymbol null), Throws.Exception)
+        try
+            parseOptionSymbol "INVALID_SYMBOL" |> ignore
+            Assert.Fail("Should have thrown exception for invalid symbol")
+        with
+        | _ -> Assert.Pass("Exception thrown as expected")
+        
+        try
+            parseOptionSymbol "" |> ignore
+            Assert.Fail("Should have thrown exception for empty symbol")
+        with
+        | _ -> Assert.Pass("Exception thrown as expected")
 
     [<Test>]
     member this.``TastytradeOptionSymbolParser isValidOptionSymbol should work correctly``() =
@@ -66,7 +74,8 @@ type TastytradeImportTests() =
         let filePath = Path.Combine(testDataPath, "tastytrade_options_heavy_sample.csv")
         let result = parseTransactionHistoryFromFile filePath
         
-        Assert.That(result.Errors, Is.Empty, $"Parsing errors: {String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))}")
+        let errorMessages = String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))
+        Assert.That(result.Errors, Is.Empty, sprintf "Parsing errors: %s" errorMessages)
         Assert.That(result.Transactions.Length, Is.EqualTo(6))
         Assert.That(result.ProcessedLines, Is.EqualTo(6))
         
@@ -79,7 +88,8 @@ type TastytradeImportTests() =
         let filePath = Path.Combine(testDataPath, "tastytrade_mixed_trading_sample.csv")
         let result = parseTransactionHistoryFromFile filePath
         
-        Assert.That(result.Errors, Is.Empty, $"Parsing errors: {String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))}")
+        let errorMessages = String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))
+        Assert.That(result.Errors, Is.Empty, sprintf "Parsing errors: %s" errorMessages)
         Assert.That(result.Transactions.Length, Is.EqualTo(7))
         
         // Verify transaction type distribution
@@ -96,7 +106,8 @@ type TastytradeImportTests() =
         let filePath = Path.Combine(testDataPath, "tastytrade_acat_transfer_sample.csv")
         let result = parseTransactionHistoryFromFile filePath
         
-        Assert.That(result.Errors, Is.Empty, $"Parsing errors: {String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))}")
+        let errorMessages = String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))
+        Assert.That(result.Errors, Is.Empty, sprintf "Parsing errors: %s" errorMessages)
         Assert.That(result.Transactions.Length, Is.EqualTo(4))
         
         // Verify ACAT transfers

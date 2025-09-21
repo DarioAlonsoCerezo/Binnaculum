@@ -89,7 +89,6 @@
 		<Compile Include="Import\Brokers\TastytradeOptionSymbolParser.fs" />
 		<Compile Include="Import\Brokers\TastytradeStatementParser.fs" />
 		<Compile Include="Import\Brokers\TastytradeStrategyDetector.fs" />
-		<Compile Include="Import\Brokers\TastytradeDataConverter.fs" />
 		<Compile Include="Import\Brokers\TastytradeImporter.fs" />
 		<Compile Include="Import\ImportManager.fs" />
 		<Compile Include="Models\Models.fs" />

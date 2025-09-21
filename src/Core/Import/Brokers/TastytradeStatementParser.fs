@@ -59,11 +59,13 @@ module TastytradeStatementParser =
         else
             try
                 // Handle MM/dd/yy format: "5/31/24"
-                let parsedDate = DateTime.ParseExact(dateStr, ["M/d/yy"; "MM/dd/yy"; "M/dd/yy"; "MM/d/yy"], 
+                let parsedDate = DateTime.ParseExact(dateStr, [|"M/d/yy"; "MM/dd/yy"; "M/dd/yy"; "MM/d/yy"|], 
                                                    CultureInfo.InvariantCulture, DateTimeStyles.None)
                 Some parsedDate
             with
-            | ex -> failwith $"""Invalid expiration date format: '{dateStr}'. Expected format like '5/31/24'. Error: {ex.Message}"""
+            | ex -> 
+                let errorMsg = sprintf "Invalid expiration date format: '%s'. Expected format like '5/31/24'. Error: %s" dateStr ex.Message
+                failwith errorMsg
 
     /// <summary>
     /// Split CSV line respecting quoted fields that may contain commas
@@ -112,7 +114,8 @@ module TastytradeStatementParser =
                 |> Array.choose id
             
             if mismatches.Length > 0 then
-                Error $"Header mismatches: {String.Join("; ", mismatches)}"
+                let errorMsg = sprintf "Header mismatches: %s" (String.Join("; ", mismatches))
+                Error errorMsg
             else
                 Ok ()
 
