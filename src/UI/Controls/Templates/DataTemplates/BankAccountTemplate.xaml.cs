@@ -65,12 +65,13 @@ public partial class BankAccountTemplate
             .Subscribe()
             .DisposeWith(Disposables);
 
-        BankAccountGesture.Events().Tapped
-            .Select(async _ =>
-            {
-                await Navigation.PushModalAsync(new BankAccountPage());
-            })
-            .Subscribe()
-            .DisposeWith(Disposables);
+        //TODO: Enable when I have a clear path about the info to show and how.
+        //BankAccountGesture.Events().Tapped
+        //    .Select(async _ =>
+        //    {
+        //        await Navigation.PushModalAsync(new BankAccountPage());
+        //    })
+        //    .Subscribe()
+        //    .DisposeWith(Disposables);
     }
 }
