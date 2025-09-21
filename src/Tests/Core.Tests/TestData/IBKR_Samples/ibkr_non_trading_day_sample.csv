@@ -1,0 +1,12 @@
+Statement,Header,Field Name,Field Value
+Statement,Data,BrokerName,Interactive Brokers (U.K.) Limited
+Statement,Data,Title,Activity Statement
+Statement,Data,Period,"March 1, 2023"
+Open Positions,Header,DataDiscriminator,Asset Category,Currency,Symbol,Quantity,Mult,Cost Basis Price,Cost Basis Money,Close Price,Value,Unrealized P/L,Unrealized P/L %
+Open Positions,Data,Summary,Stocks,USD,AAPL,10.5,1,150.25,1577.625,150.75,1582.875,5.25,0.33
+Open Positions,Data,Summary,Stocks,USD,MSFT,5.4725,1,248.50,1360.0125,248.25,1358.644,-1.369,0.10
+Cash Report,Header,Currency,Total,Securities,Commodities
+Cash Report,Data,Cash FX Translation Gain/Loss,Base Currency Summary,0.00214206,0.00214206,0
+Base Currency Exchange Rate,Header,Currency,Rate
+Base Currency Exchange Rate,Data,GBP,1.201800
+Base Currency Exchange Rate,Data,EUR,1.058100
