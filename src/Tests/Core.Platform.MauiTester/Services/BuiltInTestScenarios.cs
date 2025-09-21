@@ -37,7 +37,6 @@ namespace Core.Platform.MauiTester.Services
                 .AddVerificationStep("Verify Brokers Collection", TestVerifications.VerifyBrokersCollection)
                 .AddVerificationStep("Verify IBKR Broker", TestVerifications.VerifyIbkrBroker)
                 .AddVerificationStep("Verify Tastytrade Broker", TestVerifications.VerifyTastytradeBroker)
-                .AddVerificationStep("Verify Sigma Trade Broker", TestVerifications.VerifySigmaTradeBroker)
                 .AddVerificationStep("Verify SPY Ticker", TestVerifications.VerifySpyTicker)
                 .AddVerificationStep("Verify Snapshots Collection", TestVerifications.VerifySnapshotsCollection));
         }

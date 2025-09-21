@@ -17,7 +17,6 @@ module internal DatabaseModel =
     type SupportedBroker =
         | IBKR
         | Tastytrade
-        | SigmaTrade
         | Unknown
 
     type OptionCode =
