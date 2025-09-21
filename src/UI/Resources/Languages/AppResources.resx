@@ -726,6 +726,21 @@ Please note that custom brokers you create will be marked as "not configured for
   <data name="BrokerMovementCreator_How_To_File" xml:space="preserve">
     <value>From file</value>
   </data>
+  <data name="BrokerMovementCreator_SelectFileHint" xml:space="preserve">
+    <value>Select a broker statement file to import transactions</value>
+  </data>
+  <data name="BrokerMovementCreator_SelectFile" xml:space="preserve">
+    <value>Select File</value>
+  </data>
+  <data name="BrokerMovementCreator_ImportProgress" xml:space="preserve">
+    <value>Importing transactions...</value>
+  </data>
+  <data name="BrokerMovementCreator_ImportComplete" xml:space="preserve">
+    <value>Import completed successfully</value>
+  </data>
+  <data name="BrokerMovementCreator_ImportError" xml:space="preserve">
+    <value>Import failed</value>
+  </data>
   <data name="ItemSelector_Select_Option" xml:space="preserve">
     <value>Select an option:</value>
   </data>
