@@ -12,9 +12,12 @@ module TastytradeImporter =
     /// Import multiple CSV files from Tastytrade with cancellation support
     /// </summary>
     /// <param name="csvFilePaths">List of CSV file paths to process</param>
+    /// <param name="brokerAccountId">ID of the broker account to import for</param>
     /// <param name="cancellationToken">Cancellation token for operation</param>
     /// <returns>Consolidated ImportResult</returns>
-    let importMultipleWithCancellation (csvFilePaths: string list) (cancellationToken: CancellationToken) = task {
+    let importMultipleWithCancellation (csvFilePaths: string list) (brokerAccountId: int) (cancellationToken: CancellationToken) = task {
+        let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+        
         let mutable totalResult = {
             Success = true
             ProcessedFiles = csvFilePaths.Length
@@ -29,6 +32,9 @@ module TastytradeImporter =
         }
         
         let mutable fileResults = []
+        let mutable totalBrokerMovements = 0
+        let mutable totalOptionTrades = 0
+        let mutable totalStockTrades = 0
         
         for (index, csvFile) in csvFilePaths |> List.mapi (fun i file -> i, file) do
             cancellationToken.ThrowIfCancellationRequested()
@@ -43,12 +49,40 @@ module TastytradeImporter =
                     let parsingResult = TastytradeStatementParser.parseTransactionHistoryFromFile csvFile
                     
                     if parsingResult.Errors.IsEmpty then
-                        let fileResult = FileImportResult.createSuccess fileName parsingResult.ProcessedLines
-                        fileResults <- fileResult :: fileResults
+                        // Convert parsed transactions to counts by type
+                        let conversionStats = TastytradeTransactionConverter.convertTransactions parsingResult.Transactions
                         
-                        totalResult <- { totalResult with 
-                                           ProcessedRecords = totalResult.ProcessedRecords + parsingResult.ProcessedLines
-                                           TotalRecords = totalResult.TotalRecords + parsingResult.ProcessedLines }
+                        // Create file result based on conversion success
+                        if conversionStats.ErrorsCount = 0 then
+                            let fileResult = FileImportResult.createSuccess fileName parsingResult.ProcessedLines
+                            fileResults <- fileResult :: fileResults
+                            
+                            // Update totals with actual created records
+                            totalBrokerMovements <- totalBrokerMovements + conversionStats.BrokerMovementsCreated
+                            totalOptionTrades <- totalOptionTrades + conversionStats.OptionTradesCreated
+                            totalStockTrades <- totalStockTrades + conversionStats.StockTradesCreated
+                            
+                            totalResult <- { totalResult with 
+                                               ProcessedRecords = totalResult.ProcessedRecords + parsingResult.ProcessedLines
+                                               TotalRecords = totalResult.TotalRecords + parsingResult.ProcessedLines }
+                        else
+                            // Convert conversion errors to import errors
+                            let conversionErrors = 
+                                conversionStats.Errors
+                                |> List.map (fun errorMsg -> {
+                                    RowNumber = None
+                                    ErrorMessage = errorMsg
+                                    ErrorType = ValidationError
+                                    RawData = None
+                                })
+                            
+                            let fileResult = FileImportResult.createFailure fileName conversionErrors
+                            fileResults <- fileResult :: fileResults
+                            
+                            totalResult <- { totalResult with 
+                                               Success = false
+                                               Errors = totalResult.Errors @ conversionErrors
+                                               SkippedRecords = totalResult.SkippedRecords + conversionStats.ErrorsCount }
                     else
                         let importErrors = 
                             parsingResult.Errors
@@ -63,7 +97,8 @@ module TastytradeImporter =
                         
                         totalResult <- { totalResult with 
                                            Success = false
-                                           Errors = totalResult.Errors @ importErrors }
+                                           Errors = totalResult.Errors @ importErrors
+                                           SkippedRecords = totalResult.SkippedRecords + parsingResult.Errors.Length }
                 else
                     let errorMsg = sprintf "File not found: %s" fileName
                     let error = { RowNumber = None; ErrorMessage = errorMsg; ErrorType = ValidationError; RawData = None }
@@ -84,19 +119,33 @@ module TastytradeImporter =
                                    Success = false
                                    Errors = error :: totalResult.Errors }
         
-        // Final status update
+        stopwatch.Stop()
+        
+        // Final status update with actual imported data counts
+        let importedData = { 
+            Trades = totalStockTrades
+            BrokerMovements = totalBrokerMovements
+            Dividends = 0
+            OptionTrades = totalOptionTrades
+            NewTickers = 0 // TODO: Track new tickers created during import
+        }
+        
         ImportState.updateStatus(ProcessingData(totalResult.ProcessedRecords, totalResult.TotalRecords))
         
-        return { totalResult with FileResults = List.rev fileResults }
+        return { totalResult with 
+                   FileResults = List.rev fileResults
+                   ImportedData = importedData
+                   ProcessingTimeMs = stopwatch.ElapsedMilliseconds }
     }
     
     /// <summary>
     /// Import single CSV file from Tastytrade
     /// </summary>
     /// <param name="csvFilePath">Path to CSV file</param>
+    /// <param name="brokerAccountId">ID of the broker account to import for</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>FileImportResult for the single file</returns>
-    let importSingleWithCancellation (csvFilePath: string) (cancellationToken: CancellationToken) = task {
-        let! result = importMultipleWithCancellation [csvFilePath] cancellationToken
+    let importSingleWithCancellation (csvFilePath: string) (brokerAccountId: int) (cancellationToken: CancellationToken) = task {
+        let! result = importMultipleWithCancellation [csvFilePath] brokerAccountId cancellationToken
         return result.FileResults |> List.tryHead |> Option.defaultValue (FileImportResult.createFailure (System.IO.Path.GetFileName(csvFilePath)) [])
     }
