@@ -15,7 +15,7 @@ type BrokerSnapshotTests () =
             Id = 1
             Name = "Test Broker"
             Image = ""
-            SupportedBroker = ""
+            SupportedBroker = SupportedBroker.Unknown
         }
         let mockFinancial = {
             Id = 1
@@ -64,7 +64,7 @@ type BrokerSnapshotTests () =
             Id = 1
             Name = "Test Broker"
             Image = ""
-            SupportedBroker = ""
+            SupportedBroker = SupportedBroker.Unknown
         }
         let mockFinancial = {
             Id = 1

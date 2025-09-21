@@ -48,7 +48,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
             Id = 1
             Name = "Test Broker"
             Image = ""
-            SupportedBroker = ""
+            SupportedBroker = SupportedBroker.Unknown
         }
         let currency = {
             Id = 1
@@ -89,7 +89,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
             Id = 1
             Name = "Test Broker"
             Image = ""
-            SupportedBroker = ""
+            SupportedBroker = SupportedBroker.Unknown
         }
         let brokerAccount = {
             Id = 2

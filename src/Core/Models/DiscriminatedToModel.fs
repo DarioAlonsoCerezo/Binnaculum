@@ -19,9 +19,9 @@ module internal DiscriminatedToModel =
         [<Extension>]
         static member supportedBrokerToModel(databaseSupportedBroker: Binnaculum.Core.Database.DatabaseModel.SupportedBroker) =
             match databaseSupportedBroker with
-            | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.IBKR -> Keys.Broker_IBKR
-            | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.Tastytrade -> Keys.Broker_Tastytrade
-            | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.Unknown -> Keys.Broker_Unknown
+            | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.IBKR -> Models.SupportedBroker.IBKR
+            | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.Tastytrade -> Models.SupportedBroker.Tastytrade
+            | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.Unknown -> Models.SupportedBroker.Unknown
 
 
         [<Extension>]

@@ -1,6 +1,9 @@
 using Binnaculum.Controls;
 using Binnaculum.Core;
 using Binnaculum.Core.UI;
+using Binnaculum.Core.Import;
+using Binnaculum.Core.Utilities;
+using Microsoft.Maui.Storage;
 using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Pages;
@@ -207,6 +210,60 @@ public partial class BrokerMovementCreatorPage
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
             .DisposeWith(Disposables);
+
+        // Broker support detection - Enable FromFileRadioButton for supported brokers only
+        var isSupportedBroker = _account.Broker.SupportedBroker == SupportedBroker.IBKR || 
+                               _account.Broker.SupportedBroker == SupportedBroker.Tastytrade;
+        FromFileRadioButton.IsEnabled = isSupportedBroker;
+
+        // Handle radio button selection
+        FromFileRadioButton.Events().CheckedChanged
+            .Where(isChecked => isChecked && isSupportedBroker)
+            .ObserveOn(UiThread)
+            .Subscribe(_ => {
+                FileImportSection.IsVisible = true;
+                // Hide manual movement controls
+                MovementTypeControl.IsVisible = false;
+                BrokerMovement.IsVisible = false;
+                TradeMovement.IsVisible = false;
+                DividendMovement.IsVisible = false;
+                OptionTradeMovement.IsVisible = false;
+                Save.IsVisible = false;
+            })
+            .DisposeWith(Disposables);
+
+        // Handle manual selection
+        ManualRadioButton.Events().CheckedChanged
+            .Where(isChecked => isChecked)
+            .ObserveOn(UiThread)
+            .Subscribe(_ => {
+                FileImportSection.IsVisible = false;
+                MovementTypeControl.IsVisible = true;
+                // Reset import results
+                ImportResults.IsVisible = false;
+                ImportProgress.IsVisible = false;
+            })
+            .DisposeWith(Disposables);
+
+        // Handle file selection and import
+        SelectFileButton.Clicked += async (sender, e) => {
+            try 
+            {
+                var options = GetFilePickerOptions();
+                var file = await FilePicker.PickAsync(options);
+                
+                if (file != null)
+                {
+                    ShowImportProgress();
+                    var result = await ImportManager.importFile(_account.Broker.Id, file.FullPath);
+                    HandleImportResult(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleImportError(ex);
+            }
+        };
     }
 
     private Models.BrokerMovement? GetBrokerMovement(Models.MovementType? movementType)
@@ -301,5 +358,78 @@ public partial class BrokerMovementCreatorPage
             return true;
 
         return false;
+    }
+
+    private PickOptions GetFilePickerOptions()
+    {
+        var fileTypes = _account.Broker.SupportedBroker switch
+        {
+            SupportedBroker.IBKR => new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                { DevicePlatform.Android, new[] { "text/csv", "application/zip" } },
+                { DevicePlatform.iOS, new[] { "public.comma-separated-values-text", "public.zip-archive" } },
+                { DevicePlatform.WinUI, new[] { ".csv", ".zip" } }
+            }),
+            SupportedBroker.Tastytrade => new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                { DevicePlatform.Android, new[] { "text/csv" } },
+                { DevicePlatform.iOS, new[] { "public.comma-separated-values-text" } },
+                { DevicePlatform.WinUI, new[] { ".csv" } }
+            }),
+            _ => FilePickerFileType.All
+        };
+
+        return new PickOptions
+        {
+            PickerTitle = "Select broker statement file",
+            FileTypes = fileTypes
+        };
+    }
+
+    private void ShowImportProgress()
+    {
+        ImportProgress.IsVisible = true;
+        ImportProgress.IsRunning = true;
+        ImportResults.IsVisible = false;
+        SelectFileButton.IsEnabled = false;
+    }
+
+    private void HandleImportResult(ImportResult result)
+    {
+        ImportProgress.IsVisible = false;
+        ImportProgress.IsRunning = false;
+        ImportResults.IsVisible = true;
+        SelectFileButton.IsEnabled = true;
+
+        if (result.Success)
+        {
+            ImportStatusLabel.Text = $"Import completed successfully";
+            ImportDetailsLabel.Text = $"Imported {result.ProcessedRecords} transactions";
+            
+            // Navigate back to account view after a short delay
+            Device.StartTimer(TimeSpan.FromSeconds(2), () => {
+                Device.BeginInvokeOnMainThread(async () => {
+                    await Navigation.PopModalAsync();
+                });
+                return false;
+            });
+        }
+        else
+        {
+            ImportStatusLabel.Text = "Import failed";
+            var errorMessages = result.Errors.Select(e => e.ErrorMessage).Take(3);
+            ImportDetailsLabel.Text = string.Join(", ", errorMessages);
+        }
+    }
+
+    private void HandleImportError(Exception error)
+    {
+        ImportProgress.IsVisible = false;
+        ImportProgress.IsRunning = false;
+        ImportResults.IsVisible = true;
+        SelectFileButton.IsEnabled = true;
+
+        ImportStatusLabel.Text = "Import failed";
+        ImportDetailsLabel.Text = error.Message;
     }
 }

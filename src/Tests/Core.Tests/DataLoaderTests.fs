@@ -40,7 +40,7 @@ type DataLoaderTests () =
     [<Test>]
     member _.``loadLatestBrokerAccountSnapshots should process snapshots when BrokerAccounts exist`` () =
         // Arrange - add a broker account
-        let broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = "" }
+        let broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = SupportedBroker.Unknown }
         let brokerAccount = {
             Id = 1
             Broker = broker
@@ -60,7 +60,7 @@ type DataLoaderTests () =
     [<Test>]
     member _.``BrokerAccounts collection filtering works correctly`` () =
         // Arrange - add mixed account types
-        let broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = "" }
+        let broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = SupportedBroker.Unknown }
         let brokerAccount = {
             Id = 1
             Broker = broker

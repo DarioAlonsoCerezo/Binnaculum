@@ -190,3 +190,6 @@ module ResourceKeys =
 
     [<Literal>]
     let Placeholder_Quantity = "Placeholder_Quantity"
+
+    [<Literal>]
+    let Broker_Unknown = "Broker_Unknown"

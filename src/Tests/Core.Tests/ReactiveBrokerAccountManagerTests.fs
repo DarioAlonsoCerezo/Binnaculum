@@ -22,7 +22,7 @@ type ReactiveBrokerAccountManagerTests() =
             Id = 1
             Name = "Test Broker"
             Image = "test.png"
-            SupportedBroker = "TestBroker"
+            SupportedBroker = SupportedBroker.Unknown
         }
         
         let brokerAccount = {
@@ -61,7 +61,7 @@ type ReactiveBrokerAccountManagerTests() =
             Id = 1
             Name = "Test Broker"
             Image = "test.png"
-            SupportedBroker = "TestBroker"
+            SupportedBroker = SupportedBroker.Unknown
         }
         
         let brokerAccount = {
@@ -115,7 +115,7 @@ type ReactiveBrokerAccountManagerTests() =
             Id = 1
             Name = "Test Broker"
             Image = "test.png"
-            SupportedBroker = "TestBroker"
+            SupportedBroker = SupportedBroker.Unknown
         }
         
         let brokerAccount = {
@@ -153,7 +153,7 @@ type ReactiveBrokerAccountManagerTests() =
             Id = 1
             Name = "Test Broker"
             Image = "test.png"
-            SupportedBroker = "TestBroker"
+            SupportedBroker = SupportedBroker.Unknown
         }
         
         let brokerAccount = {

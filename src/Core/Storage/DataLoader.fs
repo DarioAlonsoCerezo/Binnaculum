@@ -54,7 +54,7 @@ module internal DataLoader =
         //As we allow users create brokers, we add this default broker to recognize it in the UI (if not already present)
         let hasDefaultBroker = Collections.Brokers.Items |> Seq.exists (fun b -> b.Id = -1)
         if not hasDefaultBroker then
-            Collections.Brokers.Add({ Id = -1; Name = "AccountCreator_Create_Broker"; Image = "broker"; SupportedBroker = "Unknown"; })
+            Collections.Brokers.Add({ Id = -1; Name = "AccountCreator_Create_Broker"; Image = "broker"; SupportedBroker = SupportedBroker.Unknown; })
     }
     
     let getOrRefresAvailableImages() = task {
