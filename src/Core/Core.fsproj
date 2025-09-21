@@ -87,7 +87,6 @@
 		<Compile Include="Import\Brokers\IBKR\IBKRModels.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRSectionFilter.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRStatementParser.fs" />
-		<Compile Include="Import\Brokers\IBKR\IBKRDataConverter.fs" />
 
 		<Compile Include="Import\Brokers\IBKRImporter.fs" />
 		<Compile Include="Import\Brokers\TastytradeModels.fs" />
