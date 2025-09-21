@@ -1,6 +1,11 @@
 namespace Binnaculum.Core.Import
 
 open System
+open System.Threading
+open System.IO
+open Binnaculum.Core
+open Binnaculum.Core.Database
+open BrokerExtensions
 
 /// <summary>
 /// Main import manager for file import operations with cancellation support
@@ -20,13 +25,70 @@ module ImportManager =
             // Validate inputs
             ImportState.updateStatus(Validating filePath)
             
-            if not (System.IO.File.Exists(filePath)) then
+            if not (File.Exists(filePath)) then
                 return ImportResult.createError($"File not found: {filePath}")
             else
-                // For now, return a simple success result - TODO: implement full logic
-                let result = ImportResult.createSuccess 1 0 { Trades = 0; BrokerMovements = 0; Dividends = 0; OptionTrades = 0; NewTickers = 0 } [] 0L
-                ImportState.completeImport(result)
-                return result
+                // Look up broker information
+                let! brokerOption = BrokerExtensions.Do.getById(brokerId) |> Async.AwaitTask
+                match brokerOption with
+                | None ->
+                    return ImportResult.createError($"Broker with ID {brokerId} not found")
+                | Some broker ->
+                    cancellationToken.ThrowIfCancellationRequested()
+                    
+                    // Process file (handles both CSV and ZIP)
+                    ImportState.updateStatus(ProcessingFile(Path.GetFileName(filePath), 0.0))
+                    let processedFile = 
+                        try
+                            Some (FileProcessor.processFile filePath)
+                        with
+                        | ex -> 
+                            ImportState.failImport($"Failed to process file: {ex.Message}")
+                            None
+                    
+                    match processedFile with
+                    | None -> return ImportResult.createError($"Failed to process file")
+                    | Some pf ->
+                        try
+                            cancellationToken.ThrowIfCancellationRequested()
+                            
+                            // Route to appropriate broker importer based on SupportedBroker
+                            let! importResult = 
+                                if broker.SupportedBroker.ToString() = "IBKR" then
+                                    // IBKR importer doesn't need broker account ID
+                                    IBKRImporter.importMultipleWithCancellation pf.CsvFiles cancellationToken
+                                elif broker.SupportedBroker.ToString() = "Tastytrade" then
+                                    // Tastytrade importer needs broker account ID - we'll use the first available
+                                    task {
+                                        let! brokerAccounts = BrokerAccountExtensions.Do.getAll() |> Async.AwaitTask
+                                        let brokerAccount = 
+                                            brokerAccounts 
+                                            |> List.tryFind (fun account -> account.BrokerId = brokerId)
+                                        match brokerAccount with
+                                        | None ->
+                                            return ImportResult.createError($"No broker account found for broker {broker.Name}")
+                                        | Some account ->
+                                            return! TastytradeImporter.importMultipleWithCancellation pf.CsvFiles account.Id cancellationToken
+                                    }
+                                else
+                                    task { return ImportResult.createError($"Unsupported broker type: {broker.Name}") }
+                            
+                            // Clean up temporary files
+                            FileProcessor.cleanup pf
+                            
+                            // Complete import and return result
+                            ImportState.completeImport(importResult)
+                            return importResult
+                            
+                        with
+                        | :? OperationCanceledException ->
+                            // Clean up temporary files on cancellation
+                            FileProcessor.cleanup pf
+                            return ImportResult.createCancelled()
+                        | ex ->
+                            // Clean up temporary files on error
+                            FileProcessor.cleanup pf
+                            return ImportResult.createError($"Import failed: {ex.Message}")
         
         with
         | :? OperationCanceledException ->
