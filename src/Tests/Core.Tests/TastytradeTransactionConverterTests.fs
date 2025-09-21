@@ -165,3 +165,27 @@ type TastytradeTransactionConverterTests() =
         Assert.That(stats.OptionTradesCreated, Is.EqualTo(0))
         Assert.That(stats.StockTradesCreated, Is.EqualTo(0))
         Assert.That(stats.ErrorsCount, Is.EqualTo(0))
+
+    [<Test>]
+    member _.``Should handle real Tastytrade CSV sample data from problem statement`` () =
+        // This test demonstrates the fix using the exact data from the GitHub issue
+        
+        // Arrange - Create transactions matching the problem statement examples
+        let depositTransaction = createMoneyMovementTransaction (DateTime(2024, 4, 22, 22, 0, 0)) Deposit 10.00m
+        let optionTradeTransaction = createOptionTradeTransaction (DateTime(2024, 4, 25, 14, 41, 11)) SELL_TO_OPEN 35.00m
+        let balanceAdjustmentTransaction = createMoneyMovementTransaction (DateTime(2024, 4, 27, 19, 18, 0)) BalanceAdjustment -0.02m
+        
+        let sampleTransactions = [depositTransaction; optionTradeTransaction; balanceAdjustmentTransaction]
+        
+        // Act
+        let stats = convertTransactions sampleTransactions
+        
+        // Assert - Should show meaningful counts instead of 0 movements
+        Assert.That(stats.TotalTransactions, Is.EqualTo(3), "Should process all 3 transactions")
+        Assert.That(stats.BrokerMovementsCreated, Is.EqualTo(2), "Should create 2 BrokerMovements (deposit + balance adjustment)")
+        Assert.That(stats.OptionTradesCreated, Is.EqualTo(1), "Should create 1 OptionTrade")
+        Assert.That(stats.StockTradesCreated, Is.EqualTo(0), "No stock trades in this sample")
+        Assert.That(stats.ErrorsCount, Is.EqualTo(0), "Should process without errors")
+        
+        // This demonstrates the core fix: instead of returning 0 movements, 
+        // we now get meaningful counts that can be displayed to the user
