@@ -2,7 +2,7 @@ namespace Binnaculum.Core.Import
 
 open System
 open TastytradeModels
-open Binnaculum.Core.Models
+open Binnaculum.Core
 open Binnaculum.Core.Database.DatabaseExtensions
 
 /// <summary>
