@@ -60,7 +60,7 @@
 	</ItemGroup>
 	<!-- Others-->
 	<ItemGroup>
-		<PackageVersion Include="CommunityToolkit.Maui" Version="12.1.0" />
+		<PackageVersion Include="CommunityToolkit.Maui" Version="12.2.0" />
 		<PackageVersion Include="Plugin.Maui.Calendar" Version="2.0.9" />
 		<PackageVersion Include="Indiko.Maui.Controls.Markdown" Version="1.3.12" />
 		<!-- Command Line Interface -->

@@ -87,17 +87,13 @@
 		<Compile Include="Import\Brokers\IBKR\IBKRModels.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRSectionFilter.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRStatementParser.fs" />
-		<!-- Temporarily disabled for compilation - need to fix model references -->
-		<!-- <Compile Include="Import\Brokers\IBKR\IBKRDataConverter.fs" /> -->
-		<!-- <Compile Include="Import\Brokers\IBKR\IBKRCashFlowProcessor.fs" /> -->
-		<!-- <Compile Include="Import\Brokers\IBKR\IBKRForexProcessor.fs" /> -->
+
 		<Compile Include="Import\Brokers\IBKRImporter.fs" />
 		<Compile Include="Import\Brokers\TastytradeModels.fs" />
 		<Compile Include="Import\Brokers\TastytradeOptionSymbolParser.fs" />
 		<Compile Include="Import\Brokers\TastytradeStatementParser.fs" />
 		<Compile Include="Import\Brokers\TastytradeStrategyDetector.fs" />
-		<!-- Temporarily disabled for compilation - has model reference issues -->
-		<!-- <Compile Include="Import\Brokers\TastytradeDataConverter.fs" /> -->
+
 		<Compile Include="Import\Brokers\TastytradeImporter.fs" />
 		<Compile Include="Import\ImportManager.fs" />
 		<Compile Include="Models\Models.fs" />
