@@ -67,12 +67,13 @@ public partial class BrokerAccountTemplate
             .Subscribe()
             .DisposeWith(Disposables);
 
-        BrokerAccountGesture.Events().Tapped
-            .Select(async _ =>
-            {
-                await Navigation.PushModalAsync(new BrokerAcccountPage(_snapshot));
-            })
-            .Subscribe()
-            .DisposeWith(Disposables);
+        //TODO: Enable when I have a clear path about the info to show and how.
+        //BrokerAccountGesture.Events().Tapped
+        //    .Select(async _ =>
+        //    {
+        //        await Navigation.PushModalAsync(new BrokerAcccountPage(_snapshot));
+        //    })
+        //    .Subscribe()
+        //    .DisposeWith(Disposables);
     }
 }
