@@ -1,0 +1,30 @@
+Statement,Header,Field Name,Field Value
+Statement,Data,BrokerName,Interactive Brokers (U.K.) Limited
+Statement,Data,Title,Activity Statement
+Statement,Data,Period,"March 15, 2023"
+Trades,Header,DataDiscriminator,Asset Category,Currency,Symbol,Date/Time,Quantity,T. Price,C. Price,Proceeds,Comm/Fee,Basis,Realized P/L,Realized P/L %,MTM P/L,Code
+Trades,Data,Order,Stocks,GBP,LLOY,"2023-03-15, 11:30:00",1000,0.485,0.486,-485.00,-1.50,486.50,0,0,10.00,FPA;O;P
+Trades,Data,Order,Forex,USD,EUR.USD,"2023-03-15, 08:20:00",-500,1.0576,,528.80,-1.25,,,,3.45
+Deposits & Withdrawals,Header,Currency,Settle Date,Description,Amount
+Deposits & Withdrawals,Data,EUR,2023-03-15,Electronic Fund Transfer,500.0
+Deposits & Withdrawals,Data,GBP,2023-03-15,Electronic Fund Transfer,1000.0
+Open Positions,Header,DataDiscriminator,Asset Category,Currency,Symbol,Quantity,Mult,Cost Basis Price,Cost Basis Money,Close Price,Value,Unrealized P/L,Unrealized P/L %
+Open Positions,Data,Summary,Stocks,USD,AAPL,10.5,1,150.25,1577.625,152.30,1599.15,21.525,1.36
+Open Positions,Data,Summary,Stocks,USD,MSFT,5.4725,1,248.50,1360.0125,250.75,1372.425,12.412,0.91
+Open Positions,Data,Summary,Stocks,GBP,LLOY,1000,1,0.485,485.00,0.486,486.00,1.00,0.21
+Financial Instrument Information,Header,Asset Category,Symbol,Description,Conid,Security ID,Listing Exch,Multiplier,Type,Code
+Financial Instrument Information,Data,Stocks,AAPL,APPLE INC,272293,US0378331005,NASDAQ,1,COMMON
+Financial Instrument Information,Data,Stocks,MSFT,MICROSOFT CORP,272304,US5949181045,NASDAQ,1,COMMON
+Financial Instrument Information,Data,Stocks,LLOY,LLOYDS BANKING GROUP PLC,272315,GB0008706128,LSE,1,COMMON
+Cash Report,Header,Currency,Total,Securities,Commodities
+Cash Report,Data,Cash FX Translation Gain/Loss,Base Currency Summary,0.00532109,0.00532109,0
+Cash Report,Data,Deposits,Base Currency Summary,1847.652,1847.652,0,1847.652,1847.652
+Cash Report,Data,Commissions,Base Currency Summary,-4.75,-4.75,0
+Cash Report,Data,Deposits,GBP,1000.0,1202.30,0
+Cash Report,Data,Deposits,EUR,500.0,528.80,0
+Base Currency Exchange Rate,Header,Currency,Rate
+Base Currency Exchange Rate,Data,GBP,1.202300
+Base Currency Exchange Rate,Data,EUR,1.057600
+Forex Balances,Header,Currency,Quantity,Cost Basis Price,Cost Basis Money,Close Price,Value,Unrealized P/L,Unrealized P/L %
+Forex Balances,Data,GBP,515.0,1.2089,622.585,1.2023,619.18,-3.405,-0.55
+Forex Balances,Data,EUR,0.0,1.0576,0.0,1.0576,0.0,0.0,0.0

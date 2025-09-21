@@ -1,0 +1,16 @@
+Statement,Header,Field Name,Field Value
+Statement,Data,BrokerName,Interactive Brokers (U.K.) Limited
+Statement,Data,Title,Activity Statement
+Statement,Data,Period,"April 1, 2023"
+Account Information,Header,Account,Family Code,Base Currency,Account Capabilities,Trading Permissions,Account Type,Customer Type,Principal,User Name,Address,IBEntity
+Account Information,Data,U1234567,FA123456,USD,Normal,Stocks;Options;Forex,Individual,Individual,Test User,"123 Test Street, Test City",IBIE
+Trades,Header,DataDiscriminator,Asset Category,Currency,Symbol,Date/Time,Quantity,T. Price,C. Price,Proceeds,Comm/Fee,Basis,Realized P/L,Realized P/L %,MTM P/L,Code
+Open Positions,Header,DataDiscriminator,Asset Category,Currency,Symbol,Quantity,Mult,Cost Basis Price,Cost Basis Money,Close Price,Value,Unrealized P/L,Unrealized P/L %
+Financial Instrument Information,Header,Asset Category,Symbol,Description,Conid,Security ID,Listing Exch,Multiplier,Type,Code
+Cash Report,Header,Currency,Total,Securities,Commodities
+Base Currency Exchange Rate,Header,Currency,Rate
+Base Currency Exchange Rate,Data,GBP,1.201500
+Notes,Header,Code,Description
+Notes,Data,FPA,"Opening transaction for the account"
+Legal Notes,Header,
+Legal Notes,Data,,"This statement is for informational purposes only..."

@@ -1,0 +1,23 @@
+Statement,Header,Field Name,Field Value
+Statement,Data,BrokerName,Interactive Brokers (U.K.) Limited
+Statement,Data,Title,Activity Statement
+Statement,Data,Period,"February 28, 2023"
+Trades,Header,DataDiscriminator,Asset Category,Currency,Symbol,Date/Time,Quantity,T. Price,C. Price,Proceeds,Comm/Fee,Basis,Realized P/L,Realized P/L %,MTM P/L,Code
+Trades,Data,Order,Stocks,USD,AAPL,"2023-02-28, 09:30:00",10.5,150.25,151.00,-1578.625,-1.00,1579.625,0,0,7.875,FPA;O;P
+Trades,Data,Order,Stocks,USD,MSFT,"2023-02-28, 10:15:00",5.4725,248.50,249.00,-1360.5125,-2.00,1362.5125,0,0,2.7375,FPA;O;P
+Trades,Data,Order,Forex,USD,GBP.USD,"2023-02-28, 05:39:25",-345,1.2089,,417.0705,-1.993341262,,,,2.277
+Deposits & Withdrawals,Header,Currency,Settle Date,Description,Amount
+Deposits & Withdrawals,Data,GBP,2023-02-28,Electronic Fund Transfer,348.8
+Open Positions,Header,DataDiscriminator,Asset Category,Currency,Symbol,Quantity,Mult,Cost Basis Price,Cost Basis Money,Close Price,Value,Unrealized P/L,Unrealized P/L %
+Open Positions,Data,Summary,Stocks,USD,AAPL,10.5,1,150.25,1577.625,151.00,1585.5,7.875,0.50
+Open Positions,Data,Summary,Stocks,USD,MSFT,5.4725,1,248.50,1360.0125,249.00,1362.75,2.7375,0.20
+Financial Instrument Information,Header,Asset Category,Symbol,Description,Conid,Security ID,Listing Exch,Multiplier,Type,Code
+Financial Instrument Information,Data,Stocks,AAPL,APPLE INC,272293,US0378331005,NASDAQ,1,COMMON
+Financial Instrument Information,Data,Stocks,MSFT,MICROSOFT CORP,272304,US5949181045,NASDAQ,1,COMMON
+Cash Report,Header,Currency,Total,Securities,Commodities
+Cash Report,Data,Cash FX Translation Gain/Loss,Base Currency Summary,0.00107103,0.00107103,0
+Cash Report,Data,Deposits,Base Currency Summary,419.36224,419.36224,0,419.36224,419.36224
+Cash Report,Data,Commissions,Base Currency Summary,-3.993341262,-3.993341262,0
+Base Currency Exchange Rate,Header,Currency,Rate
+Base Currency Exchange Rate,Data,GBP,1.202300
+Base Currency Exchange Rate,Data,EUR,1.057600
