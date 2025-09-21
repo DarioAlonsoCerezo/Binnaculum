@@ -4,6 +4,11 @@ open System
 
 module Models =
     
+    type SupportedBroker =
+        | IBKR
+        | Tastytrade
+        | Unknown
+    
     type OptionCode =
         | BuyToOpen
         | SellToOpen
@@ -74,7 +79,7 @@ module Models =
         Id: int
         Name: string
         Image: string
-        SupportedBroker: string
+        SupportedBroker: SupportedBroker
     }
 
     type BrokerAccount = {

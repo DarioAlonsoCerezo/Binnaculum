@@ -16,7 +16,7 @@ type BrokerFinancialSnapshotAggregationTests () =
             Id = 1
             Name = "Test Broker"
             Image = ""
-            SupportedBroker = ""
+            SupportedBroker = SupportedBroker.Unknown
         }
         let mockFinancial1 = {
             Id = 1
@@ -90,7 +90,7 @@ type BrokerFinancialSnapshotAggregationTests () =
             Id = 1
             Name = "Test Broker"
             Image = ""
-            SupportedBroker = ""
+            SupportedBroker = SupportedBroker.Unknown
         }
         // Simulate empty aggregation
         let emptyFinancial = {
@@ -137,7 +137,7 @@ type BrokerFinancialSnapshotAggregationTests () =
             Id = 1
             Name = "Test Broker"
             Image = ""
-            SupportedBroker = ""
+            SupportedBroker = SupportedBroker.Unknown
         }
         let mockFinancial = {
             Id = 1

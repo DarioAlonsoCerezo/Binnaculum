@@ -20,7 +20,7 @@ type NetCashFlowTests () =
             Id = 1
             Name = "Test Broker"
             Image = ""
-            SupportedBroker = "Test"
+            SupportedBroker = SupportedBroker.Unknown
         }
         let snapshot = {
             Id = 1

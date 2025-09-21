@@ -11,7 +11,7 @@ type BrokerAccountSnapshotTests () =
     member _.``BrokerAccountSnapshot has Financial property of type BrokerFinancialSnapshot`` () =
         // Arrange
         let mockCurrency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
-        let mockBroker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = "" }
+        let mockBroker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = SupportedBroker.Unknown }
         let mockBrokerAccount = {
             Id = 1
             Broker = mockBroker
@@ -58,7 +58,7 @@ type BrokerAccountSnapshotTests () =
         // Arrange
         let mockCurrency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
         let mockCurrency2 = { Id = 2; Title = "EUR"; Code = "EUR"; Symbol = "�" }
-        let mockBroker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = "" }
+        let mockBroker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = SupportedBroker.Unknown }
         let mockBrokerAccount = {
             Id = 1
             Broker = mockBroker

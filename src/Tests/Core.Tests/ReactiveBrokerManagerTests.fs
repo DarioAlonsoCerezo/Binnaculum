@@ -14,9 +14,9 @@ type ReactiveBrokerManagerTests() =
     member this.Setup() =
         // Set up test data using Edit instead of EditDiff
         let testBrokers = [
-            { Id = 1; Name = "Interactive Brokers"; Image = "ib"; SupportedBroker = "InteractiveBrokers" }
-            { Id = 2; Name = "Charles Schwab"; Image = "schwab"; SupportedBroker = "CharlesSchwab" }
-            { Id = 3; Name = "TD Ameritrade"; Image = "tda"; SupportedBroker = "TDAmeritrade" }
+            { Id = 1; Name = "Interactive Brokers"; Image = "ib"; SupportedBroker = SupportedBroker.Unknown }
+            { Id = 2; Name = "Charles Schwab"; Image = "schwab"; SupportedBroker = SupportedBroker.Unknown }
+            { Id = 3; Name = "TD Ameritrade"; Image = "tda"; SupportedBroker = SupportedBroker.Unknown }
         ]
         
         Collections.Brokers.Edit(fun list ->
@@ -36,24 +36,24 @@ type ReactiveBrokerManagerTests() =
         Assert.That(ib.Name, Is.EqualTo("Interactive Brokers"))
         Assert.That(ib.Image, Is.EqualTo("ib"))
         Assert.That(ib.Id, Is.EqualTo(1))
-        Assert.That(ib.SupportedBroker, Is.EqualTo("InteractiveBrokers"))
+        Assert.That(ib.SupportedBroker, Is.EqualTo(SupportedBroker.Unknown))
         
         Assert.That(schwab.Name, Is.EqualTo("Charles Schwab"))
         Assert.That(schwab.Image, Is.EqualTo("schwab"))
         Assert.That(schwab.Id, Is.EqualTo(2))
-        Assert.That(schwab.SupportedBroker, Is.EqualTo("CharlesSchwab"))
+        Assert.That(schwab.SupportedBroker, Is.EqualTo(SupportedBroker.Unknown))
         
         Assert.That(tda.Name, Is.EqualTo("TD Ameritrade"))
         Assert.That(tda.Image, Is.EqualTo("tda"))
         Assert.That(tda.Id, Is.EqualTo(3))
-        Assert.That(tda.SupportedBroker, Is.EqualTo("TDAmeritrade"))
+        Assert.That(tda.SupportedBroker, Is.EqualTo(SupportedBroker.Unknown))
 
     [<Test>]
     member this.``Reactive broker lookup should return observable broker``() =
         // Test reactive lookup
         let observable = ReactiveBrokerManager.getBrokerByIdReactive(1)
         
-        let mutable resultBroker = { Id = 0; Name = ""; Image = ""; SupportedBroker = "" }
+        let mutable resultBroker = { Id = 0; Name = ""; Image = ""; SupportedBroker = SupportedBroker.Unknown }
         let mutable testCompleted = false
         
         observable.Subscribe(fun broker ->
@@ -72,7 +72,7 @@ type ReactiveBrokerManagerTests() =
         // Create larger dataset for performance testing
         let largeBrokersList = [
             for i in 1..1000 do
-                yield { Id = i; Name = $"Broker {i}"; Image = "broker"; SupportedBroker = "TestBroker" }
+                yield { Id = i; Name = $"Broker {i}"; Image = "broker"; SupportedBroker = SupportedBroker.Unknown }
         ]
         
         Collections.Brokers.Edit(fun list ->
@@ -114,7 +114,7 @@ type ReactiveBrokerManagerTests() =
     [<Test>]
     member this.``Reactive cache should update when broker is added to collection``() =
         // Add a new broker to the collection
-        let newBroker = { Id = 4; Name = "Fidelity"; Image = "fidelity"; SupportedBroker = "Fidelity" }
+        let newBroker = { Id = 4; Name = "Fidelity"; Image = "fidelity"; SupportedBroker = SupportedBroker.Unknown }
         Collections.Brokers.Edit(fun list -> list.Add(newBroker))
         
         // The reactive cache should automatically pick up the new broker
