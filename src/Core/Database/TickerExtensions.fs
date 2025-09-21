@@ -43,12 +43,28 @@ type Do() =
 
     static member getById(id: int) = Database.Do.getById Do.read id TickersQuery.getById
 
-    static member getBySymbol(symbol: string) = task {
+    static member getBySymbol(symbol: string) : System.Threading.Tasks.Task<Ticker> = task {
         let! command = Database.Do.createCommand()
         command.CommandText <- TickersQuery.getByTicker
         command.Parameters.AddWithValue(SQLParameterName.Symbol, symbol) |> ignore
         let! ticker = Database.Do.read<Ticker>(command, Do.read)
-        return ticker
+        match ticker with
+        | Some existingTicker -> 
+            return existingTicker
+        | None ->
+            // Create new ticker with symbol and default values
+            let audit = { CreatedAt = Some(DateTimePattern.FromDateTime(DateTime.Now)); UpdatedAt = None; }
+            let newTicker = { Id = 0; Symbol = symbol; Image = None; Name = None; Audit = audit; }
+            do! newTicker.save() |> Async.AwaitTask |> Async.Ignore
+            
+            // Retrieve the saved ticker with the assigned ID
+            let! command2 = Database.Do.createCommand()
+            command2.CommandText <- TickersQuery.getByTicker
+            command2.Parameters.AddWithValue(SQLParameterName.Symbol, symbol) |> ignore
+            let! savedTicker = Database.Do.read<Ticker>(command2, Do.read)
+            match savedTicker with
+            | Some ticker -> return ticker
+            | None -> return failwithf "Failed to retrieve newly created ticker with symbol %s" symbol
     }
 
     static member tickerList() = 

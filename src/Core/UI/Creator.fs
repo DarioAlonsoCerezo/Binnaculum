@@ -136,12 +136,8 @@ module Creator =
         if isNewTicker then
             // Get the saved ticker from database by symbol to get the assigned ID
             let! savedTicker = TickerExtensions.Do.getBySymbol(databaseTicker.Symbol)
-            match savedTicker with
-            | Some ticker -> 
-                do! TickerSnapshotManager.handleNewTicker(ticker) |> Async.AwaitTask |> Async.Ignore
-                do! TickerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
-            | None ->
-                failwithf "Failed to retrieve saved ticker with symbol %s" databaseTicker.Symbol
+            do! TickerSnapshotManager.handleNewTicker(savedTicker) |> Async.AwaitTask |> Async.Ignore
+            do! TickerSnapshotLoader.load() |> Async.AwaitTask |> Async.Ignore
     }
 
     /// <summary>
