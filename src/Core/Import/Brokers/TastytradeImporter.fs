@@ -37,24 +37,36 @@ module TastytradeImporter =
             let progress = float index / float csvFilePaths.Length
             ImportState.updateStatus(ProcessingFile(fileName, progress))
             
-            // TODO: Implement Tastytrade-specific CSV parsing
-            // For now, simulate processing with a basic file check
+            // Use Tastytrade-specific CSV parsing
             try
                 if System.IO.File.Exists(csvFile) then
-                    let lines = System.IO.File.ReadAllLines(csvFile)
-                    let recordCount = if lines.Length > 1 then lines.Length - 1 else 0 // Exclude header
+                    let parsingResult = TastytradeStatementParser.parseTransactionHistoryFromFile csvFile
                     
-                    // Simulate processing delay
-                    do! Task.Delay(100, cancellationToken)
-                    
-                    let fileResult = FileImportResult.createSuccess fileName recordCount
-                    fileResults <- fileResult :: fileResults
-                    
-                    totalResult <- { totalResult with 
-                                       ProcessedRecords = totalResult.ProcessedRecords + recordCount
-                                       TotalRecords = totalResult.TotalRecords + recordCount }
+                    if parsingResult.Errors.IsEmpty then
+                        let fileResult = FileImportResult.createSuccess fileName parsingResult.ProcessedLines
+                        fileResults <- fileResult :: fileResults
+                        
+                        totalResult <- { totalResult with 
+                                           ProcessedRecords = totalResult.ProcessedRecords + parsingResult.ProcessedLines
+                                           TotalRecords = totalResult.TotalRecords + parsingResult.ProcessedLines }
+                    else
+                        let importErrors = 
+                            parsingResult.Errors
+                            |> List.map (fun parseError -> {
+                                RowNumber = Some parseError.LineNumber
+                                ErrorMessage = parseError.ErrorMessage
+                                ErrorType = ValidationError
+                                RawData = Some parseError.RawCsvLine
+                            })
+                        let fileResult = FileImportResult.createFailure fileName importErrors
+                        fileResults <- fileResult :: fileResults
+                        
+                        totalResult <- { totalResult with 
+                                           Success = false
+                                           Errors = totalResult.Errors @ importErrors }
                 else
-                    let error = { RowNumber = None; ErrorMessage = $"File not found: {fileName}"; ErrorType = ValidationError; RawData = None }
+                    let errorMsg = sprintf "File not found: %s" fileName
+                    let error = { RowNumber = None; ErrorMessage = errorMsg; ErrorType = ValidationError; RawData = None }
                     let fileResult = FileImportResult.createFailure fileName [error]
                     fileResults <- fileResult :: fileResults
                     
@@ -63,7 +75,8 @@ module TastytradeImporter =
                                        Errors = error :: totalResult.Errors }
             with
             | ex ->
-                let error = { RowNumber = None; ErrorMessage = $"Error processing {fileName}: {ex.Message}"; ErrorType = ValidationError; RawData = None }
+                let errorMsg = sprintf "Error processing %s: %s" fileName ex.Message
+                let error = { RowNumber = None; ErrorMessage = errorMsg; ErrorType = ValidationError; RawData = None }
                 let fileResult = FileImportResult.createFailure fileName [error]
                 fileResults <- fileResult :: fileResults
                 

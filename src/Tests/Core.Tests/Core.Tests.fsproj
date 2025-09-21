@@ -41,11 +41,18 @@
     <Compile Include="OverviewWipingTests.fs" />
     <Compile Include="ImportManagerTests.fs" />
     <Compile Include="IBKRImportTests.fs" />
+    <Compile Include="TastytradeImportTests.fs" />
     <!-- <Compile Include="SavedPreferencesTests.fs" /> Disabled - MAUI platform APIs don't work in headless test environment -->
   </ItemGroup>
 
   <ItemGroup>
     <None Include="BrokerFinancialSnapshotManagerTestingGuide.md" />
+    <None Include="TestData\IBKR_Samples\*.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\Tastytrade_Samples\*.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
