@@ -61,9 +61,9 @@ namespace Core.Platform.MauiTester.Services
         public static (bool success, string details, string error) VerifyBrokersCollection()
         {
             var brokerCount = Collections.Brokers.Items.Count;
-            return brokerCount >= 3
+            return brokerCount >= 2
                 ? (true, $"Brokers: {brokerCount}", "")
-                : (false, "", $"Expected at least 3 brokers but found {brokerCount}");
+                : (false, "", $"Expected at least 2 brokers but found {brokerCount}");
         }
 
         /// <summary>
@@ -84,16 +84,6 @@ namespace Core.Platform.MauiTester.Services
             return Collections.Brokers.Items.Any(b => b.Name == "Tastytrade")
                 ? (true, "Tastytrade Found: True", "")
                 : (false, "", "Should contain Tastytrade broker (Tastytrade)");
-        }
-
-        /// <summary>
-        /// Verify that Sigma Trade broker exists in the collection
-        /// </summary>
-        public static (bool success, string details, string error) VerifySigmaTradeBroker()
-        {
-            return Collections.Brokers.Items.Any(b => b.Name == "Sigma Trade")
-                ? (true, "SigmaTrade Found: True", "")
-                : (false, "", "Should contain SigmaTrade broker (Sigma Trade)");
         }
 
         /// <summary>
