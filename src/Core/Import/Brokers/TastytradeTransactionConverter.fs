@@ -1,7 +1,5 @@
 namespace Binnaculum.Core.Import
 
-open System
-open System.Threading.Tasks
 open TastytradeModels
 
 /// <summary>

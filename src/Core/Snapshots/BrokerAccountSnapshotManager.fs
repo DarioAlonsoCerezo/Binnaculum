@@ -1,7 +1,6 @@
 namespace Binnaculum.Core.Storage
 
 open System
-open System.Threading.Tasks
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns

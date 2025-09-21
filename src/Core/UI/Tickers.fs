@@ -1,8 +1,6 @@
 namespace Binnaculum.Core.UI
 
-open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.ModelsToDatabase
-open Binnaculum.Core.Storage
 open TickerPriceExtensions
 
 /// <summary>

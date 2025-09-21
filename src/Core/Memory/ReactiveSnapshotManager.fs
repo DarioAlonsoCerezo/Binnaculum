@@ -4,8 +4,6 @@ open System
 open System.Reactive.Linq
 open DynamicData
 open Binnaculum.Core.Models
-open Binnaculum.Core.Database
-open Binnaculum.Core.DatabaseToModels
 open Binnaculum.Core.DataLoader
 open Binnaculum.Core
 

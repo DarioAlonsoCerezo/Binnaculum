@@ -5,9 +5,6 @@ open System
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage
 open Microsoft.FSharp.Core
-open TickerExtensions
-open TickerSnapshotExtensions
-open BrokerAccountExtensions
 open Binnaculum.Core.DataLoader
 
 /// <summary>

@@ -1,7 +1,6 @@
 namespace Binnaculum.Core.Import
 
 open System.Threading
-open System.Threading.Tasks
 
 /// <summary>
 /// Tastytrade-specific import logic for processing CSV files with cancellation support

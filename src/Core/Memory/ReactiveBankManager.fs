@@ -2,7 +2,6 @@ namespace Binnaculum.Core.UI
 
 open System
 open System.Collections.Concurrent
-open System.Reactive
 open System.Reactive.Linq
 open System.Runtime.CompilerServices
 open DynamicData

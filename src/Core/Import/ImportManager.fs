@@ -1,10 +1,6 @@
 namespace Binnaculum.Core.Import
 
-open System.Threading.Tasks
-open System.Threading
 open System
-open Binnaculum.Core.Database.DatabaseModel
-open Binnaculum.Core.Database
 
 /// <summary>
 /// Main import manager for file import operations with cancellation support

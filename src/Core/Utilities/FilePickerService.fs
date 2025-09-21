@@ -2,7 +2,6 @@
 
 open Microsoft.Maui.Storage
 open Microsoft.Maui.ApplicationModel
-open Microsoft.Maui.Devices
 open System.IO
 
 type FilePickerResult = {

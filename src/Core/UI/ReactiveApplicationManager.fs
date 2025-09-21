@@ -1,6 +1,5 @@
 namespace Binnaculum.Core.UI
 
-open System
 open Binnaculum.Core.Storage
 open Binnaculum.Core.DataLoader
 
