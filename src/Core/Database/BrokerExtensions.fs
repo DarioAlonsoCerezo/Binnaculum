@@ -53,7 +53,6 @@ open CommandExtensions
             [
                 { Id = 0; Name = Keys.Broker_IBKR; Image = Keys.Broker_Image_IBKR; SupportedBroker = SupportedBroker.IBKR }
                 { Id = 0; Name = Keys.Broker_Tastytrade; Image = Keys.Broker_Image_Tastytrade; SupportedBroker = SupportedBroker.Tastytrade }
-                { Id = 0; Name = Keys.Broker_SigmaTrade; Image = Keys.Broker_Image_SigmaTrade; SupportedBroker = SupportedBroker.SigmaTrade }
             ]
 
         // Check if a broker exists by name
