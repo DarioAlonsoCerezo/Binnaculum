@@ -81,6 +81,12 @@
 		<Compile Include="Database\BankAccountSnapshotExtensions.fs" />
 		<Compile Include="Database\BankSnapshotExtensions.fs" />
 		<Compile Include="Database\InvestmentOverviewSnapshotExtensions.fs" />
+		<Compile Include="Import\ImportModels.fs" />
+		<Compile Include="Import\ImportState.fs" />
+		<Compile Include="Import\FileProcessor.fs" />
+		<Compile Include="Import\Brokers\IBKRImporter.fs" />
+		<Compile Include="Import\Brokers\TastytradeImporter.fs" />
+		<Compile Include="Import\ImportManager.fs" />
 		<Compile Include="Models\Models.fs" />
 		<Compile Include="Memory\Collections.fs" />
 		<Compile Include="Memory\ReactiveCurrencyManager.fs" />
