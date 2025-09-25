@@ -8,6 +8,7 @@ type ImportStatus =
     | Validating of filePath: string
     | ProcessingFile of fileName: string * progress: float
     | ProcessingData of recordsProcessed: int * totalRecords: int
+    | SavingToDatabase of message: string * progress: float
     | Completed of result: ImportResult
     | Cancelled of reason: string
     | Failed of error: string
