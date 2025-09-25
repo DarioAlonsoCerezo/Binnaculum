@@ -139,6 +139,7 @@
 		<Compile Include="DataLoader\BankAccountSnapshotLoader.fs" />
 		<Compile Include="DataLoader\TickerSnapshotLoader.fs" />
 		<Compile Include="Memory\ReactiveSnapshotManager.fs" />
+		<Compile Include="Memory\ReactiveTargetedSnapshotManager.fs" />
 		<Compile Include="Import\ImportManager.fs" />
 		<Compile Include="Storage\DataLoader.fs" />
 		<Compile Include="UI\ReactiveApplicationManager.fs" />

@@ -82,6 +82,21 @@ and ImportedDataSummary = {
 }
 
 /// <summary>
+/// Metadata collected during import for targeted reactive updates
+/// Contains information about what data changed and needs snapshot updates
+/// </summary>
+and ImportMetadata = {
+    /// Oldest movement date from all imported transactions (for range-based updates)
+    OldestMovementDate: System.DateTime option
+    /// Set of broker account IDs that were affected by the import
+    AffectedBrokerAccountIds: Set<int>
+    /// Set of ticker symbols that were created or had trades/dividends imported
+    AffectedTickerSymbols: Set<string>
+    /// Total number of movements imported (for performance tracking)
+    TotalMovementsImported: int
+}
+
+/// <summary>
 /// Individual file import result for multi-file processing
 /// </summary>
 and FileImportResult = {
@@ -163,4 +178,29 @@ module FileImportResult =
             ProcessedRecords = 0
             Errors = errors
             Warnings = []
+        }
+
+/// Helper functions for working with import metadata
+module ImportMetadata =
+    
+    /// Create empty import metadata
+    let createEmpty () =
+        {
+            OldestMovementDate = None
+            AffectedBrokerAccountIds = Set.empty
+            AffectedTickerSymbols = Set.empty
+            TotalMovementsImported = 0
+        }
+    
+    /// Combine two ImportMetadata instances (useful for multi-file imports)
+    let combine (metadata1: ImportMetadata) (metadata2: ImportMetadata) =
+        {
+            OldestMovementDate = 
+                match metadata1.OldestMovementDate, metadata2.OldestMovementDate with
+                | None, None -> None
+                | Some date, None | None, Some date -> Some date
+                | Some date1, Some date2 -> Some (if date1 < date2 then date1 else date2)
+            AffectedBrokerAccountIds = Set.union metadata1.AffectedBrokerAccountIds metadata2.AffectedBrokerAccountIds
+            AffectedTickerSymbols = Set.union metadata1.AffectedTickerSymbols metadata2.AffectedTickerSymbols
+            TotalMovementsImported = metadata1.TotalMovementsImported + metadata2.TotalMovementsImported
         }
