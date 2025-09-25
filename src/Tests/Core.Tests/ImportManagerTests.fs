@@ -201,7 +201,7 @@ type ImportManagerTests() =
         // This validates that our changes to ImportManager.fs compilation order work correctly
         try
             // These should not throw exceptions if the compilation order is correct
-            Binnaculum.Core.UI.ReactiveTickerManager.refresh()  // Added for cache dependency fix
+            Binnaculum.Core.UI.ReactiveTickerManager.refresh() |> ignore  // Added for cache dependency fix
             Binnaculum.Core.UI.ReactiveMovementManager.refresh()
             Binnaculum.Core.UI.ReactiveSnapshotManager.refresh()
             // If we get here without exceptions, the test passes
