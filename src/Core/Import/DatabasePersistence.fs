@@ -150,25 +150,25 @@ module DatabasePersistence =
         | _ -> None
 
     /// <summary>
-    /// Get or create currency ID for USD (default for TastyTrade)
+    /// Get or create currency ID for the specified currency code
     /// </summary>
-    let private getUSDCurrencyId() = task {
-        let! currencies = CurrencyExtensions.Do.getAll() |> Async.AwaitTask
-        let usdCurrency = currencies |> List.tryFind (fun c -> c.Code = "USD")
-        match usdCurrency with
+    let private getCurrencyId(currencyCode: string) = task {
+        let! currencyOption = CurrencyExtensions.Do.getByCode(currencyCode) |> Async.AwaitTask
+        match currencyOption with
         | Some currency -> return currency.Id
         | None -> 
-            // Create USD currency if it doesn't exist
+            // Create currency if it doesn't exist
             let newCurrency = {
                 Id = 0
-                Name = "US Dollar"
-                Code = "USD"
-                Symbol = "$"
+                Name = $"{currencyCode} Currency"
+                Code = currencyCode
+                Symbol = "$"  // Default symbol, could be enhanced with proper lookup
             }
             do! CurrencyExtensions.Do.save(newCurrency) |> Async.AwaitTask
-            let! allCurrencies = CurrencyExtensions.Do.getAll() |> Async.AwaitTask
-            let createdCurrency = allCurrencies |> List.find (fun c -> c.Code = "USD")
-            return createdCurrency.Id
+            let! createdCurrency = CurrencyExtensions.Do.getByCode(currencyCode) |> Async.AwaitTask
+            match createdCurrency with
+            | Some c -> return c.Id
+            | None -> return failwith $"Failed to create currency: {currencyCode}"
     }
 
     /// <summary>
@@ -205,9 +205,6 @@ module DatabasePersistence =
         let mutable errors = []
 
         try
-            // Get USD currency ID (Tastytrade default)
-            let! currencyId = getUSDCurrencyId()
-
             // Process each transaction
             for (index, transaction) in transactions |> List.mapi (fun i t -> i, t) do
                 cancellationToken.ThrowIfCancellationRequested()
@@ -217,6 +214,10 @@ module DatabasePersistence =
                 ImportState.updateStatus(SavingToDatabase($"Saving transaction {index + 1} of {transactions.Length}", progress))
 
                 try
+                    // Get currency ID for this transaction (with USD fallback)
+                    let currencyCode = if String.IsNullOrWhiteSpace(transaction.Currency) then "USD" else transaction.Currency
+                    let! currencyId = getCurrencyId(currencyCode)
+
                     match transaction.TransactionType with
                     | MoneyMovement(_) ->
                         match createBrokerMovementFromTransaction transaction brokerAccountId currencyId with
