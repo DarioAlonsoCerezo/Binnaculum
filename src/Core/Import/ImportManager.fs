@@ -90,7 +90,7 @@ module ImportManager =
                                                     // Refresh reactive managers if persistence was successful
                                                     if persistenceResult.ErrorsCount = 0 then
                                                         // Refresh reactive managers in dependency order
-                                                        ReactiveTickerManager.refresh()       // First: base ticker data
+                                                        do! ReactiveTickerManager.refreshAsync()       // First: base ticker data
                                                         do! ReactiveMovementManager.refreshAsync()  // Then: movements (depend on tickers)
                                                         do! ReactiveSnapshotManager.refreshAsync()  // Finally: snapshots (depend on movements)
                                                     
