@@ -52,7 +52,37 @@ module ReactiveTargetedSnapshotManager =
     /// <returns>Task that completes when all targeted updates are finished</returns>
     let updateFromImport (importMetadata: ImportMetadata) =
         task {
-            // TODO: Implement targeted snapshot updates
-            // For now, just complete successfully
-            do! System.Threading.Tasks.Task.CompletedTask
+            // Only proceed if data was imported and has movement dates
+            if importMetadata.TotalMovementsImported > 0 then
+                match importMetadata.OldestMovementDate with
+                | Some oldestDate ->
+                    let startDate = DateTimePattern.FromDateTime(oldestDate)
+                    let today = DateTimePattern.FromDateTime(DateTime.Today)
+                    
+                    // Validate date range
+                    if startDate.Value <= today.Value then
+                        // Create date range for iteration from oldest date to today
+                        let dateRange = generateDateRange startDate today
+                        
+                        // Update broker account snapshots for affected accounts
+                        for brokerAccountId in importMetadata.AffectedBrokerAccountIds do
+                            for date in dateRange do
+                                do! BrokerAccountSnapshotManager.handleBrokerAccountChange(brokerAccountId, date)
+                        
+                        // Resolve ticker symbols to IDs and update ticker snapshots
+                        for tickerSymbol in importMetadata.AffectedTickerSymbols do
+                            let! tickerIdOption = getTickerIdBySymbol tickerSymbol
+                            match tickerIdOption with
+                            | Some tickerId ->
+                                for date in dateRange do
+                                    do! TickerSnapshotManager.handleTickerChange(tickerId, date)
+                            | None ->
+                                // Ticker not found - may have been created but not yet in cache
+                                // This is not an error case, just skip silently
+                                ()
+                    else
+                        failwith $"Invalid import date range: oldest date {startDate.Value} is in the future"
+                | None -> 
+                    // No movement date, nothing to update
+                    ()
         }
