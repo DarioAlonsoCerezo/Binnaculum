@@ -40,6 +40,7 @@ type DatabasePersistenceTests() =
             DividendsCreated = 0
             ErrorsCount = 0
             Errors = []
+            ImportMetadata = ImportMetadata.createEmpty()
         }
         
         Assert.That(persistenceResult.BrokerMovementsCreated, Is.EqualTo(1))

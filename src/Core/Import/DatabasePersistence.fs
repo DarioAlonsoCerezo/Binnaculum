@@ -14,7 +14,7 @@ open TastytradeModels
 module DatabasePersistence =
 
     /// <summary>
-    /// Result of database persistence operations with counts
+    /// Result of database persistence operations with counts and import metadata
     /// </summary>
     type PersistenceResult = {
         BrokerMovementsCreated: int
@@ -23,6 +23,8 @@ module DatabasePersistence =
         DividendsCreated: int
         ErrorsCount: int
         Errors: string list
+        /// Metadata collected during persistence for targeted snapshot updates
+        ImportMetadata: ImportMetadata
     }
 
     /// <summary>
@@ -203,6 +205,10 @@ module DatabasePersistence =
         let mutable stockTrades = []
         let mutable dividends = []  // Not implemented yet for Tastytrade
         let mutable errors = []
+        
+        // Collect metadata for targeted snapshot updates
+        let mutable affectedTickerSymbols = Set.empty<string>
+        let mutable movementDates = []
 
         try
             // Process each transaction
@@ -218,6 +224,9 @@ module DatabasePersistence =
                     let currencyCode = if String.IsNullOrWhiteSpace(transaction.Currency) then "USD" else transaction.Currency
                     let! currencyId = getCurrencyId(currencyCode)
 
+                    // Collect movement date for metadata
+                    movementDates <- transaction.Date :: movementDates
+
                     match transaction.TransactionType with
                     | MoneyMovement(_) ->
                         match createBrokerMovementFromTransaction transaction brokerAccountId currencyId with
@@ -232,6 +241,9 @@ module DatabasePersistence =
                         let underlyingSymbol = transaction.UnderlyingSymbol |> Option.defaultValue "UNKNOWN"
                         let! tickerId = getOrCreateTickerId(underlyingSymbol)
                         
+                        // Add to affected tickers for metadata
+                        affectedTickerSymbols <- Set.add underlyingSymbol affectedTickerSymbols
+                        
                         match createOptionTradeFromTransaction transaction brokerAccountId currencyId tickerId with
                         | Some optionTrade ->
                             do! OptionTradeExtensions.Do.save(optionTrade) |> Async.AwaitTask
@@ -243,6 +255,9 @@ module DatabasePersistence =
                         // Get ticker ID for the stock symbol
                         let stockSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
                         let! tickerId = getOrCreateTickerId(stockSymbol)
+                        
+                        // Add to affected tickers for metadata
+                        affectedTickerSymbols <- Set.add stockSymbol affectedTickerSymbols
                         
                         match createTradeFromTransaction transaction brokerAccountId currencyId tickerId with
                         | Some stockTrade ->
@@ -261,6 +276,18 @@ module DatabasePersistence =
             // Final progress update
             ImportState.updateStatus(SavingToDatabase("Database save completed", 1.0))
 
+            // Create import metadata for targeted snapshot updates
+            let oldestMovementDate = 
+                if List.isEmpty movementDates then None
+                else Some (movementDates |> List.min)
+            
+            let importMetadata = {
+                OldestMovementDate = oldestMovementDate
+                AffectedBrokerAccountIds = Set.singleton brokerAccountId
+                AffectedTickerSymbols = affectedTickerSymbols
+                TotalMovementsImported = brokerMovements.Length + optionTrades.Length + stockTrades.Length + dividends.Length
+            }
+
             return {
                 BrokerMovementsCreated = brokerMovements.Length
                 OptionTradesCreated = optionTrades.Length
@@ -268,6 +295,7 @@ module DatabasePersistence =
                 DividendsCreated = dividends.Length
                 ErrorsCount = errors.Length
                 Errors = List.rev errors
+                ImportMetadata = importMetadata
             }
 
         with
@@ -280,6 +308,7 @@ module DatabasePersistence =
                 DividendsCreated = dividends.Length
                 ErrorsCount = 1
                 Errors = ["Operation was cancelled"]
+                ImportMetadata = ImportMetadata.createEmpty()
             }
         | ex ->
             errors <- $"Database persistence failed: {ex.Message}" :: errors
@@ -290,5 +319,6 @@ module DatabasePersistence =
                 DividendsCreated = dividends.Length
                 ErrorsCount = errors.Length
                 Errors = List.rev errors
+                ImportMetadata = ImportMetadata.createEmpty()
             }
     }
