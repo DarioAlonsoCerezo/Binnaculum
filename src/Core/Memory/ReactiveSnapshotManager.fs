@@ -77,6 +77,13 @@ module ReactiveSnapshotManager =
             baseCollectionsSubscription <- Some sub
     
     /// <summary>
+    /// Trigger a manual snapshot refresh and wait for completion
+    /// This fixes the async timing issue where imported data doesn't appear in UI immediately
+    /// </summary>
+    let refreshAsync() = 
+        loadSnapshots()
+
+    /// <summary>
     /// Trigger a manual snapshot refresh (for compatibility during transition)
     /// This provides the same interface as the original DataLoader.loadOverviewSnapshots()
     /// </summary>

@@ -89,8 +89,8 @@ module ImportManager =
                                                     
                                                     // Refresh reactive managers if persistence was successful
                                                     if persistenceResult.ErrorsCount = 0 then
-                                                        ReactiveMovementManager.refresh()
-                                                        ReactiveSnapshotManager.refresh()
+                                                        do! ReactiveMovementManager.refreshAsync()
+                                                        do! ReactiveSnapshotManager.refreshAsync()
                                                     
                                                     // Update the ImportResult with actual database persistence results
                                                     let updatedImportedData = {
