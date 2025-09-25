@@ -5,6 +5,7 @@ open System.Threading
 open System.IO
 open Binnaculum.Core
 open Binnaculum.Core.Database
+open Binnaculum.Core.UI
 open BrokerExtensions
 
 /// <summary>
@@ -85,6 +86,11 @@ module ImportManager =
                                                     
                                                     // Persist transactions to database
                                                     let! persistenceResult = DatabasePersistence.persistTransactionsToDatabase allTransactions account.Id cancellationToken
+                                                    
+                                                    // Refresh reactive managers if persistence was successful
+                                                    if persistenceResult.ErrorsCount = 0 then
+                                                        ReactiveMovementManager.refresh()
+                                                        ReactiveSnapshotManager.refresh()
                                                     
                                                     // Update the ImportResult with actual database persistence results
                                                     let updatedImportedData = {
