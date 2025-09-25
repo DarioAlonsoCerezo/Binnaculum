@@ -68,6 +68,21 @@ module ReactiveTickerManager =
             initializeCache()
     
     /// <summary>
+    /// Refresh ticker cache from current Collections.Tickers.Items
+    /// This fixes the cache dependency issue where imported data creates new tickers but doesn't refresh cache
+    /// </summary>
+    let private refreshCache() =
+        // Clear both caches
+        tickerCache.Clear()
+        tickerCacheById.Clear()
+        
+        // Reload from current ticker items
+        Collections.Tickers.Items
+        |> Seq.iter (fun ticker -> 
+            tickerCache.TryAdd(ticker.Symbol, ticker) |> ignore
+            tickerCacheById.TryAdd(ticker.Id, ticker) |> ignore)
+    
+    /// <summary>
     /// Get a ticker by symbol with O(1) lookup performance.
     /// Falls back to linear search if cache is not populated.
     /// </summary>
@@ -120,6 +135,22 @@ module ReactiveTickerManager =
     /// <returns>Observable that emits the ticker</returns>
     let getTickerByIdReactive(id: int) : IObservable<Ticker> =
         Observable.Return(getTickerByIdFast(id))
+
+    /// <summary>
+    /// Trigger a manual ticker cache refresh (async version)
+    /// This fixes the cache dependency issue where imported data creates new tickers but doesn't refresh cache
+    /// </summary>
+    let refreshAsync() = 
+        async {
+            refreshCache()
+        }
+
+    /// <summary>
+    /// Trigger a manual ticker cache refresh (sync version)
+    /// This provides the same interface as other reactive managers
+    /// </summary>
+    let refresh() =
+        refreshCache()
 
 /// <summary>
 /// Extension methods for reactive ticker operations
