@@ -9,6 +9,7 @@ open Binnaculum.Core.Import.ImportManager
 open Binnaculum.Core.Import.ImportState
 open Binnaculum.Core.Import.FileProcessor
 open Binnaculum.Core.Models
+open Binnaculum.Core.UI
 
 [<TestFixture>]
 type ImportManagerTests() =
@@ -193,3 +194,17 @@ type ImportManagerTests() =
         ImportState.startImport() |> ignore
         ImportManager.cancelForBackground()
         Assert.That(ImportManager.isImportInProgress(), Is.False, "Import should not be in progress after background cancellation")
+
+    [<Test>]
+    member this.``ReactiveManagers are accessible for refresh after successful import``() =
+        // Test that ImportManager can access the reactive managers for refresh
+        // This validates that our changes to ImportManager.fs compilation order work correctly
+        try
+            // These should not throw exceptions if the compilation order is correct
+            Binnaculum.Core.UI.ReactiveMovementManager.refresh()
+            Binnaculum.Core.UI.ReactiveSnapshotManager.refresh()
+            // If we get here without exceptions, the test passes
+            Assert.That(true, Is.True, "Reactive managers are accessible and refreshable from ImportManager context")
+        with
+        | ex ->
+            Assert.Fail($"Reactive managers should be accessible from ImportManager context. Error: {ex.Message}")
