@@ -87,12 +87,18 @@ module ImportManager =
                                                     // Persist transactions to database
                                                     let! persistenceResult = DatabasePersistence.persistTransactionsToDatabase allTransactions account.Id cancellationToken
                                                     
-                                                    // Refresh reactive managers if persistence was successful
-                                                    if persistenceResult.ErrorsCount = 0 then
+                                                    // Use targeted reactive updates if persistence was successful and data was imported
+                                                    if persistenceResult.ErrorsCount = 0 && persistenceResult.ImportMetadata.TotalMovementsImported > 0 then
                                                         // Refresh reactive managers in dependency order
                                                         do! ReactiveTickerManager.refreshAsync()       // First: base ticker data
                                                         do! ReactiveMovementManager.refreshAsync()  // Then: movements (depend on tickers)
-                                                        do! ReactiveSnapshotManager.refreshAsync()  // Finally: snapshots (depend on movements)
+                                                        // Use targeted snapshot updates instead of full refresh
+                                                        do! ReactiveTargetedSnapshotManager.updateFromImport(persistenceResult.ImportMetadata)
+                                                    elif persistenceResult.ErrorsCount = 0 then
+                                                        // Fallback to full refresh if no movements were imported
+                                                        do! ReactiveTickerManager.refreshAsync()       
+                                                        do! ReactiveMovementManager.refreshAsync()
+                                                        do! ReactiveSnapshotManager.refreshAsync()
                                                     
                                                     // Update the ImportResult with actual database persistence results
                                                     let updatedImportedData = {
