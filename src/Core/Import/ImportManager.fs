@@ -89,8 +89,10 @@ module ImportManager =
                                                     
                                                     // Refresh reactive managers if persistence was successful
                                                     if persistenceResult.ErrorsCount = 0 then
-                                                        do! ReactiveMovementManager.refreshAsync()
-                                                        do! ReactiveSnapshotManager.refreshAsync()
+                                                        // Refresh reactive managers in dependency order
+                                                        ReactiveTickerManager.refresh()       // First: base ticker data
+                                                        do! ReactiveMovementManager.refreshAsync()  // Then: movements (depend on tickers)
+                                                        do! ReactiveSnapshotManager.refreshAsync()  // Finally: snapshots (depend on movements)
                                                     
                                                     // Update the ImportResult with actual database persistence results
                                                     let updatedImportedData = {

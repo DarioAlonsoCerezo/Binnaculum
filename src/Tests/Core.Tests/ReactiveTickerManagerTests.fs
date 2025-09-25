@@ -240,3 +240,28 @@ type ReactiveTickerManagerTests() =
         // Should still work correctly
         let aapl = "AAPL".ToFastTicker()
         Assert.That(aapl.Symbol, Is.EqualTo("AAPL"))
+
+    [<Test>]
+    member this.``ReactiveTickerManager refresh should update cache from Collections.Tickers``() =
+        // Initialize the reactive ticker manager
+        ReactiveTickerManager.initialize()
+        
+        // Add a new ticker to Collections.Tickers (simulating what import does)
+        let newTicker = { Id = 999; Symbol = "IMPORTTEST"; Image = None; Name = Some "Import Test Ticker" }
+        Collections.Tickers.Edit(fun list -> list.Add(newTicker))
+        
+        // Manually call refresh (this is now called by ImportManager after imports)
+        ReactiveTickerManager.refresh()
+        
+        // Verify the new ticker is immediately available via fast lookup
+        let importedTicker = "IMPORTTEST".ToFastTicker()
+        Assert.That(importedTicker.Symbol, Is.EqualTo("IMPORTTEST"))
+        Assert.That(importedTicker.Name.Value, Is.EqualTo("Import Test Ticker"))
+        Assert.That(importedTicker.Id, Is.EqualTo(999))
+        
+        // Also verify by ID lookup
+        let importedTickerById = (999).ToFastTickerById()
+        Assert.That(importedTickerById.Symbol, Is.EqualTo("IMPORTTEST"))
+        
+        // Clean up
+        Collections.Tickers.Edit(fun list -> list.Remove(newTicker) |> ignore)
