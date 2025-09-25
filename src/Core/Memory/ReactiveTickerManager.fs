@@ -4,8 +4,10 @@ open System
 open System.Collections.Concurrent
 open System.Reactive.Linq
 open System.Runtime.CompilerServices
+open System.Threading.Tasks
 open DynamicData
 open Binnaculum.Core.Models
+open Binnaculum.Core.Database
 
 /// <summary>
 /// Reactive ticker manager that provides O(1) ticker lookups and automatic updates
@@ -68,19 +70,29 @@ module ReactiveTickerManager =
             initializeCache()
     
     /// <summary>
-    /// Refresh ticker cache from current Collections.Tickers.Items
-    /// This fixes the cache dependency issue where imported data creates new tickers but doesn't refresh cache
+    /// Refresh ticker data from database and update Collections.Tickers
+    /// This properly fixes cache consistency by using the authoritative data source
     /// </summary>
-    let private refreshCache() =
-        // Clear both caches
-        tickerCache.Clear()
-        tickerCacheById.Clear()
+    let refresh() = task {
+        // ✅ Load fresh data from DATABASE (authoritative source)
+        let! freshDatabaseTickers = TickerExtensions.Do.getAll() |> Async.AwaitTask
         
-        // Reload from current ticker items
-        Collections.Tickers.Items
-        |> Seq.iter (fun ticker -> 
-            tickerCache.TryAdd(ticker.Symbol, ticker) |> ignore
-            tickerCacheById.TryAdd(ticker.Id, ticker) |> ignore)
+        // ✅ Convert database models to UI models (inline conversion to avoid dependency issues)
+        let freshTickers = 
+            freshDatabaseTickers 
+            |> List.map (fun dbTicker -> {
+                Id = dbTicker.Id
+                Symbol = dbTicker.Symbol
+                Image = dbTicker.Image
+                Name = dbTicker.Name
+            })
+        
+        // ✅ Update Collections.Tickers using EditDiff (triggers reactive updates)
+        Collections.Tickers.EditDiff(freshTickers)
+        
+        // ✅ NO manual cache manipulation needed!
+        // The reactive subscription automatically updates both caches efficiently
+    }
     
     /// <summary>
     /// Get a ticker by symbol with O(1) lookup performance.
@@ -137,20 +149,12 @@ module ReactiveTickerManager =
         Observable.Return(getTickerByIdFast(id))
 
     /// <summary>
-    /// Trigger a manual ticker cache refresh (async version)
-    /// This fixes the cache dependency issue where imported data creates new tickers but doesn't refresh cache
+    /// Async version for proper awaiting in ImportManager
     /// </summary>
     let refreshAsync() = 
-        async {
-            refreshCache()
-        }
+        refresh() |> Async.AwaitTask
 
-    /// <summary>
-    /// Trigger a manual ticker cache refresh (sync version)
-    /// This provides the same interface as other reactive managers
-    /// </summary>
-    let refresh() =
-        refreshCache()
+
 
 /// <summary>
 /// Extension methods for reactive ticker operations
