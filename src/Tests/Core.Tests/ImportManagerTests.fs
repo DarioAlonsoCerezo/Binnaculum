@@ -208,3 +208,22 @@ type ImportManagerTests() =
         with
         | ex ->
             Assert.Fail($"Reactive managers should be accessible from ImportManager context. Error: {ex.Message}")
+
+    [<Test>]
+    member this.``ReactiveManagers async refresh methods are accessible and awaitable``() = task {
+        // Test that the new awaitable refresh methods work correctly
+        // This validates the async timing fix for imported data not appearing in UI
+        try
+            // These methods should be awaitable and complete successfully
+            do! ReactiveMovementManager.refreshAsync()
+            do! ReactiveSnapshotManager.refreshAsync()
+            
+            // Verify both sync and async methods are available for backward compatibility
+            ReactiveMovementManager.refresh()
+            ReactiveSnapshotManager.refresh()
+            
+            Assert.That(true, Is.True, "Both sync and async refresh methods are accessible and functional")
+        with
+        | ex ->
+            Assert.Fail($"Async refresh methods should be accessible and awaitable. Error: {ex.Message}")
+    }

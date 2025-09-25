@@ -115,6 +115,13 @@ module ReactiveMovementManager =
             baseCollectionsSubscription <- Some sub
     
     /// <summary>
+    /// Trigger a manual movement refresh and wait for completion
+    /// This fixes the async timing issue where imported data doesn't appear in UI immediately
+    /// </summary>
+    let refreshAsync() = 
+        loadMovements()
+
+    /// <summary>
     /// Trigger a manual movement refresh (for compatibility during transition)
     /// This provides the same interface as the original DataLoader.loadMovementsFor()
     /// </summary>
