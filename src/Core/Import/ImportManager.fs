@@ -68,7 +68,55 @@ module ImportManager =
                                         | None ->
                                             return ImportResult.createError($"No broker account found for broker {broker.Name}")
                                         | Some account ->
-                                            return! TastytradeImporter.importMultipleWithCancellation pf.CsvFiles account.Id cancellationToken
+                                            // First do the parsing/validation
+                                            let! parseResult = TastytradeImporter.importMultipleWithCancellation pf.CsvFiles account.Id cancellationToken
+                                            
+                                            // If parsing was successful, persist to database
+                                            if parseResult.Success then
+                                                cancellationToken.ThrowIfCancellationRequested()
+                                                
+                                                try
+                                                    // Parse the transactions from files again for database persistence
+                                                    let mutable allTransactions = []
+                                                    for csvFile in pf.CsvFiles do
+                                                        let parsingResult = TastytradeStatementParser.parseTransactionHistoryFromFile csvFile
+                                                        if parsingResult.Errors.IsEmpty then
+                                                            allTransactions <- allTransactions @ parsingResult.Transactions
+                                                    
+                                                    // Persist transactions to database
+                                                    let! persistenceResult = DatabasePersistence.persistTransactionsToDatabase allTransactions account.Id cancellationToken
+                                                    
+                                                    // Update the ImportResult with actual database persistence results
+                                                    let updatedImportedData = {
+                                                        parseResult.ImportedData with
+                                                            Trades = persistenceResult.StockTradesCreated
+                                                            BrokerMovements = persistenceResult.BrokerMovementsCreated
+                                                            OptionTrades = persistenceResult.OptionTradesCreated
+                                                            Dividends = persistenceResult.DividendsCreated
+                                                    }
+                                                    
+                                                    // Add any persistence errors to the result
+                                                    let persistenceErrors = 
+                                                        persistenceResult.Errors |> List.map (fun err -> {
+                                                            RowNumber = None
+                                                            ErrorMessage = err
+                                                            ErrorType = ImportErrorType.ValidationError
+                                                            RawData = None
+                                                        })
+                                                    let updatedErrors = parseResult.Errors @ persistenceErrors
+                                                    
+                                                    return { parseResult with 
+                                                               ImportedData = updatedImportedData
+                                                               Errors = updatedErrors
+                                                               Success = parseResult.Success && persistenceResult.ErrorsCount = 0 }
+                                                
+                                                with
+                                                | :? OperationCanceledException ->
+                                                    return ImportResult.createCancelled()
+                                                | ex ->
+                                                    return ImportResult.createError($"Database persistence failed: {ex.Message}")
+                                            else
+                                                return parseResult
                                     }
                                 else
                                     task { return ImportResult.createError($"Unsupported broker type: {broker.Name}") }
