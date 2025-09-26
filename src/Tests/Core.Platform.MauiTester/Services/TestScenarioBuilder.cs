@@ -87,6 +87,15 @@ namespace Core.Platform.MauiTester.Services
         }
 
         /// <summary>
+        /// Add a custom test step
+        /// </summary>
+        public TestScenarioBuilder AddCustomStep(TestStep customStep)
+        {
+            _steps.Add(customStep);
+            return this;
+        }
+
+        /// <summary>
         /// Add the common setup steps (Wipe Data, Init Platform, Init Database, Load Data)
         /// </summary>
         public TestScenarioBuilder AddCommonSetup(TestRunner testRunner)

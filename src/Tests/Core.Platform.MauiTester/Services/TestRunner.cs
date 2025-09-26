@@ -77,6 +77,11 @@ namespace Core.Platform.MauiTester.Services
         /// </summary>
         public void SetBrokerAccountId(int id) => _context.BrokerAccountId = id;
 
+        /// <summary>
+        /// Get the execution context for advanced test scenarios
+        /// </summary>
+        public TestExecutionContext GetExecutionContext() => _context;
+
         #endregion
 
         #region Unified Step Execution and Scenario Runner

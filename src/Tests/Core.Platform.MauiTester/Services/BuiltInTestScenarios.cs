@@ -1,4 +1,5 @@
 using Core.Platform.MauiTester.Models;
+using Core.Platform.MauiTester.TestCases;
 
 namespace Core.Platform.MauiTester.Services
 {
@@ -17,6 +18,7 @@ namespace Core.Platform.MauiTester.Services
             RegisterBrokerAccountCreationTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountDepositTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountMultipleMovementsTest(discoveryService, testRunner, testActions);
+            RegisterOptionsImportIntegrationTest(discoveryService, testRunner, testActions);
         }
 
         /// <summary>
@@ -130,6 +132,25 @@ namespace Core.Platform.MauiTester.Services
                 .AddVerificationStep("Verify Single Snapshot", TestVerifications.VerifySingleSnapshotExists)
                 .AddVerificationStep("Verify Snapshot Type", TestVerifications.VerifySnapshotIsBrokerAccountType)
                 .AddVerificationStep("Verify Snapshot Financial Data (Multiple Movements)", TestVerifications.VerifyMultipleMovementsFinancialData));
+        }
+
+        /// <summary>
+        /// Options Import Integration Test - End-to-end validation of Tastytrade CSV import workflow
+        /// </summary>
+        private static void RegisterOptionsImportIntegrationTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("Options Import Integration Test")
+                .WithDescription("End-to-end Tastytrade options import workflow validation with real trading data")
+                .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Options)
+                .AddCommonSetup(testRunner)
+                .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
+                .AddVerificationStep("Find Tastytrade Broker", () => {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddCustomStep(new OptionsImportIntegrationTest(testRunner.GetExecutionContext())));
         }
     }
 }

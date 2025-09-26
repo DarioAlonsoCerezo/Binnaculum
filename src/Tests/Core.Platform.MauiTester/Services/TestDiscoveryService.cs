@@ -172,5 +172,7 @@ namespace Core.Platform.MauiTester.Services
         public const string Performance = "performance";
         public const string Smoke = "smoke";
         public const string Regression = "regression";
+        public const string Import = "import";
+        public const string Options = "options";
     }
 }
