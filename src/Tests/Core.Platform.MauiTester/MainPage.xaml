@@ -73,6 +73,18 @@
                 SemanticProperties.Hint="Runs BrokerAccount with multiple deposits and withdrawals validation test"
                 HorizontalOptions="Fill" />
 
+            <Button
+                x:Name="RunOptionsImportIntegrationTestButton"
+                Text="Run Options Import Integration Test"
+                FontSize="16"
+                BackgroundColor="DarkRed"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunOptionsImportIntegrationTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs end-to-end options import workflow with real Tastytrade data"
+                HorizontalOptions="Fill" />
+
             <!--  Loading Indicator  -->
             <StackLayout
                 Orientation="Horizontal"
