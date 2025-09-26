@@ -18,6 +18,7 @@ namespace Core.Platform.MauiTester.TestCases
         private readonly TestExecutionContext _context;
         private string? _tempCsvPath;
         private int _testBrokerAccountId;
+        private int _testBrokerId;
         private decimal _initialBalance;
         private int _initialMovementCount;
 
@@ -67,9 +68,18 @@ namespace Core.Platform.MauiTester.TestCases
                 results.Add($"Financial validation: {(validationResult.Success ? "✅ PASSED" : "❌ FAILED")}");
                 results.Add($"Import success: {importResult.Success}");
                 results.Add($"Import errors: {importResult.Errors.Length}");
+                if (importResult.Errors.Length > 0)
+                {
+                    results.Add("Import error details:");
+                    foreach (var error in importResult.Errors.Take(3)) // Show first 3 errors
+                    {
+                        results.Add($"  - {error.ErrorMessage}");
+                    }
+                }
                 results.Add($"Movements imported: {validationResult.MovementCountChange} (expected: {validationResult.ExpectedMovements})");
                 results.Add($"Option trades: {importResult.ImportedData.OptionTrades}");
                 results.Add($"Broker movements: {importResult.ImportedData.BrokerMovements}");
+                results.Add($"Regular trades: {importResult.ImportedData.Trades}");
                 results.Add($"Total test duration: {totalDuration.TotalSeconds:F2}s");
 
                 // Build success summary
@@ -102,6 +112,7 @@ namespace Core.Platform.MauiTester.TestCases
             // Create test broker account
             var brokerAccount = await SetupTestBrokerAccount();
             _testBrokerAccountId = brokerAccount.Id;
+            _testBrokerId = brokerAccount.Broker.Id;
 
             // Record initial state
             _initialBalance = await GetCurrentBalance(brokerAccount.Id);
@@ -116,15 +127,10 @@ namespace Core.Platform.MauiTester.TestCases
             if (string.IsNullOrEmpty(_tempCsvPath))
                 throw new InvalidOperationException("CSV file path is null");
 
-            // Execute the complete import workflow
-            var importResult = await ImportManager.importFile(_testBrokerAccountId, _tempCsvPath);
+            // Execute the complete import workflow using the broker ID (not broker account ID)
+            var importResult = await ImportManager.importFile(_testBrokerId, _tempCsvPath);
 
-            if (!importResult.Success)
-            {
-                var errorMessages = string.Join("; ", importResult.Errors.Select(e => e.ErrorMessage));
-                throw new InvalidOperationException($"Import failed: {errorMessages}");
-            }
-
+            // Don't throw exception here - let validation handle the reporting
             return importResult;
         }
 
