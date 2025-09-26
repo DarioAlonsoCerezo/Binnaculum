@@ -22,6 +22,7 @@
     <Compile Include="BrokerFinancialSnapshotAggregationTests.fs" />
     <Compile Include="BrokerFinancialSnapshotRefactoredTests.fs" />
     <Compile Include="BrokerAccountFinancialCalculationTests.fs" />
+    <Compile Include="OptionTradeCalculationsTests.fs" />
     <Compile Include="BrokerFinancialSnapshotManagerIntegrationTests.fs" />
     <Compile Include="BrokerFinancialSnapshotManagerPerformanceTests.fs" />
     <Compile Include="HistoricalDepositTests.fs" />
