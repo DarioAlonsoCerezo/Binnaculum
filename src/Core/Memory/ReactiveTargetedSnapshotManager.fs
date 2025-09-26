@@ -14,22 +14,6 @@ open Binnaculum.Core.Database
 module ReactiveTargetedSnapshotManager =
     
     /// <summary>
-    /// Generate a sequence of DateTimePattern values from start date to end date (inclusive)
-    /// </summary>
-    /// <param name="startDate">Start date of the range</param>
-    /// <param name="endDate">End date of the range</param>
-    /// <returns>List of DateTimePattern values</returns>
-    let private generateDateRange (startDate: DateTimePattern) (endDate: DateTimePattern) =
-        let rec generateDates (currentDate: DateTimePattern) (endDate: DateTimePattern) acc =
-            if currentDate.Value > endDate.Value then
-                List.rev acc
-            else
-                let nextDate = DateTimePattern.FromDateTime(currentDate.Value.AddDays(1.0))
-                generateDates nextDate endDate (currentDate :: acc)
-        
-        generateDates startDate endDate []
-    
-    /// <summary>
     /// Get ticker ID by symbol from database
     /// Returns None if ticker symbol is not found
     /// </summary>
@@ -61,25 +45,22 @@ module ReactiveTargetedSnapshotManager =
                     
                     // Validate date range
                     if startDate.Value <= today.Value then
-                        // Create date range for iteration from oldest date to today
-                        let dateRange = generateDateRange startDate today
+                        // Resolve ticker symbols to IDs and update ticker snapshots
+                        //for tickerSymbol in importMetadata.AffectedTickerSymbols do
+                        //    let! tickerIdOption = getTickerIdBySymbol tickerSymbol
+                        //    match tickerIdOption with
+                        //    | Some tickerId ->
+                        //        do! TickerSnapshotManager.handleTickerChange(tickerId, startDate)
+                        //    | None ->
+                        //        // Ticker not found - may have been created but not yet in cache
+                        //        // This is not an error case, just skip silently
+                        //        ()
                         
                         // Update broker account snapshots for affected accounts
                         for brokerAccountId in importMetadata.AffectedBrokerAccountIds do
-                            for date in dateRange do
-                                do! BrokerAccountSnapshotManager.handleBrokerAccountChange(brokerAccountId, date)
+                            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(brokerAccountId, startDate)
                         
-                        // Resolve ticker symbols to IDs and update ticker snapshots
-                        for tickerSymbol in importMetadata.AffectedTickerSymbols do
-                            let! tickerIdOption = getTickerIdBySymbol tickerSymbol
-                            match tickerIdOption with
-                            | Some tickerId ->
-                                for date in dateRange do
-                                    do! TickerSnapshotManager.handleTickerChange(tickerId, date)
-                            | None ->
-                                // Ticker not found - may have been created but not yet in cache
-                                // This is not an error case, just skip silently
-                                ()
+                        ReactiveSnapshotManager.refresh()
                     else
                         failwith $"Invalid import date range: oldest date {startDate.Value} is in the future"
                 | None -> 
