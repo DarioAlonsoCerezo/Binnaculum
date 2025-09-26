@@ -58,6 +58,9 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+
+		<!-- Test Data Embedded Resources -->
+		<EmbeddedResource Include="Resources\TestData\TastytradeOptionsTest.csv" />
 	</ItemGroup>
 
 	<ItemGroup>
