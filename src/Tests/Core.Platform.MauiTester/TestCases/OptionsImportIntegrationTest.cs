@@ -50,21 +50,15 @@ namespace Core.Platform.MauiTester.TestCases
                 var importTime = DateTime.Now;
                 var importDuration = importTime - setupTime;
                 results.Add($"Import completed in {importDuration.TotalSeconds:F2}s");
-                results.Add($"Movements imported: {importResult.ImportedData.Trades + importResult.ImportedData.BrokerMovements}");
+                results.Add($"Movements imported: {importResult.ImportedData.Trades + importResult.ImportedData.BrokerMovements + importResult.ImportedData.OptionTrades}");
 
-                // Phase 3: Snapshot Processing
-                results.Add("=== Phase 3: Snapshot Processing ===");
-                await ProcessSnapshots(importResult);
-                var snapshotTime = DateTime.Now;
-                var snapshotDuration = snapshotTime - importTime;
-                results.Add($"Snapshot processing completed in {snapshotDuration.TotalSeconds:F2}s");
-
-                // Phase 4: Validation and Results
-                results.Add("=== Phase 4: Validation ===");
-                var validationResult = await ValidateResults(importResult);
+                // Phase 3: Validation and Results
+                results.Add("=== Phase 3: Validation ===");
+                var validationResult = ValidateResults(importResult);
                 var endTime = DateTime.Now;
                 var totalDuration = endTime - startTime;
 
+                // Enhanced validation reporting with realized vs unrealized breakdown
                 results.Add($"Financial validation: {(validationResult.Success ? "✅ PASSED" : "❌ FAILED")}");
                 results.Add($"Import success: {importResult.Success}");
                 results.Add($"Import errors: {importResult.Errors.Length}");
@@ -76,10 +70,25 @@ namespace Core.Platform.MauiTester.TestCases
                         results.Add($"  - {error.ErrorMessage}");
                     }
                 }
-                results.Add($"Movements imported: {validationResult.MovementCountChange} (expected: {validationResult.ExpectedMovements})");
-                results.Add($"Option trades: {importResult.ImportedData.OptionTrades}");
+
+                // Cash flow validation
+                results.Add($"Deposits: ${validationResult.ActualDeposited:F2} (expected: ${validationResult.ExpectedDeposited:F2}) {(validationResult.DepositMatch ? "✅" : "❌")}");
+
+                // Realized performance validation
+                results.Add($"Realized gains: ${validationResult.ActualRealizedGains:F2} (expected: ${validationResult.ExpectedRealizedGains:F2}) {(validationResult.RealizedGainsMatch ? "✅" : "❌")}");
+                results.Add($"Realized %: {validationResult.ActualRealizedPercentage:F2}% (expected: {validationResult.ExpectedRealizedPercentage:F2}%) {(validationResult.RealizedPercentageMatch ? "✅" : "❌")}");
+
+                // Unrealized performance validation
+                results.Add($"Unrealized gains: ${validationResult.ActualUnrealizedGains:F2} (expected: ${validationResult.ExpectedUnrealizedGains:F2}) {(validationResult.UnrealizedGainsMatch ? "✅" : "❌")}");
+                results.Add($"Unrealized %: {validationResult.ActualUnrealizedPercentage:F2}% (expected: {validationResult.ExpectedUnrealizedPercentage:F2}%) {(validationResult.UnrealizedPercentageMatch ? "✅" : "❌")}");
+
+                // Total performance validation
+                results.Add($"Total performance: {validationResult.ActualTotalPerformance:F2}% (expected: {validationResult.ExpectedTotalPerformance:F2}%) {(validationResult.TotalPerformanceMatch ? "✅" : "❌")}");
+
+                // Movement validation
+                results.Add($"Total movements: {validationResult.ActualMovements} (expected: {validationResult.ExpectedMovements}) {(validationResult.MovementMatch ? "✅" : "❌")}");
+                results.Add($"Option trades: {validationResult.ActualOptionTrades} (expected: {validationResult.ExpectedOptionTrades}) {(validationResult.OptionTradeMatch ? "✅" : "❌")}");
                 results.Add($"Broker movements: {importResult.ImportedData.BrokerMovements}");
-                results.Add($"Regular trades: {importResult.ImportedData.Trades}");
                 results.Add($"Total test duration: {totalDuration.TotalSeconds:F2}s");
 
                 // Build success summary
@@ -88,7 +97,7 @@ namespace Core.Platform.MauiTester.TestCases
 
                 return success
                     ? (true, details, null)
-                    : (false, details, "Import validation failed - check import errors or movement count mismatch");
+                    : (false, details, "Financial validation failed - check expected vs actual values");
             }
             catch (Exception ex)
             {
@@ -135,52 +144,87 @@ namespace Core.Platform.MauiTester.TestCases
         }
 
         /// <summary>
-        /// Phase 3: Process snapshots using targeted manager
+        /// Phase 3: Validate results using TestVerifications patterns
         /// </summary>
-        private async Task ProcessSnapshots(ImportResult importResult)
+        private ValidationResult ValidateResults(ImportResult importResult)
         {
-            // Since we can't create ImportMetadata directly in C#, 
-            // and the import result should already contain the metadata,
-            // we'll use the actual metadata from the import result or create basic one
-            if (importResult.ImportedData.Trades > 0 || importResult.ImportedData.BrokerMovements > 0)
+            // Use TestVerifications for consistent snapshot validation
+            var (success, details, error) = TestVerifications.VerifyOptionsFinancialData();
+            
+            // Extract actual values from Collections.Snapshots for detailed reporting
+            decimal actualDeposited = 0;
+            decimal actualRealizedGains = 0;
+            decimal actualUnrealizedGains = 0;
+            int actualMovements = 0;
+            decimal actualRealizedPercentage = 0;
+            decimal actualUnrealizedPercentage = 0;
+            decimal actualTotalPerformance = 0;
+
+            if (Collections.Snapshots.Items.Count > 0)
             {
-                // For now, just refresh all reactive managers since creating proper metadata is complex
-                // Convert F# async to Task
-                await FSharpAsync.StartAsTask(ReactiveSnapshotManager.refreshAsync(), null, null);
+                var snapshot = Collections.Snapshots.Items.First();
+                if (snapshot.BrokerAccount != null)
+                {
+                    var financial = snapshot.BrokerAccount.Value.Financial;
+                    actualDeposited = financial.Deposited;
+                    actualRealizedGains = financial.RealizedGains;
+                    actualUnrealizedGains = financial.UnrealizedGains;
+                    actualMovements = financial.MovementCounter;
+                    
+                    // Calculate performance percentages
+                    if (actualDeposited > 0)
+                    {
+                        actualRealizedPercentage = (actualRealizedGains / actualDeposited) * 100;
+                        actualUnrealizedPercentage = (actualUnrealizedGains / actualDeposited) * 100;
+                        actualTotalPerformance = actualRealizedPercentage + actualUnrealizedPercentage;
+                    }
+                }
             }
-        }
 
-        /// <summary>
-        /// Phase 4: Validate results
-        /// </summary>
-        private async Task<ValidationResult> ValidateResults(ImportResult importResult)
-        {
-            var finalBalance = await GetCurrentBalance(_testBrokerAccountId);
-            var finalMovementCount = await GetMovementCount(_testBrokerAccountId);
+            // Count actual option trades from import result
+            int actualOptionTrades = importResult.ImportedData.OptionTrades;
 
-            var balanceChange = finalBalance - _initialBalance;
-            var movementCountChange = finalMovementCount - _initialMovementCount;
-
-            const decimal expectedChange = 932.38m;
-            const int expectedMovements = 16;
-
-            // For integration test, we'll focus on import result validation
-            // rather than complex balance calculations due to F# interop complexity
-            var importSuccess = importResult.Success && importResult.Errors.Length == 0;
-            var movementsImported = importResult.ImportedData.Trades + importResult.ImportedData.BrokerMovements + importResult.ImportedData.OptionTrades;
-            var movementMatch = movementsImported == expectedMovements;
-
+            const decimal tolerance = 2.00m; // Allow tolerance for calculation differences
+            
             return new ValidationResult
             {
-                Success = importSuccess && movementMatch,
-                InitialBalance = _initialBalance,
-                FinalBalance = finalBalance,
-                BalanceChange = balanceChange,
-                ExpectedChange = expectedChange,
-                BalanceMatch = importSuccess, // Simplify to import success
-                MovementCountChange = movementsImported,
-                ExpectedMovements = expectedMovements,
-                MovementMatch = movementMatch,
+                Success = success,
+                ErrorMessage = error,
+                
+                // Cash flow validation
+                ActualDeposited = actualDeposited,
+                ExpectedDeposited = 878.79m,
+                DepositMatch = Math.Abs(actualDeposited - 878.79m) <= tolerance,
+                
+                // Realized performance validation
+                ActualRealizedGains = actualRealizedGains,
+                ExpectedRealizedGains = 23.65m,
+                RealizedGainsMatch = Math.Abs(actualRealizedGains - 23.65m) <= tolerance,
+                ActualRealizedPercentage = actualRealizedPercentage,
+                ExpectedRealizedPercentage = 2.69m,
+                RealizedPercentageMatch = Math.Abs(actualRealizedPercentage - 2.69m) <= (tolerance / 10), // Tighter tolerance for percentages
+                
+                // Unrealized performance validation
+                ActualUnrealizedGains = actualUnrealizedGains,
+                ExpectedUnrealizedGains = 14.86m,
+                UnrealizedGainsMatch = Math.Abs(actualUnrealizedGains - 14.86m) <= tolerance,
+                ActualUnrealizedPercentage = actualUnrealizedPercentage,
+                ExpectedUnrealizedPercentage = 1.69m,
+                UnrealizedPercentageMatch = Math.Abs(actualUnrealizedPercentage - 1.69m) <= (tolerance / 10),
+                
+                // Total performance validation
+                ActualTotalPerformance = actualTotalPerformance,
+                ExpectedTotalPerformance = 4.38m,
+                TotalPerformanceMatch = Math.Abs(actualTotalPerformance - 4.38m) <= (tolerance / 10),
+                
+                // Movement validation
+                ActualMovements = actualMovements,
+                ExpectedMovements = 16,
+                MovementMatch = actualMovements == 16,
+                ActualOptionTrades = actualOptionTrades,
+                ExpectedOptionTrades = 12,
+                OptionTradeMatch = actualOptionTrades == 12,
+                
                 ImportResult = importResult
             };
         }
@@ -287,8 +331,8 @@ namespace Core.Platform.MauiTester.TestCases
                 }
             }
 
-            // Refresh reactive managers to ensure clean state
-            ReactiveSnapshotManager.refresh();
+            // Note: Snapshot management is now automatic via import system
+            // No manual reactive manager refresh needed
         }
 
         /// <summary>
@@ -303,19 +347,47 @@ namespace Core.Platform.MauiTester.TestCases
         }
 
         /// <summary>
-        /// Validation result container
+        /// Enhanced validation result container with separate realized/unrealized validation
         /// </summary>
         private class ValidationResult
         {
             public bool Success { get; set; }
-            public decimal InitialBalance { get; set; }
-            public decimal FinalBalance { get; set; }
-            public decimal BalanceChange { get; set; }
-            public decimal ExpectedChange { get; set; }
-            public bool BalanceMatch { get; set; }
-            public int MovementCountChange { get; set; }
-            public int ExpectedMovements { get; set; }
+            public string? ErrorMessage { get; set; }
+            
+            // Cash flow validation
+            public decimal ActualDeposited { get; set; }
+            public decimal ExpectedDeposited { get; set; } = 878.79m;
+            public bool DepositMatch { get; set; }
+            
+            // Realized performance validation
+            public decimal ActualRealizedGains { get; set; }
+            public decimal ExpectedRealizedGains { get; set; } = 23.65m;
+            public bool RealizedGainsMatch { get; set; }
+            public decimal ActualRealizedPercentage { get; set; }
+            public decimal ExpectedRealizedPercentage { get; set; } = 2.69m;
+            public bool RealizedPercentageMatch { get; set; }
+            
+            // Unrealized performance validation
+            public decimal ActualUnrealizedGains { get; set; }
+            public decimal ExpectedUnrealizedGains { get; set; } = 14.86m;
+            public bool UnrealizedGainsMatch { get; set; }
+            public decimal ActualUnrealizedPercentage { get; set; }
+            public decimal ExpectedUnrealizedPercentage { get; set; } = 1.69m;
+            public bool UnrealizedPercentageMatch { get; set; }
+            
+            // Total performance validation
+            public decimal ActualTotalPerformance { get; set; }
+            public decimal ExpectedTotalPerformance { get; set; } = 4.38m;
+            public bool TotalPerformanceMatch { get; set; }
+            
+            // Movement validation
+            public int ActualMovements { get; set; }
+            public int ExpectedMovements { get; set; } = 16;
             public bool MovementMatch { get; set; }
+            public int ActualOptionTrades { get; set; }
+            public int ExpectedOptionTrades { get; set; } = 12;
+            public bool OptionTradeMatch { get; set; }
+            
             public ImportResult ImportResult { get; set; } = null!;
         }
     }
