@@ -256,6 +256,64 @@ namespace Core.Platform.MauiTester.Services
             return (true, $"Financial Data: TotalDeposited={actualDeposited}, TotalWithdrawn={actualWithdrawn}, NetDeposited={netAmount}, MovementCounter={financial.MovementCounter}, Currency=USD", "");
         }
 
+        /// <summary>
+        /// Verify snapshot financial data for options trading with realized and unrealized performance
+        /// Uses accurate expected values based on analysis of TastytradeOptionsTest.csv
+        /// </summary>
+        public static (bool success, string details, string error) VerifyOptionsFinancialData()
+        {
+            if (Collections.Snapshots.Items.Count == 0)
+                return (false, "", "No snapshots found to verify options financial data");
+
+            var snapshot = Collections.Snapshots.Items.First();
+            if (snapshot.BrokerAccount == null)
+                return (false, "", "Snapshot does not contain BrokerAccount data");
+
+            var brokerAccountSnapshot = snapshot.BrokerAccount.Value;
+            var financial = brokerAccountSnapshot.Financial;
+            
+            // Expected values from detailed CSV analysis
+            const decimal expectedDeposited = 878.79m;           // 844.56 + 24.23 + 10.00
+            const decimal expectedRealizedGains = 23.65m;        // 5.46 + 1.46 + 16.73 (completed strategies)
+            const decimal expectedUnrealizedGains = 14.86m;      // Open SOFI position
+            const decimal tolerance = 2.00m;                     // Allow some tolerance for calculation differences
+            
+            // Cash flow validation
+            if (Math.Abs(financial.Deposited - expectedDeposited) > tolerance)
+                return (false, "", $"Expected Deposited ≈ {expectedDeposited} but found {financial.Deposited}");
+            
+            // Realized performance validation (completed strategies)
+            if (Math.Abs(financial.RealizedGains - expectedRealizedGains) > tolerance)
+                return (false, "", $"Expected Realized gains ≈ {expectedRealizedGains} but found {financial.RealizedGains}");
+            
+            // Unrealized performance validation (open positions)
+            if (Math.Abs(financial.UnrealizedGains - expectedUnrealizedGains) > tolerance)
+                return (false, "", $"Expected Unrealized gains ≈ {expectedUnrealizedGains} but found {financial.UnrealizedGains}");
+            
+            // Movement count validation (12 option trades + 3 deposits + 1 adjustment = 16)
+            const int expectedMovements = 16;
+            if (financial.MovementCounter != expectedMovements)
+                return (false, "", $"Expected MovementCounter = {expectedMovements} but found {financial.MovementCounter}");
+            
+            // Currency validation
+            if (financial.Currency.Code != "USD")
+                return (false, "", $"Expected Currency = USD but found {financial.Currency.Code}");
+
+            // Calculate performance percentages
+            var realizedPercentage = financial.Deposited > 0 ? (financial.RealizedGains / financial.Deposited) * 100 : 0;
+            var unrealizedPercentage = financial.Deposited > 0 ? (financial.UnrealizedGains / financial.Deposited) * 100 : 0;
+            var totalPerformance = realizedPercentage + unrealizedPercentage;
+
+            return (true, 
+                $"Options Financial Data: " +
+                $"Deposited=${financial.Deposited:F2}, " +
+                $"Realized=${financial.RealizedGains:F2} ({realizedPercentage:F2}%), " +
+                $"Unrealized=${financial.UnrealizedGains:F2} ({unrealizedPercentage:F2}%), " +
+                $"Total={totalPerformance:F2}%, " +
+                $"Movements={financial.MovementCounter}, " +
+                $"Currency={financial.Currency.Code}", "");
+        }
+
         #endregion
 
         #region Helper Methods for Common Verification Patterns
