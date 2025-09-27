@@ -131,6 +131,56 @@ public static class RxExtensions
     }
 
     /// <summary>
+    /// Executes a task that returns a value and catches any exceptions that might occur.
+    /// Returns an observable of the task result.
+    /// </summary>
+    public static IObservable<TResult> CatchCoreError<T, TResult>(this IObservable<T> source, Func<T, Task<TResult>> task, bool informUser = false)
+    {
+        return source.SelectMany(value => 
+            Observable.FromAsync(async () =>
+            {
+                try
+                {
+                    return await task.Invoke(value);
+                }
+                catch (AggregateException agEx)
+                {
+                    var innerException = agEx.InnerException ?? agEx;
+                    System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {innerException.Message}]");
+
+#if DEBUG
+                    // In DEBUG mode, always show the error
+                    await ShowErrorPopup(innerException);
+#else
+                    // In Release mode, only show if informUser is true
+                    if (informUser)
+                    {
+                        await ShowErrorPopup(innerException);
+                    }
+#endif
+                    throw; // Re-throw to maintain error handling in the observable chain
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[{DateTime.Now:hh-mm-ss:fff} - {ex.Message}]");
+
+#if DEBUG
+                    // In DEBUG mode, always show the error
+                    await ShowErrorPopup(ex);
+#else
+                    // In Release mode, only show if informUser is true
+                    if (informUser)
+                    {
+                        await ShowErrorPopup(ex);
+                    }
+#endif
+                    throw; // Re-throw to maintain error handling in the observable chain
+                }
+            })
+        );
+    }
+
+    /// <summary>
     /// Shows an error popup with exception details.
     /// </summary>
     private static async Task ShowErrorPopup(Exception exception)
