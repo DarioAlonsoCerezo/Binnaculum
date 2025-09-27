@@ -234,8 +234,13 @@ namespace Core.Platform.MauiTester.TestCases
         /// </summary>
         private ValidationResult ValidateResults(ImportResult importResult)
         {
+            // Add detailed logging to understand what data we're getting
+            System.Diagnostics.Debug.WriteLine("=== DETAILED VALIDATION ANALYSIS ===");
+            System.Diagnostics.Debug.WriteLine($"Collections.Snapshots.Items.Count: {Collections.Snapshots.Items.Count}");
+            
             // Use TestVerifications for consistent snapshot validation
             var (success, details, error) = TestVerifications.VerifyOptionsFinancialData();
+            System.Diagnostics.Debug.WriteLine($"TestVerifications result: Success={success}, Details='{details}', Error='{error}'");
             
             // Extract actual values from Collections.Snapshots for detailed reporting
             decimal actualDeposited = 0;
@@ -248,27 +253,103 @@ namespace Core.Platform.MauiTester.TestCases
 
             if (Collections.Snapshots.Items.Count > 0)
             {
-                var snapshot = Collections.Snapshots.Items.First();
-                if (snapshot.BrokerAccount != null)
+                System.Diagnostics.Debug.WriteLine("=== SNAPSHOT ANALYSIS ===");
+                for (int i = 0; i < Math.Min(3, Collections.Snapshots.Items.Count); i++)
                 {
-                    var financial = snapshot.BrokerAccount.Value.Financial;
-                    actualDeposited = financial.Deposited;
-                    actualRealizedGains = financial.RealizedGains;
-                    actualUnrealizedGains = financial.UnrealizedGains;
-                    actualMovements = financial.MovementCounter;
+                    var snapshot = Collections.Snapshots.Items[i];
+                    System.Diagnostics.Debug.WriteLine($"Snapshot {i}: Type={snapshot.GetType().Name}");
                     
-                    // Calculate performance percentages
-                    if (actualDeposited > 0)
+                    if (snapshot.BrokerAccount != null)
                     {
-                        actualRealizedPercentage = (actualRealizedGains / actualDeposited) * 100;
-                        actualUnrealizedPercentage = (actualUnrealizedGains / actualDeposited) * 100;
-                        actualTotalPerformance = actualRealizedPercentage + actualUnrealizedPercentage;
+                        var brokerSnapshot = snapshot.BrokerAccount.Value;
+                        System.Diagnostics.Debug.WriteLine($"  BrokerAccount Found");
+                        
+                        var financial = brokerSnapshot.Financial;
+                        System.Diagnostics.Debug.WriteLine($"  Financial Data:");
+                        System.Diagnostics.Debug.WriteLine($"    Deposited: ${financial.Deposited:F2}");
+                        System.Diagnostics.Debug.WriteLine($"    RealizedGains: ${financial.RealizedGains:F2}");
+                        System.Diagnostics.Debug.WriteLine($"    UnrealizedGains: ${financial.UnrealizedGains:F2}");
+                        System.Diagnostics.Debug.WriteLine($"    MovementCounter: {financial.MovementCounter}");
+                        System.Diagnostics.Debug.WriteLine($"    Invested: ${financial.Invested:F2}");
+                        System.Diagnostics.Debug.WriteLine($"    Withdrawn: ${financial.Withdrawn:F2}");
+                        System.Diagnostics.Debug.WriteLine($"    DividendsReceived: ${financial.DividendsReceived:F2}");
+                        System.Diagnostics.Debug.WriteLine($"    OptionsIncome: ${financial.OptionsIncome:F2}");
+                        System.Diagnostics.Debug.WriteLine($"    Commissions: ${financial.Commissions:F2}");
+                        System.Diagnostics.Debug.WriteLine($"    Fees: ${financial.Fees:F2}");
+                        
+                        // Use the first (latest) snapshot for validation
+                        if (i == 0)
+                        {
+                            actualDeposited = financial.Deposited;
+                            actualRealizedGains = financial.RealizedGains;
+                            actualUnrealizedGains = financial.UnrealizedGains;
+                            actualMovements = financial.MovementCounter;
+                            
+                            // Calculate performance percentages
+                            if (actualDeposited > 0)
+                            {
+                                actualRealizedPercentage = (actualRealizedGains / actualDeposited) * 100;
+                                actualUnrealizedPercentage = (actualUnrealizedGains / actualDeposited) * 100;
+                                actualTotalPerformance = actualRealizedPercentage + actualUnrealizedPercentage;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  BrokerAccount: NULL");
                     }
                 }
             }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("No snapshots found in Collections.Snapshots.Items");
+            }
+            
+            // Log other relevant collections
+            System.Diagnostics.Debug.WriteLine("=== OTHER COLLECTIONS ANALYSIS ===");
+            System.Diagnostics.Debug.WriteLine($"Collections.Accounts.Items.Count: {Collections.Accounts.Items.Count}");
+            System.Diagnostics.Debug.WriteLine($"Collections.Movements.Items.Count: {Collections.Movements.Items.Count}");
+            System.Diagnostics.Debug.WriteLine($"Collections.Tickers.Items.Count: {Collections.Tickers.Items.Count}");
+            
+            // Analyze test broker account specifically
+            var testBrokerAccount = Collections.Accounts.Items
+                .Where(a => a.Type == Binnaculum.Core.Models.AccountType.BrokerAccount)
+                .FirstOrDefault(a => a.Broker?.Value.Id == _testBrokerAccountId);
+            
+            if (testBrokerAccount != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Test Broker Account Found: ID={testBrokerAccount.Broker?.Value.Id}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"Test Broker Account NOT FOUND (looking for ID={_testBrokerAccountId})");
+            }
+            
+            System.Diagnostics.Debug.WriteLine("=== END DETAILED VALIDATION ANALYSIS ===");
 
             // Count actual option trades from import result
             int actualOptionTrades = importResult.ImportedData.OptionTrades;
+            
+            // Log import result details
+            System.Diagnostics.Debug.WriteLine("=== IMPORT RESULT ANALYSIS ===");
+            System.Diagnostics.Debug.WriteLine($"Import Success: {importResult.Success}");
+            System.Diagnostics.Debug.WriteLine($"Import Errors Count: {importResult.Errors.Length}");
+            System.Diagnostics.Debug.WriteLine($"Imported Data:");
+            System.Diagnostics.Debug.WriteLine($"  Trades: {importResult.ImportedData.Trades}");
+            System.Diagnostics.Debug.WriteLine($"  BrokerMovements: {importResult.ImportedData.BrokerMovements}");
+            System.Diagnostics.Debug.WriteLine($"  Dividends: {importResult.ImportedData.Dividends}");
+            System.Diagnostics.Debug.WriteLine($"  OptionTrades: {importResult.ImportedData.OptionTrades}");
+            System.Diagnostics.Debug.WriteLine($"  NewTickers: {importResult.ImportedData.NewTickers}");
+            System.Diagnostics.Debug.WriteLine($"Processing Time: {importResult.ProcessingTimeMs}ms");
+            
+            if (importResult.Errors.Length > 0)
+            {
+                System.Diagnostics.Debug.WriteLine("Import Errors:");
+                foreach (var importError in importResult.Errors.Take(5))
+                {
+                    System.Diagnostics.Debug.WriteLine($"  - Row {importError.RowNumber}: {importError.ErrorMessage}");
+                }
+            }
 
             const decimal tolerance = 2.00m; // Allow tolerance for calculation differences
             
@@ -282,13 +363,13 @@ namespace Core.Platform.MauiTester.TestCases
                 ExpectedDeposited = 878.79m,
                 DepositMatch = Math.Abs(actualDeposited - 878.79m) <= tolerance,
                 
-                // Realized performance validation - updated for automatic option expiration
+                // Realized performance validation - updated for traditional option accounting (no auto-expiration)
                 ActualRealizedGains = actualRealizedGains,
-                ExpectedRealizedGains = 39.51m, // All expired options (240503) are realized
-                RealizedGainsMatch = Math.Abs(actualRealizedGains - 39.51m) <= tolerance,
+                ExpectedRealizedGains = 23.65m, // Only explicitly closed option strategies
+                RealizedGainsMatch = Math.Abs(actualRealizedGains - 23.65m) <= tolerance,
                 ActualRealizedPercentage = actualRealizedPercentage,
-                ExpectedRealizedPercentage = 4.50m, // Updated percentage: 39.51 / 878.79 * 100
-                RealizedPercentageMatch = Math.Abs(actualRealizedPercentage - 4.50m) <= (tolerance / 10), // Tighter tolerance for percentages
+                ExpectedRealizedPercentage = 2.70m, // Updated percentage: 23.65 / 878.79 * 100
+                RealizedPercentageMatch = Math.Abs(actualRealizedPercentage - 2.70m) <= (tolerance / 10), // Tighter tolerance for percentages
                 
                 // Unrealized performance validation
                 ActualUnrealizedGains = actualUnrealizedGains,
@@ -300,8 +381,8 @@ namespace Core.Platform.MauiTester.TestCases
                 
                 // Total performance validation
                 ActualTotalPerformance = actualTotalPerformance,
-                ExpectedTotalPerformance = 6.19m, // 4.50% + 1.69%
-                TotalPerformanceMatch = Math.Abs(actualTotalPerformance - 6.19m) <= (tolerance / 10),
+                ExpectedTotalPerformance = 4.39m, // 2.70% + 1.69%
+                TotalPerformanceMatch = Math.Abs(actualTotalPerformance - 4.39m) <= (tolerance / 10),
                 
                 // Movement validation
                 ActualMovements = actualMovements,
@@ -447,10 +528,10 @@ namespace Core.Platform.MauiTester.TestCases
             
             // Realized performance validation
             public decimal ActualRealizedGains { get; set; }
-            public decimal ExpectedRealizedGains { get; set; } = 39.51m; // All expired options realized
+            public decimal ExpectedRealizedGains { get; set; } = 23.65m; // Only explicitly closed option strategies
             public bool RealizedGainsMatch { get; set; }
             public decimal ActualRealizedPercentage { get; set; }
-            public decimal ExpectedRealizedPercentage { get; set; } = 4.50m; // 39.51 / 878.79 * 100
+            public decimal ExpectedRealizedPercentage { get; set; } = 2.70m; // 23.65 / 878.79 * 100
             public bool RealizedPercentageMatch { get; set; }
             
             // Unrealized performance validation
@@ -463,7 +544,7 @@ namespace Core.Platform.MauiTester.TestCases
             
             // Total performance validation
             public decimal ActualTotalPerformance { get; set; }
-            public decimal ExpectedTotalPerformance { get; set; } = 6.19m; // 4.50% + 1.69%
+            public decimal ExpectedTotalPerformance { get; set; } = 4.39m; // 2.70% + 1.69%
             public bool TotalPerformanceMatch { get; set; }
             
             // Movement validation
