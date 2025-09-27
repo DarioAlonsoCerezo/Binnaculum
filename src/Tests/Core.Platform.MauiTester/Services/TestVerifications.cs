@@ -282,26 +282,27 @@ namespace Core.Platform.MauiTester.Services
                 }
             }
 
-            // Get the first snapshot with BrokerAccount data
-            var snapshot = Collections.Snapshots.Items.FirstOrDefault(s => s.BrokerAccount != null);
+            // Get the LATEST snapshot with BrokerAccount data (by date)
+            var snapshot = Collections.Snapshots.Items
+                .Where(s => s.BrokerAccount != null)
+                .OrderByDescending(s => s.BrokerAccount.Value.Date)
+                .FirstOrDefault();
             if (snapshot == null)
                 return (false, "", "No snapshots with BrokerAccount data found");
                 
-            Debug.WriteLine($"📊 VERIFY: Using BrokerAccount snapshot from Date: {snapshot.BrokerAccount.Value.Date}");
+            Debug.WriteLine($"📊 VERIFY: Using LATEST BrokerAccount snapshot from Date: {snapshot.BrokerAccount.Value.Date}");
             
             var brokerAccountSnapshot = snapshot.BrokerAccount.Value;
             var financial = brokerAccountSnapshot.Financial;
             
             Debug.WriteLine($"💰 VERIFY: Latest Financial Data - Deposited={financial.Deposited:F2}, Realized={financial.RealizedGains:F2}, Unrealized={financial.UnrealizedGains:F2}, Movements={financial.MovementCounter}");
             
-            // Expected values based on original test requirements
-            // Deposits: 844.56 + 24.23 + 10.00 = 878.79
-            // Balance adjustment: -0.02 (regulatory fee) - treated as fee, not affecting deposited amount
-            const decimal expectedDeposited = 878.79m;           // Gross deposits before fees
-            // Original test expectation - checking if this is what the system should actually calculate
-            const decimal expectedRealizedGains = 23.65m;        // From explicitly closed positions only
-            const decimal expectedUnrealizedGains = 14.86m;      // Only active SOFI 240510 position
-            const decimal tolerance = 2.00m;                     // Allow some tolerance for calculation differences
+            // Expected values based on corrected analysis - NO automatic expiration
+            // All values should come from explicit transactions only
+            const decimal expectedDeposited = 878.79m;           // Total deposits: 844.56 + 24.23 + 10.00
+            const decimal expectedRealizedGains = 23.65m;        // Only explicitly closed positions (SOFI + spreads)
+            const decimal expectedUnrealizedGains = 14.86m;      // Only open SOFI 240510 position
+            const decimal tolerance = 0.50m;                     // Tighter tolerance for final values
             
             Debug.WriteLine($"🎯 VERIFY: Expected values - Deposited={expectedDeposited:F2}, Realized={expectedRealizedGains:F2}, Unrealized={expectedUnrealizedGains:F2}, Movements=16");
             
