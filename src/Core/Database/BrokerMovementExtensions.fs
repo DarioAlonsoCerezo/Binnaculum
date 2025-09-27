@@ -81,6 +81,15 @@ type Do() =
         return movements
     }
 
+    static member getByBrokerAccountIdForDate(brokerAccountId: int, targetDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdForDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, targetDate.ToString()) |> ignore
+        let! movements = Database.Do.readAll<BrokerMovement>(command, Do.read)
+        return movements
+    }
+
 /// <summary>
 /// Financial calculation extension methods for BrokerMovement collections.
 /// These methods provide reusable calculation logic for financial snapshot processing.

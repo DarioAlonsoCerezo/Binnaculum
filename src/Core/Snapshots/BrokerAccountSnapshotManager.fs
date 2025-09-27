@@ -66,17 +66,22 @@ module internal BrokerAccountSnapshotManager =
     let private getAllMovementsFromDate(brokerAccountId, snapshotDate) =
         task {
             System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] getAllMovementsFromDate - BrokerAccountId: {brokerAccountId}, Date: {snapshotDate}")
+            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Using date-based filtering to match movements on the same date")
             
-            let! brokerMovements = BrokerMovementExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
+            let! brokerMovements = BrokerMovementExtensions.Do.getByBrokerAccountIdForDate(brokerAccountId, snapshotDate)
             System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] BrokerMovements loaded: {brokerMovements.Length}")
             
-            let! trades = TradeExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
+            let! trades = TradeExtensions.Do.getByBrokerAccountIdForDate(brokerAccountId, snapshotDate)
+            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Trades loaded: {trades.Length}")
             
-            let! dividends = DividendExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
+            let! dividends = DividendExtensions.Do.getByBrokerAccountIdForDate(brokerAccountId, snapshotDate)
+            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Dividends loaded: {dividends.Length}")
             
-            let! dividendTaxes = DividendTaxExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
+            let! dividendTaxes = DividendTaxExtensions.Do.getByBrokerAccountIdForDate(brokerAccountId, snapshotDate)
+            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] DividendTaxes loaded: {dividendTaxes.Length}")
             
-            let! optionTrades = OptionTradeExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
+            let! optionTrades = OptionTradeExtensions.Do.getByBrokerAccountIdForDate(brokerAccountId, snapshotDate)
+            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] OptionTrades loaded: {optionTrades.Length}")
             
             return BrokerAccountMovementData.create 
                 snapshotDate 

@@ -128,6 +128,15 @@ type Do() =
         return optionTrades
     }
 
+    static member getByBrokerAccountIdForDate(brokerAccountId: int, targetDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- OptionsQuery.getByBrokerAccountIdForDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, targetDate.ToString()) |> ignore
+        let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
+        return optionTrades
+    }
+
 /// <summary>
 /// Financial calculation extension methods for OptionTrade collections.
 /// These methods provide reusable calculation logic for options trading income, costs, and realized gains.

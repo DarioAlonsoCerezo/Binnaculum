@@ -215,3 +215,12 @@ module internal TradesQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
+    
+    let getByBrokerAccountIdForDate =
+        $"""
+        SELECT * FROM {Trades}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND DATE({TimeStamp}) = DATE({SQLParameterName.TimeStamp})
+        ORDER BY {TimeStamp}
+        """
