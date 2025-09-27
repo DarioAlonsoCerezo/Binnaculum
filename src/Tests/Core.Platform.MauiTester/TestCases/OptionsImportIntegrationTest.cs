@@ -139,7 +139,25 @@ namespace Core.Platform.MauiTester.TestCases
             // Execute the complete import workflow using the broker ID (not broker account ID)
             var importResult = await ImportManager.importFile(_testBrokerId, _tempCsvPath);
 
-            // Don't throw exception here - let validation handle the reporting
+            // After import, force a data refresh to ensure snapshots are recalculated
+            // This helps ensure that option trades imported on historical dates are processed
+            if (importResult.Success)
+            {
+                try
+                {
+                    // Force a complete data refresh which should trigger snapshot recalculation
+                    await Overview.LoadData();
+                    
+                    // Give some time for reactive updates to complete
+                    await Task.Delay(1000);
+                }
+                catch (Exception ex)
+                {
+                    // Log the error but don't fail the import - this is supplementary refresh
+                    System.Diagnostics.Debug.WriteLine($"Failed to trigger data refresh: {ex.Message}");
+                }
+            }
+
             return importResult;
         }
 
