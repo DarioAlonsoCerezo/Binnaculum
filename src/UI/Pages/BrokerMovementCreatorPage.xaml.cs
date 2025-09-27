@@ -246,24 +246,19 @@ public partial class BrokerMovementCreatorPage
             .DisposeWith(Disposables);
 
         // Handle file selection and import
-        SelectFileButton.Clicked += async (sender, e) => {
-            try 
-            {
-
-                var file = await FilePickerService.pickDataFileAsync("Testing");
-                
-                if (file != null)
-                {
-                    ShowImportProgress();
-                    var result = await ImportManager.importFile(_account.Broker.Id, file.FilePath);
-                    HandleImportResult(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                HandleImportError(ex);
-            }
-        };
+        SelectFileButton.Events().Clicked
+            .ObserveOn(UiThread)
+            .SelectMany(_ => FilePickerService.pickDataFileAsync("Testing"))
+            .Where(x => x != null)
+            .ObserveOn(UiThread)
+            .Do(_ => ShowImportProgress())
+            .Delay(TimeSpan.FromMilliseconds(300)) // Small delay to ensure progress UI is visible
+            .ObserveOn(BackgroundScheduler)
+            .CatchCoreError<FilePickerResult, ImportResult>(file => ImportManager.importFile(_account.Broker.Id, file!.FilePath))
+            .ObserveOn(UiThread)
+            .Do(HandleImportResult)
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 
     private Models.BrokerMovement? GetBrokerMovement(Models.MovementType? movementType)
