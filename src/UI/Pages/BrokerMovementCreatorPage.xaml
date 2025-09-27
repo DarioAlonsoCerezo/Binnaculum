@@ -52,28 +52,40 @@
                     </Grid>
                 </Border>
 
-                <!-- File Import Section -->
-                <Border x:Name="FileImportSection" 
-                        Style="{StaticResource Settings}"
-                        IsVisible="False">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="{local:Translate BrokerMovementCreator_SelectFileHint}" 
-                               Style="{StaticResource LabelSettingsGroup}" />
-                        
-                        <Button x:Name="SelectFileButton"
-                                Text="{local:Translate BrokerMovementCreator_SelectFile}" />
-                            
-                        <ActivityIndicator x:Name="ImportProgress"
-                                           IsVisible="False"
-                                           IsRunning="False" />
-                            
-                        <StackLayout x:Name="ImportResults" 
-                                     IsVisible="False">
-                            <Label x:Name="ImportStatusLabel" 
-                                   Style="{StaticResource LabelSettingsGroup}" />
-                            <Label x:Name="ImportDetailsLabel" 
-                                   Style="{StaticResource Caption1}"
-                                   TextColor="{AppThemeBinding Dark={StaticResource Gray200}, Light={StaticResource Gray600}}" />
+                <!--  File Import Section  -->
+                <Border
+                    x:Name="FileImportSection"
+                    Style="{StaticResource Settings}"
+                    IsVisible="False">
+                    <VerticalStackLayout
+                        Padding="12"
+                        Spacing="12">
+                        <Label
+                            Text="{local:Translate BrokerMovementCreator_SelectFileHint}"
+                            Style="{StaticResource LabelSettingsGroup}" />
+
+                        <Button
+                            x:Name="SelectFileButton"
+                            Text="{local:Translate BrokerMovementCreator_SelectFile}" />
+
+                        <ActivityIndicator
+                            x:Name="ImportProgress"
+                            IsVisible="False"
+                            IsRunning="False" />
+
+                        <StackLayout
+                            x:Name="ImportResults"
+                            Padding="16,0,0,0"
+                            IsVisible="False">
+                            <Label
+                                x:Name="ImportStatusLabel"
+                                Padding="0"
+                                Style="{StaticResource LabelSettingsGroup}" />
+                            <Label
+                                x:Name="ImportDetailsLabel"
+                                Style="{StaticResource Caption1}"
+                                TextColor="{AppThemeBinding Dark={StaticResource Gray200},
+                                                            Light={StaticResource Gray600}}" />
                         </StackLayout>
                     </VerticalStackLayout>
                 </Border>

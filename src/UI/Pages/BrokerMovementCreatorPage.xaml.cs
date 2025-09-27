@@ -254,7 +254,7 @@ public partial class BrokerMovementCreatorPage
             .Do(_ => ShowImportProgress())
             .Delay(TimeSpan.FromMilliseconds(300)) // Small delay to ensure progress UI is visible
             .ObserveOn(BackgroundScheduler)
-            .CatchCoreError<FilePickerResult, ImportResult>(file => ImportManager.importFile(_account.Broker.Id, file!.FilePath))
+            .CatchCoreError(file => ImportManager.importFile(_account.Broker.Id, file!.FilePath))
             .ObserveOn(UiThread)
             .Do(HandleImportResult)
             .Subscribe()
