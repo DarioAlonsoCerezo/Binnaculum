@@ -338,31 +338,28 @@ type OptionTradeCalculations() =
     /// <summary>
     /// Determines if there are any open option positions based on trade history.
     /// Calculates net position for each option and returns true if any positions remain open.
-    /// Automatically considers expired options as closed.
+    /// Does NOT consider expiration dates - only explicit close transactions count.
     /// </summary>
     /// <param name="optionTrades">List of option trades to analyze</param>
-    /// <param name="currentDate">The reference date for determining if options have expired</param>
-    /// <returns>True if open option positions exist, false otherwise</returns>
+    /// <param name="currentDate">The reference date for determining if options have expired (unused in this version)</param>
+    /// <returns>True if open option positions exist based on transaction history only</returns>
     [<Extension>]
     static member hasOpenOptions(optionTrades: OptionTrade list, currentDate: DateTime) =
         optionTrades
         |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
         |> List.exists (fun ((_, _, _, expiration), trades) ->
-            // If the option has expired, consider it closed
-            if expiration < currentDate then
-                false
-            else
-                let netPosition = 
-                    trades
-                    |> List.sumBy (fun trade ->
-                        match trade.Code with
-                        | OptionCode.SellToOpen -> -1  // Short position
-                        | OptionCode.BuyToOpen -> 1    // Long position
-                        | OptionCode.SellToClose -> 1   // Closing short
-                        | OptionCode.BuyToClose -> -1   // Closing long
-                        | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised -> 0
-                    )
-                netPosition <> 0)
+            // REMOVED: No automatic expiration logic - check positions regardless of expiration date
+            let netPosition = 
+                trades
+                |> List.sumBy (fun trade ->
+                    match trade.Code with
+                    | OptionCode.SellToOpen -> -1  // Short position
+                    | OptionCode.BuyToOpen -> 1    // Long position
+                    | OptionCode.SellToClose -> 1   // Closing short
+                    | OptionCode.BuyToClose -> -1   // Closing long
+                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised -> 0
+                )
+            netPosition <> 0)
 
     /// <summary>
     /// Calculates current open option positions by option details.
