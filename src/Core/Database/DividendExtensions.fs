@@ -104,6 +104,15 @@ type Do() =
         return dividends
     }
 
+    static member getByBrokerAccountIdForDate(brokerAccountId: int, targetDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- DividendsQuery.getByBrokerAccountIdForDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, targetDate.ToString()) |> ignore
+        let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
+        return dividends
+    }
+
 /// <summary>
 /// Financial calculation extension methods for Dividend collections.
 /// These methods provide reusable calculation logic for dividend income tracking and financial snapshot processing.

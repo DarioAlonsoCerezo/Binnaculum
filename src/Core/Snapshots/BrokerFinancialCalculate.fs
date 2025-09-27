@@ -32,7 +32,7 @@ module internal BrokerFinancialCalculate =
                 currencyId
             
             // Calculate financial metrics from movements
-            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId
+            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
             
             // Create new snapshot with previous snapshot as baseline
             do! BrokerFinancialCumulativeFinancial.create
@@ -64,7 +64,7 @@ module internal BrokerFinancialCalculate =
         =
         task {
             // Calculate financial metrics from movements
-            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId
+            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
             
             // Create initial snapshot without previous baseline (pass None for previousSnapshot)
             do! BrokerFinancialCumulativeFinancial.create 
@@ -105,7 +105,7 @@ module internal BrokerFinancialCalculate =
                 targetDate
             
             // Calculate financial metrics from new movements
-            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId
+            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
             
             // Since there's no previous snapshot, we add the new movement metrics directly to the existing snapshot
             // The existing snapshot serves as the baseline (which represents the state before these new movements)

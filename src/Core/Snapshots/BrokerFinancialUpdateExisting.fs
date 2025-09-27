@@ -39,7 +39,7 @@ module internal BrokerFinancialUpdateExisting =
             // Calculate financial metrics from ALL movements for this date
             // The currencyMovements parameter should contain both existing and new movements
             // This ensures we don't miss any previously processed movements during the update
-            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId
+            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
             
             // Update the existing snapshot using the recalculated metrics
             do! BrokerFinancialSnapshotUpdateExistingWithMetrics.update

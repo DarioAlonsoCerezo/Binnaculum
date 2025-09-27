@@ -152,6 +152,15 @@ type Do() =
         return trades
     }
 
+    static member getByBrokerAccountIdForDate(brokerAccountId: int, targetDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- TradesQuery.getByBrokerAccountIdForDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, targetDate.ToString()) |> ignore
+        let! trades = Database.Do.readAll<Trade>(command, Do.read)
+        return trades
+    }
+
 /// <summary>
 /// Financial calculation extension methods for Trade collections.
 /// These methods provide reusable calculation logic for investment tracking and financial snapshot processing.

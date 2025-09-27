@@ -146,3 +146,12 @@ module internal DividendTaxesQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
+    
+    let getByBrokerAccountIdForDate =
+        $"""
+        SELECT * FROM {DividendTaxes}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND DATE({TimeStamp}) = DATE({SQLParameterName.TimeStamp})
+        ORDER BY {TimeStamp}
+        """
