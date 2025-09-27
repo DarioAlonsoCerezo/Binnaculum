@@ -24,6 +24,12 @@ public partial class BrokerMovementCreatorPage
         TradeMovement.BrokerAccount = account;
         DividendMovement.BrokerAccount = account;
         OptionTradeMovement.BrokerAccount = account;
+        //By default, it should be created manually
+        ManualRadioButton.IsChecked = true;
+        // Broker support detection - Enable FromFileRadioButton for supported brokers only
+        var isSupportedBroker = _account.Broker.SupportedBroker == SupportedBroker.IBKR ||
+                               _account.Broker.SupportedBroker == SupportedBroker.Tastytrade;
+        FromFileRadioButton.IsEnabled = isSupportedBroker;
     }
 
     protected override void StartLoad()
@@ -32,9 +38,6 @@ public partial class BrokerMovementCreatorPage
             .Select(async _ => await Navigation.PopModalAsync())
             .Subscribe()
             .DisposeWith(Disposables);
-
-        //By default, it should be created manually
-        ManualRadioButton.IsChecked = true;
 
         var selection = MovementTypeControl.Events()
             .ItemSelected
@@ -211,15 +214,11 @@ public partial class BrokerMovementCreatorPage
             .Subscribe()
             .DisposeWith(Disposables);
 
-        // Broker support detection - Enable FromFileRadioButton for supported brokers only
-        var isSupportedBroker = _account.Broker.SupportedBroker == SupportedBroker.IBKR || 
-                               _account.Broker.SupportedBroker == SupportedBroker.Tastytrade;
-        FromFileRadioButton.IsEnabled = isSupportedBroker;
-
         // Handle radio button selection
         FromFileRadioButton.Events().CheckedChanged
-            .Where(isChecked => isChecked && isSupportedBroker)
+            .Where(isChecked => isChecked)
             .ObserveOn(UiThread)
+            .Do(_ => ManualRadioButton.IsChecked = false)
             .Subscribe(_ => {
                 FileImportSection.IsVisible = true;
                 // Hide manual movement controls
@@ -236,6 +235,7 @@ public partial class BrokerMovementCreatorPage
         ManualRadioButton.Events().CheckedChanged
             .Where(isChecked => isChecked)
             .ObserveOn(UiThread)
+            .Do(_ => FromFileRadioButton.IsChecked = false)
             .Subscribe(_ => {
                 FileImportSection.IsVisible = false;
                 MovementTypeControl.IsVisible = true;
