@@ -165,15 +165,26 @@ namespace Core.Platform.MauiTester.TestCases
                                         prop.SetValue(importMetadata, 16); // From CSV: 12 option trades + 3 deposits + 1 adjustment
                                         break;
                                     case "AffectedBrokerAccountIds":
-                                        // Create a list with our broker account ID
-                                        var listType = typeof(List<>).MakeGenericType(typeof(int));
-                                        var accountIdList = Activator.CreateInstance(listType);
-                                        var addMethod = listType.GetMethod("Add");
-                                        addMethod?.Invoke(accountIdList, new object[] { _testBrokerAccountId });
-                                        prop.SetValue(importMetadata, accountIdList);
+                                        // Create a Set<int> with our broker account ID (ImportMetadata uses Set, not List)
+                                        var setType = typeof(HashSet<>).MakeGenericType(typeof(int));
+                                        var accountIdSet = Activator.CreateInstance(setType);
+                                        var addMethod = setType.GetMethod("Add");
+                                        addMethod?.Invoke(accountIdSet, new object[] { _testBrokerAccountId });
+                                        prop.SetValue(importMetadata, accountIdSet);
                                         break;
                                     case "OldestMovementDate":
                                         prop.SetValue(importMetadata, new DateTime(2024, 4, 22)); // Earliest date in CSV
+                                        break;
+                                    case "AffectedTickerSymbols":
+                                        // Create a Set<string> with the tickers from the CSV
+                                        var tickerSetType = typeof(HashSet<>).MakeGenericType(typeof(string));
+                                        var tickerSet = Activator.CreateInstance(tickerSetType);
+                                        var tickerAddMethod = tickerSetType.GetMethod("Add");
+                                        // Add the tickers from TastytradeOptionsTest.csv
+                                        tickerAddMethod?.Invoke(tickerSet, new object[] { "SOFI" });
+                                        tickerAddMethod?.Invoke(tickerSet, new object[] { "MPW" });
+                                        tickerAddMethod?.Invoke(tickerSet, new object[] { "PLTR" });
+                                        prop.SetValue(importMetadata, tickerSet);
                                         break;
                                 }
                             }
