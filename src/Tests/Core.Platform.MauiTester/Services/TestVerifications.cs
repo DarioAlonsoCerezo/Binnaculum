@@ -1,4 +1,7 @@
 using Binnaculum.Core.UI;
+using System.Diagnostics;
+using System.Linq;
+using Microsoft.FSharp.Core;
 
 namespace Core.Platform.MauiTester.Services
 {
@@ -265,12 +268,31 @@ namespace Core.Platform.MauiTester.Services
             if (Collections.Snapshots.Items.Count == 0)
                 return (false, "", "No snapshots found to verify options financial data");
 
-            var snapshot = Collections.Snapshots.Items.First();
-            if (snapshot.BrokerAccount == null)
-                return (false, "", "Snapshot does not contain BrokerAccount data");
+            // Log all snapshots for debugging
+            Debug.WriteLine($"🔍 VERIFY: Found {Collections.Snapshots.Items.Count} snapshots:");
+            for (int i = 0; i < Collections.Snapshots.Items.Count; i++)
+            {
+                var s = Collections.Snapshots.Items[i];
+                Debug.WriteLine($"  [{i}] Snapshot Type: {s.Type}, BrokerAccount: {(s.BrokerAccount != null ? "YES" : "NO")}");
+                if (s.BrokerAccount != null)
+                {
+                    var brokerAcct = s.BrokerAccount.Value;
+                    var f = brokerAcct.Financial;
+                    Debug.WriteLine($"      Date: {brokerAcct.Date}, Financial: Deposited={f.Deposited:F2}, Realized={f.RealizedGains:F2}, Unrealized={f.UnrealizedGains:F2}, Movements={f.MovementCounter}");
+                }
+            }
 
+            // Get the first snapshot with BrokerAccount data
+            var snapshot = Collections.Snapshots.Items.FirstOrDefault(s => s.BrokerAccount != null);
+            if (snapshot == null)
+                return (false, "", "No snapshots with BrokerAccount data found");
+                
+            Debug.WriteLine($"📊 VERIFY: Using BrokerAccount snapshot from Date: {snapshot.BrokerAccount.Value.Date}");
+            
             var brokerAccountSnapshot = snapshot.BrokerAccount.Value;
             var financial = brokerAccountSnapshot.Financial;
+            
+            Debug.WriteLine($"💰 VERIFY: Latest Financial Data - Deposited={financial.Deposited:F2}, Realized={financial.RealizedGains:F2}, Unrealized={financial.UnrealizedGains:F2}, Movements={financial.MovementCounter}");
             
             // Expected values based on original test requirements
             // Deposits: 844.56 + 24.23 + 10.00 = 878.79
@@ -281,31 +303,46 @@ namespace Core.Platform.MauiTester.Services
             const decimal expectedUnrealizedGains = 14.86m;      // Only active SOFI 240510 position
             const decimal tolerance = 2.00m;                     // Allow some tolerance for calculation differences
             
+            Debug.WriteLine($"🎯 VERIFY: Expected values - Deposited={expectedDeposited:F2}, Realized={expectedRealizedGains:F2}, Unrealized={expectedUnrealizedGains:F2}, Movements=16");
+            
             // Cash flow validation
-            if (Math.Abs(financial.Deposited - expectedDeposited) > tolerance)
+            var depositedMatch = Math.Abs(financial.Deposited - expectedDeposited) <= tolerance;
+            Debug.WriteLine($"💵 VERIFY: Deposited check - Expected={expectedDeposited:F2}, Actual={financial.Deposited:F2}, Diff={Math.Abs(financial.Deposited - expectedDeposited):F2}, Match={depositedMatch}");
+            if (!depositedMatch)
                 return (false, "", $"Expected Deposited ≈ {expectedDeposited} but found {financial.Deposited}");
             
             // Realized performance validation (completed strategies)
-            if (Math.Abs(financial.RealizedGains - expectedRealizedGains) > tolerance)
+            var realizedMatch = Math.Abs(financial.RealizedGains - expectedRealizedGains) <= tolerance;
+            Debug.WriteLine($"📈 VERIFY: Realized gains check - Expected={expectedRealizedGains:F2}, Actual={financial.RealizedGains:F2}, Diff={Math.Abs(financial.RealizedGains - expectedRealizedGains):F2}, Match={realizedMatch}");
+            if (!realizedMatch)
                 return (false, "", $"Expected Realized gains ≈ {expectedRealizedGains} but found {financial.RealizedGains}");
             
             // Unrealized performance validation (open positions)
-            if (Math.Abs(financial.UnrealizedGains - expectedUnrealizedGains) > tolerance)
+            var unrealizedMatch = Math.Abs(financial.UnrealizedGains - expectedUnrealizedGains) <= tolerance;
+            Debug.WriteLine($"📊 VERIFY: Unrealized gains check - Expected={expectedUnrealizedGains:F2}, Actual={financial.UnrealizedGains:F2}, Diff={Math.Abs(financial.UnrealizedGains - expectedUnrealizedGains):F2}, Match={unrealizedMatch}");
+            if (!unrealizedMatch)
                 return (false, "", $"Expected Unrealized gains ≈ {expectedUnrealizedGains} but found {financial.UnrealizedGains}");
             
             // Movement count validation (12 option trades + 3 deposits + 1 adjustment = 16)
             const int expectedMovements = 16;
-            if (financial.MovementCounter != expectedMovements)
+            var movementMatch = financial.MovementCounter == expectedMovements;
+            Debug.WriteLine($"🔢 VERIFY: Movement counter check - Expected={expectedMovements}, Actual={financial.MovementCounter}, Match={movementMatch}");
+            if (!movementMatch)
                 return (false, "", $"Expected MovementCounter = {expectedMovements} but found {financial.MovementCounter}");
             
             // Currency validation
-            if (financial.Currency.Code != "USD")
+            var currencyMatch = financial.Currency.Code == "USD";
+            Debug.WriteLine($"💴 VERIFY: Currency check - Expected=USD, Actual={financial.Currency.Code}, Match={currencyMatch}");
+            if (!currencyMatch)
                 return (false, "", $"Expected Currency = USD but found {financial.Currency.Code}");
 
             // Calculate performance percentages
             var realizedPercentage = financial.Deposited > 0 ? (financial.RealizedGains / financial.Deposited) * 100 : 0;
             var unrealizedPercentage = financial.Deposited > 0 ? (financial.UnrealizedGains / financial.Deposited) * 100 : 0;
             var totalPerformance = realizedPercentage + unrealizedPercentage;
+
+            Debug.WriteLine($"✅ VERIFY: All checks passed! Final result:");
+            Debug.WriteLine($"   Deposited=${financial.Deposited:F2}, Realized=${financial.RealizedGains:F2} ({realizedPercentage:F2}%), Unrealized=${financial.UnrealizedGains:F2} ({unrealizedPercentage:F2}%), Total={totalPerformance:F2}%");
 
             return (true, 
                 $"Options Financial Data: " +
