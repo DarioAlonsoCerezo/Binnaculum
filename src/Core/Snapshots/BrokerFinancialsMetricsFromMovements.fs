@@ -15,10 +15,12 @@ module internal BrokerFinancialsMetricsFromMovements =
     /// </summary>
     /// <param name="currencyMovements">The currency-specific movement data</param>
     /// <param name="currencyId">The currency ID for conversion impact calculations</param>
+    /// <param name="targetDate">The target date for the snapshot (used for option expiration calculations)</param>
     /// <returns>CalculatedFinancialMetrics record with all financial calculations</returns>
     let internal calculate
         (currencyMovements: CurrencyMovementData) 
-        (currencyId: int) =
+        (currencyId: int)
+        (targetDate: DateTimePattern) =
         
         System.Diagnostics.Debug.WriteLine($"[BrokerFinancialsMetricsFromMovements] Starting calculate for currency {currencyId}")
         System.Diagnostics.Debug.WriteLine($"[BrokerFinancialsMetricsFromMovements] Input movements - BrokerMovements: {currencyMovements.BrokerMovements.Length}, Trades: {currencyMovements.Trades.Length}, Dividends: {currencyMovements.Dividends.Length}")
@@ -65,10 +67,9 @@ module internal BrokerFinancialsMetricsFromMovements =
             currencyMovements.DividendTaxes
             |> DividendTaxCalculations.calculateDividendTaxSummary
         
-        // Process options using extension methods
+        // Process options using extension methods with target date for expiration calculations
         let optionsSummary = 
-            currencyMovements.OptionTrades
-            |> OptionTradeCalculations.calculateOptionsSummary
+            OptionTradeCalculations.calculateOptionsSummary(currencyMovements.OptionTrades, targetDate.Value)
         
         // Calculate net dividend income after taxes
         let netDividendIncome = Money.FromAmount (dividendSummary.TotalDividendIncome.Value - dividendTaxSummary.TotalTaxWithheld.Value)

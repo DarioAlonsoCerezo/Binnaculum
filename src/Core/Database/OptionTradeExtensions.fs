@@ -212,8 +212,21 @@ type OptionTradeCalculations() =
     /// <returns>Total realized gains as Money (can be negative for losses)</returns>
     [<Extension>]
     static member calculateRealizedGains(optionTrades: OptionTrade list) =
-        // Get current date for expiration checking
-        let currentDate = DateTime.Today
+        // Use current date as default for backward compatibility
+        OptionTradeCalculations.calculateRealizedGains(optionTrades, DateTime.Today)
+    
+    /// <summary>
+    /// Calculates realized gains from closed option positions using FIFO matching.
+    /// Matches closing trades (BuyToClose, SellToClose) with corresponding opening trades.
+    /// Also automatically realizes gains/losses for expired options based on expiration date.
+    /// Realized gains = Net Premium received from selling - Net Premium paid for buying.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze (should be sorted by timestamp)</param>
+    /// <param name="currentDate">The reference date for determining if options have expired</param>
+    /// <returns>Total realized gains as Money (can be negative for losses)</returns>
+    [<Extension>]
+    static member calculateRealizedGains(optionTrades: OptionTrade list, currentDate: DateTime) =
+        System.Diagnostics.Debug.WriteLine(sprintf "[OptionTradeCalculations] calculateRealizedGains called with currentDate: %s" (currentDate.ToString("yyyy-MM-dd")))
         
         // Group option trades by ticker and option details for FIFO matching
         let tradesByOption = 
@@ -319,8 +332,19 @@ type OptionTradeCalculations() =
     /// <returns>True if open option positions exist, false otherwise</returns>
     [<Extension>]
     static member hasOpenOptions(optionTrades: OptionTrade list) =
-        let currentDate = DateTime.Today
-        
+        // Use current date as default for backward compatibility
+        OptionTradeCalculations.hasOpenOptions(optionTrades, DateTime.Today)
+    
+    /// <summary>
+    /// Determines if there are any open option positions based on trade history.
+    /// Calculates net position for each option and returns true if any positions remain open.
+    /// Automatically considers expired options as closed.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <param name="currentDate">The reference date for determining if options have expired</param>
+    /// <returns>True if open option positions exist, false otherwise</returns>
+    [<Extension>]
+    static member hasOpenOptions(optionTrades: OptionTrade list, currentDate: DateTime) =
         optionTrades
         |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
         |> List.exists (fun ((_, _, _, expiration), trades) ->
@@ -439,6 +463,19 @@ type OptionTradeCalculations() =
     /// <returns>Options trading summary record with calculated totals</returns>
     [<Extension>]
     static member calculateOptionsSummary(optionTrades: OptionTrade list, ?currencyId: int) =
+        // Use current date as default for backward compatibility  
+        OptionTradeCalculations.calculateOptionsSummary(optionTrades, DateTime.Today, ?currencyId = currencyId)
+    
+    /// <summary>
+    /// Calculates a comprehensive options trading summary.
+    /// Returns a record with all major options trading metrics calculated.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <param name="targetDate">The reference date for determining if options have expired</param>
+    /// <param name="currencyId">Optional currency ID to filter calculations by</param>
+    /// <returns>Options trading summary record with calculated totals</returns>
+    [<Extension>]
+    static member calculateOptionsSummary(optionTrades: OptionTrade list, targetDate: DateTime, ?currencyId: int) =
         let relevantTrades = 
             match currencyId with
             | Some id -> optionTrades.filterByCurrency(id)
@@ -450,8 +487,8 @@ type OptionTradeCalculations() =
             NetOptionsIncome = relevantTrades.calculateNetOptionsIncome()
             TotalCommissions = relevantTrades.calculateTotalCommissions()
             TotalFees = relevantTrades.calculateTotalFees()
-            RealizedGains = relevantTrades.calculateRealizedGains()
-            HasOpenOptions = relevantTrades.hasOpenOptions()
+            RealizedGains = relevantTrades.calculateRealizedGains(targetDate)
+            HasOpenOptions = relevantTrades.hasOpenOptions(targetDate)
             OpenPositions = relevantTrades.calculateOpenPositions()
             TradeCount = relevantTrades.calculateTradeCount()
             UniqueCurrencies = relevantTrades.getUniqueCurrencyIds()
