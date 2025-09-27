@@ -87,9 +87,17 @@ module internal BrokerFinancialCumulativeFinancial =
                 | Some prev -> prev.MovementCounter + calculatedMetrics.MovementCounter
                 | None -> calculatedMetrics.MovementCounter
             
-            // Calculate unrealized gains from current positions
-            let! (unrealizedGains, unrealizedGainsPercentage) = 
+            // Calculate unrealized gains from current positions (stocks) and add option unrealized gains
+            let! (stockUnrealizedGains, stockUnrealizedGainsPercentage) = 
                 BrokerFinancialUnrealizedGains.calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
+            
+            // Combine stock and option unrealized gains
+            let totalUnrealizedGains = Money.FromAmount (stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
+            let unrealizedGainsPercentage = 
+                if cumulativeInvested.Value > 0m then
+                    (totalUnrealizedGains.Value / cumulativeInvested.Value) * 100m
+                else 
+                    0m
             
             // Calculate realized percentage return
             let realizedPercentage = 
@@ -109,7 +117,7 @@ module internal BrokerFinancialCumulativeFinancial =
                 BrokerAccountSnapshotId = brokerAccountSnapshotId
                 RealizedGains = cumulativeRealizedGains
                 RealizedPercentage = realizedPercentage
-                UnrealizedGains = unrealizedGains
+                UnrealizedGains = totalUnrealizedGains
                 UnrealizedGainsPercentage = unrealizedGainsPercentage
                 Invested = cumulativeInvested
                 Commissions = cumulativeCommissions

@@ -98,6 +98,7 @@ module internal BrokerFinancialsMetricsFromMovements =
             CurrentPositions = tradingSummary.CurrentPositions
             CostBasisInfo = tradingSummary.CostBasis
             HasOpenPositions = tradingSummary.HasOpenPositions || optionsSummary.HasOpenOptions
+            OptionUnrealizedGains = optionsSummary.UnrealizedGains  // NEW: Include option unrealized gains
             MovementCounter = totalMovementCounter
         }
         

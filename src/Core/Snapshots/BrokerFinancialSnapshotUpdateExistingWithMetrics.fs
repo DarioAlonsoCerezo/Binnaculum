@@ -38,9 +38,17 @@ module internal BrokerFinancialSnapshotUpdateExistingWithMetrics =
             let newFees = Money.FromAmount (previousSnapshot.Fees.Value + calculatedMetrics.Fees.Value)
             let newMovementCounter = previousSnapshot.MovementCounter + calculatedMetrics.MovementCounter
             
-            // Calculate unrealized gains from current positions
-            let! (unrealizedGains, unrealizedGainsPercentage) = 
+            // Calculate unrealized gains from current positions (stocks) and add option unrealized gains
+            let! (stockUnrealizedGains, stockUnrealizedGainsPercentage) = 
                 BrokerFinancialUnrealizedGains.calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
+            
+            // Combine stock and option unrealized gains
+            let totalUnrealizedGains = Money.FromAmount (stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
+            let unrealizedGainsPercentage = 
+                if newInvested.Value > 0m then
+                    (totalUnrealizedGains.Value / newInvested.Value) * 100m
+                else 
+                    0m
             
             // Calculate realized percentage return
             let realizedPercentage = 
@@ -56,7 +64,7 @@ module internal BrokerFinancialSnapshotUpdateExistingWithMetrics =
                     MovementCounter = newMovementCounter
                     RealizedGains = newRealizedGains
                     RealizedPercentage = realizedPercentage
-                    UnrealizedGains = unrealizedGains
+                    UnrealizedGains = totalUnrealizedGains
                     UnrealizedGainsPercentage = unrealizedGainsPercentage
                     Invested = newInvested
                     Commissions = newCommissions

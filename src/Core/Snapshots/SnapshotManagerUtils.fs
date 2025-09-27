@@ -117,6 +117,7 @@ type internal CalculatedFinancialMetrics = {
     CurrentPositions: Map<int, decimal>
     CostBasisInfo: Map<int, decimal>
     HasOpenPositions: bool
+    OptionUnrealizedGains: Money  // NEW: Unrealized gains from open option positions
     
     // Activity counters
     MovementCounter: int
