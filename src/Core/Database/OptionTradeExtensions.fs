@@ -1,5 +1,6 @@
 ﻿module internal OptionTradeExtensions
 
+open System
 open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
@@ -195,12 +196,16 @@ type OptionTradeCalculations() =
     /// <summary>
     /// Calculates realized gains from closed option positions using FIFO matching.
     /// Matches closing trades (BuyToClose, SellToClose) with corresponding opening trades.
+    /// Also automatically realizes gains/losses for expired options based on expiration date.
     /// Realized gains = Net Premium received from selling - Net Premium paid for buying.
     /// </summary>
     /// <param name="optionTrades">List of option trades to analyze (should be sorted by timestamp)</param>
     /// <returns>Total realized gains as Money (can be negative for losses)</returns>
     [<Extension>]
     static member calculateRealizedGains(optionTrades: OptionTrade list) =
+        // Get current date for expiration checking
+        let currentDate = DateTime.Today
+        
         // Group option trades by ticker and option details for FIFO matching
         let tradesByOption = 
             optionTrades
@@ -269,32 +274,62 @@ type OptionTradeCalculations() =
                         realizedGains <- realizedGains + gain
                         openPositions <- openPositions.Tail
             
+            // NEW: Automatically realize gains/losses for expired options that don't have explicit expiration transactions
+            // Use FIFO matching to determine which positions should be realized
+            if expiration < currentDate && not openPositions.IsEmpty then
+                System.Diagnostics.Debug.WriteLine(sprintf "[OptionTradeCalculations] Auto-expiring %d positions for expired options (expiration: %s, current: %s)" 
+                    openPositions.Length (expiration.ToString("yyyy-MM-dd")) (currentDate.ToString("yyyy-MM-dd")))
+                
+                // For expired options, realize all remaining open positions using FIFO
+                for expiredPosition in openPositions do
+                    let gain = 
+                        match expiredPosition.Code with
+                        | OptionCode.SellToOpen -> 
+                            // Sold option expired worthless - keep full premium as realized gain
+                            System.Diagnostics.Debug.WriteLine(sprintf "[OptionTradeCalculations] SellToOpen expired: realizing gain of $%.2f" expiredPosition.NetPremium)
+                            expiredPosition.NetPremium
+                        | OptionCode.BuyToOpen -> 
+                            // Bought option expired worthless - premium paid becomes realized loss
+                            System.Diagnostics.Debug.WriteLine(sprintf "[OptionTradeCalculations] BuyToOpen expired: realizing loss of $%.2f" (abs expiredPosition.NetPremium))
+                            -abs(expiredPosition.NetPremium)
+                        | _ -> 0m
+                    
+                    realizedGains <- realizedGains + gain
+            
             totalRealizedGains <- totalRealizedGains + realizedGains
         
+        System.Diagnostics.Debug.WriteLine(sprintf "[OptionTradeCalculations] Total realized gains calculated: $%.2f" totalRealizedGains)
         Money.FromAmount totalRealizedGains
 
     /// <summary>
     /// Determines if there are any open option positions based on trade history.
     /// Calculates net position for each option and returns true if any positions remain open.
+    /// Automatically considers expired options as closed.
     /// </summary>
     /// <param name="optionTrades">List of option trades to analyze</param>
     /// <returns>True if open option positions exist, false otherwise</returns>
     [<Extension>]
     static member hasOpenOptions(optionTrades: OptionTrade list) =
+        let currentDate = DateTime.Today
+        
         optionTrades
         |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
-        |> List.exists (fun (_, trades) ->
-            let netPosition = 
-                trades
-                |> List.sumBy (fun trade ->
-                    match trade.Code with
-                    | OptionCode.SellToOpen -> -1  // Short position
-                    | OptionCode.BuyToOpen -> 1    // Long position
-                    | OptionCode.SellToClose -> 1   // Closing short
-                    | OptionCode.BuyToClose -> -1   // Closing long
-                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised -> 0
-                )
-            netPosition <> 0)
+        |> List.exists (fun ((_, _, _, expiration), trades) ->
+            // If the option has expired, consider it closed
+            if expiration < currentDate then
+                false
+            else
+                let netPosition = 
+                    trades
+                    |> List.sumBy (fun trade ->
+                        match trade.Code with
+                        | OptionCode.SellToOpen -> -1  // Short position
+                        | OptionCode.BuyToOpen -> 1    // Long position
+                        | OptionCode.SellToClose -> 1   // Closing short
+                        | OptionCode.BuyToClose -> -1   // Closing long
+                        | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised -> 0
+                    )
+                netPosition <> 0)
 
     /// <summary>
     /// Calculates current open option positions by option details.

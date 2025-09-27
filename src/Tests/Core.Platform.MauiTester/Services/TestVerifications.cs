@@ -272,10 +272,14 @@ namespace Core.Platform.MauiTester.Services
             var brokerAccountSnapshot = snapshot.BrokerAccount.Value;
             var financial = brokerAccountSnapshot.Financial;
             
-            // Expected values from detailed CSV analysis
-            const decimal expectedDeposited = 878.79m;           // 844.56 + 24.23 + 10.00
-            const decimal expectedRealizedGains = 23.65m;        // 5.46 + 1.46 + 16.73 (completed strategies)
-            const decimal expectedUnrealizedGains = 14.86m;      // Open SOFI position
+            // Expected values from detailed CSV analysis with automatic option expiration handling
+            // Deposits: 844.56 + 24.23 + 10.00 = 878.79
+            // Balance adjustment: -0.02 (regulatory fee) - treated as fee, not affecting deposited amount
+            const decimal expectedDeposited = 878.79m;           // Gross deposits before fees
+            // Updated realized gains calculation: All expired options (240503) are automatically realized
+            // SOFI 240503: 32.59, MPW 240503: 5.46, PLTR 240503: 1.46 = 39.51 total
+            const decimal expectedRealizedGains = 39.51m;        // All expired options realized
+            const decimal expectedUnrealizedGains = 14.86m;      // Only active SOFI 240510 position
             const decimal tolerance = 2.00m;                     // Allow some tolerance for calculation differences
             
             // Cash flow validation

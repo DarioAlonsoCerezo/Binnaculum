@@ -196,13 +196,13 @@ namespace Core.Platform.MauiTester.TestCases
                 ExpectedDeposited = 878.79m,
                 DepositMatch = Math.Abs(actualDeposited - 878.79m) <= tolerance,
                 
-                // Realized performance validation
+                // Realized performance validation - updated for automatic option expiration
                 ActualRealizedGains = actualRealizedGains,
-                ExpectedRealizedGains = 23.65m,
-                RealizedGainsMatch = Math.Abs(actualRealizedGains - 23.65m) <= tolerance,
+                ExpectedRealizedGains = 39.51m, // All expired options (240503) are realized
+                RealizedGainsMatch = Math.Abs(actualRealizedGains - 39.51m) <= tolerance,
                 ActualRealizedPercentage = actualRealizedPercentage,
-                ExpectedRealizedPercentage = 2.69m,
-                RealizedPercentageMatch = Math.Abs(actualRealizedPercentage - 2.69m) <= (tolerance / 10), // Tighter tolerance for percentages
+                ExpectedRealizedPercentage = 4.50m, // Updated percentage: 39.51 / 878.79 * 100
+                RealizedPercentageMatch = Math.Abs(actualRealizedPercentage - 4.50m) <= (tolerance / 10), // Tighter tolerance for percentages
                 
                 // Unrealized performance validation
                 ActualUnrealizedGains = actualUnrealizedGains,
@@ -214,8 +214,8 @@ namespace Core.Platform.MauiTester.TestCases
                 
                 // Total performance validation
                 ActualTotalPerformance = actualTotalPerformance,
-                ExpectedTotalPerformance = 4.38m,
-                TotalPerformanceMatch = Math.Abs(actualTotalPerformance - 4.38m) <= (tolerance / 10),
+                ExpectedTotalPerformance = 6.19m, // 4.50% + 1.69%
+                TotalPerformanceMatch = Math.Abs(actualTotalPerformance - 6.19m) <= (tolerance / 10),
                 
                 // Movement validation
                 ActualMovements = actualMovements,
@@ -361,10 +361,10 @@ namespace Core.Platform.MauiTester.TestCases
             
             // Realized performance validation
             public decimal ActualRealizedGains { get; set; }
-            public decimal ExpectedRealizedGains { get; set; } = 23.65m;
+            public decimal ExpectedRealizedGains { get; set; } = 39.51m; // All expired options realized
             public bool RealizedGainsMatch { get; set; }
             public decimal ActualRealizedPercentage { get; set; }
-            public decimal ExpectedRealizedPercentage { get; set; } = 2.69m;
+            public decimal ExpectedRealizedPercentage { get; set; } = 4.50m; // 39.51 / 878.79 * 100
             public bool RealizedPercentageMatch { get; set; }
             
             // Unrealized performance validation
@@ -377,7 +377,7 @@ namespace Core.Platform.MauiTester.TestCases
             
             // Total performance validation
             public decimal ActualTotalPerformance { get; set; }
-            public decimal ExpectedTotalPerformance { get; set; } = 4.38m;
+            public decimal ExpectedTotalPerformance { get; set; } = 6.19m; // 4.50% + 1.69%
             public bool TotalPerformanceMatch { get; set; }
             
             // Movement validation
