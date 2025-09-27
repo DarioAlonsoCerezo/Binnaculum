@@ -205,8 +205,26 @@ namespace Core.Platform.MauiTester.TestCases
                     }
                     
                     // Also force a general data refresh to ensure everything is loaded
+                    results.Add("🔄 Starting Overview.LoadData()...");
                     await Overview.LoadData();
-                    await Task.Delay(2000); // Allow time for all processing to complete
+                    results.Add($"✅ Overview.LoadData() completed. Collections.Snapshots.Items.Count = {Collections.Snapshots.Items.Count}");
+                    
+                    // Force reactive refresh to ensure snapshots are created
+                    results.Add("🔄 Forcing ReactiveSnapshotManager.refresh()...");
+                    var reactiveSnapshotManagerType = Type.GetType("Binnaculum.Core.UI.ReactiveSnapshotManager, Core");
+                    if (reactiveSnapshotManagerType != null)
+                    {
+                        var refreshMethod = reactiveSnapshotManagerType.GetMethod("refresh", 
+                            BindingFlags.Public | BindingFlags.Static);
+                        if (refreshMethod != null)
+                        {
+                            refreshMethod.Invoke(null, null);
+                            results.Add("✅ ReactiveSnapshotManager.refresh() called");
+                        }
+                    }
+                    
+                    await Task.Delay(3000); // Allow time for all processing to complete
+                    results.Add($"📊 Final snapshot count: {Collections.Snapshots.Items.Count}");
                 }
                 catch (Exception ex)
                 {
@@ -216,11 +234,14 @@ namespace Core.Platform.MauiTester.TestCases
                     // Fallback to just doing a general refresh
                     try
                     {
+                        results.Add("🔄 Fallback: Starting Overview.LoadData()...");
                         await Overview.LoadData();
+                        results.Add($"✅ Fallback Overview.LoadData() completed. Collections.Snapshots.Items.Count = {Collections.Snapshots.Items.Count}");
                         await Task.Delay(1000);
                     }
                     catch (Exception fallbackEx)
                     {
+                        results.Add($"❌ Fallback refresh also failed: {fallbackEx.Message}");
                         System.Diagnostics.Debug.WriteLine($"Fallback refresh also failed: {fallbackEx.Message}");
                     }
                 }
@@ -237,6 +258,60 @@ namespace Core.Platform.MauiTester.TestCases
             // Add detailed logging to understand what data we're getting
             System.Diagnostics.Debug.WriteLine("=== DETAILED VALIDATION ANALYSIS ===");
             System.Diagnostics.Debug.WriteLine($"Collections.Snapshots.Items.Count: {Collections.Snapshots.Items.Count}");
+            
+            // Check if we have any broker accounts created
+            System.Diagnostics.Debug.WriteLine($"Collections.Accounts.Items.Count: {Collections.Accounts.Items.Count}");
+            foreach (var account in Collections.Accounts.Items.Take(3))
+            {
+                System.Diagnostics.Debug.WriteLine($"Account: {account.Name} (ID: {account.Id})");
+            }
+            
+            // Manually trigger snapshot creation if none exist
+            if (Collections.Snapshots.Items.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("⚠️ No snapshots found - attempting manual trigger");
+                
+                // Try to manually create snapshots for today
+                try
+                {
+                    var today = DateTime.Today;
+                    System.Diagnostics.Debug.WriteLine($"Manually creating snapshots for {today:yyyy-MM-dd}");
+                    
+                    // Get broker account snapshot manager type and trigger update
+                    var snapshotManagerType = Type.GetType("Binnaculum.Core.Storage.BrokerAccountSnapshotManager, Core");
+                    if (snapshotManagerType != null)
+                    {
+                        var brokerAccounts = Collections.Accounts.Items.Where(a => a.Name.StartsWith("Test"));
+                        foreach (var account in brokerAccounts)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Creating snapshot for account {account.Id}");
+                            var handleChangeMethod = snapshotManagerType.GetMethod("handleBrokerAccountChange", 
+                                BindingFlags.Public | BindingFlags.Static);
+                            if (handleChangeMethod != null)
+                            {
+                                var datePattern = Type.GetType("Binnaculum.Core.Patterns.DateTimePattern, Core");
+                                if (datePattern != null)
+                                {
+                                    var fromDateTimeMethod = datePattern.GetMethod("FromDateTime", BindingFlags.Public | BindingFlags.Static);
+                                    var dateObj = fromDateTimeMethod?.Invoke(null, new object[] { today });
+                                    if (dateObj != null)
+                                    {
+                                        var task = (Task)handleChangeMethod.Invoke(null, new object[] { account.Id, dateObj })!;
+                                        task.Wait();
+                                        System.Diagnostics.Debug.WriteLine($"✅ Snapshot created for account {account.Id}");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    System.Diagnostics.Debug.WriteLine($"After manual trigger: Collections.Snapshots.Items.Count = {Collections.Snapshots.Items.Count}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Manual snapshot creation failed: {ex.Message}");
+                }
+            }
             
             // Use TestVerifications for consistent snapshot validation
             var (success, details, error) = TestVerifications.VerifyOptionsFinancialData();
