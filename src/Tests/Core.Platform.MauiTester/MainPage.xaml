@@ -85,6 +85,18 @@
                 SemanticProperties.Hint="Runs end-to-end options import workflow with real Tastytrade data"
                 HorizontalOptions="Fill" />
 
+            <Button
+                x:Name="RunTastytradeImportIntegrationTestButton"
+                Text="Execute Tastytrade Import Test"
+                FontSize="16"
+                BackgroundColor="Crimson"
+                TextColor="White"  
+                HeightRequest="50"
+                Clicked="OnRunTastytradeImportIntegrationTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs comprehensive SPX options import with ticker validation ($164 commissions, $244 fees, $822 realized)"
+                HorizontalOptions="Fill" />
+
             <!--  Loading Indicator  -->
             <StackLayout
                 Orientation="Horizontal"
