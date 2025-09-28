@@ -50,6 +50,11 @@ namespace Core.Platform.MauiTester
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Tastytrade Import Integration Test", callback), "Execute Tastytrade Import Test", "Tastytrade Import Integration Test");
         }
 
+        private async void OnRunTsllImportIntegrationTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("TSLL Import Integration Test", callback), "Execute TSLL Import Test", "TSLL Import Integration Test");
+        }
+
         private async Task ExecuteTestAsync(Func<Action<string>, Task<OverallTestResult>> testMethod, string buttonText, string testName)
         {
             try
@@ -71,6 +76,7 @@ namespace Core.Platform.MauiTester
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Running Test...";
                 RunOptionsImportIntegrationTestButton.Text = "Running Test...";
                 RunTastytradeImportIntegrationTestButton.Text = "Running Test...";
+                RunTsllImportIntegrationTestButton.Text = "Running Test...";
 
                 await Task.Delay(100); // Allow UI to update
 
@@ -88,6 +94,7 @@ namespace Core.Platform.MauiTester
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
                 RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
                 RunTastytradeImportIntegrationTestButton.Text = "Execute Tastytrade Import Test";
+                RunTsllImportIntegrationTestButton.Text = "Execute TSLL Import Test";
 
                 _logService.Log($"{testName} test execution completed. Overall result: {result.AllTestsPassed}");
             }
@@ -111,6 +118,7 @@ namespace Core.Platform.MauiTester
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
                 RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
                 RunTastytradeImportIntegrationTestButton.Text = "Execute Tastytrade Import Test";
+                RunTsllImportIntegrationTestButton.Text = "Execute TSLL Import Test";
 
                 await DisplayAlert("Test Error", $"An error occurred while running the {testName} test:\n\n{ex.Message}", "OK");
             }
@@ -154,6 +162,7 @@ namespace Core.Platform.MauiTester
             RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
             RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
             RunTastytradeImportIntegrationTestButton.Text = "Execute Tastytrade Import Test";
+            RunTsllImportIntegrationTestButton.Text = "Execute TSLL Import Test";
         }
     }
 }

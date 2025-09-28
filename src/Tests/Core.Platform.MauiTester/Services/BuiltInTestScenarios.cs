@@ -20,6 +20,7 @@ namespace Core.Platform.MauiTester.Services
             RegisterBrokerAccountMultipleMovementsTest(discoveryService, testRunner, testActions);
             RegisterOptionsImportIntegrationTest(discoveryService, testRunner, testActions);
             RegisterTastytradeImportIntegrationTest(discoveryService, testRunner, testActions);
+            RegisterTsllImportIntegrationTest(discoveryService, testRunner, testActions);
         }
 
         /// <summary>
@@ -171,6 +172,25 @@ namespace Core.Platform.MauiTester.Services
                     return (success, details, error);
                 })
                 .AddCustomStep(new TastytradeImportIntegrationTest(testRunner.GetExecutionContext())));
+        }
+
+        /// <summary>
+        /// TSLL Import Integration Test - Comprehensive multi-asset import validation with ticker-specific analysis
+        /// </summary>
+        private static void RegisterTsllImportIntegrationTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("TSLL Import Integration Test")
+                .WithDescription("Comprehensive TSLL multi-asset import workflow with ticker validation. Expected: $235 commissions, $80 fees, $7,635 realized")
+                .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Options, TestTags.Equity, TestTags.Dividend, TestTags.TSLL)
+                .AddCommonSetup(testRunner)
+                .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
+                .AddVerificationStep("Find Tastytrade Broker", () => {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddCustomStep(new TsllImportIntegrationTest(testRunner.GetExecutionContext())));
         }
     }
 }

@@ -62,6 +62,7 @@
 		<!-- Test Data Embedded Resources -->
 		<EmbeddedResource Include="Resources\TestData\TastytradeOptionsTest.csv" />
 		<EmbeddedResource Include="Resources\TestData\TastytradeImportTest.csv" />
+		<EmbeddedResource Include="Resources\TestData\TsllImportTest.csv" />
 	</ItemGroup>
 
 	<ItemGroup>
