@@ -82,6 +82,7 @@ type DatabasePersistenceTests() =
 
         // The fact that ImportManager compiles with DatabasePersistence calls means the integration is correct
         // The ImportManager.importFile method now includes:
+        // 0. Validation of the explicitly selected broker account before processing
         // 1. Parse transactions
         // 2. If successful, call DatabasePersistence.persistTransactionsToDatabase
         // 3. Update ImportResult with actual persisted counts
