@@ -181,7 +181,7 @@ namespace Core.Platform.MauiTester.Services
         {
             discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
                 .Named("TSLL Import Integration Test")
-                .WithDescription("Comprehensive TSLL multi-asset import workflow with ticker validation. Expected: $235 commissions, $80 fees, $7,635 realized")
+                .WithDescription("Comprehensive TSLL multi-asset import workflow with ticker validation. Expected: $235 commissions, $80 fees, $69,290 realized")
                 .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Options, TestTags.Equity, TestTags.Dividend, TestTags.TSLL)
                 .AddCommonSetup(testRunner)
                 .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))

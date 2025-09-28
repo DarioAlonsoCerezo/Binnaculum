@@ -106,7 +106,7 @@
                 HeightRequest="50"
                 Clicked="OnRunTsllImportIntegrationTestClicked"
                 IsEnabled="{Binding CanRunTest}"
-                SemanticProperties.Hint="Runs comprehensive TSLL multi-asset import with ticker validation ($235 commissions, $80 fees, $7,635 realized)"
+                SemanticProperties.Hint="Runs comprehensive TSLL multi-asset import with ticker validation ($235 commissions, $80 fees, $69,290 realized)"
                 HorizontalOptions="Fill" />
 
             <!--  Loading Indicator  -->
