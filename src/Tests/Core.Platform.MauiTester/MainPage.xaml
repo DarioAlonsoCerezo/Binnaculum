@@ -97,6 +97,18 @@
                 SemanticProperties.Hint="Runs comprehensive SPX options import with ticker validation ($164 commissions, $244 fees, $822 realized)"
                 HorizontalOptions="Fill" />
 
+            <Button
+                x:Name="RunTsllImportIntegrationTestButton"
+                Text="Execute TSLL Import Test"
+                FontSize="16"
+                BackgroundColor="DarkMagenta"
+                TextColor="White"  
+                HeightRequest="50"
+                Clicked="OnRunTsllImportIntegrationTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs comprehensive TSLL multi-asset import with ticker validation ($235 commissions, $80 fees, $69,290 realized)"
+                HorizontalOptions="Fill" />
+
             <!--  Loading Indicator  -->
             <StackLayout
                 Orientation="Horizontal"

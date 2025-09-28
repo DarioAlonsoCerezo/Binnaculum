@@ -175,5 +175,8 @@ namespace Core.Platform.MauiTester.Services
         public const string Import = "import";
         public const string Options = "options";
         public const string SPX = "spx";
+        public const string Equity = "equity";
+        public const string Dividend = "dividend";
+        public const string TSLL = "tsll";
     }
 }
