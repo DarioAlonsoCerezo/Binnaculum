@@ -54,6 +54,13 @@ public partial class BrokerAccountTemplate
 
         Percentage.Percentage = _snapshot!.BrokerAccount.Value.Financial.RealizedPercentage;
 
+        System.Console.WriteLine($"[App on simulator] Total Value: {_snapshot.BrokerAccount.Value.Financial.RealizedGains}");
+        System.Console.WriteLine($"[App on simulator] Realized Percentage: {_snapshot.BrokerAccount.Value.Financial.RealizedPercentage}");
+        System.Console.WriteLine($"[App on simulator] Unrealized Percentage: {_snapshot.BrokerAccount.Value.Financial.UnrealizedGains}");
+        System.Console.WriteLine($"[App on simulator] Total Percentage: {_snapshot.BrokerAccount.Value.Financial.UnrealizedGainsPercentage}");
+        System.Console.WriteLine($"[App on simulator] Movement Counter: {_snapshot.BrokerAccount.Value.Financial.MovementCounter}");
+        System.Console.WriteLine($"[App on simulator] Options Income: {_snapshot.BrokerAccount.Value.Financial.OptionsIncome}");
+
         Observable
             .Merge(
                 Add.Events().AddClicked.Select(_ => Unit.Default),

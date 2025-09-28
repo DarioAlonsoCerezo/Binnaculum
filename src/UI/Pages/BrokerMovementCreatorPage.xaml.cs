@@ -4,6 +4,7 @@ using Binnaculum.Core.UI;
 using Binnaculum.Core.Import;
 using Binnaculum.Core.Utilities;
 using Microsoft.Maui.Storage;
+using System.Diagnostics;
 using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Pages;
@@ -251,12 +252,29 @@ public partial class BrokerMovementCreatorPage
         SelectFileButton.Events().Clicked
             .ObserveOn(UiThread)
             .SelectMany(_ => FilePickerService.pickDataFileAsync("Testing"))
-            .Where(x => x != null)
+            .Do(result =>
+            {
+                if (result == null)
+                {
+                    Debug.WriteLine($"[ImportUI] File picker returned null result for account {_account.Id}");
+                }
+                else if (!result.Success)
+                {
+                    Debug.WriteLine($"[ImportUI] File picker did not return a usable file for account {_account.Id}: path={result.FilePath}");
+                }
+                else
+                {
+                    Debug.WriteLine($"[ImportUI] File selected for broker {_account.Broker.Id} / account {_account.Id}: path={result.FilePath}");
+                }
+            })
+            .Where(x => x != null && x.Success)
             .ObserveOn(UiThread)
             .Do(_ => ShowImportProgress())
+            .Select(result => result!.FilePath)
             .Delay(TimeSpan.FromMilliseconds(300)) // Small delay to ensure progress UI is visible
             .ObserveOn(BackgroundScheduler)
-            .CatchCoreError(file => ImportManager.importFile(_account.Broker.Id, _account.Id, file!.FilePath))
+            .Do(path => Debug.WriteLine($"[ImportUI] Starting import task for broker {_account.Broker.Id}, account {_account.Id}, file={path}"))
+            .CatchCoreError<string, ImportResult>(path => ImportManager.importFile(_account.Broker.Id, _account.Id, path))
             .ObserveOn(UiThread)
             .Do(HandleImportResult)
             .Subscribe()
@@ -374,11 +392,13 @@ public partial class BrokerMovementCreatorPage
 
         if (result.Success)
         {
+            Debug.WriteLine($"[ImportUI] Import succeeded for account {_account.Id}: processed={result.ProcessedRecords}, trades={result.ImportedData.Trades}, optionTrades={result.ImportedData.OptionTrades}, movements={result.ImportedData.BrokerMovements}");
             ImportStatusLabel.Text = $"Import completed successfully";
             ImportDetailsLabel.Text = $"Imported {result.ProcessedRecords} transactions";
         }
         else
         {
+            Debug.WriteLine($"[ImportUI] Import failed for account {_account.Id}: errors={string.Join(" | ", result.Errors.Select(e => e.ErrorMessage))}");
             ImportStatusLabel.Text = "Import failed";
             var errorMessages = result.Errors.Select(e => e.ErrorMessage).Take(3);
             ImportDetailsLabel.Text = string.Join(", ", errorMessages);
@@ -392,6 +412,7 @@ public partial class BrokerMovementCreatorPage
         ImportResults.IsVisible = true;
         SelectFileButton.IsEnabled = true;
 
+        Debug.WriteLine($"[ImportUI] Import threw exception for account {_account.Id}: {error.Message}");
         ImportStatusLabel.Text = "Import failed";
         ImportDetailsLabel.Text = error.Message;
     }

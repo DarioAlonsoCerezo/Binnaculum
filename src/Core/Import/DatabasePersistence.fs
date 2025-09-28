@@ -2,6 +2,7 @@ namespace Binnaculum.Core.Import
 
 open System
 open System.Threading
+open System.Diagnostics
 open Binnaculum.Core
 open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
@@ -251,6 +252,11 @@ module DatabasePersistence =
         (cancellationToken: CancellationToken)
         =
         task {
+            do
+                Debug.WriteLine(
+                    $"[DatabasePersistence] Persisting {transactions.Length} transactions for account {brokerAccountId}"
+                )
+
             let mutable brokerMovements = []
             let mutable optionTrades = []
             let mutable stockTrades = []
@@ -264,6 +270,7 @@ module DatabasePersistence =
             try
                 let orderedTransactions = orderTransactionsForPersistence transactions
                 let totalTransactions = orderedTransactions.Length
+                do Debug.WriteLine($"[DatabasePersistence] Transactions ordered; total={totalTransactions}")
 
                 // Process each transaction
                 for (index, transaction) in orderedTransactions |> List.mapi (fun i t -> i, t) do
@@ -281,6 +288,11 @@ module DatabasePersistence =
                     )
 
                     try
+                        if index = 0 || index = totalTransactions - 1 || index % 50 = 0 then
+                            do
+                                Debug.WriteLine(
+                                    $"[DatabasePersistence] Processing transaction {index + 1}/{totalTransactions}: line={transaction.LineNumber}, type={transaction.TransactionType}"
+                                )
                         // Get currency ID for this transaction (with USD fallback)
                         let currencyCode =
                             if String.IsNullOrWhiteSpace(transaction.Currency) then
@@ -345,12 +357,22 @@ module DatabasePersistence =
                                 :: errors
 
                     with ex ->
+                        do
+                            Debug.WriteLine(
+                                $"[DatabasePersistence] Error processing transaction line {transaction.LineNumber}: {ex.Message}"
+                            )
+
                         errors <-
                             $"Error processing transaction on line {transaction.LineNumber}: {ex.Message}"
                             :: errors
 
                 // Final progress update
                 ImportState.updateStatus (SavingToDatabase("Database save completed", 1.0))
+
+                do
+                    Debug.WriteLine(
+                        $"[DatabasePersistence] Persistence complete. BrokerMovements={brokerMovements.Length}, OptionTrades={optionTrades.Length}, StockTrades={stockTrades.Length}, Errors={errors.Length}"
+                    )
 
                 // Create import metadata for targeted snapshot updates
                 let oldestMovementDate =
@@ -380,6 +402,7 @@ module DatabasePersistence =
 
             with
             | :? OperationCanceledException ->
+                do Debug.WriteLine("[DatabasePersistence] Persistence cancelled by request")
                 ImportState.updateStatus (SavingToDatabase("Database save cancelled", 0.0))
 
                 return
@@ -391,6 +414,7 @@ module DatabasePersistence =
                       Errors = [ "Operation was cancelled" ]
                       ImportMetadata = ImportMetadata.createEmpty () }
             | ex ->
+                do Debug.WriteLine($"[DatabasePersistence] Persistence failed: {ex.Message}")
                 errors <- $"Database persistence failed: {ex.Message}" :: errors
 
                 return
