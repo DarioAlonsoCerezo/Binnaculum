@@ -1,10 +1,104 @@
 ﻿namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.SnapshotsModel
+open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
 open BrokerFinancialSnapshotExtensions
 
 module internal BrokerFinancialCalculate =
+
+    /// <summary>
+    /// Builds an updated financial snapshot for SCENARIO D using freshly calculated metrics.
+    /// This helper is intentionally factored out so we can validate the replacement logic without hitting the database.
+    /// </summary>
+    /// <param name="existingSnapshot">The existing snapshot record to update</param>
+    /// <param name="calculatedMetrics">Freshly calculated metrics for the target date</param>
+    /// <param name="stockUnrealizedGains">Unrealized gains from current stock positions</param>
+    /// <returns>Snapshot record with fields replaced by the recalculated metrics</returns>
+    let internal applyDirectSnapshotMetrics
+        (existingSnapshot: BrokerFinancialSnapshot)
+        (calculatedMetrics: CalculatedFinancialMetrics)
+        (stockUnrealizedGains: Money)
+        =
+        let totalUnrealizedGains =
+            Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
+
+        let unrealizedPercentage =
+            if calculatedMetrics.Invested.Value > 0m then
+                (totalUnrealizedGains.Value / calculatedMetrics.Invested.Value) * 100m
+            else
+                0m
+
+        let realizedPercentage =
+            if calculatedMetrics.Invested.Value > 0m then
+                (calculatedMetrics.RealizedGains.Value / calculatedMetrics.Invested.Value)
+                * 100m
+            else
+                0m
+
+        { existingSnapshot with
+            MovementCounter = calculatedMetrics.MovementCounter
+            RealizedGains = calculatedMetrics.RealizedGains
+            RealizedPercentage = realizedPercentage
+            UnrealizedGains = totalUnrealizedGains
+            UnrealizedGainsPercentage = unrealizedPercentage
+            Invested = calculatedMetrics.Invested
+            Commissions = calculatedMetrics.Commissions
+            Fees = calculatedMetrics.Fees
+            Deposited = calculatedMetrics.Deposited
+            Withdrawn = calculatedMetrics.Withdrawn
+            DividendsReceived = calculatedMetrics.DividendsReceived
+            OptionsIncome = calculatedMetrics.OptionsIncome
+            OtherIncome = calculatedMetrics.OtherIncome
+            OpenTrades = calculatedMetrics.HasOpenPositions }
+
+    /// <summary>
+    /// Applies direct snapshot metrics while optionally preserving realized gains when no closing activity occurred.
+    /// This prevents historical realized totals from being reset to zero during Scenario D recalculations that only adjust deposits/fees.
+    /// </summary>
+    let internal applyDirectSnapshotMetricsWithPreservation
+        (currencyMovements: CurrencyMovementData)
+        (existingSnapshot: BrokerFinancialSnapshot)
+        (calculatedMetrics: CalculatedFinancialMetrics)
+        (stockUnrealizedGains: Money)
+        =
+        let updatedSnapshot =
+            applyDirectSnapshotMetrics existingSnapshot calculatedMetrics stockUnrealizedGains
+
+        let hasRealizedTradeActivity =
+            currencyMovements.Trades
+            |> List.exists (fun trade ->
+                trade.TradeCode = TradeCode.SellToClose
+                || trade.TradeCode = TradeCode.BuyToClose)
+
+        let hasRealizedOptionActivity =
+            currencyMovements.OptionTrades
+            |> List.exists (fun optionTrade ->
+                match optionTrade.Code with
+                | OptionCode.BuyToClose
+                | OptionCode.SellToClose
+                | OptionCode.Assigned
+                | OptionCode.CashSettledAssigned
+                | OptionCode.CashSettledExercised
+                | OptionCode.Exercised -> true
+                | _ -> false)
+
+        let shouldPreserveRealized =
+            not hasRealizedTradeActivity
+            && not hasRealizedOptionActivity
+            && existingSnapshot.RealizedGains.Value <> 0m
+            && calculatedMetrics.RealizedGains.Value = 0m
+
+        if shouldPreserveRealized then
+            System.Diagnostics.Debug.WriteLine(
+                "[BrokerFinancialCalculate] Preserving existing realized gains during direct snapshot update because recalculated value is zero and no realized-closing activity was detected."
+            )
+
+            { updatedSnapshot with
+                RealizedGains = existingSnapshot.RealizedGains
+                RealizedPercentage = existingSnapshot.RealizedPercentage }
+        else
+            updatedSnapshot
 
     /// <summary>
     /// Calculates a new financial snapshot based on currency movements and previous snapshot values.
@@ -27,20 +121,24 @@ module internal BrokerFinancialCalculate =
         (previousSnapshot: BrokerFinancialSnapshot)
         =
         task {
-            BrokerFinancialValidator.validatePreviousSnapshotCurrencyConsistency
-                previousSnapshot
-                currencyId
-            
+            BrokerFinancialValidator.validatePreviousSnapshotCurrencyConsistency previousSnapshot currencyId
+
             // Calculate financial metrics from movements
-            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
-            
+            let calculatedMetrics =
+                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerFinancialCalculate] Scenario A metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
+            )
+
             // Create new snapshot with previous snapshot as baseline
-            do! BrokerFinancialCumulativeFinancial.create
-                    targetDate 
-                    currencyId 
-                    brokerAccountId 
-                    brokerAccountSnapshotId 
-                    calculatedMetrics 
+            do!
+                BrokerFinancialCumulativeFinancial.create
+                    targetDate
+                    currencyId
+                    brokerAccountId
+                    brokerAccountSnapshotId
+                    calculatedMetrics
                     (Some previousSnapshot)
         }
 
@@ -64,15 +162,21 @@ module internal BrokerFinancialCalculate =
         =
         task {
             // Calculate financial metrics from movements
-            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
-            
+            let calculatedMetrics =
+                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerFinancialCalculate] Scenario B metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
+            )
+
             // Create initial snapshot without previous baseline (pass None for previousSnapshot)
-            do! BrokerFinancialCumulativeFinancial.create 
-                    targetDate 
-                    currencyId 
-                    brokerAccountId 
-                    brokerAccountSnapshotId 
-                    calculatedMetrics 
+            do!
+                BrokerFinancialCumulativeFinancial.create
+                    targetDate
+                    currencyId
+                    brokerAccountId
+                    brokerAccountSnapshotId
+                    calculatedMetrics
                     None
         }
 
@@ -103,55 +207,31 @@ module internal BrokerFinancialCalculate =
                 currencyId
                 brokerAccountId
                 targetDate
-            
-            // Calculate financial metrics from new movements
-            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
-            
-            // Since there's no previous snapshot, we add the new movement metrics directly to the existing snapshot
-            // The existing snapshot serves as the baseline (which represents the state before these new movements)
-            let newDeposited = Money.FromAmount (existingSnapshot.Deposited.Value + calculatedMetrics.Deposited.Value)
-            let newWithdrawn = Money.FromAmount (existingSnapshot.Withdrawn.Value + calculatedMetrics.Withdrawn.Value)
-            let newInvested = Money.FromAmount (existingSnapshot.Invested.Value + calculatedMetrics.Invested.Value)
-            let newRealizedGains = Money.FromAmount (existingSnapshot.RealizedGains.Value + calculatedMetrics.RealizedGains.Value)
-            let newDividendsReceived = Money.FromAmount (existingSnapshot.DividendsReceived.Value + calculatedMetrics.DividendsReceived.Value)
-            let newOptionsIncome = Money.FromAmount (existingSnapshot.OptionsIncome.Value + calculatedMetrics.OptionsIncome.Value)
-            let newOtherIncome = Money.FromAmount (existingSnapshot.OtherIncome.Value + calculatedMetrics.OtherIncome.Value)
-            let newCommissions = Money.FromAmount (existingSnapshot.Commissions.Value + calculatedMetrics.Commissions.Value)
-            let newFees = Money.FromAmount (existingSnapshot.Fees.Value + calculatedMetrics.Fees.Value)
-            let newMovementCounter = existingSnapshot.MovementCounter + calculatedMetrics.MovementCounter
-            
-            // Calculate unrealized gains from current positions (including both existing and new positions)
-            let! (unrealizedGains, unrealizedGainsPercentage) = 
-                BrokerFinancialUnrealizedGains.calculateUnrealizedGains calculatedMetrics.CurrentPositions calculatedMetrics.CostBasisInfo targetDate currencyId
-            
-            // Calculate realized percentage return
-            let realizedPercentage = 
-                if newInvested.Value > 0m then
-                    (newRealizedGains.Value / newInvested.Value) * 100m
-                else 
-                    0m
-            
-            // Update the existing snapshot with the combined values
-            // Keep the original ID and audit information to maintain data integrity
-            let updatedSnapshot = {
-                existingSnapshot with
-                    MovementCounter = newMovementCounter
-                    RealizedGains = newRealizedGains
-                    RealizedPercentage = realizedPercentage
-                    UnrealizedGains = unrealizedGains
-                    UnrealizedGainsPercentage = unrealizedGainsPercentage
-                    Invested = newInvested
-                    Commissions = newCommissions
-                    Fees = newFees
-                    Deposited = newDeposited
-                    Withdrawn = newWithdrawn
-                    DividendsReceived = newDividendsReceived
-                    OptionsIncome = newOptionsIncome
-                    OtherIncome = newOtherIncome
-                    OpenTrades = calculatedMetrics.HasOpenPositions
-            }
-            
-            // Save the updated snapshot to database
-            do! updatedSnapshot.save()
-        }
 
+            // Calculate financial metrics from new movements
+            let calculatedMetrics =
+                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerFinancialCalculate] Scenario D metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
+            )
+
+            // Since there's no previous snapshot, the existing snapshot represents the same date we're recalculating.
+            // Reprocessing should replace the stored values with the newly calculated metrics rather than accumulate again.
+            // Calculate unrealized gains from current positions (including both existing and new positions)
+            let! (unrealizedGains, _) =
+                BrokerFinancialUnrealizedGains.calculateUnrealizedGains
+                    calculatedMetrics.CurrentPositions
+                    calculatedMetrics.CostBasisInfo
+                    targetDate
+                    currencyId
+
+            let updatedSnapshot =
+                applyDirectSnapshotMetricsWithPreservation
+                    currencyMovements
+                    existingSnapshot
+                    calculatedMetrics
+                    unrealizedGains
+
+            do! updatedSnapshot.save ()
+        }

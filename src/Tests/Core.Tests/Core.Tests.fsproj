@@ -20,6 +20,7 @@
     <Compile Include="BrokerAccountMultiCurrencySnapshotTests.fs" />
     <Compile Include="BrokerSnapshotTests.fs" />
     <Compile Include="BrokerFinancialSnapshotAggregationTests.fs" />
+  <Compile Include="BrokerFinancialCalculateTests.fs" />
     <Compile Include="BrokerFinancialSnapshotRefactoredTests.fs" />
     <Compile Include="BrokerAccountFinancialCalculationTests.fs" />
     <Compile Include="BrokerFinancialSnapshotManagerIntegrationTests.fs" />
@@ -44,6 +45,7 @@
     <Compile Include="IBKRImportTests.fs" />
     <Compile Include="TastytradeImportTests.fs" />
     <Compile Include="TastytradeTransactionConverterTests.fs" />
+    <Compile Include="OptionTradeLinkingTests.fs" />
     <!-- <Compile Include="SavedPreferencesTests.fs" /> Disabled - MAUI platform APIs don't work in headless test environment -->
   </ItemGroup>
 

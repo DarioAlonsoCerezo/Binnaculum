@@ -12,130 +12,289 @@ open Binnaculum.Core.SQL
 open OptionExtensions
 open Binnaculum.Core.Patterns
 
+let internal isOpeningCode =
+    function
+    | OptionCode.BuyToOpen
+    | OptionCode.SellToOpen -> true
+    | _ -> false
+
+let internal isClosingCode =
+    function
+    | OptionCode.BuyToClose
+    | OptionCode.SellToClose
+    | OptionCode.Assigned
+    | OptionCode.CashSettledAssigned
+    | OptionCode.CashSettledExercised
+    | OptionCode.Expired
+    | OptionCode.Exercised -> true
+    | _ -> false
+
+let internal getOpeningCodesForClosing =
+    function
+    | OptionCode.BuyToClose -> [ OptionCode.SellToOpen ]
+    | OptionCode.SellToClose -> [ OptionCode.BuyToOpen ]
+    | OptionCode.Assigned
+    | OptionCode.CashSettledAssigned -> [ OptionCode.SellToOpen ]
+    | OptionCode.Exercised
+    | OptionCode.CashSettledExercised -> [ OptionCode.BuyToOpen ]
+    | OptionCode.Expired -> [ OptionCode.SellToOpen; OptionCode.BuyToOpen ]
+    | _ -> []
+
 [<Extension>]
 type Do() =
 
     [<Extension>]
     static member fill(optionTrade: OptionTrade, command: SqliteCommand) =
-        command.fillEntityAuditable<OptionTrade>(
-            [
-                (SQLParameterName.TimeStamp, optionTrade.TimeStamp.ToString());
-                (SQLParameterName.ExpirationDate, optionTrade.ExpirationDate.ToString());
-                (SQLParameterName.Premium, optionTrade.Premium.Value);
-                (SQLParameterName.NetPremium, optionTrade.NetPremium.Value);
-                (SQLParameterName.TickerId, optionTrade.TickerId);
-                (SQLParameterName.BrokerAccountId, optionTrade.BrokerAccountId);
-                (SQLParameterName.CurrencyId, optionTrade.CurrencyId);
-                (SQLParameterName.OptionType, fromOptionTypeToDatabase optionTrade.OptionType);
-                (SQLParameterName.Code, fromOptionCodeToDatabase optionTrade.Code);
-                (SQLParameterName.Strike, optionTrade.Strike.Value);
-                (SQLParameterName.Commissions, optionTrade.Commissions.Value);
-                (SQLParameterName.Fees, optionTrade.Fees.Value);
-                (SQLParameterName.IsOpen, optionTrade.IsOpen);
-                (SQLParameterName.ClosedWith, optionTrade.ClosedWith.ToDbValue())
-                (SQLParameterName.Multiplier, optionTrade.Multiplier)
-                (SQLParameterName.Notes, optionTrade.Notes.ToDbValue())
-            ], optionTrade)
-            
-    [<Extension>]
-    static member read(reader: SqliteDataReader) =
-        { 
-            Id = reader.getInt32 FieldName.Id 
-            TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
-            ExpirationDate = reader.getDateTimePattern FieldName.ExpirationDate
-            Premium = reader.getMoney FieldName.Premium
-            NetPremium = reader.getMoney FieldName.NetPremium
-            TickerId = reader.getInt32 FieldName.TickerId
-            BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
-            CurrencyId = reader.getInt32 FieldName.CurrencyId
-            OptionType = reader.getString FieldName.OptionType |> fromDatabaseToOptionType
-            Code = reader.getString FieldName.Code |> fromDatabaseToOptionCode
-            Strike = reader.getMoney FieldName.Strike
-            Commissions = reader.getMoney FieldName.Commissions
-            Fees = reader.getMoney FieldName.Fees
-            IsOpen = reader.getBoolean FieldName.IsOpen
-            ClosedWith = reader.getIntOrNone FieldName.ClosedWith
-            Multiplier = reader.getDecimal FieldName.Multiplier
-            Notes = reader.getStringOrNone FieldName.Notes
-            Audit = reader.getAudit()
-        }
+        command.fillEntityAuditable<OptionTrade> (
+            [ (SQLParameterName.TimeStamp, optionTrade.TimeStamp.ToString())
+              (SQLParameterName.ExpirationDate, optionTrade.ExpirationDate.ToString())
+              (SQLParameterName.Premium, optionTrade.Premium.Value)
+              (SQLParameterName.NetPremium, optionTrade.NetPremium.Value)
+              (SQLParameterName.TickerId, optionTrade.TickerId)
+              (SQLParameterName.BrokerAccountId, optionTrade.BrokerAccountId)
+              (SQLParameterName.CurrencyId, optionTrade.CurrencyId)
+              (SQLParameterName.OptionType, fromOptionTypeToDatabase optionTrade.OptionType)
+              (SQLParameterName.Code, fromOptionCodeToDatabase optionTrade.Code)
+              (SQLParameterName.Strike, optionTrade.Strike.Value)
+              (SQLParameterName.Commissions, optionTrade.Commissions.Value)
+              (SQLParameterName.Fees, optionTrade.Fees.Value)
+              (SQLParameterName.IsOpen, optionTrade.IsOpen)
+              (SQLParameterName.ClosedWith, optionTrade.ClosedWith.ToDbValue())
+              (SQLParameterName.Multiplier, optionTrade.Multiplier)
+              (SQLParameterName.Notes, optionTrade.Notes.ToDbValue()) ],
+            optionTrade
+        )
 
     [<Extension>]
-    static member save(optionTrade: OptionTrade) = Database.Do.saveEntity optionTrade (fun t c -> t.fill c) 
+    static member read(reader: SqliteDataReader) =
+        { Id = reader.getInt32 FieldName.Id
+          TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
+          ExpirationDate = reader.getDateTimePattern FieldName.ExpirationDate
+          Premium = reader.getMoney FieldName.Premium
+          NetPremium = reader.getMoney FieldName.NetPremium
+          TickerId = reader.getInt32 FieldName.TickerId
+          BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
+          CurrencyId = reader.getInt32 FieldName.CurrencyId
+          OptionType = reader.getString FieldName.OptionType |> fromDatabaseToOptionType
+          Code = reader.getString FieldName.Code |> fromDatabaseToOptionCode
+          Strike = reader.getMoney FieldName.Strike
+          Commissions = reader.getMoney FieldName.Commissions
+          Fees = reader.getMoney FieldName.Fees
+          IsOpen = reader.getBoolean FieldName.IsOpen
+          ClosedWith = reader.getIntOrNone FieldName.ClosedWith
+          Multiplier = reader.getDecimal FieldName.Multiplier
+          Notes = reader.getStringOrNone FieldName.Notes
+          Audit = reader.getAudit () }
+
+    [<Extension>]
+    static member save(optionTrade: OptionTrade) =
+        Database.Do.saveEntity optionTrade (fun t c -> t.fill c)
+
+    [<Extension>]
+    static member saveAndReturn(optionTrade: OptionTrade) =
+        task {
+            if optionTrade.Id = 0 then
+                let! newId = Database.Do.insertEntityAndGetId optionTrade (fun t c -> t.fill c)
+                return { optionTrade with Id = newId }
+            else
+                do! Do.save (optionTrade)
+                return optionTrade
+        }
 
     [<Extension>]
     static member delete(optionTrade: OptionTrade) = Database.Do.deleteEntity optionTrade
 
-    static member getAll() = Database.Do.getAllEntities Do.read OptionsQuery.getAll
+    static member getAll() =
+        Database.Do.getAllEntities Do.read OptionsQuery.getAll
 
-    static member getById(id: int) = Database.Do.getById Do.read id OptionsQuery.getById
+    static member getById(id: int) =
+        Database.Do.getById Do.read id OptionsQuery.getById
 
     static member getBetweenDates(startDate: string, endDate: string) =
         task {
-            let! command = Database.Do.createCommand()
+            let! command = Database.Do.createCommand ()
             command.CommandText <- OptionsQuery.getBetweenDates
             command.Parameters.AddWithValue(SQLParameterName.StartDate, startDate) |> ignore
             command.Parameters.AddWithValue(SQLParameterName.EndDate, endDate) |> ignore
-            let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
+            let! optionTrades = Database.Do.readAll<OptionTrade> (command, Do.read)
             return optionTrades
         }
 
-    static member getByTickerCurrencyAndDateRange(tickerId: int, currencyId: int, fromDate: string option, toDate: string) =
+    static member private tryGetFirstOpenTrade(closingTrade: OptionTrade, code: OptionCode option) =
         task {
-            let! command = Database.Do.createCommand()
+            let! command = Database.Do.createCommand ()
+
+            command.CommandText <-
+                match code with
+                | Some _ -> OptionsQuery.getFirstOpenTradeByCode
+                | None -> OptionsQuery.getFirstOpenTradeAnyCode
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, closingTrade.BrokerAccountId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, closingTrade.TickerId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, closingTrade.CurrencyId)
+            |> ignore
+
+            command.Parameters.AddWithValue(
+                SQLParameterName.OptionType,
+                fromOptionTypeToDatabase closingTrade.OptionType
+            )
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.Strike, closingTrade.Strike.Value)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.ExpirationDate, closingTrade.ExpirationDate.ToString())
+            |> ignore
+
+            match code with
+            | Some c ->
+                command.Parameters.AddWithValue(SQLParameterName.Code, fromOptionCodeToDatabase c)
+                |> ignore
+            | None -> ()
+
+            let! result = Database.Do.read<OptionTrade> (command, Do.read)
+            return result
+        }
+
+    static member private tryFindOpenTradeForClosing(closingTrade: OptionTrade) =
+        task {
+            let preferredCodes = getOpeningCodesForClosing closingTrade.Code
+
+            let rec fetch codes =
+                task {
+                    match codes with
+                    | code :: rest ->
+                        let! candidate = Do.tryGetFirstOpenTrade (closingTrade, Some code)
+
+                        match candidate with
+                        | Some _ -> return candidate
+                        | None -> return! fetch rest
+                    | [] -> return! Do.tryGetFirstOpenTrade (closingTrade, None)
+                }
+
+            return! fetch preferredCodes
+        }
+
+    static member private closeOpenTrade(openTrade: OptionTrade, closingTradeId: int) =
+        task {
+            let updatedAudit =
+                { openTrade.Audit with
+                    UpdatedAt = Some(DateTimePattern.FromDateTime(DateTime.UtcNow)) }
+
+            let updatedTrade =
+                { openTrade with
+                    IsOpen = false
+                    ClosedWith = Some closingTradeId
+                    Audit = updatedAudit }
+
+            do! Do.save (updatedTrade)
+            return updatedTrade
+        }
+
+    static member linkClosingTrade(closingTrade: OptionTrade) =
+        task {
+            if closingTrade.Id = 0 then
+                return Error "Cannot link closing trade without a valid identifier."
+            else
+                let! openTradeOption = Do.tryFindOpenTradeForClosing (closingTrade)
+
+                match openTradeOption with
+                | Some openTrade ->
+                    let! _ = Do.closeOpenTrade (openTrade, closingTrade.Id)
+                    return Ok()
+                | None ->
+                    let expirationText = closingTrade.ExpirationDate.Value.ToString("yyyy-MM-dd")
+
+                    return
+                        Error(
+                            $"No open option trade available to close for trade {closingTrade.Id} (TickerId {closingTrade.TickerId}, Strike {closingTrade.Strike.Value}, Expiration {expirationText})."
+                        )
+        }
+
+    static member getByTickerCurrencyAndDateRange
+        (tickerId: int, currencyId: int, fromDate: string option, toDate: string)
+        =
+        task {
+            let! command = Database.Do.createCommand ()
             command.CommandText <- OptionsQuery.getByTickerCurrencyAndDateRange
             command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
-            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId) |> ignore
-            command.Parameters.AddWithValue(SQLParameterName.StartDate, fromDate |> Option.defaultValue "1900-01-01") |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.StartDate, fromDate |> Option.defaultValue "1900-01-01")
+            |> ignore
+
             command.Parameters.AddWithValue(SQLParameterName.EndDate, toDate) |> ignore
-            let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
+            let! optionTrades = Database.Do.readAll<OptionTrade> (command, Do.read)
             return optionTrades
         }
 
     static member getFilteredOptionTrades(tickerId: int, currencyId: int, startDate: string, endDate: string) =
         task {
-            let! command = Database.Do.createCommand()
+            let! command = Database.Do.createCommand ()
             command.CommandText <- OptionsQuery.getFilteredOptionTrades
             command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
-            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId) |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId)
+            |> ignore
+
             command.Parameters.AddWithValue(SQLParameterName.StartDate, startDate) |> ignore
             command.Parameters.AddWithValue(SQLParameterName.EndDate, endDate) |> ignore
-            let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
+            let! optionTrades = Database.Do.readAll<OptionTrade> (command, Do.read)
             return optionTrades
         }
 
     static member getCurrenciesByTickerAndDate(tickerId: int, date: string) =
         task {
-            let! command = Database.Do.createCommand()
+            let! command = Database.Do.createCommand ()
             command.CommandText <- OptionsQuery.getCurrenciesByTickerAndDate
             command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
             command.Parameters.AddWithValue(SQLParameterName.Date, date) |> ignore
             let! reader = command.ExecuteReaderAsync()
             let mutable currencies = []
+
             while reader.Read() do
                 let currencyId = reader.GetInt32(0)
                 currencies <- currencyId :: currencies
+
             reader.Close()
             return currencies |> List.rev
         }
 
-    static member getByBrokerAccountIdFromDate(brokerAccountId: int, startDate: DateTimePattern) = task {
-        let! command = Database.Do.createCommand()
-        command.CommandText <- OptionsQuery.getByBrokerAccountIdFromDate
-        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
-        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString()) |> ignore
-        let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
-        return optionTrades
-    }
+    static member getByBrokerAccountIdFromDate(brokerAccountId: int, startDate: DateTimePattern) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- OptionsQuery.getByBrokerAccountIdFromDate
 
-    static member getByBrokerAccountIdForDate(brokerAccountId: int, targetDate: DateTimePattern) = task {
-        let! command = Database.Do.createCommand()
-        command.CommandText <- OptionsQuery.getByBrokerAccountIdForDate
-        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
-        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, targetDate.ToString()) |> ignore
-        let! optionTrades = Database.Do.readAll<OptionTrade>(command, Do.read)
-        return optionTrades
-    }
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString())
+            |> ignore
+
+            let! optionTrades = Database.Do.readAll<OptionTrade> (command, Do.read)
+            return optionTrades
+        }
+
+    static member getByBrokerAccountIdForDate(brokerAccountId: int, targetDate: DateTimePattern) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- OptionsQuery.getByBrokerAccountIdForDate
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.TimeStamp, targetDate.ToString())
+            |> ignore
+
+            let! optionTrades = Database.Do.readAll<OptionTrade> (command, Do.read)
+            return optionTrades
+        }
 
 /// <summary>
 /// Financial calculation extension methods for OptionTrade collections.
@@ -155,7 +314,7 @@ type OptionTradeCalculations() =
     static member calculateOptionsIncome(optionTrades: OptionTrade list) =
         optionTrades
         |> List.filter (fun trade -> trade.Code = OptionCode.SellToOpen || trade.Code = OptionCode.SellToClose)
-        |> List.sumBy (fun trade -> 
+        |> List.sumBy (fun trade ->
             // For sells, NetPremium is already calculated as positive income
             // NetPremium = (Premium * Multiplier * Quantity) - Commissions - Fees
             trade.NetPremium.Value)
@@ -172,10 +331,10 @@ type OptionTradeCalculations() =
     static member calculateOptionsInvestment(optionTrades: OptionTrade list) =
         optionTrades
         |> List.filter (fun trade -> trade.Code = OptionCode.BuyToOpen || trade.Code = OptionCode.BuyToClose)
-        |> List.sumBy (fun trade -> 
+        |> List.sumBy (fun trade ->
             // For buys, NetPremium includes the cost with commissions and fees
             // We want the absolute value as this represents money spent
-            abs(trade.NetPremium.Value))
+            abs (trade.NetPremium.Value))
         |> Money.FromAmount
 
     /// <summary>
@@ -198,9 +357,7 @@ type OptionTradeCalculations() =
     /// <returns>Total fees as Money</returns>
     [<Extension>]
     static member calculateTotalFees(optionTrades: OptionTrade list) =
-        optionTrades
-        |> List.sumBy (fun trade -> trade.Fees.Value)
-        |> Money.FromAmount
+        optionTrades |> List.sumBy (fun trade -> trade.Fees.Value) |> Money.FromAmount
 
     /// <summary>
     /// Calculates realized gains from closed option positions using FIFO matching.
@@ -213,8 +370,8 @@ type OptionTradeCalculations() =
     [<Extension>]
     static member calculateRealizedGains(optionTrades: OptionTrade list) =
         // Use current date as default for backward compatibility
-        OptionTradeCalculations.calculateRealizedGains(optionTrades, DateTime.Today)
-    
+        OptionTradeCalculations.calculateRealizedGains (optionTrades, DateTime.Today)
+
     /// <summary>
     /// Calculates realized gains from closed option positions using FIFO matching.
     /// Matches closing trades (BuyToClose, SellToClose) with corresponding opening trades.
@@ -226,83 +383,114 @@ type OptionTradeCalculations() =
     /// <returns>Total realized gains as Money (can be negative for losses)</returns>
     [<Extension>]
     static member calculateRealizedGains(optionTrades: OptionTrade list, currentDate: DateTime) =
-        System.Diagnostics.Debug.WriteLine(sprintf "[OptionTradeCalculations] calculateRealizedGains called with currentDate: %s" (currentDate.ToString("yyyy-MM-dd")))
-        
+        System.Diagnostics.Debug.WriteLine(
+            sprintf
+                "[OptionTradeCalculations] calculateRealizedGains called with currentDate: %s"
+                (currentDate.ToString("yyyy-MM-dd"))
+        )
+
         // Group option trades by ticker and option details for FIFO matching
-        let tradesByOption = 
+        let tradesByOption =
             optionTrades
             |> List.sortBy (fun trade -> trade.TimeStamp.Value)
-            |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
-        
+            |> List.groupBy (fun trade ->
+                (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
+
         let mutable totalRealizedGains = 0m
-        
+
         // Process each option type/strike/expiration combination separately for FIFO calculation
         for ((tickerId, optionType, strike, expiration), optionTrades) in tradesByOption do
-            let mutable openPositions = []  // Queue of open positions (FIFO)
+            System.Diagnostics.Debug.WriteLine(
+                sprintf
+                    "[OptionTradeCalculations] Processing option group - TickerId:%d Type:%A Strike:%M Expiration:%s TradeCount:%d"
+                    tickerId
+                    optionType
+                    strike
+                    (expiration.ToString("yyyy-MM-dd"))
+                    optionTrades.Length
+            )
+
+            let mutable openPositions = [] // Queue of open positions (FIFO)
             let mutable realizedGains = 0m
-            
+
             for trade in optionTrades do
+                System.Diagnostics.Debug.WriteLine(
+                    sprintf
+                        "[OptionTradeCalculations]   Evaluating trade Id:%d Code:%A NetPremium:%M Time:%s"
+                        trade.Id
+                        trade.Code
+                        trade.NetPremium.Value
+                        (trade.TimeStamp.Value.ToString("yyyy-MM-dd"))
+                )
+
                 match trade.Code with
-                | OptionCode.SellToOpen | OptionCode.BuyToOpen ->
+                | OptionCode.SellToOpen
+                | OptionCode.BuyToOpen ->
                     // Opening position - add to queue
-                    let openPosition = {| 
-                        Code = trade.Code
-                        NetPremium = trade.NetPremium.Value
-                        Quantity = 1  // Options are typically 1 contract per trade
-                        TradeId = trade.Id
-                    |}
-                    openPositions <- openPositions @ [openPosition]
-                
-                | OptionCode.SellToClose | OptionCode.BuyToClose ->
+                    let openPosition =
+                        {| Code = trade.Code
+                           NetPremium = trade.NetPremium.Value
+                           Quantity = 1 // Options are typically 1 contract per trade
+                           TradeId = trade.Id |}
+
+                    openPositions <- openPositions @ [ openPosition ]
+
+                | OptionCode.SellToClose
+                | OptionCode.BuyToClose ->
                     // Closing position - match against open positions using FIFO
-                    let mutable remainingToClose = 1  // Typically 1 contract per option trade
+                    let mutable remainingToClose = 1 // Typically 1 contract per option trade
                     let mutable updatedOpenPositions = openPositions
-                    
+
                     while remainingToClose > 0 && not updatedOpenPositions.IsEmpty do
                         let oldestOpen = updatedOpenPositions.Head
-                        
+
                         // Calculate realized gain for this matched pair
-                        let gain = 
+                        let gain =
                             match oldestOpen.Code, trade.Code with
                             // Sold to open, now buying to close: gain = premium received - premium paid
-                            | OptionCode.SellToOpen, OptionCode.BuyToClose -> 
-                                oldestOpen.NetPremium - abs(trade.NetPremium.Value)
+                            | OptionCode.SellToOpen, OptionCode.BuyToClose ->
+                                oldestOpen.NetPremium - abs (trade.NetPremium.Value)
                             // Bought to open, now selling to close: gain = premium received - premium paid
-                            | OptionCode.BuyToOpen, OptionCode.SellToClose -> 
-                                trade.NetPremium.Value - abs(oldestOpen.NetPremium)
+                            | OptionCode.BuyToOpen, OptionCode.SellToClose ->
+                                trade.NetPremium.Value - abs (oldestOpen.NetPremium)
                             // Other combinations should not occur in normal trading
                             | _ -> 0m
-                        
+
                         realizedGains <- realizedGains + gain
                         remainingToClose <- remainingToClose - 1
-                        
+
                         // Remove the matched position from queue
                         updatedOpenPositions <- updatedOpenPositions.Tail
-                    
+
                     openPositions <- updatedOpenPositions
-                
+
                 // Handle expired, assigned, and cash settled options
-                | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised ->
+                | OptionCode.Expired
+                | OptionCode.Assigned
+                | OptionCode.CashSettledAssigned
+                | OptionCode.CashSettledExercised
+                | OptionCode.Exercised ->
                     // These typically close existing positions with specific P&L rules
                     // For expired options, the premium received/paid becomes the realized gain/loss
                     if not openPositions.IsEmpty then
                         let expiredPosition = openPositions.Head
-                        let gain = 
+
+                        let gain =
                             match expiredPosition.Code with
-                            | OptionCode.SellToOpen -> expiredPosition.NetPremium  // Keep premium received
-                            | OptionCode.BuyToOpen -> -abs(expiredPosition.NetPremium)  // Lose premium paid
+                            | OptionCode.SellToOpen -> expiredPosition.NetPremium // Keep premium received
+                            | OptionCode.BuyToOpen -> -abs(expiredPosition.NetPremium) // Lose premium paid
                             | _ -> 0m
-                        
+
                         realizedGains <- realizedGains + gain
                         openPositions <- openPositions.Tail
-            
-            // NOTE: Disabling automatic option expiration to match original test expectations  
+
+            // NOTE: Disabling automatic option expiration to match original test expectations
             // The test expects $23.65 realized (from explicit closes only) + $14.86 unrealized (SOFI 240510)
             // Auto-expiration would add $15.86 from expired SOFI 240503 position, giving $39.51 total
-            // 
+            //
             // TODO: The business logic question is whether expired options should automatically
             // be converted from unrealized to realized gains. For now, matching original test expectations.
-            
+
             // Commented out automatic expiration logic:
             (*
             if expiration < currentDate && not openPositions.IsEmpty then
@@ -317,10 +505,13 @@ type OptionTradeCalculations() =
                         | _ -> 0m
                     realizedGains <- realizedGains + gain
             *)
-            
+
             totalRealizedGains <- totalRealizedGains + realizedGains
-        
-        System.Diagnostics.Debug.WriteLine(sprintf "[OptionTradeCalculations] Total realized gains calculated: $%.2f" totalRealizedGains)
+
+        System.Diagnostics.Debug.WriteLine(
+            sprintf "[OptionTradeCalculations] Total realized gains calculated: $%.2f" totalRealizedGains
+        )
+
         Money.FromAmount totalRealizedGains
 
     /// <summary>
@@ -333,8 +524,8 @@ type OptionTradeCalculations() =
     [<Extension>]
     static member hasOpenOptions(optionTrades: OptionTrade list) =
         // Use current date as default for backward compatibility
-        OptionTradeCalculations.hasOpenOptions(optionTrades, DateTime.Today)
-    
+        OptionTradeCalculations.hasOpenOptions (optionTrades, DateTime.Today)
+
     /// <summary>
     /// Determines if there are any open option positions based on trade history.
     /// Calculates net position for each option and returns true if any positions remain open.
@@ -346,19 +537,24 @@ type OptionTradeCalculations() =
     [<Extension>]
     static member hasOpenOptions(optionTrades: OptionTrade list, currentDate: DateTime) =
         optionTrades
-        |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
+        |> List.groupBy (fun trade ->
+            (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
         |> List.exists (fun ((_, _, _, expiration), trades) ->
             // REMOVED: No automatic expiration logic - check positions regardless of expiration date
-            let netPosition = 
+            let netPosition =
                 trades
                 |> List.sumBy (fun trade ->
                     match trade.Code with
-                    | OptionCode.SellToOpen -> -1  // Short position
-                    | OptionCode.BuyToOpen -> 1    // Long position
-                    | OptionCode.SellToClose -> 1   // Closing short
-                    | OptionCode.BuyToClose -> -1   // Closing long
-                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised -> 0
-                )
+                    | OptionCode.SellToOpen -> -1 // Short position
+                    | OptionCode.BuyToOpen -> 1 // Long position
+                    | OptionCode.SellToClose -> 1 // Closing short
+                    | OptionCode.BuyToClose -> -1 // Closing long
+                    | OptionCode.Expired
+                    | OptionCode.Assigned
+                    | OptionCode.CashSettledAssigned
+                    | OptionCode.CashSettledExercised
+                    | OptionCode.Exercised -> 0)
+
             netPosition <> 0)
 
     /// <summary>
@@ -370,19 +566,24 @@ type OptionTradeCalculations() =
     [<Extension>]
     static member calculateOpenPositions(optionTrades: OptionTrade list) =
         optionTrades
-        |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
+        |> List.groupBy (fun trade ->
+            (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
         |> List.choose (fun (key, trades) ->
-            let netPosition = 
+            let netPosition =
                 trades
                 |> List.sumBy (fun trade ->
                     match trade.Code with
-                    | OptionCode.SellToOpen -> -1  // Short position
-                    | OptionCode.BuyToOpen -> 1    // Long position  
-                    | OptionCode.SellToClose -> 1   // Closing short
-                    | OptionCode.BuyToClose -> -1   // Closing long
-                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised -> 0
-                )
-            if netPosition <> 0 then Some (key, netPosition) else None)
+                    | OptionCode.SellToOpen -> -1 // Short position
+                    | OptionCode.BuyToOpen -> 1 // Long position
+                    | OptionCode.SellToClose -> 1 // Closing short
+                    | OptionCode.BuyToClose -> -1 // Closing long
+                    | OptionCode.Expired
+                    | OptionCode.Assigned
+                    | OptionCode.CashSettledAssigned
+                    | OptionCode.CashSettledExercised
+                    | OptionCode.Exercised -> 0)
+
+            if netPosition <> 0 then Some(key, netPosition) else None)
         |> Map.ofList
 
     /// <summary>
@@ -395,7 +596,7 @@ type OptionTradeCalculations() =
     static member calculateNetOptionsIncome(optionTrades: OptionTrade list) =
         let totalIncome = optionTrades.calculateOptionsIncome().Value
         let totalInvestment = optionTrades.calculateOptionsInvestment().Value
-        Money.FromAmount (totalIncome - totalInvestment)
+        Money.FromAmount(totalIncome - totalInvestment)
 
     /// <summary>
     /// Counts the total number of option trades.
@@ -404,8 +605,7 @@ type OptionTradeCalculations() =
     /// <param name="optionTrades">List of option trades to count</param>
     /// <returns>Total number of option trades as integer</returns>
     [<Extension>]
-    static member calculateTradeCount(optionTrades: OptionTrade list) =
-        optionTrades.Length
+    static member calculateTradeCount(optionTrades: OptionTrade list) = optionTrades.Length
 
     /// <summary>
     /// Filters option trades by currency ID.
@@ -415,8 +615,7 @@ type OptionTradeCalculations() =
     /// <returns>Filtered list of option trades for the specified currency</returns>
     [<Extension>]
     static member filterByCurrency(optionTrades: OptionTrade list, currencyId: int) =
-        optionTrades
-        |> List.filter (fun trade -> trade.CurrencyId = currencyId)
+        optionTrades |> List.filter (fun trade -> trade.CurrencyId = currencyId)
 
     /// <summary>
     /// Filters option trades by ticker ID.
@@ -426,8 +625,7 @@ type OptionTradeCalculations() =
     /// <returns>Filtered list of option trades for the specified ticker</returns>
     [<Extension>]
     static member filterByTicker(optionTrades: OptionTrade list, tickerId: int) =
-        optionTrades
-        |> List.filter (fun trade -> trade.TickerId = tickerId)
+        optionTrades |> List.filter (fun trade -> trade.TickerId = tickerId)
 
     /// <summary>
     /// Filters option trades by option codes.
@@ -447,9 +645,7 @@ type OptionTradeCalculations() =
     /// <returns>Set of unique currency IDs</returns>
     [<Extension>]
     static member getUniqueCurrencyIds(optionTrades: OptionTrade list) =
-        optionTrades 
-        |> List.map (fun trade -> trade.CurrencyId)
-        |> Set.ofList
+        optionTrades |> List.map (fun trade -> trade.CurrencyId) |> Set.ofList
 
     /// <summary>
     /// Calculates unrealized gains from option positions that are still open.
@@ -462,53 +658,60 @@ type OptionTradeCalculations() =
     [<Extension>]
     static member calculateUnrealizedGains(optionTrades: OptionTrade list, currentDate: DateTime) =
         // Group option trades by ticker and option details for FIFO matching
-        let tradesByOption = 
+        let tradesByOption =
             optionTrades
             |> List.sortBy (fun trade -> trade.TimeStamp.Value)
-            |> List.groupBy (fun trade -> (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
-        
+            |> List.groupBy (fun trade ->
+                (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
+
         let mutable totalUnrealizedGains = 0m
-        
+
         // Process each option type/strike/expiration combination separately
         for ((tickerId, optionType, strike, expiration), optionTrades) in tradesByOption do
             // Skip expired options - they should not contribute to unrealized gains
             if expiration >= currentDate then
-                let mutable openPositions = []  // Queue of open positions (FIFO)
-                
+                let mutable openPositions = [] // Queue of open positions (FIFO)
+
                 for trade in optionTrades do
                     match trade.Code with
-                    | OptionCode.SellToOpen | OptionCode.BuyToOpen ->
+                    | OptionCode.SellToOpen
+                    | OptionCode.BuyToOpen ->
                         // Opening position - add to queue
-                        let openPosition = {| 
-                            Code = trade.Code
-                            NetPremium = trade.NetPremium.Value
-                            Quantity = 1  // Options are typically 1 contract per trade
-                            TradeId = trade.Id
-                        |}
-                        openPositions <- openPositions @ [openPosition]
-                    
-                    | OptionCode.SellToClose | OptionCode.BuyToClose ->
+                        let openPosition =
+                            {| Code = trade.Code
+                               NetPremium = trade.NetPremium.Value
+                               Quantity = 1 // Options are typically 1 contract per trade
+                               TradeId = trade.Id |}
+
+                        openPositions <- openPositions @ [ openPosition ]
+
+                    | OptionCode.SellToClose
+                    | OptionCode.BuyToClose ->
                         // Closing position - match against open positions using FIFO
-                        let mutable remainingToClose = 1  // Typically 1 contract per option trade
+                        let mutable remainingToClose = 1 // Typically 1 contract per option trade
                         let mutable updatedOpenPositions = openPositions
-                        
+
                         while remainingToClose > 0 && not updatedOpenPositions.IsEmpty do
                             let oldestOpen = updatedOpenPositions.Head
                             remainingToClose <- remainingToClose - 1
                             // Remove the matched position from queue
                             updatedOpenPositions <- updatedOpenPositions.Tail
-                        
+
                         openPositions <- updatedOpenPositions
-                    
+
                     // Handle expired, assigned, and cash settled options (close positions)
-                    | OptionCode.Expired | OptionCode.Assigned | OptionCode.CashSettledAssigned | OptionCode.CashSettledExercised | OptionCode.Exercised ->
+                    | OptionCode.Expired
+                    | OptionCode.Assigned
+                    | OptionCode.CashSettledAssigned
+                    | OptionCode.CashSettledExercised
+                    | OptionCode.Exercised ->
                         if not openPositions.IsEmpty then
                             openPositions <- openPositions.Tail
-                
+
                 // Calculate unrealized gains from remaining open positions
                 for openPosition in openPositions do
                     totalUnrealizedGains <- totalUnrealizedGains + openPosition.NetPremium
-        
+
         Money.FromAmount totalUnrealizedGains
 
     /// <summary>
@@ -520,9 +723,9 @@ type OptionTradeCalculations() =
     /// <returns>Options trading summary record with calculated totals</returns>
     [<Extension>]
     static member calculateOptionsSummary(optionTrades: OptionTrade list, ?currencyId: int) =
-        // Use current date as default for backward compatibility  
-        OptionTradeCalculations.calculateOptionsSummary(optionTrades, DateTime.Today, ?currencyId = currencyId)
-    
+        // Use current date as default for backward compatibility
+        OptionTradeCalculations.calculateOptionsSummary (optionTrades, DateTime.Today, ?currencyId = currencyId)
+
     /// <summary>
     /// Calculates a comprehensive options trading summary.
     /// Returns a record with all major options trading metrics calculated.
@@ -533,21 +736,94 @@ type OptionTradeCalculations() =
     /// <returns>Options trading summary record with calculated totals</returns>
     [<Extension>]
     static member calculateOptionsSummary(optionTrades: OptionTrade list, targetDate: DateTime, ?currencyId: int) =
-        let relevantTrades = 
+        let relevantTrades =
             match currencyId with
-            | Some id -> optionTrades.filterByCurrency(id)
+            | Some id -> optionTrades.filterByCurrency (id)
             | None -> optionTrades
-        
-        {|
-            OptionsIncome = relevantTrades.calculateOptionsIncome()
-            OptionsInvestment = relevantTrades.calculateOptionsInvestment()
-            NetOptionsIncome = relevantTrades.calculateNetOptionsIncome()
-            TotalCommissions = relevantTrades.calculateTotalCommissions()
-            TotalFees = relevantTrades.calculateTotalFees()
-            RealizedGains = relevantTrades.calculateRealizedGains(targetDate)
-            UnrealizedGains = relevantTrades.calculateUnrealizedGains(targetDate)
-            HasOpenOptions = relevantTrades.hasOpenOptions(targetDate)
-            OpenPositions = relevantTrades.calculateOpenPositions()
-            TradeCount = relevantTrades.calculateTradeCount()
-            UniqueCurrencies = relevantTrades.getUniqueCurrencyIds()
-        |}
+
+        System.Diagnostics.Debug.WriteLine(
+            sprintf
+                "[OptionTradeCalculations] Summary inputs - TargetDate: %s, CurrencyId: %A, TotalTrades: %d"
+                (targetDate.ToString("yyyy-MM-dd"))
+                currencyId
+                relevantTrades.Length
+        )
+
+        for trade in relevantTrades do
+            System.Diagnostics.Debug.WriteLine(
+                sprintf
+                    "[OptionTradeCalculations] Trade Detail - Id:%d Time:%s Code:%A NetPremium:%M Premium:%M Commissions:%M Fees:%M ClosedWith:%A"
+                    trade.Id
+                    (trade.TimeStamp.Value.ToString("yyyy-MM-dd"))
+                    trade.Code
+                    trade.NetPremium.Value
+                    trade.Premium.Value
+                    trade.Commissions.Value
+                    trade.Fees.Value
+                    trade.ClosedWith
+            )
+
+        let targetDay = targetDate.Date
+
+        let sortedTrades =
+            relevantTrades |> List.sortBy (fun trade -> trade.TimeStamp.Value)
+
+        let tradesUpToTarget =
+            sortedTrades
+            |> List.filter (fun trade -> trade.TimeStamp.Value.Date <= targetDay)
+
+        let tradesBeforeTarget =
+            tradesUpToTarget
+            |> List.filter (fun trade -> trade.TimeStamp.Value.Date < targetDay)
+
+        let tradesOnTarget =
+            tradesUpToTarget
+            |> List.filter (fun trade -> trade.TimeStamp.Value.Date = targetDay)
+
+        System.Diagnostics.Debug.WriteLine(
+            sprintf
+                "[OptionTradeCalculations] Trade cohorts - Context:%d Previous:%d Current:%d"
+                tradesUpToTarget.Length
+                tradesBeforeTarget.Length
+                tradesOnTarget.Length
+        )
+
+        let cumulativeRealized = tradesUpToTarget.calculateRealizedGains (targetDate)
+
+        let previousRealized =
+            tradesBeforeTarget.calculateRealizedGains (targetDate.AddDays(-1.0))
+
+        let dailyRealizedAmount = cumulativeRealized.Value - previousRealized.Value
+
+        System.Diagnostics.Debug.WriteLine(
+            sprintf
+                "[OptionTradeCalculations] Realized breakdown - Cumulative:%M Previous:%M Daily:%M"
+                cumulativeRealized.Value
+                previousRealized.Value
+                dailyRealizedAmount
+        )
+
+        {| OptionsIncome = tradesUpToTarget.calculateOptionsIncome ()
+           OptionsInvestment = tradesUpToTarget.calculateOptionsInvestment ()
+           NetOptionsIncome = tradesUpToTarget.calculateNetOptionsIncome ()
+           TotalCommissions = tradesUpToTarget.calculateTotalCommissions ()
+           TotalFees = tradesUpToTarget.calculateTotalFees ()
+           RealizedGains = cumulativeRealized
+           UnrealizedGains = tradesUpToTarget.calculateUnrealizedGains (targetDate)
+           HasOpenOptions = tradesUpToTarget.hasOpenOptions (targetDate)
+           OpenPositions = tradesUpToTarget.calculateOpenPositions ()
+           TradeCount = tradesOnTarget.calculateTradeCount ()
+           UniqueCurrencies = tradesUpToTarget.getUniqueCurrencyIds () |}
+        |> fun summary ->
+            System.Diagnostics.Debug.WriteLine(
+                sprintf
+                    "[OptionTradeCalculations] Summary output - CumulativeRealized:%M Unrealized:%M CumulativeIncome:%M CumulativeInvestment:%M OpenPositions:%d HasOpen:%b"
+                    summary.RealizedGains.Value
+                    summary.UnrealizedGains.Value
+                    summary.OptionsIncome.Value
+                    summary.OptionsInvestment.Value
+                    summary.OpenPositions.Count
+                    summary.HasOpenOptions
+            )
+
+            summary

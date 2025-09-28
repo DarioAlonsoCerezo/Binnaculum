@@ -1,11 +1,13 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Binnaculum.Core.Database;
 using Binnaculum.Core.Import;
 using Binnaculum.Core.UI;
 using Core.Platform.MauiTester.Services;
+using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
-using Microsoft.FSharp.Control;
+using CoreModels = Binnaculum.Core.Models;
 
 namespace Core.Platform.MauiTester.TestCases
 {
@@ -145,64 +147,19 @@ namespace Core.Platform.MauiTester.TestCases
             {
                 try
                 {
-                    // The issue is that the import's ReactiveTargetedSnapshotManager.updateFromImport
-                    // is not being called or not working correctly. Let's manually create the import metadata
-                    // and call it directly
-
-                    // Create import metadata that represents the dates and accounts affected
-                    var importMetadataType = Type.GetType("Binnaculum.Core.Import.ImportMetadata, Core");
-                    if (importMetadataType != null)
+                    var importMetadata = TryCreateImportMetadataForAccount(_testBrokerAccountId, results);
+                    if (importMetadata != null)
                     {
-                        var importMetadata = Activator.CreateInstance(importMetadataType);
-                        if (importMetadata != null)
-                        {
-                            // Set the properties using reflection
-                            var properties = importMetadataType.GetProperties();
-                            foreach (var prop in properties)
-                            {
-                                switch (prop.Name)
-                                {
-                                    case "TotalMovementsImported":
-                                        prop.SetValue(importMetadata, 16); // From CSV: 12 option trades + 3 deposits + 1 adjustment
-                                        break;
-                                    case "AffectedBrokerAccountIds":
-                                        // Create a Set<int> with our broker account ID (ImportMetadata uses Set, not List)
-                                        var setType = typeof(HashSet<>).MakeGenericType(typeof(int));
-                                        var accountIdSet = Activator.CreateInstance(setType);
-                                        var addMethod = setType.GetMethod("Add");
-                                        addMethod?.Invoke(accountIdSet, new object[] { _testBrokerAccountId });
-                                        prop.SetValue(importMetadata, accountIdSet);
-                                        break;
-                                    case "OldestMovementDate":
-                                        prop.SetValue(importMetadata, new DateTime(2024, 4, 22)); // Earliest date in CSV
-                                        break;
-                                    case "AffectedTickerSymbols":
-                                        // Create a Set<string> with the tickers from the CSV
-                                        var tickerSetType = typeof(HashSet<>).MakeGenericType(typeof(string));
-                                        var tickerSet = Activator.CreateInstance(tickerSetType);
-                                        var tickerAddMethod = tickerSetType.GetMethod("Add");
-                                        // Add the tickers from TastytradeOptionsTest.csv
-                                        tickerAddMethod?.Invoke(tickerSet, new object[] { "SOFI" });
-                                        tickerAddMethod?.Invoke(tickerSet, new object[] { "MPW" });
-                                        tickerAddMethod?.Invoke(tickerSet, new object[] { "PLTR" });
-                                        prop.SetValue(importMetadata, tickerSet);
-                                        break;
-                                }
-                            }
-
-                            // Call ReactiveTargetedSnapshotManager.updateFromImport directly
-                            var reactiveManagerType = Type.GetType("Binnaculum.Core.UI.ReactiveTargetedSnapshotManager, Core");
-                            if (reactiveManagerType != null)
-                            {
-                                var updateFromImportMethod = reactiveManagerType.GetMethod("updateFromImport",
-                                    BindingFlags.Public | BindingFlags.Static);
-                                if (updateFromImportMethod != null)
-                                {
-                                    var task = (Task)updateFromImportMethod.Invoke(null, new object[] { importMetadata })!;
-                                    await task;
-                                }
-                            }
-                        }
+                        var oldestDateText = OptionModule.IsSome(importMetadata.OldestMovementDate)
+                            ? importMetadata.OldestMovementDate.Value.ToString("yyyy-MM-dd")
+                            : "n/a";
+                        results.Add($"🔁 Triggering targeted snapshot refresh from {oldestDateText} covering {importMetadata.TotalMovementsImported} movements...");
+                        await ReactiveTargetedSnapshotManager.updateFromImport(importMetadata);
+                        results.Add("✅ Targeted snapshot refresh completed");
+                    }
+                    else
+                    {
+                        results.Add($"⚠️ Unable to build import metadata for broker account {_testBrokerAccountId}; skipping targeted refresh");
                     }
 
                     // Also force a general data refresh to ensure everything is loaded
@@ -212,17 +169,8 @@ namespace Core.Platform.MauiTester.TestCases
 
                     // Force reactive refresh to ensure snapshots are created
                     results.Add("🔄 Forcing ReactiveSnapshotManager.refresh()...");
-                    var reactiveSnapshotManagerType = Type.GetType("Binnaculum.Core.UI.ReactiveSnapshotManager, Core");
-                    if (reactiveSnapshotManagerType != null)
-                    {
-                        var refreshMethod = reactiveSnapshotManagerType.GetMethod("refresh",
-                            BindingFlags.Public | BindingFlags.Static);
-                        if (refreshMethod != null)
-                        {
-                            refreshMethod.Invoke(null, null);
-                            results.Add("✅ ReactiveSnapshotManager.refresh() called");
-                        }
-                    }
+                    ReactiveSnapshotManager.refresh();
+                    results.Add("✅ ReactiveSnapshotManager.refresh() called");
 
                     await Task.Delay(3000); // Allow time for all processing to complete
                     results.Add($"📊 Final snapshot count: {Collections.Snapshots.Items.Count}");
@@ -272,43 +220,19 @@ namespace Core.Platform.MauiTester.TestCases
             {
                 System.Diagnostics.Debug.WriteLine("⚠️ No snapshots found - attempting manual trigger");
 
-                // Try to manually create snapshots for today
                 try
                 {
-                    var today = DateTime.Today;
-                    System.Diagnostics.Debug.WriteLine($"Manually creating snapshots for {today:yyyy-MM-dd}");
-
-                    // Get broker account snapshot manager type and trigger update
-                    var snapshotManagerType = Type.GetType("Binnaculum.Core.Storage.BrokerAccountSnapshotManager, Core");
-                    if (snapshotManagerType != null)
+                    var metadata = TryCreateImportMetadataForAccount(_testBrokerAccountId);
+                    if (metadata != null)
                     {
-                        var brokerAccounts = Collections.Accounts.Items
-                            .Where(a => a.Broker != null && a.Broker.Value.AccountNumber.StartsWith("Integration_Test_"));
-                        foreach (var account in brokerAccounts)
-                        {
-                            var brokerAccount = account.Broker!.Value;
-                            System.Diagnostics.Debug.WriteLine($"Creating snapshot for account {brokerAccount.Id}");
-                            var handleChangeMethod = snapshotManagerType.GetMethod("handleBrokerAccountChange",
-                                BindingFlags.Public | BindingFlags.Static);
-                            if (handleChangeMethod != null)
-                            {
-                                var datePattern = Type.GetType("Binnaculum.Core.Patterns.DateTimePattern, Core");
-                                if (datePattern != null)
-                                {
-                                    var fromDateTimeMethod = datePattern.GetMethod("FromDateTime", BindingFlags.Public | BindingFlags.Static);
-                                    var dateObj = fromDateTimeMethod?.Invoke(null, new object[] { today });
-                                    if (dateObj != null)
-                                    {
-                                        var task = (Task)handleChangeMethod.Invoke(null, new object[] { brokerAccount.Id, dateObj })!;
-                                        task.Wait();
-                                        System.Diagnostics.Debug.WriteLine($"✅ Snapshot created for account {brokerAccount.Id}");
-                                    }
-                                }
-                            }
-                        }
+                        System.Diagnostics.Debug.WriteLine($"Triggering targeted snapshot refresh for account {_testBrokerAccountId}...");
+                        ReactiveTargetedSnapshotManager.updateFromImport(metadata).GetAwaiter().GetResult();
+                        System.Diagnostics.Debug.WriteLine($"✅ Targeted snapshot refresh completed. Snapshot count: {Collections.Snapshots.Items.Count}");
                     }
-
-                    System.Diagnostics.Debug.WriteLine($"After manual trigger: Collections.Snapshots.Items.Count = {Collections.Snapshots.Items.Count}");
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"⚠️ Unable to build import metadata for account {_testBrokerAccountId}; targeted refresh skipped");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -589,6 +513,128 @@ namespace Core.Platform.MauiTester.TestCases
             // remove test movements and snapshots to keep the database clean
             // For now, we'll just refresh the reactive managers
             await Task.Delay(1); // Placeholder async operation
+        }
+
+        private ImportMetadata? TryCreateImportMetadataForAccount(int brokerAccountId, ICollection<string>? log = null)
+        {
+            var tickerSymbols = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var brokerAccountSet = SetModule.OfSeq(new[] { brokerAccountId });
+            int totalMovements = 0;
+            DateTime? oldestMovement = null;
+
+            foreach (var movement in Collections.Movements.Items)
+            {
+                if (!MovementBelongsToAccount(movement, brokerAccountId))
+                {
+                    continue;
+                }
+
+                totalMovements++;
+                if (oldestMovement == null || movement.TimeStamp < oldestMovement.Value)
+                {
+                    oldestMovement = movement.TimeStamp;
+                }
+
+                CollectTickerSymbols(movement, tickerSymbols);
+            }
+
+            if (totalMovements == 0 || oldestMovement == null)
+            {
+                log?.Add($"⚠️ No movements found for broker account {brokerAccountId} when building import metadata");
+                System.Diagnostics.Debug.WriteLine($"[SnapshotRefresh] Skipping metadata build; no movements for account {brokerAccountId}");
+                return null;
+            }
+
+            var tickerSet = SetModule.OfSeq(tickerSymbols);
+            var oldestOption = FSharpOption<DateTime>.Some(oldestMovement.Value);
+            var metadata = new ImportMetadata(oldestOption, brokerAccountSet, tickerSet, totalMovements);
+
+            var tickerSummary = tickerSymbols.Count > 0
+                ? string.Join(", ", tickerSymbols.OrderBy(symbol => symbol))
+                : "none";
+
+            log?.Add($"📅 Snapshot metadata built from {oldestMovement.Value:yyyy-MM-dd} covering {totalMovements} movements (tickers: {tickerSummary})");
+            System.Diagnostics.Debug.WriteLine($"[SnapshotRefresh] Metadata for account {brokerAccountId}: oldest={oldestMovement.Value:yyyy-MM-dd}, movements={totalMovements}, tickers={tickerSummary}");
+
+            return metadata;
+        }
+
+        private static bool MovementBelongsToAccount(CoreModels.Movement movement, int brokerAccountId)
+        {
+            var brokerAccount = GetAssociatedBrokerAccount(movement);
+            return brokerAccount != null && brokerAccount.Id == brokerAccountId;
+        }
+
+        private static CoreModels.BrokerAccount? GetAssociatedBrokerAccount(CoreModels.Movement movement)
+        {
+            if (movement.BrokerMovement is FSharpOption<CoreModels.BrokerMovement> brokerMovement && OptionModule.IsSome(brokerMovement))
+            {
+                return brokerMovement.Value.BrokerAccount;
+            }
+
+            if (movement.Trade is FSharpOption<CoreModels.Trade> trade && OptionModule.IsSome(trade))
+            {
+                return trade.Value.BrokerAccount;
+            }
+
+            if (movement.OptionTrade is FSharpOption<CoreModels.OptionTrade> optionTrade && OptionModule.IsSome(optionTrade))
+            {
+                return optionTrade.Value.BrokerAccount;
+            }
+
+            if (movement.Dividend is FSharpOption<CoreModels.Dividend> dividend && OptionModule.IsSome(dividend))
+            {
+                return dividend.Value.BrokerAccount;
+            }
+
+            if (movement.DividendTax is FSharpOption<CoreModels.DividendTax> dividendTax && OptionModule.IsSome(dividendTax))
+            {
+                return dividendTax.Value.BrokerAccount;
+            }
+
+            if (movement.DividendDate is FSharpOption<CoreModels.DividendDate> dividendDate && OptionModule.IsSome(dividendDate))
+            {
+                return dividendDate.Value.BrokerAccount;
+            }
+
+            return null;
+        }
+
+        private static void CollectTickerSymbols(CoreModels.Movement movement, ISet<string> destination)
+        {
+            if (movement.Trade is FSharpOption<CoreModels.Trade> trade && OptionModule.IsSome(trade))
+            {
+                destination.Add(trade.Value.Ticker.Symbol);
+            }
+
+            if (movement.OptionTrade is FSharpOption<CoreModels.OptionTrade> optionTrade && OptionModule.IsSome(optionTrade))
+            {
+                destination.Add(optionTrade.Value.Ticker.Symbol);
+            }
+
+            if (movement.Dividend is FSharpOption<CoreModels.Dividend> dividend && OptionModule.IsSome(dividend))
+            {
+                destination.Add(dividend.Value.Ticker.Symbol);
+            }
+
+            if (movement.DividendTax is FSharpOption<CoreModels.DividendTax> dividendTax && OptionModule.IsSome(dividendTax))
+            {
+                destination.Add(dividendTax.Value.Ticker.Symbol);
+            }
+
+            if (movement.DividendDate is FSharpOption<CoreModels.DividendDate> dividendDate && OptionModule.IsSome(dividendDate))
+            {
+                destination.Add(dividendDate.Value.Ticker.Symbol);
+            }
+
+            if (movement.BrokerMovement is FSharpOption<CoreModels.BrokerMovement> brokerMovement && OptionModule.IsSome(brokerMovement))
+            {
+                var tickerOption = brokerMovement.Value.Ticker;
+                if (tickerOption is FSharpOption<CoreModels.Ticker> ticker && OptionModule.IsSome(ticker))
+                {
+                    destination.Add(ticker.Value.Symbol);
+                }
+            }
         }
 
         private static string DescribeAccount(Binnaculum.Core.Models.Account account)
