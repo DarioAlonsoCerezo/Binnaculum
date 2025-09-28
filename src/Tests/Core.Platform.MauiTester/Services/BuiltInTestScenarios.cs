@@ -19,6 +19,7 @@ namespace Core.Platform.MauiTester.Services
             RegisterBrokerAccountDepositTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountMultipleMovementsTest(discoveryService, testRunner, testActions);
             RegisterOptionsImportIntegrationTest(discoveryService, testRunner, testActions);
+            RegisterTastytradeImportIntegrationTest(discoveryService, testRunner, testActions);
         }
 
         /// <summary>
@@ -151,6 +152,25 @@ namespace Core.Platform.MauiTester.Services
                     return (success, details, error);
                 })
                 .AddCustomStep(new OptionsImportIntegrationTest(testRunner.GetExecutionContext())));
+        }
+
+        /// <summary>
+        /// Tastytrade Import Integration Test - Comprehensive SPX options import validation with ticker-specific analysis
+        /// </summary>
+        private static void RegisterTastytradeImportIntegrationTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("Tastytrade Import Integration Test")
+                .WithDescription("Comprehensive SPX options import workflow with ticker validation. Expected: $164 commissions, $244 fees, $822 realized")
+                .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Options, TestTags.SPX)
+                .AddCommonSetup(testRunner)
+                .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
+                .AddVerificationStep("Find Tastytrade Broker", () => {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddCustomStep(new TastytradeImportIntegrationTest(testRunner.GetExecutionContext())));
         }
     }
 }

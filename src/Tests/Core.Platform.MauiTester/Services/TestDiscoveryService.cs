@@ -174,5 +174,6 @@ namespace Core.Platform.MauiTester.Services
         public const string Regression = "regression";
         public const string Import = "import";
         public const string Options = "options";
+        public const string SPX = "spx";
     }
 }
