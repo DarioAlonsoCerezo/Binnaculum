@@ -667,50 +667,118 @@ type OptionTradeCalculations() =
         let mutable totalUnrealizedGains = 0m
 
         // Process each option type/strike/expiration combination separately
-        for ((tickerId, optionType, strike, expiration), optionTrades) in tradesByOption do
-            // Skip expired options - they should not contribute to unrealized gains
-            if expiration >= currentDate then
-                let mutable openPositions = [] // Queue of open positions (FIFO)
+        for ((tickerId, optionType, strike, expiration), optionTradesForKey) in tradesByOption do
+            System.Diagnostics.Debug.WriteLine(
+                sprintf
+                    "[OptionTradeCalculations] Unrealized analysis - TickerId:%d Type:%A Strike:%M Expiration:%s CurrentDate:%s TradeCount:%d"
+                    tickerId
+                    optionType
+                    strike
+                    (expiration.ToString("yyyy-MM-dd"))
+                    (currentDate.ToString("yyyy-MM-dd"))
+                    optionTradesForKey.Length
+            )
 
-                for trade in optionTrades do
-                    match trade.Code with
-                    | OptionCode.SellToOpen
-                    | OptionCode.BuyToOpen ->
-                        // Opening position - add to queue
-                        let openPosition =
-                            {| Code = trade.Code
-                               NetPremium = trade.NetPremium.Value
-                               Quantity = 1 // Options are typically 1 contract per trade
-                               TradeId = trade.Id |}
+            let mutable openPositions = [] // Queue of open positions (FIFO)
 
-                        openPositions <- openPositions @ [ openPosition ]
+            for trade in optionTradesForKey do
+                match trade.Code with
+                | OptionCode.SellToOpen
+                | OptionCode.BuyToOpen ->
+                    // Opening position - add to queue
+                    let openPosition =
+                        {| Code = trade.Code
+                           NetPremium = trade.NetPremium.Value
+                           TradeId = trade.Id |}
 
-                    | OptionCode.SellToClose
-                    | OptionCode.BuyToClose ->
-                        // Closing position - match against open positions using FIFO
-                        let mutable remainingToClose = 1 // Typically 1 contract per option trade
-                        let mutable updatedOpenPositions = openPositions
+                    System.Diagnostics.Debug.WriteLine(
+                        sprintf
+                            "[OptionTradeCalculations]   Open position recorded - TradeId:%d Code:%A NetPremium:%M"
+                            trade.Id
+                            trade.Code
+                            openPosition.NetPremium
+                    )
 
-                        while remainingToClose > 0 && not updatedOpenPositions.IsEmpty do
-                            let oldestOpen = updatedOpenPositions.Head
-                            remainingToClose <- remainingToClose - 1
-                            // Remove the matched position from queue
-                            updatedOpenPositions <- updatedOpenPositions.Tail
+                    openPositions <- openPositions @ [ openPosition ]
 
-                        openPositions <- updatedOpenPositions
+                | OptionCode.SellToClose
+                | OptionCode.BuyToClose ->
+                    // Closing position - match against open positions using FIFO
+                    let mutable remainingToClose = 1 // Typically 1 contract per option trade
+                    let mutable updatedOpenPositions = openPositions
 
-                    // Handle expired, assigned, and cash settled options (close positions)
-                    | OptionCode.Expired
-                    | OptionCode.Assigned
-                    | OptionCode.CashSettledAssigned
-                    | OptionCode.CashSettledExercised
-                    | OptionCode.Exercised ->
-                        if not openPositions.IsEmpty then
-                            openPositions <- openPositions.Tail
+                    while remainingToClose > 0 && not updatedOpenPositions.IsEmpty do
+                        let oldestOpen = updatedOpenPositions.Head
+                        remainingToClose <- remainingToClose - 1
 
-                // Calculate unrealized gains from remaining open positions
-                for openPosition in openPositions do
-                    totalUnrealizedGains <- totalUnrealizedGains + openPosition.NetPremium
+                        System.Diagnostics.Debug.WriteLine(
+                            sprintf
+                                "[OptionTradeCalculations]   Closing match - ClosingTradeId:%d OpenTradeId:%d OpenCode:%A"
+                                trade.Id
+                                oldestOpen.TradeId
+                                oldestOpen.Code
+                        )
+
+                        // Remove the matched position from queue
+                        updatedOpenPositions <- updatedOpenPositions.Tail
+
+                    if remainingToClose > 0 then
+                        System.Diagnostics.Debug.WriteLine(
+                            sprintf
+                                "[OptionTradeCalculations]   WARNING: Closing trade %d left %d unmatched contract(s)"
+                                trade.Id
+                                remainingToClose
+                        )
+
+                    openPositions <- updatedOpenPositions
+
+                // Informational events: keep positions open until an explicit closing trade is recorded
+                | OptionCode.Expired
+                | OptionCode.Assigned
+                | OptionCode.CashSettledAssigned
+                | OptionCode.CashSettledExercised
+                | OptionCode.Exercised ->
+                    System.Diagnostics.Debug.WriteLine(
+                        sprintf
+                            "[OptionTradeCalculations]   Informational event %A observed for TradeId:%d (positions remain open)"
+                            trade.Code
+                            trade.Id
+                    )
+
+            if openPositions.IsEmpty then
+                System.Diagnostics.Debug.WriteLine(
+                    sprintf
+                        "[OptionTradeCalculations]   No open positions remain for TickerId:%d Strike:%M Expiration:%s"
+                        tickerId
+                        strike
+                        (expiration.ToString("yyyy-MM-dd"))
+                )
+            else
+                let expirationDate = expiration.Date
+                let currentDateOnly = currentDate.Date
+
+                if expirationDate < currentDateOnly then
+                    System.Diagnostics.Debug.WriteLine(
+                        sprintf
+                            "[OptionTradeCalculations]   NOTE: Expiration %s is before current date %s but positions remain open due to missing close events. Excluding from unrealized gains and relying on explicit close events."
+                            (expirationDate.ToString("yyyy-MM-dd"))
+                            (currentDateOnly.ToString("yyyy-MM-dd"))
+                    )
+                else
+                    for openPosition in openPositions do
+                        System.Diagnostics.Debug.WriteLine(
+                            sprintf
+                                "[OptionTradeCalculations]   Unrealized contribution - OpenTradeId:%d Code:%A NetPremium:%M"
+                                openPosition.TradeId
+                                openPosition.Code
+                                openPosition.NetPremium
+                        )
+
+                        totalUnrealizedGains <- totalUnrealizedGains + openPosition.NetPremium
+
+        System.Diagnostics.Debug.WriteLine(
+            sprintf "[OptionTradeCalculations] Total unrealized gains calculated: $%.2f" totalUnrealizedGains
+        )
 
         Money.FromAmount totalUnrealizedGains
 

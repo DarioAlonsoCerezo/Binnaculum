@@ -98,6 +98,15 @@ module internal BrokerFinancialCumulativeFinancial =
                     (totalUnrealizedGains.Value / cumulativeInvested.Value) * 100m
                 else 
                     0m
+
+            System.Diagnostics.Debug.WriteLine(
+                sprintf
+                    "[BrokerFinancialCumulativeFinancial] Unrealized breakdown - Stock:%M (%%:%M) Options:%M Total:%M"
+                    stockUnrealizedGains.Value
+                    stockUnrealizedGainsPercentage
+                    calculatedMetrics.OptionUnrealizedGains.Value
+                    totalUnrealizedGains.Value
+            )
             
             // Calculate realized percentage return
             let realizedPercentage = 
