@@ -12,9 +12,9 @@ public partial class BrokerMovementCreatorPage
 {
     private readonly Models.BrokerAccount _account;
 
-	public BrokerMovementCreatorPage(Models.BrokerAccount account)
-	{
-		InitializeComponent();
+    public BrokerMovementCreatorPage(Models.BrokerAccount account)
+    {
+        InitializeComponent();
         _account = account;
 
         Icon.ImagePath = _account.Broker.Image;
@@ -68,9 +68,9 @@ public partial class BrokerMovementCreatorPage
                     || x == Models.MovementType.ACATSecuritiesTransferSent
                     || x == Models.MovementType.ACATSecuritiesTransferReceived
                     || x == Models.MovementType.Conversion
-                    || hiderFeesAndCommissions)                
+                    || hiderFeesAndCommissions)
                     return true;
-                
+
                 return false;
             })
             .ObserveOn(UiThread)
@@ -84,12 +84,12 @@ public partial class BrokerMovementCreatorPage
 
         selection.Select(x =>
             {
-                if(x == Models.MovementType.DividendReceived
+                if (x == Models.MovementType.DividendReceived
                     || x == Models.MovementType.DividendExDate
                     || x == Models.MovementType.DividendPayDate
                     || x == Models.MovementType.DividendTaxWithheld)
                 {
-                    if(x == Models.MovementType.DividendReceived)
+                    if (x == Models.MovementType.DividendReceived)
                         DividendMovement.DividendEditor = DividenEditor.Received;
                     else if (x == Models.MovementType.DividendExDate)
                         DividendMovement.DividendEditor = DividenEditor.ExDividendDate;
@@ -219,7 +219,8 @@ public partial class BrokerMovementCreatorPage
             .Where(isChecked => isChecked)
             .ObserveOn(UiThread)
             .Do(_ => ManualRadioButton.IsChecked = false)
-            .Subscribe(_ => {
+            .Subscribe(_ =>
+            {
                 FileImportSection.IsVisible = true;
                 // Hide manual movement controls
                 MovementTypeControl.IsVisible = false;
@@ -236,7 +237,8 @@ public partial class BrokerMovementCreatorPage
             .Where(isChecked => isChecked)
             .ObserveOn(UiThread)
             .Do(_ => FromFileRadioButton.IsChecked = false)
-            .Subscribe(_ => {
+            .Subscribe(_ =>
+            {
                 FileImportSection.IsVisible = false;
                 MovementTypeControl.IsVisible = true;
                 // Reset import results
@@ -254,7 +256,7 @@ public partial class BrokerMovementCreatorPage
             .Do(_ => ShowImportProgress())
             .Delay(TimeSpan.FromMilliseconds(300)) // Small delay to ensure progress UI is visible
             .ObserveOn(BackgroundScheduler)
-            .CatchCoreError(file => ImportManager.importFile(_account.Broker.Id, file!.FilePath))
+            .CatchCoreError(file => ImportManager.importFile(_account.Broker.Id, _account.Id, file!.FilePath))
             .ObserveOn(UiThread)
             .Do(HandleImportResult)
             .Subscribe()
@@ -302,7 +304,7 @@ public partial class BrokerMovementCreatorPage
         return new Models.BrokerMovement(
                             0,
                             BrokerMovement.DepositData.TimeStamp,
-                            BrokerMovement.ConversionData.AmountTo, 
+                            BrokerMovement.ConversionData.AmountTo,
                             BrokerMovement.ConversionData.CurrencyTo.ToFastCurrency(),
                             _account,
                             BrokerMovement.ConversionData.Commissions,
@@ -346,10 +348,10 @@ public partial class BrokerMovementCreatorPage
         if (movementType.IsLending)
             return true;
 
-        if(movementType.IsInterestsGained)
+        if (movementType.IsInterestsGained)
             return true;
 
-        if(movementType.IsInterestsPaid)
+        if (movementType.IsInterestsPaid)
             return true;
 
         return false;

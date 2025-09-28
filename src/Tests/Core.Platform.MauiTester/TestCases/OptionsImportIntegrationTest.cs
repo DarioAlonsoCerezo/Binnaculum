@@ -139,8 +139,8 @@ namespace Core.Platform.MauiTester.TestCases
             if (string.IsNullOrEmpty(_tempCsvPath))
                 throw new InvalidOperationException("CSV file path is null");
 
-            // Execute the complete import workflow using the broker ID (not broker account ID)
-            var importResult = await ImportManager.importFile(_testBrokerId, _tempCsvPath);
+            // Execute the complete import workflow using the explicitly selected broker account
+            var importResult = await ImportManager.importFile(_testBrokerId, _testBrokerAccountId, _tempCsvPath);
 
             // After import, manually trigger comprehensive snapshot processing
             if (importResult.Success)
