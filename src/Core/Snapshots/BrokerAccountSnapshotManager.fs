@@ -10,39 +10,50 @@ open Binnaculum.Core.Storage.SnapshotManagerUtils
 /// <summary>
 /// Handles creation, updating, and recalculation of BrokerAccountSnapshots.
 /// Enhanced with multi-currency support for per-currency detail rows.
-/// 
+///
 /// This module exposes only two public entry points:
 /// - handleBrokerAccountChange: For handling changes to existing broker accounts
 /// - handleNewBrokerAccount: For initializing snapshots for new broker accounts
-/// 
+///
 /// All other functionality is internal to maintain proper encapsulation and prevent misuse.
 /// </summary>
 module internal BrokerAccountSnapshotManager =
 
-    let private getOrCreateSnapshot(brokerAccountId: int, snapshotDate: DateTimePattern) = task {
-        
-        // Check if a snapshot already exists for this broker account on the given date
-        // Ensure snapshotDate is always end of date 
-        let snapshotDate = getDateOnly snapshotDate
-        let! existingSnapshot = BrokerAccountSnapshotExtensions.Do.getByBrokerAccountIdAndDate(brokerAccountId, snapshotDate)
-        match existingSnapshot with
-        | Some snapshot -> 
-            return snapshot // If it exists, return it
-        | None ->
-            let newSnapshot = {
-                Base = createBaseSnapshot snapshotDate
-                BrokerAccountId = brokerAccountId
-            }
-            do! newSnapshot.save()
+    let private getOrCreateSnapshot (brokerAccountId: int, snapshotDate: DateTimePattern) =
+        task {
 
-            let! createdSnapshot = BrokerAccountSnapshotExtensions.Do.getByBrokerAccountIdAndDate(brokerAccountId, snapshotDate)
-            match createdSnapshot with
-            | Some snapshot -> return snapshot
-            | None -> 
-                failwithf "Failed to create default snapshot for broker account %d on date %A" brokerAccountId snapshotDate
-                return { Base = createBaseSnapshot snapshotDate; BrokerAccountId = brokerAccountId }
-    }  
-    
+            // Check if a snapshot already exists for this broker account on the given date
+            // Ensure snapshotDate is always end of date
+            let snapshotDate = getDateOnly snapshotDate
+
+            let! existingSnapshot =
+                BrokerAccountSnapshotExtensions.Do.getByBrokerAccountIdAndDate (brokerAccountId, snapshotDate)
+
+            match existingSnapshot with
+            | Some snapshot -> return snapshot // If it exists, return it
+            | None ->
+                let newSnapshot =
+                    { Base = createBaseSnapshot snapshotDate
+                      BrokerAccountId = brokerAccountId }
+
+                do! newSnapshot.save ()
+
+                let! createdSnapshot =
+                    BrokerAccountSnapshotExtensions.Do.getByBrokerAccountIdAndDate (brokerAccountId, snapshotDate)
+
+                match createdSnapshot with
+                | Some snapshot -> return snapshot
+                | None ->
+                    failwithf
+                        "Failed to create default snapshot for broker account %d on date %A"
+                        brokerAccountId
+                        snapshotDate
+
+                    return
+                        { Base = createBaseSnapshot snapshotDate
+                          BrokerAccountId = brokerAccountId }
+        }
+
     /// <summary>
     /// Creates missing snapshots for the specified dates.
     /// This ensures data continuity for cascade updates by filling gaps in the snapshot history.
@@ -50,55 +61,81 @@ module internal BrokerAccountSnapshotManager =
     /// <param name="brokerAccountId">The broker account ID</param>
     /// <param name="missingDates">Set of dates that need snapshots created</param>
     /// <returns>List of newly created snapshots</returns>
-    let private createAndGetMissingSnapshots(brokerAccountId: int, missingDates: Set<DateTimePattern>) = task {
-        let mutable createdSnapshots = []
-
-        // Sort dates to minimize jumps in time (improves cascade update efficiency)
-        let sortedMissingDates = missingDates |> Set.toList |> List.sortBy (fun d -> d.Value)
-        
-        for date in sortedMissingDates do
-            let! snapshot = getOrCreateSnapshot(brokerAccountId, date)
-            createdSnapshots <- snapshot :: createdSnapshots
-        
-        return createdSnapshots
-    }
-    
-    let private getAllMovementsFromDate(brokerAccountId, snapshotDate) =
+    let private createAndGetMissingSnapshots (brokerAccountId: int, missingDates: Set<DateTimePattern>) =
         task {
-            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] getAllMovementsFromDate - BrokerAccountId: {brokerAccountId}, Date: {snapshotDate}")
-            
-            let! brokerMovements = BrokerMovementExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
-            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] BrokerMovements loaded: {brokerMovements.Length}")
-            
-            let! trades = TradeExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
-            
-            let! dividends = DividendExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
-            
-            let! dividendTaxes = DividendTaxExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
-            
-            let! optionTrades = OptionTradeExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, snapshotDate)
-            
-            return BrokerAccountMovementData.create 
-                snapshotDate 
-                brokerAccountId 
-                brokerMovements 
-                trades 
-                dividends 
-                dividendTaxes 
-                optionTrades
+            let mutable createdSnapshots = []
+
+            // Sort dates to minimize jumps in time (improves cascade update efficiency)
+            let sortedMissingDates =
+                missingDates |> Set.toList |> List.sortBy (fun d -> d.Value)
+
+            for date in sortedMissingDates do
+                let! snapshot = getOrCreateSnapshot (brokerAccountId, date)
+                createdSnapshots <- snapshot :: createdSnapshots
+
+            return createdSnapshots
         }
 
-    let private getAllSnapshotsAfterDate(brokerAccountId, snapshotDate) =
+    let private getAllMovementsFromDate (brokerAccountId, snapshotDate) =
         task {
-            return! BrokerAccountSnapshotExtensions
-                        .Do
-                        .getBrokerAccountSnapshotsAfterDate(brokerAccountId, snapshotDate)
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] getAllMovementsFromDate - BrokerAccountId: {brokerAccountId}, Date: {snapshotDate}"
+            )
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Loading all movements from start date {snapshotDate}"
+            )
+
+            let! brokerMovements =
+                BrokerMovementExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] BrokerMovements loaded (from date): {brokerMovements.Length}"
+            )
+
+            let! trades = TradeExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Trades loaded (from date): {trades.Length}"
+            )
+
+            let! dividends = DividendExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Dividends loaded (from date): {dividends.Length}"
+            )
+
+            let! dividendTaxes = DividendTaxExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] DividendTaxes loaded (from date): {dividendTaxes.Length}"
+            )
+
+            let! optionTrades = OptionTradeExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] OptionTrades loaded (from date): {optionTrades.Length}"
+            )
+
+            return
+                BrokerAccountMovementData.create
+                    snapshotDate
+                    brokerAccountId
+                    brokerMovements
+                    trades
+                    dividends
+                    dividendTaxes
+                    optionTrades
         }
 
-    let private extractDatesFromSnapshots(snapshots: BrokerAccountSnapshot list) =
-        snapshots
-        |> List.map (fun s -> s.Base.Date)
-        |> Set.ofList
+    let private getAllSnapshotsAfterDate (brokerAccountId, snapshotDate) =
+        task {
+            return!
+                BrokerAccountSnapshotExtensions.Do.getBrokerAccountSnapshotsAfterDate (brokerAccountId, snapshotDate)
+        }
+
+    let private extractDatesFromSnapshots (snapshots: BrokerAccountSnapshot list) =
+        snapshots |> List.map (fun s -> s.Base.Date) |> Set.ofList
 
     /// <summary>
     /// Handles snapshot updates when a new BrokerAccount is created
@@ -107,8 +144,8 @@ module internal BrokerAccountSnapshotManager =
     let handleNewBrokerAccount (brokerAccount: BrokerAccount) =
         task {
             let snapshotDate = getDateOnlyFromDateTime DateTime.Now
-            let! snapshot = getOrCreateSnapshot(brokerAccount.Id, snapshotDate)
-            do! BrokerFinancialSnapshotManager.setupInitialFinancialSnapshotForBrokerAccount snapshot  
+            let! snapshot = getOrCreateSnapshot (brokerAccount.Id, snapshotDate)
+            do! BrokerFinancialSnapshotManager.setupInitialFinancialSnapshotForBrokerAccount snapshot
         }
 
     /// <summary>
@@ -122,52 +159,92 @@ module internal BrokerAccountSnapshotManager =
     let handleBrokerAccountChange (brokerAccountId: int, date: DateTimePattern) =
         task {
             // Entry logging
-            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Entering handleBrokerAccountChange - BrokerAccountId: {brokerAccountId}, Date: {date}")
-            
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Entering handleBrokerAccountChange - BrokerAccountId: {brokerAccountId}, Date: {date}"
+            )
+
             let snapshotDate = getDateOnly date
-            let! snapshot = getOrCreateSnapshot(brokerAccountId, snapshotDate)
-            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Snapshot retrieved/created - Id: {snapshot.Base.Id}, Date: {snapshot.Base.Date}")
-            
+            let! snapshot = getOrCreateSnapshot (brokerAccountId, snapshotDate)
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Snapshot retrieved/created - Id: {snapshot.Base.Id}, Date: {snapshot.Base.Date}"
+            )
+
             // 1. Get all movements FROM this date onwards (inclusive) - using START OF DAY to capture entire day
             let movementRetrievalDate = getDateOnlyStartOfDay date
-            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Movement retrieval date: {movementRetrievalDate}")
-            
-            let! allMovementsFromDate = getAllMovementsFromDate(brokerAccountId, movementRetrievalDate)
-            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Movements loaded - HasMovements: {allMovementsFromDate.HasMovements}")
-            
-            let! futureSnapshots = getAllSnapshotsAfterDate(brokerAccountId, snapshotDate)
-            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Future snapshots loaded - Count: {futureSnapshots.Length}")
-            
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Movement retrieval date: {movementRetrievalDate}"
+            )
+
+            let! allMovementsFromDate = getAllMovementsFromDate (brokerAccountId, movementRetrievalDate)
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Movements loaded - HasMovements: {allMovementsFromDate.HasMovements}"
+            )
+
+            let! futureSnapshots = getAllSnapshotsAfterDate (brokerAccountId, snapshotDate)
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Future snapshots loaded - Count: {futureSnapshots.Length}"
+            )
+
             // 2. Extract affected dates from movement data (reuse the same data)
             let datesWithMovements = allMovementsFromDate.UniqueDates
-            let datesWithSnapshots = extractDatesFromSnapshots(futureSnapshots)
+            let datesWithSnapshots = extractDatesFromSnapshots (futureSnapshots)
             let missingSnapshotDates = Set.difference datesWithMovements datesWithSnapshots
-            
-            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Date analysis - DatesWithMovements: {datesWithMovements.Count}, DatesWithSnapshots: {datesWithSnapshots.Count}, MissingSnapshotDates: {missingSnapshotDates.Count}")
-            
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Date analysis - DatesWithMovements: {datesWithMovements.Count}, DatesWithSnapshots: {datesWithSnapshots.Count}, MissingSnapshotDates: {missingSnapshotDates.Count}"
+            )
+
             // 3. Decision logic using the pre-fetched data
             match allMovementsFromDate.HasMovements, futureSnapshots.IsEmpty, missingSnapshotDates.IsEmpty with
-            | false, true, _ -> 
+            | false, true, _ ->
                 // No future activity - simple one-day update
-                System.Diagnostics.Debug.WriteLine("[BrokerAccountSnapshotManager] Decision: One-day update (no future activity)")
+                System.Diagnostics.Debug.WriteLine(
+                    "[BrokerAccountSnapshotManager] Decision: One-day update (no future activity)"
+                )
+
                 do! BrokerFinancialSnapshotManager.brokerAccountOneDayUpdate snapshot allMovementsFromDate
             | true, _, false ->
                 // Future movements exist with missing snapshots - create missing snapshots then cascade
-                System.Diagnostics.Debug.WriteLine("[BrokerAccountSnapshotManager] Decision: Cascade update with missing snapshots creation")
-                let! missedSnapshots = createAndGetMissingSnapshots(brokerAccountId, missingSnapshotDates)
-                let allSnapshots = futureSnapshots @ missedSnapshots |> List.sortBy (fun s -> s.Base.Date.Value)
+                System.Diagnostics.Debug.WriteLine(
+                    "[BrokerAccountSnapshotManager] Decision: Cascade update with missing snapshots creation"
+                )
+
+                let! missedSnapshots = createAndGetMissingSnapshots (brokerAccountId, missingSnapshotDates)
+
+                let allSnapshots =
+                    futureSnapshots @ missedSnapshots |> List.sortBy (fun s -> s.Base.Date.Value)
+
                 do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot allSnapshots allMovementsFromDate
             | true, false, true ->
                 // Future movements exist, all snapshots present - standard cascade
                 System.Diagnostics.Debug.WriteLine("[BrokerAccountSnapshotManager] Decision: Standard cascade update")
-                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot futureSnapshots allMovementsFromDate
+
+                do!
+                    BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate
+                        snapshot
+                        futureSnapshots
+                        allMovementsFromDate
             | _ ->
                 // Edge cases - default to cascade for safety
-                System.Diagnostics.Debug.WriteLine("[BrokerAccountSnapshotManager] Decision: Edge case - default to cascade for safety")
-                do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot futureSnapshots allMovementsFromDate
-            
-            System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotManager] Exiting handleBrokerAccountChange - BrokerAccountId: {brokerAccountId}")
-            return()
+                System.Diagnostics.Debug.WriteLine(
+                    "[BrokerAccountSnapshotManager] Decision: Edge case - default to cascade for safety"
+                )
+
+                do!
+                    BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate
+                        snapshot
+                        futureSnapshots
+                        allMovementsFromDate
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[BrokerAccountSnapshotManager] Exiting handleBrokerAccountChange - BrokerAccountId: {brokerAccountId}"
+            )
+
+            return ()
         }
 
 (*

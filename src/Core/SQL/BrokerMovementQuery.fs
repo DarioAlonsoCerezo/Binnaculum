@@ -147,3 +147,12 @@ module internal BrokerMovementQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
+    
+    let getByBrokerAccountIdForDate =
+        $"""
+        SELECT * FROM {BrokerMovements}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND DATE({TimeStamp}) = DATE({SQLParameterName.TimeStamp})
+        ORDER BY {TimeStamp}
+        """

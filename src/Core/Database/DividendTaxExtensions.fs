@@ -103,6 +103,15 @@ type Do() =
         return dividendTaxes
     }
 
+    static member getByBrokerAccountIdForDate(brokerAccountId: int, targetDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- DividendTaxesQuery.getByBrokerAccountIdForDate
+        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, targetDate.ToString()) |> ignore
+        let! dividendTaxes = Database.Do.readAll<DividendTax>(command, Do.read)
+        return dividendTaxes
+    }
+
 /// <summary>
 /// Financial calculation extension methods for DividendTax collections.
 /// These methods provide reusable calculation logic for dividend tax withholding tracking and financial snapshot processing.

@@ -19,7 +19,7 @@ type DatabasePersistenceTests() =
     /// that are not available in headless test environments. The database persistence functionality
     /// has been implemented and compiles successfully, but cannot be tested directly due to
     /// the FileSystem.AppDataDirectory dependency in the SQLite connection string.
-    /// 
+    ///
     /// These tests would run properly in a MAUI app environment or with proper platform initialization.
     /// </summary>
 
@@ -33,16 +33,15 @@ type DatabasePersistenceTests() =
     [<Test>]
     member this.``DatabasePersistence types are properly defined``() =
         // Test that we can create the result type structures
-        let persistenceResult = {
-            BrokerMovementsCreated = 1
-            OptionTradesCreated = 2
-            StockTradesCreated = 0
-            DividendsCreated = 0
-            ErrorsCount = 0
-            Errors = []
-            ImportMetadata = ImportMetadata.createEmpty()
-        }
-        
+        let persistenceResult =
+            { BrokerMovementsCreated = 1
+              OptionTradesCreated = 2
+              StockTradesCreated = 0
+              DividendsCreated = 0
+              ErrorsCount = 0
+              Errors = []
+              ImportMetadata = ImportMetadata.createEmpty () }
+
         Assert.That(persistenceResult.BrokerMovementsCreated, Is.EqualTo(1))
         Assert.That(persistenceResult.OptionTradesCreated, Is.EqualTo(2))
         Assert.That(persistenceResult.ErrorsCount, Is.EqualTo(0))
@@ -50,29 +49,28 @@ type DatabasePersistenceTests() =
     [<Test>]
     member this.``TastytradeTransaction structure is correct for database persistence``() =
         // Test that we can create valid TastytradeTransaction objects
-        let testTransaction = {
-            Date = DateTime(2024, 4, 30, 15, 45, 8)
-            TransactionType = Trade(TastytradeModels.SellToOpen, TastytradeModels.SELL_TO_OPEN)
-            Symbol = Some "SOFI  240510P00006500"
-            InstrumentType = Some "Equity Option"
-            Description = "Sold 1 SOFI 05/10/24 Put 6.50 @ 0.16"
-            Value = 16.00m
-            Quantity = 1m
-            AveragePrice = Some 16.00m
-            Commissions = 1.00m
-            Fees = 0.14m
-            Multiplier = Some 100m
-            RootSymbol = Some "SOFI"
-            UnderlyingSymbol = Some "SOFI"
-            ExpirationDate = Some (DateTime(2024, 5, 10))
-            StrikePrice = Some 6.5m
-            CallOrPut = Some "PUT"
-            OrderNumber = Some "320205416"
-            Currency = "USD"
-            RawCsvLine = "test line"
-            LineNumber = 1
-        }
-        
+        let testTransaction =
+            { Date = DateTime(2024, 4, 30, 15, 45, 8)
+              TransactionType = Trade(TastytradeModels.SellToOpen, TastytradeModels.SELL_TO_OPEN)
+              Symbol = Some "SOFI  240510P00006500"
+              InstrumentType = Some "Equity Option"
+              Description = "Sold 1 SOFI 05/10/24 Put 6.50 @ 0.16"
+              Value = 16.00m
+              Quantity = 1m
+              AveragePrice = Some 16.00m
+              Commissions = 1.00m
+              Fees = 0.14m
+              Multiplier = Some 100m
+              RootSymbol = Some "SOFI"
+              UnderlyingSymbol = Some "SOFI"
+              ExpirationDate = Some(DateTime(2024, 5, 10))
+              StrikePrice = Some 6.5m
+              CallOrPut = Some "PUT"
+              OrderNumber = Some "320205416"
+              Currency = "USD"
+              RawCsvLine = "test line"
+              LineNumber = 1 }
+
         Assert.That(testTransaction.Value, Is.EqualTo(16.00m))
         Assert.That(testTransaction.InstrumentType, Is.EqualTo(Some "Equity Option"))
         Assert.That(testTransaction.Currency, Is.EqualTo("USD"))
@@ -81,129 +79,127 @@ type DatabasePersistenceTests() =
     member this.``Import flow integration validates database persistence is called``() =
         // This validates that the ImportManager has been updated to include database persistence
         // We can't test the actual database operations but we can verify the flow exists
-        
+
         // The fact that ImportManager compiles with DatabasePersistence calls means the integration is correct
         // The ImportManager.importFile method now includes:
         // 1. Parse transactions
         // 2. If successful, call DatabasePersistence.persistTransactionsToDatabase
         // 3. Update ImportResult with actual persisted counts
         // 4. Handle errors and cancellation properly
-        
+
         Assert.Pass("ImportManager integration with DatabasePersistence compiles successfully")
 
     /// <summary>
     /// Integration test documentation:
-    /// 
+    ///
     /// The ImportManager has been enhanced with database persistence functionality:
-    /// 
+    ///
     /// 1. After successful parsing by TastytradeImporter, the ImportManager now:
     ///    - Re-parses the CSV files to get TastytradeTransaction objects
-    ///    - Calls DatabasePersistence.persistTransactionsToDatabase() 
+    ///    - Calls DatabasePersistence.persistTransactionsToDatabase()
     ///    - Updates the ImportResult with actual persisted counts
     ///    - Properly handles cancellation and errors during persistence
-    /// 
+    ///
     /// 2. The DatabasePersistence module provides:
     ///    - Conversion from TastytradeTransaction to domain objects (BrokerMovement, OptionTrade, Trade)
     ///    - Database persistence using existing extension methods
     ///    - Progress reporting during save operations
     ///    - Error handling and cancellation support
-    /// 
+    ///
     /// 3. The ImportStatus enum now includes SavingToDatabase for progress tracking
-    /// 
+    ///
     /// This resolves the issue where imported data was parsed but not persisted to the database.
     /// </summary>
 
     [<Test>]
     member this.``TastytradeTransaction structure supports multi-currency data``() =
         // Test USD transaction (existing behavior)
-        let usdTransaction = {
-            Date = DateTime(2024, 4, 30, 15, 45, 8)
-            TransactionType = Trade(TastytradeModels.SellToOpen, TastytradeModels.SELL_TO_OPEN)
-            Symbol = Some "SOFI  240510P00006500"
-            InstrumentType = Some "Equity Option"
-            Description = "Sold 1 SOFI 05/10/24 Put 6.50 @ 0.16"
-            Value = 16.00m
-            Quantity = 1m
-            AveragePrice = Some 16.00m
-            Commissions = 1.00m
-            Fees = 0.14m
-            Multiplier = Some 100m
-            RootSymbol = Some "SOFI"
-            UnderlyingSymbol = Some "SOFI"
-            ExpirationDate = Some (DateTime(2024, 5, 10))
-            StrikePrice = Some 6.5m
-            CallOrPut = Some "PUT"
-            OrderNumber = Some "320205416"
-            Currency = "USD"
-            RawCsvLine = "test USD line"
-            LineNumber = 1
-        }
-        
+        let usdTransaction =
+            { Date = DateTime(2024, 4, 30, 15, 45, 8)
+              TransactionType = Trade(TastytradeModels.SellToOpen, TastytradeModels.SELL_TO_OPEN)
+              Symbol = Some "SOFI  240510P00006500"
+              InstrumentType = Some "Equity Option"
+              Description = "Sold 1 SOFI 05/10/24 Put 6.50 @ 0.16"
+              Value = 16.00m
+              Quantity = 1m
+              AveragePrice = Some 16.00m
+              Commissions = 1.00m
+              Fees = 0.14m
+              Multiplier = Some 100m
+              RootSymbol = Some "SOFI"
+              UnderlyingSymbol = Some "SOFI"
+              ExpirationDate = Some(DateTime(2024, 5, 10))
+              StrikePrice = Some 6.5m
+              CallOrPut = Some "PUT"
+              OrderNumber = Some "320205416"
+              Currency = "USD"
+              RawCsvLine = "test USD line"
+              LineNumber = 1 }
+
         // Test EUR transaction (new multi-currency support)
-        let eurTransaction = {
-            Date = DateTime(2024, 4, 30, 15, 45, 8)
-            TransactionType = MoneyMovement(TastytradeModels.Deposit)
-            Symbol = None
-            InstrumentType = None
-            Description = "Wire Funds Received"
-            Value = 1000.00m
-            Quantity = 0m
-            AveragePrice = None
-            Commissions = 0m
-            Fees = 0m
-            Multiplier = None
-            RootSymbol = None
-            UnderlyingSymbol = None
-            ExpirationDate = None
-            StrikePrice = None
-            CallOrPut = None
-            OrderNumber = None
-            Currency = "EUR"
-            RawCsvLine = "test EUR line"
-            LineNumber = 2
-        }
-        
+        let eurTransaction =
+            { Date = DateTime(2024, 4, 30, 15, 45, 8)
+              TransactionType = MoneyMovement(TastytradeModels.Deposit)
+              Symbol = None
+              InstrumentType = None
+              Description = "Wire Funds Received"
+              Value = 1000.00m
+              Quantity = 0m
+              AveragePrice = None
+              Commissions = 0m
+              Fees = 0m
+              Multiplier = None
+              RootSymbol = None
+              UnderlyingSymbol = None
+              ExpirationDate = None
+              StrikePrice = None
+              CallOrPut = None
+              OrderNumber = None
+              Currency = "EUR"
+              RawCsvLine = "test EUR line"
+              LineNumber = 2 }
+
         Assert.That(usdTransaction.Currency, Is.EqualTo("USD"))
         Assert.That(eurTransaction.Currency, Is.EqualTo("EUR"))
 
     [<Test>]
     member this.``Currency handling logic validation for multi-currency scenarios``() =
         // Test case: Valid currency codes that should be supported
-        let validCurrencies = ["USD"; "EUR"; "GBP"; "JPY"; "CAD"]
-        
+        let validCurrencies = [ "USD"; "EUR"; "GBP"; "JPY"; "CAD" ]
+
         for currency in validCurrencies do
-            let transaction = {
-                Date = DateTime.UtcNow
-                TransactionType = MoneyMovement(TastytradeModels.Deposit)
-                Symbol = None
-                InstrumentType = None
-                Description = $"Test {currency} transaction"
-                Value = 100.00m
-                Quantity = 0m
-                AveragePrice = None
-                Commissions = 0m
-                Fees = 0m
-                Multiplier = None
-                RootSymbol = None
-                UnderlyingSymbol = None
-                ExpirationDate = None
-                StrikePrice = None
-                CallOrPut = None
-                OrderNumber = None
-                Currency = currency
-                RawCsvLine = $"test {currency} line"
-                LineNumber = 1
-            }
+            let transaction =
+                { Date = DateTime.UtcNow
+                  TransactionType = MoneyMovement(TastytradeModels.Deposit)
+                  Symbol = None
+                  InstrumentType = None
+                  Description = $"Test {currency} transaction"
+                  Value = 100.00m
+                  Quantity = 0m
+                  AveragePrice = None
+                  Commissions = 0m
+                  Fees = 0m
+                  Multiplier = None
+                  RootSymbol = None
+                  UnderlyingSymbol = None
+                  ExpirationDate = None
+                  StrikePrice = None
+                  CallOrPut = None
+                  OrderNumber = None
+                  Currency = currency
+                  RawCsvLine = $"test {currency} line"
+                  LineNumber = 1 }
+
             Assert.That(transaction.Currency, Is.EqualTo(currency))
 
     [<Test>]
     member this.``Multi-currency transaction list supports mixed currencies``() =
         // Test that a list of transactions can contain mixed currencies
-        let mixedCurrencyTransactions = [
-            // USD Option Trade
-            {
-                Date = DateTime(2024, 4, 30, 15, 45, 8)
-                TransactionType = Trade(TastytradeModels.SellToOpen, TastytradeModels.SELL_TO_OPEN) 
+        let mixedCurrencyTransactions =
+            [
+              // USD Option Trade
+              { Date = DateTime(2024, 4, 30, 15, 45, 8)
+                TransactionType = Trade(TastytradeModels.SellToOpen, TastytradeModels.SELL_TO_OPEN)
                 Symbol = Some "AAPL"
                 InstrumentType = Some "Equity Option"
                 Description = "Test USD option"
@@ -215,17 +211,15 @@ type DatabasePersistenceTests() =
                 Multiplier = Some 100m
                 RootSymbol = Some "AAPL"
                 UnderlyingSymbol = Some "AAPL"
-                ExpirationDate = Some (DateTime(2024, 5, 10))
+                ExpirationDate = Some(DateTime(2024, 5, 10))
                 StrikePrice = Some 150m
                 CallOrPut = Some "CALL"
                 OrderNumber = Some "123456"
                 Currency = "USD"
                 RawCsvLine = "test USD line"
-                LineNumber = 1
-            }
-            // EUR Deposit
-            {
-                Date = DateTime(2024, 4, 24, 22, 0, 0)
+                LineNumber = 1 }
+              // EUR Deposit
+              { Date = DateTime(2024, 4, 24, 22, 0, 0)
                 TransactionType = MoneyMovement(TastytradeModels.Deposit)
                 Symbol = None
                 InstrumentType = None
@@ -244,10 +238,8 @@ type DatabasePersistenceTests() =
                 OrderNumber = None
                 Currency = "EUR"
                 RawCsvLine = "test EUR deposit line"
-                LineNumber = 2
-            }
-        ]
-        
+                LineNumber = 2 } ]
+
         Assert.That(mixedCurrencyTransactions.Length, Is.EqualTo(2))
         Assert.That(mixedCurrencyTransactions.[0].Currency, Is.EqualTo("USD"))
         Assert.That(mixedCurrencyTransactions.[1].Currency, Is.EqualTo("EUR"))
@@ -255,23 +247,87 @@ type DatabasePersistenceTests() =
     [<Test>]
     member this.``DatabasePersistence getCurrencyId function behavior validation``() =
         // This test documents the expected behavior of the new getCurrencyId function
-        
+
         // Test case 1: USD should always work (backward compatibility)
         let usdCurrency = "USD"
         Assert.That(String.IsNullOrWhiteSpace(usdCurrency), Is.False)
         Assert.That(usdCurrency, Is.EqualTo("USD"))
-        
+
         // Test case 2: Empty/null currency should fallback to USD
-        let emptyCurrencies = [""; " "]
+        let emptyCurrencies = [ ""; " " ]
+
         for currency in emptyCurrencies do
-            let fallbackCurrency = if String.IsNullOrWhiteSpace(currency) then "USD" else currency
+            let fallbackCurrency =
+                if String.IsNullOrWhiteSpace(currency) then
+                    "USD"
+                else
+                    currency
+
             Assert.That(fallbackCurrency, Is.EqualTo("USD"))
-            
-        Assert.Pass("getCurrencyId function logic validation completed - supports per-transaction currency lookup with USD fallback")
+
+        Assert.Pass(
+            "getCurrencyId function logic validation completed - supports per-transaction currency lookup with USD fallback"
+        )
 
     [<Test>]
     member this.``Performance improvement validation - efficient currency lookup``() =
         // This test documents the performance improvement from using getByCode instead of getAll
         // Old approach: getAll() + List.tryFind (inefficient)
         // New approach: getByCode(currencyCode) (efficient targeted query)
-        Assert.Pass("Performance improvement documented: targeted getByCode() queries replace inefficient getAll() + linear search pattern")
+        Assert.Pass(
+            "Performance improvement documented: targeted getByCode() queries replace inefficient getAll() + linear search pattern"
+        )
+
+    [<Test>]
+    member _.``orderTransactionsForPersistence processes opening trades before closings``() =
+        let timestamp = DateTime(2024, 5, 1, 14, 30, 0, DateTimeKind.Utc)
+
+        let closingTrade =
+            { Date = timestamp
+              TransactionType = Trade(TastytradeModels.BuyToClose, TastytradeModels.BUY_TO_CLOSE)
+              Symbol = Some "XYZ  240517C00020000"
+              InstrumentType = Some "Equity Option"
+              Description = "Buy to close test"
+              Value = -25.00m
+              Quantity = 1m
+              AveragePrice = Some -25.00m
+              Commissions = 1.00m
+              Fees = 0.14m
+              Multiplier = Some 100m
+              RootSymbol = Some "XYZ"
+              UnderlyingSymbol = Some "XYZ"
+              ExpirationDate = Some(DateTime(2024, 5, 17))
+              StrikePrice = Some 20.0m
+              CallOrPut = Some "CALL"
+              OrderNumber = Some "ORDER-2"
+              Currency = "USD"
+              RawCsvLine = "closing"
+              LineNumber = 2 }
+
+        let openingTrade =
+            { Date = timestamp
+              TransactionType = Trade(TastytradeModels.SellToOpen, TastytradeModels.SELL_TO_OPEN)
+              Symbol = Some "XYZ  240517C00020000"
+              InstrumentType = Some "Equity Option"
+              Description = "Sell to open test"
+              Value = 30.00m
+              Quantity = 1m
+              AveragePrice = Some 30.00m
+              Commissions = 1.00m
+              Fees = 0.14m
+              Multiplier = Some 100m
+              RootSymbol = Some "XYZ"
+              UnderlyingSymbol = Some "XYZ"
+              ExpirationDate = Some(DateTime(2024, 5, 17))
+              StrikePrice = Some 20.0m
+              CallOrPut = Some "CALL"
+              OrderNumber = Some "ORDER-1"
+              Currency = "USD"
+              RawCsvLine = "opening"
+              LineNumber = 1 }
+
+        let ordered = orderTransactionsForPersistence [ closingTrade; openingTrade ]
+
+        Assert.That(ordered.Length, Is.EqualTo(2))
+        Assert.That(ordered.Head.TransactionType, Is.EqualTo(openingTrade.TransactionType))
+        Assert.That(ordered.Tail.Head.TransactionType, Is.EqualTo(closingTrade.TransactionType))

@@ -131,7 +131,7 @@ module internal OptionsQuery =
             {Id} = {SQLParameterName.Id}
         """
 
-    let delete = 
+    let delete =
         $"""
         DELETE FROM {Options}
         WHERE
@@ -189,4 +189,46 @@ module internal OptionsQuery =
             {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
+        """
+
+    let getByBrokerAccountIdForDate =
+        $"""
+        SELECT * FROM {Options}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND DATE({TimeStamp}) = DATE({SQLParameterName.TimeStamp})
+        ORDER BY {TimeStamp}
+        """
+
+    let getFirstOpenTradeByCode =
+        $"""
+        SELECT * FROM {Options}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND {TickerId} = {SQLParameterName.TickerId}
+            AND {CurrencyId} = {SQLParameterName.CurrencyId}
+            AND {OptionType} = {SQLParameterName.OptionType}
+            AND CAST({Strike} AS REAL) = {SQLParameterName.Strike}
+            AND {ExpirationDate} = {SQLParameterName.ExpirationDate}
+            AND {IsOpen} = 1
+            AND {ClosedWith} IS NULL
+            AND {Code} = {SQLParameterName.Code}
+        ORDER BY {TimeStamp}
+        LIMIT 1
+        """
+
+    let getFirstOpenTradeAnyCode =
+        $"""
+        SELECT * FROM {Options}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND {TickerId} = {SQLParameterName.TickerId}
+            AND {CurrencyId} = {SQLParameterName.CurrencyId}
+            AND {OptionType} = {SQLParameterName.OptionType}
+            AND CAST({Strike} AS REAL) = {SQLParameterName.Strike}
+            AND {ExpirationDate} = {SQLParameterName.ExpirationDate}
+            AND {IsOpen} = 1
+            AND {ClosedWith} IS NULL
+        ORDER BY {TimeStamp}
+        LIMIT 1
         """
