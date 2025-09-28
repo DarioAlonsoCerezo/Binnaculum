@@ -14,11 +14,12 @@ module BrokerFinancialUnrealizedGains =
     /// <param name="targetDate">Date to retrieve market prices for</param>
     /// <param name="targetCurrencyId">Currency ID to ensure price and cost basis alignment</param>
     /// <returns>Tuple of (UnrealizedGains as Money, UnrealizedGainsPercentage as decimal)</returns>
-    let internal calculateUnrealizedGains 
-        (currentPositions: Map<int, decimal>) 
-        (costBasisInfo: Map<int, decimal>) 
-        (targetDate: DateTimePattern) 
-        (targetCurrencyId: int) =
+    let internal calculateUnrealizedGains
+        (currentPositions: Map<int, decimal>)
+        (costBasisInfo: Map<int, decimal>)
+        (targetDate: DateTimePattern)
+        (targetCurrencyId: int)
+        =
         task {
             System.Diagnostics.Debug.WriteLine(
                 sprintf
@@ -31,7 +32,7 @@ module BrokerFinancialUnrealizedGains =
 
             let mutable totalMarketValue = 0m
             let mutable totalCostBasis = 0m
-            
+
             // Process each ticker with current positions
             for KeyValue(tickerId, quantity) in currentPositions do
                 // Only process if we have non-zero positions
@@ -45,14 +46,19 @@ module BrokerFinancialUnrealizedGains =
 
                     // ✅ CURRENCY-SAFE: Get market price for this ticker on the target date in the correct currency
                     // This ensures that market price and cost basis are in the same currency for accurate comparison
-                    let! marketPrice = TickerPriceExtensions.Do.getPriceByDateOrPreviousAndCurrencyId(tickerId, targetCurrencyId, targetDate.Value.ToString("yyyy-MM-dd"))
-                    
+                    let! marketPrice =
+                        TickerPriceExtensions.Do.getPriceByDateOrPreviousAndCurrencyId (
+                            tickerId,
+                            targetCurrencyId,
+                            targetDate.Value.ToString("yyyy-MM-dd")
+                        )
+
                     // Get cost basis per share for this ticker (already in target currency from trade calculations)
                     let costBasisPerShare = costBasisInfo.TryFind(tickerId) |> Option.defaultValue 0m
-                    
+
                     // Calculate market value and cost basis for this position
-                    let positionMarketValue = marketPrice * abs(quantity)  // Use abs() to handle both long and short positions
-                    let positionCostBasis = costBasisPerShare * abs(quantity)
+                    let positionMarketValue = marketPrice * abs (quantity) // Use abs() to handle both long and short positions
+                    let positionCostBasis = costBasisPerShare * abs (quantity)
 
                     System.Diagnostics.Debug.WriteLine(
                         sprintf
@@ -62,7 +68,7 @@ module BrokerFinancialUnrealizedGains =
                             positionMarketValue
                             positionCostBasis
                     )
-                    
+
                     // For short positions, the unrealized gain/loss calculation is inverted
                     if quantity > 0m then
                         // Long position: gain when market price > cost basis
@@ -70,19 +76,19 @@ module BrokerFinancialUnrealizedGains =
                         totalCostBasis <- totalCostBasis + positionCostBasis
                     else
                         // Short position: gain when market price < cost basis (we sold high, can buy back low)
-                        totalMarketValue <- totalMarketValue - positionMarketValue  // Negative market value for shorts
-                        totalCostBasis <- totalCostBasis - positionCostBasis        // Negative cost basis for shorts
-            
+                        totalMarketValue <- totalMarketValue - positionMarketValue // Negative market value for shorts
+                        totalCostBasis <- totalCostBasis - positionCostBasis // Negative cost basis for shorts
+
             // Calculate total unrealized gains: Market Value - Cost Basis
             let unrealizedGains = totalMarketValue - totalCostBasis
-            
+
             // Calculate unrealized gains percentage
-            let unrealizedGainsPercentage = 
+            let unrealizedGainsPercentage =
                 if totalCostBasis <> 0m then
-                    (unrealizedGains / abs(totalCostBasis)) * 100m  // Use abs() for percentage calculation
-                else 
+                    (unrealizedGains / abs (totalCostBasis)) * 100m // Use abs() for percentage calculation
+                else
                     0m
-            
+
             System.Diagnostics.Debug.WriteLine(
                 sprintf
                     "[BrokerFinancialUnrealizedGains] Completed calculation - TotalMarketValue:%M TotalCostBasis:%M UnrealizedGains:%M Unrealized%%:%M"

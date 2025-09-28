@@ -856,6 +856,65 @@ type OptionTradeCalculations() =
                 tradesOnTarget.Length
         )
 
+        let openPositionsMap = tradesUpToTarget.calculateOpenPositions ()
+
+        let latestOpenExpirationDayOpt =
+            openPositionsMap
+            |> Map.toList
+            |> List.map (fun ((_, _, _, expiration), _) -> expiration.Date)
+            |> function
+                | [] -> None
+                | dates -> dates |> List.max |> Some
+
+        let effectiveValuationDate =
+            match latestOpenExpirationDayOpt with
+            | Some expirationDay ->
+                if targetDay <= expirationDay then
+                    targetDate
+                else
+                    System.Diagnostics.Debug.WriteLine(
+                        sprintf
+                            "[OptionTradeCalculations] Adjusting valuation date from target %s to latest open expiration %s"
+                            (targetDay.ToString("yyyy-MM-dd"))
+                            (expirationDay.ToString("yyyy-MM-dd"))
+                    )
+
+                    DateTime(
+                        expirationDay.Year,
+                        expirationDay.Month,
+                        expirationDay.Day,
+                        targetDate.Hour,
+                        targetDate.Minute,
+                        targetDate.Second,
+                        targetDate.Millisecond,
+                        targetDate.Kind
+                    )
+            | None ->
+                match tradesUpToTarget |> List.tryLast with
+                | Some lastTrade ->
+                    let lastTradeDay = lastTrade.TimeStamp.Value.Date
+
+                    if targetDay <= lastTradeDay then
+                        targetDate
+                    else
+                        System.Diagnostics.Debug.WriteLine(
+                            sprintf
+                                "[OptionTradeCalculations] No open positions; capping valuation date to last trade day %s"
+                                (lastTradeDay.ToString("yyyy-MM-dd"))
+                        )
+
+                        DateTime(
+                            lastTradeDay.Year,
+                            lastTradeDay.Month,
+                            lastTradeDay.Day,
+                            targetDate.Hour,
+                            targetDate.Minute,
+                            targetDate.Second,
+                            targetDate.Millisecond,
+                            targetDate.Kind
+                        )
+                | None -> targetDate
+
         let cumulativeRealized = tradesUpToTarget.calculateRealizedGains (targetDate)
 
         let previousRealized =
@@ -871,15 +930,23 @@ type OptionTradeCalculations() =
                 dailyRealizedAmount
         )
 
+        System.Diagnostics.Debug.WriteLine(
+            sprintf
+                "[OptionTradeCalculations] Effective valuation date for unrealized calculations: %s"
+                (effectiveValuationDate.ToString("yyyy-MM-dd"))
+        )
+
+        let hasOpenOptions = not (Map.isEmpty openPositionsMap)
+
         {| OptionsIncome = tradesUpToTarget.calculateOptionsIncome ()
            OptionsInvestment = tradesUpToTarget.calculateOptionsInvestment ()
            NetOptionsIncome = tradesUpToTarget.calculateNetOptionsIncome ()
            TotalCommissions = tradesUpToTarget.calculateTotalCommissions ()
            TotalFees = tradesUpToTarget.calculateTotalFees ()
            RealizedGains = cumulativeRealized
-           UnrealizedGains = tradesUpToTarget.calculateUnrealizedGains (targetDate)
-           HasOpenOptions = tradesUpToTarget.hasOpenOptions (targetDate)
-           OpenPositions = tradesUpToTarget.calculateOpenPositions ()
+           UnrealizedGains = tradesUpToTarget.calculateUnrealizedGains (effectiveValuationDate)
+           HasOpenOptions = hasOpenOptions
+           OpenPositions = openPositionsMap
            TradeCount = tradesOnTarget.calculateTradeCount ()
            UniqueCurrencies = tradesUpToTarget.getUniqueCurrencyIds () |}
         |> fun summary ->
