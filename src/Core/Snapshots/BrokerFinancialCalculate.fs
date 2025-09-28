@@ -23,16 +23,22 @@ module internal BrokerFinancialCalculate =
         let totalUnrealizedGains =
             Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
 
+        // Calculate NetCashFlow as the actual contributed capital
+        let netCashFlow = 
+            calculatedMetrics.Deposited.Value - calculatedMetrics.Withdrawn.Value 
+            - calculatedMetrics.Commissions.Value - calculatedMetrics.Fees.Value 
+            + calculatedMetrics.DividendsReceived.Value + calculatedMetrics.OptionsIncome.Value 
+            + calculatedMetrics.OtherIncome.Value
+
         let unrealizedPercentage =
-            if calculatedMetrics.Invested.Value > 0m then
-                (totalUnrealizedGains.Value / calculatedMetrics.Invested.Value) * 100m
+            if netCashFlow > 0m then
+                (totalUnrealizedGains.Value / netCashFlow) * 100m
             else
                 0m
 
         let realizedPercentage =
-            if calculatedMetrics.Invested.Value > 0m then
-                (calculatedMetrics.RealizedGains.Value / calculatedMetrics.Invested.Value)
-                * 100m
+            if netCashFlow > 0m then
+                (calculatedMetrics.RealizedGains.Value / netCashFlow) * 100m
             else
                 0m
 

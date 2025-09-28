@@ -116,9 +116,16 @@ module internal BrokerFinancialCumulativeFinancial =
             let totalUnrealizedGains =
                 Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
 
+            // Calculate cumulative NetCashFlow as the actual contributed capital
+            let cumulativeNetCashFlow = 
+                cumulativeDeposited.Value - cumulativeWithdrawn.Value 
+                - cumulativeCommissions.Value - cumulativeFees.Value 
+                + cumulativeDividendsReceived.Value + cumulativeOptionsIncome.Value 
+                + cumulativeOtherIncome.Value
+
             let unrealizedGainsPercentage =
-                if cumulativeInvested.Value > 0m then
-                    (totalUnrealizedGains.Value / cumulativeInvested.Value) * 100m
+                if cumulativeNetCashFlow > 0m then
+                    (totalUnrealizedGains.Value / cumulativeNetCashFlow) * 100m
                 else
                     0m
 
@@ -133,8 +140,8 @@ module internal BrokerFinancialCumulativeFinancial =
 
             // Calculate realized percentage return
             let realizedPercentage =
-                if cumulativeInvested.Value > 0m then
-                    (cumulativeRealizedGains.Value / cumulativeInvested.Value) * 100m
+                if cumulativeNetCashFlow > 0m then
+                    (cumulativeRealizedGains.Value / cumulativeNetCashFlow) * 100m
                 else
                     0m
 
