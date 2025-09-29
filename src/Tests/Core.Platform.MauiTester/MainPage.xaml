@@ -16,13 +16,13 @@
                 FontSize="24"
                 FontAttributes="Bold"
                 HorizontalTextAlignment="Center"
-                SemanticProperties.HeadingLevel="Level1" />
+                SemanticProperties.HeadingLevel="Level1"/>
 
             <Label
                 Text="Validates Core library functionality in real MAUI environment"
                 FontSize="14"
                 HorizontalTextAlignment="Center"
-                TextColor="Gray" />
+                TextColor="Gray"/>
 
             <!--  Test Buttons  -->
             <Button
@@ -35,7 +35,19 @@
                 Clicked="OnRunTestClicked"
                 IsEnabled="{Binding CanRunTest}"
                 SemanticProperties.Hint="Runs Core Platform validation tests"
-                HorizontalOptions="Fill" />
+                HorizontalOptions="Fill"/>
+
+            <Button
+                x:Name="RunOverviewReactiveTestButton"
+                Text="Run Overview Reactive Test"
+                FontSize="16"
+                BackgroundColor="MediumSeaGreen"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunOverviewReactiveTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs reactive version of Overview test by subscribing to streams"
+                HorizontalOptions="Fill"/>
 
             <Button
                 x:Name="RunBrokerAccountTestButton"
@@ -47,7 +59,7 @@
                 Clicked="OnRunBrokerAccountTestClicked"
                 IsEnabled="{Binding CanRunTest}"
                 SemanticProperties.Hint="Runs BrokerAccount creation validation test"
-                HorizontalOptions="Fill" />
+                HorizontalOptions="Fill"/>
 
             <Button
                 x:Name="RunBrokerAccountDepositTestButton"
@@ -59,7 +71,7 @@
                 Clicked="OnRunBrokerAccountDepositTestClicked"
                 IsEnabled="{Binding CanRunTest}"
                 SemanticProperties.Hint="Runs BrokerAccount creation + Deposit movement validation test"
-                HorizontalOptions="Fill" />
+                HorizontalOptions="Fill"/>
 
             <Button
                 x:Name="RunBrokerAccountMultipleMovementsTestButton"
@@ -71,7 +83,7 @@
                 Clicked="OnRunBrokerAccountMultipleMovementsTestClicked"
                 IsEnabled="{Binding CanRunTest}"
                 SemanticProperties.Hint="Runs BrokerAccount with multiple deposits and withdrawals validation test"
-                HorizontalOptions="Fill" />
+                HorizontalOptions="Fill"/>
 
             <Button
                 x:Name="RunOptionsImportIntegrationTestButton"
@@ -83,31 +95,31 @@
                 Clicked="OnRunOptionsImportIntegrationTestClicked"
                 IsEnabled="{Binding CanRunTest}"
                 SemanticProperties.Hint="Runs end-to-end options import workflow with real Tastytrade data"
-                HorizontalOptions="Fill" />
+                HorizontalOptions="Fill"/>
 
             <Button
                 x:Name="RunTastytradeImportIntegrationTestButton"
                 Text="Execute Tastytrade Import Test"
                 FontSize="16"
                 BackgroundColor="Crimson"
-                TextColor="White"  
+                TextColor="White"
                 HeightRequest="50"
                 Clicked="OnRunTastytradeImportIntegrationTestClicked"
                 IsEnabled="{Binding CanRunTest}"
                 SemanticProperties.Hint="Runs comprehensive SPX options import with ticker validation ($164 commissions, $244 fees, $822 realized)"
-                HorizontalOptions="Fill" />
+                HorizontalOptions="Fill"/>
 
             <Button
                 x:Name="RunTsllImportIntegrationTestButton"
                 Text="Execute TSLL Import Test"
                 FontSize="16"
                 BackgroundColor="DarkMagenta"
-                TextColor="White"  
+                TextColor="White"
                 HeightRequest="50"
                 Clicked="OnRunTsllImportIntegrationTestClicked"
                 IsEnabled="{Binding CanRunTest}"
                 SemanticProperties.Hint="Runs comprehensive TSLL multi-asset import with ticker validation ($235 commissions, $80 fees, $69,290 realized)"
-                HorizontalOptions="Fill" />
+                HorizontalOptions="Fill"/>
 
             <!--  Loading Indicator  -->
             <StackLayout
@@ -119,12 +131,12 @@
                     IsRunning="{Binding IsRunning}"
                     Color="DodgerBlue"
                     WidthRequest="20"
-                    HeightRequest="20" />
+                    HeightRequest="20"/>
                 <Label
                     Text="Test running, please wait..."
                     FontSize="14"
                     TextColor="Gray"
-                    VerticalTextAlignment="Center" />
+                    VerticalTextAlignment="Center"/>
             </StackLayout>
 
             <!--  Status Display  -->
@@ -135,17 +147,17 @@
                 <VerticalStackLayout Spacing="10">
                     <Label
                         Text="Status:"
-                        FontAttributes="Bold" />
+                        FontAttributes="Bold"/>
                     <Label
                         x:Name="StatusLabel"
                         Text="{Binding OverallStatus}"
-                        FontSize="14" />
+                        FontSize="14"/>
                     <Label
                         x:Name="OverallResultLabel"
                         Text="{Binding OverallStatusIcon}"
                         FontSize="16"
                         FontAttributes="Bold"
-                        HorizontalTextAlignment="Center" />
+                        HorizontalTextAlignment="Center"/>
                 </VerticalStackLayout>
             </Border>
 
@@ -160,14 +172,14 @@
                         Brush="Black"
                         Radius="5"
                         Opacity="0.3"
-                        Offset="2,2" />
+                        Offset="2,2"/>
                 </Border.Shadow>
                 <VerticalStackLayout Spacing="10">
                     <Label
                         Text="Test Results"
                         FontSize="18"
                         FontAttributes="Bold"
-                        HorizontalTextAlignment="Center" />
+                        HorizontalTextAlignment="Center"/>
 
                     <!--  Results List  -->
                     <CollectionView
@@ -183,24 +195,24 @@
                                         Grid.Column="0"
                                         Text="{Binding StatusIcon}"
                                         FontSize="16"
-                                        VerticalTextAlignment="Center" />
+                                        VerticalTextAlignment="Center"/>
                                     <Label
                                         Grid.Column="1"
                                         Text="{Binding StepName}"
                                         FontSize="14"
-                                        VerticalTextAlignment="Center" />
+                                        VerticalTextAlignment="Center"/>
                                     <Label
                                         Grid.Column="2"
                                         Margin="0,0,0,12"
                                         Text="{Binding Details}"
                                         FontSize="12"
                                         TextColor="Gray"
-                                        VerticalTextAlignment="Center" />
+                                        VerticalTextAlignment="Center"/>
                                     <Border
                                         Grid.Column="0"
                                         Grid.ColumnSpan="3"
                                         StrokeThickness="1"
-                                        VerticalOptions="End" />
+                                        VerticalOptions="End"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -220,14 +232,14 @@
                     BackgroundColor="Gray"
                     TextColor="White"
                     Clicked="OnViewDetailsClicked"
-                    WidthRequest="120" />
+                    WidthRequest="120"/>
                 <Button
                     x:Name="ClearResultsButton"
                     Text="Clear Results"
                     BackgroundColor="OrangeRed"
                     TextColor="White"
                     Clicked="OnClearResultsClicked"
-                    WidthRequest="120" />
+                    WidthRequest="120"/>
             </StackLayout>
 
         </VerticalStackLayout>

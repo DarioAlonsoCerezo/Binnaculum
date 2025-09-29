@@ -15,6 +15,7 @@ namespace Core.Platform.MauiTester.Services
         public static void RegisterAll(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
         {
             RegisterOverviewTest(discoveryService, testRunner);
+            RegisterOverviewReactiveTest(discoveryService, testRunner);
             RegisterBrokerAccountCreationTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountDepositTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountMultipleMovementsTest(discoveryService, testRunner, testActions);
@@ -46,6 +47,25 @@ namespace Core.Platform.MauiTester.Services
         }
 
         /// <summary>
+        /// Overview Reactive Test - Validates reactive streams during Overview operations
+        /// </summary>
+        private static void RegisterOverviewReactiveTest(TestDiscoveryService discoveryService, TestRunner testRunner)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("Overview Reactive Validation")
+                .WithDescription("Validates reactive stream emissions during Overview.InitDatabase() and Overview.LoadData() operations")
+                .WithTags(TestTags.Overview, TestTags.Database, TestTags.Collection, TestTags.Reactive)
+                .AddReactiveOverviewSetup(testRunner)
+                .AddDelay("Allow reactive processing", TimeSpan.FromMilliseconds(500))
+                .AddVerificationStep("Verify Overview.Data Stream", ReactiveTestVerifications.VerifyOverviewDataStream)
+                .AddVerificationStep("Verify Currencies Stream", ReactiveTestVerifications.VerifyCurrenciesStream)
+                .AddVerificationStep("Verify Brokers Stream", ReactiveTestVerifications.VerifyBrokersStream)
+                .AddVerificationStep("Verify Tickers Stream", ReactiveTestVerifications.VerifyTickersStream)
+                .AddVerificationStep("Verify Snapshots Stream", ReactiveTestVerifications.VerifySnapshotsStream)
+                .AddVerificationStep("Compare with Traditional Test", ReactiveTestVerifications.CompareWithTraditionalTest));
+        }
+
+        /// <summary>
         /// BrokerAccount Creation Test - Validates broker account creation and snapshot generation
         /// </summary>
         private static void RegisterBrokerAccountCreationTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
@@ -56,7 +76,8 @@ namespace Core.Platform.MauiTester.Services
                 .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Integration)
                 .AddCommonSetup(testRunner)
                 .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
-                .AddVerificationStep("Find Tastytrade Broker", () => {
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
                     if (success) testRunner.SetTastytradeId(id);
                     return (success, details, error);
@@ -77,18 +98,21 @@ namespace Core.Platform.MauiTester.Services
                 .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Movement, TestTags.Integration)
                 .AddCommonSetup(testRunner)
                 .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
-                .AddVerificationStep("Find Tastytrade Broker", () => {
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
                     if (success) testRunner.SetTastytradeId(id);
                     return (success, details, error);
                 })
-                .AddVerificationStep("Find USD Currency", () => {
+                .AddVerificationStep("Find USD Currency", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindUsdCurrency();
                     if (success) testRunner.SetUsdCurrencyId(id);
                     return (success, details, error);
                 })
                 .AddAsyncStep("Create BrokerAccount", () => testActions.CreateBrokerAccountAsync("Trading"))
-                .AddVerificationStep("Find Created BrokerAccount", () => {
+                .AddVerificationStep("Find Created BrokerAccount", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindCreatedBrokerAccount(testRunner.GetTastytradeId());
                     if (success) testRunner.SetBrokerAccountId(id);
                     return (success, details, error);
@@ -111,18 +135,21 @@ namespace Core.Platform.MauiTester.Services
                 .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Movement, TestTags.Integration)
                 .AddCommonSetup(testRunner)
                 .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
-                .AddVerificationStep("Find Tastytrade Broker", () => {
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
                     if (success) testRunner.SetTastytradeId(id);
                     return (success, details, error);
                 })
-                .AddVerificationStep("Find USD Currency", () => {
+                .AddVerificationStep("Find USD Currency", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindUsdCurrency();
                     if (success) testRunner.SetUsdCurrencyId(id);
                     return (success, details, error);
                 })
                 .AddAsyncStep("Create BrokerAccount for Tastytrade", () => testActions.CreateBrokerAccountAsync("Testing"))
-                .AddVerificationStep("Find Created BrokerAccount", () => {
+                .AddVerificationStep("Find Created BrokerAccount", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindCreatedBrokerAccount(testRunner.GetTastytradeId());
                     if (success) testRunner.SetBrokerAccountId(id);
                     return (success, details, error);
@@ -147,7 +174,8 @@ namespace Core.Platform.MauiTester.Services
                 .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Options)
                 .AddCommonSetup(testRunner)
                 .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
-                .AddVerificationStep("Find Tastytrade Broker", () => {
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
                     if (success) testRunner.SetTastytradeId(id);
                     return (success, details, error);
@@ -166,7 +194,8 @@ namespace Core.Platform.MauiTester.Services
                 .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Options, TestTags.SPX)
                 .AddCommonSetup(testRunner)
                 .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
-                .AddVerificationStep("Find Tastytrade Broker", () => {
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
                     if (success) testRunner.SetTastytradeId(id);
                     return (success, details, error);
@@ -185,7 +214,8 @@ namespace Core.Platform.MauiTester.Services
                 .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Options, TestTags.Equity, TestTags.Dividend, TestTags.TSLL)
                 .AddCommonSetup(testRunner)
                 .AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300))
-                .AddVerificationStep("Find Tastytrade Broker", () => {
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
                     var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
                     if (success) testRunner.SetTastytradeId(id);
                     return (success, details, error);

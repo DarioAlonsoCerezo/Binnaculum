@@ -9,14 +9,14 @@ namespace Core.Platform.MauiTester.Services
     {
         private readonly Dictionary<string, TestScenario> _registeredTests = new();
         private readonly Dictionary<string, List<string>> _taggedTests = new();
-        
+
         /// <summary>
         /// Register a test scenario for discovery
         /// </summary>
         public void RegisterTest(TestScenario scenario)
         {
             _registeredTests[scenario.Name] = scenario;
-            
+
             // Index by tags for fast lookup
             foreach (var tag in scenario.Tags)
             {
@@ -70,7 +70,7 @@ namespace Core.Platform.MauiTester.Services
         public IEnumerable<TestScenario> GetTestsByTags(params string[] tags)
         {
             if (tags.Length == 0) return GetAllTests();
-            
+
             return GetAllTests().Where(test => tags.All(tag => test.Tags.Contains(tag)));
         }
 
@@ -80,7 +80,7 @@ namespace Core.Platform.MauiTester.Services
         public IEnumerable<TestScenario> GetTestsByAnyTag(params string[] tags)
         {
             if (tags.Length == 0) return GetAllTests();
-            
+
             return GetAllTests().Where(test => tags.Any(tag => test.Tags.Contains(tag)));
         }
 
@@ -100,7 +100,7 @@ namespace Core.Platform.MauiTester.Services
             // Simple wildcard support (* and ?)
             var regexPattern = "^" + pattern.Replace("*", ".*").Replace("?", ".") + "$";
             var regex = new System.Text.RegularExpressions.Regex(regexPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-            
+
             return _registeredTests.Values.Where(test => regex.IsMatch(test.Name));
         }
 
@@ -178,5 +178,6 @@ namespace Core.Platform.MauiTester.Services
         public const string Equity = "equity";
         public const string Dividend = "dividend";
         public const string TSLL = "tsll";
+        public const string Reactive = "reactive";
     }
 }

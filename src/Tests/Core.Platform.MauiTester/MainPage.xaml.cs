@@ -14,7 +14,7 @@ namespace Core.Platform.MauiTester
             InitializeComponent();
             _testRunner = testRunner;
             _logService = logService;
-            
+
             // Initialize with a default result
             _currentResult = new OverallTestResult();
             BindingContext = _currentResult;
@@ -23,6 +23,11 @@ namespace Core.Platform.MauiTester
         private async void OnRunTestClicked(object? sender, EventArgs e)
         {
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Overview Platform Validation", callback), "Run Overview Test", "Overview");
+        }
+
+        private async void OnRunOverviewReactiveTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Overview Reactive Validation", callback), "Run Overview Reactive Test", "Overview Reactive");
         }
 
         private async void OnRunBrokerAccountTestClicked(object? sender, EventArgs e)
@@ -71,6 +76,7 @@ namespace Core.Platform.MauiTester
 
                 // Update UI to show test is running
                 RunTestButton.Text = "Running Test...";
+                RunOverviewReactiveTestButton.Text = "Running Test...";
                 RunBrokerAccountTestButton.Text = "Running Test...";
                 RunBrokerAccountDepositTestButton.Text = "Running Test...";
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Running Test...";
@@ -89,6 +95,7 @@ namespace Core.Platform.MauiTester
 
                 // Reset button text
                 RunTestButton.Text = "Run Overview Test";
+                RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
                 RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
                 RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
@@ -101,7 +108,7 @@ namespace Core.Platform.MauiTester
             catch (Exception ex)
             {
                 _logService.LogError($"Error running {testName} test: {ex.Message}");
-                
+
                 // Show error in UI
                 if (_currentResult != null)
                 {
@@ -113,6 +120,7 @@ namespace Core.Platform.MauiTester
 
                 // Reset button text
                 RunTestButton.Text = "Run Overview Test";
+                RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
                 RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
                 RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
@@ -157,6 +165,7 @@ namespace Core.Platform.MauiTester
             _currentResult = new OverallTestResult();
             BindingContext = _currentResult;
             RunTestButton.Text = "Run Overview Test";
+            RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
             RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
             RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
             RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";

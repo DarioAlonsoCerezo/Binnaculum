@@ -1,0 +1,249 @@
+using Binnaculum.Core.UI;
+using System.Diagnostics;
+using System.Linq;
+using Microsoft.FSharp.Core;
+using System.Reactive.Linq;
+using DynamicData;
+using System.Collections.Generic;
+
+namespace Core.Platform.MauiTester.Services
+{
+    /// <summary>
+    /// Reactive test verification utilities that validate stream emissions and reactive behavior
+    /// Complements TestVerifications with reactive-specific validations
+    /// </summary>
+    public static class ReactiveTestVerifications
+    {
+        /// <summary>
+        /// Stores stream observations for comparison and validation
+        /// </summary>
+        private static readonly Dictionary<string, List<object>> StreamObservations = new();
+
+        /// <summary>
+        /// Subscription disposables for cleanup
+        /// </summary>
+        private static readonly List<IDisposable> ActiveSubscriptions = new();
+
+        /// <summary>
+        /// Start observing reactive streams before test execution
+        /// </summary>
+        public static void StartObserving()
+        {
+            ClearObservations();
+
+            // Observe Overview.Data stream
+            var overviewSubscription = Overview.Data
+                .Select(data => new { Type = "Overview.Data", Data = data, Timestamp = DateTime.Now })
+                .Subscribe(emission => RecordEmission("Overview.Data", emission));
+            ActiveSubscriptions.Add(overviewSubscription);
+
+            // Observe Collections.Currencies stream
+            var currenciesSubscription = Collections.Currencies.Connect()
+                .Select(changes => new { Type = "Currencies", ChangeCount = changes.Count, Timestamp = DateTime.Now })
+                .Subscribe(emission => RecordEmission("Currencies", emission));
+            ActiveSubscriptions.Add(currenciesSubscription);
+
+            // Observe Collections.Brokers stream
+            var brokersSubscription = Collections.Brokers.Connect()
+                .Select(changes => new { Type = "Brokers", ChangeCount = changes.Count, Timestamp = DateTime.Now })
+                .Subscribe(emission => RecordEmission("Brokers", emission));
+            ActiveSubscriptions.Add(brokersSubscription);
+
+            // Observe Collections.Tickers stream
+            var tickersSubscription = Collections.Tickers.Connect()
+                .Select(changes => new { Type = "Tickers", ChangeCount = changes.Count, Timestamp = DateTime.Now })
+                .Subscribe(emission => RecordEmission("Tickers", emission));
+            ActiveSubscriptions.Add(tickersSubscription);
+
+            // Observe Collections.Snapshots stream
+            var snapshotsSubscription = Collections.Snapshots.Connect()
+                .Select(changes => new { Type = "Snapshots", ChangeCount = changes.Count, Timestamp = DateTime.Now })
+                .Subscribe(emission => RecordEmission("Snapshots", emission));
+            ActiveSubscriptions.Add(snapshotsSubscription);
+        }
+
+        /// <summary>
+        /// Stop observing and cleanup subscriptions
+        /// </summary>
+        public static void StopObserving()
+        {
+            foreach (var subscription in ActiveSubscriptions)
+            {
+                subscription?.Dispose();
+            }
+            ActiveSubscriptions.Clear();
+        }
+
+        /// <summary>
+        /// Record stream emission for later verification
+        /// </summary>
+        private static void RecordEmission(string streamName, object emission)
+        {
+            if (!StreamObservations.ContainsKey(streamName))
+            {
+                StreamObservations[streamName] = new List<object>();
+            }
+            StreamObservations[streamName].Add(emission);
+        }
+
+        /// <summary>
+        /// Clear all stream observations
+        /// </summary>
+        private static void ClearObservations()
+        {
+            StreamObservations.Clear();
+        }
+
+        /// <summary>
+        /// Verify that Overview.Data stream emitted the expected sequence
+        /// </summary>
+        public static (bool success, string details, string error) VerifyOverviewDataStream()
+        {
+            if (!StreamObservations.ContainsKey("Overview.Data") || StreamObservations["Overview.Data"].Count < 2)
+            {
+                return (false, "", "Expected at least 2 Overview.Data emissions (IsDatabaseInitialized and TransactionsLoaded)");
+            }
+
+            var emissions = StreamObservations["Overview.Data"];
+            var hasInitialized = emissions.Any(e => e.ToString()?.Contains("IsDatabaseInitialized") == true);
+            var hasTransactionsLoaded = emissions.Any(e => e.ToString()?.Contains("TransactionsLoaded") == true);
+
+            return (hasInitialized && hasTransactionsLoaded)
+                ? (true, $"Overview.Data: {emissions.Count} emissions with database init and transactions loaded", "")
+                : (false, "", $"Missing expected Overview.Data state changes. Init: {hasInitialized}, Loaded: {hasTransactionsLoaded}");
+        }
+
+        /// <summary>
+        /// Verify that Currencies stream emitted changes during data loading
+        /// </summary>
+        public static (bool success, string details, string error) VerifyCurrenciesStream()
+        {
+            if (!StreamObservations.ContainsKey("Currencies") || StreamObservations["Currencies"].Count == 0)
+            {
+                return (false, "", "Expected Currencies stream emissions during data loading");
+            }
+
+            var emissions = StreamObservations["Currencies"];
+            var totalChanges = emissions.Sum(e => GetChangeCount(e));
+
+            return totalChanges > 0
+                ? (true, $"Currencies Stream: {emissions.Count} emissions, {totalChanges} total changes", "")
+                : (false, "", "Currencies stream emitted but no actual changes detected");
+        }
+
+        /// <summary>
+        /// Verify that Brokers stream emitted changes during data loading
+        /// </summary>
+        public static (bool success, string details, string error) VerifyBrokersStream()
+        {
+            if (!StreamObservations.ContainsKey("Brokers") || StreamObservations["Brokers"].Count == 0)
+            {
+                return (false, "", "Expected Brokers stream emissions during data loading");
+            }
+
+            var emissions = StreamObservations["Brokers"];
+            var totalChanges = emissions.Sum(e => GetChangeCount(e));
+
+            return totalChanges > 0
+                ? (true, $"Brokers Stream: {emissions.Count} emissions, {totalChanges} total changes", "")
+                : (false, "", "Brokers stream emitted but no actual changes detected");
+        }
+
+        /// <summary>
+        /// Verify that Tickers stream emitted changes during data loading
+        /// </summary>
+        public static (bool success, string details, string error) VerifyTickersStream()
+        {
+            if (!StreamObservations.ContainsKey("Tickers") || StreamObservations["Tickers"].Count == 0)
+            {
+                return (false, "", "Expected Tickers stream emissions during data loading");
+            }
+
+            var emissions = StreamObservations["Tickers"];
+            var totalChanges = emissions.Sum(e => GetChangeCount(e));
+
+            return totalChanges > 0
+                ? (true, $"Tickers Stream: {emissions.Count} emissions, {totalChanges} total changes", "")
+                : (false, "", "Tickers stream emitted but no actual changes detected");
+        }
+
+        /// <summary>
+        /// Verify that Snapshots stream emitted changes during data loading
+        /// </summary>
+        public static (bool success, string details, string error) VerifySnapshotsStream()
+        {
+            if (!StreamObservations.ContainsKey("Snapshots") || StreamObservations["Snapshots"].Count == 0)
+            {
+                return (false, "", "Expected Snapshots stream emissions during data loading");
+            }
+
+            var emissions = StreamObservations["Snapshots"];
+            var totalChanges = emissions.Sum(e => GetChangeCount(e));
+
+            return totalChanges > 0
+                ? (true, $"Snapshots Stream: {emissions.Count} emissions, {totalChanges} total changes", "")
+                : (false, "", "Snapshots stream emitted but no actual changes detected");
+        }
+
+        /// <summary>
+        /// Compare reactive test results with traditional test results
+        /// </summary>
+        public static (bool success, string details, string error) CompareWithTraditionalTest()
+        {
+            // Run the same verifications as the traditional test to compare results
+            var traditionalResults = new[]
+            {
+                TestVerifications.VerifyDatabaseInitialized(),
+                TestVerifications.VerifyDataLoaded(),
+                TestVerifications.VerifyCurrenciesCollection(),
+                TestVerifications.VerifyUsdCurrency(),
+                TestVerifications.VerifyBrokersCollection(),
+                TestVerifications.VerifyIbkrBroker(),
+                TestVerifications.VerifyTastytradeBroker(),
+                TestVerifications.VerifySpyTicker(),
+                TestVerifications.VerifySnapshotsCollection()
+            };
+
+            var passedTraditional = traditionalResults.Count(r => r.success);
+            var totalTraditional = traditionalResults.Length;
+
+            var reactiveStreamsPassed = new[]
+            {
+                VerifyOverviewDataStream(),
+                VerifyCurrenciesStream(),
+                VerifyBrokersStream(),
+                VerifyTickersStream(),
+                VerifySnapshotsStream()
+            }.Count(r => r.success);
+
+            var allTraditionalPassed = passedTraditional == totalTraditional;
+            var allReactivePassed = reactiveStreamsPassed == 5;
+
+            var details = $"Traditional: {passedTraditional}/{totalTraditional}, Reactive: {reactiveStreamsPassed}/5";
+
+            if (allTraditionalPassed && allReactivePassed)
+            {
+                return (true, $"Both approaches successful. {details}", "");
+            }
+            else
+            {
+                var error = "";
+                if (!allTraditionalPassed) error += "Traditional test failed. ";
+                if (!allReactivePassed) error += "Reactive streams failed. ";
+                return (false, details, error.Trim());
+            }
+        }
+
+        /// <summary>
+        /// Helper method to extract change count from emission objects
+        /// </summary>
+        private static int GetChangeCount(object emission)
+        {
+            // Use reflection to get ChangeCount property
+            var type = emission.GetType();
+            var changeCountProperty = type.GetProperty("ChangeCount");
+            var value = changeCountProperty?.GetValue(emission);
+            return value is int intValue ? intValue : 0;
+        }
+    }
+}

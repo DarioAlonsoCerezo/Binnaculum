@@ -108,6 +108,28 @@ namespace Core.Platform.MauiTester.Services
         }
 
         /// <summary>
+        /// Add reactive overview setup - same as common setup but with stream observation
+        /// </summary>
+        public TestScenarioBuilder AddReactiveOverviewSetup(TestRunner testRunner)
+        {
+            AddAsyncStep("Wipe All Data for Testing", () => testRunner.Actions.WipeDataForTestingAsync());
+            AddSyncStep("Initialize MAUI Platform Services", () => testRunner.Actions.InitializePlatformServicesAsync().Result);
+            AddSyncStep("Start Reactive Stream Observation", () =>
+            {
+                ReactiveTestVerifications.StartObserving();
+                return (true, "Started observing reactive streams");
+            });
+            AddAsyncStep("Overview.InitDatabase() [Reactive]", () => testRunner.Actions.InitializeDatabaseAsync());
+            AddAsyncStep("Overview.LoadData() [Reactive]", () => testRunner.Actions.LoadDataAsync());
+            AddSyncStep("Stop Reactive Stream Observation", () =>
+            {
+                ReactiveTestVerifications.StopObserving();
+                return (true, "Stopped observing reactive streams");
+            });
+            return this;
+        }
+
+        /// <summary>
         /// Add a delay step for waiting
         /// </summary>
         public TestScenarioBuilder AddDelay(string stepName, TimeSpan delay)
