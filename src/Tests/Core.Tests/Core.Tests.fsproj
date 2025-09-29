@@ -37,6 +37,7 @@
     <Compile Include="ReactiveApplicationManagerTests.fs" />
     <Compile Include="ReactiveTickerIntegrationTests.fs" />
     <Compile Include="TickersUIAPITests.fs" />
+    <Compile Include="BrokerAccountsUIAPITests.fs" />
     <Compile Include="TickerExtensionsAutoCreationTests.fs" />
     <Compile Include="DataLoaderTests.fs" />
     <Compile Include="EmptySnapshotManagementTests.fs" />
