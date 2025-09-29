@@ -148,6 +148,7 @@
 		<Compile Include="Utilities\FilePickerService.fs" />
 		<Compile Include="UI\Overview.fs" />
 		<Compile Include="UI\Creator.fs" />
+		<Compile Include="UI\BrokerAccounts.fs" />
 		<Compile Include="UI\Tickers.fs" />
 		<Compile Include="UI\SavedPrefereces.fs" />
 	</ItemGroup>
