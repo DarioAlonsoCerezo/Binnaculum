@@ -66,6 +66,12 @@ namespace Core.Platform.MauiTester.Services
                 .Select(changes => new { Type = "Accounts", ChangeCount = changes.Count, Timestamp = DateTime.Now })
                 .Subscribe(emission => RecordEmission("Accounts", emission));
             ActiveSubscriptions.Add(accountsSubscription);
+
+            // Observe Collections.Movements stream (for BrokerAccount + Deposit tests)
+            var movementsSubscription = Collections.Movements.Connect()
+                .Select(changes => new { Type = "Movements", ChangeCount = changes.Count, Timestamp = DateTime.Now })
+                .Subscribe(emission => RecordEmission("Movements", emission));
+            ActiveSubscriptions.Add(movementsSubscription);
         }
 
         /// <summary>
@@ -247,6 +253,122 @@ namespace Core.Platform.MauiTester.Services
             return brokerSnapshots.Count > 0
                 ? (true, $"BrokerAccount Snapshots: {brokerSnapshots.Count} broker-related snapshots generated", "")
                 : (false, "", "Expected broker-related snapshots to be generated after account creation");
+        }
+
+        /// <summary>
+        /// Verify that Movements stream emitted changes during deposit transaction
+        /// </summary>
+        public static (bool success, string details, string error) VerifyMovementsStream()
+        {
+            if (!StreamObservations.ContainsKey("Movements") || StreamObservations["Movements"].Count == 0)
+            {
+                return (false, "", "Expected Movements stream emissions during deposit transaction");
+            }
+
+            var emissions = StreamObservations["Movements"];
+            var totalChanges = emissions.Sum(e => GetChangeCount(e));
+
+            return totalChanges > 0
+                ? (true, $"Movements Stream: {emissions.Count} emissions, {totalChanges} total changes", "")
+                : (false, "", "Movements stream emitted but no actual changes detected");
+        }
+
+        /// <summary>
+        /// Verify that broker account with deposit was created and includes movement transactions
+        /// </summary>
+        public static (bool success, string details, string error) VerifyBrokerAccountWithDeposit()
+        {
+            // First verify broker account creation
+            var accountResult = VerifyBrokerAccountCreation();
+            if (!accountResult.success)
+            {
+                return accountResult;
+            }
+
+            // Then verify movement stream for deposit
+            var movementsResult = VerifyMovementsStream();
+            if (!movementsResult.success)
+            {
+                return (false, "", "Expected deposit movements to be created and emitted");
+            }
+
+            // Check that we actually have deposit movements in the Collections.Movements
+            var depositMovements = Collections.Movements.Items.Where(m =>
+                Microsoft.FSharp.Core.OptionModule.IsSome(m.BrokerMovement) && (
+                    m.BrokerMovement.Value.MovementType.ToString().Contains("Deposit") ||
+                    m.BrokerMovement.Value.Amount > 0)).ToList();
+
+            return depositMovements.Count > 0
+                ? (true, $"BrokerAccount + Deposit: {depositMovements.Count} deposit movements found", "")
+                : (false, "", "Expected at least one deposit movement to be created");
+        }
+
+        /// <summary>
+        /// Verify that deposit transaction triggered appropriate snapshot updates
+        /// </summary>
+        public static (bool success, string details, string error) VerifyDepositSnapshots()
+        {
+            var snapshotsResult = VerifySnapshotsStream();
+            if (!snapshotsResult.success)
+            {
+                return (false, "", "Expected snapshot updates after deposit transaction");
+            }
+
+            // Check for account-related snapshots with positive deposit amounts
+            var depositSnapshots = Collections.Snapshots.Items.Where(s =>
+                (s.Type.ToString().Contains("BrokerAccount") &&
+                 Microsoft.FSharp.Core.OptionModule.IsSome(s.BrokerAccount) &&
+                 s.BrokerAccount.Value.Financial.Deposited > 0) ||
+                (s.Type.ToString().Contains("BankAccount") &&
+                 Microsoft.FSharp.Core.OptionModule.IsSome(s.BankAccount))).ToList(); return depositSnapshots.Count > 0
+                ? (true, $"Deposit Snapshots: {depositSnapshots.Count} account snapshots with positive deposits", "")
+                : (false, "", "Expected account snapshots with positive deposited amounts after deposit");
+        }
+
+        /// <summary>
+        /// Compare reactive BrokerAccount + Deposit test results with traditional test results
+        /// </summary>
+        public static (bool success, string details, string error) CompareWithTraditionalBrokerAccountDepositTest()
+        {
+            // Run BrokerAccount + Deposit specific traditional verifications for comparison
+            var traditionalResults = new[]
+            {
+                TestVerifications.VerifyDatabaseInitialized(),
+                TestVerifications.VerifyDataLoaded(),
+                // Note: We may need to add specific BrokerAccount + Deposit verifications to TestVerifications
+            };
+
+            var passedTraditional = traditionalResults.Count(r => r.success);
+            var totalTraditional = traditionalResults.Length;
+
+            var reactiveResults = new[]
+            {
+                VerifyAccountsStream(),
+                VerifyBrokerAccountCreation(),
+                VerifyMovementsStream(),
+                VerifyBrokerAccountWithDeposit(),
+                VerifyDepositSnapshots()
+            };
+
+            var passedReactive = reactiveResults.Count(r => r.success);
+            var totalReactive = reactiveResults.Length;
+
+            var allTraditionalPassed = passedTraditional == totalTraditional;
+            var allReactivePassed = passedReactive == totalReactive;
+
+            var details = $"Traditional: {passedTraditional}/{totalTraditional}, Reactive: {passedReactive}/{totalReactive}";
+
+            if (allTraditionalPassed && allReactivePassed)
+            {
+                return (true, $"Both approaches successful. {details}", "");
+            }
+            else
+            {
+                var error = "";
+                if (!allTraditionalPassed) error += "Traditional test failed. ";
+                if (!allReactivePassed) error += "Reactive streams failed. ";
+                return (false, details, error.Trim());
+            }
         }
 
         /// <summary>

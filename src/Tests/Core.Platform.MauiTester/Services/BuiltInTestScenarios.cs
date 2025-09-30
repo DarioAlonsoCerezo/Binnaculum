@@ -19,6 +19,7 @@ namespace Core.Platform.MauiTester.Services
             RegisterBrokerAccountCreationTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountCreationReactiveTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountDepositTest(discoveryService, testRunner, testActions);
+            RegisterBrokerAccountDepositReactiveTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountMultipleMovementsTest(discoveryService, testRunner, testActions);
             RegisterOptionsImportIntegrationTest(discoveryService, testRunner, testActions);
             RegisterTastytradeImportIntegrationTest(discoveryService, testRunner, testActions);
@@ -115,6 +116,49 @@ namespace Core.Platform.MauiTester.Services
                 .AddVerificationStep("Verify BrokerAccount Creation", ReactiveTestVerifications.VerifyBrokerAccountCreation)
                 .AddVerificationStep("Verify BrokerAccount Snapshots", ReactiveTestVerifications.VerifyBrokerAccountSnapshots)
                 .AddVerificationStep("Compare with Traditional Test", ReactiveTestVerifications.CompareWithTraditionalBrokerAccountTest));
+        }
+
+        /// <summary>
+        /// BrokerAccount + Deposit Reactive Test - Validates reactive stream emissions during broker account creation with deposit
+        /// </summary>
+        private static void RegisterBrokerAccountDepositReactiveTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("BrokerAccount + Deposit Reactive Validation")
+                .WithDescription("Validates reactive stream emissions during broker account creation with deposit movement and snapshot generation")
+                .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Movement, TestTags.Integration, TestTags.Reactive)
+                .AddReactiveBrokerAccountDepositSetup(testRunner)
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddVerificationStep("Find USD Currency", () =>
+                {
+                    var (success, details, error, id) = TestVerifications.FindUsdCurrency();
+                    if (success) testRunner.SetUsdCurrencyId(id);
+                    return (success, details, error);
+                })
+                .AddAsyncStep("Create BrokerAccount [Reactive]", () => testActions.CreateBrokerAccountAsync("Trading"))
+                .AddVerificationStep("Find Created BrokerAccount", () =>
+                {
+                    var (success, details, error, id) = TestVerifications.FindCreatedBrokerAccount(testRunner.GetTastytradeId());
+                    if (success) testRunner.SetBrokerAccountId(id);
+                    return (success, details, error);
+                })
+                .AddDelay("Allow account creation reactive processing", TimeSpan.FromMilliseconds(500))
+                .AddAsyncStep("Add Deposit Movement [Reactive]", () => testActions.CreateMovementAsync(5000.00m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -30, "Reactive deposit test"))
+                .AddDelay("Allow deposit reactive processing", TimeSpan.FromMilliseconds(500))
+                .AddSyncStep("Stop Reactive Stream Observation", () =>
+                {
+                    ReactiveTestVerifications.StopObserving();
+                    return (true, "Stopped observing reactive streams");
+                })
+                .AddVerificationStep("Verify Movements Stream", ReactiveTestVerifications.VerifyMovementsStream)
+                .AddVerificationStep("Verify BrokerAccount + Deposit", ReactiveTestVerifications.VerifyBrokerAccountWithDeposit)
+                .AddVerificationStep("Verify Deposit Snapshots", ReactiveTestVerifications.VerifyDepositSnapshots)
+                .AddVerificationStep("Compare with Traditional Test", ReactiveTestVerifications.CompareWithTraditionalBrokerAccountDepositTest));
         }
 
         /// <summary>
