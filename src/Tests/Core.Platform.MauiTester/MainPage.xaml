@@ -126,6 +126,18 @@
                 HorizontalOptions="Fill"/>
 
             <Button
+                x:Name="RunBrokerAccountMultipleMovementsSignalBasedTestButton"
+                Text="Run BrokerAccount Multiple Movements Signal-Based Test"
+                FontSize="16"
+                BackgroundColor="MediumOrchid"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunBrokerAccountMultipleMovementsSignalBasedTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs signal-based version of BrokerAccount multiple movements test - waits for actual reactive signals instead of delays"
+                HorizontalOptions="Fill"/>
+
+            <Button
                 x:Name="RunOptionsImportIntegrationTestButton"
                 Text="Run Options Import Integration Test"
                 FontSize="16"
@@ -136,6 +148,18 @@
                 IsEnabled="{Binding CanRunTest}"
                 IsVisible="False"
                 SemanticProperties.Hint="Runs end-to-end options import workflow with real Tastytrade data"
+                HorizontalOptions="Fill"/>
+
+            <Button
+                x:Name="RunOptionsImportIntegrationSignalBasedTestButton"
+                Text="Run Options Import Integration Signal-Based Test"
+                FontSize="16"
+                BackgroundColor="IndianRed"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunOptionsImportIntegrationSignalBasedTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs reactive signal-based version of options import - waits for actual reactive signals instead of delays"
                 HorizontalOptions="Fill"/>
 
             <Button

@@ -60,9 +60,19 @@ namespace Core.Platform.MauiTester
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Multiple Movements Reactive Validation", callback), "Run BrokerAccount Multiple Movements Reactive Test", "BrokerAccount Multiple Movements Reactive");
         }
 
+        private async void OnRunBrokerAccountMultipleMovementsSignalBasedTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Multiple Movements Signal-Based Validation", callback), "Run BrokerAccount Multiple Movements Signal-Based Test", "BrokerAccount Multiple Movements Signal-Based");
+        }
+
         private async void OnRunOptionsImportIntegrationTestClicked(object? sender, EventArgs e)
         {
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Options Import Integration Test", callback), "Run Options Import Integration Test", "Options Import Integration Test");
+        }
+
+        private async void OnRunOptionsImportIntegrationSignalBasedTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Options Import Integration Signal-Based Validation", callback), "Run Options Import Integration Signal-Based Test", "Options Import Integration Signal-Based Validation");
         }
 
         private async void OnRunTastytradeImportIntegrationTestClicked(object? sender, EventArgs e)
@@ -90,17 +100,7 @@ namespace Core.Platform.MauiTester
                 _currentResult.IsRunning = true;
 
                 // Update UI to show test is running
-                RunTestButton.Text = "Running Test...";
-                RunOverviewReactiveTestButton.Text = "Running Test...";
-                RunBrokerAccountTestButton.Text = "Running Test...";
-                RunBrokerAccountReactiveTestButton.Text = "Running Test...";
-                RunBrokerAccountDepositTestButton.Text = "Running Test...";
-                RunBrokerAccountDepositReactiveTestButton.Text = "Running Test...";
-                RunBrokerAccountMultipleMovementsTestButton.Text = "Running Test...";
-                RunBrokerAccountMultipleMovementsReactiveTestButton.Text = "Running Test...";
-                RunOptionsImportIntegrationTestButton.Text = "Running Test...";
-                RunTastytradeImportIntegrationTestButton.Text = "Running Test...";
-                RunTsllImportIntegrationTestButton.Text = "Running Test...";
+                SetAllButtonsToRunningText();
 
                 await Task.Delay(100); // Allow UI to update
 
@@ -112,17 +112,7 @@ namespace Core.Platform.MauiTester
                 BindingContext = _currentResult;
 
                 // Reset button text
-                RunTestButton.Text = "Run Overview Test";
-                RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
-                RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
-                RunBrokerAccountReactiveTestButton.Text = "Run BrokerAccount Creation Reactive Test";
-                RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
-                RunBrokerAccountDepositReactiveTestButton.Text = "Run BrokerAccount + Deposit Reactive Test";
-                RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
-                RunBrokerAccountMultipleMovementsReactiveTestButton.Text = "Run BrokerAccount Multiple Movements Reactive Test";
-                RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
-                RunTastytradeImportIntegrationTestButton.Text = "Execute Tastytrade Import Test";
-                RunTsllImportIntegrationTestButton.Text = "Execute TSLL Import Test";
+                ResetAllButtonsToOriginalText();
 
                 _logService.Log($"{testName} test execution completed. Overall result: {result.AllTestsPassed}");
             }
@@ -140,17 +130,7 @@ namespace Core.Platform.MauiTester
                 }
 
                 // Reset button text
-                RunTestButton.Text = "Run Overview Test";
-                RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
-                RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
-                RunBrokerAccountReactiveTestButton.Text = "Run BrokerAccount Creation Reactive Test";
-                RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
-                RunBrokerAccountDepositReactiveTestButton.Text = "Run BrokerAccount + Deposit Reactive Test";
-                RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
-                RunBrokerAccountMultipleMovementsReactiveTestButton.Text = "Run BrokerAccount Multiple Movements Reactive Test";
-                RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
-                RunTastytradeImportIntegrationTestButton.Text = "Execute Tastytrade Import Test";
-                RunTsllImportIntegrationTestButton.Text = "Execute TSLL Import Test";
+                ResetAllButtonsToOriginalText();
 
                 await DisplayAlert("Test Error", $"An error occurred while running the {testName} test:\n\n{ex.Message}", "OK");
             }
@@ -188,6 +168,28 @@ namespace Core.Platform.MauiTester
             _logService.Clear();
             _currentResult = new OverallTestResult();
             BindingContext = _currentResult;
+            ResetAllButtonsToOriginalText();
+        }
+
+        private void SetAllButtonsToRunningText()
+        {
+            RunTestButton.Text = "Running Test...";
+            RunOverviewReactiveTestButton.Text = "Running Test...";
+            RunBrokerAccountTestButton.Text = "Running Test...";
+            RunBrokerAccountReactiveTestButton.Text = "Running Test...";
+            RunBrokerAccountDepositTestButton.Text = "Running Test...";
+            RunBrokerAccountDepositReactiveTestButton.Text = "Running Test...";
+            RunBrokerAccountMultipleMovementsTestButton.Text = "Running Test...";
+            RunBrokerAccountMultipleMovementsReactiveTestButton.Text = "Running Test...";
+            RunBrokerAccountMultipleMovementsSignalBasedTestButton.Text = "Running Test...";
+            RunOptionsImportIntegrationTestButton.Text = "Running Test...";
+            RunOptionsImportIntegrationSignalBasedTestButton.Text = "Running Test...";
+            RunTastytradeImportIntegrationTestButton.Text = "Running Test...";
+            RunTsllImportIntegrationTestButton.Text = "Running Test...";
+        }
+
+        private void ResetAllButtonsToOriginalText()
+        {
             RunTestButton.Text = "Run Overview Test";
             RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
             RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
@@ -196,7 +198,9 @@ namespace Core.Platform.MauiTester
             RunBrokerAccountDepositReactiveTestButton.Text = "Run BrokerAccount + Deposit Reactive Test";
             RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
             RunBrokerAccountMultipleMovementsReactiveTestButton.Text = "Run BrokerAccount Multiple Movements Reactive Test";
+            RunBrokerAccountMultipleMovementsSignalBasedTestButton.Text = "Run BrokerAccount Multiple Movements Signal-Based Test";
             RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
+            RunOptionsImportIntegrationSignalBasedTestButton.Text = "Run Options Import Integration Signal-Based Test";
             RunTastytradeImportIntegrationTestButton.Text = "Execute Tastytrade Import Test";
             RunTsllImportIntegrationTestButton.Text = "Execute TSLL Import Test";
         }

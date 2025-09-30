@@ -22,7 +22,9 @@ namespace Core.Platform.MauiTester.Services
             RegisterBrokerAccountDepositReactiveTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountMultipleMovementsTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountMultipleMovementsReactiveTest(discoveryService, testRunner, testActions);
+            RegisterBrokerAccountMultipleMovementsSignalBasedTest(discoveryService, testRunner, testActions);
             RegisterOptionsImportIntegrationTest(discoveryService, testRunner, testActions);
+            RegisterOptionsImportIntegrationSignalBasedTest(discoveryService, testRunner, testActions);
             RegisterTastytradeImportIntegrationTest(discoveryService, testRunner, testActions);
             RegisterTsllImportIntegrationTest(discoveryService, testRunner, testActions);
         }
@@ -352,6 +354,25 @@ namespace Core.Platform.MauiTester.Services
                     return (success, details, error);
                 })
                 .AddCustomStep(new OptionsImportIntegrationTest(testRunner.GetExecutionContext())));
+        }
+
+        /// <summary>
+        /// Options Import Integration Signal-Based Test - Reactive version using signal-based testing approach
+        /// </summary>
+        private static void RegisterOptionsImportIntegrationSignalBasedTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("Options Import Integration Signal-Based Validation")
+                .WithDescription("Signal-based reactive options import - waits for actual reactive signals during import workflow")
+                .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Options, TestTags.Reactive)
+                .AddReactiveOptionsImportSetup(testRunner)
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddCustomStep(new ReactiveOptionsImportIntegrationTest(testRunner.GetExecutionContext())));
         }
 
         /// <summary>
