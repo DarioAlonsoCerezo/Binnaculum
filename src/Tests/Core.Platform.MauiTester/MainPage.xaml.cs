@@ -35,6 +35,11 @@ namespace Core.Platform.MauiTester
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Creation", callback), "Run BrokerAccount Creation Test", "BrokerAccount Creation");
         }
 
+        private async void OnRunBrokerAccountReactiveTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Creation Reactive Validation", callback), "Run BrokerAccount Creation Reactive Test", "BrokerAccount Creation Reactive");
+        }
+
         private async void OnRunBrokerAccountDepositTestClicked(object? sender, EventArgs e)
         {
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount + Deposit", callback), "Run BrokerAccount + Deposit Test", "BrokerAccount + Deposit");
@@ -78,6 +83,7 @@ namespace Core.Platform.MauiTester
                 RunTestButton.Text = "Running Test...";
                 RunOverviewReactiveTestButton.Text = "Running Test...";
                 RunBrokerAccountTestButton.Text = "Running Test...";
+                RunBrokerAccountReactiveTestButton.Text = "Running Test...";
                 RunBrokerAccountDepositTestButton.Text = "Running Test...";
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Running Test...";
                 RunOptionsImportIntegrationTestButton.Text = "Running Test...";
@@ -97,6 +103,7 @@ namespace Core.Platform.MauiTester
                 RunTestButton.Text = "Run Overview Test";
                 RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
                 RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
+                RunBrokerAccountReactiveTestButton.Text = "Run BrokerAccount Creation Reactive Test";
                 RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
                 RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
@@ -122,6 +129,7 @@ namespace Core.Platform.MauiTester
                 RunTestButton.Text = "Run Overview Test";
                 RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
                 RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
+                RunBrokerAccountReactiveTestButton.Text = "Run BrokerAccount Creation Reactive Test";
                 RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
                 RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
                 RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
@@ -167,6 +175,7 @@ namespace Core.Platform.MauiTester
             RunTestButton.Text = "Run Overview Test";
             RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
             RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
+            RunBrokerAccountReactiveTestButton.Text = "Run BrokerAccount Creation Reactive Test";
             RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
             RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
             RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";

@@ -62,6 +62,18 @@
                 HorizontalOptions="Fill"/>
 
             <Button
+                x:Name="RunBrokerAccountReactiveTestButton"
+                Text="Run BrokerAccount Creation Reactive Test"
+                FontSize="16"
+                BackgroundColor="DarkSeaGreen"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunBrokerAccountReactiveTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs reactive version of BrokerAccount creation test by subscribing to streams"
+                HorizontalOptions="Fill"/>
+
+            <Button
                 x:Name="RunBrokerAccountDepositTestButton"
                 Text="Run BrokerAccount + Deposit Test"
                 FontSize="16"

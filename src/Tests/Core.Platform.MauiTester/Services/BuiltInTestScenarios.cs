@@ -17,6 +17,7 @@ namespace Core.Platform.MauiTester.Services
             RegisterOverviewTest(discoveryService, testRunner);
             RegisterOverviewReactiveTest(discoveryService, testRunner);
             RegisterBrokerAccountCreationTest(discoveryService, testRunner, testActions);
+            RegisterBrokerAccountCreationReactiveTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountDepositTest(discoveryService, testRunner, testActions);
             RegisterBrokerAccountMultipleMovementsTest(discoveryService, testRunner, testActions);
             RegisterOptionsImportIntegrationTest(discoveryService, testRunner, testActions);
@@ -85,6 +86,35 @@ namespace Core.Platform.MauiTester.Services
                 .AddAsyncStep("Create BrokerAccount", () => testActions.CreateBrokerAccountAsync("Trading"))
                 .AddVerificationStep("Verify Single Snapshot", TestVerifications.VerifySingleSnapshotExists)
                 .AddVerificationStep("Verify Snapshot Type", TestVerifications.VerifySnapshotIsBrokerAccountType));
+        }
+
+        /// <summary>
+        /// BrokerAccount Creation Reactive Test - Validates reactive streams during broker account creation
+        /// </summary>
+        private static void RegisterBrokerAccountCreationReactiveTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("BrokerAccount Creation Reactive Validation")
+                .WithDescription("Validates reactive stream emissions during broker account creation and snapshot generation")
+                .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Integration, TestTags.Reactive)
+                .AddReactiveBrokerAccountSetup(testRunner)
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddAsyncStep("Create BrokerAccount [Reactive]", () => testActions.CreateBrokerAccountAsync("Trading"))
+                .AddDelay("Allow reactive processing", TimeSpan.FromMilliseconds(500))
+                .AddSyncStep("Stop Reactive Stream Observation", () =>
+                {
+                    ReactiveTestVerifications.StopObserving();
+                    return (true, "Stopped observing reactive streams");
+                })
+                .AddVerificationStep("Verify Accounts Stream", ReactiveTestVerifications.VerifyAccountsStream)
+                .AddVerificationStep("Verify BrokerAccount Creation", ReactiveTestVerifications.VerifyBrokerAccountCreation)
+                .AddVerificationStep("Verify BrokerAccount Snapshots", ReactiveTestVerifications.VerifyBrokerAccountSnapshots)
+                .AddVerificationStep("Compare with Traditional Test", ReactiveTestVerifications.CompareWithTraditionalBrokerAccountTest));
         }
 
         /// <summary>

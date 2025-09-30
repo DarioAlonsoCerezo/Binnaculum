@@ -130,6 +130,24 @@ namespace Core.Platform.MauiTester.Services
         }
 
         /// <summary>
+        /// Add reactive BrokerAccount setup - setup with stream observation for BrokerAccount creation
+        /// </summary>
+        public TestScenarioBuilder AddReactiveBrokerAccountSetup(TestRunner testRunner)
+        {
+            AddAsyncStep("Wipe All Data for Testing", () => testRunner.Actions.WipeDataForTestingAsync());
+            AddSyncStep("Initialize MAUI Platform Services", () => testRunner.Actions.InitializePlatformServicesAsync().Result);
+            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
+            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
+            AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300));
+            AddSyncStep("Start Reactive Stream Observation [BrokerAccount]", () =>
+            {
+                ReactiveTestVerifications.StartObserving();
+                return (true, "Started observing reactive streams for BrokerAccount creation");
+            });
+            return this;
+        }
+
+        /// <summary>
         /// Add a delay step for waiting
         /// </summary>
         public TestScenarioBuilder AddDelay(string stepName, TimeSpan delay)

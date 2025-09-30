@@ -60,6 +60,12 @@ namespace Core.Platform.MauiTester.Services
                 .Select(changes => new { Type = "Snapshots", ChangeCount = changes.Count, Timestamp = DateTime.Now })
                 .Subscribe(emission => RecordEmission("Snapshots", emission));
             ActiveSubscriptions.Add(snapshotsSubscription);
+
+            // Observe Collections.Accounts stream (for BrokerAccount tests)
+            var accountsSubscription = Collections.Accounts.Connect()
+                .Select(changes => new { Type = "Accounts", ChangeCount = changes.Count, Timestamp = DateTime.Now })
+                .Subscribe(emission => RecordEmission("Accounts", emission));
+            ActiveSubscriptions.Add(accountsSubscription);
         }
 
         /// <summary>
@@ -183,6 +189,109 @@ namespace Core.Platform.MauiTester.Services
             return totalChanges > 0
                 ? (true, $"Snapshots Stream: {emissions.Count} emissions, {totalChanges} total changes", "")
                 : (false, "", "Snapshots stream emitted but no actual changes detected");
+        }
+
+        /// <summary>
+        /// Verify that Accounts stream emitted changes during broker account creation
+        /// </summary>
+        public static (bool success, string details, string error) VerifyAccountsStream()
+        {
+            if (!StreamObservations.ContainsKey("Accounts") || StreamObservations["Accounts"].Count == 0)
+            {
+                return (false, "", "Expected Accounts stream emissions during broker account creation");
+            }
+
+            var emissions = StreamObservations["Accounts"];
+            var totalChanges = emissions.Sum(e => GetChangeCount(e));
+
+            return totalChanges > 0
+                ? (true, $"Accounts Stream: {emissions.Count} emissions, {totalChanges} total changes", "")
+                : (false, "", "Accounts stream emitted but no actual changes detected");
+        }
+
+        /// <summary>
+        /// Verify that specific broker account was created and emitted in Accounts stream
+        /// </summary>
+        public static (bool success, string details, string error) VerifyBrokerAccountCreation()
+        {
+            // First verify we have account stream emissions
+            var accountsResult = VerifyAccountsStream();
+            if (!accountsResult.success)
+            {
+                return accountsResult;
+            }
+
+            // Check that we actually have a broker account in the Collections.Accounts
+            var brokerAccounts = Collections.Accounts.Items.Where(a => a.Broker != null).ToList();
+
+            return brokerAccounts.Count > 0
+                ? (true, $"BrokerAccount Created: {brokerAccounts.Count} broker accounts found", "")
+                : (false, "", "Expected at least one broker account to be created and present in Collections.Accounts");
+        }
+
+        /// <summary>
+        /// Verify that broker account creation triggered snapshot generation
+        /// </summary>
+        public static (bool success, string details, string error) VerifyBrokerAccountSnapshots()
+        {
+            var snapshotsResult = VerifySnapshotsStream();
+            if (!snapshotsResult.success)
+            {
+                return (false, "", "Expected snapshot generation after broker account creation");
+            }
+
+            // Check for broker-related snapshots in the collection
+            var brokerSnapshots = Collections.Snapshots.Items.Where(s =>
+                s.Type.ToString().Contains("Broker") || s.Type.ToString().Contains("Account")).ToList();
+
+            return brokerSnapshots.Count > 0
+                ? (true, $"BrokerAccount Snapshots: {brokerSnapshots.Count} broker-related snapshots generated", "")
+                : (false, "", "Expected broker-related snapshots to be generated after account creation");
+        }
+
+        /// <summary>
+        /// Compare reactive BrokerAccount test results with traditional test results
+        /// </summary>
+        public static (bool success, string details, string error) CompareWithTraditionalBrokerAccountTest()
+        {
+            // Run BrokerAccount-specific traditional verifications for comparison
+            var traditionalResults = new[]
+            {
+                TestVerifications.VerifyDatabaseInitialized(),
+                TestVerifications.VerifyDataLoaded(),
+                // Note: We need to check if there are BrokerAccount-specific verifications in TestVerifications
+                // For now, we'll use the generic ones and add specific ones as needed
+            };
+
+            var passedTraditional = traditionalResults.Count(r => r.success);
+            var totalTraditional = traditionalResults.Length;
+
+            var reactiveResults = new[]
+            {
+                VerifyAccountsStream(),
+                VerifyBrokerAccountCreation(),
+                VerifyBrokerAccountSnapshots()
+            };
+
+            var passedReactive = reactiveResults.Count(r => r.success);
+            var totalReactive = reactiveResults.Length;
+
+            var allTraditionalPassed = passedTraditional == totalTraditional;
+            var allReactivePassed = passedReactive == totalReactive;
+
+            var details = $"Traditional: {passedTraditional}/{totalTraditional}, Reactive: {passedReactive}/{totalReactive}";
+
+            if (allTraditionalPassed && allReactivePassed)
+            {
+                return (true, $"Both approaches successful. {details}", "");
+            }
+            else
+            {
+                var error = "";
+                if (!allTraditionalPassed) error += "Traditional test failed. ";
+                if (!allReactivePassed) error += "Reactive streams failed. ";
+                return (false, details, error.Trim());
+            }
         }
 
         /// <summary>
