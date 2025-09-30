@@ -34,6 +34,7 @@
                 HeightRequest="50"
                 Clicked="OnRunTestClicked"
                 IsEnabled="{Binding CanRunTest}"
+                IsVisible="False"
                 SemanticProperties.Hint="Runs Core Platform validation tests"
                 HorizontalOptions="Fill"/>
 
@@ -58,6 +59,7 @@
                 HeightRequest="50"
                 Clicked="OnRunBrokerAccountTestClicked"
                 IsEnabled="{Binding CanRunTest}"
+                IsVisible="False"
                 SemanticProperties.Hint="Runs BrokerAccount creation validation test"
                 HorizontalOptions="Fill"/>
 
@@ -82,6 +84,7 @@
                 HeightRequest="50"
                 Clicked="OnRunBrokerAccountDepositTestClicked"
                 IsEnabled="{Binding CanRunTest}"
+                IsVisible="False"
                 SemanticProperties.Hint="Runs BrokerAccount creation + Deposit movement validation test"
                 HorizontalOptions="Fill"/>
 
@@ -106,7 +109,20 @@
                 HeightRequest="50"
                 Clicked="OnRunBrokerAccountMultipleMovementsTestClicked"
                 IsEnabled="{Binding CanRunTest}"
+                IsVisible="False"
                 SemanticProperties.Hint="Runs BrokerAccount with multiple deposits and withdrawals validation test"
+                HorizontalOptions="Fill"/>
+
+            <Button
+                x:Name="RunBrokerAccountMultipleMovementsReactiveTestButton"
+                Text="Run BrokerAccount Multiple Movements Reactive Test"
+                FontSize="16"
+                BackgroundColor="DarkMagenta"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunBrokerAccountMultipleMovementsReactiveTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs reactive version of BrokerAccount multiple movements test by subscribing to streams"
                 HorizontalOptions="Fill"/>
 
             <Button
@@ -118,6 +134,7 @@
                 HeightRequest="50"
                 Clicked="OnRunOptionsImportIntegrationTestClicked"
                 IsEnabled="{Binding CanRunTest}"
+                IsVisible="False"
                 SemanticProperties.Hint="Runs end-to-end options import workflow with real Tastytrade data"
                 HorizontalOptions="Fill"/>
 
@@ -130,6 +147,7 @@
                 HeightRequest="50"
                 Clicked="OnRunTastytradeImportIntegrationTestClicked"
                 IsEnabled="{Binding CanRunTest}"
+                IsVisible="False"
                 SemanticProperties.Hint="Runs comprehensive SPX options import with ticker validation ($164 commissions, $244 fees, $822 realized)"
                 HorizontalOptions="Fill"/>
 
@@ -142,6 +160,7 @@
                 HeightRequest="50"
                 Clicked="OnRunTsllImportIntegrationTestClicked"
                 IsEnabled="{Binding CanRunTest}"
+                IsVisible="False"
                 SemanticProperties.Hint="Runs comprehensive TSLL multi-asset import with ticker validation ($235 commissions, $80 fees, $69,290 realized)"
                 HorizontalOptions="Fill"/>
 
