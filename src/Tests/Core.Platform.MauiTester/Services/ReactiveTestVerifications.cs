@@ -5,6 +5,9 @@ using Microsoft.FSharp.Core;
 using System.Reactive.Linq;
 using DynamicData;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Core.Platform.MauiTester.Services
 {
@@ -96,6 +99,9 @@ namespace Core.Platform.MauiTester.Services
                 StreamObservations[streamName] = new List<object>();
             }
             StreamObservations[streamName].Add(emission);
+
+            // Auto-emit signals based on stream activity
+            EmitSignalsForStreamActivity(streamName, emission);
         }
 
         /// <summary>
@@ -105,6 +111,118 @@ namespace Core.Platform.MauiTester.Services
         {
             StreamObservations.Clear();
         }
+
+        #region Signal-Based Reactive Testing
+
+        /// <summary>
+        /// Expected signals for signal-based testing
+        /// </summary>
+        private static readonly ConcurrentBag<string> ExpectedSignals = new();
+
+        /// <summary>
+        /// Received signals during testing
+        /// </summary>
+        private static readonly ConcurrentBag<string> ReceivedSignals = new();
+
+        /// <summary>
+        /// Semaphore for signal completion waiting
+        /// </summary>
+        private static readonly SemaphoreSlim CompletionSemaphore = new(0);
+
+        /// <summary>
+        /// Setup expected signals for a test scenario
+        /// </summary>
+        public static void ExpectSignals(params string[] signals)
+        {
+            ExpectedSignals.Clear();
+            ReceivedSignals.Clear();
+
+            foreach (var signal in signals)
+            {
+                ExpectedSignals.Add(signal);
+            }
+        }
+
+        /// <summary>
+        /// Record that a signal was received
+        /// </summary>
+        public static void SignalReceived(string signal)
+        {
+            ReceivedSignals.Add(signal);
+
+            // Check if all expected signals received
+            if (AllExpectedSignalsReceived())
+            {
+                CompletionSemaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Wait for all expected signals to be received
+        /// </summary>
+        public static async Task<bool> WaitForAllSignalsAsync(TimeSpan timeout)
+        {
+            try
+            {
+                return await CompletionSemaphore.WaitAsync(timeout);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Check if all expected signals have been received
+        /// </summary>
+        private static bool AllExpectedSignalsReceived()
+        {
+            if (ExpectedSignals.IsEmpty) return false;
+
+            return ExpectedSignals.All(expected =>
+                ReceivedSignals.Count(received => received == expected) >=
+                ExpectedSignals.Count(e => e == expected));
+        }
+
+        /// <summary>
+        /// Get current signal status for debugging
+        /// </summary>
+        public static (string[] expected, string[] received, string[] missing) GetSignalStatus()
+        {
+            var expected = ExpectedSignals.ToArray();
+            var received = ReceivedSignals.ToArray();
+            var missing = expected.Except(received).ToArray();
+
+            return (expected, received, missing);
+        }
+
+        /// <summary>
+        /// Automatically emit signals based on stream activity
+        /// </summary>
+        private static void EmitSignalsForStreamActivity(string streamName, object emission)
+        {
+            switch (streamName)
+            {
+                case "Accounts":
+                    SignalReceived("Accounts_Updated");
+                    break;
+                case "Movements":
+                    SignalReceived("Movements_Updated");
+                    break;
+                case "Snapshots":
+                    SignalReceived("Snapshots_Updated");
+                    break;
+                case "Overview.Data":
+                    var emissionStr = emission?.ToString() ?? "";
+                    if (emissionStr.Contains("IsDatabaseInitialized"))
+                        SignalReceived("Database_Initialized");
+                    if (emissionStr.Contains("TransactionsLoaded"))
+                        SignalReceived("Data_Loaded");
+                    break;
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Verify that Overview.Data stream emitted the expected sequence

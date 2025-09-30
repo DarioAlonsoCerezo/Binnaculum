@@ -87,6 +87,29 @@ namespace Core.Platform.MauiTester.Services
         }
 
         /// <summary>
+        /// Add a signal-based waiting step that waits for expected reactive signals
+        /// </summary>
+        public TestScenarioBuilder AddSignalWaitStep(string stepName, TimeSpan timeout, params string[] expectedSignals)
+        {
+            AddAsyncStep(stepName, async () =>
+            {
+                ReactiveTestVerifications.ExpectSignals(expectedSignals);
+                var success = await ReactiveTestVerifications.WaitForAllSignalsAsync(timeout);
+
+                if (success)
+                {
+                    return (true, $"All expected signals received: {string.Join(", ", expectedSignals)}");
+                }
+                else
+                {
+                    var (expected, received, missing) = ReactiveTestVerifications.GetSignalStatus();
+                    return (false, $"Timeout waiting for signals. Expected: [{string.Join(", ", expected)}], Received: [{string.Join(", ", received)}], Missing: [{string.Join(", ", missing)}]");
+                }
+            });
+            return this;
+        }
+
+        /// <summary>
         /// Add a custom test step
         /// </summary>
         public TestScenarioBuilder AddCustomStep(TestStep customStep)
