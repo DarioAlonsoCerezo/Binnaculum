@@ -193,26 +193,33 @@ namespace Core.Platform.MauiTester.TestCases
                 // - 12 options trades (BUY_TO_OPEN, SELL_TO_OPEN, BUY_TO_CLOSE, SELL_TO_CLOSE)
                 // - 4 money movements (deposits, balance adjustments)
                 // - Total database movements: 16 (all individual records)
-                // - Collections.Movements count: 10 (6 grouped option trades + 4 money movements)
-                //   * Option trades are grouped by (ticker, type, strike, expiration) when GroupOptions=true (default)
-                //   * 12 individual trades → 6 grouped trades:
-                //     1. SOFI PUT 7.0 5/03/24 (3 trades combined)
-                //     2. SOFI PUT 6.5 5/10/24 (1 trade)
-                //     3. MPW PUT 4.0 5/03/24 (2 trades combined)
-                //     4. MPW PUT 4.5 5/03/24 (2 trades combined)
-                //     5. PLTR PUT 21.0 5/03/24 (2 trades combined)
-                //     6. PLTR PUT 21.5 5/03/24 (2 trades combined)
+                // - Collections.Movements count: 16 (12 option trades + 4 money movements)
+                //   * Option trades are grouped by (ticker, type, strike, expiration, code, date) when GroupOptions=true
+                //   * This keeps opening/closing trades separate and trades from different days separate
+                //   * Each of the 12 trades in the CSV represents a unique combination, so NO grouping occurs:
+                //     1. 2024-04-25 SELL_TO_OPEN SOFI PUT 7.0 5/03/24
+                //     2. 2024-04-26 BUY_TO_OPEN MPW PUT 4.0 5/03/24
+                //     3. 2024-04-26 SELL_TO_OPEN MPW PUT 4.5 5/03/24
+                //     4. 2024-04-26 BUY_TO_OPEN PLTR PUT 21.0 5/03/24
+                //     5. 2024-04-26 SELL_TO_OPEN PLTR PUT 21.5 5/03/24
+                //     6. 2024-04-29 SELL_TO_CLOSE MPW PUT 4.0 5/03/24
+                //     7. 2024-04-29 BUY_TO_CLOSE MPW PUT 4.5 5/03/24
+                //     8. 2024-04-29 SELL_TO_CLOSE PLTR PUT 21.0 5/03/24
+                //     9. 2024-04-29 BUY_TO_CLOSE PLTR PUT 21.5 5/03/24
+                //     10. 2024-04-29 SELL_TO_OPEN SOFI PUT 7.0 5/03/24
+                //     11. 2024-04-29 BUY_TO_CLOSE SOFI PUT 7.0 5/03/24
+                //     12. 2024-04-30 SELL_TO_OPEN SOFI PUT 6.5 5/10/24
                 // - Unique tickers from CSV: 3 (SOFI, PLTR, MPW)
                 // - Default system ticker: 1 (SPY from TickerExtensions.tickerList)
                 // - Total tickers: 4
-                const int EXPECTED_COLLECTIONS_MOVEMENTS = 10; // 6 grouped option trades + 4 money movements
+                const int EXPECTED_COLLECTIONS_MOVEMENTS = 16; // 12 option trades (no grouping) + 4 money movements
                 const int EXPECTED_DATABASE_MOVEMENTS = 16; // All individual records in database
                 const int EXPECTED_UNIQUE_TICKERS = 4; // 3 from CSV + 1 default (SPY)
                 const int EXPECTED_MIN_SNAPSHOTS = 1; // At least one broker account snapshot should be created
 
-                // Validate exact Collections.Movements count (grouped option trades + money movements)
+                // Validate exact Collections.Movements count (option trades + money movements)
                 bool movementCountValid = movementCount == EXPECTED_COLLECTIONS_MOVEMENTS;
-                results.Add($"🔍 Collections.Movements count validation: Expected {EXPECTED_COLLECTIONS_MOVEMENTS} (6 grouped options + 4 money mvmts), Got {movementCount} - {(movementCountValid ? "✅ PASS" : "❌ FAIL")}");
+                results.Add($"🔍 Collections.Movements count validation: Expected {EXPECTED_COLLECTIONS_MOVEMENTS} (12 options + 4 money mvmts), Got {movementCount} - {(movementCountValid ? "✅ PASS" : "❌ FAIL")}");
 
                 // Validate exact ticker count (3 from CSV data + 1 default SPY ticker)
                 bool tickerCountValid = tickerCount == EXPECTED_UNIQUE_TICKERS;
