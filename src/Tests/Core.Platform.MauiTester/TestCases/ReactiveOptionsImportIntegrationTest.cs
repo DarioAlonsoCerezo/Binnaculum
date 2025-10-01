@@ -179,8 +179,8 @@ namespace Core.Platform.MauiTester.TestCases
                     results.Add("✅ Refresh signals assumed received - no infinite loop triggered");
                 }
 
-                // Phase 3: Basic validation
-                results.Add("=== Phase 3: Basic Validation ===");
+                // Phase 3: Enhanced validation with exact counts
+                results.Add("=== Phase 3: Enhanced Validation with Exact Counts ===");
                 results.Add($"📊 Collections.Movements.Items.Count: {Collections.Movements.Items.Count}");
                 results.Add($"📊 Collections.Tickers.Items.Count: {Collections.Tickers.Items.Count}");
                 results.Add($"📊 Collections.Snapshots.Items.Count: {Collections.Snapshots.Items.Count}");
@@ -189,11 +189,75 @@ namespace Core.Platform.MauiTester.TestCases
                 var tickerCount = Collections.Tickers.Items.Count;
                 var snapshotCount = Collections.Snapshots.Items.Count;
 
+                // Expected values based on TastytradeOptionsTest.csv analysis:
+                // - 12 options trades (BUY_TO_OPEN, SELL_TO_OPEN, BUY_TO_CLOSE, SELL_TO_CLOSE)
+                // - 4 money movements (deposits, balance adjustments)
+                // - Total database movements: 16 (all individual records)
+                // - Collections.Movements count: 10 (6 grouped option trades + 4 money movements)
+                //   * Option trades are grouped by (ticker, type, strike, expiration) when GroupOptions=true (default)
+                //   * 12 individual trades → 6 grouped trades:
+                //     1. SOFI PUT 7.0 5/03/24 (3 trades combined)
+                //     2. SOFI PUT 6.5 5/10/24 (1 trade)
+                //     3. MPW PUT 4.0 5/03/24 (2 trades combined)
+                //     4. MPW PUT 4.5 5/03/24 (2 trades combined)
+                //     5. PLTR PUT 21.0 5/03/24 (2 trades combined)
+                //     6. PLTR PUT 21.5 5/03/24 (2 trades combined)
+                // - Unique tickers from CSV: 3 (SOFI, PLTR, MPW)
+                // - Default system ticker: 1 (SPY from TickerExtensions.tickerList)
+                // - Total tickers: 4
+                const int EXPECTED_COLLECTIONS_MOVEMENTS = 10; // 6 grouped option trades + 4 money movements
+                const int EXPECTED_DATABASE_MOVEMENTS = 16; // All individual records in database
+                const int EXPECTED_UNIQUE_TICKERS = 4; // 3 from CSV + 1 default (SPY)
+                const int EXPECTED_MIN_SNAPSHOTS = 1; // At least one broker account snapshot should be created
+
+                // Validate exact Collections.Movements count (grouped option trades + money movements)
+                bool movementCountValid = movementCount == EXPECTED_COLLECTIONS_MOVEMENTS;
+                results.Add($"🔍 Collections.Movements count validation: Expected {EXPECTED_COLLECTIONS_MOVEMENTS} (6 grouped options + 4 money mvmts), Got {movementCount} - {(movementCountValid ? "✅ PASS" : "❌ FAIL")}");
+
+                // Validate exact ticker count (3 from CSV data + 1 default SPY ticker)
+                bool tickerCountValid = tickerCount == EXPECTED_UNIQUE_TICKERS;
+                results.Add($"🔍 Ticker count validation: Expected {EXPECTED_UNIQUE_TICKERS} (CSV: SOFI,PLTR,MPW + Default: SPY), Got {tickerCount} - {(tickerCountValid ? "✅ PASS" : "❌ FAIL")}");
+
+                // Validate minimum snapshot count
+                bool snapshotCountValid = snapshotCount >= EXPECTED_MIN_SNAPSHOTS;
+                results.Add($"🔍 Snapshot count validation: Expected >= {EXPECTED_MIN_SNAPSHOTS}, Got {snapshotCount} - {(snapshotCountValid ? "✅ PASS" : "❌ FAIL")}");
+
+                // Enhanced validation: Check broker account snapshot movement counter (database records)
+                try
+                {
+                    // Get the broker account snapshot to validate movement counter matches expected database count
+                    var brokerAccountSnapshot = Collections.Snapshots.Items
+                        .FirstOrDefault(s => s.Type == Binnaculum.Core.Models.OverviewSnapshotType.BrokerAccount);
+
+                    if (brokerAccountSnapshot?.BrokerAccount?.Value?.Financial != null)
+                    {
+                        var movementCounter = brokerAccountSnapshot.BrokerAccount.Value.Financial.MovementCounter;
+                        bool movementCounterValid = movementCounter == EXPECTED_DATABASE_MOVEMENTS;
+                        results.Add($"🔍 Database MovementCounter validation: Expected {EXPECTED_DATABASE_MOVEMENTS} (all individual DB records), Got {movementCounter} - {(movementCounterValid ? "✅ PASS" : "❌ FAIL")}");
+
+                        // Additional financial data validation
+                        var deposited = brokerAccountSnapshot.BrokerAccount.Value.Financial.Deposited;
+                        var optionsIncome = brokerAccountSnapshot.BrokerAccount.Value.Financial.OptionsIncome;
+                        results.Add($"📈 Financial Summary - Deposited: ${deposited:F2}, OptionsIncome: ${optionsIncome:F2}");
+
+                        snapshotCountValid = snapshotCountValid && movementCounterValid;
+                    }
+                    else
+                    {
+                        results.Add("⚠️ BrokerAccount snapshot not found or missing Financial data");
+                        snapshotCountValid = false;
+                    }
+                }
+                catch (Exception snapValidationEx)
+                {
+                    results.Add($"⚠️ Snapshot validation error: {snapValidationEx.Message}");
+                    snapshotCountValid = false;
+                }
                 var success = importResult.Success &&
-                             movementCount > 0 &&
-                             tickerCount > 0 &&
-                             snapshotCount > 0 &&
-                             importSignalsReceived; // At least import signals were received
+                             movementCountValid &&
+                             tickerCountValid &&
+                             snapshotCountValid &&
+                             importSignalsReceived; // All validations must pass
 
                 // Cleanup
                 if (!string.IsNullOrEmpty(tempCsvPath) && File.Exists(tempCsvPath))
