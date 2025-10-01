@@ -37,53 +37,29 @@ namespace Core.Platform.MauiTester.TestCases
             try
             {
                 results.Add("=== Reactive Options Import Integration Test ===");
-                results.Add("🚀 This test demonstrates signal-based reactive testing for import workflows");
 
                 // Extract embedded CSV file
-                results.Add("📁 Extracting embedded CSV test data...");
                 var tempCsvPath = await ExtractTestCsvFile();
-                results.Add($"📋 Extracted CSV to: {tempCsvPath}");
-
-                // Verify file contents
-                if (File.Exists(tempCsvPath))
+                if (!File.Exists(tempCsvPath))
                 {
-                    var fileInfo = new FileInfo(tempCsvPath);
-                    results.Add($"📊 CSV file size: {fileInfo.Length} bytes");
-                    var lineCount = File.ReadAllLines(tempCsvPath).Length;
-                    results.Add($"📊 CSV line count: {lineCount} lines");
-                }
-                else
-                {
-                    results.Add("❌ CSV file extraction failed - file does not exist");
+                    results.Add("❌ CSV file extraction failed");
                     return (false, string.Join("\n", results), "CSV extraction failed");
                 }
 
                 // Use the existing Tastytrade broker from test context
                 var tastytradeId = _context.TastytradeId;
-                results.Add($"🏢 Using Tastytrade broker (ID: {tastytradeId})");
-
-                // Create a simple test broker account using Creator
-                results.Add("📊 Creating test broker account...");
                 var accountNumber = $"REACTIVE-TEST-{DateTime.Now:yyyyMMdd-HHmmss}";
 
                 // Add timeout for account creation to prevent hanging
                 using var accountCreationCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
                 try
                 {
-                    results.Add("⏳ Calling Creator.SaveBrokerAccount...");
                     await Creator.SaveBrokerAccount(tastytradeId, accountNumber).WaitAsync(accountCreationCts.Token);
-                    results.Add("✅ Account creation completed - snapshots should be automatically created by Creator");
-
-                    // FIXED: Do NOT call Overview.LoadData() here as it triggers BrokerAccountSnapshotLoader.load()
-                    // which calls BrokerAccountSnapshotManager.handleNewBrokerAccount() again, causing infinite loop
-                    // The Creator.SaveBrokerAccount already creates the necessary snapshots via SnapshotManager.handleNewBrokerAccount
-                    results.Add("🔧 Skipping Overview.LoadData() to avoid infinite loop in BrokerAccountSnapshotLoader");
                 }
                 catch (OperationCanceledException)
                 {
-                    results.Add("⏰ Account creation timed out after 15 seconds");
-                    results.Add("🔍 This suggests Creator.SaveBrokerAccount is hanging - likely infinite loop in snapshot creation");
-                    return (false, string.Join("\n", results), "Account creation timeout - infinite loop in snapshot creation");
+                    results.Add("❌ Account creation timed out");
+                    return (false, string.Join("\n", results), "Account creation timeout");
                 }
 
                 // Find the created broker account
@@ -94,96 +70,39 @@ namespace Core.Platform.MauiTester.TestCases
 
                 if (testAccount == null || testAccount.Type == CoreModels.AccountType.EmptyAccount)
                 {
-                    return (false, "Failed to create test broker account", null);
+                    results.Add("❌ Failed to create test broker account");
+                    return (false, string.Join("\n", results), null);
                 }
 
                 var testBrokerAccountId = testAccount.Broker.Value.Id;
-                results.Add($"✅ Created broker account: {accountNumber} (ID: {testBrokerAccountId})");
 
-                // Pre-import state check
-                results.Add("📊 Pre-import collection state:");
-                results.Add($"   Movements: {Collections.Movements.Items.Count}");
-                results.Add($"   Tickers: {Collections.Tickers.Items.Count}");
-                results.Add($"   Snapshots: {Collections.Snapshots.Items.Count}");
-                results.Add($"   Accounts: {Collections.Accounts.Items.Count}");
+                // Set up signal monitoring for import
+                ReactiveTestVerifications.ExpectSignals("Movements_Updated", "Tickers_Updated", "Snapshots_Updated");
 
-                // Phase 1: Set up signal monitoring for import
-                results.Add("=== Phase 1: Signal-Based Import Execution ===");
-                ReactiveTestVerifications.ExpectSignals(
-                    "Movements_Updated",      // Import will add movements
-                    "Tickers_Updated",        // Import will add/update tickers
-                    "Snapshots_Updated"       // Snapshots will be refreshed
-                );
-
-                results.Add("🔄 Starting import with signal monitoring...");
-                results.Add($"📋 Import parameters: BrokerId={tastytradeId}, AccountId={testBrokerAccountId}, FilePath={tempCsvPath}");
-
-                // Restore normal timeout since we fixed the infinite loop
+                // Execute import
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 ImportResult importResult;
                 try
                 {
-                    results.Add("⏳ Calling ImportManager.importFile...");
                     var importTask = ImportManager.importFile(tastytradeId, testBrokerAccountId, tempCsvPath);
-                    results.Add("⏳ Waiting for import to complete...");
                     importResult = await importTask.WaitAsync(cts.Token);
-                    results.Add($"📊 Import completed: Success={importResult.Success}, Errors={importResult.Errors.Length}");
                 }
-                catch (TimeoutException)
+                catch (Exception)
                 {
-                    results.Add("⏰ Import operation timed out after 30 seconds");
-                    results.Add("🔍 HANG LOCATION: Import took longer than expected");
-                    results.Add("🔧 DIAGNOSIS: Possible performance issue or unexpected delay");
-                    return (false, string.Join("\n", results), "Import timeout - hanging during persistence");
-                }
-                catch (OperationCanceledException)
-                {
-                    results.Add("⏰ Import operation was cancelled due to timeout after 10 seconds");
-                    results.Add("🔍 HANG LOCATION: Import hanging during DatabasePersistence or reactive updates");
-                    results.Add("🔧 DIAGNOSIS: Infinite loop triggered by snapshot loading during import process");
-                    return (false, string.Join("\n", results), "Import timeout - infinite loop in import process");
+                    results.Add("❌ Import operation timed out");
+                    return (false, string.Join("\n", results), "Import timeout");
                 }
 
-                // Wait for initial import signals
+                // Wait for import signals
                 var importSignalsReceived = await ReactiveTestVerifications.WaitForAllSignalsAsync(TimeSpan.FromSeconds(15));
-                if (importSignalsReceived)
-                {
-                    results.Add("✅ Initial import signals received successfully");
-                }
-                else
+                if (!importSignalsReceived)
                 {
                     var (expected, received, missing) = ReactiveTestVerifications.GetSignalStatus();
-                    results.Add($"⚠️ Import signal timeout. Expected: [{string.Join(", ", expected)}], Received: [{string.Join(", ", received)}], Missing: [{string.Join(", ", missing)}]");
+                    results.Add($"⚠️ Missing signals: [{string.Join(", ", missing)}]");
                 }
 
-                // Phase 2: Signal-based snapshot processing
-                if (importResult.Success)
-                {
-                    results.Add("=== Phase 2: Signal-Based Snapshot Processing ===");
-                    ReactiveTestVerifications.ExpectSignals("Snapshots_Updated");
-
-                    // FIXED: Do NOT call Overview.LoadData() here as it triggers the same infinite loop
-                    // The import process should have already updated all necessary data structures
-                    results.Add("🔧 Skipping Overview.LoadData() to avoid infinite loop - import should have updated collections");
-
-                    // Mark signals as received since we're skipping the operation that would trigger them
-                    results.Add("✅ LoadData step skipped - assuming data is already loaded from import");
-
-                    // FIXED: Do NOT call ReactiveSnapshotManager.refresh() here as it triggers the SAME infinite loop
-                    // The BrokerAccountSnapshotLoader.load() calls BrokerAccountSnapshotManager.handleNewBrokerAccount() 
-                    // which triggers the same circular dependency as Overview.LoadData()
-                    results.Add("🔧 Skipping ReactiveSnapshotManager.refresh() to avoid THIRD infinite loop");
-                    results.Add("✅ Snapshot refresh step skipped - import already updated snapshots during processing");
-
-                    // Mark refresh signals as received since we're skipping the operation that would trigger them
-                    results.Add("✅ Refresh signals assumed received - no infinite loop triggered");
-                }
-
-                // Phase 3: Enhanced validation with exact counts
-                results.Add("=== Phase 3: Enhanced Validation with Exact Counts ===");
-                results.Add($"📊 Collections.Movements.Items.Count: {Collections.Movements.Items.Count}");
-                results.Add($"📊 Collections.Tickers.Items.Count: {Collections.Tickers.Items.Count}");
-                results.Add($"📊 Collections.Snapshots.Items.Count: {Collections.Snapshots.Items.Count}");
+                // Validation
+                results.Add("=== Validation Results ===");
 
                 var movementCount = Collections.Movements.Items.Count;
                 var tickerCount = Collections.Tickers.Items.Count;
@@ -217,17 +136,21 @@ namespace Core.Platform.MauiTester.TestCases
                 const int EXPECTED_UNIQUE_TICKERS = 4; // 3 from CSV + 1 default (SPY)
                 const int EXPECTED_MIN_SNAPSHOTS = 1; // At least one broker account snapshot should be created
 
+                // Expected financial data from CSV:
+                // Money movements: $844.56 + $24.23 + $10.00 = $878.79 (deposits only, excluding -$0.02 balance adjustment)
+                const decimal EXPECTED_DEPOSITED = 878.79m;
+
                 // Validate exact Collections.Movements count (option trades + money movements)
                 bool movementCountValid = movementCount == EXPECTED_COLLECTIONS_MOVEMENTS;
-                results.Add($"🔍 Collections.Movements count validation: Expected {EXPECTED_COLLECTIONS_MOVEMENTS} (12 options + 4 money mvmts), Got {movementCount} - {(movementCountValid ? "✅ PASS" : "❌ FAIL")}");
+                results.Add($"Collections.Movements: Expected {EXPECTED_COLLECTIONS_MOVEMENTS}, Got {movementCount} - {(movementCountValid ? "✅ PASS" : "❌ FAIL")}");
 
                 // Validate exact ticker count (3 from CSV data + 1 default SPY ticker)
                 bool tickerCountValid = tickerCount == EXPECTED_UNIQUE_TICKERS;
-                results.Add($"🔍 Ticker count validation: Expected {EXPECTED_UNIQUE_TICKERS} (CSV: SOFI,PLTR,MPW + Default: SPY), Got {tickerCount} - {(tickerCountValid ? "✅ PASS" : "❌ FAIL")}");
+                results.Add($"Tickers: Expected {EXPECTED_UNIQUE_TICKERS}, Got {tickerCount} - {(tickerCountValid ? "✅ PASS" : "❌ FAIL")}");
 
                 // Validate minimum snapshot count
                 bool snapshotCountValid = snapshotCount >= EXPECTED_MIN_SNAPSHOTS;
-                results.Add($"🔍 Snapshot count validation: Expected >= {EXPECTED_MIN_SNAPSHOTS}, Got {snapshotCount} - {(snapshotCountValid ? "✅ PASS" : "❌ FAIL")}");
+                results.Add($"Snapshots: Expected >= {EXPECTED_MIN_SNAPSHOTS}, Got {snapshotCount} - {(snapshotCountValid ? "✅ PASS" : "❌ FAIL")}");
 
                 // Enhanced validation: Check broker account snapshot movement counter (database records)
                 try
@@ -240,24 +163,28 @@ namespace Core.Platform.MauiTester.TestCases
                     {
                         var movementCounter = brokerAccountSnapshot.BrokerAccount.Value.Financial.MovementCounter;
                         bool movementCounterValid = movementCounter == EXPECTED_DATABASE_MOVEMENTS;
-                        results.Add($"🔍 Database MovementCounter validation: Expected {EXPECTED_DATABASE_MOVEMENTS} (all individual DB records), Got {movementCounter} - {(movementCounterValid ? "✅ PASS" : "❌ FAIL")}");
+                        results.Add($"Database MovementCounter: Expected {EXPECTED_DATABASE_MOVEMENTS}, Got {movementCounter} - {(movementCounterValid ? "✅ PASS" : "❌ FAIL")}");
 
-                        // Additional financial data validation
+                        // Financial data validation - Deposited amount
                         var deposited = brokerAccountSnapshot.BrokerAccount.Value.Financial.Deposited;
-                        var optionsIncome = brokerAccountSnapshot.BrokerAccount.Value.Financial.OptionsIncome;
-                        results.Add($"📈 Financial Summary - Deposited: ${deposited:F2}, OptionsIncome: ${optionsIncome:F2}");
+                        bool depositedValid = deposited == EXPECTED_DEPOSITED;
+                        results.Add($"Deposited: Expected ${EXPECTED_DEPOSITED:F2}, Got ${deposited:F2} - {(depositedValid ? "✅ PASS" : "❌ FAIL")}");
 
-                        snapshotCountValid = snapshotCountValid && movementCounterValid;
+                        // Additional financial data (informational)
+                        var optionsIncome = brokerAccountSnapshot.BrokerAccount.Value.Financial.OptionsIncome;
+                        results.Add($"OptionsIncome: ${optionsIncome:F2}");
+
+                        snapshotCountValid = snapshotCountValid && movementCounterValid && depositedValid;
                     }
                     else
                     {
-                        results.Add("⚠️ BrokerAccount snapshot not found or missing Financial data");
+                        results.Add("❌ BrokerAccount snapshot not found");
                         snapshotCountValid = false;
                     }
                 }
                 catch (Exception snapValidationEx)
                 {
-                    results.Add($"⚠️ Snapshot validation error: {snapValidationEx.Message}");
+                    results.Add($"❌ Snapshot validation error: {snapValidationEx.Message}");
                     snapshotCountValid = false;
                 }
                 var success = importResult.Success &&
@@ -272,11 +199,7 @@ namespace Core.Platform.MauiTester.TestCases
                     File.Delete(tempCsvPath);
                 }
 
-                var endTime = DateTime.Now;
-                var totalDuration = endTime - startTime;
-                results.Add($"⏱️ Total test duration: {totalDuration.TotalSeconds:F2}s");
-
-                results.Add(success ? "✅ REACTIVE OPTIONS IMPORT TEST PASSED" : "❌ REACTIVE OPTIONS IMPORT TEST FAILED");
+                results.Add(success ? "\n✅ TEST PASSED" : "\n❌ TEST FAILED");
 
                 return (success, string.Join("\n", results), null);
             }
