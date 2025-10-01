@@ -42,8 +42,19 @@ module DatabasePersistence =
         | ReceiveDeliver _ -> 3
 
     let internal orderTransactionsForPersistence (transactions: TastytradeTransaction list) =
-        transactions
-        |> List.sortBy (fun t -> t.Date, getTransactionProcessingPriority t, t.LineNumber)
+        Debug.WriteLine(
+            $"[DatabasePersistence] orderTransactionsForPersistence: Starting to sort {transactions.Length} transactions"
+        )
+
+        let sorted =
+            transactions
+            |> List.sortBy (fun t -> t.Date, getTransactionProcessingPriority t, t.LineNumber)
+
+        Debug.WriteLine(
+            $"[DatabasePersistence] orderTransactionsForPersistence: Sorting completed, returning {sorted.Length} transactions"
+        )
+
+        sorted
 
     /// <summary>
     /// Convert TastytradeTransaction to BrokerMovement domain object
@@ -53,32 +64,83 @@ module DatabasePersistence =
         (brokerAccountId: int)
         (currencyId: int)
         : BrokerMovement option =
+        Debug.WriteLine(
+            $"[createBrokerMovementFromTransaction] Starting with transaction type: {transaction.TransactionType}"
+        )
+
         match transaction.TransactionType with
         | MoneyMovement(movementSubType) ->
+            Debug.WriteLine(
+                $"[createBrokerMovementFromTransaction] Processing MoneyMovement subtype: {movementSubType}"
+            )
+
             let movementType =
                 match movementSubType with
-                | Deposit -> BrokerMovementType.Deposit
-                | Withdrawal -> BrokerMovementType.Withdrawal
-                | BalanceAdjustment -> BrokerMovementType.Fee // Regulatory fees map to Fee type
-                | CreditInterest -> BrokerMovementType.InterestsGained
-                | Transfer -> BrokerMovementType.Deposit // Default transfers to deposits
+                | Deposit ->
+                    Debug.WriteLine($"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.Deposit")
+                    BrokerMovementType.Deposit
+                | Withdrawal ->
+                    Debug.WriteLine($"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.Withdrawal")
+                    BrokerMovementType.Withdrawal
+                | BalanceAdjustment ->
+                    Debug.WriteLine($"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.Fee")
+                    BrokerMovementType.Fee // Regulatory fees map to Fee type
+                | CreditInterest ->
+                    Debug.WriteLine(
+                        $"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.InterestsGained"
+                    )
 
-            Some
+                    BrokerMovementType.InterestsGained
+                | Transfer ->
+                    Debug.WriteLine($"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.Deposit")
+                    BrokerMovementType.Deposit // Default transfers to deposits
+
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] About to create BrokerMovement object")
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Transaction date: {transaction.Date}")
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Transaction value: {transaction.Value}")
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Transaction commissions: {transaction.Commissions}")
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Transaction fees: {transaction.Fees}")
+
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Creating DateTimePattern from transaction date")
+            let timeStamp = DateTimePattern.FromDateTime(transaction.Date)
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] DateTimePattern created successfully")
+
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Creating Money objects")
+            let amount = Money.FromAmount(Math.Abs(transaction.Value))
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Amount Money object created")
+            let commissions = Money.FromAmount(Math.Abs(transaction.Commissions))
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Commissions Money object created")
+            let fees = Money.FromAmount(Math.Abs(transaction.Fees))
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Fees Money object created")
+
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Creating AuditableEntity")
+            let audit = AuditableEntity.FromDateTime(DateTime.UtcNow)
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] AuditableEntity created successfully")
+
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Creating BrokerMovement record")
+
+            let brokerMovement =
                 { Id = 0 // Will be set by database
-                  TimeStamp = DateTimePattern.FromDateTime(transaction.Date)
-                  Amount = Money.FromAmount(Math.Abs(transaction.Value)) // Store as positive amount
+                  TimeStamp = timeStamp
+                  Amount = amount // Store as positive amount
                   CurrencyId = currencyId
                   BrokerAccountId = brokerAccountId
-                  Commissions = Money.FromAmount(Math.Abs(transaction.Commissions))
-                  Fees = Money.FromAmount(Math.Abs(transaction.Fees))
+                  Commissions = commissions
+                  Fees = fees
                   MovementType = movementType
                   Notes = Some transaction.Description
                   FromCurrencyId = None // TODO: Handle currency conversions
                   AmountChanged = None
                   TickerId = None
                   Quantity = None
-                  Audit = AuditableEntity.FromDateTime(DateTime.UtcNow) }
-        | _ -> None
+                  Audit = audit }
+
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] BrokerMovement record created successfully")
+
+            Some brokerMovement
+        | _ ->
+            Debug.WriteLine($"[createBrokerMovementFromTransaction] Non-MoneyMovement transaction type, returning None")
+            None
 
     /// <summary>
     /// Convert TastytradeTransaction to OptionTrade domain object
@@ -268,9 +330,14 @@ module DatabasePersistence =
             let mutable movementDates = []
 
             try
+                Debug.WriteLine(
+                    $"[DatabasePersistence] About to order {transactions.Length} transactions for persistence"
+                )
+
                 let orderedTransactions = orderTransactionsForPersistence transactions
                 let totalTransactions = orderedTransactions.Length
-                do Debug.WriteLine($"[DatabasePersistence] Transactions ordered; total={totalTransactions}")
+                Debug.WriteLine($"[DatabasePersistence] Transactions ordered successfully; total={totalTransactions}")
+                Debug.WriteLine($"[DatabasePersistence] Starting transaction processing loop")
 
                 // Process each transaction
                 for (index, transaction) in orderedTransactions |> List.mapi (fun i t -> i, t) do
@@ -288,11 +355,9 @@ module DatabasePersistence =
                     )
 
                     try
-                        if index = 0 || index = totalTransactions - 1 || index % 50 = 0 then
-                            do
-                                Debug.WriteLine(
-                                    $"[DatabasePersistence] Processing transaction {index + 1}/{totalTransactions}: line={transaction.LineNumber}, type={transaction.TransactionType}"
-                                )
+                        Debug.WriteLine(
+                            $"[DatabasePersistence] Processing transaction {index + 1}/{totalTransactions}: line={transaction.LineNumber}, type={transaction.TransactionType}"
+                        )
                         // Get currency ID for this transaction (with USD fallback)
                         let currencyCode =
                             if String.IsNullOrWhiteSpace(transaction.Currency) then
@@ -300,17 +365,31 @@ module DatabasePersistence =
                             else
                                 transaction.Currency
 
+                        Debug.WriteLine($"[DatabasePersistence] Getting currency ID for: {currencyCode}")
                         let! currencyId = getCurrencyId (currencyCode)
+                        Debug.WriteLine($"[DatabasePersistence] Got currency ID: {currencyId} for {currencyCode}")
 
                         // Collect movement date for metadata
                         movementDates <- transaction.Date :: movementDates
 
+                        Debug.WriteLine(
+                            $"[DatabasePersistence] Processing transaction type: {transaction.TransactionType}"
+                        )
+
                         match transaction.TransactionType with
                         | MoneyMovement(_) ->
+                            Debug.WriteLine($"[DatabasePersistence] Creating BrokerMovement from transaction")
+
                             match createBrokerMovementFromTransaction transaction brokerAccountId currencyId with
                             | Some brokerMovement ->
+                                Debug.WriteLine($"[DatabasePersistence] Saving BrokerMovement to database")
                                 do! BrokerMovementExtensions.Do.save (brokerMovement) |> Async.AwaitTask
+                                Debug.WriteLine($"[DatabasePersistence] BrokerMovement saved successfully")
                                 brokerMovements <- brokerMovement :: brokerMovements
+
+                                Debug.WriteLine(
+                                    $"[DatabasePersistence] BrokerMovement added to collection, continuing to next step"
+                                )
                             | None ->
                                 errors <-
                                     $"Failed to create BrokerMovement from line {transaction.LineNumber}" :: errors
@@ -366,6 +445,11 @@ module DatabasePersistence =
                             $"Error processing transaction on line {transaction.LineNumber}: {ex.Message}"
                             :: errors
 
+                    Debug.WriteLine(
+                        $"[DatabasePersistence] Completed processing transaction {index + 1}/{totalTransactions}"
+                    )
+
+                Debug.WriteLine($"[DatabasePersistence] All transactions processed, finalizing")
                 // Final progress update
                 ImportState.updateStatus (SavingToDatabase("Database save completed", 1.0))
 

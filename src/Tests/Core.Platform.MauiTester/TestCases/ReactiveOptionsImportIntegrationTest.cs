@@ -118,8 +118,8 @@ namespace Core.Platform.MauiTester.TestCases
                 results.Add("🔄 Starting import with signal monitoring...");
                 results.Add($"📋 Import parameters: BrokerId={tastytradeId}, AccountId={testBrokerAccountId}, FilePath={tempCsvPath}");
 
-                // Add shorter timeout to identify hang location faster
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                // Restore normal timeout since we fixed the infinite loop
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 ImportResult importResult;
                 try
                 {
@@ -131,9 +131,9 @@ namespace Core.Platform.MauiTester.TestCases
                 }
                 catch (TimeoutException)
                 {
-                    results.Add("⏰ Import operation timed out after 10 seconds");
-                    results.Add("🔍 HANG LOCATION: Import is hanging during transaction processing");
-                    results.Add("🔧 DIAGNOSIS: Likely infinite loop during database operations or snapshot creation");
+                    results.Add("⏰ Import operation timed out after 30 seconds");
+                    results.Add("🔍 HANG LOCATION: Import took longer than expected");
+                    results.Add("🔧 DIAGNOSIS: Possible performance issue or unexpected delay");
                     return (false, string.Join("\n", results), "Import timeout - hanging during persistence");
                 }
                 catch (OperationCanceledException)

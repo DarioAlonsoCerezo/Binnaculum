@@ -142,9 +142,9 @@ module internal Do =
                 // System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] Step 4: Disposing command...")
                 command.Dispose()
 
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.executeNonQuery] Step 5: Command disposed successfully"
-                // )
+            // System.Diagnostics.Debug.WriteLine(
+            //     $"[Database.Do.executeNonQuery] Step 5: Command disposed successfully"
+            // )
             with ex ->
                 // System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] *** EXCEPTION *** - {ex.Message}")
 

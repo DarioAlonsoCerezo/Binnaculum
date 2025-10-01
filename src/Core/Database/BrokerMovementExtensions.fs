@@ -13,87 +13,117 @@ open Binnaculum.Core.Patterns
 
 [<Extension>]
 type Do() =
-    
+
     [<Extension>]
     static member fill(brokerMovement: BrokerMovement, command: SqliteCommand) =
-        command.fillEntityAuditable<BrokerMovement>(
-            [
-                (SQLParameterName.TimeStamp, brokerMovement.TimeStamp.ToString());
-                (SQLParameterName.Amount, brokerMovement.Amount.Value);
-                (SQLParameterName.CurrencyId, brokerMovement.CurrencyId);
-                (SQLParameterName.BrokerAccountId, brokerMovement.BrokerAccountId);
-                (SQLParameterName.Commissions, brokerMovement.Commissions.Value);
-                (SQLParameterName.Fees, brokerMovement.Fees.Value);
-                (SQLParameterName.MovementType, fromMovementTypeToDatabase brokerMovement.MovementType);
-                (SQLParameterName.Notes, brokerMovement.Notes.ToDbValue());
-                (SQLParameterName.FromCurrencyId, brokerMovement.FromCurrencyId.ToDbValue());
-                (SQLParameterName.AmountChanged, (brokerMovement.AmountChanged |> Option.map (fun m -> m.Value)).ToDbValue());
-                (SQLParameterName.TickerId, brokerMovement.TickerId.ToDbValue());
-                (SQLParameterName.Quantity, brokerMovement.Quantity.ToDbValue());
-            ], brokerMovement)
+        command.fillEntityAuditable<BrokerMovement> (
+            [ (SQLParameterName.TimeStamp, brokerMovement.TimeStamp.ToString())
+              (SQLParameterName.Amount, brokerMovement.Amount.Value)
+              (SQLParameterName.CurrencyId, brokerMovement.CurrencyId)
+              (SQLParameterName.BrokerAccountId, brokerMovement.BrokerAccountId)
+              (SQLParameterName.Commissions, brokerMovement.Commissions.Value)
+              (SQLParameterName.Fees, brokerMovement.Fees.Value)
+              (SQLParameterName.MovementType, fromMovementTypeToDatabase brokerMovement.MovementType)
+              (SQLParameterName.Notes, brokerMovement.Notes.ToDbValue())
+              (SQLParameterName.FromCurrencyId, brokerMovement.FromCurrencyId.ToDbValue())
+              (SQLParameterName.AmountChanged,
+               (brokerMovement.AmountChanged |> Option.map (fun m -> m.Value)).ToDbValue())
+              (SQLParameterName.TickerId, brokerMovement.TickerId.ToDbValue())
+              (SQLParameterName.Quantity, brokerMovement.Quantity.ToDbValue()) ],
+            brokerMovement
+        )
 
     [<Extension>]
     static member read(reader: SqliteDataReader) =
-        let movement = {
-            Id = reader.getInt32 FieldName.Id
-            TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
-            Amount = reader.getMoney FieldName.Amount
-            CurrencyId = reader.getInt32 FieldName.CurrencyId
-            BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
-            Commissions = reader.getMoney FieldName.Commissions
-            Fees = reader.getMoney FieldName.Fees
-            MovementType = reader.getString FieldName.MovementType |> fromDataseToMovementType
-            Notes = reader.getStringOrNone FieldName.Notes
-            FromCurrencyId = reader.getIntOrNone FieldName.FromCurrencyId
-            AmountChanged = reader.getMoneyOrNone FieldName.AmountChanged
-            TickerId = reader.getIntOrNone FieldName.TickerId
-            Quantity = reader.getDecimalOrNone FieldName.Quantity
-            Audit = reader.getAudit()        
-        }
-        System.Diagnostics.Debug.WriteLine($"[BrokerMovementExtensions] Read movement - ID: {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}, BrokerAccountId: {movement.BrokerAccountId}")
+        let movement =
+            { Id = reader.getInt32 FieldName.Id
+              TimeStamp = reader.getDateTimePattern FieldName.TimeStamp
+              Amount = reader.getMoney FieldName.Amount
+              CurrencyId = reader.getInt32 FieldName.CurrencyId
+              BrokerAccountId = reader.getInt32 FieldName.BrokerAccountId
+              Commissions = reader.getMoney FieldName.Commissions
+              Fees = reader.getMoney FieldName.Fees
+              MovementType = reader.getString FieldName.MovementType |> fromDataseToMovementType
+              Notes = reader.getStringOrNone FieldName.Notes
+              FromCurrencyId = reader.getIntOrNone FieldName.FromCurrencyId
+              AmountChanged = reader.getMoneyOrNone FieldName.AmountChanged
+              TickerId = reader.getIntOrNone FieldName.TickerId
+              Quantity = reader.getDecimalOrNone FieldName.Quantity
+              Audit = reader.getAudit () }
+
+        System.Diagnostics.Debug.WriteLine(
+            $"[BrokerMovementExtensions] Read movement - ID: {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}, BrokerAccountId: {movement.BrokerAccountId}"
+        )
+
         movement
 
     [<Extension>]
-    static member save(brokerMovement: BrokerMovement) = Database.Do.saveEntity brokerMovement (fun t c -> t.fill c) 
+    static member save(brokerMovement: BrokerMovement) =
+        System.Diagnostics.Debug.WriteLine(
+            $"[BrokerMovementExtensions] Starting save for movement - Amount: {brokerMovement.Amount.Value}, Type: {brokerMovement.MovementType}"
+        )
+
+        let result = Database.Do.saveEntity brokerMovement (fun t c -> t.fill c)
+        System.Diagnostics.Debug.WriteLine($"[BrokerMovementExtensions] Save operation initiated for movement")
+        result
 
     [<Extension>]
     static member delete(brokerMovement: BrokerMovement) = Database.Do.deleteEntity brokerMovement
 
-    static member getAll() = Database.Do.getAllEntities Do.read BrokerMovementQuery.getAll
+    static member getAll() =
+        Database.Do.getAllEntities Do.read BrokerMovementQuery.getAll
 
-    static member getById(id: int) = Database.Do.getById Do.read id BrokerMovementQuery.getById
+    static member getById(id: int) =
+        Database.Do.getById Do.read id BrokerMovementQuery.getById
 
-    static member getByBrokerAccountIdUntilDate(brokerAccountId: int, endDate: DateTimePattern) = task {
-        let! command = Database.Do.createCommand()
-        command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdAndDateRange
-        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
-        command.Parameters.AddWithValue(SQLParameterName.DateEnd, endDate.ToString()) |> ignore
-        let! movements = Database.Do.readAll<BrokerMovement>(command, Do.read)
-        return movements
-    }
+    static member getByBrokerAccountIdUntilDate(brokerAccountId: int, endDate: DateTimePattern) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdAndDateRange
 
-    static member getByBrokerAccountIdFromDate(brokerAccountId: int, startDate: DateTimePattern) = task {
-        let! command = Database.Do.createCommand()
-        command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdFromDate
-        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
-        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString()) |> ignore
-        let! movements = Database.Do.readAll<BrokerMovement>(command, Do.read)
-        return movements
-    }
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
 
-    static member getByBrokerAccountIdForDate(brokerAccountId: int, targetDate: DateTimePattern) = task {
-        let! command = Database.Do.createCommand()
-        command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdForDate
-        command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
-        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, targetDate.ToString()) |> ignore
-        let! movements = Database.Do.readAll<BrokerMovement>(command, Do.read)
-        return movements
-    }
+            command.Parameters.AddWithValue(SQLParameterName.DateEnd, endDate.ToString())
+            |> ignore
+
+            let! movements = Database.Do.readAll<BrokerMovement> (command, Do.read)
+            return movements
+        }
+
+    static member getByBrokerAccountIdFromDate(brokerAccountId: int, startDate: DateTimePattern) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdFromDate
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString())
+            |> ignore
+
+            let! movements = Database.Do.readAll<BrokerMovement> (command, Do.read)
+            return movements
+        }
+
+    static member getByBrokerAccountIdForDate(brokerAccountId: int, targetDate: DateTimePattern) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdForDate
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.TimeStamp, targetDate.ToString())
+            |> ignore
+
+            let! movements = Database.Do.readAll<BrokerMovement> (command, Do.read)
+            return movements
+        }
 
 /// <summary>
 /// Financial calculation extension methods for BrokerMovement collections.
 /// These methods provide reusable calculation logic for financial snapshot processing.
-
 /// </summary>
 [<Extension>]
 type FinancialCalculations() =
@@ -106,25 +136,31 @@ type FinancialCalculations() =
     /// <returns>Total deposited amount as Money</returns>
     [<Extension>]
     static member calculateTotalDeposited(movements: BrokerMovement list) =
-        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] calculateTotalDeposited - Processing {movements.Length} total movements")
-        
-        // Log each movement before filtering
-        movements |> List.iter (fun movement ->
-            System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Movement ID {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}")
+        System.Diagnostics.Debug.WriteLine(
+            $"[FinancialCalculations] calculateTotalDeposited - Processing {movements.Length} total movements"
         )
-        
-        let depositMovements = 
+
+        // Log each movement before filtering
+        movements
+        |> List.iter (fun movement ->
+            System.Diagnostics.Debug.WriteLine(
+                $"[FinancialCalculations] Movement ID {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}"
+            ))
+
+        let depositMovements =
             movements
             |> List.filter (fun movement ->
                 match movement.MovementType with
                 | BrokerMovementType.Deposit -> true
                 | BrokerMovementType.ACATMoneyTransferReceived -> true
                 | BrokerMovementType.Conversion -> true // Conversion adds money to target currency
-                | _ -> false
-            )
-            
+                | _ -> false)
+
         System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Found {depositMovements.Length} deposit movements")
-        let totalAmount = depositMovements |> List.sumBy (fun movement -> movement.Amount.Value)
+
+        let totalAmount =
+            depositMovements |> List.sumBy (fun movement -> movement.Amount.Value)
+
         System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Total deposited amount calculated: {totalAmount}")
         Money.FromAmount totalAmount
 
@@ -142,8 +178,7 @@ type FinancialCalculations() =
             match movement.MovementType with
             | BrokerMovementType.Withdrawal -> true
             | BrokerMovementType.ACATMoneyTransferSent -> true
-            | _ -> false
-        )
+            | _ -> false)
         |> List.sumBy (fun movement -> movement.Amount.Value)
         |> Money.FromAmount
 
@@ -155,16 +190,14 @@ type FinancialCalculations() =
     /// <returns>Total fees amount as Money</returns>
     [<Extension>]
     static member calculateTotalFees(movements: BrokerMovement list) =
-        let directFees = 
+        let directFees =
             movements
             |> List.filter (fun movement -> movement.MovementType = BrokerMovementType.Fee)
             |> List.sumBy (fun movement -> movement.Amount.Value)
-        
-        let transactionFees = 
-            movements
-            |> List.sumBy (fun movement -> movement.Fees.Value)
-        
-        Money.FromAmount (directFees + transactionFees)
+
+        let transactionFees = movements |> List.sumBy (fun movement -> movement.Fees.Value)
+
+        Money.FromAmount(directFees + transactionFees)
 
     /// <summary>
     /// Calculates the total commissions paid from broker movements.
@@ -191,8 +224,7 @@ type FinancialCalculations() =
             match movement.MovementType with
             | BrokerMovementType.InterestsGained -> true
             | BrokerMovementType.Lending -> true
-            | _ -> false
-        )
+            | _ -> false)
         |> List.sumBy (fun movement -> movement.Amount.Value)
         |> Money.FromAmount
 
@@ -219,22 +251,23 @@ type FinancialCalculations() =
     /// <returns>Net conversion impact as Money (can be positive or negative)</returns>
     [<Extension>]
     static member calculateConversionImpact(movements: BrokerMovement list, targetCurrencyId: int) =
-        let conversionMovements = 
+        let conversionMovements =
             movements
             |> List.filter (fun movement -> movement.MovementType = BrokerMovementType.Conversion)
-        
-        let positiveImpact = 
+
+        let positiveImpact =
             conversionMovements
             |> List.filter (fun movement -> movement.CurrencyId = targetCurrencyId)
             |> List.sumBy (fun movement -> movement.Amount.Value)
-        
-        let negativeImpact = 
+
+        let negativeImpact =
             conversionMovements
-            |> List.filter (fun movement -> 
-                movement.FromCurrencyId.IsSome && movement.FromCurrencyId.Value = targetCurrencyId)
+            |> List.filter (fun movement ->
+                movement.FromCurrencyId.IsSome
+                && movement.FromCurrencyId.Value = targetCurrencyId)
             |> List.sumBy (fun movement -> movement.AmountChanged.Value.Value)
-        
-        Money.FromAmount (positiveImpact - negativeImpact)
+
+        Money.FromAmount(positiveImpact - negativeImpact)
 
     /// <summary>
     /// Counts the total number of movement transactions.
@@ -243,8 +276,7 @@ type FinancialCalculations() =
     /// <param name="movements">List of broker movements to count</param>
     /// <returns>Total number of movements as integer</returns>
     [<Extension>]
-    static member calculateMovementCount(movements: BrokerMovement list) =
-        movements.Length
+    static member calculateMovementCount(movements: BrokerMovement list) = movements.Length
 
     /// <summary>
     /// Filters broker movements by specific movement types.
@@ -266,21 +298,17 @@ type FinancialCalculations() =
     /// <returns>Set of unique currency IDs</returns>
     [<Extension>]
     static member getUniqueCurrencyIds(movements: BrokerMovement list) =
-        let primaryCurrencies = 
-            movements 
-            |> List.map (fun movement -> movement.CurrencyId)
-            |> Set.ofList
-        
-        let conversionSourceCurrencies = 
-            movements
-            |> List.choose (fun movement -> movement.FromCurrencyId)
-            |> Set.ofList
-        
+        let primaryCurrencies =
+            movements |> List.map (fun movement -> movement.CurrencyId) |> Set.ofList
+
+        let conversionSourceCurrencies =
+            movements |> List.choose (fun movement -> movement.FromCurrencyId) |> Set.ofList
+
         Set.union primaryCurrencies conversionSourceCurrencies
 
     /// <summary>
     /// Filters broker movements by currency ID.
-    /// Includes movements where the target currency is either the primary currency 
+    /// Includes movements where the target currency is either the primary currency
     /// or the source currency in conversions.
     /// </summary>
     /// <param name="movements">List of broker movements to filter</param>
@@ -290,9 +318,8 @@ type FinancialCalculations() =
     static member filterByCurrency(movements: BrokerMovement list, currencyId: int) =
         movements
         |> List.filter (fun movement ->
-            movement.CurrencyId = currencyId || 
-            (movement.FromCurrencyId.IsSome && movement.FromCurrencyId.Value = currencyId)
-        )
+            movement.CurrencyId = currencyId
+            || (movement.FromCurrencyId.IsSome && movement.FromCurrencyId.Value = currencyId))
 
     /// <summary>
     /// Calculates a comprehensive financial summary for broker movements.
@@ -303,29 +330,38 @@ type FinancialCalculations() =
     /// <returns>Financial summary record with calculated totals</returns>
     [<Extension>]
     static member calculateFinancialSummary(movements: BrokerMovement list, ?currencyId: int) =
-        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] calculateFinancialSummary - Processing {movements.Length} movements, CurrencyFilter: {currencyId}")
-        let relevantMovements = 
+        System.Diagnostics.Debug.WriteLine(
+            $"[FinancialCalculations] calculateFinancialSummary - Processing {movements.Length} movements, CurrencyFilter: {currencyId}"
+        )
+
+        let relevantMovements =
             match currencyId with
-            | Some id -> 
-                let filtered = movements.filterByCurrency(id)
-                System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Filtered to {filtered.Length} movements for currency {id}")
+            | Some id ->
+                let filtered = movements.filterByCurrency (id)
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"[FinancialCalculations] Filtered to {filtered.Length} movements for currency {id}"
+                )
+
                 filtered
             | None -> movements
-        
-        let summary = {|
-            TotalDeposited = relevantMovements.calculateTotalDeposited()
-            TotalWithdrawn = relevantMovements.calculateTotalWithdrawn()
-            TotalFees = relevantMovements.calculateTotalFees()
-            TotalCommissions = relevantMovements.calculateTotalCommissions()
-            TotalOtherIncome = relevantMovements.calculateTotalOtherIncome()
-            TotalInterestPaid = relevantMovements.calculateTotalInterestPaid()
-            ConversionImpact = 
+
+        let summary =
+            {| TotalDeposited = relevantMovements.calculateTotalDeposited ()
+               TotalWithdrawn = relevantMovements.calculateTotalWithdrawn ()
+               TotalFees = relevantMovements.calculateTotalFees ()
+               TotalCommissions = relevantMovements.calculateTotalCommissions ()
+               TotalOtherIncome = relevantMovements.calculateTotalOtherIncome ()
+               TotalInterestPaid = relevantMovements.calculateTotalInterestPaid ()
+               ConversionImpact =
                 match currencyId with
-                | Some id -> relevantMovements.calculateConversionImpact(id)
+                | Some id -> relevantMovements.calculateConversionImpact (id)
                 | None -> Money.FromAmount 0m
-            MovementCount = relevantMovements.calculateMovementCount()
-            UniqueCurrencies = relevantMovements.getUniqueCurrencyIds()
-        |}
-        
-        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Financial summary calculated - TotalDeposited: {summary.TotalDeposited.Value}, MovementCount: {summary.MovementCount}")
+               MovementCount = relevantMovements.calculateMovementCount ()
+               UniqueCurrencies = relevantMovements.getUniqueCurrencyIds () |}
+
+        System.Diagnostics.Debug.WriteLine(
+            $"[FinancialCalculations] Financial summary calculated - TotalDeposited: {summary.TotalDeposited.Value}, MovementCount: {summary.MovementCount}"
+        )
+
         summary

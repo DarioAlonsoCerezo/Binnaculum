@@ -212,6 +212,9 @@ namespace Core.Platform.MauiTester.Services
                 case "Snapshots":
                     SignalReceived("Snapshots_Updated");
                     break;
+                case "Tickers":
+                    SignalReceived("Tickers_Updated");
+                    break;
                 case "Overview.Data":
                     var emissionStr = emission?.ToString() ?? "";
                     if (emissionStr.Contains("IsDatabaseInitialized"))

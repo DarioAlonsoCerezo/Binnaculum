@@ -22,12 +22,18 @@ module ImportManager =
     /// <param name="filePath">Path to the file to import (CSV or ZIP)</param>
     /// <returns>ImportResult with detailed feedback</returns>
     let importFile (brokerId: int) (brokerAccountId: int) (filePath: string) =
+        Debug.WriteLine(
+            $"[ImportManager] importFile function called with broker {brokerId}, account {brokerAccountId}, file={filePath}"
+        )
+
         task {
             Debug.WriteLine(
                 $"[ImportManager] Starting import for broker {brokerId}, account {brokerAccountId}, file={filePath}"
             )
 
+            Debug.WriteLine("[ImportManager] About to call ImportState.startImport()")
             let cancellationToken = ImportState.startImport ()
+            Debug.WriteLine("[ImportManager] ImportState.startImport() completed successfully")
 
             try
                 // Validate inputs
@@ -258,6 +264,21 @@ module ImportManager =
 
                                     // Complete import and return result
                                     ImportState.completeImport (importResult)
+
+                                    // Trigger reactive updates now that import is complete
+                                    Debug.WriteLine("[ImportManager] Triggering post-import reactive updates")
+
+                                    try
+                                        do! ReactiveMovementManager.refreshAsync ()
+                                        do! ReactiveSnapshotManager.refreshAsync ()
+
+                                        Debug.WriteLine(
+                                            "[ImportManager] Post-import reactive updates completed successfully"
+                                        )
+                                    with ex ->
+                                        Debug.WriteLine(
+                                            $"[ImportManager] Post-import reactive updates failed: {ex.Message}"
+                                        )
 
                                     Debug.WriteLine(
                                         $"[ImportManager] Import completed: success={importResult.Success}, processedRecords={importResult.ProcessedRecords}, errors={importResult.Errors.Length}"
