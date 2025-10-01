@@ -140,7 +140,15 @@ namespace Core.Platform.MauiTester.TestCases
                 // Money movements: $844.56 + $24.23 + $10.00 = $878.79 (deposits only, excluding -$0.02 balance adjustment)
                 const decimal EXPECTED_DEPOSITED = 878.79m;
 
-                // Validate exact Collections.Movements count (option trades + money movements)
+                // Options Income: Net profit/loss from ALL options trading activity
+                // OptionsIncome = Sum of ALL NetPremium values (sells positive, buys negative)
+                // SELL_TO_OPEN (5 trades): $14.86 + $15.86 + $17.86 + $17.86 + $33.86 = $100.30
+                // SELL_TO_CLOSE (2 trades): $4.86 + $0.86 = $5.72
+                // BUY_TO_OPEN (3 trades): -$12.13 + -$5.13 = -$17.26
+                // BUY_TO_CLOSE (3 trades): -$9.13 + -$17.13 + -$8.13 = -$34.39
+                // Total: $100.30 + $5.72 - $17.26 - $34.39 = $54.37
+                // This represents the actual net income from options trading after all costs
+                const decimal EXPECTED_OPTIONS_INCOME = 54.37m;                // Validate exact Collections.Movements count (option trades + money movements)
                 bool movementCountValid = movementCount == EXPECTED_COLLECTIONS_MOVEMENTS;
                 results.Add($"Collections.Movements: Expected {EXPECTED_COLLECTIONS_MOVEMENTS}, Got {movementCount} - {(movementCountValid ? "✅ PASS" : "❌ FAIL")}");
 
@@ -170,11 +178,12 @@ namespace Core.Platform.MauiTester.TestCases
                         bool depositedValid = deposited == EXPECTED_DEPOSITED;
                         results.Add($"Deposited: Expected ${EXPECTED_DEPOSITED:F2}, Got ${deposited:F2} - {(depositedValid ? "✅ PASS" : "❌ FAIL")}");
 
-                        // Additional financial data (informational)
+                        // Financial data validation - Options Income
                         var optionsIncome = brokerAccountSnapshot.BrokerAccount.Value.Financial.OptionsIncome;
-                        results.Add($"OptionsIncome: ${optionsIncome:F2}");
+                        bool optionsIncomeValid = optionsIncome == EXPECTED_OPTIONS_INCOME;
+                        results.Add($"OptionsIncome: Expected ${EXPECTED_OPTIONS_INCOME:F2}, Got ${optionsIncome:F2} - {(optionsIncomeValid ? "✅ PASS" : "❌ FAIL")}");
 
-                        snapshotCountValid = snapshotCountValid && movementCounterValid && depositedValid;
+                        snapshotCountValid = snapshotCountValid && movementCounterValid && depositedValid && optionsIncomeValid;
                     }
                     else
                     {

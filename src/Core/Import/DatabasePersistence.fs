@@ -172,15 +172,15 @@ module DatabasePersistence =
                 | Some date -> DateTimePattern.FromDateTime(date)
                 | None -> DateTimePattern.FromDateTime(transaction.Date.AddDays(30)) // Default fallback
 
-            let premium = Math.Abs(transaction.Value)
+            // Premium should preserve sign: positive for SELL, negative for BUY
+            let premium = transaction.Value
             let commissionCost = Math.Abs(transaction.Commissions)
             let feeCost = Math.Abs(transaction.Fees)
 
-            let netPremium =
-                match optionCode with
-                | OptionCode.BuyToOpen
-                | OptionCode.BuyToClose -> premium + commissionCost + feeCost
-                | _ -> premium - commissionCost - feeCost
+            // NetPremium calculation:
+            // For SELL trades: Premium (positive) - Commissions - Fees = Net income
+            // For BUY trades: Premium (negative) - Commissions - Fees = Net cost (more negative)
+            let netPremium = premium - commissionCost - feeCost
 
             let multiplier = transaction.Multiplier |> Option.defaultValue 100m
             let strike = transaction.StrikePrice |> Option.defaultValue 0m

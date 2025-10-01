@@ -304,19 +304,21 @@ type Do() =
 type OptionTradeCalculations() =
 
     /// <summary>
-    /// Calculates total options income from selling options (SellToOpen, SellToClose).
-    /// This represents premium received when selling options to open or close positions.
-    /// Income is calculated as net premium received after commissions and fees.
+    /// Calculates total options income as the net profit/loss from all options trading activity.
+    /// This represents the actual financial result from all options trades including:
+    /// - Premium received from selling options (SellToOpen, SellToClose)
+    /// - Premium paid for buying options (BuyToOpen, BuyToClose)
+    /// - All commissions and fees
+    /// Income is calculated as the sum of all NetPremium values (positive for sells, negative for buys).
     /// </summary>
     /// <param name="optionTrades">List of option trades to analyze</param>
-    /// <returns>Total options income as Money</returns>
+    /// <returns>Total net options income as Money</returns>
     [<Extension>]
     static member calculateOptionsIncome(optionTrades: OptionTrade list) =
         optionTrades
-        |> List.filter (fun trade -> trade.Code = OptionCode.SellToOpen || trade.Code = OptionCode.SellToClose)
         |> List.sumBy (fun trade ->
-            // For sells, NetPremium is already calculated as positive income
-            // NetPremium = (Premium * Multiplier * Quantity) - Commissions - Fees
+            // NetPremium includes all costs: Premium +/- Commissions - Fees
+            // Positive for sells (income), negative for buys (cost)
             trade.NetPremium.Value)
         |> Money.FromAmount
 
