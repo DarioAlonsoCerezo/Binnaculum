@@ -3,6 +3,7 @@ open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.ModelsToDatabase
 open System
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 open Binnaculum.Core.Storage
 open Microsoft.FSharp.Core
 open Binnaculum.Core.DataLoader
@@ -53,10 +54,10 @@ module Creator =
 
     let SaveBrokerMovement(movement: Binnaculum.Core.Models.BrokerMovement) = task {
         try
-            System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement ENTRY - Amount: {movement.Amount}, Type: {movement.MovementType}, BrokerAccountId: {movement.BrokerAccount.Id}, Date: {movement.TimeStamp}")
+            CoreLogger.logDebugf "Creator" "SaveBrokerMovement ENTRY - Amount: %A, Type: %A, BrokerAccountId: %A, Date: %A" movement.Amount movement.MovementType movement.BrokerAccount.Id movement.TimeStamp
             
             // Validate FromCurrency based on MovementType
-            System.Diagnostics.Debug.WriteLine($"[Creator] Validating movement type and FromCurrency...")
+            CoreLogger.logDebug "Creator" "Validating movement type and FromCurrency..."
             match movement.MovementType, movement.FromCurrency with
             | Binnaculum.Core.Models.BrokerMovementType.Conversion, None ->
                 failwith "FromCurrency is required when MovementType is Conversion"
@@ -67,7 +68,7 @@ module Creator =
             | _, None ->
                 () // Valid: Non-conversion without FromCurrency
             
-            System.Diagnostics.Debug.WriteLine($"[Creator] Movement validation passed")
+            CoreLogger.logDebug "Creator" "Movement validation passed"
             
             // Set default AmountChanged for Conversion movements if not provided
             let movementWithDefaults = 
@@ -77,39 +78,39 @@ module Creator =
                     { movement with AmountChanged = Some movement.Amount }
                 | _ -> movement
             
-            System.Diagnostics.Debug.WriteLine($"[Creator] Converting movement to database model...")
+            CoreLogger.logDebug "Creator" "Converting movement to database model..."
             let databaseModel = movementWithDefaults.brokerMovementToDatabase()
-            System.Diagnostics.Debug.WriteLine($"[Creator] Database model created, saving movement...")
+            CoreLogger.logDebug "Creator" "Database model created, saving movement..."
             do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask
-            System.Diagnostics.Debug.WriteLine($"[Creator] Movement saved to database successfully")
+            CoreLogger.logDebug "Creator" "Movement saved to database successfully"
             
             // Update snapshots for this movement using reactive manager
             let movementDatePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
-            System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement - About to update snapshots for movement date: {movementDatePattern}, Amount: {movement.Amount}, Type: {movement.MovementType}")
+            CoreLogger.logDebugf "Creator" "SaveBrokerMovement - About to update snapshots for movement date: %A, Amount: %A, Type: %A" movementDatePattern movement.Amount movement.MovementType
             do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, movementDatePattern) |> Async.AwaitTask
-            System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement - Historical movement date snapshot update completed")
+            CoreLogger.logDebug "Creator" "SaveBrokerMovement - Historical movement date snapshot update completed"
             
             // If this is a historical movement (not today), also update today's snapshot to reflect the new data
             let today = DateTime.Now.Date
             let movementDate = movement.TimeStamp.Date
-            System.Diagnostics.Debug.WriteLine($"[Creator] Checking if historical movement - Movement date: {movementDate}, Today: {today}")
+            CoreLogger.logDebugf "Creator" "Checking if historical movement - Movement date: %A, Today: %A" movementDate today
             if movementDate < today then
-                System.Diagnostics.Debug.WriteLine($"[Creator] *** HISTORICAL MOVEMENT DETECTED *** - Movement date: {movementDate}, Today: {today}")
-                System.Diagnostics.Debug.WriteLine($"[Creator] About to update today's snapshot to reflect historical deposit of {movement.Amount}")
+                CoreLogger.logDebugf "Creator" "*** HISTORICAL MOVEMENT DETECTED *** - Movement date: %A, Today: %A" movementDate today
+                CoreLogger.logDebugf "Creator" "About to update today's snapshot to reflect historical deposit of %A" movement.Amount
                 let todayPattern = DateTimePattern.FromDateTime(today.AddDays(1).AddTicks(-1)) // End of today
-                System.Diagnostics.Debug.WriteLine($"[Creator] Today pattern calculated: {todayPattern}")
+                CoreLogger.logDebugf "Creator" "Today pattern calculated: %A" todayPattern
                 do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, todayPattern) |> Async.AwaitTask
-                System.Diagnostics.Debug.WriteLine($"[Creator] *** TODAY'S SNAPSHOT UPDATE COMPLETED AFTER HISTORICAL MOVEMENT ***")
+                CoreLogger.logDebug "Creator" "*** TODAY'S SNAPSHOT UPDATE COMPLETED AFTER HISTORICAL MOVEMENT ***"
             else
-                System.Diagnostics.Debug.WriteLine($"[Creator] Movement is for today - no additional snapshot update needed")
+                CoreLogger.logDebug "Creator" "Movement is for today - no additional snapshot update needed"
             
-            System.Diagnostics.Debug.WriteLine($"[Creator] Refreshing reactive snapshot manager...")
+            CoreLogger.logDebug "Creator" "Refreshing reactive snapshot manager..."
             ReactiveSnapshotManager.refresh()
-            System.Diagnostics.Debug.WriteLine($"[Creator] SaveBrokerMovement COMPLETED SUCCESSFULLY")
+            CoreLogger.logDebug "Creator" "SaveBrokerMovement COMPLETED SUCCESSFULLY"
         with
         | ex ->
-            System.Diagnostics.Debug.WriteLine($"[Creator] *** ERROR IN SaveBrokerMovement *** - Exception: {ex.Message}")
-            System.Diagnostics.Debug.WriteLine($"[Creator] *** STACK TRACE *** - {ex.StackTrace}")
+            CoreLogger.logDebugf "Creator" "*** ERROR IN SaveBrokerMovement *** - Exception: %A" ex.Message
+            CoreLogger.logDebugf "Creator" "*** STACK TRACE *** - %A" ex.StackTrace
             raise ex
     }
 

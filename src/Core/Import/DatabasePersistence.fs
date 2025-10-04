@@ -7,6 +7,7 @@ open Binnaculum.Core
 open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 open OptionTradeExtensions
 open TastytradeModels
 
@@ -42,17 +43,13 @@ module DatabasePersistence =
         | ReceiveDeliver _ -> 3
 
     let internal orderTransactionsForPersistence (transactions: TastytradeTransaction list) =
-        Debug.WriteLine(
-            $"[DatabasePersistence] orderTransactionsForPersistence: Starting to sort {transactions.Length} transactions"
-        )
+        CoreLogger.logDebugf "DatabasePersistence" "orderTransactionsForPersistence: Starting to sort %d transactions" transactions.Length
 
         let sorted =
             transactions
             |> List.sortBy (fun t -> t.Date, getTransactionProcessingPriority t, t.LineNumber)
 
-        Debug.WriteLine(
-            $"[DatabasePersistence] orderTransactionsForPersistence: Sorting completed, returning {sorted.Length} transactions"
-        )
+        CoreLogger.logDebugf "DatabasePersistence" "orderTransactionsForPersistence: Sorting completed, returning %d transactions" sorted.Length
 
         sorted
 
@@ -64,60 +61,53 @@ module DatabasePersistence =
         (brokerAccountId: int)
         (currencyId: int)
         : BrokerMovement option =
-        Debug.WriteLine(
-            $"[createBrokerMovementFromTransaction] Starting with transaction type: {transaction.TransactionType}"
-        )
+        CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Starting with transaction type: %A" transaction.TransactionType
 
         match transaction.TransactionType with
         | MoneyMovement(movementSubType) ->
-            Debug.WriteLine(
-                $"[createBrokerMovementFromTransaction] Processing MoneyMovement subtype: {movementSubType}"
-            )
+            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Processing MoneyMovement subtype: %A" movementSubType
 
             let movementType =
                 match movementSubType with
                 | Deposit ->
-                    Debug.WriteLine($"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.Deposit")
+                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Deposit"
                     BrokerMovementType.Deposit
                 | Withdrawal ->
-                    Debug.WriteLine($"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.Withdrawal")
+                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Withdrawal"
                     BrokerMovementType.Withdrawal
                 | BalanceAdjustment ->
-                    Debug.WriteLine($"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.Fee")
+                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Fee"
                     BrokerMovementType.Fee // Regulatory fees map to Fee type
                 | CreditInterest ->
-                    Debug.WriteLine(
-                        $"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.InterestsGained"
-                    )
-
+                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.InterestsGained"
                     BrokerMovementType.InterestsGained
                 | Transfer ->
-                    Debug.WriteLine($"[createBrokerMovementFromTransaction] Mapping to BrokerMovementType.Deposit")
+                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Deposit"
                     BrokerMovementType.Deposit // Default transfers to deposits
 
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] About to create BrokerMovement object")
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Transaction date: {transaction.Date}")
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Transaction value: {transaction.Value}")
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Transaction commissions: {transaction.Commissions}")
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Transaction fees: {transaction.Fees}")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: About to create BrokerMovement object"
+            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Transaction date: %A" transaction.Date
+            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Transaction value: %M" transaction.Value
+            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Transaction commissions: %M" transaction.Commissions
+            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Transaction fees: %M" transaction.Fees
 
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Creating DateTimePattern from transaction date")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating DateTimePattern from transaction date"
             let timeStamp = DateTimePattern.FromDateTime(transaction.Date)
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] DateTimePattern created successfully")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: DateTimePattern created successfully"
 
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Creating Money objects")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating Money objects"
             let amount = Money.FromAmount(Math.Abs(transaction.Value))
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Amount Money object created")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Amount Money object created"
             let commissions = Money.FromAmount(Math.Abs(transaction.Commissions))
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Commissions Money object created")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Commissions Money object created"
             let fees = Money.FromAmount(Math.Abs(transaction.Fees))
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Fees Money object created")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Fees Money object created"
 
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Creating AuditableEntity")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating AuditableEntity"
             let audit = AuditableEntity.FromDateTime(DateTime.UtcNow)
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] AuditableEntity created successfully")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: AuditableEntity created successfully"
 
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Creating BrokerMovement record")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating BrokerMovement record"
 
             let brokerMovement =
                 { Id = 0 // Will be set by database
@@ -135,11 +125,11 @@ module DatabasePersistence =
                   Quantity = None
                   Audit = audit }
 
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] BrokerMovement record created successfully")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: BrokerMovement record created successfully"
 
             Some brokerMovement
         | _ ->
-            Debug.WriteLine($"[createBrokerMovementFromTransaction] Non-MoneyMovement transaction type, returning None")
+            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Non-MoneyMovement transaction type, returning None"
             None
 
     /// <summary>
@@ -314,10 +304,7 @@ module DatabasePersistence =
         (cancellationToken: CancellationToken)
         =
         task {
-            do
-                Debug.WriteLine(
-                    $"[DatabasePersistence] Persisting {transactions.Length} transactions for account {brokerAccountId}"
-                )
+            do CoreLogger.logInfof "DatabasePersistence" "Persisting %d transactions for account %d" transactions.Length brokerAccountId
 
             let mutable brokerMovements = []
             let mutable optionTrades = []
@@ -330,14 +317,12 @@ module DatabasePersistence =
             let mutable movementDates = []
 
             try
-                Debug.WriteLine(
-                    $"[DatabasePersistence] About to order {transactions.Length} transactions for persistence"
-                )
+                CoreLogger.logDebugf "DatabasePersistence" "About to order %d transactions for persistence" transactions.Length
 
                 let orderedTransactions = orderTransactionsForPersistence transactions
                 let totalTransactions = orderedTransactions.Length
-                Debug.WriteLine($"[DatabasePersistence] Transactions ordered successfully; total={totalTransactions}")
-                Debug.WriteLine($"[DatabasePersistence] Starting transaction processing loop")
+                CoreLogger.logDebugf "DatabasePersistence" "Transactions ordered successfully; total=%d" totalTransactions
+                CoreLogger.logDebug "DatabasePersistence" "Starting transaction processing loop"
 
                 // Process each transaction
                 for (index, transaction) in orderedTransactions |> List.mapi (fun i t -> i, t) do
@@ -355,9 +340,7 @@ module DatabasePersistence =
                     )
 
                     try
-                        Debug.WriteLine(
-                            $"[DatabasePersistence] Processing transaction {index + 1}/{totalTransactions}: line={transaction.LineNumber}, type={transaction.TransactionType}"
-                        )
+                        CoreLogger.logDebugf "DatabasePersistence" "Processing transaction %d/%d: line=%d, type=%A" (index + 1) totalTransactions transaction.LineNumber transaction.TransactionType
                         // Get currency ID for this transaction (with USD fallback)
                         let currencyCode =
                             if String.IsNullOrWhiteSpace(transaction.Currency) then
@@ -365,31 +348,27 @@ module DatabasePersistence =
                             else
                                 transaction.Currency
 
-                        Debug.WriteLine($"[DatabasePersistence] Getting currency ID for: {currencyCode}")
+                        CoreLogger.logDebugf "DatabasePersistence" "Getting currency ID for: %s" currencyCode
                         let! currencyId = getCurrencyId (currencyCode)
-                        Debug.WriteLine($"[DatabasePersistence] Got currency ID: {currencyId} for {currencyCode}")
+                        CoreLogger.logDebugf "DatabasePersistence" "Got currency ID: %d for %s" currencyId currencyCode
 
                         // Collect movement date for metadata
                         movementDates <- transaction.Date :: movementDates
 
-                        Debug.WriteLine(
-                            $"[DatabasePersistence] Processing transaction type: {transaction.TransactionType}"
-                        )
+                        CoreLogger.logDebugf "DatabasePersistence" "Processing transaction type: %A" transaction.TransactionType
 
                         match transaction.TransactionType with
                         | MoneyMovement(_) ->
-                            Debug.WriteLine($"[DatabasePersistence] Creating BrokerMovement from transaction")
+                            CoreLogger.logDebug "DatabasePersistence" "Creating BrokerMovement from transaction"
 
                             match createBrokerMovementFromTransaction transaction brokerAccountId currencyId with
                             | Some brokerMovement ->
-                                Debug.WriteLine($"[DatabasePersistence] Saving BrokerMovement to database")
+                                CoreLogger.logDebug "DatabasePersistence" "Saving BrokerMovement to database"
                                 do! BrokerMovementExtensions.Do.save (brokerMovement) |> Async.AwaitTask
-                                Debug.WriteLine($"[DatabasePersistence] BrokerMovement saved successfully")
+                                CoreLogger.logDebug "DatabasePersistence" "BrokerMovement saved successfully"
                                 brokerMovements <- brokerMovement :: brokerMovements
 
-                                Debug.WriteLine(
-                                    $"[DatabasePersistence] BrokerMovement added to collection, continuing to next step"
-                                )
+                                CoreLogger.logDebug "DatabasePersistence" "BrokerMovement added to collection, continuing to next step"
                             | None ->
                                 errors <-
                                     $"Failed to create BrokerMovement from line {transaction.LineNumber}" :: errors
@@ -433,9 +412,7 @@ module DatabasePersistence =
                         | ReceiveDeliver(_) when transaction.InstrumentType = Some "Equity" ->
                             // ACAT equity transfers - shares received from another broker
                             // These are treated as trades with $0 cost basis (value comes from the transfer itself)
-                            Debug.WriteLine(
-                                $"[DatabasePersistence] Processing ACAT equity transfer for {transaction.Symbol}"
-                            )
+                            CoreLogger.logDebugf "DatabasePersistence" "Processing ACAT equity transfer for %A" transaction.Symbol
 
                             let stockSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
                             let! tickerId = getOrCreateTickerId (stockSymbol)
@@ -463,9 +440,7 @@ module DatabasePersistence =
                             do! TradeExtensions.Do.save (acatTrade) |> Async.AwaitTask
                             stockTrades <- acatTrade :: stockTrades
 
-                            Debug.WriteLine(
-                                $"[DatabasePersistence] ACAT equity transfer saved: {stockSymbol}, quantity={transaction.Quantity}"
-                            )
+                            CoreLogger.logDebugf "DatabasePersistence" "ACAT equity transfer saved: %s, quantity=%M" stockSymbol transaction.Quantity
 
                         | _ ->
                             errors <-
@@ -473,27 +448,19 @@ module DatabasePersistence =
                                 :: errors
 
                     with ex ->
-                        do
-                            Debug.WriteLine(
-                                $"[DatabasePersistence] Error processing transaction line {transaction.LineNumber}: {ex.Message}"
-                            )
+                        do CoreLogger.logErrorf "DatabasePersistence" "Error processing transaction line %d: %s" transaction.LineNumber ex.Message
 
                         errors <-
                             $"Error processing transaction on line {transaction.LineNumber}: {ex.Message}"
                             :: errors
 
-                    Debug.WriteLine(
-                        $"[DatabasePersistence] Completed processing transaction {index + 1}/{totalTransactions}"
-                    )
+                    CoreLogger.logDebugf "DatabasePersistence" "Completed processing transaction %d/%d" (index + 1) totalTransactions
 
-                Debug.WriteLine($"[DatabasePersistence] All transactions processed, finalizing")
+                CoreLogger.logDebug "DatabasePersistence" "All transactions processed, finalizing"
                 // Final progress update
                 ImportState.updateStatus (SavingToDatabase("Database save completed", 1.0))
 
-                do
-                    Debug.WriteLine(
-                        $"[DatabasePersistence] Persistence complete. BrokerMovements={brokerMovements.Length}, OptionTrades={optionTrades.Length}, StockTrades={stockTrades.Length}, Errors={errors.Length}"
-                    )
+                do CoreLogger.logInfof "DatabasePersistence" "Persistence complete. BrokerMovements=%d, OptionTrades=%d, StockTrades=%d, Errors=%d" brokerMovements.Length optionTrades.Length stockTrades.Length errors.Length
 
                 // Create import metadata for targeted snapshot updates
                 let oldestMovementDate =
@@ -523,7 +490,7 @@ module DatabasePersistence =
 
             with
             | :? OperationCanceledException ->
-                do Debug.WriteLine("[DatabasePersistence] Persistence cancelled by request")
+                do CoreLogger.logWarning "DatabasePersistence" "Persistence cancelled by request"
                 ImportState.updateStatus (SavingToDatabase("Database save cancelled", 0.0))
 
                 return
@@ -535,7 +502,7 @@ module DatabasePersistence =
                       Errors = [ "Operation was cancelled" ]
                       ImportMetadata = ImportMetadata.createEmpty () }
             | ex ->
-                do Debug.WriteLine($"[DatabasePersistence] Persistence failed: {ex.Message}")
+                do CoreLogger.logErrorf "DatabasePersistence" "Persistence failed: %s" ex.Message
                 errors <- $"Database persistence failed: {ex.Message}" :: errors
 
                 return

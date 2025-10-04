@@ -11,6 +11,7 @@ open CommandExtensions
 open Binnaculum.Core.SQL
 open OptionExtensions
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 
 let internal isOpeningCode =
     function

@@ -10,6 +10,7 @@ open CommandExtensions
 open OptionExtensions
 open Binnaculum.Core.SQL
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 
 [<Extension>]
 type Do() =
@@ -64,7 +65,7 @@ type Do() =
         )
 
         let result = Database.Do.saveEntity brokerMovement (fun t c -> t.fill c)
-        System.Diagnostics.Debug.WriteLine($"[BrokerMovementExtensions] Save operation initiated for movement")
+        CoreLogger.logDebug "BrokerMovementExtensions" "Save operation initiated for movement"
         result
 
     [<Extension>]
@@ -156,12 +157,12 @@ type FinancialCalculations() =
                 | BrokerMovementType.Conversion -> true // Conversion adds money to target currency
                 | _ -> false)
 
-        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Found {depositMovements.Length} deposit movements")
+        CoreLogger.logDebugf "FinancialCalculations" "Found %A deposit movements" depositMovements.Length
 
         let totalAmount =
             depositMovements |> List.sumBy (fun movement -> movement.Amount.Value)
 
-        System.Diagnostics.Debug.WriteLine($"[FinancialCalculations] Total deposited amount calculated: {totalAmount}")
+        CoreLogger.logDebugf "FinancialCalculations" "Total deposited amount calculated: %A" totalAmount
         Money.FromAmount totalAmount
 
     /// <summary>

@@ -4,6 +4,7 @@ open Microsoft.Maui.Storage
 open Microsoft.Maui.ApplicationModel
 open System.IO
 open System.Diagnostics
+open Binnaculum.Core.Logging
 
 type FilePickerResult =
     { FileName: string
@@ -42,7 +43,7 @@ module FilePickerService =
                     let! result = FilePicker.Default.PickAsync(options)
 
                     if result <> null then
-                        Debug.WriteLine($"[FilePicker] Image selected: {result.FullPath}")
+                        CoreLogger.logDebugf "FilePicker" "Image selected: %A" result.FullPath
                         // Define the target path in the AppDataDirectory
                         let targetDirectory = FileSystem.AppDataDirectory
                         let targetPath = Path.Combine(targetDirectory, result.FileName)
@@ -51,7 +52,7 @@ module FilePickerService =
                         File.Copy(result.FullPath, targetPath, true)
 
                         // Return the updated file path
-                        Debug.WriteLine($"[FilePicker] Image copied to sandbox: {targetPath}")
+                        CoreLogger.logDebugf "FilePicker" "Image copied to sandbox: %A" targetPath
 
                         return
                             { FileName = result.FileName
@@ -109,7 +110,7 @@ module FilePickerService =
                     let! result = FilePicker.Default.PickAsync(options)
 
                     if result <> null then
-                        Debug.WriteLine($"[FilePicker] Data file selected: {result.FullPath}")
+                        CoreLogger.logDebugf "FilePicker" "Data file selected: %A" result.FullPath
 
                         return
                             { FileName = result.FileName

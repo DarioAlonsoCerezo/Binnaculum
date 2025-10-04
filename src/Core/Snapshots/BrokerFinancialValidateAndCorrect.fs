@@ -1,6 +1,7 @@
 ﻿namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.SnapshotsModel
+open Binnaculum.Core.Logging
 open BrokerFinancialSnapshotExtensions
 
 module internal BrokerFinancialValidateAndCorrect =
@@ -14,9 +15,9 @@ module internal BrokerFinancialValidateAndCorrect =
         (existing: BrokerFinancialSnapshot)
         =
         task {
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Starting snapshotConsistency check")
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Previous: Deposited={previous.Deposited.Value}, MovementCounter={previous.MovementCounter}")
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Existing: Deposited={existing.Deposited.Value}, MovementCounter={existing.MovementCounter}")
+            CoreLogger.logDebug "BrokerFinancialValidateAndCorrect" "Starting snapshotConsistency check"
+            CoreLogger.logDebugf "BrokerFinancialValidateAndCorrect" "Previous: Deposited=%A, MovementCounter=%A" previous.Deposited.Value previous.MovementCounter
+            CoreLogger.logDebugf "BrokerFinancialValidateAndCorrect" "Existing: Deposited=%A, MovementCounter=%A" existing.Deposited.Value existing.MovementCounter
             
             let snapshotsDiffer =
                 previous.RealizedGains <> existing.RealizedGains ||
@@ -34,7 +35,7 @@ module internal BrokerFinancialValidateAndCorrect =
                 previous.OpenTrades <> existing.OpenTrades ||
                 previous.MovementCounter <> existing.MovementCounter
             if snapshotsDiffer then
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Snapshots differ - applying correction")
+                CoreLogger.logDebug "BrokerFinancialValidateAndCorrect" "Snapshots differ - applying correction"
                 let correctedSnapshot = {
                     existing with
                         RealizedGains = previous.RealizedGains
@@ -53,9 +54,9 @@ module internal BrokerFinancialValidateAndCorrect =
                         MovementCounter = previous.MovementCounter
                 }
                 do! correctedSnapshot.save()
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Corrected snapshot saved - Deposited: {correctedSnapshot.Deposited.Value}, MovementCounter: {correctedSnapshot.MovementCounter}")
+                CoreLogger.logDebugf "BrokerFinancialValidateAndCorrect" "Corrected snapshot saved - Deposited: %A, MovementCounter: %A" correctedSnapshot.Deposited.Value correctedSnapshot.MovementCounter
             else
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialValidateAndCorrect] Snapshots are consistent - no correction needed")
+                CoreLogger.logDebug "BrokerFinancialValidateAndCorrect" "Snapshots are consistent - no correction needed"
             // If no difference, do nothing
         }
 

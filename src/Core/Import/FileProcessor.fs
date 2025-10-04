@@ -2,6 +2,7 @@ namespace Binnaculum.Core.Import
 
 open System.IO
 open System.IO.Compression
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// Processed file information for import operations
@@ -67,7 +68,7 @@ module FileProcessor =
                 Directory.Delete(processedFile.FilePath, true)
             with
             | ex -> 
-                System.Diagnostics.Debug.WriteLine($"Warning: Failed to cleanup temporary directory {processedFile.FilePath}: {ex.Message}")
+                CoreLogger.logWarningf "FileProcessor" "Failed to cleanup temporary directory %s: %s" processedFile.FilePath ex.Message
     
     /// <summary>
     /// Validate that all CSV files in a processed file are readable

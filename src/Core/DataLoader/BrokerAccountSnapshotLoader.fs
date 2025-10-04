@@ -6,14 +6,15 @@ open Binnaculum.Core.DatabaseToModels
 open Binnaculum.Core.Models
 open Binnaculum.Core.Storage
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 
 module internal BrokerAccountSnapshotLoader =
     
     let private loadFinancialSnapshotsForBrokerAccountSnapshot (brokerAccountId: int) (snapshotDate: DateTimePattern) = task {
         // Load financial snapshots for the specific broker account snapshot
-        System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotLoader] Loading financial snapshots for BrokerAccountId: {brokerAccountId}, SnapshotDate: {snapshotDate}")
+        CoreLogger.logDebugf "BrokerAccountSnapshotLoader" "Loading financial snapshots for BrokerAccountId: %A, SnapshotDate: %A" brokerAccountId snapshotDate
         let! financialSnapshots = BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountIdAndDate(brokerAccountId, snapshotDate)
-        System.Diagnostics.Debug.WriteLine($"[BrokerAccountSnapshotLoader] Found {financialSnapshots.Length} financial snapshots")
+        CoreLogger.logDebugf "BrokerAccountSnapshotLoader" "Found %A financial snapshots" financialSnapshots.Length
         return financialSnapshots
     }
 

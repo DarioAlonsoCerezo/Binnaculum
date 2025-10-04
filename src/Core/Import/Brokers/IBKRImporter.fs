@@ -1,6 +1,7 @@
 namespace Binnaculum.Core.Import
 
 open System.Threading
+open Binnaculum.Core.Logging
 open IBKRModels
 open IBKRStatementParser
 
@@ -67,7 +68,7 @@ module IBKRImporter =
                             totalTrades <- totalTrades + stockTradeCount
                             
                             // Log what we found for debugging
-                            System.Diagnostics.Debug.WriteLine($"IBKR Import: Found {cashMovementCount} cash movements, {forexTradeCount} forex trades, {stockTradeCount} stock trades")
+                            CoreLogger.logDebugf "IBKRImporter" "IBKR Import: Found %d cash movements, %d forex trades, %d stock trades" cashMovementCount forexTradeCount stockTradeCount
                             
                             let fileResult = FileImportResult.createSuccess fileName potentialRecords
                             fileResults <- fileResult :: fileResults
