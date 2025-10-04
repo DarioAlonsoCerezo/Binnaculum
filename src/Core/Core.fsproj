@@ -21,6 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Compile Include="Logging\CoreLogger.fs" />
 		<Compile Include="Keys\ResourceKeys.fs" />
 		<Compile Include="Keys\Keys.fs" />
 		<Compile Include="Keys\TableName.fs" />

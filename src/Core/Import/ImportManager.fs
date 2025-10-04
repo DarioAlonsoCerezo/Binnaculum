@@ -3,10 +3,10 @@ namespace Binnaculum.Core.Import
 open System
 open System.Threading
 open System.IO
-open System.Diagnostics
 open Binnaculum.Core
 open Binnaculum.Core.Database
 open Binnaculum.Core.UI
+open Binnaculum.Core.Logging
 open BrokerExtensions
 
 /// <summary>
@@ -22,54 +22,64 @@ module ImportManager =
     /// <param name="filePath">Path to the file to import (CSV or ZIP)</param>
     /// <returns>ImportResult with detailed feedback</returns>
     let importFile (brokerId: int) (brokerAccountId: int) (filePath: string) =
-        Debug.WriteLine(
-            $"[ImportManager] importFile function called with broker {brokerId}, account {brokerAccountId}, file={filePath}"
-        )
+        CoreLogger.logInfof
+            "ImportManager"
+            "importFile function called with broker %d, account %d, file=%s"
+            brokerId
+            brokerAccountId
+            filePath
 
         task {
-            Debug.WriteLine(
-                $"[ImportManager] Starting import for broker {brokerId}, account {brokerAccountId}, file={filePath}"
-            )
+            CoreLogger.logInfof
+                "ImportManager"
+                "Starting import for broker %d, account %d, file=%s"
+                brokerId
+                brokerAccountId
+                filePath
 
-            Debug.WriteLine("[ImportManager] About to call ImportState.startImport()")
+            CoreLogger.logDebug "ImportManager" "About to call ImportState.startImport()"
             let cancellationToken = ImportState.startImport ()
-            Debug.WriteLine("[ImportManager] ImportState.startImport() completed successfully")
+            CoreLogger.logDebug "ImportManager" "ImportState.startImport() completed successfully"
 
             try
                 // Validate inputs
                 ImportState.updateStatus (Validating filePath)
-                Debug.WriteLine("[ImportManager] Validating input parameters")
+                CoreLogger.logDebug "ImportManager" "Validating input parameters"
 
                 if not (File.Exists(filePath)) then
-                    Debug.WriteLine($"[ImportManager] File not found: {filePath}")
+                    CoreLogger.logErrorf "ImportManager" "File not found: %s" filePath
                     return ImportResult.createError ($"File not found: {filePath}")
                 else
                     // Look up broker information
-                    Debug.WriteLine($"[ImportManager] Looking up broker {brokerId}")
+                    CoreLogger.logDebugf "ImportManager" "Looking up broker %d" brokerId
                     let! brokerOption = BrokerExtensions.Do.getById (brokerId) |> Async.AwaitTask
 
                     match brokerOption with
                     | None ->
-                        Debug.WriteLine($"[ImportManager] Broker {brokerId} not found")
+                        CoreLogger.logErrorf "ImportManager" "Broker %d not found" brokerId
                         return ImportResult.createError ($"Broker with ID {brokerId} not found")
                     | Some broker ->
                         cancellationToken.ThrowIfCancellationRequested()
 
-                        Debug.WriteLine(
-                            $"[ImportManager] Broker {broker.Name} found, validating account {brokerAccountId}"
-                        )
+                        CoreLogger.logDebugf
+                            "ImportManager"
+                            "Broker %s found, validating account %d"
+                            broker.Name
+                            brokerAccountId
 
                         let! brokerAccountOption =
                             BrokerAccountExtensions.Do.getById (brokerAccountId) |> Async.AwaitTask
 
                         match brokerAccountOption with
                         | None ->
-                            Debug.WriteLine($"[ImportManager] Broker account {brokerAccountId} not found")
+                            CoreLogger.logErrorf "ImportManager" "Broker account %d not found" brokerAccountId
                             return ImportResult.createError ($"Broker account with ID {brokerAccountId} not found")
                         | Some account when account.BrokerId <> brokerId ->
-                            Debug.WriteLine(
-                                $"[ImportManager] Broker account {brokerAccountId} does not belong to broker {brokerId}"
-                            )
+                            CoreLogger.logErrorf
+                                "ImportManager"
+                                "Broker account %d does not belong to broker %d"
+                                brokerAccountId
+                                brokerId
 
                             return
                                 ImportResult.createError (
@@ -78,48 +88,57 @@ module ImportManager =
                         | Some brokerAccount ->
                             cancellationToken.ThrowIfCancellationRequested()
 
-                            Debug.WriteLine(
-                                $"[ImportManager] Validated account {brokerAccount.AccountNumber}; proceeding to file processing"
-                            )
+                            CoreLogger.logDebugf
+                                "ImportManager"
+                                "Validated account %s; proceeding to file processing"
+                                brokerAccount.AccountNumber
 
                             // Process file (handles both CSV and ZIP)
                             ImportState.updateStatus (ProcessingFile(Path.GetFileName(filePath), 0.0))
-                            Debug.WriteLine($"[ImportManager] Processing file {filePath}")
+                            CoreLogger.logDebugf "ImportManager" "Processing file %s" filePath
 
                             let processedFile =
                                 try
                                     Some(FileProcessor.processFile filePath)
                                 with ex ->
-                                    Debug.WriteLine($"[ImportManager] Failed to process file {filePath}: {ex.Message}")
+                                    CoreLogger.logErrorf
+                                        "ImportManager"
+                                        "Failed to process file %s: %s"
+                                        filePath
+                                        ex.Message
+
                                     ImportState.failImport ($"Failed to process file: {ex.Message}")
                                     None
 
                             match processedFile with
                             | None ->
-                                Debug.WriteLine("[ImportManager] Processed file structure missing; returning error")
+                                CoreLogger.logError "ImportManager" "Processed file structure missing; returning error"
                                 return ImportResult.createError ($"Failed to process file")
                             | Some pf ->
                                 try
                                     cancellationToken.ThrowIfCancellationRequested()
 
                                     // Route to appropriate broker importer based on SupportedBroker
-                                    Debug.WriteLine(
-                                        $"[ImportManager] Routing to importer for broker type {broker.SupportedBroker}"
-                                    )
+                                    CoreLogger.logDebugf
+                                        "ImportManager"
+                                        "Routing to importer for broker type %A"
+                                        broker.SupportedBroker
 
                                     let! importResult =
                                         if broker.SupportedBroker.ToString() = "IBKR" then
                                             // IBKR importer doesn't need broker account ID but we still validate above
-                                            Debug.WriteLine(
-                                                $"[ImportManager] Invoking IBKR importer for {pf.CsvFiles.Length} files"
-                                            )
+                                            CoreLogger.logDebugf
+                                                "ImportManager"
+                                                "Invoking IBKR importer for %d files"
+                                                pf.CsvFiles.Length
 
                                             IBKRImporter.importMultipleWithCancellation pf.CsvFiles cancellationToken
                                         elif broker.SupportedBroker.ToString() = "Tastytrade" then
                                             // Tastytrade importer requires a specific broker account ID
-                                            Debug.WriteLine(
-                                                $"[ImportManager] Invoking Tastytrade importer for account {brokerAccount.Id}"
-                                            )
+                                            CoreLogger.logDebugf
+                                                "ImportManager"
+                                                "Invoking Tastytrade importer for account %d"
+                                                brokerAccount.Id
 
                                             task {
                                                 // First do the parsing/validation
@@ -129,17 +148,20 @@ module ImportManager =
                                                         brokerAccount.Id
                                                         cancellationToken
 
-                                                Debug.WriteLine(
-                                                    $"[ImportManager] Tastytrade parse complete: success={parseResult.Success}, processedFiles={parseResult.ProcessedFiles}, processedRecords={parseResult.ProcessedRecords}"
-                                                )
+                                                CoreLogger.logInfof
+                                                    "ImportManager"
+                                                    "Tastytrade parse complete: success=%b, processedFiles=%d, processedRecords=%d"
+                                                    parseResult.Success
+                                                    parseResult.ProcessedFiles
+                                                    parseResult.ProcessedRecords
 
                                                 // If parsing was successful, persist to database
                                                 if parseResult.Success then
                                                     cancellationToken.ThrowIfCancellationRequested()
 
-                                                    Debug.WriteLine(
-                                                        "[ImportManager] Beginning database persistence for parsed transactions"
-                                                    )
+                                                    CoreLogger.logDebug
+                                                        "ImportManager"
+                                                        "Beginning database persistence for parsed transactions"
 
                                                     try
                                                         // Parse the transactions from files again for database persistence
@@ -154,14 +176,18 @@ module ImportManager =
                                                                 allTransactions <-
                                                                     allTransactions @ parsingResult.Transactions
                                                             else
-                                                                Debug.WriteLine(
-                                                                    $"[ImportManager] Skipping {csvFile} due to {parsingResult.Errors.Length} parsing errors during persistence build"
-                                                                )
+                                                                CoreLogger.logWarningf
+                                                                    "ImportManager"
+                                                                    "Skipping %s due to %d parsing errors during persistence build"
+                                                                    csvFile
+                                                                    parsingResult.Errors.Length
 
                                                         // Persist transactions to database
-                                                        Debug.WriteLine(
-                                                            $"[ImportManager] Persisting {allTransactions.Length} transactions to database for account {brokerAccount.Id}"
-                                                        )
+                                                        CoreLogger.logDebugf
+                                                            "ImportManager"
+                                                            "Persisting %d transactions to database for account %d"
+                                                            allTransactions.Length
+                                                            brokerAccount.Id
 
                                                         let! persistenceResult =
                                                             DatabasePersistence.persistTransactionsToDatabase
@@ -169,9 +195,13 @@ module ImportManager =
                                                                 brokerAccount.Id
                                                                 cancellationToken
 
-                                                        Debug.WriteLine(
-                                                            $"[ImportManager] Database persistence complete: brokerMovements={persistenceResult.BrokerMovementsCreated}, optionTrades={persistenceResult.OptionTradesCreated}, stockTrades={persistenceResult.StockTradesCreated}, errors={persistenceResult.ErrorsCount}"
-                                                        )
+                                                        CoreLogger.logInfof
+                                                            "ImportManager"
+                                                            "Database persistence complete: brokerMovements=%d, optionTrades=%d, stockTrades=%d, errors=%d"
+                                                            persistenceResult.BrokerMovementsCreated
+                                                            persistenceResult.OptionTradesCreated
+                                                            persistenceResult.StockTradesCreated
+                                                            persistenceResult.ErrorsCount
 
                                                         // Use targeted reactive updates if persistence was successful and data was imported
                                                         if
@@ -179,9 +209,9 @@ module ImportManager =
                                                             && persistenceResult.ImportMetadata.TotalMovementsImported > 0
                                                         then
                                                             // Refresh reactive managers in dependency order
-                                                            Debug.WriteLine(
-                                                                "[ImportManager] Performing targeted reactive refresh"
-                                                            )
+                                                            CoreLogger.logDebug
+                                                                "ImportManager"
+                                                                "Performing targeted reactive refresh"
 
                                                             do! ReactiveTickerManager.refreshAsync () // First: base ticker data
                                                             do! ReactiveMovementManager.refreshAsync () // Then: movements (depend on tickers)
@@ -192,9 +222,9 @@ module ImportManager =
                                                                 )
                                                         elif persistenceResult.ErrorsCount = 0 then
                                                             // Fallback to full refresh if no movements were imported
-                                                            Debug.WriteLine(
-                                                                "[ImportManager] No movements imported; executing full reactive refresh"
-                                                            )
+                                                            CoreLogger.logDebug
+                                                                "ImportManager"
+                                                                "No movements imported; executing full reactive refresh"
 
                                                             do! ReactiveTickerManager.refreshAsync ()
                                                             do! ReactiveMovementManager.refreshAsync ()
@@ -230,29 +260,35 @@ module ImportManager =
 
                                                     with
                                                     | :? OperationCanceledException ->
-                                                        Debug.WriteLine("[ImportManager] Database persistence canceled")
+                                                        CoreLogger.logInfo
+                                                            "ImportManager"
+                                                            "Database persistence canceled"
+
                                                         return ImportResult.createCancelled ()
                                                     | ex ->
-                                                        Debug.WriteLine(
-                                                            $"[ImportManager] Database persistence failed: {ex.Message}"
-                                                        )
+                                                        CoreLogger.logErrorf
+                                                            "ImportManager"
+                                                            "Database persistence failed: %s"
+                                                            ex.Message
 
                                                         return
                                                             ImportResult.createError (
                                                                 $"Database persistence failed: {ex.Message}"
                                                             )
                                                 else
-                                                    Debug.WriteLine(
-                                                        $"[ImportManager] Tastytrade parse result indicates failure with {parseResult.Errors.Length} errors"
-                                                    )
+                                                    CoreLogger.logErrorf
+                                                        "ImportManager"
+                                                        "Tastytrade parse result indicates failure with %d errors"
+                                                        parseResult.Errors.Length
 
                                                     return parseResult
                                             }
                                         else
                                             task {
-                                                Debug.WriteLine(
-                                                    $"[ImportManager] Unsupported broker type: {broker.Name}"
-                                                )
+                                                CoreLogger.logErrorf
+                                                    "ImportManager"
+                                                    "Unsupported broker type: %s"
+                                                    broker.Name
 
                                                 return
                                                     ImportResult.createError ($"Unsupported broker type: {broker.Name}")
@@ -260,29 +296,33 @@ module ImportManager =
 
                                     // Clean up temporary files
                                     FileProcessor.cleanup pf
-                                    Debug.WriteLine("[ImportManager] File processing cleanup complete")
+                                    CoreLogger.logDebug "ImportManager" "File processing cleanup complete"
 
                                     // Complete import and return result
                                     ImportState.completeImport (importResult)
 
                                     // Trigger reactive updates now that import is complete
-                                    Debug.WriteLine("[ImportManager] Triggering post-import reactive updates")
+                                    CoreLogger.logDebug "ImportManager" "Triggering post-import reactive updates"
 
                                     try
                                         do! ReactiveMovementManager.refreshAsync ()
                                         do! ReactiveSnapshotManager.refreshAsync ()
 
-                                        Debug.WriteLine(
-                                            "[ImportManager] Post-import reactive updates completed successfully"
-                                        )
+                                        CoreLogger.logDebug
+                                            "ImportManager"
+                                            "Post-import reactive updates completed successfully"
                                     with ex ->
-                                        Debug.WriteLine(
-                                            $"[ImportManager] Post-import reactive updates failed: {ex.Message}"
-                                        )
+                                        CoreLogger.logErrorf
+                                            "ImportManager"
+                                            "Post-import reactive updates failed: %s"
+                                            ex.Message
 
-                                    Debug.WriteLine(
-                                        $"[ImportManager] Import completed: success={importResult.Success}, processedRecords={importResult.ProcessedRecords}, errors={importResult.Errors.Length}"
-                                    )
+                                    CoreLogger.logInfof
+                                        "ImportManager"
+                                        "Import completed: success=%b, processedRecords=%d, errors=%d"
+                                        importResult.Success
+                                        importResult.ProcessedRecords
+                                        importResult.Errors.Length
 
                                     return importResult
 
@@ -290,21 +330,21 @@ module ImportManager =
                                 | :? OperationCanceledException ->
                                     // Clean up temporary files on cancellation
                                     FileProcessor.cleanup pf
-                                    Debug.WriteLine("[ImportManager] Import canceled during processing")
+                                    CoreLogger.logInfo "ImportManager" "Import canceled during processing"
                                     return ImportResult.createCancelled ()
                                 | ex ->
                                     // Clean up temporary files on error
                                     FileProcessor.cleanup pf
-                                    Debug.WriteLine($"[ImportManager] Import failed with exception: {ex.Message}")
+                                    CoreLogger.logErrorf "ImportManager" "Import failed with exception: %s" ex.Message
                                     return ImportResult.createError ($"Import failed: {ex.Message}")
 
             with
             | :? OperationCanceledException ->
-                Debug.WriteLine("[ImportManager] Import canceled before completion")
+                CoreLogger.logInfo "ImportManager" "Import canceled before completion"
                 return ImportResult.createCancelled ()
             | ex ->
                 ImportState.failImport (ex.Message)
-                Debug.WriteLine($"[ImportManager] Import failed unexpectedly: {ex.Message}")
+                CoreLogger.logErrorf "ImportManager" "Import failed unexpectedly: %s" ex.Message
                 return ImportResult.createError (ex.Message)
         }
 
