@@ -1,6 +1,7 @@
 namespace Binnaculum.Core.Import
 
 open System.Threading
+open Binnaculum.Core.Logging
 open IBKRModels
 open IBKRStatementParser
 

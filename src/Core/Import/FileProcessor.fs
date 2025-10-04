@@ -2,6 +2,7 @@ namespace Binnaculum.Core.Import
 
 open System.IO
 open System.IO.Compression
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// Processed file information for import operations
