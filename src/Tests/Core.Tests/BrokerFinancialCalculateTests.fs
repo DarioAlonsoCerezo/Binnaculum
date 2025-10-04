@@ -205,8 +205,8 @@ type BrokerFinancialCalculateTests() =
             let netPremium =
                 match code with
                 | OptionCode.BuyToOpen
-                | OptionCode.BuyToClose -> premium + commissionCost + feeCost
-                | _ -> premium - commissionCost - feeCost
+                | OptionCode.BuyToClose -> -(premium + commissionCost + feeCost) // NEGATIVE for buys (cost)
+                | _ -> premium - commissionCost - feeCost // POSITIVE for sells (income)
 
             { Id = id
               TimeStamp = DateTimePattern.FromDateTime(timestamp)
@@ -366,7 +366,9 @@ type BrokerFinancialCalculateTests() =
             OptionTradeCalculations.calculateOptionsSummary (trades, DateTime(2024, 5, 10, 0, 0, 0, DateTimeKind.Utc))
 
         // Assert
-        Assert.That(summary.OptionsIncome.Value, Is.EqualTo(106.02m).Within(0.01m))
+        // OptionsIncome = Net profit/loss = Sum of all NetPremiums (including negative for buys)
+        Assert.That(summary.OptionsIncome.Value, Is.EqualTo(54.37m).Within(0.01m))
+        // OptionsInvestment = Total cost of buying options = Sum of absolute NetPremiums for buys
         Assert.That(summary.OptionsInvestment.Value, Is.EqualTo(51.65m).Within(0.01m))
         Assert.That(summary.RealizedGains.Value, Is.EqualTo(23.65m).Within(0.01m))
         Assert.That(summary.UnrealizedGains.Value, Is.EqualTo(14.86m).Within(0.01m))
