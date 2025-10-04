@@ -2,6 +2,7 @@
 
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 
 module internal BrokerFinancialSnapshotManager = 
 
@@ -50,8 +51,8 @@ module internal BrokerFinancialSnapshotManager =
         (movementData: BrokerAccountMovementData)
         =
         task {
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Starting brokerAccountOneDayUpdate - BrokerAccountId: {brokerAccountSnapshot.BrokerAccountId}, Date: {brokerAccountSnapshot.Base.Date}")
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] MovementData - HasMovements: {movementData.HasMovements}, TotalMovementCount: {movementData.TotalMovementCount}, UniqueCurrencies: {movementData.UniqueCurrencies.Count}")
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Starting brokerAccountOneDayUpdate - BrokerAccountId: %A, Date: %A" brokerAccountSnapshot.BrokerAccountId brokerAccountSnapshot.Base.Date
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "MovementData - HasMovements: %A, TotalMovementCount: %A, UniqueCurrencies: %A" movementData.HasMovements movementData.TotalMovementCount movementData.UniqueCurrencies.Count
             
             // 1.1. ✅ Validate input parameters using the reusable validation method
             BrokerFinancialValidator.validateSnapshotAndMovementData brokerAccountSnapshot movementData
@@ -74,59 +75,59 @@ module internal BrokerFinancialSnapshotManager =
             let! allPreviousFinancialSnapshots = 
                 BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountId(brokerAccountId)
             
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] All previous snapshots loaded: {allPreviousFinancialSnapshots.Length}")
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "All previous snapshots loaded: %A" allPreviousFinancialSnapshots.Length
             for snap in allPreviousFinancialSnapshots do
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Previous snapshot: Date={snap.Base.Date}, CurrencyId={snap.CurrencyId}, Deposited={snap.Deposited.Value}")
+                CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Previous snapshot: Date=%A, CurrencyId=%A, Deposited=%A" snap.Base.Date snap.CurrencyId snap.Deposited.Value
             
             // 2.3. ✅ Filter and group to get the most recent previous snapshot per currency
             // This finds the actual latest snapshot before target date for each currency,
             // regardless of whether it was yesterday, last week, or months ago
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Target date for comparison: {targetDate.Value}")
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Filtering snapshots before target date...")
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Target date for comparison: %A" targetDate.Value
+            CoreLogger.logDebug "BrokerFinancialSnapshotManager" "Filtering snapshots before target date..."
             let filteredSnapshots = 
                 allPreviousFinancialSnapshots
                 |> List.filter (fun snap -> 
                     let isBeforeTarget = snap.Base.Date.Value < targetDate.Value
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Snapshot Date={snap.Base.Date.Value}, IsBeforeTarget={isBeforeTarget}, CurrencyId={snap.CurrencyId}, Deposited={snap.Deposited.Value}")
+                    CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Snapshot Date=%A, IsBeforeTarget=%A, CurrencyId=%A, Deposited=%A" snap.Base.Date.Value isBeforeTarget snap.CurrencyId snap.Deposited.Value
                     isBeforeTarget)
             
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Filtered snapshots count: {filteredSnapshots.Length}")
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Filtered snapshots count: %A" filteredSnapshots.Length
             
             let relevantPreviousSnapshots = 
                 filteredSnapshots
                 |> List.groupBy (fun snap -> snap.CurrencyId)
                 |> List.map (fun (currencyId, snaps) -> 
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Processing currency {currencyId} with {snaps.Length} snapshots")
+                    CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Processing currency %A with %A snapshots" currencyId snaps.Length
                     let latestSnap = snaps |> List.maxBy (fun s -> s.Base.Date.Value)
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Latest snapshot for currency {currencyId}: Date={latestSnap.Base.Date.Value}, Deposited={latestSnap.Deposited.Value}")
+                    CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Latest snapshot for currency %A: Date=%A, Deposited=%A" currencyId latestSnap.Base.Date.Value latestSnap.Deposited.Value
                     latestSnap)
             
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Relevant previous snapshots: {relevantPreviousSnapshots.Length}")
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Relevant previous snapshots: %A" relevantPreviousSnapshots.Length
             for snap in relevantPreviousSnapshots do
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Relevant previous: Date={snap.Base.Date}, CurrencyId={snap.CurrencyId}, Deposited={snap.Deposited.Value}")
+                CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Relevant previous: Date=%A, CurrencyId=%A, Deposited=%A" snap.Base.Date snap.CurrencyId snap.Deposited.Value
             
             // 3.1. ✅ Determine which currencies have movements on target date
             let currenciesWithMovements = movementData.UniqueCurrencies
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currencies with movements: {currenciesWithMovements |> Set.toList}")
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Currencies with movements: %A" (currenciesWithMovements |> Set.toList)
             
             // 3.2. ✅ Determine which currencies had previous snapshots
             let currenciesWithPreviousSnapshots = 
                 relevantPreviousSnapshots 
                 |> List.map (fun snap -> snap.CurrencyId) 
                 |> Set.ofList
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currencies with previous snapshots: {currenciesWithPreviousSnapshots |> Set.toList}")
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Currencies with previous snapshots: %A" (currenciesWithPreviousSnapshots |> Set.toList)
             
             // 3.3. ✅ Calculate which currencies need processing (union of movements and historical)
             let allRelevantCurrencies = 
                 Set.union currenciesWithMovements currenciesWithPreviousSnapshots
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] All relevant currencies to process: {allRelevantCurrencies |> Set.toList}")
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currency processing summary:")
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] - Currencies with movements: {currenciesWithMovements |> Set.count}")
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] - Currencies with previous snapshots: {currenciesWithPreviousSnapshots |> Set.count}")
-            System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] - Total currencies to process: {allRelevantCurrencies |> Set.count}")
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "All relevant currencies to process: %A" (allRelevantCurrencies |> Set.toList)
+            CoreLogger.logDebug "BrokerFinancialSnapshotManager" "Currency processing summary:"
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "- Currencies with movements: %A" (currenciesWithMovements |> Set.count)
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "- Currencies with previous snapshots: %A" (currenciesWithPreviousSnapshots |> Set.count)
+            CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "- Total currencies to process: %A" (allRelevantCurrencies |> Set.count)
             
             if Set.isEmpty allRelevantCurrencies then
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] *** WARNING: No currencies to process! This may indicate a problem with previous snapshot detection. ***")
+                CoreLogger.logDebug "BrokerFinancialSnapshotManager" "*** WARNING: No currencies to process! This may indicate a problem with previous snapshot detection. ***"
             
             // Financial snapshots are created within the scenario processing loop
             // unlike BrokerAccountSnapshotManager where account snapshots need pre-creation
@@ -135,18 +136,18 @@ module internal BrokerFinancialSnapshotManager =
             
             // Process each currency that needs attention
             for currencyId in allRelevantCurrencies do
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Processing currency ID: {currencyId}")
+                CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Processing currency ID: %A" currencyId
                 
                 // 4.1. ✅ Get movement data for this specific currency
                 let currencyMovementData = 
                     movementData.MovementsByCurrency.TryFind(currencyId)
                 
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currency {currencyId} movement data - Found: {currencyMovementData.IsSome}")
+                CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Currency %A movement data - Found: %A" currencyId currencyMovementData.IsSome
                 match currencyMovementData with
                 | Some data -> 
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currency {currencyId} has {data.BrokerMovements.Length} broker movements")
+                    CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Currency %A has %A broker movements" currencyId data.BrokerMovements.Length
                 | None -> 
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] No movement data found for currency {currencyId}")
+                    CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "No movement data found for currency %A" currencyId
                 
                 // 4.2. ✅ Get previous snapshot for this currency (for cumulative calculations)
                 let previousSnapshot = 
@@ -159,17 +160,17 @@ module internal BrokerFinancialSnapshotManager =
                     |> List.tryFind (fun snap -> snap.CurrencyId = currencyId)
                 
                 // 4.4. ✅ SCENARIO DECISION TREE - All scenarios implemented
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Currency {currencyId} - HasMovements: {currencyMovementData.IsSome}, HasPrevious: {previousSnapshot.IsSome}, HasExisting: {existingSnapshot.IsSome}")
+                CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Currency %A - HasMovements: %A, HasPrevious: %A, HasExisting: %A" currencyId currencyMovementData.IsSome previousSnapshot.IsSome existingSnapshot.IsSome
                 match currencyMovementData, previousSnapshot, existingSnapshot with
                 
                 // SCENARIO A: New movements, has previous snapshot, no existing snapshot
                 | Some movements, Some previous, None ->
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] SCENARIO A: New movements, has previous snapshot, no existing snapshot")
+                    CoreLogger.logDebug "BrokerFinancialSnapshotManager" "SCENARIO A: New movements, has previous snapshot, no existing snapshot"
                     do! BrokerFinancialCalculate.newFinancialSnapshot targetDate currencyId brokerAccountId brokerAccountSnapshot.Base.Id movements previous
                 
                 // SCENARIO B: New movements, no previous snapshot, no existing snapshot  
                 | Some movements, None, None ->
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] SCENARIO B: New movements, no previous snapshot, no existing snapshot")
+                    CoreLogger.logDebug "BrokerFinancialSnapshotManager" "SCENARIO B: New movements, no previous snapshot, no existing snapshot"
                     do! BrokerFinancialCalculate.initialFinancialSnapshot targetDate currencyId brokerAccountId brokerAccountSnapshot.Base.Id movements
                 
                 // SCENARIO C: New movements, has previous snapshot, has existing snapshot
@@ -190,11 +191,11 @@ module internal BrokerFinancialSnapshotManager =
                     ()                
                 // SCENARIO G: No movements, has previous snapshot, has existing snapshot
                 | None, Some previous, Some existing ->
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] SCENARIO G: No movements, has previous snapshot, has existing snapshot")
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Previous snapshot - Deposited: {previous.Deposited.Value}, MovementCounter: {previous.MovementCounter}")
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] Existing snapshot - Deposited: {existing.Deposited.Value}, MovementCounter: {existing.MovementCounter}")
+                    CoreLogger.logDebug "BrokerFinancialSnapshotManager" "SCENARIO G: No movements, has previous snapshot, has existing snapshot"
+                    CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Previous snapshot - Deposited: %A, MovementCounter: %A" previous.Deposited.Value previous.MovementCounter
+                    CoreLogger.logDebugf "BrokerFinancialSnapshotManager" "Existing snapshot - Deposited: %A, MovementCounter: %A" existing.Deposited.Value existing.MovementCounter
                     do! BrokerFinancialValidateAndCorrect.snapshotConsistency previous existing
-                    System.Diagnostics.Debug.WriteLine($"[BrokerFinancialSnapshotManager] SCENARIO G completed - snapshot consistency validation/correction applied")
+                    CoreLogger.logDebug "BrokerFinancialSnapshotManager" "SCENARIO G completed - snapshot consistency validation/correction applied"
                 // SCENARIO H: No movements, no previous snapshot, has existing snapshot  
                 | None, None, Some existing ->
                     // Existing snapshot should be validated or cleaned up
