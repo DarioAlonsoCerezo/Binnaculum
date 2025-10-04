@@ -1,6 +1,7 @@
 namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Microsoft.Maui.Storage
@@ -70,7 +71,7 @@ module internal SnapshotManagerUtils =
 
             baseSnapshot
         with ex ->
-            System.Diagnostics.Debug.WriteLine($"[SnapshotManagerUtils] createBaseSnapshot - EXCEPTION: {ex.Message}")
+            CoreLogger.logDebugf "SnapshotManagerUtils" "createBaseSnapshot - EXCEPTION: %A" ex.Message
 
             System.Diagnostics.Debug.WriteLine(
                 $"[SnapshotManagerUtils] createBaseSnapshot - STACK TRACE: {ex.StackTrace}"

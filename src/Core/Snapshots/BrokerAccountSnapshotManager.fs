@@ -4,6 +4,7 @@ open System
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 open BrokerAccountSnapshotExtensions
 open Binnaculum.Core.Storage.SnapshotManagerUtils
 

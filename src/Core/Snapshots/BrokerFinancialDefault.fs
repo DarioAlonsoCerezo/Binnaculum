@@ -1,6 +1,7 @@
 ﻿namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 open Binnaculum.Core.Database.SnapshotsModel
 open BrokerFinancialSnapshotExtensions
 
@@ -25,16 +26,16 @@ module internal BrokerFinancialDefault =
         =
         task {
             try
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Creating default snapshot for BrokerAccountId: {brokerAccountId}, Date: {snapshotDate}")
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Step 1: Getting default currency...")
+                CoreLogger.logDebugf "BrokerFinancialDefault" "Creating default snapshot for BrokerAccountId: %A, Date: %A" brokerAccountId snapshotDate
+                CoreLogger.logDebug "BrokerFinancialDefault" "Step 1: Getting default currency..."
                 let! currencyId = SnapshotManagerUtils.getDefaultCurrency()
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Step 2: Currency ID obtained: {currencyId}")
+                CoreLogger.logDebugf "BrokerFinancialDefault" "Step 2: Currency ID obtained: %A" currencyId
                 
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Step 3: Creating base snapshot...")
+                CoreLogger.logDebug "BrokerFinancialDefault" "Step 3: Creating base snapshot..."
                 let baseSnapshot = SnapshotManagerUtils.createBaseSnapshot snapshotDate
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Step 4: Base snapshot created with ID: {baseSnapshot.Id}")
+                CoreLogger.logDebugf "BrokerFinancialDefault" "Step 4: Base snapshot created with ID: %A" baseSnapshot.Id
                 
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Step 5: Creating snapshot object...")
+                CoreLogger.logDebug "BrokerFinancialDefault" "Step 5: Creating snapshot object..."
                 let snapshot = {
                     Base = baseSnapshot
                     BrokerId = brokerId
@@ -57,19 +58,19 @@ module internal BrokerFinancialDefault =
                     OtherIncome = Money.FromAmount 0m
                     OpenTrades = false
                 }
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Step 6: Snapshot object created successfully")
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] About to save default snapshot with CurrencyId: {currencyId}, Deposited: {snapshot.Deposited.Value}")
+                CoreLogger.logDebug "BrokerFinancialDefault" "Step 6: Snapshot object created successfully"
+                CoreLogger.logDebugf "BrokerFinancialDefault" "About to save default snapshot with CurrencyId: %A, Deposited: %A" currencyId snapshot.Deposited.Value
                 
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Step 7: Calling snapshot.save()...")
+                CoreLogger.logDebug "BrokerFinancialDefault" "Step 7: Calling snapshot.save()..."
                 do! snapshot.save()
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Step 8: snapshot.save() completed successfully")
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] Default snapshot saved successfully")
+                CoreLogger.logDebug "BrokerFinancialDefault" "Step 8: snapshot.save() completed successfully"
+                CoreLogger.logDebug "BrokerFinancialDefault" "Default snapshot saved successfully"
             with
             | ex ->
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] *** EXCEPTION IN CREATE *** - {ex.Message}")
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] *** STACK TRACE *** - {ex.StackTrace}")
+                CoreLogger.logDebugf "BrokerFinancialDefault" "*** EXCEPTION IN CREATE *** - %A" ex.Message
+                CoreLogger.logDebugf "BrokerFinancialDefault" "*** STACK TRACE *** - %A" ex.StackTrace
                 let innerMsg = if ex.InnerException <> null then ex.InnerException.Message else "None"
-                System.Diagnostics.Debug.WriteLine($"[BrokerFinancialDefault] *** INNER EXCEPTION *** - {innerMsg}")
+                CoreLogger.logDebugf "BrokerFinancialDefault" "*** INNER EXCEPTION *** - %A" innerMsg
                 raise ex
         }
 
