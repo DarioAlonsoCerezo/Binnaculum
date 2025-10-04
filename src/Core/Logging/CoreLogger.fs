@@ -38,9 +38,13 @@ module CoreLogger =
 
             let formattedMessage = $"[{timestamp}] {levelStr}: [{tag}] {message}"
 
-            // Output to Debug and Console for maximum visibility
-            Debug.WriteLine(formattedMessage)
-            Console.WriteLine(formattedMessage)
+            // Smart output selection based on execution environment
+            if System.Diagnostics.Debugger.IsAttached then
+                // IDE debugging - use Debug output for better integration
+                Debug.WriteLine(formattedMessage)
+            else
+                // Console/Terminal execution - use Console output
+                Console.WriteLine(formattedMessage)
 
     /// Log debug message
     let logDebug tag message = log LogLevel.Debug tag message
