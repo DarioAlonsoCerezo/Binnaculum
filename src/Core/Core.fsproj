@@ -128,9 +128,18 @@
 		<Compile Include="Snapshots\BrokerFinancialValidateAndCorrect.fs" />
 		<Compile Include="Snapshots\BrokerFinancialCalculate.fs" />
 		<Compile Include="Snapshots\BrokerFinancialDefault.fs" />
+		<!-- Batch processing optimization modules -->
+		<Compile Include="Snapshots\BrokerMovementBatchLoader.fs" />
+		<Compile Include="Snapshots\BrokerFinancialSnapshotBatchLoader.fs" />
+		<Compile Include="Snapshots\BrokerFinancialCalculateInMemory.fs" />
+		<Compile Include="Snapshots\BrokerFinancialBatchCalculator.fs" />
+		<Compile Include="Snapshots\BrokerFinancialBatchPersistence.fs" />
+		<!-- End batch processing base modules -->
 		<Compile Include="Snapshots\BrokerFinancialSnapshotManager.fs" />
 		<Compile Include="Snapshots\BrokerSnapshotManager.fs" />
 		<Compile Include="Snapshots\BrokerAccountSnapshotManager.fs" />
+		<!-- Batch processing manager (requires BrokerAccountSnapshotManager) -->
+		<Compile Include="Snapshots\BrokerFinancialBatchManager.fs" />
 		<Compile Include="Snapshots\SnapshotManager.fs" />
 		<Compile Include="DataLoader\CurrencyLoader.fs" />
 		<Compile Include="DataLoader\BrokerLoader.fs" />

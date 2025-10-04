@@ -474,6 +474,22 @@ module internal BrokerAccountMovementData =
           DateRange = dateRange
           MovementsByCurrency = movementsByCurrency }
 
+    /// Creates an empty BrokerAccountMovementData instance for a specific date and broker account
+    let createEmpty (date: DateTimePattern) (brokerAccountId: int) =
+        { FromDate = date
+          BrokerAccountId = brokerAccountId
+          BrokerMovements = []
+          Trades = []
+          Dividends = []
+          DividendTaxes = []
+          OptionTrades = []
+          TotalMovementCount = 0
+          UniqueDates = Set.empty
+          UniqueCurrencies = Set.empty
+          HasMovements = false
+          DateRange = (date, date)
+          MovementsByCurrency = Map.empty }
+
     /// Returns true if the movement data is empty (no movements found)
     let isEmpty (data: BrokerAccountMovementData) = not data.HasMovements
 
