@@ -5,6 +5,7 @@ open System.Diagnostics
 open Binnaculum.Core.Models
 open Binnaculum.Core.Storage
 open Binnaculum.Core.Database
+open Binnaculum.Core.Logging
 
 module Overview =
 
@@ -16,44 +17,44 @@ module Overview =
 
     let InitDatabase () =
         task {
-            Debug.WriteLine("[Overview.InitDatabase] Starting InitDatabase")
-            Debug.WriteLine("[Overview.InitDatabase] About to call DataLoader.loadBasicData()")
+            CoreLogger.logDebug "Overview.InitDatabase" "Starting InitDatabase"
+            CoreLogger.logDebug "Overview.InitDatabase" "About to call DataLoader.loadBasicData()"
             do! DataLoader.loadBasicData () |> Async.AwaitTask |> Async.Ignore
-            Debug.WriteLine("[Overview.InitDatabase] DataLoader.loadBasicData() completed")
+            CoreLogger.logDebug "Overview.InitDatabase" "DataLoader.loadBasicData() completed"
 
-            Debug.WriteLine("[Overview.InitDatabase] About to update Data.OnNext")
+            CoreLogger.logDebug "Overview.InitDatabase" "About to update Data.OnNext"
 
-            Debug.WriteLine(
-                $"[Overview.InitDatabase] Current Data.Value: IsDatabaseInitialized={Data.Value.IsDatabaseInitialized}, TransactionsLoaded={Data.Value.TransactionsLoaded}"
-            )
+            CoreLogger.logDebug
+                "Overview.InitDatabase"
+                $"Current Data.Value: IsDatabaseInitialized={Data.Value.IsDatabaseInitialized}, TransactionsLoaded={Data.Value.TransactionsLoaded}"
 
             Data.OnNext
                 { Data.Value with
                     IsDatabaseInitialized = true }
 
-            Debug.WriteLine(
-                $"[Overview.InitDatabase] After Data.OnNext: IsDatabaseInitialized={Data.Value.IsDatabaseInitialized}, TransactionsLoaded={Data.Value.TransactionsLoaded}"
-            )
+            CoreLogger.logDebug
+                "Overview.InitDatabase"
+                $"After Data.OnNext: IsDatabaseInitialized={Data.Value.IsDatabaseInitialized}, TransactionsLoaded={Data.Value.TransactionsLoaded}"
 
-            Debug.WriteLine("[Overview.InitDatabase] InitDatabase completed successfully")
+            CoreLogger.logDebug "Overview.InitDatabase" "InitDatabase completed successfully"
         }
 
     let LoadData () =
         task {
-            Debug.WriteLine("[Overview.LoadData] Starting LoadData")
-            Debug.WriteLine("[Overview.LoadData] About to call DataLoader.initialization()")
+            CoreLogger.logDebug "Overview.LoadData" "Starting LoadData"
+            CoreLogger.logDebug "Overview.LoadData" "About to call DataLoader.initialization()"
             do! DataLoader.initialization () |> Async.AwaitTask |> Async.Ignore
-            Debug.WriteLine("[Overview.LoadData] DataLoader.initialization() completed")
+            CoreLogger.logDebug "Overview.LoadData" "DataLoader.initialization() completed"
             // Use reactive movement manager instead of manual loading
-            Debug.WriteLine("[Overview.LoadData] About to call ReactiveMovementManager.refresh()")
+            CoreLogger.logDebug "Overview.LoadData" "About to call ReactiveMovementManager.refresh()"
             ReactiveMovementManager.refresh ()
-            Debug.WriteLine("[Overview.LoadData] ReactiveMovementManager.refresh() completed")
+            CoreLogger.logDebug "Overview.LoadData" "ReactiveMovementManager.refresh() completed"
 
             Data.OnNext
                 { Data.Value with
                     TransactionsLoaded = true }
 
-            Debug.WriteLine("[Overview.LoadData] LoadData completed successfully")
+            CoreLogger.logDebug "Overview.LoadData" "LoadData completed successfully"
         }
 
     let LoadMovements () =

@@ -5,6 +5,7 @@ open System.Reactive.Linq
 open DynamicData
 open Binnaculum.Core.Models
 open Binnaculum.Core.DatabaseToModels
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// Reactive movement manager that provides automatic movement updates when underlying collections change.
@@ -30,22 +31,19 @@ module ReactiveMovementManager =
         async {
             // Prevent reentrancy to avoid infinite loops during movement processing
             if isLoadingMovements then
-                System.Diagnostics.Debug.WriteLine(
-                    "[ReactiveMovementManager] Skipping loadMovements - already in progress"
-                )
-
+                CoreLogger.logDebug "ReactiveMovementManager" "Skipping loadMovements - already in progress"
                 return ()
 
             // Defer reactive updates during import to prevent database connection conflicts
             if Binnaculum.Core.Import.ImportState.isImportInProgress () then
-                System.Diagnostics.Debug.WriteLine(
-                    "[ReactiveMovementManager] Skipping loadMovements - import in progress, will update after completion"
-                )
+                CoreLogger.logDebug
+                    "ReactiveMovementManager"
+                    "Skipping loadMovements - import in progress, will update after completion"
 
                 return ()
 
             isLoadingMovements <- true
-            System.Diagnostics.Debug.WriteLine("[ReactiveMovementManager] Starting loadMovements")
+            CoreLogger.logDebug "ReactiveMovementManager" "Starting loadMovements"
 
             try
                 // Load all movement data from database
@@ -100,9 +98,9 @@ module ReactiveMovementManager =
                             with
                             | Some current -> Collections.Accounts.Replace(current, updatedAccount)
                             | None ->
-                                System.Diagnostics.Debug.WriteLine(
-                                    $"[ReactiveMovementManager] Bank account with ID {account.Bank.Value.Id} not found in Collections.Accounts for movement update"
-                                )
+                                CoreLogger.logDebug
+                                    "ReactiveMovementManager"
+                                    $"Bank account with ID {account.Bank.Value.Id} not found in Collections.Accounts for movement update"
 
                     if account.Broker.IsSome then
                         async {
@@ -119,10 +117,10 @@ module ReactiveMovementManager =
                         }
                         |> Async.StartImmediate)
 
-                System.Diagnostics.Debug.WriteLine("[ReactiveMovementManager] Completed loadMovements")
+                CoreLogger.logDebug "ReactiveMovementManager" "Completed loadMovements"
                 isLoadingMovements <- false
             with ex ->
-                System.Diagnostics.Debug.WriteLine($"ReactiveMovementManager.loadMovements error: {ex.Message}")
+                CoreLogger.logDebug "ReactiveMovementManager" $"loadMovements error: {ex.Message}"
                 isLoadingMovements <- false
         }
 

@@ -20,31 +20,27 @@ module internal BrokerFinancialsMetricsFromMovements =
     /// <returns>CalculatedFinancialMetrics record with all financial calculations</returns>
     let internal calculate (currencyMovements: CurrencyMovementData) (currencyId: int) (targetDate: DateTimePattern) =
 
-        System.Diagnostics.Debug.WriteLine(
-            $"[BrokerFinancialsMetricsFromMovements] Starting calculate for currency {currencyId}"
-        )
+        CoreLogger.logDebug "BrokerFinancialsMetricsFromMovements" $"Starting calculate for currency {currencyId}"
 
-        System.Diagnostics.Debug.WriteLine(
-            $"[BrokerFinancialsMetricsFromMovements] Input movements - BrokerMovements: {currencyMovements.BrokerMovements.Length}, Trades: {currencyMovements.Trades.Length}, Dividends: {currencyMovements.Dividends.Length}"
-        )
+        CoreLogger.logDebug
+            "BrokerFinancialsMetricsFromMovements"
+            $"Input movements - BrokerMovements: {currencyMovements.BrokerMovements.Length}, Trades: {currencyMovements.Trades.Length}, Dividends: {currencyMovements.Dividends.Length}"
 
         // Process broker movements using extension methods
         let brokerMovementSummary =
             currencyMovements.BrokerMovements
             |> FinancialCalculations.calculateFinancialSummary
 
-        System.Diagnostics.Debug.WriteLine(
-            $"[BrokerFinancialsMetricsFromMovements] BrokerMovement summary - TotalDeposited: {brokerMovementSummary.TotalDeposited.Value}, TotalWithdrawn: {brokerMovementSummary.TotalWithdrawn.Value}"
-        )
+        CoreLogger.logDebug
+            "BrokerFinancialsMetricsFromMovements"
+            $"BrokerMovement summary - TotalDeposited: {brokerMovementSummary.TotalDeposited.Value}, TotalWithdrawn: {brokerMovementSummary.TotalWithdrawn.Value}"
 
         // Calculate currency conversion impact
         let conversionImpact =
             currencyMovements.BrokerMovements
             |> fun movements -> FinancialCalculations.calculateConversionImpact (movements, currencyId)
 
-        System.Diagnostics.Debug.WriteLine(
-            $"[BrokerFinancialsMetricsFromMovements] Conversion impact: {conversionImpact.Value}"
-        )
+        CoreLogger.logDebug "BrokerFinancialsMetricsFromMovements" $"Conversion impact: {conversionImpact.Value}"
 
         // Apply conversion impact to deposits/withdrawals
         let (adjustedDeposited, adjustedWithdrawn) =
@@ -57,9 +53,9 @@ module internal BrokerFinancialsMetricsFromMovements =
                 (brokerMovementSummary.TotalDeposited.Value,
                  brokerMovementSummary.TotalWithdrawn.Value + abs (conversionImpact.Value))
 
-        System.Diagnostics.Debug.WriteLine(
-            $"[BrokerFinancialsMetricsFromMovements] After conversion adjustment - Deposited: {adjustedDeposited}, Withdrawn: {adjustedWithdrawn}"
-        )
+        CoreLogger.logDebug
+            "BrokerFinancialsMetricsFromMovements"
+            $"After conversion adjustment - Deposited: {adjustedDeposited}, Withdrawn: {adjustedWithdrawn}"
 
         // Process trades using extension methods
         let tradingSummary =
@@ -125,9 +121,9 @@ module internal BrokerFinancialsMetricsFromMovements =
         let optionOpenPositions = optionsSummaryCurrent.OpenPositions
         let optionTradeCountForDay = optionsSummaryCurrent.TradeCount
 
-        System.Diagnostics.Debug.WriteLine(
-            $"[BrokerFinancialsMetricsFromMovements] Options summary - TradesToday: {optionTradeCountForDay}, DailyIncome: {dailyOptionsIncome.Value}, DailyNetIncome: {dailyNetOptionsIncome.Value}, DailyInvestment: {dailyOptionsInvestment.Value}, DailyRealized: {dailyOptionRealized.Value}, Unrealized: {optionUnrealized.Value}, HasOpen: {optionHasOpenPositions}"
-        )
+        CoreLogger.logDebug
+            "BrokerFinancialsMetricsFromMovements"
+            $"Options summary - TradesToday: {optionTradeCountForDay}, DailyIncome: {dailyOptionsIncome.Value}, DailyNetIncome: {dailyNetOptionsIncome.Value}, DailyInvestment: {dailyOptionsInvestment.Value}, DailyRealized: {dailyOptionRealized.Value}, Unrealized: {optionUnrealized.Value}, HasOpen: {optionHasOpenPositions}"
 
         // Calculate net dividend income after taxes
         let netDividendIncome =
@@ -177,9 +173,9 @@ module internal BrokerFinancialsMetricsFromMovements =
               OptionUnrealizedGains = optionUnrealized
               MovementCounter = totalMovementCounter }
 
-        System.Diagnostics.Debug.WriteLine(
-            $"[BrokerFinancialsMetricsFromMovements] Final calculated metrics - Deposited: {result.Deposited.Value}, Invested: {result.Invested.Value}, RealizedGains: {result.RealizedGains.Value}, OptionsIncome: {result.OptionsIncome.Value}, MovementCounter: {result.MovementCounter}"
-        )
+        CoreLogger.logDebug
+            "BrokerFinancialsMetricsFromMovements"
+            $"Final calculated metrics - Deposited: {result.Deposited.Value}, Invested: {result.Invested.Value}, RealizedGains: {result.RealizedGains.Value}, OptionsIncome: {result.OptionsIncome.Value}, MovementCounter: {result.MovementCounter}"
 
         // Return comprehensive metrics record
         result

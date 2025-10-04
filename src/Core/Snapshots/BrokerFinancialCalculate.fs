@@ -25,10 +25,13 @@ module internal BrokerFinancialCalculate =
             Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
 
         // Calculate NetCashFlow as the actual contributed capital
-        let netCashFlow = 
-            calculatedMetrics.Deposited.Value - calculatedMetrics.Withdrawn.Value 
-            - calculatedMetrics.Commissions.Value - calculatedMetrics.Fees.Value 
-            + calculatedMetrics.DividendsReceived.Value + calculatedMetrics.OptionsIncome.Value 
+        let netCashFlow =
+            calculatedMetrics.Deposited.Value
+            - calculatedMetrics.Withdrawn.Value
+            - calculatedMetrics.Commissions.Value
+            - calculatedMetrics.Fees.Value
+            + calculatedMetrics.DividendsReceived.Value
+            + calculatedMetrics.OptionsIncome.Value
             + calculatedMetrics.OtherIncome.Value
 
         let unrealizedPercentage =
@@ -97,9 +100,9 @@ module internal BrokerFinancialCalculate =
             && calculatedMetrics.RealizedGains.Value = 0m
 
         if shouldPreserveRealized then
-            System.Diagnostics.Debug.WriteLine(
-                "[BrokerFinancialCalculate] Preserving existing realized gains during direct snapshot update because recalculated value is zero and no realized-closing activity was detected."
-            )
+            CoreLogger.logDebug
+                "BrokerFinancialCalculate"
+                "Preserving existing realized gains during direct snapshot update because recalculated value is zero and no realized-closing activity was detected."
 
             { updatedSnapshot with
                 RealizedGains = existingSnapshot.RealizedGains
@@ -134,9 +137,9 @@ module internal BrokerFinancialCalculate =
             let calculatedMetrics =
                 BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
 
-            System.Diagnostics.Debug.WriteLine(
-                $"[BrokerFinancialCalculate] Scenario A metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
-            )
+            CoreLogger.logDebug
+                "BrokerFinancialCalculate"
+                $"Scenario A metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
 
             // Create new snapshot with previous snapshot as baseline
             do!
@@ -172,9 +175,9 @@ module internal BrokerFinancialCalculate =
             let calculatedMetrics =
                 BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
 
-            System.Diagnostics.Debug.WriteLine(
-                $"[BrokerFinancialCalculate] Scenario B metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
-            )
+            CoreLogger.logDebug
+                "BrokerFinancialCalculate"
+                $"Scenario B metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
 
             // Create initial snapshot without previous baseline (pass None for previousSnapshot)
             do!
@@ -219,9 +222,9 @@ module internal BrokerFinancialCalculate =
             let calculatedMetrics =
                 BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
 
-            System.Diagnostics.Debug.WriteLine(
-                $"[BrokerFinancialCalculate] Scenario D metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
-            )
+            CoreLogger.logDebug
+                "BrokerFinancialCalculate"
+                $"Scenario D metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
 
             // Since there's no previous snapshot, the existing snapshot represents the same date we're recalculating.
             // Reprocessing should replace the stored values with the newly calculated metrics rather than accumulate again.

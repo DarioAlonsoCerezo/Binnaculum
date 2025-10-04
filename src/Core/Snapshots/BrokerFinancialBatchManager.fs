@@ -254,16 +254,29 @@ module internal BrokerFinancialBatchManager =
 
                 let! result = processBatchedFinancials request
 
-                // After batch processing, create/update broker account snapshot for the end date
-                // This ensures the aggregate broker account snapshot reflects all imported movements
+                // After batch processing, create BrokerAccountSnapshot for each unique date that has movements
+                // This ensures BrokerAccounts.GetSnapshots() returns all snapshots (one per movement date)
                 if result.Success && result.SnapshotsSaved > 0 then
                     CoreLogger.logDebug
                         "BrokerFinancialBatchManager"
-                        "Creating broker account snapshot after batch processing"
+                        "Creating broker account snapshots for all movement dates"
 
-                    do! BrokerAccountSnapshotManager.handleBrokerAccountChange (brokerAccountId, endDate)
+                    // Get unique dates from movements
+                    let uniqueMovementDates = allDates |> List.distinct |> List.sort
 
-                    CoreLogger.logDebug "BrokerFinancialBatchManager" "Broker account snapshot created successfully"
+                    CoreLogger.logDebugf
+                        "BrokerFinancialBatchManager"
+                        "Creating %d broker account snapshots for unique movement dates"
+                        uniqueMovementDates.Length
+
+                    // Create BrokerAccountSnapshot for each unique date
+                    for movementDate in uniqueMovementDates do
+                        do! BrokerAccountSnapshotManager.handleBrokerAccountChange (brokerAccountId, movementDate)
+
+                    CoreLogger.logDebugf
+                        "BrokerFinancialBatchManager"
+                        "Created %d broker account snapshots successfully"
+                        uniqueMovementDates.Length
 
                 return result
 

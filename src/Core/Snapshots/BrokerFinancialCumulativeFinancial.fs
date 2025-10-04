@@ -28,17 +28,15 @@ module internal BrokerFinancialCumulativeFinancial =
         (previousSnapshot: BrokerFinancialSnapshot option)
         =
         task {
-            System.Diagnostics.Debug.WriteLine(
-                $"[BrokerFinancialCumulativeFinancial] Starting create for currency {currencyId}, date {targetDate}"
-            )
+            CoreLogger.logDebug
+                "BrokerFinancialCumulativeFinancial"
+                $"Starting create for currency {currencyId}, date {targetDate}"
 
-            System.Diagnostics.Debug.WriteLine(
-                $"[BrokerFinancialCumulativeFinancial] Calculated metrics - Deposited: {calculatedMetrics.Deposited.Value}, MovementCounter: {calculatedMetrics.MovementCounter}"
-            )
+            CoreLogger.logDebug
+                "BrokerFinancialCumulativeFinancial"
+                $"Calculated metrics - Deposited: {calculatedMetrics.Deposited.Value}, MovementCounter: {calculatedMetrics.MovementCounter}"
 
-            System.Diagnostics.Debug.WriteLine(
-                $"[BrokerFinancialCumulativeFinancial] Has previous snapshot: {previousSnapshot.IsSome}"
-            )
+            CoreLogger.logDebug "BrokerFinancialCumulativeFinancial" $"Has previous snapshot: {previousSnapshot.IsSome}"
 
             // Calculate cumulative values by adding previous snapshot values (if any) to current metrics
             let cumulativeDeposited =
@@ -47,15 +45,15 @@ module internal BrokerFinancialCumulativeFinancial =
                     let result =
                         Money.FromAmount(prev.Deposited.Value + calculatedMetrics.Deposited.Value)
 
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[BrokerFinancialCumulativeFinancial] Cumulative Deposited: previous {prev.Deposited.Value} + current {calculatedMetrics.Deposited.Value} = {result.Value}"
-                    )
+                    CoreLogger.logDebug
+                        "BrokerFinancialCumulativeFinancial"
+                        $"Cumulative Deposited: previous {prev.Deposited.Value} + current {calculatedMetrics.Deposited.Value} = {result.Value}"
 
                     result
                 | None ->
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[BrokerFinancialCumulativeFinancial] No previous snapshot, using calculated Deposited: {calculatedMetrics.Deposited.Value}"
-                    )
+                    CoreLogger.logDebug
+                        "BrokerFinancialCumulativeFinancial"
+                        $"No previous snapshot, using calculated Deposited: {calculatedMetrics.Deposited.Value}"
 
                     calculatedMetrics.Deposited
 
@@ -118,10 +116,13 @@ module internal BrokerFinancialCumulativeFinancial =
                 Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
 
             // Calculate cumulative NetCashFlow as the actual contributed capital
-            let cumulativeNetCashFlow = 
-                cumulativeDeposited.Value - cumulativeWithdrawn.Value 
-                - cumulativeCommissions.Value - cumulativeFees.Value 
-                + cumulativeDividendsReceived.Value + cumulativeOptionsIncome.Value 
+            let cumulativeNetCashFlow =
+                cumulativeDeposited.Value
+                - cumulativeWithdrawn.Value
+                - cumulativeCommissions.Value
+                - cumulativeFees.Value
+                + cumulativeDividendsReceived.Value
+                + cumulativeOptionsIncome.Value
                 + cumulativeOtherIncome.Value
 
             let unrealizedGainsPercentage =
@@ -130,14 +131,13 @@ module internal BrokerFinancialCumulativeFinancial =
                 else
                     0m
 
-            System.Diagnostics.Debug.WriteLine(
-                sprintf
-                    "[BrokerFinancialCumulativeFinancial] Unrealized breakdown - Stock:%M (%%:%M) Options:%M Total:%M"
-                    stockUnrealizedGains.Value
-                    stockUnrealizedGainsPercentage
-                    calculatedMetrics.OptionUnrealizedGains.Value
-                    totalUnrealizedGains.Value
-            )
+            CoreLogger.logDebugf
+                "BrokerFinancialCumulativeFinancial"
+                "Unrealized breakdown - Stock:%M (%%:%M) Options:%M Total:%M"
+                stockUnrealizedGains.Value
+                stockUnrealizedGainsPercentage
+                calculatedMetrics.OptionUnrealizedGains.Value
+                totalUnrealizedGains.Value
 
             // Calculate realized percentage return
             let realizedPercentage =
@@ -169,14 +169,14 @@ module internal BrokerFinancialCumulativeFinancial =
                   OtherIncome = cumulativeOtherIncome
                   OpenTrades = calculatedMetrics.HasOpenPositions }
 
-            System.Diagnostics.Debug.WriteLine(
-                $"[BrokerFinancialCumulativeFinancial] Created snapshot to save - Deposited: {newSnapshot.Deposited.Value}, MovementCounter: {newSnapshot.MovementCounter}"
-            )
+            CoreLogger.logDebug
+                "BrokerFinancialCumulativeFinancial"
+                $"Created snapshot to save - Deposited: {newSnapshot.Deposited.Value}, MovementCounter: {newSnapshot.MovementCounter}"
 
             // Save the snapshot to database
             do! newSnapshot.save ()
 
-            System.Diagnostics.Debug.WriteLine(
-                $"[BrokerFinancialCumulativeFinancial] Snapshot saved successfully with ID: {newSnapshot.Base.Id}"
-            )
+            CoreLogger.logDebug
+                "BrokerFinancialCumulativeFinancial"
+                $"Snapshot saved successfully with ID: {newSnapshot.Base.Id}"
         }

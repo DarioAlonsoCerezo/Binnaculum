@@ -21,11 +21,17 @@ module CoreLogger =
     /// Current minimum log level (can be configured)
     let mutable private minLogLevel = LogLevel.Debug
 
+    /// Master switch to enable/disable all logging
+    let mutable private loggingEnabled = false // Set to false to disable all logging
+
     /// Optional external logger for advanced features
     let mutable private externalLogger: ILogger option = None
 
     /// Set the minimum log level for filtering
     let setMinLevel level = minLogLevel <- level
+
+    /// Enable or disable all logging (master switch)
+    let setEnabled enabled = loggingEnabled <- enabled
 
     /// Set an external Microsoft.Extensions.Logging ILogger for advanced features
     /// If not set, falls back to simple Debug/Console output
@@ -33,7 +39,7 @@ module CoreLogger =
 
     /// Internal logging function with Microsoft.Extensions.Logging integration
     let private log level tag message =
-        if level >= minLogLevel then
+        if loggingEnabled && level >= minLogLevel then
             match externalLogger with
             | Some logger ->
                 // Use Microsoft.Extensions.Logging for better performance and features
@@ -88,15 +94,17 @@ module CoreLogger =
     /// High-performance logging functions that use Microsoft.Extensions.Logging directly when available
     /// These provide zero-allocation logging when the log level is disabled
     let logDebugOptimized tag (messageFunc: unit -> string) =
-        match externalLogger with
-        | Some logger when logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug) ->
-            logger.LogDebug("[{Tag}] {Message}", tag, messageFunc ())
-        | None when LogLevel.Debug >= minLogLevel -> logDebug tag (messageFunc ())
-        | _ -> () // No-op when logging is disabled
+        if loggingEnabled then
+            match externalLogger with
+            | Some logger when logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug) ->
+                logger.LogDebug("[{Tag}] {Message}", tag, messageFunc ())
+            | None when LogLevel.Debug >= minLogLevel -> logDebug tag (messageFunc ())
+            | _ -> () // No-op when logging is disabled
 
     let logInfoOptimized tag (messageFunc: unit -> string) =
-        match externalLogger with
-        | Some logger when logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information) ->
-            logger.LogInformation("[{Tag}] {Message}", tag, messageFunc ())
-        | None when LogLevel.Info >= minLogLevel -> logInfo tag (messageFunc ())
-        | _ -> () // No-op when logging is disabled
+        if loggingEnabled then
+            match externalLogger with
+            | Some logger when logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information) ->
+                logger.LogInformation("[{Tag}] {Message}", tag, messageFunc ())
+            | None when LogLevel.Info >= minLogLevel -> logInfo tag (messageFunc ())
+            | _ -> () // No-op when logging is disabled

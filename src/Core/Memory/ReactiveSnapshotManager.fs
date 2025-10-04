@@ -6,6 +6,7 @@ open DynamicData
 open Binnaculum.Core.Models
 open Binnaculum.Core.DataLoader
 open Binnaculum.Core
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// Reactive snapshot manager that provides automatic snapshot updates when underlying collections change.
@@ -31,23 +32,20 @@ module ReactiveSnapshotManager =
         async {
             // Prevent reentrancy to avoid infinite loops during snapshot creation
             if isLoadingSnapshots then
-                System.Diagnostics.Debug.WriteLine(
-                    "[ReactiveSnapshotManager] Skipping loadSnapshots - already in progress"
-                )
-
+                CoreLogger.logDebug "ReactiveSnapshotManager" "Skipping loadSnapshots - already in progress"
                 return ()
 
             // Defer reactive updates during import to prevent database connection conflicts
             if Binnaculum.Core.Import.ImportState.isImportInProgress () then
-                System.Diagnostics.Debug.WriteLine(
-                    "[ReactiveSnapshotManager] Skipping loadSnapshots - import in progress, will update after completion"
-                )
+                CoreLogger.logDebug
+                    "ReactiveSnapshotManager"
+                    "Skipping loadSnapshots - import in progress, will update after completion"
 
                 return ()
 
             try
                 isLoadingSnapshots <- true
-                System.Diagnostics.Debug.WriteLine("[ReactiveSnapshotManager] Starting loadSnapshots")
+                CoreLogger.logDebug "ReactiveSnapshotManager" "Starting loadSnapshots"
 
                 // Load all snapshot types (same as original loadOverviewSnapshots)
                 do! BrokerSnapshotLoader.load () |> Async.AwaitTask |> Async.Ignore
@@ -73,7 +71,7 @@ module ReactiveSnapshotManager =
                 elif Collections.Snapshots.Items.Count = 0 then
                     Collections.Snapshots.Add(DatabaseToModels.Do.createEmptyOverviewSnapshot ())
 
-                System.Diagnostics.Debug.WriteLine("[ReactiveSnapshotManager] Completed loadSnapshots")
+                CoreLogger.logDebug "ReactiveSnapshotManager" "Completed loadSnapshots"
             finally
                 isLoadingSnapshots <- false
         }
