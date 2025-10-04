@@ -37,32 +37,51 @@ namespace Core.Platform.MauiTester.TestCases
             try
             {
                 results.Add("=== Reactive Options Import Integration Test ===");
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Test started");
+                Console.WriteLine("[ReactiveTest] Test started");
 
                 // Extract embedded CSV file
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Extracting CSV file...");
+                Console.WriteLine("[ReactiveTest] Extracting CSV file...");
+                Console.WriteLine("[ReactiveTest] Extracting CSV file...");
                 var tempCsvPath = await ExtractTestCsvFile();
                 if (!File.Exists(tempCsvPath))
                 {
+                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] ❌ CSV file extraction failed");
+                    Console.WriteLine("[ReactiveTest] ❌ CSV file extraction failed");
                     results.Add("❌ CSV file extraction failed");
                     return (false, string.Join("\n", results), "CSV extraction failed");
                 }
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ✅ CSV extracted to: {tempCsvPath}");
+                Console.WriteLine($"[ReactiveTest] ✅ CSV extracted to: {tempCsvPath}");
 
                 // Use the existing Tastytrade broker from test context
                 var tastytradeId = _context.TastytradeId;
                 var accountNumber = $"REACTIVE-TEST-{DateTime.Now:yyyyMMdd-HHmmss}";
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Creating broker account: {accountNumber}");
+                Console.WriteLine($"[ReactiveTest] Creating broker account: {accountNumber}");
 
                 // Add timeout for account creation to prevent hanging
                 using var accountCreationCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
                 try
                 {
+                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] Calling SaveBrokerAccount...");
+                    Console.WriteLine("[ReactiveTest] Calling SaveBrokerAccount...");
                     await Creator.SaveBrokerAccount(tastytradeId, accountNumber).WaitAsync(accountCreationCts.Token);
+                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] ✅ SaveBrokerAccount completed");
+                    Console.WriteLine("[ReactiveTest] ✅ SaveBrokerAccount completed");
                 }
                 catch (OperationCanceledException)
                 {
+                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] ❌ Account creation timed out");
+                    Console.WriteLine("[ReactiveTest] ❌ Account creation timed out");
                     results.Add("❌ Account creation timed out");
                     return (false, string.Join("\n", results), "Account creation timeout");
                 }
 
                 // Find the created broker account
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Looking for created account...");
+                Console.WriteLine("[ReactiveTest] Looking for created account...");
                 var testAccount = Collections.Accounts.Items
                     .Where(a => a.Type == CoreModels.AccountType.BrokerAccount)
                     .Where(a => OptionModule.IsSome(a.Broker) && a.Broker.Value.AccountNumber == accountNumber)
@@ -70,43 +89,77 @@ namespace Core.Platform.MauiTester.TestCases
 
                 if (testAccount == null || testAccount.Type == CoreModels.AccountType.EmptyAccount)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ❌ Failed to find account. Total accounts: {Collections.Accounts.Items.Count}");
+                    Console.WriteLine($"[ReactiveTest] ❌ Failed to find account. Total accounts: {Collections.Accounts.Items.Count}");
                     results.Add("❌ Failed to create test broker account");
                     return (false, string.Join("\n", results), null);
                 }
 
                 var testBrokerAccountId = testAccount.Broker.Value.Id;
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ✅ Found account with ID: {testBrokerAccountId}");
+                Console.WriteLine($"[ReactiveTest] ✅ Found account with ID: {testBrokerAccountId}");
 
                 // Set up signal monitoring for import
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Setting up signal monitoring...");
+                Console.WriteLine("[ReactiveTest] Setting up signal monitoring...");
                 ReactiveTestVerifications.ExpectSignals("Movements_Updated", "Tickers_Updated", "Snapshots_Updated");
 
                 // Execute import
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Starting import from: {tempCsvPath}");
+                Console.WriteLine($"[ReactiveTest] Starting import from: {tempCsvPath}");
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 ImportResult importResult;
                 try
                 {
                     var importTask = ImportManager.importFile(tastytradeId, testBrokerAccountId, tempCsvPath);
                     importResult = await importTask.WaitAsync(cts.Token);
+                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ✅ Import completed. Success: {importResult.Success}");
+                    Console.WriteLine($"[ReactiveTest] ✅ Import completed. Success: {importResult.Success}");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ❌ Import operation exception: {ex.Message}");
+                    Console.WriteLine($"[ReactiveTest] ❌ Import operation exception: {ex.Message}");
                     results.Add("❌ Import operation timed out");
                     return (false, string.Join("\n", results), "Import timeout");
                 }
 
                 // Wait for import signals
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Waiting for reactive signals...");
+                Console.WriteLine("[ReactiveTest] Waiting for reactive signals...");
                 var importSignalsReceived = await ReactiveTestVerifications.WaitForAllSignalsAsync(TimeSpan.FromSeconds(15));
                 if (!importSignalsReceived)
                 {
                     var (expected, received, missing) = ReactiveTestVerifications.GetSignalStatus();
+                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ⚠️ Missing signals: [{string.Join(", ", missing)}]");
+                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Expected: [{string.Join(", ", expected)}]");
+                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Received: [{string.Join(", ", received)}]");
+                    Console.WriteLine($"[ReactiveTest] ⚠️ Missing signals: [{string.Join(", ", missing)}]");
+                    Console.WriteLine($"[ReactiveTest] Expected: [{string.Join(", ", expected)}]");
+                    Console.WriteLine($"[ReactiveTest] Received: [{string.Join(", ", received)}]");
                     results.Add($"⚠️ Missing signals: [{string.Join(", ", missing)}]");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] ✅ All signals received");
+                    Console.WriteLine("[ReactiveTest] ✅ All signals received");
                 }
 
                 // Validation
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Starting validation...");
+                Console.WriteLine("[ReactiveTest] Starting validation...");
                 results.Add("=== Validation Results ===");
 
                 var movementCount = Collections.Movements.Items.Count;
                 var tickerCount = Collections.Tickers.Items.Count;
                 var snapshotCount = Collections.Snapshots.Items.Count;
+
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Movements count: {movementCount}");
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Tickers count: {tickerCount}");
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Snapshots count: {snapshotCount}");
+                Console.WriteLine($"[ReactiveTest] Movements count: {movementCount}");
+                Console.WriteLine($"[ReactiveTest] Tickers count: {tickerCount}");
+                Console.WriteLine($"[ReactiveTest] Snapshots count: {snapshotCount}");
 
                 // Expected values based on TastytradeOptionsTest.csv analysis:
                 // - 12 options trades (BUY_TO_OPEN, SELL_TO_OPEN, BUY_TO_CLOSE, SELL_TO_CLOSE)
@@ -148,7 +201,25 @@ namespace Core.Platform.MauiTester.TestCases
                 // BUY_TO_CLOSE (3 trades): -$9.13 + -$17.13 + -$8.13 = -$34.39
                 // Total: $100.30 + $5.72 - $17.26 - $34.39 = $54.37
                 // This represents the actual net income from options trading after all costs
-                const decimal EXPECTED_OPTIONS_INCOME = 54.37m;                // Validate exact Collections.Movements count (option trades + money movements)
+                const decimal EXPECTED_OPTIONS_INCOME = 54.37m;
+
+                // Realized Gains: Net profit/loss from CLOSED positions (round-trip calculations)
+                // See docs/options-realized-unrealized-gains-calculation.md for detailed breakdown
+                // SOFI 7.00 PUT (closed portion): $33.86 - $17.13 = $16.73
+                // MPW 4.50 PUT: $17.86 - $8.13 = $9.73
+                // MPW 4.00 PUT: $0.86 - (-$5.13) = $5.99
+                // PLTR 21.00 PUT: $4.86 - (-$12.13) = $16.99
+                // PLTR 21.50 PUT: $17.86 - $8.13 = $8.73
+                // Total Realized: $16.73 + $9.73 + $5.99 + $16.99 + $8.73 = $58.17
+                const decimal EXPECTED_REALIZED_GAINS = 58.17m;
+
+                // Unrealized Gains: Net premium from OPEN positions (not yet closed)
+                // SOFI 7.00 PUT (re-opened): $15.86
+                // SOFI 6.50 PUT: $14.86
+                // Total Unrealized: $15.86 + $14.86 = $30.72
+                const decimal EXPECTED_UNREALIZED_GAINS = 30.72m;
+
+                // Validate exact Collections.Movements count (option trades + money movements)
                 bool movementCountValid = movementCount == EXPECTED_COLLECTIONS_MOVEMENTS;
                 results.Add($"Collections.Movements: Expected {EXPECTED_COLLECTIONS_MOVEMENTS}, Got {movementCount} - {(movementCountValid ? "✅ PASS" : "❌ FAIL")}");
 
@@ -163,36 +234,64 @@ namespace Core.Platform.MauiTester.TestCases
                 // Enhanced validation: Check broker account snapshot movement counter (database records)
                 try
                 {
+                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] Validating broker account snapshot...");
+                    Console.WriteLine("[ReactiveTest] Validating broker account snapshot...");
                     // Get the broker account snapshot to validate movement counter matches expected database count
                     var brokerAccountSnapshot = Collections.Snapshots.Items
                         .FirstOrDefault(s => s.Type == Binnaculum.Core.Models.OverviewSnapshotType.BrokerAccount);
 
                     if (brokerAccountSnapshot?.BrokerAccount?.Value?.Financial != null)
                     {
+                        System.Diagnostics.Debug.WriteLine("[ReactiveTest] ✅ Found broker account snapshot");
+                        Console.WriteLine("[ReactiveTest] ✅ Found broker account snapshot");
                         var movementCounter = brokerAccountSnapshot.BrokerAccount.Value.Financial.MovementCounter;
                         bool movementCounterValid = movementCounter == EXPECTED_DATABASE_MOVEMENTS;
                         results.Add($"Database MovementCounter: Expected {EXPECTED_DATABASE_MOVEMENTS}, Got {movementCounter} - {(movementCounterValid ? "✅ PASS" : "❌ FAIL")}");
+                        System.Diagnostics.Debug.WriteLine($"[ReactiveTest] MovementCounter: {movementCounter} (expected {EXPECTED_DATABASE_MOVEMENTS})");
+                        Console.WriteLine($"[ReactiveTest] MovementCounter: {movementCounter} (expected {EXPECTED_DATABASE_MOVEMENTS})");
 
                         // Financial data validation - Deposited amount
                         var deposited = brokerAccountSnapshot.BrokerAccount.Value.Financial.Deposited;
                         bool depositedValid = deposited == EXPECTED_DEPOSITED;
                         results.Add($"Deposited: Expected ${EXPECTED_DEPOSITED:F2}, Got ${deposited:F2} - {(depositedValid ? "✅ PASS" : "❌ FAIL")}");
+                        System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Deposited: ${deposited:F2} (expected ${EXPECTED_DEPOSITED:F2})");
+                        Console.WriteLine($"[ReactiveTest] Deposited: ${deposited:F2} (expected ${EXPECTED_DEPOSITED:F2})");
 
                         // Financial data validation - Options Income
                         var optionsIncome = brokerAccountSnapshot.BrokerAccount.Value.Financial.OptionsIncome;
                         bool optionsIncomeValid = optionsIncome == EXPECTED_OPTIONS_INCOME;
                         results.Add($"OptionsIncome: Expected ${EXPECTED_OPTIONS_INCOME:F2}, Got ${optionsIncome:F2} - {(optionsIncomeValid ? "✅ PASS" : "❌ FAIL")}");
+                        System.Diagnostics.Debug.WriteLine($"[ReactiveTest] OptionsIncome: ${optionsIncome:F2} (expected ${EXPECTED_OPTIONS_INCOME:F2})");
+                        Console.WriteLine($"[ReactiveTest] OptionsIncome: ${optionsIncome:F2} (expected ${EXPECTED_OPTIONS_INCOME:F2})");
 
-                        snapshotCountValid = snapshotCountValid && movementCounterValid && depositedValid && optionsIncomeValid;
+                        // Financial data validation - Realized Gains
+                        var realizedGains = brokerAccountSnapshot.BrokerAccount.Value.Financial.RealizedGains;
+                        bool realizedGainsValid = Math.Abs(realizedGains - EXPECTED_REALIZED_GAINS) < 0.01m;
+                        results.Add($"RealizedGains: Expected ${EXPECTED_REALIZED_GAINS:F2}, Got ${realizedGains:F2} - {(realizedGainsValid ? "✅ PASS" : "❌ FAIL")}");
+                        System.Diagnostics.Debug.WriteLine($"[ReactiveTest] RealizedGains: ${realizedGains:F2} (expected ${EXPECTED_REALIZED_GAINS:F2})");
+                        Console.WriteLine($"[ReactiveTest] RealizedGains: ${realizedGains:F2} (expected ${EXPECTED_REALIZED_GAINS:F2})");
+
+                        // Financial data validation - Unrealized Gains
+                        var unrealizedGains = brokerAccountSnapshot.BrokerAccount.Value.Financial.UnrealizedGains;
+                        bool unrealizedGainsValid = Math.Abs(unrealizedGains - EXPECTED_UNREALIZED_GAINS) < 0.01m;
+                        results.Add($"UnrealizedGains: Expected ${EXPECTED_UNREALIZED_GAINS:F2}, Got ${unrealizedGains:F2} - {(unrealizedGainsValid ? "✅ PASS" : "❌ FAIL")}");
+                        System.Diagnostics.Debug.WriteLine($"[ReactiveTest] UnrealizedGains: ${unrealizedGains:F2} (expected ${EXPECTED_UNREALIZED_GAINS:F2})");
+                        Console.WriteLine($"[ReactiveTest] UnrealizedGains: ${unrealizedGains:F2} (expected ${EXPECTED_UNREALIZED_GAINS:F2})");
+
+                        snapshotCountValid = snapshotCountValid && movementCounterValid && depositedValid && optionsIncomeValid && realizedGainsValid && unrealizedGainsValid;
                     }
                     else
                     {
+                        System.Diagnostics.Debug.WriteLine("[ReactiveTest] ❌ BrokerAccount snapshot not found");
+                        Console.WriteLine("[ReactiveTest] ❌ BrokerAccount snapshot not found");
                         results.Add("❌ BrokerAccount snapshot not found");
                         snapshotCountValid = false;
                     }
                 }
                 catch (Exception snapValidationEx)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ❌ Snapshot validation error: {snapValidationEx.Message}");
+                    Console.WriteLine($"[ReactiveTest] ❌ Snapshot validation error: {snapValidationEx.Message}");
                     results.Add($"❌ Snapshot validation error: {snapValidationEx.Message}");
                     snapshotCountValid = false;
                 }
@@ -202,24 +301,39 @@ namespace Core.Platform.MauiTester.TestCases
                              snapshotCountValid &&
                              importSignalsReceived; // All validations must pass
 
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Final result - Success: {success}");
+                Console.WriteLine($"[ReactiveTest] Final result - Success: {success}");
+
                 // Cleanup
                 if (!string.IsNullOrEmpty(tempCsvPath) && File.Exists(tempCsvPath))
                 {
+                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Cleaning up temp file: {tempCsvPath}");
+                    Console.WriteLine($"[ReactiveTest] Cleaning up temp file: {tempCsvPath}");
                     File.Delete(tempCsvPath);
                 }
 
                 results.Add(success ? "\n✅ TEST PASSED" : "\n❌ TEST FAILED");
+                System.Diagnostics.Debug.WriteLine(success ? "[ReactiveTest] ✅ TEST PASSED" : "[ReactiveTest] ❌ TEST FAILED");
+                Console.WriteLine(success ? "[ReactiveTest] ✅ TEST PASSED" : "[ReactiveTest] ❌ TEST FAILED");
 
                 return (success, string.Join("\n", results), null);
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ❌ UNHANDLED EXCEPTION: {ex.GetType().Name} - {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Stack trace: {ex.StackTrace}");
+                Console.WriteLine($"[ReactiveTest] ❌ UNHANDLED EXCEPTION: {ex.GetType().Name} - {ex.Message}");
+                Console.WriteLine($"[ReactiveTest] Stack trace: {ex.StackTrace}");
                 results.Add($"❌ EXCEPTION: {ex.Message}");
                 return (false, string.Join("\n", results), ex.ToString());
             }
             finally
             {
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Stopping reactive observations...");
+                Console.WriteLine("[ReactiveTest] Stopping reactive observations...");
                 ReactiveTestVerifications.StopObserving();
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Test execution completed");
+                Console.WriteLine("[ReactiveTest] Test execution completed");
             }
         }
 
@@ -228,17 +342,46 @@ namespace Core.Platform.MauiTester.TestCases
         /// </summary>
         private async Task<string> ExtractTestCsvFile()
         {
+            System.Diagnostics.Debug.WriteLine("[ReactiveTest] ExtractTestCsvFile called");
+            Console.WriteLine("[ReactiveTest] ExtractTestCsvFile called");
+
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = "Core.Platform.MauiTester.Resources.TestData.TastytradeOptionsTest.csv";
 
+            System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Looking for resource: {resourceName}");
+            Console.WriteLine($"[ReactiveTest] Looking for resource: {resourceName}");
+
             var tempPath = Path.Combine(Path.GetTempPath(), $"tastytrade_test_{Guid.NewGuid()}.csv");
+            System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Temp path: {tempPath}");
+            Console.WriteLine($"[ReactiveTest] Temp path: {tempPath}");
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ❌ Resource not found!");
+                Console.WriteLine($"[ReactiveTest] ❌ Resource not found!");
+
+                // List all available resources for debugging
+                var allResources = assembly.GetManifestResourceNames();
+                System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Available resources ({allResources.Length}):");
+                Console.WriteLine($"[ReactiveTest] Available resources ({allResources.Length}):");
+                foreach (var res in allResources)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest]   - {res}");
+                    Console.WriteLine($"[ReactiveTest]   - {res}");
+                }
+
                 throw new InvalidOperationException($"Could not find embedded resource: {resourceName}");
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ✅ Resource stream found, size: {stream.Length} bytes");
+            Console.WriteLine($"[ReactiveTest] ✅ Resource stream found, size: {stream.Length} bytes");
 
             using var fileStream = File.Create(tempPath);
             await stream.CopyToAsync(fileStream);
+
+            System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ✅ File created successfully");
+            Console.WriteLine($"[ReactiveTest] ✅ File created successfully");
 
             return tempPath;
         }

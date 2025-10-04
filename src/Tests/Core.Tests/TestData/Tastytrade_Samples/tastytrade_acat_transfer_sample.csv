@@ -1,5 +1,4 @@
-Date,Type,Sub Type,Action,Symbol,Instrument Type,Description,Value,Quantity,Average Price,Commissions,Fees,Multiplier,Root Symbol,Underlying Symbol,Expiration Date,Strike Price,Call or Put,Order #,Currency
-2024-05-10T22:00:00+0100,Receive Deliver,ACAT,BUY_TO_OPEN,AAPL,Equity,Received 100.0 Long AAPL via ACAT,0.00,100,0.00,--,0.00,,,,,,,,USD
-2024-05-10T22:00:00+0100,Receive Deliver,ACAT,BUY_TO_OPEN,MSFT,Equity,Received 50.0 Long MSFT via ACAT,0.00,50,0.00,--,0.00,,,,,,,,USD
-2024-05-10T22:00:00+0100,Money Movement,Transfer,,,,Cash transfer via ACAT,5000.00,0,,--,0.00,,,,,,,,USD
-2024-05-09T22:00:00+0100,Money Movement,Deposit,,,,Initial account funding,25000.00,0,,--,0.00,,,,,,,,USD
+Date,Type,Sub Type,Action,Symbol,Instrument Type,Description,Value,Quantity,Average Price,Commissions,Fees,Multiplier,Root Symbol,Underlying Symbol,Expiration Date,Strike Price,Call or Put,Order #,Total,Currency
+2024-05-08T22:00:00+0100,Money Movement,Deposit,,,,ACH DEPOSIT,"1,700.00",0,,--,0.00,,,,,,,,"1,700.00",USD
+2024-05-10T22:00:00+0100,Receive Deliver,ACAT,BUY_TO_OPEN,MPW,Equity,Received 1000.0 Long MPW via ACAT,0.00,1000,0.00,--,0.00,,,,,,,,0.00,USD
+2024-05-10T22:00:00+0100,Money Movement,Transfer,,,,TRANSFER FROM INTERACTIVE B,313.46,0,,--,0.00,,,,,,,,313.46,USD

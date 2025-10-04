@@ -430,6 +430,43 @@ module DatabasePersistence =
                                 stockTrades <- stockTrade :: stockTrades
                             | None -> errors <- $"Failed to create Trade from line {transaction.LineNumber}" :: errors
 
+                        | ReceiveDeliver(_) when transaction.InstrumentType = Some "Equity" ->
+                            // ACAT equity transfers - shares received from another broker
+                            // These are treated as trades with $0 cost basis (value comes from the transfer itself)
+                            Debug.WriteLine(
+                                $"[DatabasePersistence] Processing ACAT equity transfer for {transaction.Symbol}"
+                            )
+
+                            let stockSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
+                            let! tickerId = getOrCreateTickerId (stockSymbol)
+
+                            // Add to affected tickers for metadata
+                            affectedTickerSymbols <- Set.add stockSymbol affectedTickerSymbols
+
+                            // Create a trade record for the ACAT transfer with $0 price
+                            let acatTrade =
+                                { Id = 0
+                                  TimeStamp = DateTimePattern.FromDateTime(transaction.Date)
+                                  TickerId = tickerId
+                                  BrokerAccountId = brokerAccountId
+                                  CurrencyId = currencyId
+                                  Quantity = Math.Abs(transaction.Quantity)
+                                  Price = Money.FromAmount(0m) // ACAT transfers have no cost
+                                  Commissions = Money.FromAmount(Math.Abs(transaction.Commissions))
+                                  Fees = Money.FromAmount(Math.Abs(transaction.Fees))
+                                  TradeCode = TradeCode.BuyToOpen // ACAT is like opening a position
+                                  TradeType = TradeType.Long // Receiving shares is a long position
+                                  Leveraged = 1.0m
+                                  Notes = Some transaction.Description
+                                  Audit = AuditableEntity.FromDateTime(DateTime.UtcNow) }
+
+                            do! TradeExtensions.Do.save (acatTrade) |> Async.AwaitTask
+                            stockTrades <- acatTrade :: stockTrades
+
+                            Debug.WriteLine(
+                                $"[DatabasePersistence] ACAT equity transfer saved: {stockSymbol}, quantity={transaction.Quantity}"
+                            )
+
                         | _ ->
                             errors <-
                                 $"Unsupported transaction type on line {transaction.LineNumber}: {transaction.TransactionType}"

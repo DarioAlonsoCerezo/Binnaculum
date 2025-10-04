@@ -25,6 +25,7 @@ namespace Core.Platform.MauiTester.Services
             RegisterBrokerAccountMultipleMovementsSignalBasedTest(discoveryService, testRunner, testActions);
             RegisterOptionsImportIntegrationTest(discoveryService, testRunner, testActions);
             RegisterOptionsImportIntegrationSignalBasedTest(discoveryService, testRunner, testActions);
+            RegisterDepositsWithdrawalsIntegrationTest(discoveryService, testRunner, testActions);
             RegisterTastytradeImportIntegrationTest(discoveryService, testRunner, testActions);
             RegisterTsllImportIntegrationTest(discoveryService, testRunner, testActions);
         }
@@ -373,6 +374,25 @@ namespace Core.Platform.MauiTester.Services
                     return (success, details, error);
                 })
                 .AddCustomStep(new ReactiveOptionsImportIntegrationTest(testRunner.GetExecutionContext())));
+        }
+
+        /// <summary>
+        /// Deposits and Withdrawals Integration Test - Validates money movements import and snapshot calculations
+        /// </summary>
+        private static void RegisterDepositsWithdrawalsIntegrationTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("Deposits & Withdrawals Integration Test")
+                .WithDescription("Signal-based reactive test for deposits/withdrawals import. Expected: 20 movements, $19,363.40 deposited, $25.00 withdrawn")
+                .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Reactive)
+                .AddReactiveOptionsImportSetup(testRunner)
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddCustomStep(new ReactiveDepositsWithdrawalsIntegrationTest(testRunner.GetExecutionContext())));
         }
 
         /// <summary>

@@ -163,6 +163,18 @@
                 HorizontalOptions="Fill"/>
 
             <Button
+                x:Name="RunDepositsWithdrawalsIntegrationTestButton"
+                Text="Run Deposits &amp; Withdrawals Integration Test"
+                FontSize="16"
+                BackgroundColor="SteelBlue"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunDepositsWithdrawalsIntegrationTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs signal-based deposits and withdrawals import test - validates money movements (20 movements, $19,363.40 deposited, $25.00 withdrawn)"
+                HorizontalOptions="Fill"/>
+
+            <Button
                 x:Name="RunTastytradeImportIntegrationTestButton"
                 Text="Execute Tastytrade Import Test"
                 FontSize="16"

@@ -1,8 +1,8 @@
-Date,Type,Sub Type,Action,Symbol,Instrument Type,Description,Value,Quantity,Average Price,Commissions,Fees,Multiplier,Root Symbol,Underlying Symbol,Expiration Date,Strike Price,Call or Put,Order #,Currency
-2024-05-30T14:30:00+0100,Trade,Buy to Open,BUY_TO_OPEN,AAPL,Equity,Bought 100 AAPL @ 175.50,-17550.00,100,-175.50,0.00,-0.05,,,,,,,987654321,USD
-2024-05-30T14:31:00+0100,Trade,Sell to Open,SELL_TO_OPEN,AAPL  240614C00180000,Equity Option,Sold 1 AAPL 06/14/24 Call 180.00 @ 2.50,250.00,1,250.00,-1.00,-0.13,100,AAPL,AAPL,6/14/24,180,CALL,555666777,USD
-2024-05-29T11:00:00+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLA,Equity,Bought 50 TSLA @ 180.25,-9012.50,50,-180.25,0.00,-0.03,,,,,,,333444555,USD
-2024-05-29T16:30:00+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLA,Equity,Sold 50 TSLA @ 185.75,9287.50,50,185.75,0.00,-0.03,,,,,,,666777888,USD
-2024-05-28T22:00:00+0100,Money Movement,Deposit,,,,Wire Funds Received,10000.00,0,,--,0.00,,,,,,,,USD
-2024-05-27T22:00:00+0100,Money Movement,Balance Adjustment,,,,Regulatory fee adjustment,-0.02,0,,--,0.00,,,,,,,,USD
-2024-05-26T22:00:00+0100,Money Movement,Credit Interest,,,,INTEREST ON CREDIT BALANCE,0.05,0,,--,0.00,,,,,,,,USD
+Date,Type,Sub Type,Action,Symbol,Instrument Type,Description,Value,Quantity,Average Price,Commissions,Fees,Multiplier,Root Symbol,Underlying Symbol,Expiration Date,Strike Price,Call or Put,Order #,Total,Currency
+2024-05-30T14:30:00+0100,Trade,Buy to Open,BUY_TO_OPEN,AAPL,Equity,Bought 100 AAPL @ 175.50,-17550.00,100,-175.50,0.00,-0.05,,,,,,,987654321,-17550.05,USD
+2024-05-30T14:31:00+0100,Trade,Sell to Open,SELL_TO_OPEN,AAPL  240614C00180000,Equity Option,Sold 1 AAPL 06/14/24 Call 180.00 @ 2.50,250.00,1,250.00,-1.00,-0.13,100,AAPL,AAPL,6/14/24,180,CALL,555666777,248.87,USD
+2024-05-29T11:00:00+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLA,Equity,Bought 50 TSLA @ 180.25,-9012.50,50,-180.25,0.00,-0.03,,,,,,,333444555,-9012.53,USD
+2024-05-29T16:30:00+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLA,Equity,Sold 50 TSLA @ 185.75,9287.50,50,185.75,0.00,-0.03,,,,,,,666777888,9287.47,USD
+2024-05-28T22:00:00+0100,Money Movement,Deposit,,,,Wire Funds Received,10000.00,0,,--,0.00,,,,,,,,10000.00,USD
+2024-05-27T22:00:00+0100,Money Movement,Balance Adjustment,,,,Regulatory fee adjustment,-0.02,0,,--,0.00,,,,,,,,-0.02,USD
+2024-05-26T22:00:00+0100,Money Movement,Credit Interest,,,,INTEREST ON CREDIT BALANCE,0.05,0,,--,0.00,,,,,,,,0.05,USD

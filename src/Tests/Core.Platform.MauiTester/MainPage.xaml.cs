@@ -75,6 +75,11 @@ namespace Core.Platform.MauiTester
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Options Import Integration Signal-Based Validation", callback), "Run Options Import Integration Signal-Based Test", "Options Import Integration Signal-Based Validation");
         }
 
+        private async void OnRunDepositsWithdrawalsIntegrationTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Deposits & Withdrawals Integration Test", callback), "Run Deposits & Withdrawals Integration Test", "Deposits & Withdrawals Integration Test");
+        }
+
         private async void OnRunTastytradeImportIntegrationTestClicked(object? sender, EventArgs e)
         {
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Tastytrade Import Integration Test", callback), "Execute Tastytrade Import Test", "Tastytrade Import Integration Test");
@@ -184,6 +189,7 @@ namespace Core.Platform.MauiTester
             RunBrokerAccountMultipleMovementsSignalBasedTestButton.Text = "Running Test...";
             RunOptionsImportIntegrationTestButton.Text = "Running Test...";
             RunOptionsImportIntegrationSignalBasedTestButton.Text = "Running Test...";
+            RunDepositsWithdrawalsIntegrationTestButton.Text = "Running Test...";
             RunTastytradeImportIntegrationTestButton.Text = "Running Test...";
             RunTsllImportIntegrationTestButton.Text = "Running Test...";
         }
@@ -201,6 +207,7 @@ namespace Core.Platform.MauiTester
             RunBrokerAccountMultipleMovementsSignalBasedTestButton.Text = "Run BrokerAccount Multiple Movements Signal-Based Test";
             RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
             RunOptionsImportIntegrationSignalBasedTestButton.Text = "Run Options Import Integration Signal-Based Test";
+            RunDepositsWithdrawalsIntegrationTestButton.Text = "Run Deposits & Withdrawals Integration Test";
             RunTastytradeImportIntegrationTestButton.Text = "Execute Tastytrade Import Test";
             RunTsllImportIntegrationTestButton.Text = "Execute TSLL Import Test";
         }
