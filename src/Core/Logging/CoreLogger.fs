@@ -2,6 +2,7 @@ namespace Binnaculum.Core.Logging
 
 open System
 open System.Diagnostics
+open Microsoft.Extensions.Logging
 
 /// <summary>
 /// Simple logging levels for Core module
@@ -13,38 +14,58 @@ type LogLevel =
     | Error = 3
 
 /// <summary>
-/// Core logging module for F# components
+/// Core logging module for F# components with Microsoft.Extensions.Logging integration
 /// </summary>
 module CoreLogger =
 
     /// Current minimum log level (can be configured)
     let mutable private minLogLevel = LogLevel.Debug
 
+    /// Optional external logger for advanced features
+    let mutable private externalLogger: ILogger option = None
+
     /// Set the minimum log level for filtering
     let setMinLevel level = minLogLevel <- level
 
-    /// Internal logging function
+    /// Set an external Microsoft.Extensions.Logging ILogger for advanced features
+    /// If not set, falls back to simple Debug/Console output
+    let setLogger logger = externalLogger <- Some logger
+
+    /// Internal logging function with Microsoft.Extensions.Logging integration
     let private log level tag message =
         if level >= minLogLevel then
-            let timestamp = DateTime.Now.ToString("HH:mm:ss.fff")
+            match externalLogger with
+            | Some logger ->
+                // Use Microsoft.Extensions.Logging for better performance and features
+                let msLogLevel =
+                    match level with
+                    | LogLevel.Debug -> Microsoft.Extensions.Logging.LogLevel.Debug
+                    | LogLevel.Info -> Microsoft.Extensions.Logging.LogLevel.Information
+                    | LogLevel.Warning -> Microsoft.Extensions.Logging.LogLevel.Warning
+                    | LogLevel.Error -> Microsoft.Extensions.Logging.LogLevel.Error
+                    | _ -> Microsoft.Extensions.Logging.LogLevel.Information
 
-            let levelStr =
-                match level with
-                | LogLevel.Debug -> "DEBUG"
-                | LogLevel.Info -> "INFO "
-                | LogLevel.Warning -> "WARN "
-                | LogLevel.Error -> "ERROR"
-                | _ -> "UNKN "
+                // Use structured logging with zero allocations when disabled
+                logger.Log(msLogLevel, "[{Tag}] {Message}", tag, message)
+            | None ->
+                // Fallback to simple implementation when no external logger is set
+                let timestamp = DateTime.Now.ToString("HH:mm:ss.fff")
 
-            let formattedMessage = $"[{timestamp}] {levelStr}: [{tag}] {message}"
+                let levelStr =
+                    match level with
+                    | LogLevel.Debug -> "DEBUG"
+                    | LogLevel.Info -> "INFO "
+                    | LogLevel.Warning -> "WARN "
+                    | LogLevel.Error -> "ERROR"
+                    | _ -> "UNKN "
 
-            // Smart output selection based on execution environment
-            if System.Diagnostics.Debugger.IsAttached then
-                // IDE debugging - use Debug output for better integration
-                Debug.WriteLine(formattedMessage)
-            else
-                // Console/Terminal execution - use Console output
-                Console.WriteLine(formattedMessage)
+                let formattedMessage = $"[{timestamp}] {levelStr}: [{tag}] {message}"
+
+                // Smart output selection based on execution environment
+                if System.Diagnostics.Debugger.IsAttached then
+                    Debug.WriteLine(formattedMessage)
+                else
+                    Console.WriteLine(formattedMessage)
 
     /// Log debug message
     let logDebug tag message = log LogLevel.Debug tag message
@@ -63,3 +84,19 @@ module CoreLogger =
     let logInfof tag format = Printf.ksprintf (logInfo tag) format
     let logWarningf tag format = Printf.ksprintf (logWarning tag) format
     let logErrorf tag format = Printf.ksprintf (logError tag) format
+
+    /// High-performance logging functions that use Microsoft.Extensions.Logging directly when available
+    /// These provide zero-allocation logging when the log level is disabled
+    let logDebugOptimized tag (messageFunc: unit -> string) =
+        match externalLogger with
+        | Some logger when logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug) ->
+            logger.LogDebug("[{Tag}] {Message}", tag, messageFunc ())
+        | None when LogLevel.Debug >= minLogLevel -> logDebug tag (messageFunc ())
+        | _ -> () // No-op when logging is disabled
+
+    let logInfoOptimized tag (messageFunc: unit -> string) =
+        match externalLogger with
+        | Some logger when logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Information) ->
+            logger.LogInformation("[{Tag}] {Message}", tag, messageFunc ())
+        | None when LogLevel.Info >= minLogLevel -> logInfo tag (messageFunc ())
+        | _ -> () // No-op when logging is disabled
