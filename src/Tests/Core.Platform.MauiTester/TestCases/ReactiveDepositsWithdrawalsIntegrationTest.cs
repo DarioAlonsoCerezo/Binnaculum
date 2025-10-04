@@ -143,6 +143,10 @@ namespace Core.Platform.MauiTester.TestCases
                 var movementCount = Collections.Movements.Items.Count;
                 var snapshotCount = Collections.Snapshots.Items.Count;
 
+                // Validate individual snapshot amounts (date-by-date)
+                var individualSnapshotValidation = ValidateIndividualSnapshots(retrievedSnapshots, results);
+                retrievedSnapshotsValid = retrievedSnapshotsValid && individualSnapshotValidation;
+
                 CoreLogger.logInfo("DepositsTest", $"Movements count: {movementCount}");
                 CoreLogger.logInfo("DepositsTest", $"Snapshots count: {snapshotCount}");
 
@@ -271,6 +275,136 @@ namespace Core.Platform.MauiTester.TestCases
                 ReactiveTestVerifications.StopObserving();
                 CoreLogger.logInfo("DepositsTest", "Test execution completed");
             }
+        }
+
+        /// <summary>
+        /// Validate individual snapshots against expected cumulative values from CSV
+        /// </summary>
+        private bool ValidateIndividualSnapshots(FSharpList<CoreModels.OverviewSnapshot> snapshots, List<string> results)
+        {
+            const decimal TOLERANCE = 0.1m; // ±$0.10 tolerance for decimal precision
+            CoreLogger.logInfo("DepositsTest", "=== Individual Snapshot Validation ===");
+            results.Add("\n=== Individual Snapshot Validation (Date-by-Date) ===");
+
+            // Expected snapshots in chronological order (oldest to newest)
+            // CSV data is in reverse chronological order, so we reverse it here
+            // Amounts are CUMULATIVE (running totals)
+            var expectedSnapshots = new List<(DateOnly date, decimal deposited, decimal withdrawn)>
+            {
+                (new DateOnly(2024, 4, 22), 10.00m, 0.00m),           // First deposit: $10
+                (new DateOnly(2024, 4, 23), 34.23m, 0.00m),           // Cumulative: $10 + $24.23 = $34.23
+                (new DateOnly(2024, 4, 24), 878.79m, 0.00m),          // Cumulative: $34.23 + $844.56 = $878.79
+                (new DateOnly(2024, 5, 1), 3678.40m, 0.00m),          // Cumulative: $878.79 + $2,799.61 = $3,678.40
+                (new DateOnly(2024, 5, 28), 4428.40m, 0.00m),         // Cumulative: $3,678.40 + $750 = $4,428.40
+                (new DateOnly(2024, 6, 24), 5328.40m, 0.00m),         // Cumulative: $4,428.40 + $900 = $5,328.40
+                (new DateOnly(2024, 7, 31), 6238.40m, 0.00m),         // Cumulative: $5,328.40 + $910 = $6,238.40
+                (new DateOnly(2024, 8, 27), 7138.40m, 0.00m),         // Cumulative: $6,238.40 + $900 = $7,138.40
+                (new DateOnly(2024, 10, 3), 7188.40m, 0.00m),         // Cumulative: $7,138.40 + $50 = $7,188.40
+                (new DateOnly(2024, 10, 9), 8038.40m, 0.00m),         // Cumulative: $7,188.40 + $850 = $8,038.40
+                (new DateOnly(2025, 1, 31), 9238.40m, 0.00m),         // Cumulative: $8,038.40 + $1,200 = $9,238.40
+                (new DateOnly(2025, 2, 21), 9288.40m, 0.00m),         // Cumulative: $9,238.40 + $50 = $9,288.40
+                (new DateOnly(2025, 2, 28), 10488.40m, 0.00m),        // Cumulative: $9,288.40 + $1,200 = $10,488.40
+                (new DateOnly(2025, 3, 28), 11688.40m, 0.00m),        // Cumulative: $10,488.40 + $1,200 = $11,688.40
+                (new DateOnly(2025, 4, 30), 13388.40m, 0.00m),        // Cumulative: $11,688.40 + $1,700 = $13,388.40
+                (new DateOnly(2025, 5, 30), 14888.40m, 0.00m),        // Cumulative: $13,388.40 + $1,500 = $14,888.40
+                (new DateOnly(2025, 6, 30), 15888.40m, 0.00m),        // Cumulative: $14,888.40 + $1,000 = $15,888.40
+                (new DateOnly(2025, 7, 14), 15888.40m, 25.00m),       // First withdrawal: Deposited stays, Withdrawn = $25
+                (new DateOnly(2025, 8, 29), 18088.40m, 25.00m),       // Cumulative: $15,888.40 + $2,200 = $18,088.40
+                (new DateOnly(2025, 9, 30), 19388.40m, 25.00m)        // Cumulative: $18,088.40 + $1,300 = $19,388.40
+            };
+
+            // Convert F# list to C# list, extract BrokerAccountSnapshots, and sort by date
+            var brokerAccountSnapshots = ListModule.ToArray(snapshots)
+                .Where(s => s.Type == CoreModels.OverviewSnapshotType.BrokerAccount && OptionModule.IsSome(s.BrokerAccount))
+                .Select(s => s.BrokerAccount.Value)
+                .OrderBy(s => s.Date)
+                .ToList();
+
+            // Log all snapshot dates and amounts for debugging
+            CoreLogger.logDebug("DepositsTest", $"Total BrokerAccount snapshots: {brokerAccountSnapshots.Count}");
+            foreach (var snap in brokerAccountSnapshots)
+            {
+                CoreLogger.logDebug("DepositsTest", $"  Snapshot: Date={snap.Date:yyyy-MM-dd}, Deposited={snap.Financial.Deposited:F2}, Withdrawn={snap.Financial.Withdrawn:F2}");
+            }
+
+            // Filter to get only snapshots that match the expected dates from CSV
+            // Exclude any snapshots that might be "current day" snapshots or duplicates
+            var dataSnapshots = brokerAccountSnapshots
+                .Where(s => expectedSnapshots.Any(e => e.date == s.Date))
+                .OrderBy(s => s.Date)
+                .ToList();
+
+            CoreLogger.logInfo("DepositsTest", $"Found {dataSnapshots.Count} data snapshots matching expected dates");
+
+            // Log any extra snapshots (not matching expected dates)
+            var extraSnapshots = brokerAccountSnapshots
+                .Where(s => !expectedSnapshots.Any(e => e.date == s.Date))
+                .ToList();
+
+            if (extraSnapshots.Any())
+            {
+                CoreLogger.logWarning("DepositsTest", $"Found {extraSnapshots.Count} extra snapshot(s) not in expected dates:");
+                foreach (var extra in extraSnapshots)
+                {
+                    CoreLogger.logWarning("DepositsTest", $"  Extra: Date={extra.Date:yyyy-MM-dd}, Deposited={extra.Financial.Deposited:F2}, Withdrawn={extra.Financial.Withdrawn:F2}");
+                }
+            }
+
+            if (dataSnapshots.Count != expectedSnapshots.Count)
+            {
+                var msg = $"❌ Snapshot count mismatch: Expected {expectedSnapshots.Count}, Got {dataSnapshots.Count}";
+                CoreLogger.logError("DepositsTest", msg);
+                results.Add(msg);
+                return false;
+            }
+
+            var allValid = true;
+            var passedCount = 0;
+            var failedCount = 0;
+
+            for (int i = 0; i < expectedSnapshots.Count; i++)
+            {
+                var expected = expectedSnapshots[i];
+                var actual = dataSnapshots[i];
+                var financial = actual.Financial;
+
+                var dateMatch = actual.Date == expected.date;
+                var depositedMatch = Math.Abs(financial.Deposited - expected.deposited) <= TOLERANCE;
+                var withdrawnMatch = Math.Abs(financial.Withdrawn - expected.withdrawn) <= TOLERANCE;
+
+                var snapshotValid = dateMatch && depositedMatch && withdrawnMatch;
+
+                if (snapshotValid)
+                {
+                    passedCount++;
+                    var msg = $"✅ [{i + 1}/20] {expected.date:yyyy-MM-dd}: Deposited=${financial.Deposited:F2}, Withdrawn=${financial.Withdrawn:F2}";
+                    CoreLogger.logInfo("DepositsTest", msg);
+                    results.Add(msg);
+                }
+                else
+                {
+                    failedCount++;
+                    allValid = false;
+
+                    var issues = new List<string>();
+                    if (!dateMatch)
+                        issues.Add($"Date: Expected {expected.date:yyyy-MM-dd}, Got {actual.Date:yyyy-MM-dd}");
+                    if (!depositedMatch)
+                        issues.Add($"Deposited: Expected ${expected.deposited:F2}, Got ${financial.Deposited:F2} (Δ ${Math.Abs(financial.Deposited - expected.deposited):F2})");
+                    if (!withdrawnMatch)
+                        issues.Add($"Withdrawn: Expected ${expected.withdrawn:F2}, Got ${financial.Withdrawn:F2} (Δ ${Math.Abs(financial.Withdrawn - expected.withdrawn):F2})");
+
+                    var msg = $"❌ [{i + 1}/20] {expected.date:yyyy-MM-dd}: {string.Join(" | ", issues)}";
+                    CoreLogger.logError("DepositsTest", msg);
+                    results.Add(msg);
+                }
+            }
+
+            var summary = $"\nSnapshot Validation Summary: {passedCount} passed, {failedCount} failed out of {expectedSnapshots.Count} total";
+            CoreLogger.logInfo("DepositsTest", summary);
+            results.Add(summary);
+
+            return allValid;
         }
 
         /// <summary>

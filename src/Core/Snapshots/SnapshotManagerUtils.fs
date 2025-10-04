@@ -598,6 +598,48 @@ module internal BrokerAccountMovementData =
         data.MovementsByCurrency
         |> Map.map (fun currencyId currencyData -> currencyData.TotalCount)
 
+    /// <summary>
+    /// Filters movements to only include those from a specific date onwards.
+    /// This is critical for batch processing optimization - allows filtering pre-loaded data
+    /// without additional database queries.
+    /// </summary>
+    /// <param name="fromDate">The date from which to include movements (inclusive)</param>
+    /// <param name="data">The movement data to filter</param>
+    /// <returns>New BrokerAccountMovementData containing only movements from the specified date onwards</returns>
+    let filterFromDate (fromDate: DateTimePattern) (data: BrokerAccountMovementData) =
+        let normalizedFromDate = SnapshotManagerUtils.normalizeToStartOfDay fromDate
+
+        // Filter each movement type to only include items from the specified date onwards
+        let filteredBrokerMovements =
+            data.BrokerMovements
+            |> List.filter (fun m -> SnapshotManagerUtils.normalizeToStartOfDay m.TimeStamp >= normalizedFromDate)
+
+        let filteredTrades =
+            data.Trades
+            |> List.filter (fun t -> SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp >= normalizedFromDate)
+
+        let filteredDividends =
+            data.Dividends
+            |> List.filter (fun d -> SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp >= normalizedFromDate)
+
+        let filteredDividendTaxes =
+            data.DividendTaxes
+            |> List.filter (fun dt -> SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp >= normalizedFromDate)
+
+        let filteredOptionTrades =
+            data.OptionTrades
+            |> List.filter (fun ot -> SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp >= normalizedFromDate)
+
+        // Recreate the movement data with filtered collections
+        create
+            fromDate
+            data.BrokerAccountId
+            filteredBrokerMovements
+            filteredTrades
+            filteredDividends
+            filteredDividendTaxes
+            filteredOptionTrades
+
     /// Validates that all movements have valid currency IDs (data integrity check)
     let validateCurrencyIntegrity (data: BrokerAccountMovementData) =
         let allMovementsCurrencies =

@@ -22,7 +22,7 @@ module CoreLogger =
     let mutable private minLogLevel = LogLevel.Debug
 
     /// Master switch to enable/disable all logging
-    let mutable private loggingEnabled = false // Set to false to disable all logging
+    let mutable private loggingEnabled = true // Set to false to disable all logging
 
     /// Optional external logger for advanced features
     let mutable private externalLogger: ILogger option = None
