@@ -8,6 +8,7 @@ open Binnaculum.Core.Database
 open Binnaculum.Core.UI
 open Binnaculum.Core.Logging
 open Binnaculum.Core.Storage
+open Binnaculum.Core.DataLoader
 open BrokerExtensions
 
 /// <summary>
@@ -245,6 +246,9 @@ module ImportManager =
 
                                                             // Refresh reactive snapshot manager to pick up new snapshots
                                                             do! ReactiveSnapshotManager.refreshAsync ()
+
+                                                            // Refresh TickerSnapshots collection to pick up newly created ticker snapshots
+                                                            do! TickerSnapshotLoader.load ()
                                                         elif persistenceResult.ErrorsCount = 0 then
                                                             // Fallback to full refresh if no movements were imported
                                                             CoreLogger.logDebug
@@ -254,6 +258,9 @@ module ImportManager =
                                                             do! ReactiveTickerManager.refreshAsync ()
                                                             do! ReactiveMovementManager.refreshAsync ()
                                                             do! ReactiveSnapshotManager.refreshAsync ()
+
+                                                            // Refresh TickerSnapshots collection
+                                                            do! TickerSnapshotLoader.load ()
 
                                                         // Update the ImportResult with actual database persistence results
                                                         let updatedImportedData =

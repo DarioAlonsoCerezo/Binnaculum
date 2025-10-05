@@ -132,10 +132,12 @@ namespace Core.Platform.MauiTester.TestCases
                 var movementCount = Collections.Movements.Items.Count;
                 var tickerCount = Collections.Tickers.Items.Count;
                 var snapshotCount = Collections.Snapshots.Items.Count;
+                var tickerSnapshotCount = Collections.TickerSnapshots.Items.Count;
 
                 CoreLogger.logInfo("PfizerTest", $"Movements count: {movementCount}");
                 CoreLogger.logInfo("PfizerTest", $"Tickers count: {tickerCount}");
                 CoreLogger.logInfo("PfizerTest", $"Snapshots count: {snapshotCount}");
+                CoreLogger.logInfo("PfizerTest", $"TickerSnapshots count: {tickerSnapshotCount}");
 
                 // Expected values based on PfizerImportTest.csv analysis:
                 // - 4 options trades (all individual trades):
@@ -152,6 +154,7 @@ namespace Core.Platform.MauiTester.TestCases
                 const int EXPECTED_DATABASE_MOVEMENTS = 4; // All individual records in database
                 const int EXPECTED_UNIQUE_TICKERS = 2; // 1 from CSV (PFE) + 1 default (SPY)
                 const int EXPECTED_MIN_SNAPSHOTS = 1; // At least one broker account snapshot should be created
+                const int EXPECTED_TICKER_SNAPSHOTS = 2; // 2 ticker snapshots: PFE + SPY
 
                 // Expected financial data from CSV:
                 // Options Income: Net profit/loss from ALL options trading activity
@@ -189,6 +192,10 @@ namespace Core.Platform.MauiTester.TestCases
                 // Validate minimum snapshot count
                 bool snapshotCountValid = snapshotCount >= EXPECTED_MIN_SNAPSHOTS;
                 results.Add($"Snapshots: Expected >= {EXPECTED_MIN_SNAPSHOTS}, Got {snapshotCount} - {(snapshotCountValid ? "✅ PASS" : "❌ FAIL")}");
+
+                // Validate exact TickerSnapshot count (PFE + SPY)
+                bool tickerSnapshotCountValid = tickerSnapshotCount == EXPECTED_TICKER_SNAPSHOTS;
+                results.Add($"TickerSnapshots: Expected {EXPECTED_TICKER_SNAPSHOTS}, Got {tickerSnapshotCount} - {(tickerSnapshotCountValid ? "✅ PASS" : "❌ FAIL")}");
 
                 // Enhanced validation: Check broker account snapshot movement counter (database records)
                 try
@@ -240,10 +247,120 @@ namespace Core.Platform.MauiTester.TestCases
                     snapshotCountValid = false;
                 }
 
+                // Enhanced validation: Check PFE TickerSnapshot
+                bool tickerSnapshotValid = false;
+                try
+                {
+                    CoreLogger.logInfo("PfizerTest", "Validating PFE TickerSnapshot...");
+
+                    // Find PFE ticker
+                    var pfeTicker = Collections.Tickers.Items
+                        .FirstOrDefault(t => t.Symbol == "PFE");
+
+                    if (pfeTicker == null)
+                    {
+                        CoreLogger.logError("PfizerTest", "❌ PFE ticker not found");
+                        results.Add("❌ PFE ticker not found in Collections.Tickers");
+                        tickerSnapshotValid = false;
+                    }
+                    else
+                    {
+                        CoreLogger.logInfo("PfizerTest", $"✅ Found PFE ticker with ID: {pfeTicker.Id}");
+
+                        // Find PFE TickerSnapshot (should be the latest one for PFE)
+                        var pfeSnapshot = Collections.TickerSnapshots.Items
+                            .Where(ts => ts.Ticker.Id == pfeTicker.Id)
+                            .OrderByDescending(ts => ts.Date)
+                            .FirstOrDefault();
+
+                        if (pfeSnapshot == null)
+                        {
+                            CoreLogger.logError("PfizerTest", "❌ PFE TickerSnapshot not found");
+                            results.Add("❌ PFE TickerSnapshot not found in Collections.TickerSnapshots");
+                            tickerSnapshotValid = false;
+                        }
+                        else
+                        {
+                            CoreLogger.logInfo("PfizerTest", $"✅ Found PFE TickerSnapshot with Date: {pfeSnapshot.Date}");
+                            results.Add($"\n=== PFE TickerSnapshot Validation ===");
+
+                            // Expected values for PFE options-only account:
+                            // TotalShares: 0 (options, not shares)
+                            // Options: 175.52 (total options income)
+                            // CostBasis: 0 (no share purchases)
+                            // RealCost: 0 (no share purchases)
+                            // Unrealized: 0 (all positions closed)
+                            // Realized: 175.52 (round-trip gains from closed positions)
+                            const decimal EXPECTED_PFE_TOTAL_SHARES = 0.00m;
+                            const decimal EXPECTED_PFE_OPTIONS = 175.52m;
+                            const decimal EXPECTED_PFE_COST_BASIS = 0.00m;
+                            const decimal EXPECTED_PFE_REAL_COST = 0.00m;
+                            const decimal EXPECTED_PFE_UNREALIZED = 0.00m;
+                            const decimal EXPECTED_PFE_REALIZED = 175.52m;
+
+                            var mainCurrency = pfeSnapshot.MainCurrency;
+
+                            // Validate MainCurrency exists
+                            if (mainCurrency == null)
+                            {
+                                CoreLogger.logError("PfizerTest", "❌ PFE TickerSnapshot.MainCurrency is null");
+                                results.Add("❌ PFE TickerSnapshot.MainCurrency is null");
+                                tickerSnapshotValid = false;
+                            }
+                            else
+                            {
+                                CoreLogger.logInfo("PfizerTest", $"✅ MainCurrency found: {mainCurrency.Currency.Code}");
+
+                                // Validate TotalShares
+                                bool totalSharesValid = Math.Abs(mainCurrency.TotalShares - EXPECTED_PFE_TOTAL_SHARES) < 0.01m;
+                                results.Add($"PFE TotalShares: Expected {EXPECTED_PFE_TOTAL_SHARES:F2}, Got {mainCurrency.TotalShares:F2} - {(totalSharesValid ? "✅ PASS" : "❌ FAIL")}");
+                                CoreLogger.logInfo("PfizerTest", $"TotalShares: {mainCurrency.TotalShares:F2} (expected {EXPECTED_PFE_TOTAL_SHARES:F2})");
+
+                                // Validate Options
+                                bool optionsValid = Math.Abs(mainCurrency.Options - EXPECTED_PFE_OPTIONS) < 0.01m;
+                                results.Add($"PFE Options: Expected ${EXPECTED_PFE_OPTIONS:F2}, Got ${mainCurrency.Options:F2} - {(optionsValid ? "✅ PASS" : "❌ FAIL")}");
+                                CoreLogger.logInfo("PfizerTest", $"Options: ${mainCurrency.Options:F2} (expected ${EXPECTED_PFE_OPTIONS:F2})");
+
+                                // Validate CostBasis
+                                bool costBasisValid = Math.Abs(mainCurrency.CostBasis - EXPECTED_PFE_COST_BASIS) < 0.01m;
+                                results.Add($"PFE CostBasis: Expected ${EXPECTED_PFE_COST_BASIS:F2}, Got ${mainCurrency.CostBasis:F2} - {(costBasisValid ? "✅ PASS" : "❌ FAIL")}");
+                                CoreLogger.logInfo("PfizerTest", $"CostBasis: ${mainCurrency.CostBasis:F2} (expected ${EXPECTED_PFE_COST_BASIS:F2})");
+
+                                // Validate RealCost
+                                bool realCostValid = Math.Abs(mainCurrency.RealCost - EXPECTED_PFE_REAL_COST) < 0.01m;
+                                results.Add($"PFE RealCost: Expected ${EXPECTED_PFE_REAL_COST:F2}, Got ${mainCurrency.RealCost:F2} - {(realCostValid ? "✅ PASS" : "❌ FAIL")}");
+                                CoreLogger.logInfo("PfizerTest", $"RealCost: ${mainCurrency.RealCost:F2} (expected ${EXPECTED_PFE_REAL_COST:F2})");
+
+                                // Validate Unrealized
+                                bool unrealizedValid = Math.Abs(mainCurrency.Unrealized - EXPECTED_PFE_UNREALIZED) < 0.01m;
+                                results.Add($"PFE Unrealized: Expected ${EXPECTED_PFE_UNREALIZED:F2}, Got ${mainCurrency.Unrealized:F2} - {(unrealizedValid ? "✅ PASS" : "❌ FAIL")}");
+                                CoreLogger.logInfo("PfizerTest", $"Unrealized: ${mainCurrency.Unrealized:F2} (expected ${EXPECTED_PFE_UNREALIZED:F2})");
+
+                                // Validate Realized
+                                bool realizedValid = Math.Abs(mainCurrency.Realized - EXPECTED_PFE_REALIZED) < 0.01m;
+                                results.Add($"PFE Realized: Expected ${EXPECTED_PFE_REALIZED:F2}, Got ${mainCurrency.Realized:F2} - {(realizedValid ? "✅ PASS" : "❌ FAIL")}");
+                                CoreLogger.logInfo("PfizerTest", $"Realized: ${mainCurrency.Realized:F2} (expected ${EXPECTED_PFE_REALIZED:F2})");
+
+                                // All PFE TickerSnapshot validations must pass
+                                tickerSnapshotValid = totalSharesValid && optionsValid && costBasisValid &&
+                                                     realCostValid && unrealizedValid && realizedValid;
+                            }
+                        }
+                    }
+                }
+                catch (Exception tickerSnapEx)
+                {
+                    CoreLogger.logError("PfizerTest", $"❌ PFE TickerSnapshot validation error: {tickerSnapEx.Message}");
+                    results.Add($"❌ PFE TickerSnapshot validation error: {tickerSnapEx.Message}");
+                    tickerSnapshotValid = false;
+                }
+
                 var success = importResult.Success &&
                              movementCountValid &&
                              tickerCountValid &&
                              snapshotCountValid &&
+                             tickerSnapshotCountValid &&
+                             tickerSnapshotValid &&
                              importSignalsReceived;
 
                 CoreLogger.logInfo("PfizerTest", $"Final result - Success: {success}");

@@ -8,6 +8,7 @@ open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
+open Binnaculum.Core.Storage
 open OptionTradeExtensions
 open TastytradeModels
 
@@ -43,13 +44,19 @@ module DatabasePersistence =
         | ReceiveDeliver _ -> 3
 
     let internal orderTransactionsForPersistence (transactions: TastytradeTransaction list) =
-        CoreLogger.logDebugf "DatabasePersistence" "orderTransactionsForPersistence: Starting to sort %d transactions" transactions.Length
+        CoreLogger.logDebugf
+            "DatabasePersistence"
+            "orderTransactionsForPersistence: Starting to sort %d transactions"
+            transactions.Length
 
         let sorted =
             transactions
             |> List.sortBy (fun t -> t.Date, getTransactionProcessingPriority t, t.LineNumber)
 
-        CoreLogger.logDebugf "DatabasePersistence" "orderTransactionsForPersistence: Sorting completed, returning %d transactions" sorted.Length
+        CoreLogger.logDebugf
+            "DatabasePersistence"
+            "orderTransactionsForPersistence: Sorting completed, returning %d transactions"
+            sorted.Length
 
         sorted
 
@@ -61,53 +68,107 @@ module DatabasePersistence =
         (brokerAccountId: int)
         (currencyId: int)
         : BrokerMovement option =
-        CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Starting with transaction type: %A" transaction.TransactionType
+        CoreLogger.logDebugf
+            "DatabasePersistence"
+            "createBrokerMovementFromTransaction: Starting with transaction type: %A"
+            transaction.TransactionType
 
         match transaction.TransactionType with
         | MoneyMovement(movementSubType) ->
-            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Processing MoneyMovement subtype: %A" movementSubType
+            CoreLogger.logDebugf
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: Processing MoneyMovement subtype: %A"
+                movementSubType
 
             let movementType =
                 match movementSubType with
                 | Deposit ->
-                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Deposit"
+                    CoreLogger.logDebug
+                        "DatabasePersistence"
+                        "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Deposit"
+
                     BrokerMovementType.Deposit
                 | Withdrawal ->
-                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Withdrawal"
+                    CoreLogger.logDebug
+                        "DatabasePersistence"
+                        "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Withdrawal"
+
                     BrokerMovementType.Withdrawal
                 | BalanceAdjustment ->
-                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Fee"
+                    CoreLogger.logDebug
+                        "DatabasePersistence"
+                        "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Fee"
+
                     BrokerMovementType.Fee // Regulatory fees map to Fee type
                 | CreditInterest ->
-                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.InterestsGained"
+                    CoreLogger.logDebug
+                        "DatabasePersistence"
+                        "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.InterestsGained"
+
                     BrokerMovementType.InterestsGained
                 | Transfer ->
-                    CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Deposit"
+                    CoreLogger.logDebug
+                        "DatabasePersistence"
+                        "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Deposit"
+
                     BrokerMovementType.Deposit // Default transfers to deposits
 
-            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: About to create BrokerMovement object"
-            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Transaction date: %A" transaction.Date
-            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Transaction value: %M" transaction.Value
-            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Transaction commissions: %M" transaction.Commissions
-            CoreLogger.logDebugf "DatabasePersistence" "createBrokerMovementFromTransaction: Transaction fees: %M" transaction.Fees
+            CoreLogger.logDebug
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: About to create BrokerMovement object"
 
-            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating DateTimePattern from transaction date"
+            CoreLogger.logDebugf
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: Transaction date: %A"
+                transaction.Date
+
+            CoreLogger.logDebugf
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: Transaction value: %M"
+                transaction.Value
+
+            CoreLogger.logDebugf
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: Transaction commissions: %M"
+                transaction.Commissions
+
+            CoreLogger.logDebugf
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: Transaction fees: %M"
+                transaction.Fees
+
+            CoreLogger.logDebug
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: Creating DateTimePattern from transaction date"
+
             let timeStamp = DateTimePattern.FromDateTime(transaction.Date)
-            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: DateTimePattern created successfully"
+
+            CoreLogger.logDebug
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: DateTimePattern created successfully"
 
             CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating Money objects"
             let amount = Money.FromAmount(Math.Abs(transaction.Value))
             CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Amount Money object created"
             let commissions = Money.FromAmount(Math.Abs(transaction.Commissions))
-            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Commissions Money object created"
+
+            CoreLogger.logDebug
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: Commissions Money object created"
+
             let fees = Money.FromAmount(Math.Abs(transaction.Fees))
             CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Fees Money object created"
 
             CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating AuditableEntity"
             let audit = AuditableEntity.FromDateTime(DateTime.UtcNow)
-            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: AuditableEntity created successfully"
 
-            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating BrokerMovement record"
+            CoreLogger.logDebug
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: AuditableEntity created successfully"
+
+            CoreLogger.logDebug
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: Creating BrokerMovement record"
 
             let brokerMovement =
                 { Id = 0 // Will be set by database
@@ -125,11 +186,16 @@ module DatabasePersistence =
                   Quantity = None
                   Audit = audit }
 
-            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: BrokerMovement record created successfully"
+            CoreLogger.logDebug
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: BrokerMovement record created successfully"
 
             Some brokerMovement
         | _ ->
-            CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Non-MoneyMovement transaction type, returning None"
+            CoreLogger.logDebug
+                "DatabasePersistence"
+                "createBrokerMovementFromTransaction: Non-MoneyMovement transaction type, returning None"
+
             None
 
     /// <summary>
@@ -292,6 +358,13 @@ module DatabasePersistence =
                 do! TickerExtensions.Do.save (newTicker) |> Async.AwaitTask
                 let! allTickers = TickerExtensions.Do.getAll () |> Async.AwaitTask
                 let createdTicker = allTickers |> List.find (fun t -> t.Symbol = symbol)
+
+                // Create initial TickerSnapshot for the new ticker
+                do!
+                    TickerSnapshotManager.handleNewTicker (createdTicker)
+                    |> Async.AwaitTask
+                    |> Async.Ignore
+
                 return createdTicker.Id
         }
 
@@ -304,7 +377,12 @@ module DatabasePersistence =
         (cancellationToken: CancellationToken)
         =
         task {
-            do CoreLogger.logInfof "DatabasePersistence" "Persisting %d transactions for account %d" transactions.Length brokerAccountId
+            do
+                CoreLogger.logInfof
+                    "DatabasePersistence"
+                    "Persisting %d transactions for account %d"
+                    transactions.Length
+                    brokerAccountId
 
             let mutable brokerMovements = []
             let mutable optionTrades = []
@@ -317,11 +395,19 @@ module DatabasePersistence =
             let mutable movementDates = []
 
             try
-                CoreLogger.logDebugf "DatabasePersistence" "About to order %d transactions for persistence" transactions.Length
+                CoreLogger.logDebugf
+                    "DatabasePersistence"
+                    "About to order %d transactions for persistence"
+                    transactions.Length
 
                 let orderedTransactions = orderTransactionsForPersistence transactions
                 let totalTransactions = orderedTransactions.Length
-                CoreLogger.logDebugf "DatabasePersistence" "Transactions ordered successfully; total=%d" totalTransactions
+
+                CoreLogger.logDebugf
+                    "DatabasePersistence"
+                    "Transactions ordered successfully; total=%d"
+                    totalTransactions
+
                 CoreLogger.logDebug "DatabasePersistence" "Starting transaction processing loop"
 
                 // Process each transaction
@@ -340,7 +426,13 @@ module DatabasePersistence =
                     )
 
                     try
-                        CoreLogger.logDebugf "DatabasePersistence" "Processing transaction %d/%d: line=%d, type=%A" (index + 1) totalTransactions transaction.LineNumber transaction.TransactionType
+                        CoreLogger.logDebugf
+                            "DatabasePersistence"
+                            "Processing transaction %d/%d: line=%d, type=%A"
+                            (index + 1)
+                            totalTransactions
+                            transaction.LineNumber
+                            transaction.TransactionType
                         // Get currency ID for this transaction (with USD fallback)
                         let currencyCode =
                             if String.IsNullOrWhiteSpace(transaction.Currency) then
@@ -355,7 +447,10 @@ module DatabasePersistence =
                         // Collect movement date for metadata
                         movementDates <- transaction.Date :: movementDates
 
-                        CoreLogger.logDebugf "DatabasePersistence" "Processing transaction type: %A" transaction.TransactionType
+                        CoreLogger.logDebugf
+                            "DatabasePersistence"
+                            "Processing transaction type: %A"
+                            transaction.TransactionType
 
                         match transaction.TransactionType with
                         | MoneyMovement(_) ->
@@ -368,7 +463,9 @@ module DatabasePersistence =
                                 CoreLogger.logDebug "DatabasePersistence" "BrokerMovement saved successfully"
                                 brokerMovements <- brokerMovement :: brokerMovements
 
-                                CoreLogger.logDebug "DatabasePersistence" "BrokerMovement added to collection, continuing to next step"
+                                CoreLogger.logDebug
+                                    "DatabasePersistence"
+                                    "BrokerMovement added to collection, continuing to next step"
                             | None ->
                                 errors <-
                                     $"Failed to create BrokerMovement from line {transaction.LineNumber}" :: errors
@@ -412,7 +509,10 @@ module DatabasePersistence =
                         | ReceiveDeliver(_) when transaction.InstrumentType = Some "Equity" ->
                             // ACAT equity transfers - shares received from another broker
                             // These are treated as trades with $0 cost basis (value comes from the transfer itself)
-                            CoreLogger.logDebugf "DatabasePersistence" "Processing ACAT equity transfer for %A" transaction.Symbol
+                            CoreLogger.logDebugf
+                                "DatabasePersistence"
+                                "Processing ACAT equity transfer for %A"
+                                transaction.Symbol
 
                             let stockSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
                             let! tickerId = getOrCreateTickerId (stockSymbol)
@@ -440,7 +540,11 @@ module DatabasePersistence =
                             do! TradeExtensions.Do.save (acatTrade) |> Async.AwaitTask
                             stockTrades <- acatTrade :: stockTrades
 
-                            CoreLogger.logDebugf "DatabasePersistence" "ACAT equity transfer saved: %s, quantity=%M" stockSymbol transaction.Quantity
+                            CoreLogger.logDebugf
+                                "DatabasePersistence"
+                                "ACAT equity transfer saved: %s, quantity=%M"
+                                stockSymbol
+                                transaction.Quantity
 
                         | _ ->
                             errors <-
@@ -448,19 +552,35 @@ module DatabasePersistence =
                                 :: errors
 
                     with ex ->
-                        do CoreLogger.logErrorf "DatabasePersistence" "Error processing transaction line %d: %s" transaction.LineNumber ex.Message
+                        do
+                            CoreLogger.logErrorf
+                                "DatabasePersistence"
+                                "Error processing transaction line %d: %s"
+                                transaction.LineNumber
+                                ex.Message
 
                         errors <-
                             $"Error processing transaction on line {transaction.LineNumber}: {ex.Message}"
                             :: errors
 
-                    CoreLogger.logDebugf "DatabasePersistence" "Completed processing transaction %d/%d" (index + 1) totalTransactions
+                    CoreLogger.logDebugf
+                        "DatabasePersistence"
+                        "Completed processing transaction %d/%d"
+                        (index + 1)
+                        totalTransactions
 
                 CoreLogger.logDebug "DatabasePersistence" "All transactions processed, finalizing"
                 // Final progress update
                 ImportState.updateStatus (SavingToDatabase("Database save completed", 1.0))
 
-                do CoreLogger.logInfof "DatabasePersistence" "Persistence complete. BrokerMovements=%d, OptionTrades=%d, StockTrades=%d, Errors=%d" brokerMovements.Length optionTrades.Length stockTrades.Length errors.Length
+                do
+                    CoreLogger.logInfof
+                        "DatabasePersistence"
+                        "Persistence complete. BrokerMovements=%d, OptionTrades=%d, StockTrades=%d, Errors=%d"
+                        brokerMovements.Length
+                        optionTrades.Length
+                        stockTrades.Length
+                        errors.Length
 
                 // Create import metadata for targeted snapshot updates
                 let oldestMovementDate =
