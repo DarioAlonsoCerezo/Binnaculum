@@ -110,7 +110,10 @@ module internal BrokerFinancialSnapshotBatchLoader =
     let loadMarketPricesForRange (tickerIds: Set<int>) (currencyIds: Set<int>) (dates: DateTimePattern list) =
         task {
             if tickerIds.IsEmpty || currencyIds.IsEmpty || dates.IsEmpty then
-                CoreLogger.logDebug "BrokerFinancialSnapshotBatchLoader" "No tickers, currencies or dates - returning empty price map"
+                CoreLogger.logDebug
+                    "BrokerFinancialSnapshotBatchLoader"
+                    "No tickers, currencies or dates - returning empty price map"
+
                 return Map.empty
             else
                 CoreLogger.logDebugf
@@ -131,16 +134,20 @@ module internal BrokerFinancialSnapshotBatchLoader =
                             dates |> List.map (fun date -> (tickerId, currencyId, date))))
                     |> List.map (fun (tickerId, currencyId, date) ->
                         task {
-                            let! price = TickerPriceExtensions.Do.getPriceByDateOrPreviousAndCurrencyId(tickerId, currencyId, date.ToString())
+                            let! price =
+                                TickerPriceExtensions.Do.getPriceByDateOrPreviousAndCurrencyId (
+                                    tickerId,
+                                    currencyId,
+                                    date.ToString()
+                                )
+
                             return ((tickerId, currencyId, date), price)
                         })
                     |> System.Threading.Tasks.Task.WhenAll
 
                 // Build map, excluding zero prices (means no price found)
                 let priceMap =
-                    pricesWithKeys
-                    |> Array.filter (fun (_, price) -> price <> 0m)
-                    |> Map.ofArray
+                    pricesWithKeys |> Array.filter (fun (_, price) -> price <> 0m) |> Map.ofArray
 
                 CoreLogger.logDebugf
                     "BrokerFinancialSnapshotBatchLoader"

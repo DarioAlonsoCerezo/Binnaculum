@@ -12,6 +12,79 @@ open Binnaculum.Core.Logging
 module internal BrokerFinancialCalculateInMemory =
 
     /// <summary>
+    /// Calculates unrealized gains using pre-loaded market prices (synchronous).
+    /// This is the sync version of BrokerFinancialUnrealizedGains for batch processing.
+    /// </summary>
+    /// <param name="currentPositions">Map of ticker ID to current position quantity</param>
+    /// <param name="costBasisInfo">Map of ticker ID to average cost basis per share</param>
+    /// <param name="targetDate">Date to retrieve market prices for</param>
+    /// <param name="targetCurrencyId">Currency ID for price lookup</param>
+    /// <param name="marketPrices">Pre-loaded map of (tickerId, currencyId, date) to price</param>
+    /// <returns>Tuple of (UnrealizedGains as Money, UnrealizedGainsPercentage as decimal)</returns>
+    let internal calculateUnrealizedGainsSync
+        (currentPositions: Map<int, decimal>)
+        (costBasisInfo: Map<int, decimal>)
+        (targetDate: DateTimePattern)
+        (targetCurrencyId: int)
+        (marketPrices: Map<(int * int * DateTimePattern), decimal>)
+        =
+        CoreLogger.logDebugf
+            "BrokerFinancialCalculateInMemory"
+            "Calculating unrealized gains - Positions:%d CostBasis:%d Date:%s CurrencyId:%d"
+            currentPositions.Count
+            costBasisInfo.Count
+            (targetDate.ToString())
+            targetCurrencyId
+
+        let mutable totalMarketValue = 0m
+        let mutable totalCostBasis = 0m
+
+        // Process each ticker with current positions
+        for KeyValue(tickerId, quantity) in currentPositions do
+            // Only process if we have non-zero positions
+            if quantity <> 0m then
+                // Get market price from pre-loaded map
+                let priceKey = (tickerId, targetCurrencyId, targetDate)
+                let marketPrice = marketPrices.TryFind(priceKey) |> Option.defaultValue 0m
+
+                // Get cost basis per share for this ticker
+                let costBasisPerShare = costBasisInfo.TryFind(tickerId) |> Option.defaultValue 0m
+
+                // Calculate market value and cost basis for this position
+                let positionMarketValue = marketPrice * abs (quantity)
+                let positionCostBasis = costBasisPerShare * abs (quantity)
+
+                // For short positions, the unrealized gain/loss calculation is inverted
+                if quantity > 0m then
+                    // Long position: gain when market price > cost basis
+                    totalMarketValue <- totalMarketValue + positionMarketValue
+                    totalCostBasis <- totalCostBasis + positionCostBasis
+                else
+                    // Short position: gain when market price < cost basis
+                    totalMarketValue <- totalMarketValue - positionMarketValue
+                    totalCostBasis <- totalCostBasis - positionCostBasis
+
+        // Calculate total unrealized gains: Market Value - Cost Basis
+        let unrealizedGains = totalMarketValue - totalCostBasis
+
+        // Calculate unrealized gains percentage
+        let unrealizedGainsPercentage =
+            if totalCostBasis <> 0m then
+                (unrealizedGains / abs (totalCostBasis)) * 100m
+            else
+                0m
+
+        CoreLogger.logDebugf
+            "BrokerFinancialCalculateInMemory"
+            "Unrealized gains calculated - MarketValue:%M CostBasis:%M Gains:%M Percentage:%M%%"
+            totalMarketValue
+            totalCostBasis
+            unrealizedGains
+            unrealizedGainsPercentage
+
+        (Money.FromAmount unrealizedGains, unrealizedGainsPercentage)
+
+    /// <summary>
     /// Calculate a single snapshot using pure in-memory operations.
     /// This is the core calculation logic extracted for batch processing.
     /// </summary>
@@ -21,6 +94,7 @@ module internal BrokerFinancialCalculateInMemory =
     /// <param name="currencyId">The currency ID for this snapshot</param>
     /// <param name="brokerAccountId">The broker account ID</param>
     /// <param name="brokerAccountSnapshotId">The broker account snapshot ID</param>
+    /// <param name="marketPrices">Pre-loaded map of (tickerId, currencyId, date) to market price</param>
     /// <returns>BrokerFinancialSnapshot created in memory (not persisted)</returns>
     let calculateSnapshot
         (currencyMovements: CurrencyMovementData)
@@ -29,6 +103,7 @@ module internal BrokerFinancialCalculateInMemory =
         (currencyId: int)
         (brokerAccountId: int)
         (brokerAccountSnapshotId: int)
+        (marketPrices: Map<(int * int * DateTimePattern), decimal>)
         : BrokerFinancialSnapshot =
 
         // Calculate financial metrics from movements
@@ -86,10 +161,14 @@ module internal BrokerFinancialCalculateInMemory =
             | Some prev -> prev.MovementCounter + calculatedMetrics.MovementCounter
             | None -> calculatedMetrics.MovementCounter
 
-        // Calculate unrealized gains synchronously (this is a simplified version for batch processing)
-        // In production, we use BrokerFinancialUnrealizedGains.calculateUnrealizedGains which is async
-        // For now, we'll use the option unrealized gains from metrics and estimate stock unrealized gains
-        let stockUnrealizedGains = Money.FromAmount(0m) // Will be calculated when positions are available
+        // Calculate unrealized gains synchronously using pre-loaded market prices
+        let (stockUnrealizedGains, _) =
+            calculateUnrealizedGainsSync
+                calculatedMetrics.CurrentPositions
+                calculatedMetrics.CostBasisInfo
+                date
+                currencyId
+                marketPrices
 
         let totalUnrealizedGains =
             Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
@@ -148,9 +227,10 @@ module internal BrokerFinancialCalculateInMemory =
         (currencyId: int)
         (brokerAccountId: int)
         (brokerAccountSnapshotId: int)
+        (marketPrices: Map<(int * int * DateTimePattern), decimal>)
         : BrokerFinancialSnapshot =
 
-        calculateSnapshot currencyMovements None date currencyId brokerAccountId brokerAccountSnapshotId
+        calculateSnapshot currencyMovements None date currencyId brokerAccountId brokerAccountSnapshotId marketPrices
 
     /// <summary>
     /// Calculate snapshot when both movements and previous snapshot exist.
@@ -163,6 +243,7 @@ module internal BrokerFinancialCalculateInMemory =
         (currencyId: int)
         (brokerAccountId: int)
         (brokerAccountSnapshotId: int)
+        (marketPrices: Map<(int * int * DateTimePattern), decimal>)
         : BrokerFinancialSnapshot =
 
         calculateSnapshot
@@ -172,6 +253,7 @@ module internal BrokerFinancialCalculateInMemory =
             currencyId
             brokerAccountId
             brokerAccountSnapshotId
+            marketPrices
 
     /// <summary>
     /// Carry forward a previous snapshot when no movements exist for a date.

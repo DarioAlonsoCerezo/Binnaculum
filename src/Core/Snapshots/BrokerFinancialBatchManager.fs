@@ -93,15 +93,10 @@ module internal BrokerFinancialBatchManager =
                     BrokerMovementBatchLoader.groupMovementsByDate request.BrokerAccountId movementsData
 
                 // Extract unique ticker IDs and currency IDs from trades for market price loading
-                let tickerIds =
-                    movementsData.Trades
-                    |> List.map (fun t -> t.TickerId)
-                    |> Set.ofList
+                let tickerIds = movementsData.Trades |> List.map (fun t -> t.TickerId) |> Set.ofList
 
                 let currencyIds =
-                    movementsData.Trades
-                    |> List.map (fun t -> t.CurrencyId)
-                    |> Set.ofList
+                    movementsData.Trades |> List.map (fun t -> t.CurrencyId) |> Set.ofList
 
                 CoreLogger.logDebugf
                     "BrokerFinancialBatchManager"

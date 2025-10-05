@@ -142,6 +142,7 @@ module internal BrokerFinancialBatchCalculator =
                                             currencyId
                                             context.BrokerAccountId
                                             context.BrokerAccountSnapshotId
+                                            context.MarketPrices
                                     )
 
                                 // SCENARIO B: New movements, no previous snapshot, no existing snapshot
@@ -159,6 +160,7 @@ module internal BrokerFinancialBatchCalculator =
                                             currencyId
                                             context.BrokerAccountId
                                             context.BrokerAccountSnapshotId
+                                            context.MarketPrices
                                     )
 
                                 // SCENARIO C: New movements, has previous snapshot, has existing snapshot

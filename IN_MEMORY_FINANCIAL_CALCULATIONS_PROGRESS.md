@@ -111,15 +111,28 @@
 ### Phase 2: Market Price Pre-loading ⏳ IN PROGRESS
 **Goal:** Add synchronous unrealized gains calculation with pre-loaded market prices
 
-- [ ] **Step 2.1**: Create market price pre-loading infrastructure
-  - Status: Starting now
-  - Files: `BrokerFinancialSnapshotBatchLoader.fs` (new or extend existing)
-  - Notes: Load all market prices for tickers in date range
+- [x] **Step 2.1**: Create market price pre-loading infrastructure
+  - Status: ✅ COMPLETE
+  - Files: `BrokerFinancialSnapshotBatchLoader.fs`
+  - Commit: 706400a
+  - Implementation:
+    * Added `loadMarketPricesForRange` function
+    * Loads all prices for ticker/currency/date combinations upfront
+    * Returns `Map<(TickerId * CurrencyId * DateTimePattern), decimal>` for O(1) lookup
+    * Filters out zero prices (no data found)
+    * Uses parallel task execution for database queries
+  - Notes: Build successful - ready for integration
 
-- [ ] **Step 2.2**: Add `MarketPrices` to `BatchCalculationContext`
-  - Status: Not started
+- [x] **Step 2.2**: Add `MarketPrices` to `BatchCalculationContext`
+  - Status: ✅ COMPLETE
   - Files: `BrokerFinancialBatchCalculator.fs`, `BrokerFinancialBatchManager.fs`
-  - Notes: Map<(TickerId * DateTimePattern), decimal>
+  - Commit: 706400a
+  - Implementation:
+    * Added `MarketPrices: Map<(int * int * DateTimePattern), decimal>` to context
+    * Updated `BrokerFinancialBatchManager.fs` to extract unique ticker/currency IDs from trades
+    * Pre-loads all prices for entire date range before calculations
+    * Added debug logging for price loading metrics
+  - Notes: Build successful - context properly populated
 
 - [ ] **Step 2.3**: Implement synchronous unrealized gains calculation
   - Status: Not started
