@@ -114,9 +114,15 @@ module internal TickerSnapshotCalculateInMemory =
         // - 8/25: BuyToOpen (Trade #1) → initially IsOpen=true
         // - 10/3: SellToClose (Trade #3) → Both #1 and #3 now have IsOpen=false
         // - AllClosedOptionTrades contains BOTH trades, so we can calculate the full round-trip
+        //
+        // IMPORTANT: Normalize both dates to start-of-day for comparison to include all trades from the snapshot date
+        let normalizedSnapshotDate = SnapshotManagerUtils.normalizeToStartOfDay date
+
         let totalRealizedFromAllClosedTrades =
             movements.AllClosedOptionTrades
-            |> List.filter (fun opt -> opt.TimeStamp.Value <= date.Value)
+            |> List.filter (fun opt ->
+                let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp
+                normalizedTradeDate.Value <= normalizedSnapshotDate.Value)
             |> List.sumBy (fun opt -> opt.NetPremium.Value)
 
         let realized = Money.FromAmount(totalRealizedFromAllClosedTrades)
@@ -125,7 +131,9 @@ module internal TickerSnapshotCalculateInMemory =
             "TickerSnapshotCalculateInMemory"
             "Realized gains - Total closed trades: %d, Sum: %M (Previous: %M)"
             (movements.AllClosedOptionTrades
-             |> List.filter (fun opt -> opt.TimeStamp.Value <= date.Value)
+             |> List.filter (fun opt ->
+                 let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp
+                 normalizedTradeDate.Value <= normalizedSnapshotDate.Value)
              |> List.length)
             totalRealizedFromAllClosedTrades
             previousSnapshot.Realized.Value
