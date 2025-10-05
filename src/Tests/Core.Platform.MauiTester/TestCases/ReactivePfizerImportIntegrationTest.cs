@@ -247,11 +247,11 @@ namespace Core.Platform.MauiTester.TestCases
                     snapshotCountValid = false;
                 }
 
-                // Enhanced validation: Check PFE TickerSnapshot
+                // Enhanced validation: Check PFE TickerSnapshots using Tickers.GetSnapshots
                 bool tickerSnapshotValid = false;
                 try
                 {
-                    CoreLogger.logInfo("PfizerTest", "Validating PFE TickerSnapshot...");
+                    CoreLogger.logInfo("PfizerTest", "Validating PFE TickerSnapshots...");
 
                     // Find PFE ticker
                     var pfeTicker = Collections.Tickers.Items
@@ -267,85 +267,21 @@ namespace Core.Platform.MauiTester.TestCases
                     {
                         CoreLogger.logInfo("PfizerTest", $"✅ Found PFE ticker with ID: {pfeTicker.Id}");
 
-                        // Find PFE TickerSnapshot (should be the latest one for PFE)
-                        var pfeSnapshot = Collections.TickerSnapshots.Items
-                            .Where(ts => ts.Ticker.Id == pfeTicker.Id)
-                            .OrderByDescending(ts => ts.Date)
-                            .FirstOrDefault();
+                        // Use Tickers.GetSnapshots to retrieve ALL PFE snapshots from database
+                        CoreLogger.logInfo("PfizerTest", "Calling Tickers.GetSnapshots...");
+                        var pfeSnapshots = await Tickers.GetSnapshots(pfeTicker.Id);
+                        var pfeSnapshotCount = ListModule.Length(pfeSnapshots);
 
-                        if (pfeSnapshot == null)
-                        {
-                            CoreLogger.logError("PfizerTest", "❌ PFE TickerSnapshot not found");
-                            results.Add("❌ PFE TickerSnapshot not found in Collections.TickerSnapshots");
-                            tickerSnapshotValid = false;
-                        }
-                        else
-                        {
-                            CoreLogger.logInfo("PfizerTest", $"✅ Found PFE TickerSnapshot with Date: {pfeSnapshot.Date}");
-                            results.Add($"\n=== PFE TickerSnapshot Validation ===");
+                        // Expected: 3 snapshots (2025-08-25, 2025-10-01, 2025-10-03)
+                        const int EXPECTED_PFE_SNAPSHOTS = 3;
+                        bool pfeSnapshotCountValid = pfeSnapshotCount == EXPECTED_PFE_SNAPSHOTS;
+                        results.Add($"Tickers.GetSnapshots (PFE): Expected {EXPECTED_PFE_SNAPSHOTS}, Got {pfeSnapshotCount} - {(pfeSnapshotCountValid ? "✅ PASS" : "❌ FAIL")}");
+                        CoreLogger.logInfo("PfizerTest", $"PFE snapshots retrieved: {pfeSnapshotCount} (expected {EXPECTED_PFE_SNAPSHOTS})");
 
-                            // Expected values for PFE options-only account:
-                            // TotalShares: 0 (options, not shares)
-                            // Options: 175.52 (total options income)
-                            // CostBasis: 0 (no share purchases)
-                            // RealCost: 0 (no share purchases)
-                            // Unrealized: 0 (all positions closed)
-                            // Realized: 175.52 (round-trip gains from closed positions)
-                            const decimal EXPECTED_PFE_TOTAL_SHARES = 0.00m;
-                            const decimal EXPECTED_PFE_OPTIONS = 175.52m;
-                            const decimal EXPECTED_PFE_COST_BASIS = 0.00m;
-                            const decimal EXPECTED_PFE_REAL_COST = 0.00m;
-                            const decimal EXPECTED_PFE_UNREALIZED = 0.00m;
-                            const decimal EXPECTED_PFE_REALIZED = 175.52m;
+                        // Validate individual snapshots date-by-date
+                        var individualSnapshotValidation = ValidateIndividualPfeSnapshots(pfeSnapshots, results);
 
-                            var mainCurrency = pfeSnapshot.MainCurrency;
-
-                            // Validate MainCurrency exists
-                            if (mainCurrency == null)
-                            {
-                                CoreLogger.logError("PfizerTest", "❌ PFE TickerSnapshot.MainCurrency is null");
-                                results.Add("❌ PFE TickerSnapshot.MainCurrency is null");
-                                tickerSnapshotValid = false;
-                            }
-                            else
-                            {
-                                CoreLogger.logInfo("PfizerTest", $"✅ MainCurrency found: {mainCurrency.Currency.Code}");
-
-                                // Validate TotalShares
-                                bool totalSharesValid = Math.Abs(mainCurrency.TotalShares - EXPECTED_PFE_TOTAL_SHARES) < 0.01m;
-                                results.Add($"PFE TotalShares: Expected {EXPECTED_PFE_TOTAL_SHARES:F2}, Got {mainCurrency.TotalShares:F2} - {(totalSharesValid ? "✅ PASS" : "❌ FAIL")}");
-                                CoreLogger.logInfo("PfizerTest", $"TotalShares: {mainCurrency.TotalShares:F2} (expected {EXPECTED_PFE_TOTAL_SHARES:F2})");
-
-                                // Validate Options
-                                bool optionsValid = Math.Abs(mainCurrency.Options - EXPECTED_PFE_OPTIONS) < 0.01m;
-                                results.Add($"PFE Options: Expected ${EXPECTED_PFE_OPTIONS:F2}, Got ${mainCurrency.Options:F2} - {(optionsValid ? "✅ PASS" : "❌ FAIL")}");
-                                CoreLogger.logInfo("PfizerTest", $"Options: ${mainCurrency.Options:F2} (expected ${EXPECTED_PFE_OPTIONS:F2})");
-
-                                // Validate CostBasis
-                                bool costBasisValid = Math.Abs(mainCurrency.CostBasis - EXPECTED_PFE_COST_BASIS) < 0.01m;
-                                results.Add($"PFE CostBasis: Expected ${EXPECTED_PFE_COST_BASIS:F2}, Got ${mainCurrency.CostBasis:F2} - {(costBasisValid ? "✅ PASS" : "❌ FAIL")}");
-                                CoreLogger.logInfo("PfizerTest", $"CostBasis: ${mainCurrency.CostBasis:F2} (expected ${EXPECTED_PFE_COST_BASIS:F2})");
-
-                                // Validate RealCost
-                                bool realCostValid = Math.Abs(mainCurrency.RealCost - EXPECTED_PFE_REAL_COST) < 0.01m;
-                                results.Add($"PFE RealCost: Expected ${EXPECTED_PFE_REAL_COST:F2}, Got ${mainCurrency.RealCost:F2} - {(realCostValid ? "✅ PASS" : "❌ FAIL")}");
-                                CoreLogger.logInfo("PfizerTest", $"RealCost: ${mainCurrency.RealCost:F2} (expected ${EXPECTED_PFE_REAL_COST:F2})");
-
-                                // Validate Unrealized
-                                bool unrealizedValid = Math.Abs(mainCurrency.Unrealized - EXPECTED_PFE_UNREALIZED) < 0.01m;
-                                results.Add($"PFE Unrealized: Expected ${EXPECTED_PFE_UNREALIZED:F2}, Got ${mainCurrency.Unrealized:F2} - {(unrealizedValid ? "✅ PASS" : "❌ FAIL")}");
-                                CoreLogger.logInfo("PfizerTest", $"Unrealized: ${mainCurrency.Unrealized:F2} (expected ${EXPECTED_PFE_UNREALIZED:F2})");
-
-                                // Validate Realized
-                                bool realizedValid = Math.Abs(mainCurrency.Realized - EXPECTED_PFE_REALIZED) < 0.01m;
-                                results.Add($"PFE Realized: Expected ${EXPECTED_PFE_REALIZED:F2}, Got ${mainCurrency.Realized:F2} - {(realizedValid ? "✅ PASS" : "❌ FAIL")}");
-                                CoreLogger.logInfo("PfizerTest", $"Realized: ${mainCurrency.Realized:F2} (expected ${EXPECTED_PFE_REALIZED:F2})");
-
-                                // All PFE TickerSnapshot validations must pass
-                                tickerSnapshotValid = totalSharesValid && optionsValid && costBasisValid &&
-                                                     realCostValid && unrealizedValid && realizedValid;
-                            }
-                        }
+                        tickerSnapshotValid = pfeSnapshotCountValid && individualSnapshotValidation;
                     }
                 }
                 catch (Exception tickerSnapEx)
@@ -390,6 +326,178 @@ namespace Core.Platform.MauiTester.TestCases
                 ReactiveTestVerifications.StopObserving();
                 CoreLogger.logInfo("PfizerTest", "Test execution completed");
             }
+        }
+
+        /// <summary>
+        /// Validate individual PFE ticker snapshots against expected cumulative values from CSV
+        /// </summary>
+        private bool ValidateIndividualPfeSnapshots(FSharpList<CoreModels.TickerSnapshot> snapshots, List<string> results)
+        {
+            const decimal TOLERANCE = 0.1m; // ±$0.10 tolerance for decimal precision
+            CoreLogger.logInfo("PfizerTest", "=== Individual PFE TickerSnapshot Validation ===");
+            results.Add("\n=== Individual PFE TickerSnapshot Validation (Date-by-Date) ===");
+
+            // Expected snapshots in chronological order (oldest to newest)
+            // Trade #4: 2025-08-25 BUY_TO_OPEN PFE CALL 20.00 @ 5.54 (-$554.00 - $1.00 - $0.12 = -$555.12)
+            // Trade #3: 2025-10-01 SELL_TO_OPEN PFE CALL 27.00 @ 0.51 ($51.00 - $1.00 - $0.12 = $49.88)
+            // Trade #2: 2025-10-03 BUY_TO_CLOSE PFE CALL 27.00 @ 0.64 (-$64.00 - $0.12 = -$64.12)
+            // Trade #1: 2025-10-03 SELL_TO_CLOSE PFE CALL 20.00 @ 7.45 ($745.00 - $0.12 = $744.88)
+            var expectedSnapshots = new List<(DateOnly date, decimal totalShares, decimal options, decimal costBasis, decimal realCost, decimal unrealized, decimal realized)>
+            {
+                // 2025-08-25: First trade - BuyToOpen (open contract)
+                (new DateOnly(2025, 8, 25), 0.00m, -555.12m, 0.00m, 0.00m, -555.12m, 0.00m),
+                
+                // 2025-10-01: Second trade - SellToOpen (both contracts still open)
+                // Options cumulative: -$555.12 + $49.88 = -$505.24
+                // Unrealized: -$505.24 (both contracts open)
+                (new DateOnly(2025, 10, 1), 0.00m, -505.24m, 0.00m, 0.00m, -505.24m, 0.00m),
+                
+                // 2025-10-03: Trades #1 and #2 - Both positions close
+                // Options cumulative: -$505.24 + $744.88 - $64.12 = $175.52
+                // Unrealized: $0.00 (all contracts closed)
+                // Realized: $175.52 (round-trip: $189.76 - $14.24 = $175.52)
+                (new DateOnly(2025, 10, 3), 0.00m, 175.52m, 0.00m, 0.00m, 0.00m, 175.52m)
+            };
+
+            // Convert F# list to C# list and sort by date
+            var pfeSnapshots = ListModule.ToArray(snapshots)
+                .OrderBy(s => s.Date)
+                .ToList();
+
+            // Log all snapshot dates for debugging
+            CoreLogger.logDebug("PfizerTest", $"Total PFE snapshots: {pfeSnapshots.Count}");
+            foreach (var snap in pfeSnapshots)
+            {
+                var mainCurrency = snap.MainCurrency;
+                CoreLogger.logDebug("PfizerTest", $"  Snapshot: Date={snap.Date:yyyy-MM-dd}, Options={mainCurrency.Options:F2}, Unrealized={mainCurrency.Unrealized:F2}, Realized={mainCurrency.Realized:F2}");
+            }
+
+            if (pfeSnapshots.Count != expectedSnapshots.Count)
+            {
+                var msg = $"❌ PFE Snapshot count mismatch: Expected {expectedSnapshots.Count}, Got {pfeSnapshots.Count}";
+                CoreLogger.logError("PfizerTest", msg);
+                results.Add(msg);
+                return false;
+            }
+
+            var allValid = true;
+            var passedCount = 0;
+            var failedCount = 0;
+
+            for (int i = 0; i < expectedSnapshots.Count; i++)
+            {
+                var expected = expectedSnapshots[i];
+                var actual = pfeSnapshots[i];
+                var mainCurrency = actual.MainCurrency;
+
+                var dateMatch = actual.Date == expected.date;
+                var totalSharesMatch = Math.Abs(mainCurrency.TotalShares - expected.totalShares) <= TOLERANCE;
+                var optionsMatch = Math.Abs(mainCurrency.Options - expected.options) <= TOLERANCE;
+                var costBasisMatch = Math.Abs(mainCurrency.CostBasis - expected.costBasis) <= TOLERANCE;
+                var realCostMatch = Math.Abs(mainCurrency.RealCost - expected.realCost) <= TOLERANCE;
+                var unrealizedMatch = Math.Abs(mainCurrency.Unrealized - expected.unrealized) <= TOLERANCE;
+                var realizedMatch = Math.Abs(mainCurrency.Realized - expected.realized) <= TOLERANCE;
+
+                var snapshotValid = dateMatch && totalSharesMatch && optionsMatch && costBasisMatch && 
+                                   realCostMatch && unrealizedMatch && realizedMatch;
+
+                if (snapshotValid)
+                {
+                    passedCount++;
+                    var msg = $"✅ [{i + 1}/3] {expected.date:yyyy-MM-dd}: TotalShares={mainCurrency.TotalShares:F2}, Options=${mainCurrency.Options:F2}, Unrealized=${mainCurrency.Unrealized:F2}, Realized=${mainCurrency.Realized:F2}";
+                    CoreLogger.logInfo("PfizerTest", msg);
+                    results.Add(msg);
+                }
+                else
+                {
+                    failedCount++;
+                    allValid = false;
+
+                    var issues = new List<string>();
+                    if (!dateMatch)
+                        issues.Add($"Date: Expected {expected.date:yyyy-MM-dd}, Got {actual.Date:yyyy-MM-dd}");
+                    if (!totalSharesMatch)
+                        issues.Add($"TotalShares: Expected {expected.totalShares:F2}, Got {mainCurrency.TotalShares:F2}");
+                    if (!optionsMatch)
+                        issues.Add($"Options: Expected ${expected.options:F2}, Got ${mainCurrency.Options:F2} (Δ ${Math.Abs(mainCurrency.Options - expected.options):F2})");
+                    if (!costBasisMatch)
+                        issues.Add($"CostBasis: Expected ${expected.costBasis:F2}, Got ${mainCurrency.CostBasis:F2}");
+                    if (!realCostMatch)
+                        issues.Add($"RealCost: Expected ${expected.realCost:F2}, Got ${mainCurrency.RealCost:F2}");
+                    if (!unrealizedMatch)
+                        issues.Add($"Unrealized: Expected ${expected.unrealized:F2}, Got ${mainCurrency.Unrealized:F2} (Δ ${Math.Abs(mainCurrency.Unrealized - expected.unrealized):F2})");
+                    if (!realizedMatch)
+                        issues.Add($"Realized: Expected ${expected.realized:F2}, Got ${mainCurrency.Realized:F2} (Δ ${Math.Abs(mainCurrency.Realized - expected.realized):F2})");
+
+                    var msg = $"❌ [{i + 1}/3] {expected.date:yyyy-MM-dd}: {string.Join(" | ", issues)}";
+                    CoreLogger.logError("PfizerTest", msg);
+                    results.Add(msg);
+                }
+            }
+
+            var summary = $"\nPFE Snapshot Validation Summary: {passedCount} passed, {failedCount} failed out of {expectedSnapshots.Count} total";
+            CoreLogger.logInfo("PfizerTest", summary);
+            results.Add(summary);
+
+            // Additional validation: Verify each TickerSnapshot has exactly 1 TickerCurrencySnapshot
+            // Since all PFE transactions are in a single currency (USD), each snapshot should have only one currency snapshot
+            CoreLogger.logInfo("PfizerTest", "\n=== Validating TickerCurrencySnapshots per TickerSnapshot ===");
+            results.Add("\n=== TickerCurrencySnapshots per TickerSnapshot Validation ===");
+
+            var currencySnapshotCountPassed = 0;
+            var currencySnapshotCountFailed = 0;
+
+            for (int i = 0; i < pfeSnapshots.Count; i++)
+            {
+                var snapshot = pfeSnapshots[i];
+                var expected = expectedSnapshots[i];
+
+                try
+                {
+                    // The snapshot should have exactly 1 currency (MainCurrency) and no OtherCurrencies
+                    var otherCurrenciesCount = ListModule.Length(snapshot.OtherCurrencies);
+                    var isValid = otherCurrenciesCount == 0 && snapshot.MainCurrency != null;
+
+                    if (isValid)
+                    {
+                        currencySnapshotCountPassed++;
+                        var currencyCode = snapshot.MainCurrency!.Currency.Code;
+                        var msg = $"✅ [{i + 1}/3] {expected.date:yyyy-MM-dd}: 1 currency snapshot ({currencyCode})";
+                        CoreLogger.logInfo("PfizerTest", msg);
+                        results.Add(msg);
+
+                        // Verify it's USD
+                        if (currencyCode != "USD")
+                        {
+                            var warnMsg = $"⚠️ Expected USD currency, got {currencyCode}";
+                            CoreLogger.logWarning("PfizerTest", warnMsg);
+                            results.Add(warnMsg);
+                        }
+                    }
+                    else
+                    {
+                        currencySnapshotCountFailed++;
+                        allValid = false;
+                        var msg = $"❌ [{i + 1}/3] {expected.date:yyyy-MM-dd}: Expected 1 currency snapshot, got {1 + otherCurrenciesCount} (MainCurrency + {otherCurrenciesCount} others)";
+                        CoreLogger.logError("PfizerTest", msg);
+                        results.Add(msg);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    currencySnapshotCountFailed++;
+                    allValid = false;
+                    var msg = $"❌ [{i + 1}/3] {expected.date:yyyy-MM-dd}: Currency snapshot validation error - {ex.Message}";
+                    CoreLogger.logError("PfizerTest", msg);
+                    results.Add(msg);
+                }
+            }
+
+            var currencySnapshotSummary = $"\nTickerCurrencySnapshot Count Validation: {currencySnapshotCountPassed} passed, {currencySnapshotCountFailed} failed out of {pfeSnapshots.Count} total";
+            CoreLogger.logInfo("PfizerTest", currencySnapshotSummary);
+            results.Add(currencySnapshotSummary);
+
+            return allValid;
         }
 
         /// <summary>
