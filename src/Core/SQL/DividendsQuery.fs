@@ -145,12 +145,21 @@ module internal DividendsQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
-    
+
     let getByBrokerAccountIdForDate =
         $"""
         SELECT * FROM {Dividends}
         WHERE
             {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
             AND DATE({TimeStamp}) = DATE({SQLParameterName.TimeStamp})
+        ORDER BY {TimeStamp}
+        """
+
+    let getByTickerIdFromDate =
+        $"""
+        SELECT * FROM {Dividends}
+        WHERE
+            {TickerId} = {SQLParameterName.TickerId}
+            AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """

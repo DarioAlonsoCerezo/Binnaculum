@@ -359,11 +359,12 @@ module DatabasePersistence =
                 let! allTickers = TickerExtensions.Do.getAll () |> Async.AwaitTask
                 let createdTicker = allTickers |> List.find (fun t -> t.Symbol = symbol)
 
-                // Create initial TickerSnapshot for the new ticker
-                do!
-                    TickerSnapshotManager.handleNewTicker (createdTicker)
-                    |> Async.AwaitTask
-                    |> Async.Ignore
+                // Skip initial snapshot creation - batch processing will handle all snapshots including current date
+                // This avoids reactive collection caching issues where old snapshot objects aren't updated
+                // do!
+                //     TickerSnapshotManager.handleNewTicker (createdTicker)
+                //     |> Async.AwaitTask
+                //     |> Async.Ignore
 
                 return createdTicker.Id
         }

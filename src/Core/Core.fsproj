@@ -113,6 +113,12 @@
 		<Compile Include="Models\DatabaseToModels.fs" />
 		<Compile Include="Memory\ReactiveMovementManager.fs" />
 		<Compile Include="Snapshots\SnapshotManagerUtils.fs" />
+		<!-- Ticker snapshot batch processing optimization modules -->
+		<Compile Include="Snapshots\TickerSnapshotBatchLoader.fs" />
+		<Compile Include="Snapshots\TickerSnapshotCalculateInMemory.fs" />
+		<Compile Include="Snapshots\TickerSnapshotBatchCalculator.fs" />
+		<Compile Include="Snapshots\TickerSnapshotBatchPersistence.fs" />
+		<!-- End ticker snapshot batch processing base modules -->
 		<Compile Include="Snapshots\TickerSnapshotManager.fs" />
 		<Compile Include="Import\DatabasePersistence.fs" />
 		<Compile Include="Snapshots\BankSnapshotManager.fs" />
@@ -140,6 +146,8 @@
 		<Compile Include="Snapshots\BrokerAccountSnapshotManager.fs" />
 		<!-- Batch processing manager (requires BrokerAccountSnapshotManager) -->
 		<Compile Include="Snapshots\BrokerFinancialBatchManager.fs" />
+		<!-- Ticker snapshot batch processing manager (requires TickerSnapshotManager) -->
+		<Compile Include="Snapshots\TickerSnapshotBatchManager.fs" />
 		<!-- Coordinator for choosing between batch and per-date processing (requires both managers) -->
 		<Compile Include="Snapshots\SnapshotProcessingCoordinator.fs" />
 		<Compile Include="Snapshots\SnapshotManager.fs" />

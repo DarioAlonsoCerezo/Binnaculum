@@ -80,7 +80,7 @@ module internal TickerSnapshotQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
-        
+
     let getByTickerId =
         $"""
         SELECT * FROM {TickerSnapshots}
@@ -88,7 +88,7 @@ module internal TickerSnapshotQuery =
             {TickerId} = {SQLParameterName.TickerId}
         ORDER BY {Date} DESC
         """
-        
+
     let getLatestByTickerId =
         $"""
         SELECT * FROM {TickerSnapshots}
@@ -97,7 +97,17 @@ module internal TickerSnapshotQuery =
         ORDER BY {Date} DESC
         LIMIT 1
         """
-        
+
+    let getLatestBeforeDate =
+        $"""
+        SELECT * FROM {TickerSnapshots}
+        WHERE
+            {TickerId} = {SQLParameterName.TickerId} AND
+            {Date} < {SQLParameterName.Date}
+        ORDER BY {Date} DESC
+        LIMIT 1
+        """
+
     let getByTickerIdAndDate =
         $"""
         SELECT * FROM {TickerSnapshots}
@@ -106,7 +116,7 @@ module internal TickerSnapshotQuery =
             {Date} = {SQLParameterName.Date}
         LIMIT 1
         """
-        
+
     let getTickerSnapshotsByDateRange =
         $"""
         SELECT * FROM {TickerSnapshots}
@@ -115,7 +125,7 @@ module internal TickerSnapshotQuery =
             {Date} BETWEEN {SQLParameterName.Date} AND {SQLParameterName.DateEnd}
         ORDER BY {Date} ASC
         """
-        
+
     let getTickerSnapshotsAfterDate =
         $"""
         SELECT * FROM {TickerSnapshots}
@@ -124,4 +134,3 @@ module internal TickerSnapshotQuery =
             {Date} > {SQLParameterName.Date}
         ORDER BY {Date} ASC
         """
-
