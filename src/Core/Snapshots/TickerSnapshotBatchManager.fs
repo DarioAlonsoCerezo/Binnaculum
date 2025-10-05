@@ -152,8 +152,25 @@ module internal TickerSnapshotBatchManager =
                     movementDates.Length
                     ((request.EndDate.Value - request.StartDate.Value).Days + 1)
 
-                // Use the filtered date list
-                let dateRange = movementDates
+                // Add current date to the range if it's after the last movement date
+                // This ensures the current snapshot is updated with the latest state
+                let dateRange =
+                    if not movementDates.IsEmpty then
+                        let lastMovementDate = movementDates |> List.max
+                        let currentDate = DateTimePattern.FromDateTime(System.DateTime.Now)
+
+                        if currentDate.Value.Date > lastMovementDate.Value.Date then
+                            CoreLogger.logDebugf
+                                "TickerSnapshotBatchManager"
+                                "Adding current date %s to process list (after last movement %s)"
+                                (currentDate.ToString())
+                                (lastMovementDate.ToString())
+
+                            movementDates @ [ currentDate ]
+                        else
+                            movementDates
+                    else
+                        movementDates
 
                 // Create calculation context
                 let context: TickerSnapshotBatchCalculator.TickerSnapshotBatchContext =
@@ -203,27 +220,6 @@ module internal TickerSnapshotBatchManager =
                         calculationResult.ProcessingMetrics.CalculationTimeMs
                         metrics.TransactionTimeMs
                         totalStopwatch.ElapsedMilliseconds
-
-                    // After processing all movement dates, ensure current date snapshot is updated for each ticker
-                    // This is needed when current date is after the last movement date
-                    if not dateRange.IsEmpty then
-                        let lastMovementDate = dateRange |> List.max
-                        let currentDate = DateTimePattern.FromDateTime(System.DateTime.Now)
-
-                        if currentDate.Value.Date > lastMovementDate.Value.Date then
-                            CoreLogger.logDebugf
-                                "TickerSnapshotBatchManager"
-                                "Current date %s is after last movement date %s - updating current snapshots for %d tickers"
-                                (currentDate.ToString())
-                                (lastMovementDate.ToString())
-                                request.TickerIds.Length
-
-                            // Update snapshot for current date for each ticker with no new movements
-                            // This will copy forward the latest state
-                            for tickerId in request.TickerIds do
-                                do! TickerSnapshotManager.handleTickerChange (tickerId, currentDate)
-
-                            CoreLogger.logDebug "TickerSnapshotBatchManager" "Current date snapshots updated successfully"
 
                     return
                         { Success = errors.IsEmpty
