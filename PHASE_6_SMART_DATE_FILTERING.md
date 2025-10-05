@@ -226,14 +226,33 @@ The `generateDateRange` function is still in the codebase but **no longer used**
 // Result: Chronologically sorted dates ✅
 ```
 
+### ⚠️ **CRITICAL: Date Normalization Consistency**
+
+**IMPORTANT**: Movement date extraction MUST use the same normalization function as `groupMovementsByDate`:
+- ✅ **CORRECT**: Use `SnapshotManagerUtils.normalizeToStartOfDay` (00:00:01)
+- ❌ **WRONG**: Use `SnapshotManagerUtils.getDateOnly` (23:59:59)
+
+**Why this matters:**
+- `groupMovementsByDate` creates a map keyed by `normalizeToStartOfDay(timestamp)`
+- If movement dates are extracted using `getDateOnly`, they won't match the map keys
+- Result: Calculator finds 0 movements for each date, creating 0 snapshots
+
+**Bug discovered**: Initial Phase 6 implementation used `getDateOnly`, causing complete test failure (expected 20 snapshots, got 0). Fixed by switching to `normalizeToStartOfDay`.
+
+**Lesson learned**: Always verify date normalization consistency across the entire pipeline:
+1. Movement date extraction (Phase 6 filtering) → `normalizeToStartOfDay`
+2. Movement grouping by date (map keys) → `normalizeToStartOfDay`
+3. Existing snapshot loading (date comparisons) → start-of-day normalization
+4. Calculator date iteration → uses dates from Phase 6 extraction
+
 ## Testing & Validation
 
 ### Build Status
 ```
-✅ Build: SUCCESS (12.8s)
+✅ Build: SUCCESS (12.3s)
 ✅ Tests: 242 total, 235 passed, 0 failed
 ✅ No regressions
-✅ Production ready
+✅ Production test: PASS (after bug fix)
 ```
 
 ### Test Coverage
@@ -242,6 +261,17 @@ All existing tests pass, validating that:
 - All 8 scenarios still work
 - Performance tests still pass
 - No behavioral changes
+- **Production MAUI test**: Deposits & Withdrawals integration test succeeds
+
+### Bug Fixes
+**Critical Bug Discovered & Fixed** (commit 146594c):
+- **Symptom**: Expected 20 snapshots, got 0 (all movements ignored)
+- **Root Cause**: Date normalization mismatch
+  - Movement extraction used `getDateOnly` (23:59:59)
+  - Map keys used `normalizeToStartOfDay` (00:00:01)
+  - Dates didn't match, so calculator couldn't find any movements
+- **Fix**: Changed movement extraction to use `normalizeToStartOfDay` throughout
+- **Result**: All tests pass, production test succeeds with correct snapshot creation
 
 ## Production Deployment
 
