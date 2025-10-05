@@ -6,6 +6,7 @@ open System.IO
 open Microsoft.Maui.Storage
 open System.Data
 open Binnaculum.Core.TableName
+open Binnaculum.Core.Logging.CoreLogger
 
 module internal Do =
     type IEntity =
@@ -120,37 +121,29 @@ module internal Do =
     let executeNonQuery (command: SqliteCommand) =
         task {
             try
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] Step 1: Connecting to database...")
+                // Verbose step-by-step logging (commented for performance, uncomment if debugging needed)
+                // logDatabaseDebug "Database.Do" "executeNonQuery - Step 1: Connecting to database..."
                 do! connect () |> Async.AwaitTask |> Async.Ignore
 
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.executeNonQuery] Step 2: Database connected, executing command..."
-                // )
+                // logDatabaseDebug "Database.Do" "executeNonQuery - Step 2: Database connected, executing command..."
+                // logDatabaseDebugf "Database.Do" "executeNonQuery - CommandText: %s" command.CommandText
+                // logDatabaseDebugf "Database.Do" "executeNonQuery - Parameters count: %d" command.Parameters.Count
 
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] CommandText: {command.CommandText}")
-
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.executeNonQuery] Parameters count: {command.Parameters.Count}"
-                // )
+                // Single optimized debug log with all relevant info (disabled by default, zero-cost when disabled)
+                logDatabaseDebugOptimized "Database.Do" (fun () ->
+                    $"executeNonQuery - Command: {command.CommandText}, Params: {command.Parameters.Count}")
 
                 do! command.ExecuteNonQueryAsync() |> Async.AwaitTask |> Async.Ignore
 
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.executeNonQuery] Step 3: Command executed successfully"
-                // )
-
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] Step 4: Disposing command...")
+                // logDatabaseDebug "Database.Do" "executeNonQuery - Step 3: Command executed successfully"
+                // logDatabaseDebug "Database.Do" "executeNonQuery - Step 4: Disposing command..."
                 command.Dispose()
 
-            // System.Diagnostics.Debug.WriteLine(
-            //     $"[Database.Do.executeNonQuery] Step 5: Command disposed successfully"
-            // )
+            // logDatabaseDebug "Database.Do" "executeNonQuery - Step 5: Command disposed successfully"
             with ex ->
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.executeNonQuery] *** EXCEPTION *** - {ex.Message}")
-
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.executeNonQuery] *** STACK TRACE *** - {ex.StackTrace}"
-                // )
+                // Database errors are ALWAYS logged regardless of database logging setting
+                logDatabaseError "Database.Do" $"executeNonQuery failed - {ex.Message}"
+                logDatabaseDebugf "Database.Do" "Stack trace: %s" ex.StackTrace
 
                 let innerMsg =
                     if ex.InnerException <> null then
@@ -158,9 +151,8 @@ module internal Do =
                     else
                         "None"
 
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.executeNonQuery] *** INNER EXCEPTION *** - {innerMsg}"
-                // )
+                logDatabaseDebugf "Database.Do" "Inner exception: %s" innerMsg
+
                 // Don't forget to dispose on error
                 try
                     command.Dispose()
@@ -173,52 +165,46 @@ module internal Do =
     let saveEntity<'T when 'T :> IEntity> (entity: 'T) (fill: 'T -> SqliteCommand -> SqliteCommand) =
         task {
             try
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 1: Creating database command...")
+                // Verbose step-by-step logging (commented for performance, uncomment if debugging needed)
+                // logDatabaseDebug "Database.Do" "saveEntity - Step 1: Creating database command..."
                 let! command = createCommand ()
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 2: Command created successfully")
+                // logDatabaseDebug "Database.Do" "saveEntity - Step 2: Command created successfully"
 
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.saveEntity] Step 3: Setting CommandText based on entity ID = {entity.Id}"
-                // )
+                // logDatabaseDebugf "Database.Do" "saveEntity - Step 3: Setting CommandText based on entity ID = %d" entity.Id
 
                 command.CommandText <-
                     match entity.Id with
                     | 0 ->
-                        // System.Diagnostics.Debug.WriteLine(
-                        //     $"[Database.Do.saveEntity] Step 4a: Using INSERT SQL (new entity)"
-                        // )
-
+                        // logDatabaseDebug "Database.Do" "saveEntity - Step 4a: Using INSERT SQL (new entity)"
                         entity.InsertSQL
                     | _ ->
-                        // System.Diagnostics.Debug.WriteLine(
-                        //     $"[Database.Do.saveEntity] Step 4b: Using UPDATE SQL (existing entity)"
-                        // )
-
+                        // logDatabaseDebug "Database.Do" "saveEntity - Step 4b: Using UPDATE SQL (existing entity)"
                         entity.UpdateSQL
 
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.saveEntity] Step 5: CommandText set to: {command.CommandText}"
-                // )
-
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.saveEntity] Step 6: Calling fill method to populate parameters..."
-                // )
+                // logDatabaseDebugf "Database.Do" "saveEntity - Step 5: CommandText set to: %s" command.CommandText
+                // logDatabaseDebug "Database.Do" "saveEntity - Step 6: Calling fill method to populate parameters..."
 
                 let filledCommand = fill entity command
 
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.saveEntity] Step 7: Fill method completed, command has {filledCommand.Parameters.Count} parameters"
-                // )
+                // logDatabaseDebugf
+                //     "Database.Do"
+                //     "saveEntity - Step 7: Fill method completed, command has %d parameters"
+                //     filledCommand.Parameters.Count
 
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] Step 8: Calling executeNonQuery...")
+                // logDatabaseDebug "Database.Do" "saveEntity - Step 8: Calling executeNonQuery..."
+
+                // Single optimized debug log with all relevant info (disabled by default, zero-cost when disabled)
+                logDatabaseDebugOptimized "Database.Do" (fun () ->
+                    let operation = if entity.Id = 0 then "INSERT" else "UPDATE"
+                    $"saveEntity - {operation} entity (ID: {entity.Id}), Params: {filledCommand.Parameters.Count}")
+
                 do! executeNonQuery (filledCommand) |> Async.AwaitTask |> Async.Ignore
 
-                // System.Diagnostics.Debug.WriteLine(
-                //     $"[Database.Do.saveEntity] Step 9: executeNonQuery completed successfully"
-                // )
+            // logDatabaseDebug "Database.Do" "saveEntity - Step 9: executeNonQuery completed successfully"
             with ex ->
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] *** EXCEPTION *** - {ex.Message}")
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] *** STACK TRACE *** - {ex.StackTrace}")
+                // Database errors are ALWAYS logged regardless of database logging setting
+                logDatabaseError "Database.Do" $"saveEntity failed - {ex.Message}"
+                logDatabaseDebugf "Database.Do" "Stack trace: %s" ex.StackTrace
 
                 let innerMsg =
                     if ex.InnerException <> null then
@@ -226,7 +212,7 @@ module internal Do =
                     else
                         "None"
 
-                // System.Diagnostics.Debug.WriteLine($"[Database.Do.saveEntity] *** INNER EXCEPTION *** - {innerMsg}")
+                logDatabaseDebugf "Database.Do" "Inner exception: %s" innerMsg
                 raise ex
         }
 

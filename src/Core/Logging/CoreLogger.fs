@@ -24,6 +24,10 @@ module CoreLogger =
     /// Master switch to enable/disable all logging
     let mutable private loggingEnabled = true // Set to false to disable all logging
 
+    /// Database-specific logging switch (disabled by default to reduce noise)
+    /// Database errors are ALWAYS logged regardless of this setting
+    let mutable private databaseLoggingEnabled = false
+
     /// Optional external logger for advanced features
     let mutable private externalLogger: ILogger option = None
 
@@ -32,6 +36,9 @@ module CoreLogger =
 
     /// Enable or disable all logging (master switch)
     let setEnabled enabled = loggingEnabled <- enabled
+
+    /// Enable or disable database debug/info logging (errors are always logged)
+    let setDatabaseLogging enabled = databaseLoggingEnabled <- enabled
 
     /// Set an external Microsoft.Extensions.Logging ILogger for advanced features
     /// If not set, falls back to simple Debug/Console output
@@ -108,3 +115,28 @@ module CoreLogger =
                 logger.LogInformation("[{Tag}] {Message}", tag, messageFunc ())
             | None when LogLevel.Info >= minLogLevel -> logInfo tag (messageFunc ())
             | _ -> () // No-op when logging is disabled
+
+    /// Database-specific logging functions
+    /// Debug/Info logs are only emitted when database logging is enabled
+    /// Error logs are ALWAYS emitted regardless of database logging setting
+    let logDatabaseDebug tag message =
+        if databaseLoggingEnabled then
+            logDebug tag message
+
+    let logDatabaseDebugf tag format =
+        if databaseLoggingEnabled then
+            Printf.ksprintf (logDebug tag) format
+        else
+            Printf.ksprintf (fun _ -> ()) format // No-op but consume format arguments
+
+    let logDatabaseDebugOptimized tag (messageFunc: unit -> string) =
+        if databaseLoggingEnabled && loggingEnabled then
+            match externalLogger with
+            | Some logger when logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Debug) ->
+                logger.LogDebug("[{Tag}] {Message}", tag, messageFunc ())
+            | None when LogLevel.Debug >= minLogLevel -> logDebug tag (messageFunc ())
+            | _ -> () // No-op when logging is disabled
+
+    /// Database errors are ALWAYS logged (ignores databaseLoggingEnabled flag)
+    let logDatabaseError tag message = logError tag message
+    let logDatabaseErrorf tag format = logErrorf tag format
