@@ -84,10 +84,10 @@ module Creator =
             do! Saver.saveBrokerMovement(databaseModel) |> Async.AwaitTask
             CoreLogger.logDebug "Creator" "Movement saved to database successfully"
             
-            // Update snapshots for this movement using reactive manager
+            // Update snapshots for this movement using coordinator (batch mode if enabled)
             let movementDatePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
             CoreLogger.logDebugf "Creator" "SaveBrokerMovement - About to update snapshots for movement date: %A, Amount: %A, Type: %A" movementDatePattern movement.Amount movement.MovementType
-            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, movementDatePattern) |> Async.AwaitTask
+            do! SnapshotProcessingCoordinator.handleBrokerAccountChange(movement.BrokerAccount.Id, movementDatePattern) |> Async.AwaitTask
             CoreLogger.logDebug "Creator" "SaveBrokerMovement - Historical movement date snapshot update completed"
             
             // If this is a historical movement (not today), also update today's snapshot to reflect the new data
@@ -99,7 +99,7 @@ module Creator =
                 CoreLogger.logDebugf "Creator" "About to update today's snapshot to reflect historical deposit of %A" movement.Amount
                 let todayPattern = DateTimePattern.FromDateTime(today.AddDays(1).AddTicks(-1)) // End of today
                 CoreLogger.logDebugf "Creator" "Today pattern calculated: %A" todayPattern
-                do! BrokerAccountSnapshotManager.handleBrokerAccountChange(movement.BrokerAccount.Id, todayPattern) |> Async.AwaitTask
+                do! SnapshotProcessingCoordinator.handleBrokerAccountChange(movement.BrokerAccount.Id, todayPattern) |> Async.AwaitTask
                 CoreLogger.logDebug "Creator" "*** TODAY'S SNAPSHOT UPDATE COMPLETED AFTER HISTORICAL MOVEMENT ***"
             else
                 CoreLogger.logDebug "Creator" "Movement is for today - no additional snapshot update needed"
@@ -145,9 +145,9 @@ module Creator =
         let databaseTrade = trade.tradeToDatabase()
         do! Saver.saveTrade(databaseTrade) |> Async.AwaitTask
         
-        // Update snapshots for this trade using reactive manager
+        // Update snapshots for this trade using coordinator (batch mode if enabled)
         let datePattern = DateTimePattern.FromDateTime(trade.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(trade.BrokerAccount.Id, datePattern) |> Async.AwaitTask
+        do! SnapshotProcessingCoordinator.handleBrokerAccountChange(trade.BrokerAccount.Id, datePattern) |> Async.AwaitTask
         ReactiveSnapshotManager.refresh()
     }
 
@@ -158,9 +158,9 @@ module Creator =
         let databaseDividend = dividend.dividendReceivedToDatabase()
         do! Saver.saveDividend(databaseDividend) |> Async.AwaitTask
         
-        // Update snapshots for this dividend using reactive manager
+        // Update snapshots for this dividend using coordinator (batch mode if enabled)
         let datePattern = DateTimePattern.FromDateTime(dividend.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividend.BrokerAccount.Id, datePattern) |> Async.AwaitTask
+        do! SnapshotProcessingCoordinator.handleBrokerAccountChange(dividend.BrokerAccount.Id, datePattern) |> Async.AwaitTask
         ReactiveSnapshotManager.refresh()
     }
 
@@ -171,9 +171,9 @@ module Creator =
         let databaseModel = dividendDate.dividendDateToDatabase()
         do! Saver.saveDividendDate(databaseModel) |> Async.AwaitTask
         
-        // Update snapshots for this dividend date using reactive manager
+        // Update snapshots for this dividend date using coordinator (batch mode if enabled)
         let datePattern = DateTimePattern.FromDateTime(dividendDate.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividendDate.BrokerAccount.Id, datePattern) |> Async.AwaitTask
+        do! SnapshotProcessingCoordinator.handleBrokerAccountChange(dividendDate.BrokerAccount.Id, datePattern) |> Async.AwaitTask
         ReactiveSnapshotManager.refresh()
     }
 
@@ -184,9 +184,9 @@ module Creator =
         let databaseModel = dividendTax.dividendTaxToDatabase()
         do! Saver.saveDividendTax(databaseModel) |> Async.AwaitTask
         
-        // Update snapshots for this dividend tax using reactive manager
+        // Update snapshots for this dividend tax using coordinator (batch mode if enabled)
         let datePattern = DateTimePattern.FromDateTime(dividendTax.TimeStamp)
-        do! BrokerAccountSnapshotManager.handleBrokerAccountChange(dividendTax.BrokerAccount.Id, datePattern) |> Async.AwaitTask
+        do! SnapshotProcessingCoordinator.handleBrokerAccountChange(dividendTax.BrokerAccount.Id, datePattern) |> Async.AwaitTask
         ReactiveSnapshotManager.refresh()
     }
 
@@ -208,7 +208,7 @@ module Creator =
         let databaseModels = expandedTrades.optionTradesToDatabase()
         do! Saver.saveOptionsTrade(databaseModels) |> Async.AwaitTask
         
-        // Update snapshots for all affected broker accounts using reactive manager
+        // Update snapshots for all affected broker accounts using coordinator (batch mode if enabled)
         let uniqueBrokerAccountDates = 
             expandedTrades
             |> List.map (fun trade -> (trade.BrokerAccount.Id, trade.TimeStamp))
@@ -216,7 +216,7 @@ module Creator =
         
         for (brokerAccountId, timeStamp) in uniqueBrokerAccountDates do
             let datePattern = DateTimePattern.FromDateTime(timeStamp)
-            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(brokerAccountId, datePattern) |> Async.AwaitTask
+            do! SnapshotProcessingCoordinator.handleBrokerAccountChange(brokerAccountId, datePattern) |> Async.AwaitTask
             
         ReactiveSnapshotManager.refresh()
     }

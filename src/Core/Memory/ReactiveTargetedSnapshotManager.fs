@@ -45,22 +45,29 @@ module ReactiveTargetedSnapshotManager =
                     
                     // Validate date range
                     if startDate.Value <= today.Value then
-                        // Resolve ticker symbols to IDs and update ticker snapshots
-                        //for tickerSymbol in importMetadata.AffectedTickerSymbols do
-                        //    let! tickerIdOption = getTickerIdBySymbol tickerSymbol
-                        //    match tickerIdOption with
-                        //    | Some tickerId ->
-                        //        do! TickerSnapshotManager.handleTickerChange(tickerId, startDate)
-                        //    | None ->
-                        //        // Ticker not found - may have been created but not yet in cache
-                        //        // This is not an error case, just skip silently
-                        //        ()
+                        // Enable batch mode for import scenarios (optimal performance for bulk operations)
+                        SnapshotProcessingCoordinator.enableBatchMode(true)
                         
-                        // Update broker account snapshots for affected accounts
-                        for brokerAccountId in importMetadata.AffectedBrokerAccountIds do
-                            do! BrokerAccountSnapshotManager.handleBrokerAccountChange(brokerAccountId, startDate)
-                        
-                        ReactiveSnapshotManager.refresh()
+                        try
+                            // Resolve ticker symbols to IDs and update ticker snapshots
+                            //for tickerSymbol in importMetadata.AffectedTickerSymbols do
+                            //    let! tickerIdOption = getTickerIdBySymbol tickerSymbol
+                            //    match tickerIdOption with
+                            //    | Some tickerId ->
+                            //        do! TickerSnapshotManager.handleTickerChange(tickerId, startDate)
+                            //    | None ->
+                            //        // Ticker not found - may have been created but not yet in cache
+                            //        // This is not an error case, just skip silently
+                            //        ()
+                            
+                            // Update broker account snapshots for affected accounts using coordinator (batch mode enabled)
+                            for brokerAccountId in importMetadata.AffectedBrokerAccountIds do
+                                do! SnapshotProcessingCoordinator.handleBrokerAccountChange(brokerAccountId, startDate)
+                            
+                            ReactiveSnapshotManager.refresh()
+                        finally
+                            // Always disable batch mode after import to ensure real-time operations use per-date mode
+                            SnapshotProcessingCoordinator.enableBatchMode(false)
                     else
                         failwith $"Invalid import date range: oldest date {startDate.Value} is in the future"
                 | None -> 
