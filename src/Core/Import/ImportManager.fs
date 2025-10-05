@@ -251,7 +251,8 @@ module ImportManager =
                                                                 "Starting batch ticker snapshot processing for import"
 
                                                             let! tickerBatchResult =
-                                                                TickerSnapshotBatchManager.processBatchedTickersForImport(brokerAccount.Id)
+                                                                TickerSnapshotBatchManager
+                                                                    .processBatchedTickersForImport (brokerAccount.Id)
 
                                                             if tickerBatchResult.Success then
                                                                 CoreLogger.logInfof

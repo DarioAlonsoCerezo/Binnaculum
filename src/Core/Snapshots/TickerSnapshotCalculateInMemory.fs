@@ -333,12 +333,14 @@ module internal TickerSnapshotCalculateInMemory =
 
         CoreLogger.logDebugf
             "TickerSnapshotCalculateInMemory"
-            "Carried forward - Shares:%M Price:%M->%M Unrealized:%M->%M"
+            "Carried forward - Shares:%M Price:%M->%M Unrealized:%M->%M Options:%M Realized:%M"
             previousSnapshot.TotalShares
             previousSnapshot.LatestPrice.Value
             marketPrice
             previousSnapshot.Unrealized.Value
             unrealized.Value
+            previousSnapshot.Options.Value
+            previousSnapshot.Realized.Value
 
         // Create new snapshot with same cumulative values but updated price/unrealized
         { Base = SnapshotManagerUtils.createBaseSnapshot newDate
