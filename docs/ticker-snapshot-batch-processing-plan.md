@@ -191,13 +191,23 @@ CSV Import
   - **Key Features**: Pure functions (no DB I/O), comprehensive logging, handles all calculation scenarios
   - **Validation**: Ready for integration with batch calculator
 
-- [ ] **Task 2.2**: Implement TickerSnapshot Batch Calculator
-  - **Status**: ⏳ NOT STARTED
-  - **File**: `src/Core/Snapshots/TickerSnapshotBatchCalculator.fs`
-  - **Dependencies**: TickerSnapshotCalculateInMemory
-  - **Context**: `BatchCalculationContext { BaselineSnapshots, MovementsByTickerCurrencyDate, MarketPrices, DateRange }`
-  - **Result**: `BatchCalculationResult { CalculatedSnapshots, Metrics, Errors }`
-  - **Validation**: Integration tests with multi-ticker scenarios
+- [x] **Task 2.2**: Implement TickerSnapshot Batch Calculator
+  - **Status**: ✅ COMPLETED
+  - **Actual Time**: 1.5 hours
+  - **File**: `src/Core/Snapshots/TickerSnapshotBatchCalculator.fs` (370+ lines)
+  - **Types Implemented**:
+    - ✅ `TickerSnapshotBatchContext`: Pre-loaded data (baselines, movements, prices, dates, tickers)
+    - ✅ `TickerSnapshotBatchResult`: Calculated snapshots + detailed metrics + errors
+  - **Core Function**: `calculateBatchedTickerSnapshots`
+    - Chronological date processing loop (critical for cumulative calculations)
+    - Multi-ticker processing per date
+    - Multi-currency processing per ticker
+    - In-memory state tracking (latestCurrencySnapshots map)
+    - Scenario handling: A (movements + previous), B (first snapshot), D (carry forward), Skip (no data)
+    - TickerSnapshot hierarchy creation (main currency + other currencies)
+    - Comprehensive error handling with detailed error messages
+    - Performance metrics tracking (tickers, dates, movements, snapshots, time)
+  - **Validation**: Ready for persistence module integration
 
 - [ ] **Task 2.3**: Implement TickerSnapshot Batch Persistence
   - **Status**: ⏳ NOT STARTED
@@ -394,12 +404,12 @@ CSV Import
 ### Overall Progress
 ```
 Phase 1: Foundation & Analysis        [██████████] 100% (3/3 tasks)
-Phase 2: Core Calculation Logic       [███░░░░░░░]  33% (1/3 tasks)
+Phase 2: Core Calculation Logic       [██████░░░░]  67% (2/3 tasks)
 Phase 3: Integration & Orchestration  [░░░░░░░░░░]  0% (0/4 tasks)
 Phase 4: Testing & Validation         [░░░░░░░░░░]  0% (0/4 tasks)
 Phase 5: Documentation & Completion   [░░░░░░░░░░]  0% (0/4 tasks)
 
-Total Progress: [██████░░░░] 22% (4/18 tasks)
+Total Progress: [███████░░░] 28% (5/18 tasks)
 ```
 
 ### Git History
@@ -418,6 +428,17 @@ Total Progress: [██████░░░░] 22% (4/18 tasks)
 ---
 
 ## 🔄 Update Log
+
+### October 5, 2025 (17:45)
+- ✅ Completed Task 2.2 (TickerSnapshotBatchCalculator.fs) - 1.5 hours
+  - Created 370+ line orchestration engine
+  - Implemented chronological date/ticker/currency processing loop
+  - Defined TickerSnapshotBatchContext and TickerSnapshotBatchResult types
+  - Handles 4 calculation scenarios with in-memory state tracking
+  - Creates TickerSnapshot hierarchy (main + other currencies)
+  - Comprehensive error handling and metrics tracking
+  - **Phase 2 Progress**: 67% (2/3 tasks done)
+- 🎯 **Current Focus**: Task 2.3 - Create TickerSnapshotBatchPersistence.fs
 
 ### October 5, 2025 (17:00)
 - ✅ Completed Task 2.1 (TickerSnapshotCalculateInMemory.fs) - 1.5 hours
@@ -459,12 +480,12 @@ Total Progress: [██████░░░░] 22% (4/18 tasks)
 ## 🚀 Next Steps
 
 ### Immediate Actions (Next Session)
-1. **Start Task 2.2**: Create TickerSnapshotBatchCalculator.fs
-   - Define BatchCalculationContext and BatchCalculationResult types
-   - Implement chronological processing loop for all tickers/dates
-   - Track in-memory state for cumulative calculations
-   - Call CalculateInMemory functions for each scenario
-   - Return comprehensive metrics and calculated snapshots
+1. **Start Task 2.3**: Create TickerSnapshotBatchPersistence.fs
+   - Implement persistBatchedSnapshots (bulk insert in single transaction)
+   - Implement persistBatchedSnapshotsWithCleanup (delete + insert for force recalculation)
+   - Handle TickerSnapshot + TickerCurrencySnapshot hierarchy persistence
+   - Transaction management with rollback on error
+   - Return PersistenceMetrics with counts and timing
 
 2. **Start Task 1.3**: Create TickerSnapshotBatchLoader.fs
    - Implement SQL batch queries
