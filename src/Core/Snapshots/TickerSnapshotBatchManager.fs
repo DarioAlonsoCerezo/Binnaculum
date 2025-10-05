@@ -204,6 +204,27 @@ module internal TickerSnapshotBatchManager =
                         metrics.TransactionTimeMs
                         totalStopwatch.ElapsedMilliseconds
 
+                    // After processing all movement dates, ensure current date snapshot is updated for each ticker
+                    // This is needed when current date is after the last movement date
+                    if not dateRange.IsEmpty then
+                        let lastMovementDate = dateRange |> List.max
+                        let currentDate = DateTimePattern.FromDateTime(System.DateTime.Now)
+
+                        if currentDate.Value.Date > lastMovementDate.Value.Date then
+                            CoreLogger.logDebugf
+                                "TickerSnapshotBatchManager"
+                                "Current date %s is after last movement date %s - updating current snapshots for %d tickers"
+                                (currentDate.ToString())
+                                (lastMovementDate.ToString())
+                                request.TickerIds.Length
+
+                            // Update snapshot for current date for each ticker with no new movements
+                            // This will copy forward the latest state
+                            for tickerId in request.TickerIds do
+                                do! TickerSnapshotManager.handleTickerChange (tickerId, currentDate)
+
+                            CoreLogger.logDebug "TickerSnapshotBatchManager" "Current date snapshots updated successfully"
+
                     return
                         { Success = errors.IsEmpty
                           TickerSnapshotsSaved = metrics.TickerSnapshotsSaved
@@ -302,7 +323,7 @@ module internal TickerSnapshotBatchManager =
                     // This ensures we capture all movements for affected tickers
                     // The smart date filtering in Phase 2 will skip dates with no movements
                     let startDate = sinceDate
-                    
+
                     // End date is always current date to ensure latest snapshots are calculated
                     let endDate = DateTimePattern.FromDateTime(System.DateTime.Now)
 
