@@ -232,7 +232,7 @@ module internal OptionsQuery =
         ORDER BY {TimeStamp}
         LIMIT 1
         """
-    
+
     let getByTickerIdFromDate =
         $"""
         SELECT * FROM {Options}
@@ -241,4 +241,3 @@ module internal OptionsQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
-

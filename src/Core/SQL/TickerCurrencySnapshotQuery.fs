@@ -127,7 +127,7 @@ module internal TickerCurrencySnapshotQuery =
         WHERE
             {Id} = {SQLParameterName.Id}
         """
-    
+
     let getById =
         $"""
         SELECT * FROM {TickerCurrencySnapshots}
@@ -135,7 +135,7 @@ module internal TickerCurrencySnapshotQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
-    
+
     let getAllByTickerIdAndDate =
         $"""
         SELECT * FROM {TickerCurrencySnapshots}
@@ -143,7 +143,7 @@ module internal TickerCurrencySnapshotQuery =
             {TickerId} = {SQLParameterName.TickerId} AND
             {Date} = {SQLParameterName.Date}
         """
-        
+
     let getAllByTickerIdAfterDate =
         $"""
         SELECT * FROM {TickerCurrencySnapshots}
@@ -152,4 +152,3 @@ module internal TickerCurrencySnapshotQuery =
             {Date} > {SQLParameterName.Date}
         ORDER BY {Date} ASC
         """
-

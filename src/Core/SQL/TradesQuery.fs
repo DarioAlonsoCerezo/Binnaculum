@@ -215,7 +215,7 @@ module internal TradesQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
-    
+
     let getByBrokerAccountIdForDate =
         $"""
         SELECT * FROM {Trades}
@@ -224,7 +224,7 @@ module internal TradesQuery =
             AND DATE({TimeStamp}) = DATE({SQLParameterName.TimeStamp})
         ORDER BY {TimeStamp}
         """
-    
+
     let getByTickerIdFromDate =
         $"""
         SELECT * FROM {Trades}
@@ -233,7 +233,7 @@ module internal TradesQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
-    
+
     let getEarliestForTicker =
         $"""
         SELECT * FROM {Trades}
