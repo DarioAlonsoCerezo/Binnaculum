@@ -85,13 +85,18 @@ module internal BrokerFinancialBatchManager =
                 CoreLogger.logDebug "BrokerFinancialBatchManager" "Phase 2: Calculating snapshots..."
 
                 // SMART DATE FILTERING: Only process dates that actually need attention
-                // Extract dates from movements
+                // Extract dates from movements (normalized to start of day to match groupMovementsByDate)
                 let movementDates =
-                    [ movementsData.BrokerMovements |> List.map (fun m -> SnapshotManagerUtils.getDateOnly m.TimeStamp)
-                      movementsData.Trades |> List.map (fun t -> SnapshotManagerUtils.getDateOnly t.TimeStamp)
-                      movementsData.Dividends |> List.map (fun d -> SnapshotManagerUtils.getDateOnly d.TimeStamp)
-                      movementsData.DividendTaxes |> List.map (fun dt -> SnapshotManagerUtils.getDateOnly dt.TimeStamp)
-                      movementsData.OptionTrades |> List.map (fun ot -> SnapshotManagerUtils.getDateOnly ot.TimeStamp) ]
+                    [ movementsData.BrokerMovements
+                      |> List.map (fun m -> SnapshotManagerUtils.normalizeToStartOfDay m.TimeStamp)
+                      movementsData.Trades
+                      |> List.map (fun t -> SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp)
+                      movementsData.Dividends
+                      |> List.map (fun d -> SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp)
+                      movementsData.DividendTaxes
+                      |> List.map (fun dt -> SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp)
+                      movementsData.OptionTrades
+                      |> List.map (fun ot -> SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp) ]
                     |> List.concat
                     |> Set.ofList
 
@@ -114,7 +119,8 @@ module internal BrokerFinancialBatchManager =
                 // 1. All dates with movements (obviously need processing)
                 // 2. All dates with existing snapshots (might need market price updates)
                 // 3. NO empty dates with neither movements nor snapshots (OPTIMIZATION!)
-                let relevantDates = Set.union movementDates existingSnapshotDates |> Set.toList |> List.sort
+                let relevantDates =
+                    Set.union movementDates existingSnapshotDates |> Set.toList |> List.sort
 
                 CoreLogger.logInfof
                     "BrokerFinancialBatchManager"
