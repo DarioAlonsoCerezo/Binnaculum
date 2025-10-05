@@ -134,15 +134,29 @@
     * Added debug logging for price loading metrics
   - Notes: Build successful - context properly populated
 
-- [ ] **Step 2.3**: Implement synchronous unrealized gains calculation
-  - Status: Not started
+- [x] **Step 2.3**: Implement synchronous unrealized gains calculation
+  - Status: ✅ COMPLETE
   - Files: `BrokerFinancialCalculateInMemory.fs`
-  - Notes: Sync version of BrokerFinancialUnrealizedGains logic
+  - Commit: 4e44b62
+  - Implementation:
+    * Added `calculateUnrealizedGainsSync` function
+    * Synchronous version of BrokerFinancialUnrealizedGains logic
+    * Uses pre-loaded market prices for O(1) lookup (no database calls)
+    * Handles both long and short positions correctly
+    * Returns (Money, decimal) tuple for unrealized gains and percentage
+  - Notes: Build successful, all 242 tests passing
 
-- [ ] **Step 2.4**: Update `calculateSnapshot` to use pre-loaded prices
-  - Status: Not started
-  - Files: `BrokerFinancialCalculateInMemory.fs`
-  - Notes: Replace stubbed 0m unrealized gains
+- [x] **Step 2.4**: Update `calculateSnapshot` to use pre-loaded prices
+  - Status: ✅ COMPLETE
+  - Files: `BrokerFinancialCalculateInMemory.fs`, `BrokerFinancialBatchCalculator.fs`
+  - Commit: 4e44b62
+  - Implementation:
+    * Updated calculateSnapshot signature to accept marketPrices parameter
+    * Replaced stubbed 0m unrealized gains with actual sync calculation
+    * Calls calculateUnrealizedGainsSync with current positions and cost basis
+    * Updated wrapper functions (calculateInitialSnapshot, calculateNewSnapshot)
+    * Updated batch calculator scenarios A and B to pass context.MarketPrices
+  - Notes: Build successful, all 242 tests passing
 
 - [ ] **Step 2.5**: Add tests for unrealized gains calculations
   - Status: Not started
