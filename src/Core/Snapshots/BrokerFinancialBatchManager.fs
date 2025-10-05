@@ -92,10 +92,16 @@ module internal BrokerFinancialBatchManager =
                 let movementsByDate =
                     BrokerMovementBatchLoader.groupMovementsByDate request.BrokerAccountId movementsData
 
+                // Load existing snapshots in date range (for scenarios C, D, G, H)
+                // TODO: Phase 3 - implement loadExistingSnapshotsInRange
+                // For now, use empty map (batch will create new snapshots)
+                let existingSnapshots = Map.empty
+
                 // Create calculation context
                 let context: BrokerFinancialBatchCalculator.BatchCalculationContext =
                     { BaselineSnapshots = baselineSnapshots
                       MovementsByDate = movementsByDate
+                      ExistingSnapshots = existingSnapshots
                       DateRange = dateRange
                       BrokerAccountId = request.BrokerAccountId
                       BrokerAccountSnapshotId = 0 // Will be set appropriately for each snapshot
