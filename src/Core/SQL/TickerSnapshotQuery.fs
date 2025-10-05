@@ -97,6 +97,16 @@ module internal TickerSnapshotQuery =
         ORDER BY {Date} DESC
         LIMIT 1
         """
+    
+    let getLatestBeforeDate =
+        $"""
+        SELECT * FROM {TickerSnapshots}
+        WHERE
+            {TickerId} = {SQLParameterName.TickerId} AND
+            {Date} < {SQLParameterName.Date}
+        ORDER BY {Date} DESC
+        LIMIT 1
+        """
         
     let getByTickerIdAndDate =
         $"""

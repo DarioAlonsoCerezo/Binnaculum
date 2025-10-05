@@ -160,6 +160,23 @@ type Do() =
         let! trades = Database.Do.readAll<Trade>(command, Do.read)
         return trades
     }
+    
+    static member getByTickerIdFromDate(tickerId: int, startDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- TradesQuery.getByTickerIdFromDate
+        command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString()) |> ignore
+        let! trades = Database.Do.readAll<Trade>(command, Do.read)
+        return trades
+    }
+    
+    static member getEarliestForTicker(tickerId: int) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- TradesQuery.getEarliestForTicker
+        command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+        let! trade = Database.Do.read<Trade>(command, Do.read)
+        return trade
+    }
 
 /// <summary>
 /// Financial calculation extension methods for Trade collections.

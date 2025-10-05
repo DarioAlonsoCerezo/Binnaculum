@@ -1,6 +1,7 @@
 namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.DatabaseModel
+open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
 
@@ -16,12 +17,10 @@ module internal TickerSnapshotCalculateInMemory =
     /// Used as input for pure calculation functions.
     /// </summary>
     type TickerCurrencyMovementData =
-        {
-            Trades: Trade list
-            Dividends: Dividend list
-            DividendTaxes: DividendTax list
-            OptionTrades: OptionTrade list
-        }
+        { Trades: Trade list
+          Dividends: Dividend list
+          DividendTaxes: DividendTax list
+          OptionTrades: OptionTrade list }
 
     /// <summary>
     /// Calculate new TickerCurrencySnapshot from movements and previous snapshot.
@@ -60,7 +59,9 @@ module internal TickerSnapshotCalculateInMemory =
         let totalShares = previousSnapshot.TotalShares + sharesDelta
 
         // Calculate cost basis delta from trades
-        let tradeCostBasis = movements.Trades |> List.sumBy (fun t -> t.Price.Value * t.Quantity)
+        let tradeCostBasis =
+            movements.Trades |> List.sumBy (fun t -> t.Price.Value * t.Quantity)
+
         let costBasis = Money.FromAmount(previousSnapshot.CostBasis.Value + tradeCostBasis)
 
         // Calculate commissions and fees from trades
@@ -68,20 +69,29 @@ module internal TickerSnapshotCalculateInMemory =
         let fees = movements.Trades |> List.sumBy (fun t -> t.Fees.Value)
 
         // Calculate dividends (gross dividends minus taxes)
-        let currentDividends = movements.Dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
-        let currentDividendTaxes = movements.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
+        let currentDividends =
+            movements.Dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
+
+        let currentDividendTaxes =
+            movements.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
+
         let netDividends = currentDividends - currentDividendTaxes
-        let totalDividends = Money.FromAmount(previousSnapshot.Dividends.Value + netDividends)
+
+        let totalDividends =
+            Money.FromAmount(previousSnapshot.Dividends.Value + netDividends)
 
         // Calculate options income
-        let currentOptions = movements.OptionTrades |> List.sumBy (fun o -> o.NetPremium.Value)
+        let currentOptions =
+            movements.OptionTrades |> List.sumBy (fun o -> o.NetPremium.Value)
+
         let totalOptions = Money.FromAmount(previousSnapshot.Options.Value + currentOptions)
 
         // Calculate total incomes
         let totalIncomes = Money.FromAmount(totalDividends.Value + totalOptions.Value)
 
         // Calculate real cost (cost basis + commissions + fees + dividend taxes)
-        let realCost = Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
+        let realCost =
+            Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
 
         // Calculate unrealized gains/losses
         let marketValue = marketPrice * totalShares
@@ -164,7 +174,9 @@ module internal TickerSnapshotCalculateInMemory =
         let totalShares = movements.Trades |> List.sumBy (fun t -> t.Quantity)
 
         // Calculate cost basis from trades (no previous)
-        let tradeCostBasis = movements.Trades |> List.sumBy (fun t -> t.Price.Value * t.Quantity)
+        let tradeCostBasis =
+            movements.Trades |> List.sumBy (fun t -> t.Price.Value * t.Quantity)
+
         let costBasis = Money.FromAmount(tradeCostBasis)
 
         // Calculate commissions and fees from trades
@@ -172,20 +184,27 @@ module internal TickerSnapshotCalculateInMemory =
         let fees = movements.Trades |> List.sumBy (fun t -> t.Fees.Value)
 
         // Calculate dividends (gross dividends minus taxes)
-        let currentDividends = movements.Dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
-        let currentDividendTaxes = movements.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
+        let currentDividends =
+            movements.Dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
+
+        let currentDividendTaxes =
+            movements.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
+
         let netDividends = currentDividends - currentDividendTaxes
         let totalDividends = Money.FromAmount(netDividends)
 
         // Calculate options income (no previous)
-        let currentOptions = movements.OptionTrades |> List.sumBy (fun o -> o.NetPremium.Value)
+        let currentOptions =
+            movements.OptionTrades |> List.sumBy (fun o -> o.NetPremium.Value)
+
         let totalOptions = Money.FromAmount(currentOptions)
 
         // Calculate total incomes
         let totalIncomes = Money.FromAmount(totalDividends.Value + totalOptions.Value)
 
         // Calculate real cost (cost basis + commissions + fees + dividend taxes)
-        let realCost = Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
+        let realCost =
+            Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
 
         // Calculate unrealized gains/losses
         let marketValue = marketPrice * totalShares
@@ -256,7 +275,9 @@ module internal TickerSnapshotCalculateInMemory =
             existingSnapshot.TickerId
             existingSnapshot.CurrencyId
             (existingSnapshot.Date.Value.ToString())
-            (movements.Trades.Length + movements.Dividends.Length + movements.OptionTrades.Length)
+            (movements.Trades.Length
+             + movements.Dividends.Length
+             + movements.OptionTrades.Length)
 
         // Recalculate as if it's a new snapshot (this ensures consistency)
         let recalculated =
@@ -269,7 +290,10 @@ module internal TickerSnapshotCalculateInMemory =
                 existingSnapshot.CurrencyId
 
         // Preserve the existing ID
-        { recalculated with Base = { recalculated.Base with Id = existingSnapshot.Base.Id } }
+        { recalculated with
+            Base =
+                { recalculated.Base with
+                    Id = existingSnapshot.Base.Id } }
 
     /// <summary>
     /// Carry forward previous snapshot to new date (no movements).
@@ -350,11 +374,19 @@ module internal TickerSnapshotCalculateInMemory =
 
         let trades = allMovements.Trades.TryFind(key) |> Option.defaultValue []
         let dividends = allMovements.Dividends.TryFind(key) |> Option.defaultValue []
-        let dividendTaxes = allMovements.DividendTaxes.TryFind(key) |> Option.defaultValue []
+
+        let dividendTaxes =
+            allMovements.DividendTaxes.TryFind(key) |> Option.defaultValue []
+
         let optionTrades = allMovements.OptionTrades.TryFind(key) |> Option.defaultValue []
 
         // Only return Some if there are any movements
-        if trades.IsEmpty && dividends.IsEmpty && dividendTaxes.IsEmpty && optionTrades.IsEmpty then
+        if
+            trades.IsEmpty
+            && dividends.IsEmpty
+            && dividendTaxes.IsEmpty
+            && optionTrades.IsEmpty
+        then
             None
         else
             Some

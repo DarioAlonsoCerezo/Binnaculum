@@ -15,7 +15,7 @@ module internal TickerSnapshotBatchManager =
     /// Request parameters for batch ticker snapshot processing.
     /// </summary>
     type internal BatchProcessingRequest =
-        { 
+        {
             /// List of ticker IDs to process
             TickerIds: int list
             /// Start date for processing period (inclusive)
@@ -23,14 +23,14 @@ module internal TickerSnapshotBatchManager =
             /// End date for processing period (inclusive)
             EndDate: DateTimePattern
             /// If true, delete existing snapshots and recalculate
-            ForceRecalculation: bool 
+            ForceRecalculation: bool
         }
 
     /// <summary>
     /// Result of batch processing with detailed metrics.
     /// </summary>
     type internal BatchProcessingResult =
-        { 
+        {
             /// Whether processing completed without critical errors
             Success: bool
             /// Total TickerSnapshots saved (created or updated)
@@ -50,7 +50,7 @@ module internal TickerSnapshotBatchManager =
             /// Total processing time (ms)
             TotalTimeMs: int64
             /// List of non-critical errors encountered
-            Errors: string list 
+            Errors: string list
         }
 
     /// <summary>
@@ -59,9 +59,7 @@ module internal TickerSnapshotBatchManager =
     /// </summary>
     /// <param name="request">The batch processing request</param>
     /// <returns>Task containing BatchProcessingResult with all metrics</returns>
-    let processBatchedTickers
-        (request: BatchProcessingRequest)
-        : System.Threading.Tasks.Task<BatchProcessingResult> =
+    let processBatchedTickers (request: BatchProcessingRequest) : System.Threading.Tasks.Task<BatchProcessingResult> =
         task {
             let totalStopwatch = Stopwatch.StartNew()
             let mutable errors = []
@@ -85,24 +83,33 @@ module internal TickerSnapshotBatchManager =
 
                 // Load ticker movements for the date range
                 let! tickerMovementData =
-                    TickerSnapshotBatchLoader.loadTickerMovements
-                        request.TickerIds
-                        request.StartDate
-                        request.EndDate
+                    TickerSnapshotBatchLoader.loadTickerMovements request.TickerIds request.StartDate request.EndDate
 
                 // Load market prices for all tickers in the date range
                 let! marketPrices =
-                    TickerSnapshotBatchLoader.loadMarketPrices
-                        request.TickerIds
-                        request.StartDate
-                        request.EndDate
+                    TickerSnapshotBatchLoader.loadMarketPrices request.TickerIds request.StartDate request.EndDate
 
                 loadStopwatch.Stop()
 
-                let totalTrades = tickerMovementData.Trades |> Map.toSeq |> Seq.sumBy (fun (_, trades) -> trades.Length)
-                let totalDividends = tickerMovementData.Dividends |> Map.toSeq |> Seq.sumBy (fun (_, divs) -> divs.Length)
-                let totalDividendTaxes = tickerMovementData.DividendTaxes |> Map.toSeq |> Seq.sumBy (fun (_, taxes) -> taxes.Length)
-                let totalOptionTrades = tickerMovementData.OptionTrades |> Map.toSeq |> Seq.sumBy (fun (_, opts) -> opts.Length)
+                let totalTrades =
+                    tickerMovementData.Trades
+                    |> Map.toSeq
+                    |> Seq.sumBy (fun (_, trades) -> trades.Length)
+
+                let totalDividends =
+                    tickerMovementData.Dividends
+                    |> Map.toSeq
+                    |> Seq.sumBy (fun (_, divs) -> divs.Length)
+
+                let totalDividendTaxes =
+                    tickerMovementData.DividendTaxes
+                    |> Map.toSeq
+                    |> Seq.sumBy (fun (_, taxes) -> taxes.Length)
+
+                let totalOptionTrades =
+                    tickerMovementData.OptionTrades
+                    |> Map.toSeq
+                    |> Seq.sumBy (fun (_, opts) -> opts.Length)
 
                 CoreLogger.logInfof
                     "TickerSnapshotBatchManager"
@@ -149,14 +156,12 @@ module internal TickerSnapshotBatchManager =
 
                 // Create calculation context
                 let context: TickerSnapshotBatchCalculator.TickerSnapshotBatchContext =
-                    { 
-                        BaselineTickerSnapshots = baselineTickerSnapshots
-                        BaselineCurrencySnapshots = baselineCurrencySnapshots
-                        TickerMovementData = tickerMovementData
-                        MarketPrices = marketPrices
-                        DateRange = dateRange
-                        TickerIds = request.TickerIds
-                    }
+                    { BaselineTickerSnapshots = baselineTickerSnapshots
+                      BaselineCurrencySnapshots = baselineCurrencySnapshots
+                      TickerMovementData = tickerMovementData
+                      MarketPrices = marketPrices
+                      DateRange = dateRange
+                      TickerIds = request.TickerIds }
 
                 // Calculate all snapshots in memory
                 let calculationResult =
@@ -273,8 +278,7 @@ module internal TickerSnapshotBatchManager =
                     brokerAccountId
 
                 // Determine which tickers are affected by this import
-                let! affectedTickers =
-                    TickerSnapshotBatchLoader.getTickersAffectedByImport brokerAccountId
+                let! affectedTickers = TickerSnapshotBatchLoader.getTickersAffectedByImport brokerAccountId
 
                 if affectedTickers.IsEmpty then
                     CoreLogger.logWarning

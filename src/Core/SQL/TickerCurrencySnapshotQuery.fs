@@ -128,6 +128,14 @@ module internal TickerCurrencySnapshotQuery =
             {Id} = {SQLParameterName.Id}
         """
     
+    let getById =
+        $"""
+        SELECT * FROM {TickerCurrencySnapshots}
+        WHERE
+            {Id} = {SQLParameterName.Id}
+        LIMIT 1
+        """
+    
     let getAllByTickerIdAndDate =
         $"""
         SELECT * FROM {TickerCurrencySnapshots}

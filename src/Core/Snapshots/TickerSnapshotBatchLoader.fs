@@ -1,6 +1,8 @@
 namespace Binnaculum.Core.Storage
 
+open System.Threading.Tasks
 open Binnaculum.Core.Database.DatabaseModel
+open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
 open TickerSnapshotExtensions
@@ -41,9 +43,9 @@ module internal TickerSnapshotBatchLoader =
     /// <param name="tickerIds">List of ticker IDs to load baselines for</param>
     /// <param name="beforeDate">Load snapshots before this date (exclusive)</param>
     /// <returns>Tuple of (TickerSnapshot map, TickerCurrencySnapshot map keyed by (tickerId, currencyId))</returns>
-    let loadBaselineSnapshots 
-        (tickerIds: int list) 
-        (beforeDate: DateTimePattern) 
+    let loadBaselineSnapshots
+        (tickerIds: int list)
+        (beforeDate: DateTimePattern)
         : Task<Map<int, TickerSnapshot> * Map<(int * int), TickerCurrencySnapshot>> =
         task {
             if tickerIds.IsEmpty then
@@ -61,16 +63,16 @@ module internal TickerSnapshotBatchLoader =
                     tickerIds
                     |> List.map (fun tickerId ->
                         task {
-                            let! snapshot = 
-                                TickerSnapshotExtensions.Do.getLatestBeforeDate(tickerId, beforeDate.ToString())
+                            let! snapshot =
+                                TickerSnapshotExtensions.Do.getLatestBeforeDate (tickerId, beforeDate.ToString())
+
                             return (tickerId, snapshot)
                         })
                     |> Task.WhenAll
 
                 let tickerSnapshotMap =
                     tickerSnapshots
-                    |> Array.choose (fun (tickerId, snapshot) ->
-                        snapshot |> Option.map (fun s -> (tickerId, s)))
+                    |> Array.choose (fun (tickerId, snapshot) -> snapshot |> Option.map (fun s -> (tickerId, s)))
                     |> Map.ofArray
 
                 // Load TickerCurrencySnapshots for found TickerSnapshots
@@ -79,13 +81,12 @@ module internal TickerSnapshotBatchLoader =
                     |> Map.toList
                     |> List.map (fun (tickerId, tickerSnapshot) ->
                         task {
-                            let! mainCurrency = 
-                                TickerCurrencySnapshotExtensions.Do.getById(tickerSnapshot.MainCurrency.Id)
-                            
+                            let! mainCurrency =
+                                TickerCurrencySnapshotExtensions.Do.getById (tickerSnapshot.MainCurrency.Id)
+
                             let! otherCurrencies =
                                 tickerSnapshot.OtherCurrencies
-                                |> List.map (fun cs -> 
-                                    TickerCurrencySnapshotExtensions.Do.getById(cs.Id))
+                                |> List.map (fun cs -> TickerCurrencySnapshotExtensions.Do.getById (cs.Id))
                                 |> Task.WhenAll
 
                             let allCurrencies =
@@ -93,16 +94,11 @@ module internal TickerSnapshotBatchLoader =
                                 | Some main -> main :: (otherCurrencies |> Array.choose id |> List.ofArray)
                                 | None -> (otherCurrencies |> Array.choose id |> List.ofArray)
 
-                            return 
-                                allCurrencies
-                                |> List.map (fun cs -> ((tickerId, cs.Currency.Id), cs))
+                            return allCurrencies |> List.map (fun cs -> ((tickerId, cs.Currency.Id), cs))
                         })
                     |> Task.WhenAll
 
-                let currencySnapshotMap =
-                    currencySnapshots
-                    |> Array.collect id
-                    |> Map.ofArray
+                let currencySnapshotMap = currencySnapshots |> Array.collect id |> Map.ofArray
 
                 CoreLogger.logInfof
                     "TickerSnapshotBatchLoader"
@@ -121,20 +117,20 @@ module internal TickerSnapshotBatchLoader =
     /// <param name="startDate">Start date (inclusive)</param>
     /// <param name="endDate">End date (inclusive)</param>
     /// <returns>TickerMovementData with movements grouped by ticker/currency/date</returns>
-    let loadTickerMovements 
-        (tickerIds: int list) 
-        (startDate: DateTimePattern) 
-        (endDate: DateTimePattern) 
+    let loadTickerMovements
+        (tickerIds: int list)
+        (startDate: DateTimePattern)
+        (endDate: DateTimePattern)
         : Task<TickerMovementData> =
         task {
             if tickerIds.IsEmpty then
                 CoreLogger.logDebug "TickerSnapshotBatchLoader" "No ticker IDs provided, returning empty movements"
-                return {
-                    Trades = Map.empty
-                    Dividends = Map.empty
-                    DividendTaxes = Map.empty
-                    OptionTrades = Map.empty
-                }
+
+                return
+                    { Trades = Map.empty
+                      Dividends = Map.empty
+                      DividendTaxes = Map.empty
+                      OptionTrades = Map.empty }
             else
                 CoreLogger.logInfof
                     "TickerSnapshotBatchLoader"
@@ -148,7 +144,7 @@ module internal TickerSnapshotBatchLoader =
                     tickerIds
                     |> List.map (fun tickerId ->
                         task {
-                            let! trades = TradeExtensions.Do.getByTickerIdFromDate(tickerId, startDate)
+                            let! trades = TradeExtensions.Do.getByTickerIdFromDate (tickerId, startDate)
                             return trades |> List.filter (fun t -> t.TimeStamp.Value <= endDate.Value)
                         })
                     |> Task.WhenAll
@@ -158,7 +154,7 @@ module internal TickerSnapshotBatchLoader =
                     tickerIds
                     |> List.map (fun tickerId ->
                         task {
-                            let! dividends = DividendExtensions.Do.getByTickerIdFromDate(tickerId, startDate)
+                            let! dividends = DividendExtensions.Do.getByTickerIdFromDate (tickerId, startDate)
                             return dividends |> List.filter (fun d -> d.TimeStamp.Value <= endDate.Value)
                         })
                     |> Task.WhenAll
@@ -168,7 +164,7 @@ module internal TickerSnapshotBatchLoader =
                     tickerIds
                     |> List.map (fun tickerId ->
                         task {
-                            let! dividendTaxes = DividendTaxExtensions.Do.getByTickerIdFromDate(tickerId, startDate)
+                            let! dividendTaxes = DividendTaxExtensions.Do.getByTickerIdFromDate (tickerId, startDate)
                             return dividendTaxes |> List.filter (fun dt -> dt.TimeStamp.Value <= endDate.Value)
                         })
                     |> Task.WhenAll
@@ -178,7 +174,7 @@ module internal TickerSnapshotBatchLoader =
                     tickerIds
                     |> List.map (fun tickerId ->
                         task {
-                            let! optionTrades = OptionTradeExtensions.Do.getByTickerIdFromDate(tickerId, startDate)
+                            let! optionTrades = OptionTradeExtensions.Do.getByTickerIdFromDate (tickerId, startDate)
                             return optionTrades |> List.filter (fun ot -> ot.TimeStamp.Value <= endDate.Value)
                         })
                     |> Task.WhenAll
@@ -187,7 +183,7 @@ module internal TickerSnapshotBatchLoader =
                 let tradesByKey =
                     allTrades
                     |> Array.collect id
-                    |> Array.groupBy (fun t -> 
+                    |> Array.groupBy (fun t ->
                         (t.TickerId, t.CurrencyId, SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp))
                     |> Array.map (fun (key, trades) -> (key, trades |> List.ofArray))
                     |> Map.ofArray
@@ -195,7 +191,7 @@ module internal TickerSnapshotBatchLoader =
                 let dividendsByKey =
                     allDividends
                     |> Array.collect id
-                    |> Array.groupBy (fun d -> 
+                    |> Array.groupBy (fun d ->
                         (d.TickerId, d.CurrencyId, SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp))
                     |> Array.map (fun (key, dividends) -> (key, dividends |> List.ofArray))
                     |> Map.ofArray
@@ -203,7 +199,7 @@ module internal TickerSnapshotBatchLoader =
                 let dividendTaxesByKey =
                     allDividendTaxes
                     |> Array.collect id
-                    |> Array.groupBy (fun dt -> 
+                    |> Array.groupBy (fun dt ->
                         (dt.TickerId, dt.CurrencyId, SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp))
                     |> Array.map (fun (key, taxes) -> (key, taxes |> List.ofArray))
                     |> Map.ofArray
@@ -211,16 +207,16 @@ module internal TickerSnapshotBatchLoader =
                 let optionTradesByKey =
                     allOptionTrades
                     |> Array.collect id
-                    |> Array.groupBy (fun ot -> 
+                    |> Array.groupBy (fun ot ->
                         (ot.TickerId, ot.CurrencyId, SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp))
                     |> Array.map (fun (key, options) -> (key, options |> List.ofArray))
                     |> Map.ofArray
 
                 let totalMovements =
-                    (allTrades |> Array.sumBy (fun arr -> arr.Length)) +
-                    (allDividends |> Array.sumBy (fun arr -> arr.Length)) +
-                    (allDividendTaxes |> Array.sumBy (fun arr -> arr.Length)) +
-                    (allOptionTrades |> Array.sumBy (fun arr -> arr.Length))
+                    (allTrades |> Array.sumBy (fun arr -> arr.Length))
+                    + (allDividends |> Array.sumBy (fun arr -> arr.Length))
+                    + (allDividendTaxes |> Array.sumBy (fun arr -> arr.Length))
+                    + (allOptionTrades |> Array.sumBy (fun arr -> arr.Length))
 
                 CoreLogger.logInfof
                     "TickerSnapshotBatchLoader"
@@ -231,12 +227,11 @@ module internal TickerSnapshotBatchLoader =
                     (allDividendTaxes |> Array.sumBy (fun arr -> arr.Length))
                     (allOptionTrades |> Array.sumBy (fun arr -> arr.Length))
 
-                return {
-                    Trades = tradesByKey
-                    Dividends = dividendsByKey
-                    DividendTaxes = dividendTaxesByKey
-                    OptionTrades = optionTradesByKey
-                }
+                return
+                    { Trades = tradesByKey
+                      Dividends = dividendsByKey
+                      DividendTaxes = dividendTaxesByKey
+                      OptionTrades = optionTradesByKey }
         }
 
     /// <summary>
@@ -247,10 +242,10 @@ module internal TickerSnapshotBatchLoader =
     /// <param name="startDate">Start date (inclusive)</param>
     /// <param name="endDate">End date (inclusive)</param>
     /// <returns>Map of (tickerId, date) to price</returns>
-    let loadMarketPrices 
-        (tickerIds: int list) 
-        (startDate: DateTimePattern) 
-        (endDate: DateTimePattern) 
+    let loadMarketPrices
+        (tickerIds: int list)
+        (startDate: DateTimePattern)
+        (endDate: DateTimePattern)
         : Task<Map<(int * DateTimePattern), decimal>> =
         task {
             if tickerIds.IsEmpty then
@@ -277,21 +272,21 @@ module internal TickerSnapshotBatchLoader =
                                 dateRange
                                 |> List.map (fun date ->
                                     task {
-                                        let! price = 
-                                            TickerPriceExtensions.Do.getPriceByDateOrPrevious(
-                                                tickerId, 
-                                                date.ToString())
+                                        let! price =
+                                            TickerPriceExtensions.Do.getPriceByDateOrPrevious (
+                                                tickerId,
+                                                date.ToString()
+                                            )
+
                                         return ((tickerId, date), price)
                                     })
                                 |> Task.WhenAll
+
                             return pricesForTicker |> List.ofArray
                         })
                     |> Task.WhenAll
 
-                let priceMap =
-                    allPrices
-                    |> Array.collect id
-                    |> Map.ofArray
+                let priceMap = allPrices |> Array.collect id |> Map.ofArray
 
                 let pricesFound = priceMap |> Map.filter (fun _ price -> price > 0m) |> Map.count
 
@@ -312,10 +307,7 @@ module internal TickerSnapshotBatchLoader =
     /// <param name="brokerAccountId">Broker account ID to check</param>
     /// <param name="sinceDate">Check for movements since this date</param>
     /// <returns>List of ticker IDs that have movements</returns>
-    let getTickersAffectedByImport 
-        (brokerAccountId: int) 
-        (sinceDate: DateTimePattern) 
-        : Task<int list> =
+    let getTickersAffectedByImport (brokerAccountId: int) (sinceDate: DateTimePattern) : Task<int list> =
         task {
             CoreLogger.logInfof
                 "TickerSnapshotBatchLoader"
@@ -324,9 +316,9 @@ module internal TickerSnapshotBatchLoader =
                 (sinceDate.ToString())
 
             // Get all trades, dividends, and options since date
-            let! trades = TradeExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, sinceDate)
-            let! dividends = DividendExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, sinceDate)
-            let! optionTrades = OptionTradeExtensions.Do.getByBrokerAccountIdFromDate(brokerAccountId, sinceDate)
+            let! trades = TradeExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, sinceDate)
+            let! dividends = DividendExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, sinceDate)
+            let! optionTrades = OptionTradeExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, sinceDate)
 
             // Extract unique ticker IDs
             let tickerIds =
@@ -337,10 +329,7 @@ module internal TickerSnapshotBatchLoader =
                 |> List.distinct
                 |> List.sort
 
-            CoreLogger.logInfof
-                "TickerSnapshotBatchLoader"
-                "Found %d tickers affected by import"
-                tickerIds.Length
+            CoreLogger.logInfof "TickerSnapshotBatchLoader" "Found %d tickers affected by import" tickerIds.Length
 
             return tickerIds
         }

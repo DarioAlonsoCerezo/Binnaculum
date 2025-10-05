@@ -1,6 +1,7 @@
 namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.DatabaseModel
+open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Logging
 open Binnaculum.Core.Patterns
 open TickerSnapshotExtensions
@@ -84,7 +85,9 @@ module internal TickerSnapshotBatchPersistence =
 
                                     // Preserve existing ID
                                     { tickerSnapshot with
-                                        Base = { tickerSnapshot.Base with Id = existing.Base.Id } }
+                                        Base =
+                                            { tickerSnapshot.Base with
+                                                Id = existing.Base.Id } }
 
                                 | None ->
                                     CoreLogger.logDebugf
@@ -143,7 +146,9 @@ module internal TickerSnapshotBatchPersistence =
 
                                             // Preserve existing ID, update TickerSnapshotId reference
                                             { currencySnapshot with
-                                                Base = { currencySnapshot.Base with Id = existing.Base.Id }
+                                                Base =
+                                                    { currencySnapshot.Base with
+                                                        Id = existing.Base.Id }
                                                 TickerSnapshotId = tickerSnapshotId }
 
                                         | None ->
@@ -155,7 +160,8 @@ module internal TickerSnapshotBatchPersistence =
                                                 (currencySnapshot.Base.Date.ToString())
 
                                             // Set TickerSnapshotId reference
-                                            { currencySnapshot with TickerSnapshotId = tickerSnapshotId }
+                                            { currencySnapshot with
+                                                TickerSnapshotId = tickerSnapshotId }
 
                                     do! currencySnapshotToSave.save ()
                                     currencySnapshotsSaved <- currencySnapshotsSaved + 1
@@ -170,7 +176,7 @@ module internal TickerSnapshotBatchPersistence =
                                             ex.Message
 
                                     CoreLogger.logError "TickerSnapshotBatchPersistence" errorMsg
-                                    // Continue with other snapshots instead of failing completely
+                        // Continue with other snapshots instead of failing completely
 
                         with ex ->
                             let errorMsg =
@@ -181,7 +187,7 @@ module internal TickerSnapshotBatchPersistence =
                                     ex.Message
 
                             CoreLogger.logError "TickerSnapshotBatchPersistence" errorMsg
-                            // Continue with other snapshots instead of failing completely
+                    // Continue with other snapshots instead of failing completely
 
                     stopwatch.Stop()
 
@@ -270,7 +276,7 @@ module internal TickerSnapshotBatchPersistence =
                             sprintf "Failed to delete existing snapshots for Ticker=%d: %s" tickerId ex.Message
 
                         CoreLogger.logWarning "TickerSnapshotBatchPersistence" errorMsg
-                        // Continue with other tickers
+                // Continue with other tickers
 
                 CoreLogger.logInfof
                     "TickerSnapshotBatchPersistence"
@@ -333,15 +339,16 @@ module internal TickerSnapshotBatchPersistence =
                     (date.ToString())
 
                 // Get all currency snapshots for this ticker and date
-                let! existingSnapshots =
-                    TickerCurrencySnapshotExtensions.Do.getAllByTickerIdAndDate (tickerId, date)
+                let! existingSnapshots = TickerCurrencySnapshotExtensions.Do.getAllByTickerIdAndDate (tickerId, date)
 
                 let mutable updatedCount = 0
 
                 for snapshot in existingSnapshots do
                     // Update only if TickerSnapshotId is not already set correctly
                     if snapshot.TickerSnapshotId <> tickerSnapshotId then
-                        let updatedSnapshot = { snapshot with TickerSnapshotId = tickerSnapshotId }
+                        let updatedSnapshot =
+                            { snapshot with
+                                TickerSnapshotId = tickerSnapshotId }
 
                         do! updatedSnapshot.save ()
                         updatedCount <- updatedCount + 1

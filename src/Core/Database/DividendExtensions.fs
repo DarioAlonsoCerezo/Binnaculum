@@ -112,6 +112,15 @@ type Do() =
         let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
         return dividends
     }
+    
+    static member getByTickerIdFromDate(tickerId: int, startDate: DateTimePattern) = task {
+        let! command = Database.Do.createCommand()
+        command.CommandText <- DividendsQuery.getByTickerIdFromDate
+        command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+        command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString()) |> ignore
+        let! dividends = Database.Do.readAll<Dividend>(command, Do.read)
+        return dividends
+    }
 
 /// <summary>
 /// Financial calculation extension methods for Dividend collections.

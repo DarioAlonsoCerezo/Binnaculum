@@ -1,6 +1,7 @@
 namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.DatabaseModel
+open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
 open System.Diagnostics
@@ -109,7 +110,8 @@ module internal TickerSnapshotBatchCalculator =
                     CoreLogger.logDebugf "TickerSnapshotBatchCalculator" "Processing date %s" (date.ToString())
 
                     // Track snapshots created for this date (will be grouped into TickerSnapshot)
-                    let mutable currencySnapshotsForDate: Map<int, TickerCurrencySnapshot list> = Map.empty
+                    let mutable currencySnapshotsForDate: Map<int, TickerCurrencySnapshot list> =
+                        Map.empty
 
                     // Process each ticker
                     for tickerId in context.TickerIds do
@@ -150,13 +152,11 @@ module internal TickerSnapshotBatchCalculator =
                                                 context.MovementsByTickerCurrencyDate
 
                                         // Get previous snapshot for this ticker/currency
-                                        let previousSnapshot =
-                                            latestCurrencySnapshots.TryFind((tickerId, currencyId))
+                                        let previousSnapshot = latestCurrencySnapshots.TryFind((tickerId, currencyId))
 
                                         // Get market price for this ticker/date
                                         let marketPrice =
-                                            context.MarketPrices.TryFind((tickerId, date))
-                                            |> Option.defaultValue 0m
+                                            context.MarketPrices.TryFind((tickerId, date)) |> Option.defaultValue 0m
 
                                         // Count movements
                                         match movements with
@@ -267,7 +267,11 @@ module internal TickerSnapshotBatchCalculator =
 
                         with ex ->
                             let errorMsg =
-                                sprintf "Error processing ticker %d on date %s: %s" tickerId (date.ToString()) ex.Message
+                                sprintf
+                                    "Error processing ticker %d on date %s: %s"
+                                    tickerId
+                                    (date.ToString())
+                                    ex.Message
 
                             CoreLogger.logError "TickerSnapshotBatchCalculator" errorMsg
                             errors <- errorMsg :: errors

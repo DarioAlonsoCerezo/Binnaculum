@@ -232,3 +232,13 @@ module internal OptionsQuery =
         ORDER BY {TimeStamp}
         LIMIT 1
         """
+    
+    let getByTickerIdFromDate =
+        $"""
+        SELECT * FROM {Options}
+        WHERE
+            {TickerId} = {SQLParameterName.TickerId}
+            AND {TimeStamp} >= {SQLParameterName.TimeStamp}
+        ORDER BY {TimeStamp}
+        """
+

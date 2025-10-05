@@ -296,6 +296,21 @@ type Do() =
             let! optionTrades = Database.Do.readAll<OptionTrade> (command, Do.read)
             return optionTrades
         }
+    
+    static member getByTickerIdFromDate(tickerId: int, startDate: DateTimePattern) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- OptionsQuery.getByTickerIdFromDate
+
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.TimeStamp, startDate.ToString())
+            |> ignore
+
+            let! optionTrades = Database.Do.readAll<OptionTrade> (command, Do.read)
+            return optionTrades
+        }
 
 /// <summary>
 /// Financial calculation extension methods for OptionTrade collections.

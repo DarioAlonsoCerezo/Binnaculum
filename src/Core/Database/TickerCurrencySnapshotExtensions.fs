@@ -62,6 +62,15 @@ type Do() =
 
     [<Extension>]
     static member delete(snapshot: TickerCurrencySnapshot) = Database.Do.deleteEntity snapshot
+    
+    static member getById(id: int) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TickerCurrencySnapshotQuery.getById
+            command.Parameters.AddWithValue(SQLParameterName.Id, id) |> ignore
+            let! snapshot = Database.Do.read<TickerCurrencySnapshot>(command, Do.read)
+            return snapshot
+        }
 
     static member getAllByTickerIdAndDate(tickerId: int, date: Binnaculum.Core.Patterns.DateTimePattern) =
         task {

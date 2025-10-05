@@ -57,6 +57,16 @@ type Do() =
             let! snapshot = Database.Do.read<TickerSnapshot>(command, Do.read)
             return snapshot
         }
+    
+    static member getLatestBeforeDate(tickerId: int, beforeDate: string) =
+        task {
+            let! command = Database.Do.createCommand()
+            command.CommandText <- TickerSnapshotQuery.getLatestBeforeDate
+            command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
+            command.Parameters.AddWithValue(SQLParameterName.Date, beforeDate) |> ignore
+            let! snapshot = Database.Do.read<TickerSnapshot>(command, Do.read)
+            return snapshot
+        }
         
     static member getByTickerIdAndDate(tickerId: int, date: Binnaculum.Core.Patterns.DateTimePattern) =
         task {
