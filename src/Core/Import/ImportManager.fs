@@ -10,6 +10,7 @@ open Binnaculum.Core.Logging
 open Binnaculum.Core.Storage
 open Binnaculum.Core.DataLoader
 open BrokerExtensions
+open Binnaculum.Core.Storage.TickerSnapshotBatchManager
 
 /// <summary>
 /// Main import manager for file import operations with cancellation support
@@ -243,6 +244,30 @@ module ImportManager =
                                                                     "ImportManager"
                                                                     "Batch snapshot processing had errors: %s"
                                                                     (batchResult.Errors |> String.concat "; ")
+
+                                                            // Process ticker snapshots in batch (NEW - Phase 2 of snapshot processing)
+                                                            CoreLogger.logInfo
+                                                                "ImportManager"
+                                                                "Starting batch ticker snapshot processing for import"
+
+                                                            let! tickerBatchResult =
+                                                                TickerSnapshotBatchManager.processBatchedTickersForImport(brokerAccount.Id)
+
+                                                            if tickerBatchResult.Success then
+                                                                CoreLogger.logInfof
+                                                                    "ImportManager"
+                                                                    "Ticker snapshot batch processing completed: %d ticker snapshots, %d currency snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)"
+                                                                    tickerBatchResult.TickerSnapshotsSaved
+                                                                    tickerBatchResult.CurrencySnapshotsSaved
+                                                                    tickerBatchResult.TotalTimeMs
+                                                                    tickerBatchResult.LoadTimeMs
+                                                                    tickerBatchResult.CalculationTimeMs
+                                                                    tickerBatchResult.PersistenceTimeMs
+                                                            else
+                                                                CoreLogger.logWarningf
+                                                                    "ImportManager"
+                                                                    "Ticker snapshot batch processing had errors: %s"
+                                                                    (tickerBatchResult.Errors |> String.concat "; ")
 
                                                             // Refresh reactive snapshot manager to pick up new snapshots
                                                             do! ReactiveSnapshotManager.refreshAsync ()
