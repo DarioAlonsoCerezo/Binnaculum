@@ -95,3 +95,15 @@ type Do() =
             let! snapshots = Database.Do.readAll<TickerCurrencySnapshot> (command, Do.read)
             return snapshots
         }
+
+    static member getAllByTickerSnapshotId(tickerSnapshotId: int) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- TickerCurrencySnapshotQuery.getAllByTickerSnapshotId
+
+            command.Parameters.AddWithValue(SQLParameterName.TickerSnapshotId, tickerSnapshotId)
+            |> ignore
+
+            let! snapshots = Database.Do.readAll<TickerCurrencySnapshot> (command, Do.read)
+            return snapshots
+        }

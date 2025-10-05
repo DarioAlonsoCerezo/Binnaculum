@@ -3,6 +3,7 @@ namespace Binnaculum.Core.Storage
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
 open System.Diagnostics
+open System.Threading.Tasks
 
 /// <summary>
 /// Main orchestration manager for batch ticker snapshot processing.
@@ -158,7 +159,7 @@ module internal TickerSnapshotBatchManager =
                 let context: TickerSnapshotBatchCalculator.TickerSnapshotBatchContext =
                     { BaselineTickerSnapshots = baselineTickerSnapshots
                       BaselineCurrencySnapshots = baselineCurrencySnapshots
-                      TickerMovementData = tickerMovementData
+                      MovementsByTickerCurrencyDate = tickerMovementData
                       MarketPrices = marketPrices
                       DateRange = dateRange
                       TickerIds = request.TickerIds }
@@ -172,24 +173,16 @@ module internal TickerSnapshotBatchManager =
                 CoreLogger.logInfof
                     "TickerSnapshotBatchManager"
                     "Batch calculations completed: %d ticker snapshots calculated, %d currency snapshots calculated in %dms"
-                    calculationResult.ProcessingMetrics.TickerSnapshotsCalculated
-                    calculationResult.ProcessingMetrics.CurrencySnapshotsCalculated
+                    calculationResult.ProcessingMetrics.SnapshotsCreated
+                    calculationResult.ProcessingMetrics.CurrencySnapshotsCreated
                     calculationResult.ProcessingMetrics.CalculationTimeMs
 
                 // ========== PHASE 3: PERSIST ALL RESULTS ==========
                 CoreLogger.logDebug "TickerSnapshotBatchManager" "Phase 3: Persisting snapshots..."
 
                 let! persistenceResult =
-                    if request.ForceRecalculation then
-                        // Delete existing snapshots and insert new ones
-                        TickerSnapshotBatchPersistence.persistBatchedSnapshotsWithCleanup
-                            calculationResult.CalculatedSnapshots
-                            request.TickerIds
-                            request.StartDate
-                            request.EndDate
-                    else
-                        // Just persist new snapshots (with deduplication)
-                        TickerSnapshotBatchPersistence.persistBatchedSnapshots calculationResult.CalculatedSnapshots
+                    // Persist new snapshots (with deduplication and FK linking)
+                    TickerSnapshotBatchPersistence.persistBatchedSnapshots calculationResult
 
                 match persistenceResult with
                 | Ok metrics ->
@@ -278,10 +271,12 @@ module internal TickerSnapshotBatchManager =
                     brokerAccountId
 
                 // Determine which tickers are affected by this import
-                let! affectedTickers = TickerSnapshotBatchLoader.getTickersAffectedByImport brokerAccountId
+                // Use a reasonable lookback period - last 90 days should cover most imports
+                let sinceDate = DateTimePattern.FromDateTime(System.DateTime.Now.AddDays(-90.0))
+                let! affectedTickers = TickerSnapshotBatchLoader.getTickersAffectedByImport brokerAccountId sinceDate
 
                 if affectedTickers.IsEmpty then
-                    CoreLogger.logWarning
+                    CoreLogger.logWarningf
                         "TickerSnapshotBatchManager"
                         "No affected tickers found for broker account %d - skipping batch processing"
                         brokerAccountId

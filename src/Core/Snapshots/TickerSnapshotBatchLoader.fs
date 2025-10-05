@@ -37,6 +37,23 @@ module internal TickerSnapshotBatchLoader =
         }
 
     /// <summary>
+    /// Generate a list of dates between start and end (inclusive).
+    /// Helper function for generating date ranges for price loading.
+    /// </summary>
+    let private generateDateRange (startDate: DateTimePattern) (endDate: DateTimePattern) : DateTimePattern list =
+        let normalizedStart = SnapshotManagerUtils.normalizeToStartOfDay startDate
+        let normalizedEnd = SnapshotManagerUtils.normalizeToStartOfDay endDate
+
+        let rec generateDates (acc: DateTimePattern list) (currentDate: DateTimePattern) : DateTimePattern list =
+            if currentDate.Value > normalizedEnd.Value then
+                acc |> List.rev
+            else
+                let nextDate = DateTimePattern.FromDateTime(currentDate.Value.AddDays(1.0))
+                generateDates (currentDate :: acc) nextDate
+
+        generateDates [] normalizedStart
+
+    /// <summary>
     /// Load baseline snapshots (latest before processing period) for multiple tickers.
     /// Returns both TickerSnapshots and their TickerCurrencySnapshots.
     /// </summary>
@@ -81,24 +98,17 @@ module internal TickerSnapshotBatchLoader =
                     |> Map.toList
                     |> List.map (fun (tickerId, tickerSnapshot) ->
                         task {
-                            let! mainCurrency =
-                                TickerCurrencySnapshotExtensions.Do.getById (tickerSnapshot.MainCurrency.Id)
+                            // Query TickerCurrencySnapshots by foreign key (TickerSnapshotId)
+                            let! currencies =
+                                TickerCurrencySnapshotExtensions.Do.getAllByTickerSnapshotId (tickerSnapshot.Base.Id)
 
-                            let! otherCurrencies =
-                                tickerSnapshot.OtherCurrencies
-                                |> List.map (fun cs -> TickerCurrencySnapshotExtensions.Do.getById (cs.Id))
-                                |> Task.WhenAll
-
-                            let allCurrencies =
-                                match mainCurrency with
-                                | Some main -> main :: (otherCurrencies |> Array.choose id |> List.ofArray)
-                                | None -> (otherCurrencies |> Array.choose id |> List.ofArray)
-
-                            return allCurrencies |> List.map (fun cs -> ((tickerId, cs.Currency.Id), cs))
+                            // Return tuples keyed by (tickerId, currencyId)
+                            return currencies |> List.map (fun cs -> ((tickerId, cs.CurrencyId), cs))
                         })
                     |> Task.WhenAll
 
-                let currencySnapshotMap = currencySnapshots |> Array.collect id |> Map.ofArray
+                let currencySnapshotMap: Map<(int * int), TickerCurrencySnapshot> =
+                    currencySnapshots |> Array.collect (Array.ofList) |> Map.ofArray
 
                 CoreLogger.logInfof
                     "TickerSnapshotBatchLoader"
@@ -180,52 +190,52 @@ module internal TickerSnapshotBatchLoader =
                     |> Task.WhenAll
 
                 // Flatten and group by (tickerId, currencyId, date)
-                let tradesByKey =
+                let tradesByKey: Map<(int * int * DateTimePattern), Trade list> =
                     allTrades
-                    |> Array.collect id
-                    |> Array.groupBy (fun t ->
+                    |> Array.collect (List.toArray)
+                    |> Array.groupBy (fun (t: Trade) ->
                         (t.TickerId, t.CurrencyId, SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp))
-                    |> Array.map (fun (key, trades) -> (key, trades |> List.ofArray))
+                    |> Array.map (fun (key, trades) -> (key, Array.toList trades))
                     |> Map.ofArray
 
-                let dividendsByKey =
+                let dividendsByKey: Map<(int * int * DateTimePattern), Dividend list> =
                     allDividends
-                    |> Array.collect id
-                    |> Array.groupBy (fun d ->
+                    |> Array.collect (List.toArray)
+                    |> Array.groupBy (fun (d: Dividend) ->
                         (d.TickerId, d.CurrencyId, SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp))
-                    |> Array.map (fun (key, dividends) -> (key, dividends |> List.ofArray))
+                    |> Array.map (fun (key, dividends) -> (key, Array.toList dividends))
                     |> Map.ofArray
 
-                let dividendTaxesByKey =
+                let dividendTaxesByKey: Map<(int * int * DateTimePattern), DividendTax list> =
                     allDividendTaxes
-                    |> Array.collect id
-                    |> Array.groupBy (fun dt ->
+                    |> Array.collect (List.toArray)
+                    |> Array.groupBy (fun (dt: DividendTax) ->
                         (dt.TickerId, dt.CurrencyId, SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp))
-                    |> Array.map (fun (key, taxes) -> (key, taxes |> List.ofArray))
+                    |> Array.map (fun (key, taxes) -> (key, Array.toList taxes))
                     |> Map.ofArray
 
-                let optionTradesByKey =
+                let optionTradesByKey: Map<(int * int * DateTimePattern), OptionTrade list> =
                     allOptionTrades
-                    |> Array.collect id
-                    |> Array.groupBy (fun ot ->
+                    |> Array.collect (List.toArray)
+                    |> Array.groupBy (fun (ot: OptionTrade) ->
                         (ot.TickerId, ot.CurrencyId, SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp))
-                    |> Array.map (fun (key, options) -> (key, options |> List.ofArray))
+                    |> Array.map (fun (key, options) -> (key, Array.toList options))
                     |> Map.ofArray
 
                 let totalMovements =
-                    (allTrades |> Array.sumBy (fun arr -> arr.Length))
-                    + (allDividends |> Array.sumBy (fun arr -> arr.Length))
-                    + (allDividendTaxes |> Array.sumBy (fun arr -> arr.Length))
-                    + (allOptionTrades |> Array.sumBy (fun arr -> arr.Length))
+                    (allTrades |> Array.sumBy (fun (arr: Trade list) -> arr.Length))
+                    + (allDividends |> Array.sumBy (fun (arr: Dividend list) -> arr.Length))
+                    + (allDividendTaxes |> Array.sumBy (fun (arr: DividendTax list) -> arr.Length))
+                    + (allOptionTrades |> Array.sumBy (fun (arr: OptionTrade list) -> arr.Length))
 
                 CoreLogger.logInfof
                     "TickerSnapshotBatchLoader"
                     "Loaded %d total movements (%d trades, %d dividends, %d taxes, %d options)"
                     totalMovements
-                    (allTrades |> Array.sumBy (fun arr -> arr.Length))
-                    (allDividends |> Array.sumBy (fun arr -> arr.Length))
-                    (allDividendTaxes |> Array.sumBy (fun arr -> arr.Length))
-                    (allOptionTrades |> Array.sumBy (fun arr -> arr.Length))
+                    (allTrades |> Array.sumBy (fun (arr: Trade list) -> arr.Length))
+                    (allDividends |> Array.sumBy (fun (arr: Dividend list) -> arr.Length))
+                    (allDividendTaxes |> Array.sumBy (fun (arr: DividendTax list) -> arr.Length))
+                    (allOptionTrades |> Array.sumBy (fun (arr: OptionTrade list) -> arr.Length))
 
                 return
                     { Trades = tradesByKey
@@ -260,7 +270,7 @@ module internal TickerSnapshotBatchLoader =
                     (endDate.ToString())
 
                 // Generate all dates in range
-                let dateRange = SnapshotManagerUtils.generateDateRange startDate endDate
+                let dateRange = generateDateRange startDate endDate
 
                 // Load prices for each ticker/date combination
                 let! allPrices =
@@ -286,7 +296,8 @@ module internal TickerSnapshotBatchLoader =
                         })
                     |> Task.WhenAll
 
-                let priceMap = allPrices |> Array.collect id |> Map.ofArray
+                let priceMap: Map<(int * DateTimePattern), decimal> =
+                    allPrices |> Array.collect (Array.ofList) |> Map.ofArray
 
                 let pricesFound = priceMap |> Map.filter (fun _ price -> price > 0m) |> Map.count
 

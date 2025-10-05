@@ -52,7 +52,7 @@ module internal TickerSnapshotCalculateInMemory =
             movements.Trades.Length
             movements.Dividends.Length
             movements.OptionTrades.Length
-            (previousSnapshot.Date.Value.ToString())
+            (previousSnapshot.Base.Date.Value.ToString())
 
         // Calculate shares delta from trades
         let sharesDelta = movements.Trades |> List.sumBy (fun t -> t.Quantity)
@@ -128,6 +128,7 @@ module internal TickerSnapshotCalculateInMemory =
         { Base = SnapshotManagerUtils.createBaseSnapshot date
           TickerId = tickerId
           CurrencyId = currencyId
+          TickerSnapshotId = 0 // Will be set during persistence phase
           TotalShares = totalShares
           Weight = weight
           CostBasis = costBasis
@@ -138,7 +139,7 @@ module internal TickerSnapshotCalculateInMemory =
           Unrealized = unrealized
           Realized = realized
           Performance = performance
-          LatestPrice = marketPrice
+          LatestPrice = Money.FromAmount(marketPrice)
           OpenTrades = openTrades }
 
     /// <summary>
@@ -239,6 +240,7 @@ module internal TickerSnapshotCalculateInMemory =
         { Base = SnapshotManagerUtils.createBaseSnapshot date
           TickerId = tickerId
           CurrencyId = currencyId
+          TickerSnapshotId = 0 // Will be set during persistence phase
           TotalShares = totalShares
           Weight = weight
           CostBasis = costBasis
@@ -249,7 +251,7 @@ module internal TickerSnapshotCalculateInMemory =
           Unrealized = unrealized
           Realized = realized
           Performance = performance
-          LatestPrice = marketPrice
+          LatestPrice = Money.FromAmount(marketPrice)
           OpenTrades = openTrades }
 
     /// <summary>
@@ -274,7 +276,7 @@ module internal TickerSnapshotCalculateInMemory =
             "Updating EXISTING snapshot - Ticker:%d Currency:%d Date:%s (Existing:%d movements)"
             existingSnapshot.TickerId
             existingSnapshot.CurrencyId
-            (existingSnapshot.Date.Value.ToString())
+            (existingSnapshot.Base.Date.Value.ToString())
             (movements.Trades.Length
              + movements.Dividends.Length
              + movements.OptionTrades.Length)
@@ -315,7 +317,7 @@ module internal TickerSnapshotCalculateInMemory =
             "Carrying forward snapshot - Ticker:%d Currency:%d From:%s To:%s"
             previousSnapshot.TickerId
             previousSnapshot.CurrencyId
-            (previousSnapshot.Date.Value.ToString())
+            (previousSnapshot.Base.Date.Value.ToString())
             (newDate.ToString())
 
         // Recalculate unrealized gains with new market price
@@ -333,7 +335,7 @@ module internal TickerSnapshotCalculateInMemory =
             "TickerSnapshotCalculateInMemory"
             "Carried forward - Shares:%M Price:%M->%M Unrealized:%M->%M"
             previousSnapshot.TotalShares
-            previousSnapshot.LatestPrice
+            previousSnapshot.LatestPrice.Value
             marketPrice
             previousSnapshot.Unrealized.Value
             unrealized.Value
@@ -342,6 +344,7 @@ module internal TickerSnapshotCalculateInMemory =
         { Base = SnapshotManagerUtils.createBaseSnapshot newDate
           TickerId = previousSnapshot.TickerId
           CurrencyId = previousSnapshot.CurrencyId
+          TickerSnapshotId = 0 // Will be set during persistence phase
           TotalShares = previousSnapshot.TotalShares
           Weight = 0.0m // Will be recalculated at TickerSnapshot level
           CostBasis = previousSnapshot.CostBasis
@@ -352,7 +355,7 @@ module internal TickerSnapshotCalculateInMemory =
           Unrealized = unrealized
           Realized = previousSnapshot.Realized
           Performance = performance
-          LatestPrice = marketPrice
+          LatestPrice = Money.FromAmount(marketPrice)
           OpenTrades = previousSnapshot.OpenTrades }
 
     /// <summary>

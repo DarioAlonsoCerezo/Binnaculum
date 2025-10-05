@@ -34,11 +34,14 @@ module internal TickerSnapshotBatchCalculator =
 
     /// <summary>
     /// Result of batch calculation with metrics and any errors.
+    /// Returns separate lists for TickerSnapshot and TickerCurrencySnapshot (flat structure).
     /// </summary>
     type TickerSnapshotBatchResult =
         {
-            /// Successfully calculated snapshots (TickerSnapshot + TickerCurrencySnapshot list)
-            CalculatedSnapshots: (TickerSnapshot * TickerCurrencySnapshot list) list
+            /// Successfully calculated ticker snapshots (simple entities with no embedded children)
+            TickerSnapshots: TickerSnapshot list
+            /// Successfully calculated currency snapshots (separate entities, will be linked via FK during persistence)
+            CurrencySnapshots: TickerCurrencySnapshot list
             /// Processing metrics for monitoring
             ProcessingMetrics:
                 {| TickersProcessed: int
@@ -87,7 +90,8 @@ module internal TickerSnapshotBatchCalculator =
     /// <returns>TickerSnapshotBatchResult with all calculated snapshots and metrics</returns>
     let calculateBatchedTickerSnapshots (context: TickerSnapshotBatchContext) : TickerSnapshotBatchResult =
         let stopwatch = Stopwatch.StartNew()
-        let mutable calculatedSnapshots = []
+        let mutable tickerSnapshots = []
+        let mutable currencySnapshots = []
         let mutable errors = []
         let mutable movementsProcessed = 0
         let mutable snapshotsCreated = 0
@@ -239,6 +243,8 @@ module internal TickerSnapshotBatchCalculator =
                                         // Add snapshot to results and update tracking
                                         match newSnapshot with
                                         | Some snapshot ->
+                                            // Add to currencySnapshots list
+                                            currencySnapshots <- snapshot :: currencySnapshots
                                             tickerCurrencySnapshots <- snapshot :: tickerCurrencySnapshots
 
                                             // Update latest snapshot for this ticker/currency
@@ -262,54 +268,24 @@ module internal TickerSnapshotBatchCalculator =
 
                                 // If we created currency snapshots for this ticker, create TickerSnapshot
                                 if not tickerCurrencySnapshots.IsEmpty then
-                                    currencySnapshotsForDate <-
-                                        currencySnapshotsForDate.Add(tickerId, tickerCurrencySnapshots)
+                                    let tickerSnapshot =
+                                        { Base = SnapshotManagerUtils.createBaseSnapshot date
+                                          TickerId = tickerId }
+
+                                    tickerSnapshots <- tickerSnapshot :: tickerSnapshots
+                                    snapshotsCreated <- snapshotsCreated + 1
+
+                                    CoreLogger.logDebugf
+                                        "TickerSnapshotBatchCalculator"
+                                        "Created TickerSnapshot for ticker %d date %s (%d currencies)"
+                                        tickerId
+                                        (date.ToString())
+                                        tickerCurrencySnapshots.Length
 
                         with ex ->
                             let errorMsg =
                                 sprintf
                                     "Error processing ticker %d on date %s: %s"
-                                    tickerId
-                                    (date.ToString())
-                                    ex.Message
-
-                            CoreLogger.logError "TickerSnapshotBatchCalculator" errorMsg
-                            errors <- errorMsg :: errors
-
-                    // Create TickerSnapshots for this date
-                    for KeyValue(tickerId, currencySnapshots) in currencySnapshotsForDate do
-                        try
-                            // Sort currency snapshots - main currency first (by convention, lowest currency ID or highest value)
-                            let sortedSnapshots = currencySnapshots |> List.sortBy (fun cs -> cs.CurrencyId)
-
-                            match sortedSnapshots with
-                            | mainCurrency :: otherCurrencies ->
-                                let tickerSnapshot =
-                                    { Base = SnapshotManagerUtils.createBaseSnapshot date
-                                      TickerId = tickerId
-                                      MainCurrency = mainCurrency
-                                      OtherCurrencies = otherCurrencies }
-
-                                calculatedSnapshots <- (tickerSnapshot, currencySnapshots) :: calculatedSnapshots
-                                snapshotsCreated <- snapshotsCreated + 1
-
-                                CoreLogger.logDebugf
-                                    "TickerSnapshotBatchCalculator"
-                                    "Created TickerSnapshot for ticker %d date %s (%d currencies)"
-                                    tickerId
-                                    (date.ToString())
-                                    currencySnapshots.Length
-                            | [] ->
-                                CoreLogger.logWarningf
-                                    "TickerSnapshotBatchCalculator"
-                                    "No currency snapshots for ticker %d date %s"
-                                    tickerId
-                                    (date.ToString())
-
-                        with ex ->
-                            let errorMsg =
-                                sprintf
-                                    "Error creating TickerSnapshot for ticker %d date %s: %s"
                                     tickerId
                                     (date.ToString())
                                     ex.Message
@@ -332,7 +308,8 @@ module internal TickerSnapshotBatchCalculator =
                 movementsProcessed
                 stopwatch.ElapsedMilliseconds
 
-            { CalculatedSnapshots = calculatedSnapshots |> List.rev // Reverse to chronological order
+            { TickerSnapshots = tickerSnapshots |> List.rev // Reverse to chronological order
+              CurrencySnapshots = currencySnapshots |> List.rev // Reverse to chronological order
               ProcessingMetrics =
                 {| TickersProcessed = context.TickerIds.Length
                    DatesProcessed = context.DateRange.Length
@@ -347,7 +324,8 @@ module internal TickerSnapshotBatchCalculator =
             let fatalError = sprintf "Fatal error in batch calculation: %s" ex.Message
             CoreLogger.logError "TickerSnapshotBatchCalculator" fatalError
 
-            { CalculatedSnapshots = []
+            { TickerSnapshots = []
+              CurrencySnapshots = []
               ProcessingMetrics =
                 {| TickersProcessed = 0
                    DatesProcessed = 0

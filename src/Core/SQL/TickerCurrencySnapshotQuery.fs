@@ -152,3 +152,10 @@ module internal TickerCurrencySnapshotQuery =
             {Date} > {SQLParameterName.Date}
         ORDER BY {Date} ASC
         """
+
+    let getAllByTickerSnapshotId =
+        $"""
+        SELECT * FROM {TickerCurrencySnapshots}
+        WHERE
+            {TickerSnapshotId} = {SQLParameterName.TickerSnapshotId}
+        """
