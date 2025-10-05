@@ -17,10 +17,15 @@ module internal TickerSnapshotCalculateInMemory =
     /// Used as input for pure calculation functions.
     /// </summary>
     type TickerCurrencyMovementData =
-        { Trades: Trade list
-          Dividends: Dividend list
-          DividendTaxes: DividendTax list
-          OptionTrades: OptionTrade list }
+        {
+            Trades: Trade list
+            Dividends: Dividend list
+            DividendTaxes: DividendTax list
+            OptionTrades: OptionTrade list
+            /// ALL closed option trades for this ticker/currency (not just current date)
+            /// Used for accurate realized gains calculation across historical round-trips
+            AllClosedOptionTrades: OptionTrade list
+        }
 
     /// <summary>
     /// Calculate new TickerCurrencySnapshot from movements and previous snapshot.
@@ -97,9 +102,33 @@ module internal TickerSnapshotCalculateInMemory =
         let marketValue = marketPrice * totalShares
         let unrealized = Money.FromAmount(marketValue - costBasis.Value)
 
-        // Calculate realized gains (carry forward from previous snapshot for now)
-        // TODO: Track closed positions for accurate realized gains calculation
-        let realized = previousSnapshot.Realized
+        // Calculate realized gains from closed option positions
+        //
+        // Now properly implemented with access to ALL closed option trades for this ticker!
+        // The batch loader provides all historical closed trades, allowing accurate round-trip calculations.
+        //
+        // Realized gains = Total net premiums of all closed trades up to current date
+        // We subtract the previous snapshot's realized to get only NEW realized gains from this period.
+        //
+        // Example: If trades close on different dates:
+        // - 8/25: BuyToOpen (Trade #1) → initially IsOpen=true
+        // - 10/3: SellToClose (Trade #3) → Both #1 and #3 now have IsOpen=false
+        // - AllClosedOptionTrades contains BOTH trades, so we can calculate the full round-trip
+        let totalRealizedFromAllClosedTrades =
+            movements.AllClosedOptionTrades
+            |> List.filter (fun opt -> opt.TimeStamp.Value <= date.Value)
+            |> List.sumBy (fun opt -> opt.NetPremium.Value)
+
+        let realized = Money.FromAmount(totalRealizedFromAllClosedTrades)
+
+        CoreLogger.logDebugf
+            "TickerSnapshotCalculateInMemory"
+            "Realized gains - Total closed trades: %d, Sum: %M (Previous: %M)"
+            (movements.AllClosedOptionTrades
+             |> List.filter (fun opt -> opt.TimeStamp.Value <= date.Value)
+             |> List.length)
+            totalRealizedFromAllClosedTrades
+            previousSnapshot.Realized.Value
 
         // Calculate performance percentage
         let performance =
@@ -385,6 +414,14 @@ module internal TickerSnapshotCalculateInMemory =
 
         let optionTrades = allMovements.OptionTrades.TryFind(key) |> Option.defaultValue []
 
+        // Get ALL closed option trades for this ticker/currency (not filtered by date)
+        // This is needed for accurate realized gains calculation
+        let tickerCurrencyKey = (tickerId, currencyId)
+
+        let allClosedOptionTrades =
+            allMovements.AllClosedOptionTrades.TryFind(tickerCurrencyKey)
+            |> Option.defaultValue []
+
         // Only return Some if there are any movements
         if
             trades.IsEmpty
@@ -398,7 +435,8 @@ module internal TickerSnapshotCalculateInMemory =
                 { Trades = trades
                   Dividends = dividends
                   DividendTaxes = dividendTaxes
-                  OptionTrades = optionTrades }
+                  OptionTrades = optionTrades
+                  AllClosedOptionTrades = allClosedOptionTrades }
 
     /// <summary>
     /// Get all currencies that have movements or prices for a ticker on a date.

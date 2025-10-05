@@ -34,6 +34,9 @@ module internal TickerSnapshotBatchLoader =
             DividendTaxes: Map<(int * int * DateTimePattern), DividendTax list>
             /// Option trades grouped by (tickerId, currencyId, date)
             OptionTrades: Map<(int * int * DateTimePattern), OptionTrade list>
+            /// ALL closed option trades for each ticker (not grouped by date)
+            /// Used for calculating realized gains - grouped by (tickerId, currencyId)
+            AllClosedOptionTrades: Map<(int * int), OptionTrade list>
         }
 
     /// <summary>
@@ -140,7 +143,8 @@ module internal TickerSnapshotBatchLoader =
                     { Trades = Map.empty
                       Dividends = Map.empty
                       DividendTaxes = Map.empty
-                      OptionTrades = Map.empty }
+                      OptionTrades = Map.empty
+                      AllClosedOptionTrades = Map.empty }
             else
                 CoreLogger.logInfof
                     "TickerSnapshotBatchLoader"
@@ -237,11 +241,32 @@ module internal TickerSnapshotBatchLoader =
                     (allDividendTaxes |> Array.sumBy (fun (arr: DividendTax list) -> arr.Length))
                     (allOptionTrades |> Array.sumBy (fun (arr: OptionTrade list) -> arr.Length))
 
+                // Group ALL closed option trades by (tickerId, currencyId) for realized gains calculation
+                // This gives access to historical closed trades needed for proper round-trip calculations
+                let allClosedOptionTradesByTickerCurrency: Map<(int * int), OptionTrade list> =
+                    allOptionTrades
+                    |> Array.collect (List.toArray)
+                    |> Array.filter (fun (ot: OptionTrade) -> not ot.IsOpen)
+                    |> Array.groupBy (fun (ot: OptionTrade) -> (ot.TickerId, ot.CurrencyId))
+                    |> Array.map (fun (key, options) -> (key, Array.toList options))
+                    |> Map.ofArray
+
+                let totalClosedOptions =
+                    allClosedOptionTradesByTickerCurrency
+                    |> Map.toSeq
+                    |> Seq.sumBy (fun (_, trades) -> trades.Length)
+
+                CoreLogger.logInfof
+                    "TickerSnapshotBatchLoader"
+                    "Found %d closed option trades across all tickers for realized gains calculation"
+                    totalClosedOptions
+
                 return
                     { Trades = tradesByKey
                       Dividends = dividendsByKey
                       DividendTaxes = dividendTaxesByKey
-                      OptionTrades = optionTradesByKey }
+                      OptionTrades = optionTradesByKey
+                      AllClosedOptionTrades = allClosedOptionTradesByTickerCurrency }
         }
 
     /// <summary>
