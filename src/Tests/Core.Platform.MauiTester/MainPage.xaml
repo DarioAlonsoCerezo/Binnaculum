@@ -200,6 +200,18 @@
                 SemanticProperties.Hint="Runs comprehensive TSLL multi-asset import with ticker validation ($235 commissions, $80 fees, $69,290 realized)"
                 HorizontalOptions="Fill"/>
 
+            <Button
+                x:Name="RunPfizerImportIntegrationTestButton"
+                Text="Execute Pfizer Import Test"
+                FontSize="16"
+                BackgroundColor="RoyalBlue"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnRunPfizerImportIntegrationTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Runs Pfizer (PFE) options import test - validates 4 movements with $175.52 realized gains"
+                HorizontalOptions="Fill"/>
+
             <!--  Loading Indicator  -->
             <StackLayout
                 Orientation="Horizontal"

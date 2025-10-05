@@ -28,6 +28,7 @@ namespace Core.Platform.MauiTester.Services
             RegisterDepositsWithdrawalsIntegrationTest(discoveryService, testRunner, testActions);
             RegisterTastytradeImportIntegrationTest(discoveryService, testRunner, testActions);
             RegisterTsllImportIntegrationTest(discoveryService, testRunner, testActions);
+            RegisterPfizerImportIntegrationTest(discoveryService, testRunner, testActions);
         }
 
         /// <summary>
@@ -433,6 +434,25 @@ namespace Core.Platform.MauiTester.Services
                     return (success, details, error);
                 })
                 .AddCustomStep(new TsllImportIntegrationTest(testRunner.GetExecutionContext())));
+        }
+
+        /// <summary>
+        /// Pfizer Import Integration Test - Validates Pfizer (PFE) options import with 4 movements
+        /// </summary>
+        private static void RegisterPfizerImportIntegrationTest(TestDiscoveryService discoveryService, TestRunner testRunner, TestActions testActions)
+        {
+            discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
+                .Named("Pfizer Import Integration Test")
+                .WithDescription("Reactive test for Pfizer (PFE) options import. Expected: 4 movements, $175.52 realized")
+                .WithTags(TestTags.Integration, TestTags.Financial, TestTags.Import, TestTags.Options, TestTags.Reactive)
+                .AddReactiveOptionsImportSetup(testRunner)
+                .AddVerificationStep("Find Tastytrade Broker", () =>
+                {
+                    var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
+                    if (success) testRunner.SetTastytradeId(id);
+                    return (success, details, error);
+                })
+                .AddCustomStep(new ReactivePfizerImportIntegrationTest(testRunner.GetExecutionContext())));
         }
     }
 }

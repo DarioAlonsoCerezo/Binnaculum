@@ -64,6 +64,7 @@
 		<EmbeddedResource Include="Resources\TestData\TastytradeDeposits.csv" />
 		<EmbeddedResource Include="Resources\TestData\TastytradeImportTest.csv" />
 		<EmbeddedResource Include="Resources\TestData\TsllImportTest.csv" />
+		<EmbeddedResource Include="Resources\TestData\PfizerImportTest.csv" />
 	</ItemGroup>
 
 	<ItemGroup>

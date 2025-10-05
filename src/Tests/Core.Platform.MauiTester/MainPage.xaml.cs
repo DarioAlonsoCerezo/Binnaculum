@@ -90,6 +90,11 @@ namespace Core.Platform.MauiTester
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("TSLL Import Integration Test", callback), "Execute TSLL Import Test", "TSLL Import Integration Test");
         }
 
+        private async void OnRunPfizerImportIntegrationTestClicked(object? sender, EventArgs e)
+        {
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Pfizer Import Integration Test", callback), "Execute Pfizer Import Test", "Pfizer Import Integration Test");
+        }
+
         private async Task ExecuteTestAsync(Func<Action<string>, Task<OverallTestResult>> testMethod, string buttonText, string testName)
         {
             try
@@ -192,6 +197,7 @@ namespace Core.Platform.MauiTester
             RunDepositsWithdrawalsIntegrationTestButton.Text = "Running Test...";
             RunTastytradeImportIntegrationTestButton.Text = "Running Test...";
             RunTsllImportIntegrationTestButton.Text = "Running Test...";
+            RunPfizerImportIntegrationTestButton.Text = "Running Test...";
         }
 
         private void ResetAllButtonsToOriginalText()
@@ -210,6 +216,7 @@ namespace Core.Platform.MauiTester
             RunDepositsWithdrawalsIntegrationTestButton.Text = "Run Deposits & Withdrawals Integration Test";
             RunTastytradeImportIntegrationTestButton.Text = "Execute Tastytrade Import Test";
             RunTsllImportIntegrationTestButton.Text = "Execute TSLL Import Test";
+            RunPfizerImportIntegrationTestButton.Text = "Execute Pfizer Import Test";
         }
     }
 }
