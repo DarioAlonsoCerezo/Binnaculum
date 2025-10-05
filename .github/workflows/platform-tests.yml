@@ -50,6 +50,21 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+          cache: true
+          cache-dependency-path: '**/Directory.Packages.props'
+          
+      - name: Cache MAUI Workloads
+        if: ${{ !(matrix.target == 'net9.0-android' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_all_targets != 'true') }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\.dotnet\sdk-manifests
+            ~\.dotnet\metadata
+            ~\.dotnet\packs
+            ~\.dotnet\workloadsets
+          key: ${{ runner.os }}-maui-workloads-${{ hashFiles('.config/dotnet-tools.json') }}-${{ hashFiles('Directory.Build.props') }}
+          restore-keys: |
+            ${{ runner.os }}-maui-workloads-
           
       - name: Install MAUI workloads
         if: ${{ !(matrix.target == 'net9.0-android' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_all_targets != 'true') }}
