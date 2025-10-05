@@ -60,9 +60,10 @@ module internal SnapshotProcessingCoordinator =
                     CoreLogger.logDebug "SnapshotProcessingCoordinator" "Attempting batch processing mode..."
 
                     // Determine date range for batch processing
-                    // Strategy: Process from this date through the end of time to catch all future snapshots
+                    // Strategy: Process from this date through today to catch all historical snapshots
+                    // No need to process future dates - they will be created when movements occur
                     let startDate = date
-                    let endDate = DateTimePattern.FromDateTime(System.DateTime.Now.AddYears(1)) // Far enough in future
+                    let endDate = DateTimePattern.FromDateTime(System.DateTime.Now) // Only process up to today
 
                     CoreLogger.logInfof
                         "SnapshotProcessingCoordinator"
