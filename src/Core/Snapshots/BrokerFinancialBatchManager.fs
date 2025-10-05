@@ -109,9 +109,11 @@ module internal BrokerFinancialBatchManager =
                     BrokerFinancialSnapshotBatchLoader.loadMarketPricesForRange tickerIds currencyIds dateRange
 
                 // Load existing snapshots in date range (for scenarios C, D, G, H)
-                // TODO: Phase 3 - implement loadExistingSnapshotsInRange
-                // For now, use empty map (batch will create new snapshots)
-                let existingSnapshots = Map.empty
+                let! existingSnapshots =
+                    BrokerFinancialSnapshotBatchLoader.loadExistingSnapshotsInRange
+                        request.BrokerAccountId
+                        request.StartDate
+                        request.EndDate
 
                 // Create calculation context
                 let context: BrokerFinancialBatchCalculator.BatchCalculationContext =
