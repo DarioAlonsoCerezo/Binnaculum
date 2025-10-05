@@ -298,42 +298,24 @@ module internal TickerSnapshotBatchManager =
                         "Found %d affected tickers for batch processing"
                         affectedTickers.Length
 
-                    // For import scenario, we need to process ALL dates since the first movement
-                    // This ensures historical snapshots are correctly calculated
-                    // Find the earliest and latest trade dates for affected tickers
-                    let! earliestDate =
-                        task {
-                            let! dates =
-                                affectedTickers
-                                |> List.map (fun tickerId ->
-                                    task {
-                                        let! trade = TradeExtensions.Do.getEarliestForTicker tickerId
-                                        return trade |> Option.map (fun t -> t.TimeStamp)
-                                    })
-                                |> Task.WhenAll
-
-                            let validDates = dates |> Array.choose id |> Array.toList
-
-                            return
-                                if validDates.IsEmpty then
-                                    DateTimePattern.FromDateTime(System.DateTime.Now)
-                                else
-                                    validDates |> List.min
-                        }
-
+                    // For import scenario, use the lookback period as start date
+                    // This ensures we capture all movements for affected tickers
+                    // The smart date filtering in Phase 2 will skip dates with no movements
+                    let startDate = sinceDate
+                    
                     // End date is always current date to ensure latest snapshots are calculated
                     let endDate = DateTimePattern.FromDateTime(System.DateTime.Now)
 
                     CoreLogger.logInfof
                         "TickerSnapshotBatchManager"
-                        "Processing %d tickers from %s to %s (actual trade date range)"
+                        "Processing %d tickers from %s to %s (using import lookback period)"
                         affectedTickers.Length
-                        (earliestDate.ToString())
+                        (startDate.ToString())
                         (endDate.ToString())
 
                     let request =
                         { TickerIds = affectedTickers
-                          StartDate = earliestDate
+                          StartDate = startDate
                           EndDate = endDate
                           ForceRecalculation = true // Always recalculate on import to ensure accuracy
                         }
