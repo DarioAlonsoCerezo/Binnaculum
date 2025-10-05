@@ -101,20 +101,23 @@ module internal TickerSnapshotCalculateInMemory =
         // Calculate unrealized gains/losses from multiple sources:
         // 1. Shares: (market value - cost basis)
         // 2. Open options: net premium of positions still open
-        // 3. Dividends: already included in totalDividends (received income)
-        
+        // 3. Dividends: cash received from dividends (net of taxes)
+
         // Shares unrealized
         let sharesMarketValue = marketPrice * totalShares
         let sharesUnrealized = sharesMarketValue - costBasis.Value
-        
+
         // Options unrealized (only open positions at this snapshot date)
         let openOptionsUnrealized =
             movements.OptionTrades
             |> List.filter (fun opt -> opt.IsOpen)
             |> List.sumBy (fun opt -> opt.NetPremium.Value)
-        
-        // Total unrealized = shares unrealized + open options unrealized
-        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)
+
+        // Dividends unrealized (cumulative cash received from dividends, net of taxes)
+        let dividendsUnrealized = totalDividends.Value
+
+        // Total unrealized = shares unrealized + open options unrealized + dividends received
+        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized + dividendsUnrealized)
 
         // Calculate realized gains from closed option positions
         //
@@ -169,11 +172,12 @@ module internal TickerSnapshotCalculateInMemory =
 
         CoreLogger.logDebugf
             "TickerSnapshotCalculateInMemory"
-            "Calculated NEW snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Options:%M Realized:%M"
+            "Calculated NEW snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M Dividends:%M TotalUnrealized:%M Options:%M Realized:%M"
             totalShares
             costBasis.Value
             sharesUnrealized
             openOptionsUnrealized
+            dividendsUnrealized
             unrealized.Value
             totalOptions.Value
             realized.Value
@@ -263,20 +267,23 @@ module internal TickerSnapshotCalculateInMemory =
         // Calculate unrealized gains/losses from multiple sources:
         // 1. Shares: (market value - cost basis)
         // 2. Open options: net premium of positions still open
-        // 3. Dividends: already included in totalDividends (received income)
-        
+        // 3. Dividends: cash received from dividends (net of taxes)
+
         // Shares unrealized
         let sharesMarketValue = marketPrice * totalShares
         let sharesUnrealized = sharesMarketValue - costBasis.Value
-        
+
         // Options unrealized (only open positions at this snapshot date)
         let openOptionsUnrealized =
             movements.OptionTrades
             |> List.filter (fun opt -> opt.IsOpen)
             |> List.sumBy (fun opt -> opt.NetPremium.Value)
-        
-        // Total unrealized = shares unrealized + open options unrealized
-        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)
+
+        // Dividends unrealized (cumulative cash received from dividends, net of taxes)
+        let dividendsUnrealized = totalDividends.Value
+
+        // Total unrealized = shares unrealized + open options unrealized + dividends received
+        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized + dividendsUnrealized)
 
         // Calculate realized gains (zero for initial snapshot)
         let realized = Money.FromAmount(0.0m)
@@ -298,11 +305,12 @@ module internal TickerSnapshotCalculateInMemory =
 
         CoreLogger.logDebugf
             "TickerSnapshotCalculateInMemory"
-            "Calculated INITIAL snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Options:%M"
+            "Calculated INITIAL snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M Dividends:%M TotalUnrealized:%M Options:%M"
             totalShares
             costBasis.Value
             sharesUnrealized
             openOptionsUnrealized
+            dividendsUnrealized
             unrealized.Value
             totalOptions.Value
 
