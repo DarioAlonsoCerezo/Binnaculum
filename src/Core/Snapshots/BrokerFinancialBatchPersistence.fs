@@ -15,6 +15,9 @@ module internal BrokerFinancialBatchPersistence =
     /// <summary>
     /// Save all calculated snapshots in single transaction.
     /// This provides atomicity and massive performance improvement over individual saves.
+    /// DEDUPLICATION: Checks for existing snapshots by Date, CurrencyId, and BrokerAccountId before saving.
+    /// If an existing snapshot is found, it updates that snapshot instead of creating a duplicate.
+    /// NOTE: This does NOT update BrokerAccountSnapshotId - that must be set by the caller if needed.
     /// </summary>
     /// <param name="snapshots">List of snapshots to persist</param>
     /// <returns>Task with Result containing save metrics or error message</returns>
@@ -33,22 +36,66 @@ module internal BrokerFinancialBatchPersistence =
                 try
                     CoreLogger.logInfof
                         "BrokerFinancialBatchPersistence"
-                        "Starting batch persistence of %d snapshots"
+                        "Starting batch persistence of %d snapshots with deduplication"
                         snapshots.Length
 
-                    // Save snapshots individually (in future, we can optimize with true batch insert)
+                    // Save snapshots individually, checking for duplicates
                     let mutable savedCount = 0
+                    let mutable updatedCount = 0
 
                     for snapshot in snapshots do
-                        do! snapshot.save ()
-                        savedCount <- savedCount + 1
+                        // Check if a snapshot already exists for this date, currency, and broker account
+                        let! existingSnapshots =
+                            BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountIdAndDate (
+                                snapshot.BrokerAccountId,
+                                snapshot.Base.Date
+                            )
+
+                        // Find existing snapshot for this specific currency
+                        let existingSnapshot =
+                            existingSnapshots |> List.tryFind (fun s -> s.CurrencyId = snapshot.CurrencyId)
+
+                        match existingSnapshot with
+                        | Some existing ->
+                            // Update existing snapshot with new data (preserve the existing ID)
+                            let updatedSnapshot =
+                                { snapshot with
+                                    Base =
+                                        { snapshot.Base with
+                                            Id = existing.Base.Id } }
+
+                            CoreLogger.logDebugf
+                                "BrokerFinancialBatchPersistence"
+                                "Updating existing snapshot ID %d for Date=%s, Currency=%d, BrokerAccount=%d"
+                                existing.Base.Id
+                                (snapshot.Base.Date.ToString())
+                                snapshot.CurrencyId
+                                snapshot.BrokerAccountId
+
+                            do! updatedSnapshot.save ()
+                            updatedCount <- updatedCount + 1
+                            savedCount <- savedCount + 1
+
+                        | None ->
+                            // No existing snapshot - save as new
+                            CoreLogger.logDebugf
+                                "BrokerFinancialBatchPersistence"
+                                "Creating new snapshot for Date=%s, Currency=%d, BrokerAccount=%d"
+                                (snapshot.Base.Date.ToString())
+                                snapshot.CurrencyId
+                                snapshot.BrokerAccountId
+
+                            do! snapshot.save ()
+                            savedCount <- savedCount + 1
 
                     stopwatch.Stop()
 
                     CoreLogger.logInfof
                         "BrokerFinancialBatchPersistence"
-                        "Successfully persisted %d snapshots in %dms"
+                        "Successfully persisted %d snapshots (%d updated, %d new) in %dms"
                         savedCount
+                        updatedCount
+                        (savedCount - updatedCount)
                         stopwatch.ElapsedMilliseconds
 
                     return
@@ -64,6 +111,62 @@ module internal BrokerFinancialBatchPersistence =
 
                     CoreLogger.logError "BrokerFinancialBatchPersistence" errorMsg
                     return Error errorMsg
+        }
+
+    /// <summary>
+    /// Update the BrokerAccountSnapshotId for all financial snapshots on a specific date.
+    /// This is used after creating BrokerAccountSnapshots to link financial snapshots correctly.
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID</param>
+    /// <param name="date">The date of the snapshots</param>
+    /// <param name="brokerAccountSnapshotId">The broker account snapshot ID to set</param>
+    /// <returns>Task with number of snapshots updated</returns>
+    let updateBrokerAccountSnapshotIds (brokerAccountId: int) (date: DateTimePattern) (brokerAccountSnapshotId: int) =
+        task {
+            try
+                CoreLogger.logDebugf
+                    "BrokerFinancialBatchPersistence"
+                    "Updating BrokerAccountSnapshotId to %d for all financial snapshots on Date=%s, BrokerAccount=%d"
+                    brokerAccountSnapshotId
+                    (date.ToString())
+                    brokerAccountId
+
+                // Get all financial snapshots for this date and account
+                let! existingSnapshots =
+                    BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountIdAndDate (brokerAccountId, date)
+
+                let mutable updatedCount = 0
+
+                for snapshot in existingSnapshots do
+                    // Update only if BrokerAccountSnapshotId is not already set correctly
+                    if snapshot.BrokerAccountSnapshotId <> brokerAccountSnapshotId then
+                        let updatedSnapshot =
+                            { snapshot with
+                                BrokerAccountSnapshotId = brokerAccountSnapshotId }
+
+                        do! updatedSnapshot.save ()
+                        updatedCount <- updatedCount + 1
+
+                        CoreLogger.logDebugf
+                            "BrokerFinancialBatchPersistence"
+                            "Updated snapshot ID %d: BrokerAccountSnapshotId %d -> %d"
+                            snapshot.Base.Id
+                            snapshot.BrokerAccountSnapshotId
+                            brokerAccountSnapshotId
+
+                CoreLogger.logInfof
+                    "BrokerFinancialBatchPersistence"
+                    "Updated BrokerAccountSnapshotId for %d financial snapshots"
+                    updatedCount
+
+                return updatedCount
+
+            with ex ->
+                let errorMsg =
+                    sprintf "Failed to update BrokerAccountSnapshotIds for date %s: %s" (date.ToString()) ex.Message
+
+                CoreLogger.logError "BrokerFinancialBatchPersistence" errorMsg
+                return 0
         }
 
     /// <summary>

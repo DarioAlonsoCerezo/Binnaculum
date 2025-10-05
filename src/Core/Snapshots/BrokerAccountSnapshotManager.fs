@@ -480,41 +480,80 @@ module internal BrokerAccountSnapshotManager =
                         (snapshotDate.ToString())
                         snapshot.Base.Id
 
-                    // Filter movements to only those ON this specific date
-                    // CRITICAL: brokerAccountOneDayUpdate expects movements for the specific day,
-                    // NOT cumulative movements. It will find the previous snapshot and calculate deltas.
-                    let movementsForThisDate =
-                        BrokerAccountMovementData.create
-                            movementRetrievalDate
-                            brokerAccountId
-                            (allMovementsFromEarliestDate.BrokerMovements
-                             |> List.filter (fun m ->
-                                 SnapshotManagerUtils.normalizeToStartOfDay m.TimeStamp = snapshotDate))
-                            (allMovementsFromEarliestDate.Trades
-                             |> List.filter (fun t ->
-                                 SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp = snapshotDate))
-                            (allMovementsFromEarliestDate.Dividends
-                             |> List.filter (fun d ->
-                                 SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp = snapshotDate))
-                            (allMovementsFromEarliestDate.DividendTaxes
-                             |> List.filter (fun dt ->
-                                 SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp = snapshotDate))
-                            (allMovementsFromEarliestDate.OptionTrades
-                             |> List.filter (fun ot ->
-                                 SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp = snapshotDate))
+                    // Check if financial snapshots already exist for this date
+                    // If batch processing already created them with correct cumulative values, don't recalculate
+                    let! existingFinancialSnapshots =
+                        BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountIdAndDate (brokerAccountId, snapshotDate)
 
-                    CoreLogger.logDebugf
-                        "BrokerAccountSnapshotManager"
-                        "[%d/%d] Movements on %s: BrokerMovements=%d, Trades=%d"
-                        (i + 1)
-                        sortedDates.Length
-                        (snapshotDate.ToString())
-                        movementsForThisDate.BrokerMovements.Length
-                        movementsForThisDate.Trades.Length
+                    if existingFinancialSnapshots.IsEmpty then
+                        // No existing financial snapshots - need to calculate them
+                        CoreLogger.logDebugf
+                            "BrokerAccountSnapshotManager"
+                            "[%d/%d] No financial snapshots exist for %s - will calculate"
+                            (i + 1)
+                            sortedDates.Length
+                            (snapshotDate.ToString())
 
-                    // Call the one-day update with movements for THIS DAY ONLY
-                    // brokerAccountOneDayUpdate will find the previous snapshot and calculate proper deltas
-                    do! BrokerFinancialSnapshotManager.brokerAccountOneDayUpdate snapshot movementsForThisDate
+                        // Filter movements to only those ON this specific date
+                        // CRITICAL: brokerAccountOneDayUpdate expects movements for the specific day,
+                        // NOT cumulative movements. It will find the previous snapshot and calculate deltas.
+                        let movementsForThisDate =
+                            BrokerAccountMovementData.create
+                                movementRetrievalDate
+                                brokerAccountId
+                                (allMovementsFromEarliestDate.BrokerMovements
+                                 |> List.filter (fun m ->
+                                     SnapshotManagerUtils.normalizeToStartOfDay m.TimeStamp = snapshotDate))
+                                (allMovementsFromEarliestDate.Trades
+                                 |> List.filter (fun t ->
+                                     SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp = snapshotDate))
+                                (allMovementsFromEarliestDate.Dividends
+                                 |> List.filter (fun d ->
+                                     SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp = snapshotDate))
+                                (allMovementsFromEarliestDate.DividendTaxes
+                                 |> List.filter (fun dt ->
+                                     SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp = snapshotDate))
+                                (allMovementsFromEarliestDate.OptionTrades
+                                 |> List.filter (fun ot ->
+                                     SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp = snapshotDate))
+
+                        CoreLogger.logDebugf
+                            "BrokerAccountSnapshotManager"
+                            "[%d/%d] Movements on %s: BrokerMovements=%d, Trades=%d"
+                            (i + 1)
+                            sortedDates.Length
+                            (snapshotDate.ToString())
+                            movementsForThisDate.BrokerMovements.Length
+                            movementsForThisDate.Trades.Length
+
+                        // Call the one-day update with movements for THIS DAY ONLY
+                        // brokerAccountOneDayUpdate will find the previous snapshot and calculate proper deltas
+                        do! BrokerFinancialSnapshotManager.brokerAccountOneDayUpdate snapshot movementsForThisDate
+                    else
+                        // Financial snapshots already exist (likely created by batch processing)
+                        // Just update the BrokerAccountSnapshotId link, don't recalculate
+                        CoreLogger.logDebugf
+                            "BrokerAccountSnapshotManager"
+                            "[%d/%d] Found %d existing financial snapshot(s) for %s - updating links only"
+                            (i + 1)
+                            sortedDates.Length
+                            existingFinancialSnapshots.Length
+                            (snapshotDate.ToString())
+
+                        // Update BrokerAccountSnapshotId on existing financial snapshots
+                        let! updatedCount =
+                            BrokerFinancialBatchPersistence.updateBrokerAccountSnapshotIds
+                                brokerAccountId
+                                snapshotDate
+                                snapshot.Base.Id
+
+                        CoreLogger.logDebugf
+                            "BrokerAccountSnapshotManager"
+                            "[%d/%d] Updated %d financial snapshot link(s) for %s"
+                            (i + 1)
+                            sortedDates.Length
+                            updatedCount
+                            (snapshotDate.ToString())
 
                     CoreLogger.logDebugf
                         "BrokerAccountSnapshotManager"

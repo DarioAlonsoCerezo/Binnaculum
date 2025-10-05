@@ -404,6 +404,72 @@ namespace Core.Platform.MauiTester.TestCases
             CoreLogger.logInfo("DepositsTest", summary);
             results.Add(summary);
 
+            // Additional validation: Verify each BrokerAccountSnapshot has exactly 1 BrokerFinancialSnapshot
+            // Since all transactions are in a single currency (USD), each snapshot should have only one financial snapshot
+            CoreLogger.logInfo("DepositsTest", "\n=== Validating Financial Snapshots per Account Snapshot ===");
+            results.Add("\n=== Financial Snapshots per Account Snapshot Validation ===");
+
+            var financialSnapshotCountPassed = 0;
+            var financialSnapshotCountFailed = 0;
+
+            // We need to get the database broker account snapshot ID for each snapshot
+            // Since the model doesn't expose it directly, we'll validate using the BrokerAccount.Financial list
+            // which should contain exactly 1 main financial snapshot + potentially other currencies (but we expect only 1 total)
+            for (int i = 0; i < dataSnapshots.Count; i++)
+            {
+                var snapshot = dataSnapshots[i];
+
+                try
+                {
+                    // The snapshot.Financial is the main currency financial snapshot
+                    // The snapshot.FinancialOtherCurrencies should be empty for single-currency accounts
+                    var mainFinancialSnapshot = snapshot.Financial;
+                    var otherCurrencySnapshots = snapshot.FinancialOtherCurrencies;
+
+                    var totalFinancialSnapshots = 1 + otherCurrencySnapshots.Length; // Main + Others
+
+                    // Expected: Exactly 1 financial snapshot per account snapshot (single currency - USD only)
+                    const int EXPECTED_FINANCIAL_SNAPSHOTS = 1;
+                    var isValid = totalFinancialSnapshots == EXPECTED_FINANCIAL_SNAPSHOTS && otherCurrencySnapshots.Length == 0;
+
+                    if (isValid)
+                    {
+                        financialSnapshotCountPassed++;
+                        var msg = $"✅ [{i + 1}/20] {snapshot.Date:yyyy-MM-dd}: {totalFinancialSnapshots} financial snapshot(s) [Main: 1, Other currencies: 0] - PASS";
+                        CoreLogger.logInfo("DepositsTest", msg);
+                        results.Add(msg);
+
+                        // Validate the currency is USD
+                        if (mainFinancialSnapshot.Currency.Code != "USD")
+                        {
+                            var currencyWarning = $"⚠️  [{i + 1}/20] Warning: Expected USD currency, got {mainFinancialSnapshot.Currency.Code}";
+                            CoreLogger.logWarning("DepositsTest", currencyWarning);
+                            results.Add(currencyWarning);
+                        }
+                    }
+                    else
+                    {
+                        financialSnapshotCountFailed++;
+                        allValid = false;
+                        var msg = $"❌ [{i + 1}/20] {snapshot.Date:yyyy-MM-dd}: Expected {EXPECTED_FINANCIAL_SNAPSHOTS} financial snapshot(s), Got {totalFinancialSnapshots} [Main: 1, Other currencies: {otherCurrencySnapshots.Length}] - FAIL";
+                        CoreLogger.logError("DepositsTest", msg);
+                        results.Add(msg);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    financialSnapshotCountFailed++;
+                    allValid = false;
+                    var msg = $"❌ [{i + 1}/20] {snapshot.Date:yyyy-MM-dd}: Exception validating financial snapshots - {ex.Message}";
+                    CoreLogger.logError("DepositsTest", msg);
+                    results.Add(msg);
+                }
+            }
+
+            var financialSnapshotSummary = $"\nFinancial Snapshot Count Validation: {financialSnapshotCountPassed} passed, {financialSnapshotCountFailed} failed out of {dataSnapshots.Count} total";
+            CoreLogger.logInfo("DepositsTest", financialSnapshotSummary);
+            results.Add(financialSnapshotSummary);
+
             return allValid;
         }
 

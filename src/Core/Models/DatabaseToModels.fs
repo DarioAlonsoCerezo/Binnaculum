@@ -451,45 +451,10 @@ module internal DatabaseToModels =
 
                     (emptySnapshot, [])
                 else
-                    // Convert database snapshots to model snapshots
+                    // Convert database snapshots to model snapshots using helper
                     let modelSnapshots =
                         financialSnapshots
-                        |> List.map (fun dbFinancial ->
-                            { Id = dbFinancial.Base.Id
-                              Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
-                              Broker =
-                                if dbFinancial.BrokerId = -1 then
-                                    None
-                                else
-                                    Some(dbFinancial.BrokerId.ToFastBrokerById())
-                              BrokerAccount =
-                                if dbFinancial.BrokerAccountId = -1 then
-                                    None
-                                else
-                                    Some(dbFinancial.BrokerAccountId.ToFastBrokerAccountById())
-                              Currency = dbFinancial.CurrencyId.ToFastCurrencyById()
-                              MovementCounter = dbFinancial.MovementCounter
-                              RealizedGains = dbFinancial.RealizedGains.Value
-                              RealizedPercentage = dbFinancial.RealizedPercentage
-                              UnrealizedGains = dbFinancial.UnrealizedGains.Value
-                              UnrealizedGainsPercentage = dbFinancial.UnrealizedGainsPercentage
-                              Invested = dbFinancial.Invested.Value
-                              Commissions = dbFinancial.Commissions.Value
-                              Fees = dbFinancial.Fees.Value
-                              Deposited = dbFinancial.Deposited.Value
-                              Withdrawn = dbFinancial.Withdrawn.Value
-                              DividendsReceived = dbFinancial.DividendsReceived.Value
-                              OptionsIncome = dbFinancial.OptionsIncome.Value
-                              OtherIncome = dbFinancial.OtherIncome.Value
-                              OpenTrades = dbFinancial.OpenTrades
-                              NetCashFlow =
-                                dbFinancial.Deposited.Value
-                                - dbFinancial.Withdrawn.Value
-                                - dbFinancial.Commissions.Value
-                                - dbFinancial.Fees.Value
-                                + dbFinancial.DividendsReceived.Value
-                                + dbFinancial.OptionsIncome.Value
-                                + dbFinancial.OtherIncome.Value })
+                        |> List.map (fun dbFinancial -> dbFinancial.brokerFinancialSnapshotToModel ())
 
                     // Find the snapshot with the highest MovementCounter
                     let sortedSnapshots =
@@ -554,6 +519,65 @@ module internal DatabaseToModels =
               BrokerAccount = None
               BankAccount = None }
 
+        /// <summary>
+        /// Converts a database BrokerFinancialSnapshot to a domain model BrokerFinancialSnapshot.
+        /// Handles conversion of all financial metrics and calculates derived fields like NetCashFlow.
+        /// </summary>
+        /// <param name="dbFinancial">The database BrokerFinancialSnapshot to convert</param>
+        /// <param name="broker">Optional broker model (use when snapshot is for a specific broker)</param>
+        /// <param name="brokerAccount">Optional broker account model (use when snapshot is for a specific broker account)</param>
+        /// <returns>A domain model BrokerFinancialSnapshot with all fields populated</returns>
+        [<Extension>]
+        static member brokerFinancialSnapshotToModel
+            (
+                dbFinancial: Binnaculum.Core.Database.SnapshotsModel.BrokerFinancialSnapshot,
+                ?broker: Broker,
+                ?brokerAccount: BrokerAccount
+            ) : Binnaculum.Core.Models.BrokerFinancialSnapshot =
+            { Id = dbFinancial.Base.Id
+              Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
+              Broker =
+                match broker with
+                | Some b -> Some b
+                | None ->
+                    // Check for invalid broker IDs (0, -1, or any non-positive value)
+                    if dbFinancial.BrokerId <= 0 then
+                        None
+                    else
+                        Some(dbFinancial.BrokerId.ToFastBrokerById())
+              BrokerAccount =
+                match brokerAccount with
+                | Some ba -> Some ba
+                | None ->
+                    // Check for invalid broker account IDs (0, -1, or any non-positive value)
+                    if dbFinancial.BrokerAccountId <= 0 then
+                        None
+                    else
+                        Some(dbFinancial.BrokerAccountId.ToFastBrokerAccountById())
+              Currency = dbFinancial.CurrencyId.ToFastCurrencyById()
+              MovementCounter = dbFinancial.MovementCounter
+              RealizedGains = dbFinancial.RealizedGains.Value
+              RealizedPercentage = dbFinancial.RealizedPercentage
+              UnrealizedGains = dbFinancial.UnrealizedGains.Value
+              UnrealizedGainsPercentage = dbFinancial.UnrealizedGainsPercentage
+              Invested = dbFinancial.Invested.Value
+              Commissions = dbFinancial.Commissions.Value
+              Fees = dbFinancial.Fees.Value
+              Deposited = dbFinancial.Deposited.Value
+              Withdrawn = dbFinancial.Withdrawn.Value
+              DividendsReceived = dbFinancial.DividendsReceived.Value
+              OptionsIncome = dbFinancial.OptionsIncome.Value
+              OtherIncome = dbFinancial.OtherIncome.Value
+              OpenTrades = dbFinancial.OpenTrades
+              NetCashFlow =
+                dbFinancial.Deposited.Value
+                - dbFinancial.Withdrawn.Value
+                - dbFinancial.Commissions.Value
+                - dbFinancial.Fees.Value
+                + dbFinancial.DividendsReceived.Value
+                + dbFinancial.OptionsIncome.Value
+                + dbFinancial.OtherIncome.Value }
+
         [<Extension>]
         static member brokerAccountSnapshotToOverviewSnapshot
             (
@@ -597,7 +621,7 @@ module internal DatabaseToModels =
 
                     (emptySnapshot, [])
                 else
-                    // Convert database snapshots to model snapshots
+                    // Convert database snapshots to model snapshots using helper
                     System.Diagnostics.Debug.WriteLine(
                         $"[DatabaseToModels] Converting {financialSnapshots.Length} financial snapshots for BrokerAccount"
                     )
@@ -608,34 +632,8 @@ module internal DatabaseToModels =
                             System.Diagnostics.Debug.WriteLine(
                                 $"[DatabaseToModels] Financial snapshot - Deposited: {dbFinancial.Deposited.Value}, MovementCounter: {dbFinancial.MovementCounter}"
                             )
-
-                            { Id = dbFinancial.Base.Id
-                              Date = DateOnly.FromDateTime(dbFinancial.Base.Date.Value)
-                              Broker = None // For broker account snapshots, broker is not specific
-                              BrokerAccount = Some brokerAccount // This is for a specific broker account
-                              Currency = dbFinancial.CurrencyId.ToFastCurrencyById()
-                              MovementCounter = dbFinancial.MovementCounter
-                              RealizedGains = dbFinancial.RealizedGains.Value
-                              RealizedPercentage = dbFinancial.RealizedPercentage
-                              UnrealizedGains = dbFinancial.UnrealizedGains.Value
-                              UnrealizedGainsPercentage = dbFinancial.UnrealizedGainsPercentage
-                              Invested = dbFinancial.Invested.Value
-                              Commissions = dbFinancial.Commissions.Value
-                              Fees = dbFinancial.Fees.Value
-                              Deposited = dbFinancial.Deposited.Value
-                              Withdrawn = dbFinancial.Withdrawn.Value
-                              DividendsReceived = dbFinancial.DividendsReceived.Value
-                              OptionsIncome = dbFinancial.OptionsIncome.Value
-                              OtherIncome = dbFinancial.OtherIncome.Value
-                              OpenTrades = dbFinancial.OpenTrades
-                              NetCashFlow =
-                                dbFinancial.Deposited.Value
-                                - dbFinancial.Withdrawn.Value
-                                - dbFinancial.Commissions.Value
-                                - dbFinancial.Fees.Value
-                                + dbFinancial.DividendsReceived.Value
-                                + dbFinancial.OptionsIncome.Value
-                                + dbFinancial.OtherIncome.Value })
+                            // Use the new helper function for conversion
+                            dbFinancial.brokerFinancialSnapshotToModel (brokerAccount = brokerAccount))
 
                     // Find the snapshot with the highest MovementCounter
                     let sortedSnapshots =
