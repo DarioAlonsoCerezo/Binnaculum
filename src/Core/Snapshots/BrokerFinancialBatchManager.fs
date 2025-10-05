@@ -84,9 +84,48 @@ module internal BrokerFinancialBatchManager =
                 // ========== PHASE 2: CALCULATE ALL SNAPSHOTS IN MEMORY ==========
                 CoreLogger.logDebug "BrokerFinancialBatchManager" "Phase 2: Calculating snapshots..."
 
-                // Generate date range for processing
-                let dateRange =
-                    BrokerFinancialBatchCalculator.generateDateRange request.StartDate request.EndDate
+                // SMART DATE FILTERING: Only process dates that actually need attention
+                // Extract dates from movements
+                let movementDates =
+                    [ movementsData.BrokerMovements |> List.map (fun m -> SnapshotManagerUtils.getDateOnly m.TimeStamp)
+                      movementsData.Trades |> List.map (fun t -> SnapshotManagerUtils.getDateOnly t.TimeStamp)
+                      movementsData.Dividends |> List.map (fun d -> SnapshotManagerUtils.getDateOnly d.TimeStamp)
+                      movementsData.DividendTaxes |> List.map (fun dt -> SnapshotManagerUtils.getDateOnly dt.TimeStamp)
+                      movementsData.OptionTrades |> List.map (fun ot -> SnapshotManagerUtils.getDateOnly ot.TimeStamp) ]
+                    |> List.concat
+                    |> Set.ofList
+
+                // Load existing snapshots in date range (for scenarios C, D, G, H)
+                let! existingSnapshots =
+                    BrokerFinancialSnapshotBatchLoader.loadExistingSnapshotsInRange
+                        request.BrokerAccountId
+                        request.StartDate
+                        request.EndDate
+
+                // Extract dates from existing snapshots
+                let existingSnapshotDates =
+                    existingSnapshots
+                    |> Map.toSeq
+                    |> Seq.map (fun ((date, _currencyId), _snapshot) -> date)
+                    |> Set.ofSeq
+
+                // Merge movement dates and existing snapshot dates (UNION)
+                // This ensures we process:
+                // 1. All dates with movements (obviously need processing)
+                // 2. All dates with existing snapshots (might need market price updates)
+                // 3. NO empty dates with neither movements nor snapshots (OPTIMIZATION!)
+                let relevantDates = Set.union movementDates existingSnapshotDates |> Set.toList |> List.sort
+
+                CoreLogger.logInfof
+                    "BrokerFinancialBatchManager"
+                    "Smart date filtering: %d movement dates + %d existing snapshot dates = %d total dates to process (vs %d days in full range)"
+                    movementDates.Count
+                    existingSnapshotDates.Count
+                    relevantDates.Length
+                    ((request.EndDate.Value - request.StartDate.Value).Days + 1)
+
+                // Use the filtered date list instead of generating every day
+                let dateRange = relevantDates
 
                 // Group movements by date for efficient lookup
                 let movementsByDate =
@@ -104,16 +143,9 @@ module internal BrokerFinancialBatchManager =
                     tickerIds.Count
                     currencyIds.Count
 
-                // Load all market prices for the date range
+                // Load all market prices for the filtered date range
                 let! marketPrices =
                     BrokerFinancialSnapshotBatchLoader.loadMarketPricesForRange tickerIds currencyIds dateRange
-
-                // Load existing snapshots in date range (for scenarios C, D, G, H)
-                let! existingSnapshots =
-                    BrokerFinancialSnapshotBatchLoader.loadExistingSnapshotsInRange
-                        request.BrokerAccountId
-                        request.StartDate
-                        request.EndDate
 
                 // Create calculation context
                 let context: BrokerFinancialBatchCalculator.BatchCalculationContext =
