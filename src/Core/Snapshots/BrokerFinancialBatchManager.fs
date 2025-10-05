@@ -84,18 +84,81 @@ module internal BrokerFinancialBatchManager =
                 // ========== PHASE 2: CALCULATE ALL SNAPSHOTS IN MEMORY ==========
                 CoreLogger.logDebug "BrokerFinancialBatchManager" "Phase 2: Calculating snapshots..."
 
-                // Generate date range for processing
-                let dateRange =
-                    BrokerFinancialBatchCalculator.generateDateRange request.StartDate request.EndDate
+                // SMART DATE FILTERING: Only process dates that actually need attention
+                // Extract dates from movements (normalized to start of day to match groupMovementsByDate)
+                let movementDates =
+                    [ movementsData.BrokerMovements
+                      |> List.map (fun m -> SnapshotManagerUtils.normalizeToStartOfDay m.TimeStamp)
+                      movementsData.Trades
+                      |> List.map (fun t -> SnapshotManagerUtils.normalizeToStartOfDay t.TimeStamp)
+                      movementsData.Dividends
+                      |> List.map (fun d -> SnapshotManagerUtils.normalizeToStartOfDay d.TimeStamp)
+                      movementsData.DividendTaxes
+                      |> List.map (fun dt -> SnapshotManagerUtils.normalizeToStartOfDay dt.TimeStamp)
+                      movementsData.OptionTrades
+                      |> List.map (fun ot -> SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp) ]
+                    |> List.concat
+                    |> Set.ofList
+
+                // Load existing snapshots in date range (for scenarios C, D, G, H)
+                let! existingSnapshots =
+                    BrokerFinancialSnapshotBatchLoader.loadExistingSnapshotsInRange
+                        request.BrokerAccountId
+                        request.StartDate
+                        request.EndDate
+
+                // Extract dates from existing snapshots
+                let existingSnapshotDates =
+                    existingSnapshots
+                    |> Map.toSeq
+                    |> Seq.map (fun ((date, _currencyId), _snapshot) -> date)
+                    |> Set.ofSeq
+
+                // Merge movement dates and existing snapshot dates (UNION)
+                // This ensures we process:
+                // 1. All dates with movements (obviously need processing)
+                // 2. All dates with existing snapshots (might need market price updates)
+                // 3. NO empty dates with neither movements nor snapshots (OPTIMIZATION!)
+                let relevantDates =
+                    Set.union movementDates existingSnapshotDates |> Set.toList |> List.sort
+
+                CoreLogger.logInfof
+                    "BrokerFinancialBatchManager"
+                    "Smart date filtering: %d movement dates + %d existing snapshot dates = %d total dates to process (vs %d days in full range)"
+                    movementDates.Count
+                    existingSnapshotDates.Count
+                    relevantDates.Length
+                    ((request.EndDate.Value - request.StartDate.Value).Days + 1)
+
+                // Use the filtered date list instead of generating every day
+                let dateRange = relevantDates
 
                 // Group movements by date for efficient lookup
                 let movementsByDate =
                     BrokerMovementBatchLoader.groupMovementsByDate request.BrokerAccountId movementsData
 
+                // Extract unique ticker IDs and currency IDs from trades for market price loading
+                let tickerIds = movementsData.Trades |> List.map (fun t -> t.TickerId) |> Set.ofList
+
+                let currencyIds =
+                    movementsData.Trades |> List.map (fun t -> t.CurrencyId) |> Set.ofList
+
+                CoreLogger.logDebugf
+                    "BrokerFinancialBatchManager"
+                    "Loading market prices for %d unique tickers and %d currencies"
+                    tickerIds.Count
+                    currencyIds.Count
+
+                // Load all market prices for the filtered date range
+                let! marketPrices =
+                    BrokerFinancialSnapshotBatchLoader.loadMarketPricesForRange tickerIds currencyIds dateRange
+
                 // Create calculation context
                 let context: BrokerFinancialBatchCalculator.BatchCalculationContext =
                     { BaselineSnapshots = baselineSnapshots
                       MovementsByDate = movementsByDate
+                      ExistingSnapshots = existingSnapshots
+                      MarketPrices = marketPrices
                       DateRange = dateRange
                       BrokerAccountId = request.BrokerAccountId
                       BrokerAccountSnapshotId = 0 // Will be set appropriately for each snapshot
