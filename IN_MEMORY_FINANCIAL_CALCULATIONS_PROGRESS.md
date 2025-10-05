@@ -108,14 +108,33 @@
 
 ---
 
-### Phase 2: Market Price Pre-loading 🔜 NOT STARTED
+### Phase 2: Market Price Pre-loading ⏳ IN PROGRESS
 **Goal:** Add synchronous unrealized gains calculation with pre-loaded market prices
 
 - [ ] **Step 2.1**: Create market price pre-loading infrastructure
+  - Status: Starting now
+  - Files: `BrokerFinancialSnapshotBatchLoader.fs` (new or extend existing)
+  - Notes: Load all market prices for tickers in date range
+
 - [ ] **Step 2.2**: Add `MarketPrices` to `BatchCalculationContext`
+  - Status: Not started
+  - Files: `BrokerFinancialBatchCalculator.fs`, `BrokerFinancialBatchManager.fs`
+  - Notes: Map<(TickerId * DateTimePattern), decimal>
+
 - [ ] **Step 2.3**: Implement synchronous unrealized gains calculation
+  - Status: Not started
+  - Files: `BrokerFinancialCalculateInMemory.fs`
+  - Notes: Sync version of BrokerFinancialUnrealizedGains logic
+
 - [ ] **Step 2.4**: Update `calculateSnapshot` to use pre-loaded prices
+  - Status: Not started
+  - Files: `BrokerFinancialCalculateInMemory.fs`
+  - Notes: Replace stubbed 0m unrealized gains
+
 - [ ] **Step 2.5**: Add tests for unrealized gains calculations
+  - Status: Not started
+  - Files: Test project
+  - Notes: Verify accuracy vs async version
 
 ---
 

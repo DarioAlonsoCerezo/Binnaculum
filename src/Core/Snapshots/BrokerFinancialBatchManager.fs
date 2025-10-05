@@ -92,6 +92,27 @@ module internal BrokerFinancialBatchManager =
                 let movementsByDate =
                     BrokerMovementBatchLoader.groupMovementsByDate request.BrokerAccountId movementsData
 
+                // Extract unique ticker IDs and currency IDs from trades for market price loading
+                let tickerIds =
+                    movementsData.Trades
+                    |> List.map (fun t -> t.TickerId)
+                    |> Set.ofList
+
+                let currencyIds =
+                    movementsData.Trades
+                    |> List.map (fun t -> t.CurrencyId)
+                    |> Set.ofList
+
+                CoreLogger.logDebugf
+                    "BrokerFinancialBatchManager"
+                    "Loading market prices for %d unique tickers and %d currencies"
+                    tickerIds.Count
+                    currencyIds.Count
+
+                // Load all market prices for the date range
+                let! marketPrices =
+                    BrokerFinancialSnapshotBatchLoader.loadMarketPricesForRange tickerIds currencyIds dateRange
+
                 // Load existing snapshots in date range (for scenarios C, D, G, H)
                 // TODO: Phase 3 - implement loadExistingSnapshotsInRange
                 // For now, use empty map (batch will create new snapshots)
@@ -102,6 +123,7 @@ module internal BrokerFinancialBatchManager =
                     { BaselineSnapshots = baselineSnapshots
                       MovementsByDate = movementsByDate
                       ExistingSnapshots = existingSnapshots
+                      MarketPrices = marketPrices
                       DateRange = dateRange
                       BrokerAccountId = request.BrokerAccountId
                       BrokerAccountSnapshotId = 0 // Will be set appropriately for each snapshot

@@ -221,7 +221,10 @@ module internal BrokerFinancialCalculateInMemory =
             Money.FromAmount(previousSnapshot.RealizedGains.Value + calculatedMetrics.RealizedGains.Value)
 
         let cumulativeDividendsReceived =
-            Money.FromAmount(previousSnapshot.DividendsReceived.Value + calculatedMetrics.DividendsReceived.Value)
+            Money.FromAmount(
+                previousSnapshot.DividendsReceived.Value
+                + calculatedMetrics.DividendsReceived.Value
+            )
 
         let cumulativeOptionsIncome =
             Money.FromAmount(previousSnapshot.OptionsIncome.Value + calculatedMetrics.OptionsIncome.Value)
@@ -235,7 +238,8 @@ module internal BrokerFinancialCalculateInMemory =
         let cumulativeFees =
             Money.FromAmount(previousSnapshot.Fees.Value + calculatedMetrics.Fees.Value)
 
-        let cumulativeMovementCounter = previousSnapshot.MovementCounter + calculatedMetrics.MovementCounter
+        let cumulativeMovementCounter =
+            previousSnapshot.MovementCounter + calculatedMetrics.MovementCounter
 
         // Calculate unrealized gains (simplified for now - will be enhanced in Phase 2)
         let stockUnrealizedGains = Money.FromAmount(0m) // TODO: Phase 2 - pre-loaded market prices
@@ -332,7 +336,8 @@ module internal BrokerFinancialCalculateInMemory =
         let hasRealizedTradeActivity =
             currencyMovements.Trades
             |> List.exists (fun trade ->
-                trade.TradeCode = TradeCode.SellToClose || trade.TradeCode = TradeCode.BuyToClose)
+                trade.TradeCode = TradeCode.SellToClose
+                || trade.TradeCode = TradeCode.BuyToClose)
 
         let hasRealizedOptionActivity =
             currencyMovements.OptionTrades
@@ -389,7 +394,8 @@ module internal BrokerFinancialCalculateInMemory =
             previousSnapshot.RealizedGains <> existingSnapshot.RealizedGains
             || previousSnapshot.RealizedPercentage <> existingSnapshot.RealizedPercentage
             || previousSnapshot.UnrealizedGains <> existingSnapshot.UnrealizedGains
-            || previousSnapshot.UnrealizedGainsPercentage <> existingSnapshot.UnrealizedGainsPercentage
+            || previousSnapshot.UnrealizedGainsPercentage
+               <> existingSnapshot.UnrealizedGainsPercentage
             || previousSnapshot.Invested <> existingSnapshot.Invested
             || previousSnapshot.Commissions <> existingSnapshot.Commissions
             || previousSnapshot.Fees <> existingSnapshot.Fees

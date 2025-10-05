@@ -22,6 +22,8 @@ module internal BrokerFinancialBatchCalculator =
             MovementsByDate: Map<DateTimePattern, BrokerAccountMovementData>
             /// Map of (date, currencyId) to existing snapshot (for scenarios C, D, G, H)
             ExistingSnapshots: Map<(DateTimePattern * int), BrokerFinancialSnapshot>
+            /// Map of (tickerId, currencyId, date) to market price for unrealized gains calculation
+            MarketPrices: Map<(int * int * DateTimePattern), decimal>
             /// List of dates to process in chronological order
             DateRange: DateTimePattern list
             /// The broker account ID being processed
@@ -85,21 +87,18 @@ module internal BrokerFinancialBatchCalculator =
                         movementsProcessed <- movementsProcessed + dailyMovements.TotalMovementCount
 
                     // Get unique currencies with movements for this date
-                    let currenciesWithMovements = 
-                        if dailyMovements.HasMovements then 
-                            dailyMovements.UniqueCurrencies 
-                        else 
+                    let currenciesWithMovements =
+                        if dailyMovements.HasMovements then
+                            dailyMovements.UniqueCurrencies
+                        else
                             Set.empty
 
                     // Get all currencies with previous snapshots
-                    let currenciesWithPreviousSnapshots = 
-                        latestSnapshotsByCurrency 
-                        |> Map.toSeq 
-                        |> Seq.map fst 
-                        |> Set.ofSeq
+                    let currenciesWithPreviousSnapshots =
+                        latestSnapshotsByCurrency |> Map.toSeq |> Seq.map fst |> Set.ofSeq
 
                     // Calculate which currencies need processing (union of movements and historical)
-                    let allRelevantCurrencies = 
+                    let allRelevantCurrencies =
                         Set.union currenciesWithMovements currenciesWithPreviousSnapshots
 
                     CoreLogger.logDebugf
@@ -116,116 +115,133 @@ module internal BrokerFinancialBatchCalculator =
                         try
                             // Get movement data for this specific currency
                             let currencyMovementData = dailyMovements.MovementsByCurrency.TryFind(currencyId)
-                            
+
                             // Get previous snapshot for this currency
                             let previousSnapshot = latestSnapshotsByCurrency.TryFind(currencyId)
-                            
+
                             // Get existing snapshot for this date and currency (if reprocessing)
                             let existingSnapshot = context.ExistingSnapshots.TryFind((date, currencyId))
 
                             // SCENARIO DECISION TREE - All 8 scenarios handled
                             let snapshotResult =
                                 match currencyMovementData, previousSnapshot, existingSnapshot with
-                                
+
                                 // SCENARIO A: New movements, has previous snapshot, no existing snapshot
                                 | Some movements, Some prev, None ->
-                                    CoreLogger.logDebugf 
-                                        "BrokerFinancialBatchCalculator" 
-                                        "SCENARIO A: currency %d date %s" 
-                                        currencyId 
-                                        (date.ToString())
-                                    Some (BrokerFinancialCalculateInMemory.calculateNewSnapshot
-                                        movements
-                                        prev
-                                        date
+                                    CoreLogger.logDebugf
+                                        "BrokerFinancialBatchCalculator"
+                                        "SCENARIO A: currency %d date %s"
                                         currencyId
-                                        context.BrokerAccountId
-                                        context.BrokerAccountSnapshotId)
-                                
+                                        (date.ToString())
+
+                                    Some(
+                                        BrokerFinancialCalculateInMemory.calculateNewSnapshot
+                                            movements
+                                            prev
+                                            date
+                                            currencyId
+                                            context.BrokerAccountId
+                                            context.BrokerAccountSnapshotId
+                                    )
+
                                 // SCENARIO B: New movements, no previous snapshot, no existing snapshot
                                 | Some movements, None, None ->
-                                    CoreLogger.logDebugf 
-                                        "BrokerFinancialBatchCalculator" 
-                                        "SCENARIO B: currency %d date %s" 
-                                        currencyId 
-                                        (date.ToString())
-                                    Some (BrokerFinancialCalculateInMemory.calculateInitialSnapshot
-                                        movements
-                                        date
+                                    CoreLogger.logDebugf
+                                        "BrokerFinancialBatchCalculator"
+                                        "SCENARIO B: currency %d date %s"
                                         currencyId
-                                        context.BrokerAccountId
-                                        context.BrokerAccountSnapshotId)
-                                
+                                        (date.ToString())
+
+                                    Some(
+                                        BrokerFinancialCalculateInMemory.calculateInitialSnapshot
+                                            movements
+                                            date
+                                            currencyId
+                                            context.BrokerAccountId
+                                            context.BrokerAccountSnapshotId
+                                    )
+
                                 // SCENARIO C: New movements, has previous snapshot, has existing snapshot
                                 | Some movements, Some prev, Some existing ->
-                                    CoreLogger.logDebugf 
-                                        "BrokerFinancialBatchCalculator" 
-                                        "SCENARIO C: currency %d date %s" 
-                                        currencyId 
-                                        (date.ToString())
-                                    Some (BrokerFinancialCalculateInMemory.updateExistingSnapshot
-                                        movements
-                                        prev
-                                        existing
-                                        date
+                                    CoreLogger.logDebugf
+                                        "BrokerFinancialBatchCalculator"
+                                        "SCENARIO C: currency %d date %s"
                                         currencyId
-                                        context.BrokerAccountId
-                                        context.BrokerAccountSnapshotId)
-                                
+                                        (date.ToString())
+
+                                    Some(
+                                        BrokerFinancialCalculateInMemory.updateExistingSnapshot
+                                            movements
+                                            prev
+                                            existing
+                                            date
+                                            currencyId
+                                            context.BrokerAccountId
+                                            context.BrokerAccountSnapshotId
+                                    )
+
                                 // SCENARIO D: New movements, no previous snapshot, has existing snapshot
                                 | Some movements, None, Some existing ->
-                                    CoreLogger.logDebugf 
-                                        "BrokerFinancialBatchCalculator" 
-                                        "SCENARIO D: currency %d date %s" 
-                                        currencyId 
-                                        (date.ToString())
-                                    Some (BrokerFinancialCalculateInMemory.directUpdateSnapshot
-                                        movements
-                                        existing
-                                        date
+                                    CoreLogger.logDebugf
+                                        "BrokerFinancialBatchCalculator"
+                                        "SCENARIO D: currency %d date %s"
                                         currencyId
-                                        context.BrokerAccountId
-                                        context.BrokerAccountSnapshotId)
-                                
+                                        (date.ToString())
+
+                                    Some(
+                                        BrokerFinancialCalculateInMemory.directUpdateSnapshot
+                                            movements
+                                            existing
+                                            date
+                                            currencyId
+                                            context.BrokerAccountId
+                                            context.BrokerAccountSnapshotId
+                                    )
+
                                 // SCENARIO E: No movements, has previous snapshot, no existing snapshot
                                 | None, Some prev, None ->
-                                    CoreLogger.logDebugf 
-                                        "BrokerFinancialBatchCalculator" 
-                                        "SCENARIO E: currency %d date %s" 
-                                        currencyId 
+                                    CoreLogger.logDebugf
+                                        "BrokerFinancialBatchCalculator"
+                                        "SCENARIO E: currency %d date %s"
+                                        currencyId
                                         (date.ToString())
-                                    Some (BrokerFinancialCalculateInMemory.carryForwardSnapshot
-                                        prev
-                                        date
-                                        context.BrokerAccountSnapshotId)
-                                
+
+                                    Some(
+                                        BrokerFinancialCalculateInMemory.carryForwardSnapshot
+                                            prev
+                                            date
+                                            context.BrokerAccountSnapshotId
+                                    )
+
                                 // SCENARIO F: No movements, no previous snapshot, no existing snapshot
                                 | None, None, None ->
-                                    CoreLogger.logDebugf 
-                                        "BrokerFinancialBatchCalculator" 
-                                        "SCENARIO F: currency %d date %s - no action needed" 
-                                        currencyId 
+                                    CoreLogger.logDebugf
+                                        "BrokerFinancialBatchCalculator"
+                                        "SCENARIO F: currency %d date %s - no action needed"
+                                        currencyId
                                         (date.ToString())
+
                                     None
-                                
+
                                 // SCENARIO G: No movements, has previous snapshot, has existing snapshot
                                 | None, Some prev, Some existing ->
-                                    CoreLogger.logDebugf 
-                                        "BrokerFinancialBatchCalculator" 
-                                        "SCENARIO G: currency %d date %s" 
-                                        currencyId 
+                                    CoreLogger.logDebugf
+                                        "BrokerFinancialBatchCalculator"
+                                        "SCENARIO G: currency %d date %s"
+                                        currencyId
                                         (date.ToString())
                                     // Returns Some if correction needed, None if snapshots match
                                     BrokerFinancialCalculateInMemory.validateAndCorrectSnapshot prev existing
-                                
+
                                 // SCENARIO H: No movements, no previous snapshot, has existing snapshot
                                 | None, None, Some existing ->
-                                    CoreLogger.logDebugf 
-                                        "BrokerFinancialBatchCalculator" 
-                                        "SCENARIO H: currency %d date %s" 
-                                        currencyId 
+                                    CoreLogger.logDebugf
+                                        "BrokerFinancialBatchCalculator"
+                                        "SCENARIO H: currency %d date %s"
+                                        currencyId
                                         (date.ToString())
-                                    Some (BrokerFinancialCalculateInMemory.resetSnapshot existing)
+
+                                    Some(BrokerFinancialCalculateInMemory.resetSnapshot existing)
 
                             // Add snapshot to results if one was created/updated
                             match snapshotResult with

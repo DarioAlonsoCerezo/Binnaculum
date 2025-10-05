@@ -4,6 +4,7 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
 open BrokerFinancialSnapshotExtensions
+open TickerPriceExtensions
 
 /// <summary>
 /// Batch loader for broker financial snapshots to optimize database I/O.
@@ -95,4 +96,57 @@ module internal BrokerFinancialSnapshotBatchLoader =
                 |> Map.ofList
 
             return snapshotLookup
+        }
+
+    /// <summary>
+    /// Load all market prices for tickers in a date range.
+    /// Pre-loads prices for all ticker/currency combinations to enable synchronous calculations.
+    /// Returns map of (TickerId * CurrencyId * DateTimePattern) to price for efficient lookup.
+    /// </summary>
+    /// <param name="tickerIds">Set of ticker IDs that need prices</param>
+    /// <param name="currencyIds">Set of currency IDs for price lookup</param>
+    /// <param name="dates">Sorted list of dates that need prices</param>
+    /// <returns>Task containing map of (tickerId, currencyId, date) to decimal price</returns>
+    let loadMarketPricesForRange (tickerIds: Set<int>) (currencyIds: Set<int>) (dates: DateTimePattern list) =
+        task {
+            if tickerIds.IsEmpty || currencyIds.IsEmpty || dates.IsEmpty then
+                CoreLogger.logDebug "BrokerFinancialSnapshotBatchLoader" "No tickers, currencies or dates - returning empty price map"
+                return Map.empty
+            else
+                CoreLogger.logDebugf
+                    "BrokerFinancialSnapshotBatchLoader"
+                    "Loading market prices for %d tickers, %d currencies across %d dates"
+                    tickerIds.Count
+                    currencyIds.Count
+                    dates.Length
+
+                // For each (ticker, currency, date) combination, get the price
+                let! pricesWithKeys =
+                    tickerIds
+                    |> Set.toList
+                    |> List.collect (fun tickerId ->
+                        currencyIds
+                        |> Set.toList
+                        |> List.collect (fun currencyId ->
+                            dates |> List.map (fun date -> (tickerId, currencyId, date))))
+                    |> List.map (fun (tickerId, currencyId, date) ->
+                        task {
+                            let! price = TickerPriceExtensions.Do.getPriceByDateOrPreviousAndCurrencyId(tickerId, currencyId, date.ToString())
+                            return ((tickerId, currencyId, date), price)
+                        })
+                    |> System.Threading.Tasks.Task.WhenAll
+
+                // Build map, excluding zero prices (means no price found)
+                let priceMap =
+                    pricesWithKeys
+                    |> Array.filter (fun (_, price) -> price <> 0m)
+                    |> Map.ofArray
+
+                CoreLogger.logDebugf
+                    "BrokerFinancialSnapshotBatchLoader"
+                    "Loaded %d market prices (from %d possible combinations)"
+                    priceMap.Count
+                    (tickerIds.Count * currencyIds.Count * dates.Length)
+
+                return priceMap
         }
