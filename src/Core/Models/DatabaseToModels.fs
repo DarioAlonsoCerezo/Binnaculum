@@ -805,3 +805,113 @@ module internal DatabaseToModels =
                   LatestPrice = 0.0m
                   OpenTrades = false }
               OtherCurrencies = [] }
+
+        /// <summary>
+        /// Converts a database TickerCurrencySnapshot to the domain model TickerCurrencySnapshot.
+        /// Follows the established pattern from brokerFinancialSnapshotToModel.
+        /// Uses fast O(1) lookups for ticker and currency references.
+        /// </summary>
+        /// <param name="dbCurrencySnapshot">The database TickerCurrencySnapshot to convert</param>
+        /// <param name="ticker">Optional ticker model (use when ticker is already loaded)</param>
+        /// <returns>A domain model TickerCurrencySnapshot with all fields populated</returns>
+        [<Extension>]
+        static member tickerCurrencySnapshotToModel
+            (dbCurrencySnapshot: Binnaculum.Core.Database.SnapshotsModel.TickerCurrencySnapshot, ?ticker: Ticker)
+            : Binnaculum.Core.Models.TickerCurrencySnapshot =
+            let tickerModel =
+                match ticker with
+                | Some t -> t
+                | None -> dbCurrencySnapshot.TickerId.ToFastTickerById()
+
+            { Id = dbCurrencySnapshot.Base.Id
+              Date = DateOnly.FromDateTime(dbCurrencySnapshot.Base.Date.Value)
+              Ticker = tickerModel
+              Currency = dbCurrencySnapshot.CurrencyId.ToFastCurrencyById()
+              TotalShares = dbCurrencySnapshot.TotalShares
+              Weight = dbCurrencySnapshot.Weight
+              CostBasis = dbCurrencySnapshot.CostBasis.Value
+              RealCost = dbCurrencySnapshot.RealCost.Value
+              Dividends = dbCurrencySnapshot.Dividends.Value
+              Options = dbCurrencySnapshot.Options.Value
+              TotalIncomes = dbCurrencySnapshot.TotalIncomes.Value
+              Unrealized = dbCurrencySnapshot.Unrealized.Value
+              Realized = dbCurrencySnapshot.Realized.Value
+              Performance = dbCurrencySnapshot.Performance
+              LatestPrice = dbCurrencySnapshot.LatestPrice.Value
+              OpenTrades = dbCurrencySnapshot.OpenTrades }
+
+        /// <summary>
+        /// Converts a database TickerSnapshot to the domain model TickerSnapshot,
+        /// loading all associated TickerCurrencySnapshots and properly populating MainCurrency and OtherCurrencies.
+        /// Follows the established pattern from brokerAccountSnapshotToOverviewSnapshot.
+        /// </summary>
+        /// <param name="dbSnapshot">The database TickerSnapshot to convert</param>
+        /// <param name="currencySnapshots">List of TickerCurrencySnapshot records for this ticker snapshot</param>
+        /// <param name="ticker">The Ticker model (should be pre-loaded for performance)</param>
+        /// <returns>A domain model TickerSnapshot with all currency data properly populated</returns>
+        [<Extension>]
+        static member tickerSnapshotToModelWithCurrencies
+            (
+                dbSnapshot: Binnaculum.Core.Database.SnapshotsModel.TickerSnapshot,
+                currencySnapshots: Binnaculum.Core.Database.SnapshotsModel.TickerCurrencySnapshot list,
+                ticker: Ticker
+            ) : Binnaculum.Core.Models.TickerSnapshot =
+            let (mainCurrency, otherCurrencies) =
+                if currencySnapshots.IsEmpty then
+                    // Create empty currency snapshot if no data available
+                    let emptySnapshot =
+                        { Id = 0
+                          Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                          Ticker = ticker
+                          Currency = "USD".ToFastCurrency() // Default to USD
+                          TotalShares = 0m
+                          Weight = 0.0m
+                          CostBasis = 0.0m
+                          RealCost = 0.0m
+                          Dividends = 0.0m
+                          Options = 0.0m
+                          TotalIncomes = 0.0m
+                          Unrealized = 0.0m
+                          Realized = 0.0m
+                          Performance = 0.0m
+                          LatestPrice = 0.0m
+                          OpenTrades = false }
+
+                    (emptySnapshot, [])
+                else
+                    // Convert database snapshots to model snapshots
+                    let modelSnapshots =
+                        currencySnapshots
+                        |> List.map (fun dbCurrencySnapshot ->
+                            dbCurrencySnapshot.tickerCurrencySnapshotToModel (ticker = ticker))
+
+                    // Use first currency snapshot as main, rest as others
+                    match modelSnapshots with
+                    | head :: tail -> (head, tail)
+                    | [] ->
+                        // This shouldn't happen since we checked for empty list above, but handle it gracefully
+                        let emptySnapshot =
+                            { Id = 0
+                              Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+                              Ticker = ticker
+                              Currency = "USD".ToFastCurrency()
+                              TotalShares = 0m
+                              Weight = 0.0m
+                              CostBasis = 0.0m
+                              RealCost = 0.0m
+                              Dividends = 0.0m
+                              Options = 0.0m
+                              TotalIncomes = 0.0m
+                              Unrealized = 0.0m
+                              Realized = 0.0m
+                              Performance = 0.0m
+                              LatestPrice = 0.0m
+                              OpenTrades = false }
+
+                        (emptySnapshot, [])
+
+            { Id = dbSnapshot.Base.Id
+              Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
+              Ticker = ticker
+              MainCurrency = mainCurrency
+              OtherCurrencies = otherCurrencies }
