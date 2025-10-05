@@ -272,11 +272,25 @@ namespace Core.Platform.MauiTester.TestCases
                         var pfeSnapshots = await Tickers.GetSnapshots(pfeTicker.Id);
                         var pfeSnapshotCount = ListModule.Length(pfeSnapshots);
 
+                        CoreLogger.logInfo("PfizerTest", $"✅ Tickers.GetSnapshots returned {pfeSnapshotCount} snapshots");
+                        
+                        // Log ALL retrieved snapshots for debugging
+                        CoreLogger.logInfo("PfizerTest", "=== ALL Retrieved PFE Snapshots ===");
+                        var snapshotArray = ListModule.ToArray(pfeSnapshots);
+                        for (int i = 0; i < snapshotArray.Length; i++)
+                        {
+                            var snap = snapshotArray[i];
+                            var mainCurrency = snap.MainCurrency;
+                            CoreLogger.logInfo("PfizerTest", $"  [{i + 1}] Date={snap.Date:yyyy-MM-dd}, Ticker={snap.Ticker.Symbol}, " +
+                                $"Options=${mainCurrency.Options:F2}, Unrealized=${mainCurrency.Unrealized:F2}, Realized=${mainCurrency.Realized:F2}, " +
+                                $"TotalShares={mainCurrency.TotalShares:F2}, CostBasis=${mainCurrency.CostBasis:F2}");
+                        }
+
                         // Expected: 3 snapshots (2025-08-25, 2025-10-01, 2025-10-03)
                         const int EXPECTED_PFE_SNAPSHOTS = 3;
                         bool pfeSnapshotCountValid = pfeSnapshotCount == EXPECTED_PFE_SNAPSHOTS;
                         results.Add($"Tickers.GetSnapshots (PFE): Expected {EXPECTED_PFE_SNAPSHOTS}, Got {pfeSnapshotCount} - {(pfeSnapshotCountValid ? "✅ PASS" : "❌ FAIL")}");
-                        CoreLogger.logInfo("PfizerTest", $"PFE snapshots retrieved: {pfeSnapshotCount} (expected {EXPECTED_PFE_SNAPSHOTS})");
+                        CoreLogger.logInfo("PfizerTest", $"PFE snapshots retrieved: {pfeSnapshotCount} (expected {EXPECTED_PFE_SNAPSHOTS}) - {(pfeSnapshotCountValid ? "PASS" : "FAIL")}");
 
                         // Validate individual snapshots date-by-date
                         var individualSnapshotValidation = ValidateIndividualPfeSnapshots(pfeSnapshots, results);
@@ -365,11 +379,15 @@ namespace Core.Platform.MauiTester.TestCases
                 .ToList();
 
             // Log all snapshot dates for debugging
-            CoreLogger.logDebug("PfizerTest", $"Total PFE snapshots: {pfeSnapshots.Count}");
-            foreach (var snap in pfeSnapshots)
+            CoreLogger.logInfo("PfizerTest", $"=== Validate Individual PFE Snapshots ===");
+            CoreLogger.logInfo("PfizerTest", $"Total PFE snapshots to validate: {pfeSnapshots.Count}");
+            for (int i = 0; i < pfeSnapshots.Count; i++)
             {
+                var snap = pfeSnapshots[i];
                 var mainCurrency = snap.MainCurrency;
-                CoreLogger.logDebug("PfizerTest", $"  Snapshot: Date={snap.Date:yyyy-MM-dd}, Options={mainCurrency.Options:F2}, Unrealized={mainCurrency.Unrealized:F2}, Realized={mainCurrency.Realized:F2}");
+                CoreLogger.logInfo("PfizerTest", $"  Snapshot [{i + 1}]: Date={snap.Date:yyyy-MM-dd}, " +
+                    $"Options={mainCurrency.Options:F2}, Unrealized={mainCurrency.Unrealized:F2}, " +
+                    $"Realized={mainCurrency.Realized:F2}, TotalShares={mainCurrency.TotalShares:F2}");
             }
 
             if (pfeSnapshots.Count != expectedSnapshots.Count)
@@ -390,6 +408,8 @@ namespace Core.Platform.MauiTester.TestCases
                 var actual = pfeSnapshots[i];
                 var mainCurrency = actual.MainCurrency;
 
+                CoreLogger.logInfo("PfizerTest", $"--- Validating Snapshot [{i + 1}/3]: {expected.date:yyyy-MM-dd} ---");
+
                 var dateMatch = actual.Date == expected.date;
                 var totalSharesMatch = Math.Abs(mainCurrency.TotalShares - expected.totalShares) <= TOLERANCE;
                 var optionsMatch = Math.Abs(mainCurrency.Options - expected.options) <= TOLERANCE;
@@ -398,10 +418,16 @@ namespace Core.Platform.MauiTester.TestCases
                 var unrealizedMatch = Math.Abs(mainCurrency.Unrealized - expected.unrealized) <= TOLERANCE;
                 var realizedMatch = Math.Abs(mainCurrency.Realized - expected.realized) <= TOLERANCE;
 
-                var snapshotValid = dateMatch && totalSharesMatch && optionsMatch && costBasisMatch && 
-                                   realCostMatch && unrealizedMatch && realizedMatch;
+                CoreLogger.logInfo("PfizerTest", $"  Date: Expected={expected.date:yyyy-MM-dd}, Actual={actual.Date:yyyy-MM-dd}, Match={dateMatch}");
+                CoreLogger.logInfo("PfizerTest", $"  TotalShares: Expected={expected.totalShares:F2}, Actual={mainCurrency.TotalShares:F2}, Match={totalSharesMatch}");
+                CoreLogger.logInfo("PfizerTest", $"  Options: Expected=${expected.options:F2}, Actual=${mainCurrency.Options:F2}, Match={optionsMatch}");
+                CoreLogger.logInfo("PfizerTest", $"  CostBasis: Expected=${expected.costBasis:F2}, Actual=${mainCurrency.CostBasis:F2}, Match={costBasisMatch}");
+                CoreLogger.logInfo("PfizerTest", $"  RealCost: Expected=${expected.realCost:F2}, Actual=${mainCurrency.RealCost:F2}, Match={realCostMatch}");
+                CoreLogger.logInfo("PfizerTest", $"  Unrealized: Expected=${expected.unrealized:F2}, Actual=${mainCurrency.Unrealized:F2}, Match={unrealizedMatch}");
+                CoreLogger.logInfo("PfizerTest", $"  Realized: Expected=${expected.realized:F2}, Actual=${mainCurrency.Realized:F2}, Match={realizedMatch}");
 
-                if (snapshotValid)
+                var snapshotValid = dateMatch && totalSharesMatch && optionsMatch && costBasisMatch && 
+                                   realCostMatch && unrealizedMatch && realizedMatch;                if (snapshotValid)
                 {
                     passedCount++;
                     var msg = $"✅ [{i + 1}/3] {expected.date:yyyy-MM-dd}: TotalShares={mainCurrency.TotalShares:F2}, Options=${mainCurrency.Options:F2}, Unrealized=${mainCurrency.Unrealized:F2}, Realized=${mainCurrency.Realized:F2}";
@@ -452,16 +478,24 @@ namespace Core.Platform.MauiTester.TestCases
                 var snapshot = pfeSnapshots[i];
                 var expected = expectedSnapshots[i];
 
+                CoreLogger.logInfo("PfizerTest", $"--- Currency Snapshot Validation [{i + 1}/3]: {expected.date:yyyy-MM-dd} ---");
+
                 try
                 {
                     // The snapshot should have exactly 1 currency (MainCurrency) and no OtherCurrencies
                     var otherCurrenciesCount = ListModule.Length(snapshot.OtherCurrencies);
-                    var isValid = otherCurrenciesCount == 0 && snapshot.MainCurrency != null;
+                    var hasMainCurrency = snapshot.MainCurrency != null;
+                    
+                    CoreLogger.logInfo("PfizerTest", $"  HasMainCurrency: {hasMainCurrency}");
+                    CoreLogger.logInfo("PfizerTest", $"  OtherCurrenciesCount: {otherCurrenciesCount}");
+                    
+                    var isValid = otherCurrenciesCount == 0 && hasMainCurrency;
 
                     if (isValid)
                     {
                         currencySnapshotCountPassed++;
                         var currencyCode = snapshot.MainCurrency!.Currency.Code;
+                        CoreLogger.logInfo("PfizerTest", $"  Currency: {currencyCode}");
                         var msg = $"✅ [{i + 1}/3] {expected.date:yyyy-MM-dd}: 1 currency snapshot ({currencyCode})";
                         CoreLogger.logInfo("PfizerTest", msg);
                         results.Add(msg);
