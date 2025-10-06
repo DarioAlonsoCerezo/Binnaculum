@@ -101,7 +101,7 @@ module internal TickerSnapshotCalculateInMemory =
         // Calculate unrealized gains/losses from open positions only:
         // 1. Shares: (market value - cost basis)
         // 2. Open options: net premium of positions still open
-        //
+        // 
         // Dividends and Realized are tracked separately in their own fields
 
         // Shares unrealized
@@ -109,15 +109,45 @@ module internal TickerSnapshotCalculateInMemory =
         let sharesUnrealized = sharesMarketValue - costBasis.Value
 
         // Options unrealized (only open positions at this snapshot date)
+        // Check if the trade was open AS OF the snapshot date by comparing timestamps
+        // A trade is considered open if:
+        // 1. It's an opening trade (BuyToOpen/SellToOpen)
+        // 2. It was not closed before or on the snapshot date
+        let normalizedSnapshotDate = SnapshotManagerUtils.normalizeToStartOfDay date
+        
         let openOptionsUnrealized =
             movements.OptionTrades
-            |> List.filter (fun opt -> opt.IsOpen)
+            |> List.filter (fun opt ->
+                // Must be an opening trade
+                match opt.Code with
+                | OptionCode.BuyToOpen
+                | OptionCode.SellToOpen ->
+                    // Check if it was closed by comparing with the closing trade's timestamp
+                    match opt.ClosedWith with
+                    | Some closingTradeId ->
+                        // Find the closing trade in all option trades
+                        let closingTrade =
+                            movements.AllClosedOptionTrades
+                            |> List.tryFind (fun t -> t.Id = closingTradeId)
+                        
+                        match closingTrade with
+                        | Some ct ->
+                            let normalizedClosingDate = SnapshotManagerUtils.normalizeToStartOfDay ct.TimeStamp
+                            // Trade was open if closing happened AFTER snapshot date
+                            normalizedClosingDate.Value > normalizedSnapshotDate.Value
+                        | None ->
+                            // Closing trade not found in our dataset - consider it open
+                            true
+                    | None ->
+                        // Not closed yet - definitely open
+                        true
+                | _ ->
+                    // Closing trades don't contribute to open positions
+                    false)
             |> List.sumBy (fun opt -> opt.NetPremium.Value)
 
         // Total unrealized = shares unrealized + open options unrealized (positions still in market)
-        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)
-
-        // Calculate realized gains from closed option positions
+        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)        // Calculate realized gains from closed option positions
         //
         // Now properly implemented with access to ALL closed option trades for this ticker!
         // The batch loader provides all historical closed trades, allowing accurate round-trip calculations.
@@ -265,7 +295,7 @@ module internal TickerSnapshotCalculateInMemory =
         // Calculate unrealized gains/losses from open positions only:
         // 1. Shares: (market value - cost basis)
         // 2. Open options: net premium of positions still open
-        //
+        // 
         // Dividends and Realized are tracked separately in their own fields
 
         // Shares unrealized
@@ -273,18 +303,48 @@ module internal TickerSnapshotCalculateInMemory =
         let sharesUnrealized = sharesMarketValue - costBasis.Value
 
         // Options unrealized (only open positions at this snapshot date)
+        // Check if the trade was open AS OF the snapshot date by comparing timestamps
+        // A trade is considered open if:
+        // 1. It's an opening trade (BuyToOpen/SellToOpen)
+        // 2. It was not closed before or on the snapshot date
+        let normalizedSnapshotDate = SnapshotManagerUtils.normalizeToStartOfDay date
+        
         let openOptionsUnrealized =
             movements.OptionTrades
-            |> List.filter (fun opt -> opt.IsOpen)
+            |> List.filter (fun opt ->
+                // Must be an opening trade
+                match opt.Code with
+                | OptionCode.BuyToOpen
+                | OptionCode.SellToOpen ->
+                    // Check if it was closed by comparing with the closing trade's timestamp
+                    match opt.ClosedWith with
+                    | Some closingTradeId ->
+                        // Find the closing trade in all option trades
+                        let closingTrade =
+                            movements.AllClosedOptionTrades
+                            |> List.tryFind (fun t -> t.Id = closingTradeId)
+                        
+                        match closingTrade with
+                        | Some ct ->
+                            let normalizedClosingDate = SnapshotManagerUtils.normalizeToStartOfDay ct.TimeStamp
+                            // Trade was open if closing happened AFTER snapshot date
+                            normalizedClosingDate.Value > normalizedSnapshotDate.Value
+                        | None ->
+                            // Closing trade not found in our dataset - consider it open
+                            true
+                    | None ->
+                        // Not closed yet - definitely open
+                        true
+                | _ ->
+                    // Closing trades don't contribute to open positions
+                    false)
             |> List.sumBy (fun opt -> opt.NetPremium.Value)
 
         // Total unrealized = shares unrealized + open options unrealized (positions still in market)
         let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)
 
         // Calculate realized gains (zero for initial snapshot)
-        let realized = Money.FromAmount(0.0m)
-
-        // Calculate performance percentage
+        let realized = Money.FromAmount(0.0m)        // Calculate performance percentage
         let performance =
             if costBasis.Value <> 0.0m then
                 (unrealized.Value / costBasis.Value) * 100.0m

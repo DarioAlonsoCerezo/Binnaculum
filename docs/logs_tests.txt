@@ -61,6 +61,30 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.Extensions.Configuration.dll [External]
 
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.Extensions.Configuration.Abstractions.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.Extensions.Logging.Abstractions.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.Extensions.Logging.Debug.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Private.Uri.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Xml.ReaderWriter.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Private.Xml.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Runtime.Loader.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.Maui.Graphics.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Linq.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Xamarin.AndroidX.AppCompat.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.ComponentModel.TypeConverter.dll [External]
+
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Xamarin.Google.Android.Material.dll [External]
+
 [form.mauitester] Late-enabling -Xcheck:jni
 
 [form.mauitester] Using CollectorTypeCC GC.
@@ -75,11 +99,11 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [ApplicationLoaders] Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
 
-[nativeloader] Configuring clns-9 for other apk /data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/base.apk. target_sdk_version=35, uses_libraries=, library_path=/data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/lib/x86_64:/data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.companyname.core.platform.mauitester
+[nativeloader] Configuring clns-9 for other apk /data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/base.apk. target_sdk_version=35, uses_libraries=, library_path=/data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/lib/x86_64:/data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.companyname.core.platform.mauitester
 
 [CompatChangeReporter] Compat change id reported: 202956589; UID 10213; state: ENABLED
 
-[form.mauitester] AssetManager2(0x7940e7a4b238) locale list changing from [] to [en-US]
+[form.mauitester] AssetManager2(0x78de0a339f78) locale list changing from [] to [en-US]
 
 [GraphicsEnvironment] Currently set values for:
 
@@ -95,17 +119,17 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [GraphicsEnvironment] Neither updatable production driver nor prerelease driver is supported.
 
-[nativeloader] Load /data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/lib/x86_64/libmonosgen-2.0.so using class loader ns clns-9 (caller=/data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/base.apk!classes2.dex): ok
+[nativeloader] Load /data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/lib/x86_64/libmonosgen-2.0.so using class loader ns clns-9 (caller=/data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/base.apk!classes2.dex): ok
 
-[nativeloader] Load /data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/lib/x86_64/libxamarin-app.so using class loader ns clns-9 (caller=/data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/base.apk!classes2.dex): ok
+[nativeloader] Load /data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/lib/x86_64/libxamarin-app.so using class loader ns clns-9 (caller=/data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/base.apk!classes2.dex): ok
 
-[nativeloader] Load /data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/lib/x86_64/libSystem.Security.Cryptography.Native.Android.so using class loader ns clns-9 (caller=/data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/base.apk!classes2.dex): ok
+[nativeloader] Load /data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/lib/x86_64/libSystem.Security.Cryptography.Native.Android.so using class loader ns clns-9 (caller=/data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/base.apk!classes2.dex): ok
 
 [DOTNET] AndroidCryptoNative_InitLibraryOnLoad: jint AndroidCryptoNative_InitLibraryOnLoad(JavaVM *, void *) in /__w/1/s/src/native/libs/System.Security.Cryptography.Native.Android/pal_jni.c
 
 [DOTNET] GetOptionalClassGRef: optional class com/android/org/conscrypt/OpenSSLEngineImpl was not found
 
-[nativeloader] Load /data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/lib/x86_64/libmonodroid.so using class loader ns clns-9 (caller=/data/app/~~Ee_W-nZXKLtc36-WwecyeQ==/com.companyname.core.platform.mauitester-TYueZ0i9npdFWNy6OeOTgA==/base.apk!classes2.dex): ok
+[nativeloader] Load /data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/lib/x86_64/libmonodroid.so using class loader ns clns-9 (caller=/data/app/~~mxz40wCNWoFtgnd4jDB2_A==/com.companyname.core.platform.mauitester-mGBuqRyEoVQiuHVk2nNtKw==/base.apk!classes2.dex): ok
 
 [monodroid] Failed to create directory '/data/user/0/com.companyname.core.platform.mauitester/files/.__override__/x86_64'. File exists
 
@@ -113,7 +137,7 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [form.mauitester] Attempt to remove non-JNI local reference
 
-[monodroid-debug] Trying to initialize the debugger with options: --debugger-agent=transport=dt_socket,loglevel=0,address=10.0.2.2:56456,embedding=1,timeout=30000
+[monodroid-debug] Trying to initialize the debugger with options: --debugger-agent=transport=dt_socket,loglevel=0,address=10.0.2.2:61745,embedding=1,timeout=30000
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly Core.Platform.MauiTester.dll
 
@@ -239,12 +263,6 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
 
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.Extensions.Configuration.Abstractions.dll [External]
-
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.Extensions.Logging.Abstractions.dll [External]
-
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.Extensions.Logging.Debug.dll [External]
-
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly System.Private.Uri.dll
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
@@ -257,47 +275,29 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
 
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Private.Uri.dll [External]
-
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Xml.ReaderWriter.dll [External]
-
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Private.Xml.dll [External]
-
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly System.Runtime.Loader.dll
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
-
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Runtime.Loader.dll [External]
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly Microsoft.Maui.Graphics.dll
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
 
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.Maui.Graphics.dll [External]
-
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly System.Linq.dll
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
-
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Linq.dll [External]
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly Xamarin.AndroidX.AppCompat.dll
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
 
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Xamarin.AndroidX.AppCompat.dll [External]
-
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly System.ComponentModel.TypeConverter.dll
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
 
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.ComponentModel.TypeConverter.dll [External]
-
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly Xamarin.Google.Android.Material.dll
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
-
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Xamarin.Google.Android.Material.dll [External]
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly Xamarin.AndroidX.Fragment.dll
 
@@ -463,13 +463,9 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Numerics.Vectors.dll [External]
 
-Thread started: <Thread Pool> #8
+Thread started:  #8
 
 Thread started:  #9
-
-Thread started:  #10
-
-[form.mauitester] Explicit concurrent copying GC freed 10MB AllocSpace bytes, 0(0B) LOS objects, 49% free, 2312KB/4624KB, paused 360us,54us total 6.702ms
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly System.Runtime.Serialization.Json.dll
 
@@ -479,8 +475,6 @@ Thread started:  #10
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
 
-Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Runtime.Serialization.Json.dll [External]
-
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly System.Runtime.Serialization.Xml.dll
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
@@ -489,11 +483,15 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [monodroid-assembly] open_from_bundles: the assembly might have been uploaded to the device with FastDev instead
 
+Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Runtime.Serialization.Json.dll [External]
+
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Private.DataContractSerialization.dll [External]
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Runtime.Serialization.Xml.dll [External]
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.Runtime.Serialization.Primitives.dll [External]
+
+[form.mauitester] Explicit concurrent copying GC freed 10MB AllocSpace bytes, 0(0B) LOS objects, 49% free, 2312KB/4624KB, paused 132us,36us total 5.658ms
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly System.Xml.XmlSerializer.dll
 
@@ -513,7 +511,7 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Microsoft.VisualStudio.DesignTools.XamlTapContract.dll [External]
 
-[form.mauitester] Explicit concurrent copying GC freed 269KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 2122KB/4244KB, paused 124us,58us total 4.538ms
+[form.mauitester] Explicit concurrent copying GC freed 269KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 2122KB/4244KB, paused 155us,35us total 4.415ms
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly Xamarin.AndroidX.RecyclerView.dll
 
@@ -533,11 +531,11 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Xamarin.AndroidX.CardView.dll [External]
 
-[Choreographer] Skipped 134 frames!  The application may be doing too much work on its main thread.
+[Choreographer] Skipped 76 frames!  The application may be doing too much work on its main thread.
 
 [DisplayManager] Choreographer implicitly registered for the refresh rate.
 
-[form.mauitester] AssetManager2(0x7940e7aa7b78) locale list changing from [] to [en-US]
+[form.mauitester] AssetManager2(0x78de0a395f58) locale list changing from [] to [en-US]
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly Xamarin.AndroidX.Loader.dll
 
@@ -555,7 +553,7 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [AppCompatDelegate] Checking for metadata for AppLocalesMetadataHolderService : Service not found
 
-[form.mauitester] AssetManager2(0x7940e7aa0198) locale list changing from [] to [en-US]
+[form.mauitester] AssetManager2(0x78de0a394338) locale list changing from [] to [en-US]
 
 [ashmem] Pinning is deprecated since Android Q. Please use trim or other methods.
 
@@ -565,7 +563,7 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/_Microsoft.Android.Resource.Designer.dll [External]
 
-[form.mauitester] Explicit concurrent copying GC freed 379KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 2451KB/4902KB, paused 153us,293us total 4.941ms
+[form.mauitester] Explicit concurrent copying GC freed 379KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 2451KB/4902KB, paused 156us,35us total 3.953ms
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly Xamarin.AndroidX.Lifecycle.LiveData.Core.dll
 
@@ -623,7 +621,7 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/Xamarin.AndroidX.ViewPager.dll [External]
 
-[form.mauitester] Explicit concurrent copying GC freed 776KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 3242KB/6485KB, paused 124us,85us total 8.070ms
+[form.mauitester] Explicit concurrent copying GC freed 776KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 3242KB/6485KB, paused 126us,36us total 5.338ms
 
 [CompatChangeReporter] Compat change id reported: 352594277; UID 10213; state: ENABLED
 
@@ -631,11 +629,15 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [HWUI] Unknown dataspace 0
 
+Thread started: <Thread Pool> #10
+
 Thread started: <Thread Pool> #11
 
 Thread started: <Thread Pool> #12
 
 Thread started: <Thread Pool> #13
+
+Thread started: <Thread Pool> #14
 
 [form.mauitester] Compiler allocated 5057KB to compile void android.view.ViewRootImpl.performTraversals()
 
@@ -673,17 +675,15 @@ Thread started: <Thread Pool> #13
 
 [MaterialButton] MaterialButton manages its own background to control elevation, shape, color and states. Consider using backgroundTint, shapeAppearance and other attributes where available. A custom background will ignore these attributes and you should consider handling interaction states such as pressed, focused and disabled
 
-Thread started: <Thread Pool> #14
-
-[form.mauitester] Explicit concurrent copying GC freed 921KB AllocSpace bytes, 3(96KB) LOS objects, 49% free, 4240KB/8480KB, paused 242us,199us total 14.533ms
-
-[Choreographer] Skipped 34 frames!  The application may be doing too much work on its main thread.
-
 [InsetsController] hide(ime(), fromIme=false)
 
-[ImeTracker] com.companyname.core.platform.mauitester:2173c92d: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+[ImeTracker] com.companyname.core.platform.mauitester:75eaa3d2: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
 
-[form.mauitester] Explicit concurrent copying GC freed 178KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4584KB/9168KB, paused 156us,36us total 7.485ms
+[form.mauitester] Explicit concurrent copying GC freed 1022KB AllocSpace bytes, 3(80KB) LOS objects, 49% free, 4347KB/8694KB, paused 481us,45us total 22.923ms
+
+[form.mauitester] Explicit concurrent copying GC freed 82KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4583KB/9167KB, paused 120us,36us total 7.501ms
+
+[form.mauitester] Explicit concurrent copying GC freed 136KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4575KB/9151KB, paused 180us,35us total 7.983ms
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly System.ComponentModel.Primitives.dll
 
@@ -691,17 +691,19 @@ Thread started: <Thread Pool> #14
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.ComponentModel.Primitives.dll [External]
 
-[form.mauitester] Explicit concurrent copying GC freed 151KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4576KB/9153KB, paused 124us,38us total 7.902ms
+[form.mauitester] Explicit concurrent copying GC freed 128KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4575KB/9151KB, paused 209us,43us total 11.732ms
 
-[form.mauitester] Explicit concurrent copying GC freed 80KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4576KB/9152KB, paused 759us,36us total 8.131ms
+[0:] LOG: [08:42:26.488] Starting Pfizer Import Integration Test validation test...
 
-[ProfileInstaller] Installing profile for com.companyname.core.platform.mauitester
+[RippleDrawable] The RippleDrawable.STYLE_PATTERNED animation is not supported for a non-hardware accelerated Canvas. Skipping animation.
 
-[0:] LOG: [21:49:22.133] Starting Pfizer Import Integration Test validation test...
+[form.mauitester] Explicit concurrent copying GC freed 94KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4608KB/9217KB, paused 125us,37us total 8.934ms
 
-[0:] LOG: [21:49:22.278] Starting test scenario: Pfizer Import Integration Test
+[form.mauitester] Explicit concurrent copying GC freed 91KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4581KB/9162KB, paused 123us,57us total 7.589ms
 
-[0:] LOG: [21:49:22.290] Executing Wipe All Data for Testing...
+[0:] LOG: [08:42:26.644] Starting test scenario: Pfizer Import Integration Test
+
+[0:] LOG: [08:42:26.656] Executing Wipe All Data for Testing...
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly FSharp.Core.dll
 
@@ -769,197 +771,197 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/DynamicData.dll [External]
 
-[0:] LOG: [21:49:22.827] Wipe All Data for Testing completed successfully in 00:00.536
+[0:] LOG: [08:42:26.994] Wipe All Data for Testing completed successfully in 00:00.337
 
-[0:] LOG: [21:49:22.839] Executing Initialize MAUI Platform Services...
+[0:] LOG: [08:42:26.999] Executing Initialize MAUI Platform Services...
 
-[0:] LOG: [21:49:22.847] Initialize MAUI Platform Services completed successfully in 00:00.008
+[0:] LOG: [08:42:27.005] Initialize MAUI Platform Services completed successfully in 00:00.006
 
-[0:] LOG: [21:49:22.855] Executing Overview.InitDatabase()...
+[0:] LOG: [08:42:27.011] Executing Overview.InitDatabase()...
 
-[0:] [21:49:22.864] DEBUG: [Overview.InitDatabase] Starting InitDatabase
+[0:] [08:42:27.016] DEBUG: [Overview.InitDatabase] Starting InitDatabase
 
-[0:] [21:49:22.877] DEBUG: [Overview.InitDatabase] About to call DataLoader.loadBasicData()
+[0:] [08:42:27.023] DEBUG: [Overview.InitDatabase] About to call DataLoader.loadBasicData()
 
-[0:] [21:49:25.383] DEBUG: [Overview.InitDatabase] DataLoader.loadBasicData() completed
+[0:] [08:42:28.090] DEBUG: [Overview.InitDatabase] DataLoader.loadBasicData() completed
 
-[0:] [21:49:25.395] DEBUG: [Overview.InitDatabase] About to update Data.OnNext
+[0:] [08:42:28.094] DEBUG: [Overview.InitDatabase] About to update Data.OnNext
 
-[0:] [21:49:25.408] DEBUG: [Overview.InitDatabase] Current Data.Value: IsDatabaseInitialized=False, TransactionsLoaded=False
+[0:] [08:42:28.098] DEBUG: [Overview.InitDatabase] Current Data.Value: IsDatabaseInitialized=False, TransactionsLoaded=False
 
-[0:] [21:49:25.416] DEBUG: [Overview.InitDatabase] After Data.OnNext: IsDatabaseInitialized=True, TransactionsLoaded=False
+[0:] [08:42:28.103] DEBUG: [Overview.InitDatabase] After Data.OnNext: IsDatabaseInitialized=True, TransactionsLoaded=False
 
-[0:] [21:49:25.426] DEBUG: [Overview.InitDatabase] InitDatabase completed successfully
+[0:] [08:42:28.108] DEBUG: [Overview.InitDatabase] InitDatabase completed successfully
 
-[0:] LOG: [21:49:25.436] Overview.InitDatabase() completed successfully in 00:02.581
+[0:] LOG: [08:42:28.112] Overview.InitDatabase() completed successfully in 00:01.101
 
-[0:] LOG: [21:49:25.450] Executing Overview.LoadData()...
+[0:] LOG: [08:42:28.116] Executing Overview.LoadData()...
 
-[0:] [21:49:25.463] DEBUG: [Overview.LoadData] Starting LoadData
+[0:] [08:42:28.123] DEBUG: [Overview.LoadData] Starting LoadData
 
-[0:] [21:49:25.475] DEBUG: [Overview.LoadData] About to call DataLoader.initialization()
+[0:] [08:42:28.128] DEBUG: [Overview.LoadData] About to call DataLoader.initialization()
 
-[0:] [21:49:25.555] DEBUG: [ReactiveSnapshotManager] Starting loadSnapshots
+[0:] [08:42:28.170] DEBUG: [ReactiveSnapshotManager] Starting loadSnapshots
 
-[0:] [21:49:25.602] DEBUG: [ReactiveSnapshotManager] Completed loadSnapshots
+[0:] [08:42:28.203] DEBUG: [ReactiveSnapshotManager] Completed loadSnapshots
 
-[0:] [21:49:25.636] INFO : [TickerSnapshotManager] [handleNewTicker] CALLED - Ticker: SPY (ID: 1)
+[0:] [08:42:28.227] INFO : [TickerSnapshotManager] [handleNewTicker] CALLED - Ticker: SPY (ID: 1)
 
-[0:] [21:49:25.643] INFO : [TickerSnapshotManager] [handleNewTicker] Creating snapshot for date: 2025-10-05
+[0:] [08:42:28.232] INFO : [TickerSnapshotManager] [handleNewTicker] Creating snapshot for date: 2025-10-06
 
-[0:] [21:49:25.654] INFO : [TickerSnapshotManager] [createTickerSnapshot] START - TickerId: 1, Date: 2025-10-05
+[0:] [08:42:28.239] INFO : [TickerSnapshotManager] [createTickerSnapshot] START - TickerId: 1, Date: 2025-10-06
 
-[0:] [21:49:25.662] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-05T23:59:59
+[0:] [08:42:28.244] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-06T23:59:59
 
-[0:] [21:49:25.672] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-05T23:59:59
+[0:] [08:42:28.248] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-06T23:59:59
 
-[0:] [21:49:25.679] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:28.255] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:25.689] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:28.259] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:25.698] INFO : [TickerSnapshotManager] [createTickerSnapshot] Saving TickerSnapshot to database...
+[0:] [08:42:28.264] INFO : [TickerSnapshotManager] [createTickerSnapshot] Saving TickerSnapshot to database...
 
-[0:] [21:49:25.730] INFO : [TickerSnapshotManager] [createTickerSnapshot] TickerSnapshot saved successfully
+[0:] [08:42:28.276] INFO : [TickerSnapshotManager] [createTickerSnapshot] TickerSnapshot saved successfully
 
-[0:] [21:49:25.741] INFO : [TickerSnapshotManager] [createTickerSnapshot] Retrieving created snapshot from database...
+[0:] [08:42:28.280] INFO : [TickerSnapshotManager] [createTickerSnapshot] Retrieving created snapshot from database...
 
-[0:] [21:49:25.756] INFO : [TickerSnapshotManager] [createTickerSnapshot] TickerSnapshot retrieved. ID: 1
+[0:] [08:42:28.287] INFO : [TickerSnapshotManager] [createTickerSnapshot] TickerSnapshot retrieved. ID: 1
 
-[0:] [21:49:25.770] INFO : [TickerSnapshotManager] [createTickerSnapshot] Getting currency: USD
+[0:] [08:42:28.295] INFO : [TickerSnapshotManager] [createTickerSnapshot] Getting currency: USD
 
-[0:] [21:49:25.788] INFO : [TickerSnapshotManager] [createTickerSnapshot] Currency found. ID: 141, Code: USD
+[0:] [08:42:28.307] INFO : [TickerSnapshotManager] [createTickerSnapshot] Currency found. ID: 141, Code: USD
 
-[0:] [21:49:25.799] INFO : [TickerSnapshotManager] [createTickerSnapshot] Creating default TickerCurrencySnapshot...
+[0:] [08:42:28.311] INFO : [TickerSnapshotManager] [createTickerSnapshot] Creating default TickerCurrencySnapshot...
 
-[0:] [21:49:25.817] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-05T23:59:59
+[0:] [08:42:28.321] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-06T23:59:59
 
-[0:] [21:49:25.826] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-05T23:59:59
+[0:] [08:42:28.325] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-06T23:59:59
 
-[0:] [21:49:25.835] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:28.330] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:25.845] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:28.335] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:25.858] INFO : [TickerSnapshotManager] [createTickerSnapshot] Saving TickerCurrencySnapshot to database...
+[0:] [08:42:28.343] INFO : [TickerSnapshotManager] [createTickerSnapshot] Saving TickerCurrencySnapshot to database...
 
-[0:] [21:49:25.886] INFO : [TickerSnapshotManager] [createTickerSnapshot] SUCCESS - TickerCurrencySnapshot saved for TickerId: 1, CurrencyId: 141
+[0:] [08:42:28.356] INFO : [TickerSnapshotManager] [createTickerSnapshot] SUCCESS - TickerCurrencySnapshot saved for TickerId: 1, CurrencyId: 141
 
-[0:] [21:49:25.918] DEBUG: [Overview.LoadData] DataLoader.initialization() completed
+[0:] [08:42:28.379] DEBUG: [Overview.LoadData] DataLoader.initialization() completed
 
-[0:] [21:49:25.927] DEBUG: [Overview.LoadData] About to call ReactiveMovementManager.refresh()
+[0:] [08:42:28.383] DEBUG: [Overview.LoadData] About to call ReactiveMovementManager.refresh()
 
-[0:] [21:49:25.944] DEBUG: [ReactiveMovementManager] Starting loadMovements
+[0:] [08:42:28.392] DEBUG: [ReactiveMovementManager] Starting loadMovements
 
-[0:] [21:49:26.170] DEBUG: [ReactiveMovementManager] Completed loadMovements
+[0:] [08:42:28.507] DEBUG: [ReactiveMovementManager] Completed loadMovements
 
-[0:] [21:49:26.185] DEBUG: [Overview.LoadData] ReactiveMovementManager.refresh() completed
+[0:] [08:42:28.512] DEBUG: [Overview.LoadData] ReactiveMovementManager.refresh() completed
 
-[0:] [21:49:26.195] DEBUG: [Overview.LoadData] LoadData completed successfully
+[0:] [08:42:28.517] DEBUG: [Overview.LoadData] LoadData completed successfully
 
-[0:] LOG: [21:49:26.207] Overview.LoadData() completed successfully in 00:00.761
+[0:] LOG: [08:42:28.524] Overview.LoadData() completed successfully in 00:00.408
 
-[0:] LOG: [21:49:26.217] Executing Wait for reactive collections...
+[0:] LOG: [08:42:28.530] Executing Wait for reactive collections...
 
-[Choreographer] Skipped 237 frames!  The application may be doing too much work on its main thread.
+[Choreographer] Skipped 113 frames!  The application may be doing too much work on its main thread.
 
 [RippleDrawable] The RippleDrawable.STYLE_PATTERNED animation is not supported for a non-hardware accelerated Canvas. Skipping animation.
 
-[form.mauitester] Explicit concurrent copying GC freed 209KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4620KB/9241KB, paused 194us,37us total 10.181ms
+[form.mauitester] Explicit concurrent copying GC freed 128KB AllocSpace bytes, 18(576KB) LOS objects, 49% free, 4597KB/9194KB, paused 125us,54us total 8.092ms
 
-[form.mauitester] Explicit concurrent copying GC freed 75KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4593KB/9186KB, paused 122us,37us total 7.921ms
+[ProfileInstaller] Installing profile for com.companyname.core.platform.mauitester
 
-[0:] LOG: [21:49:26.531] Wait for reactive collections completed successfully in 00:00.313
+[0:] LOG: [08:42:28.839] Wait for reactive collections completed successfully in 00:00.309
 
-[0:] LOG: [21:49:26.542] Executing Start Reactive Stream Observation [Options Import]...
+[0:] LOG: [08:42:28.844] Executing Start Reactive Stream Observation [Options Import]...
 
-[0:] LOG: [21:49:26.655] Start Reactive Stream Observation [Options Import] completed successfully in 00:00.112
+[0:] LOG: [08:42:28.929] Start Reactive Stream Observation [Options Import] completed successfully in 00:00.084
 
-[0:] LOG: [21:49:26.661] Executing Find Tastytrade Broker...
+[0:] LOG: [08:42:28.935] Executing Find Tastytrade Broker...
 
-[0:] LOG: [21:49:26.678] Find Tastytrade Broker completed successfully in 00:00.017
+[0:] LOG: [08:42:28.942] Find Tastytrade Broker completed successfully in 00:00.006
 
-[0:] LOG: [21:49:26.689] Executing Execute Reactive Pfizer Import Integration Test...
+[0:] LOG: [08:42:28.946] Executing Execute Reactive Pfizer Import Integration Test...
 
-[0:] [21:49:26.706] INFO : [PfizerTest] Test started
+[0:] [08:42:28.956] INFO : [PfizerTest] Test started
 
-[0:] [21:49:26.718] INFO : [PfizerTest] Extracting CSV file...
+[0:] [08:42:28.960] INFO : [PfizerTest] Extracting CSV file...
 
-[0:] [21:49:26.727] INFO : [PfizerTest] ExtractTestCsvFile called
+[0:] [08:42:28.965] INFO : [PfizerTest] ExtractTestCsvFile called
 
-[0:] [21:49:26.738] INFO : [PfizerTest] Looking for resource: Core.Platform.MauiTester.Resources.TestData.PfizerImportTest.csv
+[0:] [08:42:28.970] INFO : [PfizerTest] Looking for resource: Core.Platform.MauiTester.Resources.TestData.PfizerImportTest.csv
 
-[0:] [21:49:26.751] INFO : [PfizerTest] Temp path: /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6cc357e9-68f0-4e05-b6cf-b4023d0a6644.csv
+[0:] [08:42:28.976] INFO : [PfizerTest] Temp path: /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6a6d7c51-b8eb-48fe-a094-1ceac46febfd.csv
 
-[0:] [21:49:26.759] INFO : [PfizerTest] ✅ Resource stream found, size: 1051 bytes
+[0:] [08:42:28.981] INFO : [PfizerTest] ✅ Resource stream found, size: 1051 bytes
 
-[0:] [21:49:26.778] INFO : [PfizerTest] ✅ File created successfully
+[0:] [08:42:28.990] INFO : [PfizerTest] ✅ File created successfully
 
-[0:] [21:49:26.796] INFO : [PfizerTest] ✅ CSV extracted to: /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6cc357e9-68f0-4e05-b6cf-b4023d0a6644.csv
+[0:] [08:42:28.999] INFO : [PfizerTest] ✅ CSV extracted to: /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6a6d7c51-b8eb-48fe-a094-1ceac46febfd.csv
 
-[0:] [21:49:26.810] INFO : [PfizerTest] Creating broker account: PFIZER-TEST-20251005-214926
+[0:] [08:42:29.004] INFO : [PfizerTest] Creating broker account: PFIZER-TEST-20251006-084229
 
-[0:] [21:49:26.821] INFO : [PfizerTest] Calling SaveBrokerAccount...
+[0:] [08:42:29.009] INFO : [PfizerTest] Calling SaveBrokerAccount...
 
-[0:] [21:49:26.866] DEBUG: [ReactiveSnapshotManager] Starting loadSnapshots
+[0:] [08:42:29.041] DEBUG: [ReactiveSnapshotManager] Starting loadSnapshots
 
-[0:] [21:49:26.887] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-05T23:59:59
+[0:] [08:42:29.060] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-06T23:59:59
 
-[0:] [21:49:26.897] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-05T23:59:59
+[0:] [08:42:29.065] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-06T23:59:59
 
-[0:] [21:49:26.910] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:29.072] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:26.925] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:29.077] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:26.969] DEBUG: [BrokerFinancialDefault] Creating default snapshot for BrokerAccountId: 1, Date: 2025-10-05T23:59:59
+[0:] [08:42:29.095] DEBUG: [BrokerFinancialDefault] Creating default snapshot for BrokerAccountId: 1, Date: 2025-10-06T23:59:59
 
-[0:] [21:49:26.975] DEBUG: [BrokerFinancialDefault] Step 1: Getting default currency...
+[0:] [08:42:29.100] DEBUG: [BrokerFinancialDefault] Step 1: Getting default currency...
 
-[0:] [21:49:26.985] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 1: Getting preference currency...
+[0:] [08:42:29.106] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 1: Getting preference currency...
 
-[0:] [21:49:26.998] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 2: Preference currency = USD
+[0:] [08:42:29.111] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 2: Preference currency = USD
 
-[0:] [21:49:27.007] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 3: Calling CurrencyExtensions.Do.getByCode...
+[0:] [08:42:29.115] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 3: Calling CurrencyExtensions.Do.getByCode...
 
-[0:] [21:49:27.019] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 4: CurrencyExtensions.Do.getByCode completed
+[0:] [08:42:29.123] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 4: CurrencyExtensions.Do.getByCode completed
 
-[0:] [21:49:27.029] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Success: Found currency ID = 141
+[0:] [08:42:29.129] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Success: Found currency ID = 141
 
-[0:] [21:49:27.045] DEBUG: [BrokerFinancialDefault] Step 2: Currency ID obtained: 141
+[0:] [08:42:29.137] DEBUG: [BrokerFinancialDefault] Step 2: Currency ID obtained: 141
 
-[0:] [21:49:27.054] DEBUG: [BrokerFinancialDefault] Step 3: Creating base snapshot...
+[0:] [08:42:29.142] DEBUG: [BrokerFinancialDefault] Step 3: Creating base snapshot...
 
-[0:] [21:49:27.063] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-05T23:59:59
+[0:] [08:42:29.147] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-06T23:59:59
 
-[0:] [21:49:27.075] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-05T23:59:59
+[0:] [08:42:29.151] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-06T23:59:59
 
-[0:] [21:49:27.086] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:29.158] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:27.099] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:29.163] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:27.119] DEBUG: [BrokerFinancialDefault] Step 4: Base snapshot created with ID: 0
+[0:] [08:42:29.170] DEBUG: [BrokerFinancialDefault] Step 4: Base snapshot created with ID: 0
 
-[0:] [21:49:27.129] DEBUG: [BrokerFinancialDefault] Step 5: Creating snapshot object...
+[0:] [08:42:29.175] DEBUG: [BrokerFinancialDefault] Step 5: Creating snapshot object...
 
-[0:] [21:49:27.139] DEBUG: [BrokerFinancialDefault] Step 6: Snapshot object created successfully
+[0:] [08:42:29.181] DEBUG: [BrokerFinancialDefault] Step 6: Snapshot object created successfully
 
-[0:] [21:49:27.152] DEBUG: [BrokerFinancialDefault] About to save default snapshot with CurrencyId: 141, Deposited: 0M
+[0:] [08:42:29.191] DEBUG: [BrokerFinancialDefault] About to save default snapshot with CurrencyId: 141, Deposited: 0M
 
-[0:] [21:49:27.158] DEBUG: [BrokerFinancialDefault] Step 7: Calling snapshot.save()...
+[0:] [08:42:29.197] DEBUG: [BrokerFinancialDefault] Step 7: Calling snapshot.save()...
 
-[0:] [21:49:27.175] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 0
+[0:] [08:42:29.210] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 0
 
-[0:] [21:49:27.185] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
+[0:] [08:42:29.215] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
 
-[0:] [21:49:27.200] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 0
+[0:] [08:42:29.224] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 0
 
-[0:] [21:49:27.227] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
+[0:] [08:42:29.245] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
 
-[0:] [21:49:27.234] DEBUG: [BrokerFinancialDefault] Step 8: snapshot.save() completed successfully
+[0:] [08:42:29.250] DEBUG: [BrokerFinancialDefault] Step 8: snapshot.save() completed successfully
 
-[0:] [21:49:27.242] DEBUG: [BrokerFinancialDefault] Default snapshot saved successfully
+[0:] [08:42:29.257] DEBUG: [BrokerFinancialDefault] Default snapshot saved successfully
 
-[0:] [21:49:27.257] DEBUG: [BrokerAccountSnapshotLoader] Loading financial snapshots for BrokerAccountId: 1, SnapshotDate: 2025-10-05T23:59:59
+[0:] [08:42:29.265] DEBUG: [BrokerAccountSnapshotLoader] Loading financial snapshots for BrokerAccountId: 1, SnapshotDate: 2025-10-06T23:59:59
 
-[0:] [21:49:27.271] DEBUG: [BrokerAccountSnapshotLoader] Found 1 financial snapshots
+[0:] [08:42:29.274] DEBUG: [BrokerAccountSnapshotLoader] Found 1 financial snapshots
 
 [0:] [DatabaseToModels] Converting broker account snapshot - BrokerAccountId: 1, FinancialSnapshots count: 1
 
@@ -967,91 +969,91 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [0:] [DatabaseToModels] Financial snapshot - Deposited: 0.0, MovementCounter: 0
 
-[0:] [21:49:27.357] DEBUG: [ReactiveSnapshotManager] Completed loadSnapshots
+[0:] [08:42:29.324] DEBUG: [ReactiveSnapshotManager] Completed loadSnapshots
 
-[0:] [21:49:27.367] DEBUG: [BrokerFinancialDefault] Creating default snapshot for BrokerAccountId: 1, Date: 2025-10-05T23:59:59
+[0:] [08:42:29.331] DEBUG: [BrokerFinancialDefault] Creating default snapshot for BrokerAccountId: 1, Date: 2025-10-06T23:59:59
 
-[0:] [21:49:27.373] DEBUG: [BrokerFinancialDefault] Step 1: Getting default currency...
+[0:] [08:42:29.338] DEBUG: [BrokerFinancialDefault] Step 1: Getting default currency...
 
-[0:] [21:49:27.381] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 1: Getting preference currency...
+[0:] [08:42:29.343] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 1: Getting preference currency...
 
-[0:] [21:49:27.391] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 2: Preference currency = USD
+[0:] [08:42:29.348] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 2: Preference currency = USD
 
-[0:] [21:49:27.401] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 3: Calling CurrencyExtensions.Do.getByCode...
+[0:] [08:42:29.355] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 3: Calling CurrencyExtensions.Do.getByCode...
 
-[0:] [21:49:27.411] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 4: CurrencyExtensions.Do.getByCode completed
+[0:] [08:42:29.361] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Step 4: CurrencyExtensions.Do.getByCode completed
 
-[0:] [21:49:27.421] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Success: Found currency ID = 141
+[0:] [08:42:29.365] DEBUG: [SnapshotManagerUtils] getDefaultCurrency - Success: Found currency ID = 141
 
-[0:] [21:49:27.434] DEBUG: [BrokerFinancialDefault] Step 2: Currency ID obtained: 141
+[0:] [08:42:29.373] DEBUG: [BrokerFinancialDefault] Step 2: Currency ID obtained: 141
 
-[0:] [21:49:27.443] DEBUG: [BrokerFinancialDefault] Step 3: Creating base snapshot...
+[0:] [08:42:29.378] DEBUG: [BrokerFinancialDefault] Step 3: Creating base snapshot...
 
-[0:] [21:49:27.455] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-05T23:59:59
+[0:] [08:42:29.385] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-06T23:59:59
 
-[0:] [21:49:27.465] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-05T23:59:59
+[0:] [08:42:29.391] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-06T23:59:59
 
-[0:] [21:49:27.476] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:29.396] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:27.487] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:29.401] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:27.495] DEBUG: [BrokerFinancialDefault] Step 4: Base snapshot created with ID: 0
+[0:] [08:42:29.408] DEBUG: [BrokerFinancialDefault] Step 4: Base snapshot created with ID: 0
 
-[0:] [21:49:27.502] DEBUG: [BrokerFinancialDefault] Step 5: Creating snapshot object...
+[0:] [08:42:29.412] DEBUG: [BrokerFinancialDefault] Step 5: Creating snapshot object...
 
-[0:] [21:49:27.509] DEBUG: [BrokerFinancialDefault] Step 6: Snapshot object created successfully
+[0:] [08:42:29.418] DEBUG: [BrokerFinancialDefault] Step 6: Snapshot object created successfully
 
-[0:] [21:49:27.518] DEBUG: [BrokerFinancialDefault] About to save default snapshot with CurrencyId: 141, Deposited: 0M
+[0:] [08:42:29.425] DEBUG: [BrokerFinancialDefault] About to save default snapshot with CurrencyId: 141, Deposited: 0M
 
-[0:] [21:49:27.526] DEBUG: [BrokerFinancialDefault] Step 7: Calling snapshot.save()...
+[0:] [08:42:29.429] DEBUG: [BrokerFinancialDefault] Step 7: Calling snapshot.save()...
 
-[0:] [21:49:27.535] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 0
+[0:] [08:42:29.436] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 0
 
-[0:] [21:49:27.541] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
+[0:] [08:42:29.442] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
 
-[0:] [21:49:27.550] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 0
+[0:] [08:42:29.447] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 0
 
-[0:] [21:49:27.574] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
+[0:] [08:42:29.459] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
 
-[0:] [21:49:27.582] DEBUG: [BrokerFinancialDefault] Step 8: snapshot.save() completed successfully
+[0:] [08:42:29.463] DEBUG: [BrokerFinancialDefault] Step 8: snapshot.save() completed successfully
 
-[0:] [21:49:27.591] DEBUG: [BrokerFinancialDefault] Default snapshot saved successfully
+[0:] [08:42:29.468] DEBUG: [BrokerFinancialDefault] Default snapshot saved successfully
 
-[0:] [21:49:27.608] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-05T23:59:59
+[0:] [08:42:29.480] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-06T23:59:59
 
-[0:] [21:49:27.615] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-05T23:59:59
+[0:] [08:42:29.485] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-06T23:59:59
 
-[0:] [21:49:27.625] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:29.490] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:27.634] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:29.494] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:27.660] INFO : [PfizerTest] ✅ SaveBrokerAccount completed
+[0:] [08:42:29.507] INFO : [PfizerTest] ✅ SaveBrokerAccount completed
 
-[0:] [21:49:27.669] INFO : [PfizerTest] Looking for created account...
+[0:] [08:42:29.512] INFO : [PfizerTest] Looking for created account...
 
-[0:] [21:49:27.679] INFO : [PfizerTest] ✅ Found account with ID: 1
+[0:] [08:42:29.519] INFO : [PfizerTest] ✅ Found account with ID: 1
 
-[0:] [21:49:27.687] INFO : [PfizerTest] Setting up signal monitoring...
+[0:] [08:42:29.523] INFO : [PfizerTest] Setting up signal monitoring...
 
-[0:] [21:49:27.698] INFO : [PfizerTest] Starting import from: /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6cc357e9-68f0-4e05-b6cf-b4023d0a6644.csv
+[0:] [08:42:29.530] INFO : [PfizerTest] Starting import from: /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6a6d7c51-b8eb-48fe-a094-1ceac46febfd.csv
 
-[0:] [21:49:27.719] INFO : [ImportManager] importFile function called with broker 2, account 1, file=/data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6cc357e9-68f0-4e05-b6cf-b4023d0a6644.csv
+[0:] [08:42:29.541] INFO : [ImportManager] importFile function called with broker 2, account 1, file=/data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6a6d7c51-b8eb-48fe-a094-1ceac46febfd.csv
 
-[0:] [21:49:27.730] INFO : [ImportManager] Starting import for broker 2, account 1, file=/data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6cc357e9-68f0-4e05-b6cf-b4023d0a6644.csv
+[0:] [08:42:29.548] INFO : [ImportManager] Starting import for broker 2, account 1, file=/data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6a6d7c51-b8eb-48fe-a094-1ceac46febfd.csv
 
-[0:] [21:49:27.738] DEBUG: [ImportManager] About to call ImportState.startImport()
+[0:] [08:42:29.553] DEBUG: [ImportManager] About to call ImportState.startImport()
 
-[0:] [21:49:27.747] DEBUG: [ImportManager] ImportState.startImport() completed successfully
+[0:] [08:42:29.559] DEBUG: [ImportManager] ImportState.startImport() completed successfully
 
-[0:] [21:49:27.757] DEBUG: [ImportManager] Validating input parameters
+[0:] [08:42:29.563] DEBUG: [ImportManager] Validating input parameters
 
-[0:] [21:49:27.765] DEBUG: [ImportManager] Looking up broker 2
+[0:] [08:42:29.567] DEBUG: [ImportManager] Looking up broker 2
 
-[0:] [21:49:27.782] DEBUG: [ImportManager] Broker Tastytrade found, validating account 1
+[0:] [08:42:29.578] DEBUG: [ImportManager] Broker Tastytrade found, validating account 1
 
-[0:] [21:49:27.801] DEBUG: [ImportManager] Validated account PFIZER-TEST-20251005-214926; proceeding to file processing
+[0:] [08:42:29.586] DEBUG: [ImportManager] Validated account PFIZER-TEST-20251006-084229; proceeding to file processing
 
-[0:] [21:49:27.813] DEBUG: [ImportManager] Processing file /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6cc357e9-68f0-4e05-b6cf-b4023d0a6644.csv
+[0:] [08:42:29.593] DEBUG: [ImportManager] Processing file /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6a6d7c51-b8eb-48fe-a094-1ceac46febfd.csv
 
 [monodroid-assembly] open_from_bundles: failed to load bundled assembly System.IO.Compression.ZipFile.dll
 
@@ -1059,973 +1061,973 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__override__/x86_64/System.IO.Compression.ZipFile.dll [External]
 
-[0:] [21:49:27.859] DEBUG: [ImportManager] Routing to importer for broker type Tastytrade
+[0:] [08:42:29.620] DEBUG: [ImportManager] Routing to importer for broker type Tastytrade
 
-[0:] [21:49:27.866] DEBUG: [ImportManager] Invoking Tastytrade importer for account 1
+[0:] [08:42:29.625] DEBUG: [ImportManager] Invoking Tastytrade importer for account 1
 
-[0:] [21:49:27.908] INFO : [ImportManager] Tastytrade parse complete: success=true, processedFiles=1, processedRecords=4
+[0:] [08:42:29.658] INFO : [ImportManager] Tastytrade parse complete: success=true, processedFiles=1, processedRecords=4
 
-[0:] [21:49:27.916] DEBUG: [ImportManager] Beginning database persistence for parsed transactions
+[0:] [08:42:29.662] DEBUG: [ImportManager] Beginning database persistence for parsed transactions
 
-[0:] [21:49:27.931] DEBUG: [ImportManager] Persisting 4 transactions to database for account 1
+[0:] [08:42:29.669] DEBUG: [ImportManager] Persisting 4 transactions to database for account 1
 
-[0:] [21:49:27.949] INFO : [DatabasePersistence] Persisting 4 transactions for account 1
+[0:] [08:42:29.677] INFO : [DatabasePersistence] Persisting 4 transactions for account 1
 
-[0:] [21:49:27.968] DEBUG: [DatabasePersistence] About to order 4 transactions for persistence
+[0:] [08:42:29.682] DEBUG: [DatabasePersistence] About to order 4 transactions for persistence
 
-[0:] [21:49:27.978] DEBUG: [DatabasePersistence] orderTransactionsForPersistence: Starting to sort 4 transactions
+[0:] [08:42:29.687] DEBUG: [DatabasePersistence] orderTransactionsForPersistence: Starting to sort 4 transactions
 
-[0:] [21:49:27.993] DEBUG: [DatabasePersistence] orderTransactionsForPersistence: Sorting completed, returning 4 transactions
+[0:] [08:42:29.694] DEBUG: [DatabasePersistence] orderTransactionsForPersistence: Sorting completed, returning 4 transactions
 
-[0:] [21:49:28.003] DEBUG: [DatabasePersistence] Transactions ordered successfully; total=4
+[0:] [08:42:29.698] DEBUG: [DatabasePersistence] Transactions ordered successfully; total=4
 
-[0:] [21:49:28.014] DEBUG: [DatabasePersistence] Starting transaction processing loop
+[0:] [08:42:29.703] DEBUG: [DatabasePersistence] Starting transaction processing loop
 
-[0:] [21:49:28.043] DEBUG: [DatabasePersistence] Processing transaction 1/4: line=5, type=Trade (BuyToOpen, BUY_TO_OPEN)
+[0:] [08:42:29.719] DEBUG: [DatabasePersistence] Processing transaction 1/4: line=5, type=Trade (BuyToOpen, BUY_TO_OPEN)
 
-[0:] [21:49:28.052] DEBUG: [DatabasePersistence] Getting currency ID for: USD
+[0:] [08:42:29.725] DEBUG: [DatabasePersistence] Getting currency ID for: USD
 
-[0:] [21:49:28.069] DEBUG: [DatabasePersistence] Got currency ID: 141 for USD
+[0:] [08:42:29.737] DEBUG: [DatabasePersistence] Got currency ID: 141 for USD
 
-[0:] [21:49:28.084] DEBUG: [DatabasePersistence] Processing transaction type: Trade (BuyToOpen, BUY_TO_OPEN)
+[0:] [08:42:29.748] DEBUG: [DatabasePersistence] Processing transaction type: Trade (BuyToOpen, BUY_TO_OPEN)
 
-[0:] [21:49:28.135] DEBUG: [DatabasePersistence] Completed processing transaction 1/4
+[0:] [08:42:29.774] DEBUG: [DatabasePersistence] Completed processing transaction 1/4
 
-[0:] [21:49:28.146] DEBUG: [DatabasePersistence] Processing transaction 2/4: line=4, type=Trade (SellToOpen, SELL_TO_OPEN)
+[0:] [08:42:29.780] DEBUG: [DatabasePersistence] Processing transaction 2/4: line=4, type=Trade (SellToOpen, SELL_TO_OPEN)
 
-[0:] [21:49:28.157] DEBUG: [DatabasePersistence] Getting currency ID for: USD
+[0:] [08:42:29.788] DEBUG: [DatabasePersistence] Getting currency ID for: USD
 
-[0:] [21:49:28.167] DEBUG: [DatabasePersistence] Got currency ID: 141 for USD
+[0:] [08:42:29.795] DEBUG: [DatabasePersistence] Got currency ID: 141 for USD
 
-[0:] [21:49:28.182] DEBUG: [DatabasePersistence] Processing transaction type: Trade (SellToOpen, SELL_TO_OPEN)
+[0:] [08:42:29.801] DEBUG: [DatabasePersistence] Processing transaction type: Trade (SellToOpen, SELL_TO_OPEN)
 
-[0:] [21:49:28.209] DEBUG: [DatabasePersistence] Completed processing transaction 2/4
+[0:] [08:42:29.814] DEBUG: [DatabasePersistence] Completed processing transaction 2/4
 
-[0:] [21:49:28.218] DEBUG: [DatabasePersistence] Processing transaction 3/4: line=2, type=Trade (SellToClose, SELL_TO_CLOSE)
+[0:] [08:42:29.821] DEBUG: [DatabasePersistence] Processing transaction 3/4: line=2, type=Trade (SellToClose, SELL_TO_CLOSE)
 
-[0:] [21:49:28.227] DEBUG: [DatabasePersistence] Getting currency ID for: USD
+[0:] [08:42:29.824] DEBUG: [DatabasePersistence] Getting currency ID for: USD
 
-[0:] [21:49:28.238] DEBUG: [DatabasePersistence] Got currency ID: 141 for USD
+[0:] [08:42:29.829] DEBUG: [DatabasePersistence] Got currency ID: 141 for USD
 
-[0:] [21:49:28.250] DEBUG: [DatabasePersistence] Processing transaction type: Trade (SellToClose, SELL_TO_CLOSE)
+[0:] [08:42:29.834] DEBUG: [DatabasePersistence] Processing transaction type: Trade (SellToClose, SELL_TO_CLOSE)
 
-[0:] [21:49:28.304] DEBUG: [DatabasePersistence] Completed processing transaction 3/4
+[0:] [08:42:29.864] DEBUG: [DatabasePersistence] Completed processing transaction 3/4
 
-[0:] [21:49:28.313] DEBUG: [DatabasePersistence] Processing transaction 4/4: line=3, type=Trade (BuyToClose, BUY_TO_CLOSE)
+[0:] [08:42:29.871] DEBUG: [DatabasePersistence] Processing transaction 4/4: line=3, type=Trade (BuyToClose, BUY_TO_CLOSE)
 
-[0:] [21:49:28.319] DEBUG: [DatabasePersistence] Getting currency ID for: USD
+[0:] [08:42:29.875] DEBUG: [DatabasePersistence] Getting currency ID for: USD
 
-[0:] [21:49:28.328] DEBUG: [DatabasePersistence] Got currency ID: 141 for USD
+[0:] [08:42:29.880] DEBUG: [DatabasePersistence] Got currency ID: 141 for USD
 
-[0:] [21:49:28.339] DEBUG: [DatabasePersistence] Processing transaction type: Trade (BuyToClose, BUY_TO_CLOSE)
+[0:] [08:42:29.886] DEBUG: [DatabasePersistence] Processing transaction type: Trade (BuyToClose, BUY_TO_CLOSE)
 
-[0:] [21:49:28.382] DEBUG: [DatabasePersistence] Completed processing transaction 4/4
+[0:] [08:42:29.906] DEBUG: [DatabasePersistence] Completed processing transaction 4/4
 
-[0:] [21:49:28.392] DEBUG: [DatabasePersistence] All transactions processed, finalizing
+[0:] [08:42:29.910] DEBUG: [DatabasePersistence] All transactions processed, finalizing
 
-[0:] [21:49:28.405] INFO : [DatabasePersistence] Persistence complete. BrokerMovements=0, OptionTrades=4, StockTrades=0, Errors=0
+[0:] [08:42:29.918] INFO : [DatabasePersistence] Persistence complete. BrokerMovements=0, OptionTrades=4, StockTrades=0, Errors=0
 
-[0:] [21:49:28.415] INFO : [ImportManager] Database persistence complete: brokerMovements=0, optionTrades=4, stockTrades=0, errors=0
+[0:] [08:42:29.926] INFO : [ImportManager] Database persistence complete: brokerMovements=0, optionTrades=4, stockTrades=0, errors=0
 
-[0:] [21:49:28.423] DEBUG: [ImportManager] Performing targeted reactive refresh with batch snapshot processing
+[0:] [08:42:29.931] DEBUG: [ImportManager] Performing targeted reactive refresh with batch snapshot processing
 
-[0:] [21:49:28.434] DEBUG: [ReactiveMovementManager] Skipping loadMovements - import in progress, will update after completion
+[0:] [08:42:29.939] DEBUG: [ReactiveMovementManager] Skipping loadMovements - import in progress, will update after completion
 
-[0:] [21:49:28.442] DEBUG: [ReactiveMovementManager] Starting loadMovements
+[0:] [08:42:29.944] DEBUG: [ReactiveMovementManager] Starting loadMovements
 
-[0:] [21:49:28.482] DEBUG: [ReactiveMovementManager] Completed loadMovements
+[0:] [08:42:29.973] DEBUG: [ReactiveMovementManager] Completed loadMovements
 
-[0:] [21:49:28.487] INFO : [ImportManager] Starting batch financial snapshot processing for import
+[0:] [08:42:29.978] INFO : [ImportManager] Starting batch financial snapshot processing for import
 
-[0:] [21:49:28.497] INFO : [BrokerFinancialBatchManager] Starting batch processing for recent imports on account 1
+[0:] [08:42:29.984] INFO : [BrokerFinancialBatchManager] Starting batch processing for recent imports on account 1
 
-[0:] [21:49:28.510] DEBUG: [BrokerMovementBatchLoader] Loading movements for account 1 from 1900-01-01T00:00:00 to 2025-10-05T21:49:28
+[0:] [08:42:29.992] DEBUG: [BrokerMovementBatchLoader] Loading movements for account 1 from 1900-01-01T00:00:00 to 2025-10-06T08:42:29
 
-[0:] [21:49:28.529] DEBUG: [BrokerMovementBatchLoader] Loaded 0 broker movements, 0 trades, 0 dividends, 0 dividend taxes, 4 option trades
+[0:] [08:42:30.006] DEBUG: [BrokerMovementBatchLoader] Loaded 0 broker movements, 0 trades, 0 dividends, 0 dividend taxes, 4 option trades
 
-[0:] [21:49:28.549] INFO : [BrokerFinancialBatchManager] Processing movements from 2025-08-25T19:26:41 to 2025-10-03T20:55:09 (actual movement date range)
+[0:] [08:42:30.016] INFO : [BrokerFinancialBatchManager] Processing movements from 2025-08-25T19:26:41 to 2025-10-03T20:55:09 (actual movement date range)
 
-[0:] [21:49:28.562] INFO : [BrokerFinancialBatchManager] Starting batch processing for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
+[0:] [08:42:30.024] INFO : [BrokerFinancialBatchManager] Starting batch processing for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
 
-[0:] [21:49:28.570] DEBUG: [BrokerFinancialBatchManager] Phase 1: Loading data...
+[0:] [08:42:30.028] DEBUG: [BrokerFinancialBatchManager] Phase 1: Loading data...
 
-[0:] [21:49:28.578] DEBUG: [BrokerMovementBatchLoader] Loading movements for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
+[0:] [08:42:30.033] DEBUG: [BrokerMovementBatchLoader] Loading movements for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
 
-[0:] [21:49:28.587] DEBUG: [BrokerMovementBatchLoader] Loaded 0 broker movements, 0 trades, 0 dividends, 0 dividend taxes, 4 option trades
+[0:] [08:42:30.040] DEBUG: [BrokerMovementBatchLoader] Loaded 0 broker movements, 0 trades, 0 dividends, 0 dividend taxes, 4 option trades
 
-[0:] [21:49:28.594] DEBUG: [BrokerFinancialSnapshotBatchLoader] Loading baseline snapshots for account 1 before 2025-08-25T19:26:41
+[0:] [08:42:30.046] DEBUG: [BrokerFinancialSnapshotBatchLoader] Loading baseline snapshots for account 1 before 2025-08-25T19:26:41
 
-[0:] [21:49:28.605] DEBUG: [BrokerFinancialSnapshotBatchLoader] Found 0 baseline snapshots (from 2 total snapshots)
+[0:] [08:42:30.052] DEBUG: [BrokerFinancialSnapshotBatchLoader] Found 0 baseline snapshots (from 2 total snapshots)
 
-[0:] [21:49:28.616] DEBUG: [BrokerFinancialSnapshotBatchLoader] Grouped baseline snapshots into 0 currencies
+[0:] [08:42:30.058] DEBUG: [BrokerFinancialSnapshotBatchLoader] Grouped baseline snapshots into 0 currencies
 
-[0:] [21:49:28.630] INFO : [BrokerFinancialBatchManager] Data loading completed: 0 broker movements, 0 trades, 0 dividends, 0 baseline currencies in 53ms
+[0:] [08:42:30.068] INFO : [BrokerFinancialBatchManager] Data loading completed: 0 broker movements, 0 trades, 0 dividends, 0 baseline currencies in 35ms
 
-[0:] [21:49:28.638] DEBUG: [BrokerFinancialBatchManager] Phase 2: Calculating snapshots...
+[0:] [08:42:30.073] DEBUG: [BrokerFinancialBatchManager] Phase 2: Calculating snapshots...
 
-[0:] [21:49:28.651] DEBUG: [BrokerFinancialSnapshotBatchLoader] Loading existing snapshots for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
+[0:] [08:42:30.080] DEBUG: [BrokerFinancialSnapshotBatchLoader] Loading existing snapshots for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
 
-[0:] [21:49:28.662] DEBUG: [BrokerFinancialSnapshotBatchLoader] Found 0 existing snapshots in range
+[0:] [08:42:30.086] DEBUG: [BrokerFinancialSnapshotBatchLoader] Found 0 existing snapshots in range
 
-[0:] [21:49:28.679] INFO : [BrokerFinancialBatchManager] Smart date filtering: 3 movement dates + 0 existing snapshot dates = 3 total dates to process (vs 40 days in full range)
+[0:] [08:42:30.100] INFO : [BrokerFinancialBatchManager] Smart date filtering: 3 movement dates + 0 existing snapshot dates = 3 total dates to process (vs 40 days in full range)
 
-[0:] [21:49:28.690] DEBUG: [BrokerMovementBatchLoader] Grouping movements by date - found 3 unique dates
+[0:] [08:42:30.108] DEBUG: [BrokerMovementBatchLoader] Grouping movements by date - found 3 unique dates
 
-[0:] [21:49:28.717] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 1, UniqueCurrencies: 1
+[0:] [08:42:30.128] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 1, UniqueCurrencies: 1
 
-[0:] [21:49:28.736] DEBUG: [BrokerAccountMovementData] Currency 141 - BrokerMovements: 0, Trades: 0, OptionTrades: 1
+[0:] [08:42:30.134] DEBUG: [BrokerAccountMovementData] Currency 141 - BrokerMovements: 0, Trades: 0, OptionTrades: 1
 
-[0:] [21:49:28.748] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 1, Code: BuyToOpen, Strike: 20.0, Expiration: 1/16/2026 12:00:00 AM, NetPremium: -555.12
+[0:] [08:42:30.143] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 1, Code: BuyToOpen, Strike: 20.0, Expiration: 1/16/2026 12:00:00 AM, NetPremium: -555.12
 
-[0:] [21:49:28.760] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 1, UniqueCurrencies: 1
+[0:] [08:42:30.151] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 1, UniqueCurrencies: 1
 
-[0:] [21:49:28.769] DEBUG: [BrokerAccountMovementData] Currency 141 - BrokerMovements: 0, Trades: 0, OptionTrades: 1
+[0:] [08:42:30.156] DEBUG: [BrokerAccountMovementData] Currency 141 - BrokerMovements: 0, Trades: 0, OptionTrades: 1
 
-[0:] [21:49:28.777] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 2, Code: SellToOpen, Strike: 27.0, Expiration: 10/10/2025 12:00:00 AM, NetPremium: 49.88
+[0:] [08:42:30.161] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 2, Code: SellToOpen, Strike: 27.0, Expiration: 10/10/2025 12:00:00 AM, NetPremium: 49.88
 
-[0:] [21:49:28.785] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 2, UniqueCurrencies: 1
+[0:] [08:42:30.165] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 2, UniqueCurrencies: 1
 
-[0:] [21:49:28.793] DEBUG: [BrokerAccountMovementData] Currency 141 - BrokerMovements: 0, Trades: 0, OptionTrades: 2
+[0:] [08:42:30.171] DEBUG: [BrokerAccountMovementData] Currency 141 - BrokerMovements: 0, Trades: 0, OptionTrades: 2
 
-[0:] [21:49:28.801] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 4, Code: BuyToClose, Strike: 27.0, Expiration: 10/10/2025 12:00:00 AM, NetPremium: -64.12
+[0:] [08:42:30.176] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 4, Code: BuyToClose, Strike: 27.0, Expiration: 10/10/2025 12:00:00 AM, NetPremium: -64.12
 
-[0:] [21:49:28.811] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 3, Code: SellToClose, Strike: 20.0, Expiration: 1/16/2026 12:00:00 AM, NetPremium: 744.88
+[0:] [08:42:30.181] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 3, Code: SellToClose, Strike: 20.0, Expiration: 1/16/2026 12:00:00 AM, NetPremium: 744.88
 
-[0:] [21:49:28.822] DEBUG: [BrokerFinancialBatchManager] Loading market prices for 0 unique tickers and 0 currencies
+[0:] [08:42:30.187] DEBUG: [BrokerFinancialBatchManager] Loading market prices for 0 unique tickers and 0 currencies
 
-[0:] [21:49:28.830] DEBUG: [BrokerFinancialSnapshotBatchLoader] No tickers, currencies or dates - returning empty price map
+[0:] [08:42:30.193] DEBUG: [BrokerFinancialSnapshotBatchLoader] No tickers, currencies or dates - returning empty price map
 
-[0:] [21:49:28.847] INFO : [BrokerFinancialBatchCalculator] Starting batch calculation for 3 dates, 0 baseline currencies
+[0:] [08:42:30.200] INFO : [BrokerFinancialBatchCalculator] Starting batch calculation for 3 dates, 0 baseline currencies
 
-[0:] [21:49:28.855] DEBUG: [BrokerFinancialBatchCalculator] Processing date 2025-08-25T00:00:01
+[0:] [08:42:30.206] DEBUG: [BrokerFinancialBatchCalculator] Processing date 2025-08-25T00:00:01
 
-[0:] [21:49:28.874] DEBUG: [BrokerFinancialBatchCalculator] Date 2025-08-25T00:00:01: 1 movements, 1 currencies with movements, 0 with previous snapshots, 1 total to process
+[0:] [08:42:30.217] DEBUG: [BrokerFinancialBatchCalculator] Date 2025-08-25T00:00:01: 1 movements, 1 currencies with movements, 0 with previous snapshots, 1 total to process
 
-[0:] [21:49:28.886] DEBUG: [BrokerFinancialBatchCalculator] SCENARIO B: currency 141 date 2025-08-25T00:00:01
+[0:] [08:42:30.230] DEBUG: [BrokerFinancialBatchCalculator] SCENARIO B: currency 141 date 2025-08-25T00:00:01
 
-[0:] [21:49:28.894] DEBUG: [BrokerFinancialsMetricsFromMovements] Starting calculate for currency 141
+[0:] [08:42:30.237] DEBUG: [BrokerFinancialsMetricsFromMovements] Starting calculate for currency 141
 
-[0:] [21:49:28.903] DEBUG: [BrokerFinancialsMetricsFromMovements] Input movements - BrokerMovements: 0, Trades: 0, Dividends: 0
+[0:] [08:42:30.242] DEBUG: [BrokerFinancialsMetricsFromMovements] Input movements - BrokerMovements: 0, Trades: 0, Dividends: 0
 
-[0:] [21:49:28.910] DEBUG: [FinancialCalculations] calculateFinancialSummary - Processing 0 movements, CurrencyFilter: 
+[0:] [08:42:30.246] DEBUG: [FinancialCalculations] calculateFinancialSummary - Processing 0 movements, CurrencyFilter: 
 
-[0:] [21:49:28.918] DEBUG: [FinancialCalculations] calculateTotalDeposited - Processing 0 total movements
+[0:] [08:42:30.251] DEBUG: [FinancialCalculations] calculateTotalDeposited - Processing 0 total movements
 
-[0:] [21:49:28.932] DEBUG: [FinancialCalculations] Found 0 deposit movements
+[0:] [08:42:30.256] DEBUG: [FinancialCalculations] Found 0 deposit movements
 
-[0:] [21:49:28.948] DEBUG: [FinancialCalculations] Total deposited amount calculated: 0M
+[0:] [08:42:30.262] DEBUG: [FinancialCalculations] Total deposited amount calculated: 0M
 
-[0:] [21:49:28.958] DEBUG: [FinancialCalculations] Financial summary calculated - TotalDeposited: 0, MovementCount: 0
+[0:] [08:42:30.270] DEBUG: [FinancialCalculations] Financial summary calculated - TotalDeposited: 0, MovementCount: 0
 
-[0:] [21:49:28.968] DEBUG: [BrokerFinancialsMetricsFromMovements] BrokerMovement summary - TotalDeposited: 0, TotalWithdrawn: 0
+[0:] [08:42:30.275] DEBUG: [BrokerFinancialsMetricsFromMovements] BrokerMovement summary - TotalDeposited: 0, TotalWithdrawn: 0
 
-[0:] [21:49:28.975] DEBUG: [BrokerFinancialsMetricsFromMovements] Conversion impact: 0
+[0:] [08:42:30.280] DEBUG: [BrokerFinancialsMetricsFromMovements] Conversion impact: 0
 
-[0:] [21:49:28.981] DEBUG: [BrokerFinancialsMetricsFromMovements] After conversion adjustment - Deposited: 0, Withdrawn: 0
+[0:] [08:42:30.286] DEBUG: [BrokerFinancialsMetricsFromMovements] After conversion adjustment - Deposited: 0, Withdrawn: 0
 
-[0:] [21:49:29.011] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-08-25, CurrencyId: None, TotalTrades: 1
+[0:] [08:42:30.306] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-08-25, CurrencyId: None, TotalTrades: 1
 
-[0:] [21:49:29.033] DEBUG: [OptionTradeCalculations] Trade Detail - Id:1 Time:2025-08-25 Code:BuyToOpen NetPremium:-555.12 Premium:-554.0 Commissions:1.0 Fees:0.12 ClosedWith:Some 3
+[0:] [08:42:30.321] DEBUG: [OptionTradeCalculations] Trade Detail - Id:1 Time:2025-08-25 Code:BuyToOpen NetPremium:-555.12 Premium:-554.0 Commissions:1.0 Fees:0.12 ClosedWith:Some 3
 
-[0:] [21:49:29.043] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:1 Previous:0 Current:1
+[0:] [08:42:30.328] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:1 Previous:0 Current:1
 
-[0:] [21:49:29.062] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-08-25
+[0:] [08:42:30.340] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-08-25
 
-[0:] [21:49:29.079] DEBUG: [OptionTradeCalculations] Processing option group - TickerId:2 Type:Call Strike:20.0 Expiration:2026-01-16 TradeCount:1
+[0:] [08:42:30.353] DEBUG: [OptionTradeCalculations] Processing option group - TickerId:2 Type:Call Strike:20.0 Expiration:2026-01-16 TradeCount:1
 
-[0:] [21:49:29.092] DEBUG: [OptionTradeCalculations]   Evaluating trade Id:1 Code:BuyToOpen NetPremium:-555.12 Time:2025-08-25
+[0:] [08:42:30.362] DEBUG: [OptionTradeCalculations]   Evaluating trade Id:1 Code:BuyToOpen NetPremium:-555.12 Time:2025-08-25
 
-[0:] [21:49:29.102] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.371] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:29.111] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-08-24
+[0:] [08:42:30.376] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-08-24
 
-[0:] [21:49:29.119] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.380] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:29.131] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
+[0:] [08:42:30.388] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
 
-[0:] [21:49:29.141] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-08-25
+[0:] [08:42:30.393] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-08-25
 
-[0:] [21:49:29.157] DEBUG: [OptionTradeCalculations] Unrealized analysis - TickerId:2 Type:Call Strike:20.0 Expiration:2026-01-16 CurrentDate:2025-08-25 TradeCount:1
+[0:] [08:42:30.404] DEBUG: [OptionTradeCalculations] Unrealized analysis - TickerId:2 Type:Call Strike:20.0 Expiration:2026-01-16 CurrentDate:2025-08-25 TradeCount:1
 
-[0:] [21:49:29.172] DEBUG: [OptionTradeCalculations]   Open position recorded - TradeId:1 Code:BuyToOpen NetPremium:-555.12
+[0:] [08:42:30.413] DEBUG: [OptionTradeCalculations]   Open position recorded - TradeId:1 Code:BuyToOpen NetPremium:-555.12
 
-[0:] [21:49:29.182] DEBUG: [OptionTradeCalculations]   Unrealized contribution - OpenTradeId:1 Code:BuyToOpen NetPremium:-555.12
+[0:] [08:42:30.422] DEBUG: [OptionTradeCalculations]   Unrealized contribution - OpenTradeId:1 Code:BuyToOpen NetPremium:-555.12
 
-[0:] [21:49:29.192] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $-555.12
+[0:] [08:42:30.427] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $-555.12
 
-[0:] [21:49:29.215] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:-555.12 CumulativeIncome:-555.12 CumulativeInvestment:555.12 OpenPositions:1 HasOpen:true
+[0:] [08:42:30.437] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:-555.12 CumulativeIncome:-555.12 CumulativeInvestment:555.12 OpenPositions:1 HasOpen:true
 
-[0:] [21:49:29.224] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-08-24, CurrencyId: None, TotalTrades: 1
+[0:] [08:42:30.443] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-08-24, CurrencyId: None, TotalTrades: 1
 
-[0:] [21:49:29.233] DEBUG: [OptionTradeCalculations] Trade Detail - Id:1 Time:2025-08-25 Code:BuyToOpen NetPremium:-555.12 Premium:-554.0 Commissions:1.0 Fees:0.12 ClosedWith:Some 3
+[0:] [08:42:30.448] DEBUG: [OptionTradeCalculations] Trade Detail - Id:1 Time:2025-08-25 Code:BuyToOpen NetPremium:-555.12 Premium:-554.0 Commissions:1.0 Fees:0.12 ClosedWith:Some 3
 
-[0:] [21:49:29.243] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:0 Previous:0 Current:0
+[0:] [08:42:30.454] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:0 Previous:0 Current:0
 
-[0:] [21:49:29.253] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-08-24
+[0:] [08:42:30.459] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-08-24
 
-[0:] [21:49:29.261] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.463] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:29.269] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-08-23
+[0:] [08:42:30.469] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-08-23
 
-[0:] [21:49:29.279] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.475] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:29.288] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
+[0:] [08:42:30.479] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
 
-[0:] [21:49:29.297] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-08-24
+[0:] [08:42:30.486] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-08-24
 
-[0:] [21:49:29.306] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $0.00
+[0:] [08:42:30.491] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $0.00
 
-[0:] [21:49:29.314] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:0 CumulativeIncome:0 CumulativeInvestment:0 OpenPositions:0 HasOpen:false
+[0:] [08:42:30.495] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:0 CumulativeIncome:0 CumulativeInvestment:0 OpenPositions:0 HasOpen:false
 
-[0:] [21:49:29.323] DEBUG: [BrokerFinancialsMetricsFromMovements] Options summary - TradesToday: 1, DailyIncome: -555.12, DailyNetIncome: -1110.24, DailyInvestment: 555.12, DailyRealized: 0, Unrealized: -555.12, HasOpen: True
+[0:] [08:42:30.502] DEBUG: [BrokerFinancialsMetricsFromMovements] Options summary - TradesToday: 1, DailyIncome: -555.12, DailyNetIncome: -1110.24, DailyInvestment: 555.12, DailyRealized: 0, Unrealized: -555.12, HasOpen: True
 
-[0:] [21:49:29.331] DEBUG: [BrokerFinancialsMetricsFromMovements] Final calculated metrics - Deposited: 0, Invested: 555.12, RealizedGains: 0, OptionsIncome: -555.12, MovementCounter: 1
+[0:] [08:42:30.508] DEBUG: [BrokerFinancialsMetricsFromMovements] Final calculated metrics - Deposited: 0, Invested: 555.12, RealizedGains: 0, OptionsIncome: -555.12, MovementCounter: 1
 
-[0:] [21:49:29.348] DEBUG: [BrokerFinancialCalculateInMemory] Calculating unrealized gains - Positions:0 CostBasis:0 Date:2025-08-25T00:00:01 CurrencyId:141
+[0:] [08:42:30.517] DEBUG: [BrokerFinancialCalculateInMemory] Calculating unrealized gains - Positions:0 CostBasis:0 Date:2025-08-25T00:00:01 CurrencyId:141
 
-[0:] [21:49:29.362] DEBUG: [BrokerFinancialCalculateInMemory] Unrealized gains calculated - MarketValue:0 CostBasis:0 Gains:0 Percentage:0%
+[0:] [08:42:30.526] DEBUG: [BrokerFinancialCalculateInMemory] Unrealized gains calculated - MarketValue:0 CostBasis:0 Gains:0 Percentage:0%
 
-[0:] [21:49:29.370] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-08-25T00:00:01
+[0:] [08:42:30.531] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-08-25T00:00:01
 
-[0:] [21:49:29.379] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-08-25T23:59:59
+[0:] [08:42:30.536] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-08-25T23:59:59
 
-[0:] [21:49:29.388] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:30.541] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:29.396] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:30.546] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:29.408] DEBUG: [BrokerFinancialBatchCalculator] Snapshot for currency 141 on 2025-08-25T00:00:01 (Deposited: 0, Counter: 1)
+[0:] [08:42:30.556] DEBUG: [BrokerFinancialBatchCalculator] Snapshot for currency 141 on 2025-08-25T00:00:01 (Deposited: 0, Counter: 1)
 
-[0:] [21:49:29.422] DEBUG: [BrokerFinancialBatchCalculator] Processing date 2025-10-01T00:00:01
+[0:] [08:42:30.561] DEBUG: [BrokerFinancialBatchCalculator] Processing date 2025-10-01T00:00:01
 
-[0:] [21:49:29.431] DEBUG: [BrokerFinancialBatchCalculator] Date 2025-10-01T00:00:01: 1 movements, 1 currencies with movements, 1 with previous snapshots, 1 total to process
+[0:] [08:42:30.567] DEBUG: [BrokerFinancialBatchCalculator] Date 2025-10-01T00:00:01: 1 movements, 1 currencies with movements, 1 with previous snapshots, 1 total to process
 
-[0:] [21:49:29.445] DEBUG: [BrokerFinancialBatchCalculator] SCENARIO A: currency 141 date 2025-10-01T00:00:01
+[0:] [08:42:30.572] DEBUG: [BrokerFinancialBatchCalculator] SCENARIO A: currency 141 date 2025-10-01T00:00:01
 
-[0:] [21:49:29.453] DEBUG: [BrokerFinancialsMetricsFromMovements] Starting calculate for currency 141
+[0:] [08:42:30.578] DEBUG: [BrokerFinancialsMetricsFromMovements] Starting calculate for currency 141
 
-[0:] [21:49:29.462] DEBUG: [BrokerFinancialsMetricsFromMovements] Input movements - BrokerMovements: 0, Trades: 0, Dividends: 0
+[0:] [08:42:30.583] DEBUG: [BrokerFinancialsMetricsFromMovements] Input movements - BrokerMovements: 0, Trades: 0, Dividends: 0
 
-[0:] [21:49:29.473] DEBUG: [FinancialCalculations] calculateFinancialSummary - Processing 0 movements, CurrencyFilter: 
+[0:] [08:42:30.588] DEBUG: [FinancialCalculations] calculateFinancialSummary - Processing 0 movements, CurrencyFilter: 
 
-[0:] [21:49:29.486] DEBUG: [FinancialCalculations] calculateTotalDeposited - Processing 0 total movements
+[0:] [08:42:30.593] DEBUG: [FinancialCalculations] calculateTotalDeposited - Processing 0 total movements
 
-[0:] [21:49:29.493] DEBUG: [FinancialCalculations] Found 0 deposit movements
+[0:] [08:42:30.598] DEBUG: [FinancialCalculations] Found 0 deposit movements
 
-[0:] [21:49:29.503] DEBUG: [FinancialCalculations] Total deposited amount calculated: 0M
+[0:] [08:42:30.606] DEBUG: [FinancialCalculations] Total deposited amount calculated: 0M
 
-[0:] [21:49:29.513] DEBUG: [FinancialCalculations] Financial summary calculated - TotalDeposited: 0, MovementCount: 0
+[0:] [08:42:30.610] DEBUG: [FinancialCalculations] Financial summary calculated - TotalDeposited: 0, MovementCount: 0
 
-[0:] [21:49:29.523] DEBUG: [BrokerFinancialsMetricsFromMovements] BrokerMovement summary - TotalDeposited: 0, TotalWithdrawn: 0
+[0:] [08:42:30.614] DEBUG: [BrokerFinancialsMetricsFromMovements] BrokerMovement summary - TotalDeposited: 0, TotalWithdrawn: 0
 
-[0:] [21:49:29.530] DEBUG: [BrokerFinancialsMetricsFromMovements] Conversion impact: 0
+[0:] [08:42:30.621] DEBUG: [BrokerFinancialsMetricsFromMovements] Conversion impact: 0
 
-[0:] [21:49:29.543] DEBUG: [BrokerFinancialsMetricsFromMovements] After conversion adjustment - Deposited: 0, Withdrawn: 0
+[0:] [08:42:30.625] DEBUG: [BrokerFinancialsMetricsFromMovements] After conversion adjustment - Deposited: 0, Withdrawn: 0
 
-[0:] [21:49:29.554] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-10-01, CurrencyId: None, TotalTrades: 1
+[0:] [08:42:30.630] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-10-01, CurrencyId: None, TotalTrades: 1
 
-[form.mauitester] Explicit concurrent copying GC freed 119KB AllocSpace bytes, 18(576KB) LOS objects, 49% free, 4586KB/9171KB, paused 533us,255us total 9.003ms
+[0:] [08:42:30.638] DEBUG: [OptionTradeCalculations] Trade Detail - Id:2 Time:2025-10-01 Code:SellToOpen NetPremium:49.88 Premium:51.0 Commissions:1.0 Fees:0.12 ClosedWith:Some 4
 
-[0:] [21:49:29.577] DEBUG: [OptionTradeCalculations] Trade Detail - Id:2 Time:2025-10-01 Code:SellToOpen NetPremium:49.88 Premium:51.0 Commissions:1.0 Fees:0.12 ClosedWith:Some 4
+[0:] [08:42:30.642] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:1 Previous:0 Current:1
 
-[0:] [21:49:29.587] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:1 Previous:0 Current:1
+[0:] [08:42:30.646] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-01
 
-[0:] [21:49:29.598] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-01
+[0:] [08:42:30.651] DEBUG: [OptionTradeCalculations] Processing option group - TickerId:2 Type:Call Strike:27.0 Expiration:2025-10-10 TradeCount:1
 
-[0:] [21:49:29.611] DEBUG: [OptionTradeCalculations] Processing option group - TickerId:2 Type:Call Strike:27.0 Expiration:2025-10-10 TradeCount:1
+[0:] [08:42:30.656] DEBUG: [OptionTradeCalculations]   Evaluating trade Id:2 Code:SellToOpen NetPremium:49.88 Time:2025-10-01
 
-[0:] [21:49:29.622] DEBUG: [OptionTradeCalculations]   Evaluating trade Id:2 Code:SellToOpen NetPremium:49.88 Time:2025-10-01
+[0:] [08:42:30.662] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:29.632] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.666] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-09-30
 
-[0:] [21:49:29.645] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-09-30
+[0:] [08:42:30.671] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:29.658] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.677] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
 
-[0:] [21:49:29.667] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
+[0:] [08:42:30.681] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-10-01
 
-[0:] [21:49:29.679] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-10-01
+[0:] [08:42:30.687] DEBUG: [OptionTradeCalculations] Unrealized analysis - TickerId:2 Type:Call Strike:27.0 Expiration:2025-10-10 CurrentDate:2025-10-01 TradeCount:1
 
-[0:] [21:49:29.690] DEBUG: [OptionTradeCalculations] Unrealized analysis - TickerId:2 Type:Call Strike:27.0 Expiration:2025-10-10 CurrentDate:2025-10-01 TradeCount:1
+[0:] [08:42:30.693] DEBUG: [OptionTradeCalculations]   Open position recorded - TradeId:2 Code:SellToOpen NetPremium:49.88
 
-[0:] [21:49:29.702] DEBUG: [OptionTradeCalculations]   Open position recorded - TradeId:2 Code:SellToOpen NetPremium:49.88
+[0:] [08:42:30.698] DEBUG: [OptionTradeCalculations]   Unrealized contribution - OpenTradeId:2 Code:SellToOpen NetPremium:49.88
 
-[0:] [21:49:29.713] DEBUG: [OptionTradeCalculations]   Unrealized contribution - OpenTradeId:2 Code:SellToOpen NetPremium:49.88
+[0:] [08:42:30.704] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $49.88
 
-[0:] [21:49:29.724] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $49.88
+[0:] [08:42:30.708] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:49.88 CumulativeIncome:49.88 CumulativeInvestment:0 OpenPositions:1 HasOpen:true
 
-[0:] [21:49:29.735] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:49.88 CumulativeIncome:49.88 CumulativeInvestment:0 OpenPositions:1 HasOpen:true
+[0:] [08:42:30.714] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-09-30, CurrencyId: None, TotalTrades: 1
 
-[0:] [21:49:29.762] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-09-30, CurrencyId: None, TotalTrades: 1
+[0:] [08:42:30.721] DEBUG: [OptionTradeCalculations] Trade Detail - Id:2 Time:2025-10-01 Code:SellToOpen NetPremium:49.88 Premium:51.0 Commissions:1.0 Fees:0.12 ClosedWith:Some 4
 
-[0:] [21:49:29.775] DEBUG: [OptionTradeCalculations] Trade Detail - Id:2 Time:2025-10-01 Code:SellToOpen NetPremium:49.88 Premium:51.0 Commissions:1.0 Fees:0.12 ClosedWith:Some 4
+[0:] [08:42:30.725] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:0 Previous:0 Current:0
 
-[0:] [21:49:29.789] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:0 Previous:0 Current:0
+[0:] [08:42:30.731] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-09-30
 
-[0:] [21:49:29.800] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-09-30
+[0:] [08:42:30.736] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:29.813] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.742] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-09-29
 
-[0:] [21:49:29.824] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-09-29
+[0:] [08:42:30.746] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:29.834] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.753] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
 
-[0:] [21:49:29.846] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
+[0:] [08:42:30.758] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-09-30
 
-[0:] [21:49:29.859] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-09-30
+[0:] [08:42:30.763] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $0.00
 
-[0:] [21:49:29.869] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $0.00
+[0:] [08:42:30.769] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:0 CumulativeIncome:0 CumulativeInvestment:0 OpenPositions:0 HasOpen:false
 
-[0:] [21:49:29.881] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:0 CumulativeIncome:0 CumulativeInvestment:0 OpenPositions:0 HasOpen:false
+[0:] [08:42:30.775] DEBUG: [BrokerFinancialsMetricsFromMovements] Options summary - TradesToday: 1, DailyIncome: 49.88, DailyNetIncome: 49.88, DailyInvestment: 0, DailyRealized: 0, Unrealized: 49.88, HasOpen: True
 
-[0:] [21:49:29.892] DEBUG: [BrokerFinancialsMetricsFromMovements] Options summary - TradesToday: 1, DailyIncome: 49.88, DailyNetIncome: 49.88, DailyInvestment: 0, DailyRealized: 0, Unrealized: 49.88, HasOpen: True
+[0:] [08:42:30.780] DEBUG: [BrokerFinancialsMetricsFromMovements] Final calculated metrics - Deposited: 0, Invested: 0, RealizedGains: 0, OptionsIncome: 49.88, MovementCounter: 1
 
-[0:] [21:49:29.899] DEBUG: [BrokerFinancialsMetricsFromMovements] Final calculated metrics - Deposited: 0, Invested: 0, RealizedGains: 0, OptionsIncome: 49.88, MovementCounter: 1
+[0:] [08:42:30.787] DEBUG: [BrokerFinancialCalculateInMemory] Calculating unrealized gains - Positions:0 CostBasis:0 Date:2025-10-01T00:00:01 CurrencyId:141
 
-[0:] [21:49:29.910] DEBUG: [BrokerFinancialCalculateInMemory] Calculating unrealized gains - Positions:0 CostBasis:0 Date:2025-10-01T00:00:01 CurrencyId:141
+[0:] [08:42:30.792] DEBUG: [BrokerFinancialCalculateInMemory] Unrealized gains calculated - MarketValue:0 CostBasis:0 Gains:0 Percentage:0%
 
-[0:] [21:49:29.919] DEBUG: [BrokerFinancialCalculateInMemory] Unrealized gains calculated - MarketValue:0 CostBasis:0 Gains:0 Percentage:0%
+[0:] [08:42:30.797] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-01T00:00:01
 
-[0:] [21:49:29.930] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-01T00:00:01
+[0:] [08:42:30.802] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-01T23:59:59
 
-[0:] [21:49:29.943] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-01T23:59:59
+[0:] [08:42:30.807] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:29.956] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:30.811] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:29.966] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:30.816] DEBUG: [BrokerFinancialBatchCalculator] Snapshot for currency 141 on 2025-10-01T00:00:01 (Deposited: 0, Counter: 2)
 
-[0:] [21:49:29.979] DEBUG: [BrokerFinancialBatchCalculator] Snapshot for currency 141 on 2025-10-01T00:00:01 (Deposited: 0, Counter: 2)
+[0:] [08:42:30.822] DEBUG: [BrokerFinancialBatchCalculator] Processing date 2025-10-03T00:00:01
 
-[0:] [21:49:29.993] DEBUG: [BrokerFinancialBatchCalculator] Processing date 2025-10-03T00:00:01
+[0:] [08:42:30.827] DEBUG: [BrokerFinancialBatchCalculator] Date 2025-10-03T00:00:01: 2 movements, 1 currencies with movements, 1 with previous snapshots, 1 total to process
 
-[0:] [21:49:30.005] DEBUG: [BrokerFinancialBatchCalculator] Date 2025-10-03T00:00:01: 2 movements, 1 currencies with movements, 1 with previous snapshots, 1 total to process
+[0:] [08:42:30.836] DEBUG: [BrokerFinancialBatchCalculator] SCENARIO A: currency 141 date 2025-10-03T00:00:01
 
-[0:] [21:49:30.013] DEBUG: [BrokerFinancialBatchCalculator] SCENARIO A: currency 141 date 2025-10-03T00:00:01
+[0:] [08:42:30.840] DEBUG: [BrokerFinancialsMetricsFromMovements] Starting calculate for currency 141
 
-[0:] [21:49:30.026] DEBUG: [BrokerFinancialsMetricsFromMovements] Starting calculate for currency 141
+[0:] [08:42:30.845] DEBUG: [BrokerFinancialsMetricsFromMovements] Input movements - BrokerMovements: 0, Trades: 0, Dividends: 0
 
-[0:] [21:49:30.037] DEBUG: [BrokerFinancialsMetricsFromMovements] Input movements - BrokerMovements: 0, Trades: 0, Dividends: 0
+[0:] [08:42:30.852] DEBUG: [FinancialCalculations] calculateFinancialSummary - Processing 0 movements, CurrencyFilter: 
 
-[0:] [21:49:30.045] DEBUG: [FinancialCalculations] calculateFinancialSummary - Processing 0 movements, CurrencyFilter: 
+[0:] [08:42:30.857] DEBUG: [FinancialCalculations] calculateTotalDeposited - Processing 0 total movements
 
-[0:] [21:49:30.059] DEBUG: [FinancialCalculations] calculateTotalDeposited - Processing 0 total movements
+[0:] [08:42:30.861] DEBUG: [FinancialCalculations] Found 0 deposit movements
 
-[0:] [21:49:30.070] DEBUG: [FinancialCalculations] Found 0 deposit movements
+[0:] [08:42:30.865] DEBUG: [FinancialCalculations] Total deposited amount calculated: 0M
 
-[0:] [21:49:30.081] DEBUG: [FinancialCalculations] Total deposited amount calculated: 0M
+[0:] [08:42:30.871] DEBUG: [FinancialCalculations] Financial summary calculated - TotalDeposited: 0, MovementCount: 0
 
-[0:] [21:49:30.095] DEBUG: [FinancialCalculations] Financial summary calculated - TotalDeposited: 0, MovementCount: 0
+[0:] [08:42:30.876] DEBUG: [BrokerFinancialsMetricsFromMovements] BrokerMovement summary - TotalDeposited: 0, TotalWithdrawn: 0
 
-[0:] [21:49:30.110] DEBUG: [BrokerFinancialsMetricsFromMovements] BrokerMovement summary - TotalDeposited: 0, TotalWithdrawn: 0
+[0:] [08:42:30.880] DEBUG: [BrokerFinancialsMetricsFromMovements] Conversion impact: 0
 
-[0:] [21:49:30.122] DEBUG: [BrokerFinancialsMetricsFromMovements] Conversion impact: 0
+[0:] [08:42:30.887] DEBUG: [BrokerFinancialsMetricsFromMovements] After conversion adjustment - Deposited: 0, Withdrawn: 0
 
-[0:] [21:49:30.131] DEBUG: [BrokerFinancialsMetricsFromMovements] After conversion adjustment - Deposited: 0, Withdrawn: 0
+[0:] [08:42:30.891] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-10-03, CurrencyId: None, TotalTrades: 2
 
-[0:] [21:49:30.147] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-10-03, CurrencyId: None, TotalTrades: 2
+[0:] [08:42:30.896] DEBUG: [OptionTradeCalculations] Trade Detail - Id:4 Time:2025-10-03 Code:BuyToClose NetPremium:-64.12 Premium:-64.0 Commissions:0.0 Fees:0.12 ClosedWith:None
 
-[0:] [21:49:30.157] DEBUG: [OptionTradeCalculations] Trade Detail - Id:4 Time:2025-10-03 Code:BuyToClose NetPremium:-64.12 Premium:-64.0 Commissions:0.0 Fees:0.12 ClosedWith:None
+[0:] [08:42:30.903] DEBUG: [OptionTradeCalculations] Trade Detail - Id:3 Time:2025-10-03 Code:SellToClose NetPremium:744.88 Premium:745.0 Commissions:0.0 Fees:0.12 ClosedWith:None
 
-[0:] [21:49:30.168] DEBUG: [OptionTradeCalculations] Trade Detail - Id:3 Time:2025-10-03 Code:SellToClose NetPremium:744.88 Premium:745.0 Commissions:0.0 Fees:0.12 ClosedWith:None
+[0:] [08:42:30.909] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:2 Previous:0 Current:2
 
-[0:] [21:49:30.183] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:2 Previous:0 Current:2
+[0:] [08:42:30.915] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-03
 
-[0:] [21:49:30.194] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-03
+[0:] [08:42:30.922] DEBUG: [OptionTradeCalculations] Processing option group - TickerId:2 Type:Call Strike:27.0 Expiration:2025-10-10 TradeCount:1
 
-[0:] [21:49:30.204] DEBUG: [OptionTradeCalculations] Processing option group - TickerId:2 Type:Call Strike:27.0 Expiration:2025-10-10 TradeCount:1
+[0:] [08:42:30.928] DEBUG: [OptionTradeCalculations]   Evaluating trade Id:4 Code:BuyToClose NetPremium:-64.12 Time:2025-10-03
 
-[0:] [21:49:30.217] DEBUG: [OptionTradeCalculations]   Evaluating trade Id:4 Code:BuyToClose NetPremium:-64.12 Time:2025-10-03
+[0:] [08:42:30.935] DEBUG: [OptionTradeCalculations] Processing option group - TickerId:2 Type:Call Strike:20.0 Expiration:2026-01-16 TradeCount:1
 
-[0:] [21:49:30.231] DEBUG: [OptionTradeCalculations] Processing option group - TickerId:2 Type:Call Strike:20.0 Expiration:2026-01-16 TradeCount:1
+[0:] [08:42:30.940] DEBUG: [OptionTradeCalculations]   Evaluating trade Id:3 Code:SellToClose NetPremium:744.88 Time:2025-10-03
 
-[0:] [21:49:30.244] DEBUG: [OptionTradeCalculations]   Evaluating trade Id:3 Code:SellToClose NetPremium:744.88 Time:2025-10-03
+[0:] [08:42:30.945] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:30.257] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.952] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-02
 
-[0:] [21:49:30.272] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-02
+[0:] [08:42:30.956] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:30.285] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:30.961] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
 
-[0:] [21:49:30.296] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
+[0:] [08:42:30.966] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-10-03
 
-[0:] [21:49:30.307] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-10-03
+[0:] [08:42:30.974] DEBUG: [OptionTradeCalculations] Unrealized analysis - TickerId:2 Type:Call Strike:27.0 Expiration:2025-10-10 CurrentDate:2025-10-03 TradeCount:1
 
-[0:] [21:49:30.317] DEBUG: [OptionTradeCalculations] Unrealized analysis - TickerId:2 Type:Call Strike:27.0 Expiration:2025-10-10 CurrentDate:2025-10-03 TradeCount:1
+[0:] [08:42:30.978] DEBUG: [OptionTradeCalculations]   WARNING: Closing trade 4 left 1 unmatched contract(s)
 
-[0:] [21:49:30.326] DEBUG: [OptionTradeCalculations]   WARNING: Closing trade 4 left 1 unmatched contract(s)
+[0:] [08:42:30.988] DEBUG: [OptionTradeCalculations]   No open positions remain for TickerId:2 Strike:27.0 Expiration:2025-10-10
 
-[0:] [21:49:30.338] DEBUG: [OptionTradeCalculations]   No open positions remain for TickerId:2 Strike:27.0 Expiration:2025-10-10
+[0:] [08:42:30.993] DEBUG: [OptionTradeCalculations] Unrealized analysis - TickerId:2 Type:Call Strike:20.0 Expiration:2026-01-16 CurrentDate:2025-10-03 TradeCount:1
 
-[0:] [21:49:30.345] DEBUG: [OptionTradeCalculations] Unrealized analysis - TickerId:2 Type:Call Strike:20.0 Expiration:2026-01-16 CurrentDate:2025-10-03 TradeCount:1
+[0:] [08:42:30.998] DEBUG: [OptionTradeCalculations]   WARNING: Closing trade 3 left 1 unmatched contract(s)
 
-[0:] [21:49:30.353] DEBUG: [OptionTradeCalculations]   WARNING: Closing trade 3 left 1 unmatched contract(s)
+[0:] [08:42:31.004] DEBUG: [OptionTradeCalculations]   No open positions remain for TickerId:2 Strike:20.0 Expiration:2026-01-16
 
-[0:] [21:49:30.362] DEBUG: [OptionTradeCalculations]   No open positions remain for TickerId:2 Strike:20.0 Expiration:2026-01-16
+[0:] [08:42:31.009] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $0.00
 
-[0:] [21:49:30.377] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $0.00
+[0:] [08:42:31.013] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:0 CumulativeIncome:680.76 CumulativeInvestment:64.12 OpenPositions:2 HasOpen:true
 
-[0:] [21:49:30.387] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:0 CumulativeIncome:680.76 CumulativeInvestment:64.12 OpenPositions:2 HasOpen:true
+[0:] [08:42:31.021] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-10-02, CurrencyId: None, TotalTrades: 2
 
-[0:] [21:49:30.395] DEBUG: [OptionTradeCalculations] Summary inputs - TargetDate: 2025-10-02, CurrencyId: None, TotalTrades: 2
+[0:] [08:42:31.026] DEBUG: [OptionTradeCalculations] Trade Detail - Id:4 Time:2025-10-03 Code:BuyToClose NetPremium:-64.12 Premium:-64.0 Commissions:0.0 Fees:0.12 ClosedWith:None
 
-[0:] [21:49:30.408] DEBUG: [OptionTradeCalculations] Trade Detail - Id:4 Time:2025-10-03 Code:BuyToClose NetPremium:-64.12 Premium:-64.0 Commissions:0.0 Fees:0.12 ClosedWith:None
+[0:] [08:42:31.032] DEBUG: [OptionTradeCalculations] Trade Detail - Id:3 Time:2025-10-03 Code:SellToClose NetPremium:744.88 Premium:745.0 Commissions:0.0 Fees:0.12 ClosedWith:None
 
-[0:] [21:49:30.420] DEBUG: [OptionTradeCalculations] Trade Detail - Id:3 Time:2025-10-03 Code:SellToClose NetPremium:744.88 Premium:745.0 Commissions:0.0 Fees:0.12 ClosedWith:None
+[0:] [08:42:31.038] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:0 Previous:0 Current:0
 
-[0:] [21:49:30.432] DEBUG: [OptionTradeCalculations] Trade cohorts - Context:0 Previous:0 Current:0
+[0:] [08:42:31.043] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-02
 
-[0:] [21:49:30.444] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-02
+[0:] [08:42:31.048] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:30.455] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:31.054] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-01
 
-[0:] [21:49:30.463] DEBUG: [OptionTradeCalculations] calculateRealizedGains called with currentDate: 2025-10-01
+[0:] [08:42:31.059] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
 
-[0:] [21:49:30.478] DEBUG: [OptionTradeCalculations] Total realized gains calculated: $0.00
+[0:] [08:42:31.063] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
 
-[0:] [21:49:30.489] DEBUG: [OptionTradeCalculations] Realized breakdown - Cumulative:0 Previous:0 Daily:0
+[0:] [08:42:31.070] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-10-02
 
-[0:] [21:49:30.501] DEBUG: [OptionTradeCalculations] Effective valuation date for unrealized calculations: 2025-10-02
+[0:] [08:42:31.075] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $0.00
 
-[0:] [21:49:30.513] DEBUG: [OptionTradeCalculations] Total unrealized gains calculated: $0.00
+[0:] [08:42:31.079] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:0 CumulativeIncome:0 CumulativeInvestment:0 OpenPositions:0 HasOpen:false
 
-[0:] [21:49:30.527] DEBUG: [OptionTradeCalculations] Summary output - CumulativeRealized:0 Unrealized:0 CumulativeIncome:0 CumulativeInvestment:0 OpenPositions:0 HasOpen:false
+[0:] [08:42:31.086] DEBUG: [BrokerFinancialsMetricsFromMovements] Options summary - TradesToday: 2, DailyIncome: 680.76, DailyNetIncome: 616.64, DailyInvestment: 64.12, DailyRealized: 0, Unrealized: 0, HasOpen: True
 
-[0:] [21:49:30.541] DEBUG: [BrokerFinancialsMetricsFromMovements] Options summary - TradesToday: 2, DailyIncome: 680.76, DailyNetIncome: 616.64, DailyInvestment: 64.12, DailyRealized: 0, Unrealized: 0, HasOpen: True
+[0:] [08:42:31.090] DEBUG: [BrokerFinancialsMetricsFromMovements] Final calculated metrics - Deposited: 0, Invested: 64.12, RealizedGains: 0, OptionsIncome: 680.76, MovementCounter: 2
 
-[0:] [21:49:30.549] DEBUG: [BrokerFinancialsMetricsFromMovements] Final calculated metrics - Deposited: 0, Invested: 64.12, RealizedGains: 0, OptionsIncome: 680.76, MovementCounter: 2
+[0:] [08:42:31.094] DEBUG: [BrokerFinancialCalculateInMemory] Calculating unrealized gains - Positions:0 CostBasis:0 Date:2025-10-03T00:00:01 CurrencyId:141
 
-[0:] [21:49:30.560] DEBUG: [BrokerFinancialCalculateInMemory] Calculating unrealized gains - Positions:0 CostBasis:0 Date:2025-10-03T00:00:01 CurrencyId:141
+[0:] [08:42:31.099] DEBUG: [BrokerFinancialCalculateInMemory] Unrealized gains calculated - MarketValue:0 CostBasis:0 Gains:0 Percentage:0%
 
-[0:] [21:49:30.571] DEBUG: [BrokerFinancialCalculateInMemory] Unrealized gains calculated - MarketValue:0 CostBasis:0 Gains:0 Percentage:0%
+[0:] [08:42:31.107] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-03T00:00:01
 
-[0:] [21:49:30.585] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-03T00:00:01
+[0:] [08:42:31.111] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-03T23:59:59
 
-[0:] [21:49:30.599] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-03T23:59:59
+[0:] [08:42:31.119] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:30.611] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:31.123] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:30.622] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:31.127] DEBUG: [BrokerFinancialBatchCalculator] Snapshot for currency 141 on 2025-10-03T00:00:01 (Deposited: 0, Counter: 4)
 
-[0:] [21:49:30.632] DEBUG: [BrokerFinancialBatchCalculator] Snapshot for currency 141 on 2025-10-03T00:00:01 (Deposited: 0, Counter: 4)
+[0:] [08:42:31.136] INFO : [BrokerFinancialBatchCalculator] Batch calculation completed: 3 snapshots created from 4 movements in 931ms
 
-[0:] [21:49:30.646] INFO : [BrokerFinancialBatchCalculator] Batch calculation completed: 3 snapshots created from 4 movements in 1796ms
+[0:] [08:42:31.142] INFO : [BrokerFinancialBatchManager] Batch calculations completed: 3 snapshots calculated from 4 movements in 931ms
 
-[0:] [21:49:30.670] INFO : [BrokerFinancialBatchManager] Batch calculations completed: 3 snapshots calculated from 4 movements in 1796ms
+[0:] [08:42:31.147] DEBUG: [BrokerFinancialBatchManager] Phase 3: Persisting snapshots...
 
-[0:] [21:49:30.679] DEBUG: [BrokerFinancialBatchManager] Phase 3: Persisting snapshots...
+[0:] [08:42:31.154] INFO : [BrokerFinancialBatchPersistence] Deleting existing snapshots for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
 
-[0:] [21:49:30.690] INFO : [BrokerFinancialBatchPersistence] Deleting existing snapshots for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
+[0:] [08:42:31.159] DEBUG: [BrokerFinancialSnapshotBatchLoader] Loading existing snapshots for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
 
-[0:] [21:49:30.703] DEBUG: [BrokerFinancialSnapshotBatchLoader] Loading existing snapshots for account 1 from 2025-08-25T19:26:41 to 2025-10-03T20:55:09
+[0:] [08:42:31.164] DEBUG: [BrokerFinancialSnapshotBatchLoader] Found 0 existing snapshots in range
 
-[0:] [21:49:30.714] DEBUG: [BrokerFinancialSnapshotBatchLoader] Found 0 existing snapshots in range
+[0:] [08:42:31.171] INFO : [BrokerFinancialBatchPersistence] Deleted 0 existing snapshots
 
-[0:] [21:49:30.723] INFO : [BrokerFinancialBatchPersistence] Deleted 0 existing snapshots
+[0:] [08:42:31.175] INFO : [BrokerFinancialBatchPersistence] Deleted 0 existing snapshots, now persisting 3 new snapshots
 
-[0:] [21:49:30.731] INFO : [BrokerFinancialBatchPersistence] Deleted 0 existing snapshots, now persisting 3 new snapshots
+[0:] [08:42:31.181] INFO : [BrokerFinancialBatchPersistence] Starting batch persistence of 3 snapshots with deduplication
 
-[0:] [21:49:30.742] INFO : [BrokerFinancialBatchPersistence] Starting batch persistence of 3 snapshots with deduplication
+[0:] [08:42:31.191] DEBUG: [BrokerFinancialBatchPersistence] Creating new snapshot for Date=2025-08-25T23:59:59, Currency=141, BrokerAccount=1
 
-[0:] [21:49:30.753] DEBUG: [BrokerFinancialBatchPersistence] Creating new snapshot for Date=2025-08-25T23:59:59, Currency=141, BrokerAccount=1
+[form.mauitester] Explicit concurrent copying GC freed 114KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4592KB/9185KB, paused 157us,36us total 9.934ms
 
-[0:] [21:49:30.761] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 1
+[0:] [08:42:31.209] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 1
 
-[0:] [21:49:30.770] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
+[0:] [08:42:31.213] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
 
-[0:] [21:49:30.778] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 1
+[0:] [08:42:31.221] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 1
 
-[0:] [21:49:30.805] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
+[0:] [08:42:31.242] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
 
-[0:] [21:49:30.814] DEBUG: [BrokerFinancialBatchPersistence] Creating new snapshot for Date=2025-10-01T23:59:59, Currency=141, BrokerAccount=1
+[0:] [08:42:31.247] DEBUG: [BrokerFinancialBatchPersistence] Creating new snapshot for Date=2025-10-01T23:59:59, Currency=141, BrokerAccount=1
 
-[0:] [21:49:30.823] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 2
+[0:] [08:42:31.255] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 2
 
-[0:] [21:49:30.829] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
+[0:] [08:42:31.260] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
 
-[0:] [21:49:30.838] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 2
+[0:] [08:42:31.264] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 2
 
-[0:] [21:49:30.862] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
+[0:] [08:42:31.277] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
 
-[0:] [21:49:30.870] DEBUG: [BrokerFinancialBatchPersistence] Creating new snapshot for Date=2025-10-03T23:59:59, Currency=141, BrokerAccount=1
+[0:] [08:42:31.282] DEBUG: [BrokerFinancialBatchPersistence] Creating new snapshot for Date=2025-10-03T23:59:59, Currency=141, BrokerAccount=1
 
-[0:] [21:49:30.878] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 4
+[0:] [08:42:31.290] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 0, CurrencyId: 141, Deposited: 0M, MovementCounter: 4
 
-[0:] [21:49:30.885] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
+[0:] [08:42:31.294] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
 
-[0:] [21:49:30.894] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 4
+[0:] [08:42:31.299] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0M, MovementCounter: 4
 
-[0:] [21:49:30.919] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
+[0:] [08:42:31.311] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
 
-[0:] [21:49:30.930] INFO : [BrokerFinancialBatchPersistence] Successfully persisted 3 snapshots (0 updated, 3 new) in 185ms
+[0:] [08:42:31.319] INFO : [BrokerFinancialBatchPersistence] Successfully persisted 3 snapshots (0 updated, 3 new) in 133ms
 
-[0:] [21:49:30.941] INFO : [BrokerFinancialBatchManager] Batch processing completed successfully: 3 snapshots saved in 185ms (total: 2377ms)
+[0:] [08:42:31.328] INFO : [BrokerFinancialBatchManager] Batch processing completed successfully: 3 snapshots saved in 133ms (total: 1301ms)
 
-[0:] [21:49:30.954] INFO : [BrokerFinancialBatchManager] Performance breakdown: Load=53ms, Calculate=1796ms, Persist=185ms, Total=2377ms
+[0:] [08:42:31.337] INFO : [BrokerFinancialBatchManager] Performance breakdown: Load=35ms, Calculate=931ms, Persist=133ms, Total=1301ms
 
-[0:] [21:49:30.962] DEBUG: [BrokerFinancialBatchManager] Creating broker account snapshots for all movement dates (OPTIMIZED - no cascade)
+[0:] [08:42:31.343] DEBUG: [BrokerFinancialBatchManager] Creating broker account snapshots for all movement dates (OPTIMIZED - no cascade)
 
-[0:] [21:49:30.970] DEBUG: [BrokerFinancialBatchManager] Creating 3 broker account snapshots using OPTIMIZED batch processing
+[0:] [08:42:31.347] DEBUG: [BrokerFinancialBatchManager] Creating 3 broker account snapshots using OPTIMIZED batch processing
 
-[0:] [21:49:30.979] INFO : [BrokerAccountSnapshotManager] Starting OPTIMIZED batch processing for 3 dates (account 1)
+[0:] [08:42:31.363] INFO : [BrokerAccountSnapshotManager] Starting OPTIMIZED batch processing for 3 dates (account 1)
 
-[0:] [21:49:30.990] DEBUG: [BrokerAccountSnapshotManager] Batch date range: 2025-08-25T19:26:41 to 2025-10-03T20:55:09
+[0:] [08:42:31.372] DEBUG: [BrokerAccountSnapshotManager] Batch date range: 2025-08-25T19:26:41 to 2025-10-03T20:55:09
 
-[0:] [21:49:30.996] DEBUG: [BrokerAccountSnapshotManager] Loading all movements from earliest date (batch optimization)
+[0:] [08:42:31.377] DEBUG: [BrokerAccountSnapshotManager] Loading all movements from earliest date (batch optimization)
 
-[0:] [21:49:31.005] DEBUG: [BrokerAccountSnapshotManager] getAllMovementsFromDate - BrokerAccountId: 1, Date: 2025-08-25T00:00:01
+[0:] [08:42:31.383] DEBUG: [BrokerAccountSnapshotManager] getAllMovementsFromDate - BrokerAccountId: 1, Date: 2025-08-25T00:00:01
 
-[0:] [21:49:31.012] DEBUG: [BrokerAccountSnapshotManager] Loading all movements from start date 2025-08-25T00:00:01
+[0:] [08:42:31.391] DEBUG: [BrokerAccountSnapshotManager] Loading all movements from start date 2025-08-25T00:00:01
 
-[0:] [21:49:31.024] DEBUG: [BrokerAccountSnapshotManager] BrokerMovements loaded (from date): 0
+[0:] [08:42:31.396] DEBUG: [BrokerAccountSnapshotManager] BrokerMovements loaded (from date): 0
 
-[0:] [21:49:31.030] DEBUG: [BrokerAccountSnapshotManager] Trades loaded (from date): 0
+[0:] [08:42:31.403] DEBUG: [BrokerAccountSnapshotManager] Trades loaded (from date): 0
 
-[0:] [21:49:31.043] DEBUG: [BrokerAccountSnapshotManager] Dividends loaded (from date): 0
+[0:] [08:42:31.408] DEBUG: [BrokerAccountSnapshotManager] Dividends loaded (from date): 0
 
-[0:] [21:49:31.053] DEBUG: [BrokerAccountSnapshotManager] DividendTaxes loaded (from date): 0
+[0:] [08:42:31.412] DEBUG: [BrokerAccountSnapshotManager] DividendTaxes loaded (from date): 0
 
-[0:] [21:49:31.063] DEBUG: [BrokerAccountSnapshotManager] OptionTrades loaded (from date): 4
+[0:] [08:42:31.420] DEBUG: [BrokerAccountSnapshotManager] OptionTrades loaded (from date): 4
 
-[0:] [21:49:31.074] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 4, UniqueCurrencies: 1
+[0:] [08:42:31.425] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 4, UniqueCurrencies: 1
 
-[0:] [21:49:31.083] DEBUG: [BrokerAccountMovementData] Currency 141 - BrokerMovements: 0, Trades: 0, OptionTrades: 4
+[0:] [08:42:31.430] DEBUG: [BrokerAccountMovementData] Currency 141 - BrokerMovements: 0, Trades: 0, OptionTrades: 4
 
-[0:] [21:49:31.090] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 4, Code: BuyToClose, Strike: 27.0, Expiration: 10/10/2025 12:00:00 AM, NetPremium: -64.12
+[0:] [08:42:31.437] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 4, Code: BuyToClose, Strike: 27.0, Expiration: 10/10/2025 12:00:00 AM, NetPremium: -64.12
 
-[0:] [21:49:31.099] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 3, Code: SellToClose, Strike: 20.0, Expiration: 1/16/2026 12:00:00 AM, NetPremium: 744.88
+[0:] [08:42:31.443] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 3, Code: SellToClose, Strike: 20.0, Expiration: 1/16/2026 12:00:00 AM, NetPremium: 744.88
 
-[0:] [21:49:31.109] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 2, Code: SellToOpen, Strike: 27.0, Expiration: 10/10/2025 12:00:00 AM, NetPremium: 49.88
+[0:] [08:42:31.448] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 2, Code: SellToOpen, Strike: 27.0, Expiration: 10/10/2025 12:00:00 AM, NetPremium: 49.88
 
-[0:] [21:49:31.119] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 1, Code: BuyToOpen, Strike: 20.0, Expiration: 1/16/2026 12:00:00 AM, NetPremium: -555.12
+[0:] [08:42:31.456] DEBUG: [BrokerAccountMovementData] OptionTrade for currency 141 - ID: 1, Code: BuyToOpen, Strike: 20.0, Expiration: 1/16/2026 12:00:00 AM, NetPremium: -555.12
 
-[0:] [21:49:31.131] DEBUG: [BrokerAccountSnapshotManager] Batch movements loaded - BrokerMovements: 0, Trades: 0, Dividends: 0, Options: 4 (in 152ms)
+[0:] [08:42:31.463] DEBUG: [BrokerAccountSnapshotManager] Batch movements loaded - BrokerMovements: 0, Trades: 0, Dividends: 0, Options: 4 (in 100ms)
 
-[0:] [21:49:31.146] DEBUG: [BrokerAccountSnapshotManager] Batch existing snapshots loaded - Count: 5 (in 166ms)
+[0:] [08:42:31.473] DEBUG: [BrokerAccountSnapshotManager] Batch existing snapshots loaded - Count: 5 (in 110ms)
 
-[0:] [21:49:31.156] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-08-25T23:59:59
+[0:] [08:42:31.479] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-08-25T23:59:59
 
-[0:] [21:49:31.164] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-08-25T23:59:59
+[0:] [08:42:31.486] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-08-25T23:59:59
 
-[0:] [21:49:31.175] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:31.491] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:31.184] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:31.496] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:31.211] DEBUG: [BrokerAccountSnapshotManager] [1/3] Processing date 2025-08-25T23:59:59 (snapshot ID: 2)
+[0:] [08:42:31.510] DEBUG: [BrokerAccountSnapshotManager] [1/3] Processing date 2025-08-25T23:59:59 (snapshot ID: 2)
 
-[0:] [21:49:31.223] DEBUG: [BrokerAccountSnapshotManager] [1/3] Found 1 existing financial snapshot(s) for 2025-08-25T23:59:59 - updating links only
+[0:] [08:42:31.520] DEBUG: [BrokerAccountSnapshotManager] [1/3] Found 1 existing financial snapshot(s) for 2025-08-25T23:59:59 - updating links only
 
-[0:] [21:49:31.233] DEBUG: [BrokerFinancialBatchPersistence] Updating BrokerAccountSnapshotId to 2 for all financial snapshots on Date=2025-08-25T23:59:59, BrokerAccount=1
+[0:] [08:42:31.527] DEBUG: [BrokerFinancialBatchPersistence] Updating BrokerAccountSnapshotId to 2 for all financial snapshots on Date=2025-08-25T23:59:59, BrokerAccount=1
 
-[0:] [21:49:31.241] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 3, CurrencyId: 141, Deposited: 0.0M, MovementCounter: 1
+[0:] [08:42:31.533] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 3, CurrencyId: 141, Deposited: 0.0M, MovementCounter: 1
 
-[0:] [21:49:31.247] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
+[0:] [08:42:31.540] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
 
-[0:] [21:49:31.258] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0.0M, MovementCounter: 1
+[0:] [08:42:31.547] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0.0M, MovementCounter: 1
 
-[0:] [21:49:31.282] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
+[0:] [08:42:31.572] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
 
-[0:] [21:49:31.290] DEBUG: [BrokerFinancialBatchPersistence] Updated snapshot ID 3: BrokerAccountSnapshotId 0 -> 2
+[0:] [08:42:31.578] DEBUG: [BrokerFinancialBatchPersistence] Updated snapshot ID 3: BrokerAccountSnapshotId 0 -> 2
 
-[0:] [21:49:31.296] INFO : [BrokerFinancialBatchPersistence] Updated BrokerAccountSnapshotId for 1 financial snapshots
+[0:] [08:42:31.585] INFO : [BrokerFinancialBatchPersistence] Updated BrokerAccountSnapshotId for 1 financial snapshots
 
-[0:] [21:49:31.306] DEBUG: [BrokerAccountSnapshotManager] [1/3] Updated 1 financial snapshot link(s) for 2025-08-25T23:59:59
+[0:] [08:42:31.593] DEBUG: [BrokerAccountSnapshotManager] [1/3] Updated 1 financial snapshot link(s) for 2025-08-25T23:59:59
 
-[0:] [21:49:31.319] DEBUG: [BrokerAccountSnapshotManager] [1/3] Completed date 2025-08-25T23:59:59 in 163ms (total: 340ms)
+[0:] [08:42:31.600] DEBUG: [BrokerAccountSnapshotManager] [1/3] Completed date 2025-08-25T23:59:59 in 121ms (total: 237ms)
 
-[0:] [21:49:31.330] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-01T23:59:59
+[0:] [08:42:31.608] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-01T23:59:59
 
-[0:] [21:49:31.338] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-01T23:59:59
+[0:] [08:42:31.612] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-01T23:59:59
 
-[0:] [21:49:31.345] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:31.619] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:31.352] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:31.624] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:31.376] DEBUG: [BrokerAccountSnapshotManager] [2/3] Processing date 2025-10-01T23:59:59 (snapshot ID: 3)
+[0:] [08:42:31.637] DEBUG: [BrokerAccountSnapshotManager] [2/3] Processing date 2025-10-01T23:59:59 (snapshot ID: 3)
 
-[0:] [21:49:31.383] DEBUG: [BrokerAccountSnapshotManager] [2/3] Found 1 existing financial snapshot(s) for 2025-10-01T23:59:59 - updating links only
+[0:] [08:42:31.643] DEBUG: [BrokerAccountSnapshotManager] [2/3] Found 1 existing financial snapshot(s) for 2025-10-01T23:59:59 - updating links only
 
-[0:] [21:49:31.389] DEBUG: [BrokerFinancialBatchPersistence] Updating BrokerAccountSnapshotId to 3 for all financial snapshots on Date=2025-10-01T23:59:59, BrokerAccount=1
+[0:] [08:42:31.648] DEBUG: [BrokerFinancialBatchPersistence] Updating BrokerAccountSnapshotId to 3 for all financial snapshots on Date=2025-10-01T23:59:59, BrokerAccount=1
 
-[0:] [21:49:31.398] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 4, CurrencyId: 141, Deposited: 0.0M, MovementCounter: 2
+[0:] [08:42:31.656] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 4, CurrencyId: 141, Deposited: 0.0M, MovementCounter: 2
 
-[0:] [21:49:31.404] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
+[0:] [08:42:31.662] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
 
-[0:] [21:49:31.412] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0.0M, MovementCounter: 2
+[0:] [08:42:31.669] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0.0M, MovementCounter: 2
 
-[0:] [21:49:31.435] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
+[0:] [08:42:31.682] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
 
-[0:] [21:49:31.441] DEBUG: [BrokerFinancialBatchPersistence] Updated snapshot ID 4: BrokerAccountSnapshotId 0 -> 3
+[0:] [08:42:31.689] DEBUG: [BrokerFinancialBatchPersistence] Updated snapshot ID 4: BrokerAccountSnapshotId 0 -> 3
 
-[0:] [21:49:31.448] INFO : [BrokerFinancialBatchPersistence] Updated BrokerAccountSnapshotId for 1 financial snapshots
+[0:] [08:42:31.694] INFO : [BrokerFinancialBatchPersistence] Updated BrokerAccountSnapshotId for 1 financial snapshots
 
-[0:] [21:49:31.455] DEBUG: [BrokerAccountSnapshotManager] [2/3] Updated 1 financial snapshot link(s) for 2025-10-01T23:59:59
+[0:] [08:42:31.699] DEBUG: [BrokerAccountSnapshotManager] [2/3] Updated 1 financial snapshot link(s) for 2025-10-01T23:59:59
 
-[0:] [21:49:31.461] DEBUG: [BrokerAccountSnapshotManager] [2/3] Completed date 2025-10-01T23:59:59 in 132ms (total: 481ms)
+[0:] [08:42:31.706] DEBUG: [BrokerAccountSnapshotManager] [2/3] Completed date 2025-10-01T23:59:59 in 98ms (total: 342ms)
 
-[0:] [21:49:31.473] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-03T23:59:59
+[0:] [08:42:31.710] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-03T23:59:59
 
-[0:] [21:49:31.478] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-03T23:59:59
+[0:] [08:42:31.715] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-03T23:59:59
 
-[0:] [21:49:31.487] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:31.723] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:31.495] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:31.728] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:31.518] DEBUG: [BrokerAccountSnapshotManager] [3/3] Processing date 2025-10-03T23:59:59 (snapshot ID: 4)
+[0:] [08:42:31.741] DEBUG: [BrokerAccountSnapshotManager] [3/3] Processing date 2025-10-03T23:59:59 (snapshot ID: 4)
 
-[0:] [21:49:31.527] DEBUG: [BrokerAccountSnapshotManager] [3/3] Found 1 existing financial snapshot(s) for 2025-10-03T23:59:59 - updating links only
+[0:] [08:42:31.747] DEBUG: [BrokerAccountSnapshotManager] [3/3] Found 1 existing financial snapshot(s) for 2025-10-03T23:59:59 - updating links only
 
-[0:] [21:49:31.533] DEBUG: [BrokerFinancialBatchPersistence] Updating BrokerAccountSnapshotId to 4 for all financial snapshots on Date=2025-10-03T23:59:59, BrokerAccount=1
+[0:] [08:42:31.754] DEBUG: [BrokerFinancialBatchPersistence] Updating BrokerAccountSnapshotId to 4 for all financial snapshots on Date=2025-10-03T23:59:59, BrokerAccount=1
 
-[0:] [21:49:31.542] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 5, CurrencyId: 141, Deposited: 0.0M, MovementCounter: 4
+[0:] [08:42:31.761] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 5, CurrencyId: 141, Deposited: 0.0M, MovementCounter: 4
 
-[0:] [21:49:31.548] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
+[0:] [08:42:31.768] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
 
-[0:] [21:49:31.556] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0.0M, MovementCounter: 4
+[0:] [08:42:31.774] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0.0M, MovementCounter: 4
 
-[0:] [21:49:31.579] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
+[0:] [08:42:31.788] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
 
-[0:] [21:49:31.587] DEBUG: [BrokerFinancialBatchPersistence] Updated snapshot ID 5: BrokerAccountSnapshotId 0 -> 4
+[0:] [08:42:31.793] DEBUG: [BrokerFinancialBatchPersistence] Updated snapshot ID 5: BrokerAccountSnapshotId 0 -> 4
 
-[0:] [21:49:31.595] INFO : [BrokerFinancialBatchPersistence] Updated BrokerAccountSnapshotId for 1 financial snapshots
+[0:] [08:42:31.799] INFO : [BrokerFinancialBatchPersistence] Updated BrokerAccountSnapshotId for 1 financial snapshots
 
-[0:] [21:49:31.602] DEBUG: [BrokerAccountSnapshotManager] [3/3] Updated 1 financial snapshot link(s) for 2025-10-03T23:59:59
+[0:] [08:42:31.806] DEBUG: [BrokerAccountSnapshotManager] [3/3] Updated 1 financial snapshot link(s) for 2025-10-03T23:59:59
 
-[0:] [21:49:31.610] DEBUG: [BrokerAccountSnapshotManager] [3/3] Completed date 2025-10-03T23:59:59 in 137ms (total: 631ms)
+[0:] [08:42:31.811] DEBUG: [BrokerAccountSnapshotManager] [3/3] Completed date 2025-10-03T23:59:59 in 100ms (total: 448ms)
 
-[0:] [21:49:31.619] INFO : [BrokerAccountSnapshotManager] OPTIMIZED batch processing completed for 3 dates in 639ms (avg: 213ms/date)
+[0:] [08:42:31.820] INFO : [BrokerAccountSnapshotManager] OPTIMIZED batch processing completed for 3 dates in 457ms (avg: 152ms/date)
 
-[0:] [21:49:31.629] DEBUG: [BrokerFinancialBatchManager] Created 3 broker account snapshots successfully
+[0:] [08:42:31.825] DEBUG: [BrokerFinancialBatchManager] Created 3 broker account snapshots successfully
 
-[0:] [21:49:31.635] DEBUG: [BrokerFinancialBatchManager] Current date 2025-10-05T21:49:31 is after last movement date 2025-10-03T20:55:09 - updating current snapshot
+[0:] [08:42:31.830] DEBUG: [BrokerFinancialBatchManager] Current date 2025-10-06T08:42:31 is after last movement date 2025-10-03T20:55:09 - updating current snapshot
 
-[0:] [21:49:31.644] DEBUG: [BrokerAccountSnapshotManager] Entering handleBrokerAccountChange - BrokerAccountId: 1, Date: 2025-10-05T21:49:31
+[0:] [08:42:31.838] DEBUG: [BrokerAccountSnapshotManager] Entering handleBrokerAccountChange - BrokerAccountId: 1, Date: 2025-10-06T08:42:31
 
-[0:] [21:49:31.654] DEBUG: [BrokerAccountSnapshotManager] Snapshot retrieved/created - Id: 1, Date: 2025-10-05T23:59:59
+[0:] [08:42:31.843] DEBUG: [BrokerAccountSnapshotManager] Snapshot retrieved/created - Id: 1, Date: 2025-10-06T23:59:59
 
-[0:] [21:49:31.661] DEBUG: [BrokerAccountSnapshotManager] Movement retrieval date: 2025-10-05T00:00:01
+[0:] [08:42:31.848] DEBUG: [BrokerAccountSnapshotManager] Movement retrieval date: 2025-10-06T00:00:01
 
-[0:] [21:49:31.667] DEBUG: [BrokerAccountSnapshotManager] getAllMovementsFromDate - BrokerAccountId: 1, Date: 2025-10-05T00:00:01
+[0:] [08:42:31.855] DEBUG: [BrokerAccountSnapshotManager] getAllMovementsFromDate - BrokerAccountId: 1, Date: 2025-10-06T00:00:01
 
-[0:] [21:49:31.676] DEBUG: [BrokerAccountSnapshotManager] Loading all movements from start date 2025-10-05T00:00:01
+[0:] [08:42:31.863] DEBUG: [BrokerAccountSnapshotManager] Loading all movements from start date 2025-10-06T00:00:01
 
-[0:] [21:49:31.685] DEBUG: [BrokerAccountSnapshotManager] BrokerMovements loaded (from date): 0
+[0:] [08:42:31.873] DEBUG: [BrokerAccountSnapshotManager] BrokerMovements loaded (from date): 0
 
-[0:] [21:49:31.692] DEBUG: [BrokerAccountSnapshotManager] Trades loaded (from date): 0
+[0:] [08:42:31.878] DEBUG: [BrokerAccountSnapshotManager] Trades loaded (from date): 0
 
-[0:] [21:49:31.699] DEBUG: [BrokerAccountSnapshotManager] Dividends loaded (from date): 0
+[0:] [08:42:31.882] DEBUG: [BrokerAccountSnapshotManager] Dividends loaded (from date): 0
 
-[0:] [21:49:31.709] DEBUG: [BrokerAccountSnapshotManager] DividendTaxes loaded (from date): 0
+[0:] [08:42:31.891] DEBUG: [BrokerAccountSnapshotManager] DividendTaxes loaded (from date): 0
 
-[0:] [21:49:31.717] DEBUG: [BrokerAccountSnapshotManager] OptionTrades loaded (from date): 0
+[0:] [08:42:31.897] DEBUG: [BrokerAccountSnapshotManager] OptionTrades loaded (from date): 0
 
-[0:] [21:49:31.725] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 0, UniqueCurrencies: 0
+[0:] [08:42:31.905] DEBUG: [BrokerAccountMovementData] Creating movement data - Total BrokerMovements: 0, Total Trades: 0, Total OptionTrades: 0, UniqueCurrencies: 0
 
-[0:] [21:49:31.731] DEBUG: [BrokerAccountSnapshotManager] Movements loaded - HasMovements: False
+[0:] [08:42:31.910] DEBUG: [BrokerAccountSnapshotManager] Movements loaded - HasMovements: False
 
-[0:] [21:49:31.738] DEBUG: [BrokerAccountSnapshotManager] Future snapshots loaded - Count: 0
+[0:] [08:42:31.915] DEBUG: [BrokerAccountSnapshotManager] Future snapshots loaded - Count: 0
 
-[0:] [21:49:31.746] DEBUG: [BrokerAccountSnapshotManager] Date analysis - DatesWithMovements: 0, DatesWithSnapshots: 0, MissingSnapshotDates: 0
+[0:] [08:42:31.923] DEBUG: [BrokerAccountSnapshotManager] Date analysis - DatesWithMovements: 0, DatesWithSnapshots: 0, MissingSnapshotDates: 0
 
-[0:] [21:49:31.753] DEBUG: [BrokerAccountSnapshotManager] Decision: One-day update (no future activity)
+[0:] [08:42:31.928] DEBUG: [BrokerAccountSnapshotManager] Decision: One-day update (no future activity)
 
-[0:] [21:49:31.764] DEBUG: [BrokerFinancialSnapshotManager] Starting brokerAccountOneDayUpdate - BrokerAccountId: 1, Date: 2025-10-05T23:59:59
+[0:] [08:42:31.937] DEBUG: [BrokerFinancialSnapshotManager] Starting brokerAccountOneDayUpdate - BrokerAccountId: 1, Date: 2025-10-06T23:59:59
 
-[0:] [21:49:31.772] DEBUG: [BrokerFinancialSnapshotManager] MovementData - HasMovements: false, TotalMovementCount: 0, UniqueCurrencies: 0
+[0:] [08:42:31.944] DEBUG: [BrokerFinancialSnapshotManager] MovementData - HasMovements: false, TotalMovementCount: 0, UniqueCurrencies: 0
 
-[0:] [21:49:31.781] DEBUG: [BrokerFinancialSnapshotManager] All previous snapshots loaded: 5
+[0:] [08:42:31.955] DEBUG: [BrokerFinancialSnapshotManager] All previous snapshots loaded: 5
 
-[0:] [21:49:31.805] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-08-25T23:59:59, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:31.977] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-08-25T23:59:59, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.810] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-10-01T23:59:59, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:31.982] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-10-01T23:59:59, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.815] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-10-03T23:59:59, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:31.989] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-10-03T23:59:59, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.822] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-10-05T23:59:59, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:31.994] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-10-06T23:59:59, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.827] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-10-05T23:59:59, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:32.002] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot: Date=2025-10-06T23:59:59, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.836] DEBUG: [BrokerFinancialSnapshotManager] Target date for comparison: 10/5/2025 11:59:59 PM
+[0:] [08:42:32.011] DEBUG: [BrokerFinancialSnapshotManager] Target date for comparison: 10/6/2025 11:59:59 PM
 
-[0:] [21:49:31.842] DEBUG: [BrokerFinancialSnapshotManager] Filtering snapshots before target date...
+[0:] [08:42:32.016] DEBUG: [BrokerFinancialSnapshotManager] Filtering snapshots before target date...
 
-[0:] [21:49:31.852] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=8/25/2025 11:59:59 PM, IsBeforeTarget=true, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:32.027] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=8/25/2025 11:59:59 PM, IsBeforeTarget=true, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.857] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=10/1/2025 11:59:59 PM, IsBeforeTarget=true, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:32.032] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=10/1/2025 11:59:59 PM, IsBeforeTarget=true, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.861] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=10/3/2025 11:59:59 PM, IsBeforeTarget=true, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:32.040] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=10/3/2025 11:59:59 PM, IsBeforeTarget=true, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.868] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=10/5/2025 11:59:59 PM, IsBeforeTarget=false, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:32.046] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=10/6/2025 11:59:59 PM, IsBeforeTarget=false, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.875] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=10/5/2025 11:59:59 PM, IsBeforeTarget=false, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:32.054] DEBUG: [BrokerFinancialSnapshotManager] Snapshot Date=10/6/2025 11:59:59 PM, IsBeforeTarget=false, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.881] DEBUG: [BrokerFinancialSnapshotManager] Filtered snapshots count: 3
+[0:] [08:42:32.060] DEBUG: [BrokerFinancialSnapshotManager] Filtered snapshots count: 3
 
-[0:] [21:49:31.891] DEBUG: [BrokerFinancialSnapshotManager] Processing currency 141 with 3 snapshots
+[0:] [08:42:32.070] DEBUG: [BrokerFinancialSnapshotManager] Processing currency 141 with 3 snapshots
 
-[0:] [21:49:31.901] DEBUG: [BrokerFinancialSnapshotManager] Latest snapshot for currency 141: Date=10/3/2025 11:59:59 PM, Deposited=0.0M
+[0:] [08:42:32.079] DEBUG: [BrokerFinancialSnapshotManager] Latest snapshot for currency 141: Date=10/3/2025 11:59:59 PM, Deposited=0.0M
 
-[0:] [21:49:31.907] DEBUG: [BrokerFinancialSnapshotManager] Relevant previous snapshots: 1
+[0:] [08:42:32.087] DEBUG: [BrokerFinancialSnapshotManager] Relevant previous snapshots: 1
 
-[0:] [21:49:31.915] DEBUG: [BrokerFinancialSnapshotManager] Relevant previous: Date=2025-10-03T23:59:59, CurrencyId=141, Deposited=0.0M
+[0:] [08:42:32.094] DEBUG: [BrokerFinancialSnapshotManager] Relevant previous: Date=2025-10-03T23:59:59, CurrencyId=141, Deposited=0.0M
 
-[0:] [21:49:31.928] DEBUG: [BrokerFinancialSnapshotManager] Currencies with movements: []
+[0:] [08:42:32.109] DEBUG: [BrokerFinancialSnapshotManager] Currencies with movements: []
 
-[0:] [21:49:31.939] DEBUG: [BrokerFinancialSnapshotManager] Currencies with previous snapshots: [141]
+[0:] [08:42:32.120] DEBUG: [BrokerFinancialSnapshotManager] Currencies with previous snapshots: [141]
 
-[0:] [21:49:31.945] DEBUG: [BrokerFinancialSnapshotManager] All relevant currencies to process: [141]
+[0:] [08:42:32.126] DEBUG: [BrokerFinancialSnapshotManager] All relevant currencies to process: [141]
 
-[0:] [21:49:31.954] DEBUG: [BrokerFinancialSnapshotManager] Currency processing summary:
+[0:] [08:42:32.131] DEBUG: [BrokerFinancialSnapshotManager] Currency processing summary:
 
-[0:] [21:49:31.960] DEBUG: [BrokerFinancialSnapshotManager] - Currencies with movements: 0
+[0:] [08:42:32.138] DEBUG: [BrokerFinancialSnapshotManager] - Currencies with movements: 0
 
-[0:] [21:49:31.966] DEBUG: [BrokerFinancialSnapshotManager] - Currencies with previous snapshots: 1
+[0:] [08:42:32.143] DEBUG: [BrokerFinancialSnapshotManager] - Currencies with previous snapshots: 1
 
-[0:] [21:49:31.973] DEBUG: [BrokerFinancialSnapshotManager] - Total currencies to process: 1
+[0:] [08:42:32.149] DEBUG: [BrokerFinancialSnapshotManager] - Total currencies to process: 1
 
-[0:] [21:49:31.982] DEBUG: [BrokerFinancialSnapshotManager] Processing currency ID: 141
+[0:] [08:42:32.157] DEBUG: [BrokerFinancialSnapshotManager] Processing currency ID: 141
 
-[0:] [21:49:31.993] DEBUG: [BrokerFinancialSnapshotManager] Currency 141 movement data - Found: false
+[0:] [08:42:32.165] DEBUG: [BrokerFinancialSnapshotManager] Currency 141 movement data - Found: false
 
-[0:] [21:49:31.999] DEBUG: [BrokerFinancialSnapshotManager] No movement data found for currency 141
+[0:] [08:42:32.173] DEBUG: [BrokerFinancialSnapshotManager] No movement data found for currency 141
 
-[0:] [21:49:32.013] DEBUG: [BrokerFinancialSnapshotManager] Currency 141 - HasMovements: false, HasPrevious: true, HasExisting: true
+[0:] [08:42:32.183] DEBUG: [BrokerFinancialSnapshotManager] Currency 141 - HasMovements: false, HasPrevious: true, HasExisting: true
 
-[0:] [21:49:32.022] DEBUG: [BrokerFinancialSnapshotManager] SCENARIO G: No movements, has previous snapshot, has existing snapshot
+[0:] [08:42:32.190] DEBUG: [BrokerFinancialSnapshotManager] SCENARIO G: No movements, has previous snapshot, has existing snapshot
 
-[0:] [21:49:32.030] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot - Deposited: 0.0M, MovementCounter: 4
+[0:] [08:42:32.197] DEBUG: [BrokerFinancialSnapshotManager] Previous snapshot - Deposited: 0.0M, MovementCounter: 4
 
-[0:] [21:49:32.037] DEBUG: [BrokerFinancialSnapshotManager] Existing snapshot - Deposited: 0.0M, MovementCounter: 0
+[0:] [08:42:32.204] DEBUG: [BrokerFinancialSnapshotManager] Existing snapshot - Deposited: 0.0M, MovementCounter: 0
 
-[0:] [21:49:32.043] DEBUG: [BrokerFinancialValidateAndCorrect] Starting snapshotConsistency check
+[0:] [08:42:32.210] DEBUG: [BrokerFinancialValidateAndCorrect] Starting snapshotConsistency check
 
-[0:] [21:49:32.053] DEBUG: [BrokerFinancialValidateAndCorrect] Previous: Deposited=0.0M, MovementCounter=4
+[0:] [08:42:32.215] DEBUG: [BrokerFinancialValidateAndCorrect] Previous: Deposited=0.0M, MovementCounter=4
 
-[0:] [21:49:32.060] DEBUG: [BrokerFinancialValidateAndCorrect] Existing: Deposited=0.0M, MovementCounter=0
+[0:] [08:42:32.223] DEBUG: [BrokerFinancialValidateAndCorrect] Existing: Deposited=0.0M, MovementCounter=0
 
-[0:] [21:49:32.070] DEBUG: [BrokerFinancialValidateAndCorrect] Snapshots differ - applying correction
+[0:] [08:42:32.228] DEBUG: [BrokerFinancialValidateAndCorrect] Snapshots differ - applying correction
 
-[0:] [21:49:32.078] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 2, CurrencyId: 141, Deposited: 0.0M, MovementCounter: 4
+[0:] [08:42:32.236] DEBUG: [BrokerFinancialSnapshotExtensions] Saving financial snapshot - ID: 2, CurrencyId: 141, Deposited: 0.0M, MovementCounter: 4
 
-[0:] [21:49:32.086] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
+[0:] [08:42:32.242] DEBUG: [BrokerFinancialSnapshotExtensions] About to call Database.Do.saveEntity...
 
-[0:] [21:49:32.094] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0.0M, MovementCounter: 4
+[0:] [08:42:32.251] DEBUG: [BrokerFinancialSnapshotExtensions] Filling database command with snapshot values - Deposited: 0.0M, MovementCounter: 4
 
-[0:] [21:49:32.118] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
+[0:] [08:42:32.264] DEBUG: [BrokerFinancialSnapshotExtensions] Database.Do.saveEntity completed successfully
 
-[0:] [21:49:32.124] DEBUG: [BrokerFinancialValidateAndCorrect] Corrected snapshot saved - Deposited: 0.0M, MovementCounter: 4
+[0:] [08:42:32.271] DEBUG: [BrokerFinancialValidateAndCorrect] Corrected snapshot saved - Deposited: 0.0M, MovementCounter: 4
 
-[0:] [21:49:32.130] DEBUG: [BrokerFinancialSnapshotManager] SCENARIO G completed - snapshot consistency validation/correction applied
+[0:] [08:42:32.277] DEBUG: [BrokerFinancialSnapshotManager] SCENARIO G completed - snapshot consistency validation/correction applied
 
-[0:] [21:49:32.137] DEBUG: [BrokerAccountSnapshotManager] Exiting handleBrokerAccountChange - BrokerAccountId: 1
+[0:] [08:42:32.282] DEBUG: [BrokerAccountSnapshotManager] Exiting handleBrokerAccountChange - BrokerAccountId: 1
 
-[0:] [21:49:32.142] DEBUG: [BrokerFinancialBatchManager] Current date snapshot updated successfully
+[0:] [08:42:32.290] DEBUG: [BrokerFinancialBatchManager] Current date snapshot updated successfully
 
-[0:] [21:49:32.155] INFO : [ImportManager] Batch snapshot processing completed: 3 snapshots in 2377ms (Load: 53ms, Calc: 1796ms, Save: 185ms)
+[0:] [08:42:32.298] INFO : [ImportManager] Batch snapshot processing completed: 3 snapshots in 1301ms (Load: 35ms, Calc: 931ms, Save: 133ms)
 
-[0:] [21:49:32.161] INFO : [ImportManager] Starting batch ticker snapshot processing for import
+[0:] [08:42:32.305] INFO : [ImportManager] Starting batch ticker snapshot processing for import
 
-[0:] [21:49:32.171] INFO : [TickerSnapshotBatchManager] Starting batch processing for recent imports on broker account 1
+[0:] [08:42:32.312] INFO : [TickerSnapshotBatchManager] Starting batch processing for recent imports on broker account 1
 
-[0:] [21:49:32.178] INFO : [TickerSnapshotBatchLoader] Finding tickers affected by import for account 1 since 2025-07-07T21:49:32
+[0:] [08:42:32.318] INFO : [TickerSnapshotBatchLoader] Finding tickers affected by import for account 1 since 2025-07-08T08:42:32
 
-[0:] [21:49:32.190] INFO : [TickerSnapshotBatchLoader] Found 1 tickers affected by import
+[0:] [08:42:32.329] INFO : [TickerSnapshotBatchLoader] Found 1 tickers affected by import
 
-[0:] [21:49:32.197] INFO : [TickerSnapshotBatchManager] Found 1 affected tickers for batch processing
+[0:] [08:42:32.334] INFO : [TickerSnapshotBatchManager] Found 1 affected tickers for batch processing
 
-[0:] [21:49:32.205] INFO : [TickerSnapshotBatchManager] Processing 1 tickers from 2025-07-07T21:49:32 to 2025-10-05T21:49:32 (using import lookback period)
+[0:] [08:42:32.340] INFO : [TickerSnapshotBatchManager] Processing 1 tickers from 2025-07-08T08:42:32 to 2025-10-06T08:42:32 (using import lookback period)
 
-[0:] [21:49:32.215] INFO : [TickerSnapshotBatchManager] Starting batch processing for 1 tickers from 2025-07-07T21:49:32 to 2025-10-05T21:49:32
+[0:] [08:42:32.348] INFO : [TickerSnapshotBatchManager] Starting batch processing for 1 tickers from 2025-07-08T08:42:32 to 2025-10-06T08:42:32
 
-[0:] [21:49:32.222] DEBUG: [TickerSnapshotBatchManager] Phase 1: Loading data...
+[0:] [08:42:32.355] DEBUG: [TickerSnapshotBatchManager] Phase 1: Loading data...
 
-[0:] [21:49:32.230] INFO : [TickerSnapshotBatchLoader] Loading baseline snapshots for 1 tickers before 2025-07-07T21:49:32
+[0:] [08:42:32.360] INFO : [TickerSnapshotBatchLoader] Loading baseline snapshots for 1 tickers before 2025-07-08T08:42:32
 
-[0:] [21:49:32.249] INFO : [TickerSnapshotBatchLoader] Loaded 0 ticker snapshots and 0 currency snapshots as baselines
+[0:] [08:42:32.377] INFO : [TickerSnapshotBatchLoader] Loaded 0 ticker snapshots and 0 currency snapshots as baselines
 
-[0:] [21:49:32.259] INFO : [TickerSnapshotBatchLoader] Loading movements for 1 tickers from 2025-07-07T21:49:32 to 2025-10-05T21:49:32
+[0:] [08:42:32.384] INFO : [TickerSnapshotBatchLoader] Loading movements for 1 tickers from 2025-07-08T08:42:32 to 2025-10-06T08:42:32
 
-[0:] [21:49:32.301] INFO : [TickerSnapshotBatchLoader] Loaded 4 total movements (0 trades, 0 dividends, 0 taxes, 4 options)
+[0:] [08:42:32.420] INFO : [TickerSnapshotBatchLoader] Loaded 4 total movements (0 trades, 0 dividends, 0 taxes, 4 options)
 
-[0:] [21:49:32.321] INFO : [TickerSnapshotBatchLoader] Found 4 closed option trades across all tickers for realized gains calculation
+[0:] [08:42:32.433] INFO : [TickerSnapshotBatchLoader] Found 4 closed option trades across all tickers for realized gains calculation
 
-[0:] [21:49:32.330] INFO : [TickerSnapshotBatchLoader] Loading market prices for 1 tickers from 2025-07-07T21:49:32 to 2025-10-05T21:49:32
+[0:] [08:42:32.440] INFO : [TickerSnapshotBatchLoader] Loading market prices for 1 tickers from 2025-07-08T08:42:32 to 2025-10-06T08:42:32
 
-[0:] [21:49:32.378] INFO : [TickerSnapshotBatchLoader] Loaded 91/91 price entries (0 with valid prices)
+[0:] [08:42:32.472] INFO : [TickerSnapshotBatchLoader] Loaded 91/91 price entries (0 with valid prices)
 
-[0:] [21:49:32.400] INFO : [TickerSnapshotBatchManager] Data loading completed: 0 trades, 0 dividends, 0 dividend taxes, 4 option trades, 0 baseline ticker snapshots, 0 baseline currency snapshots in 163ms
+[0:] [08:42:32.490] INFO : [TickerSnapshotBatchManager] Data loading completed: 0 trades, 0 dividends, 0 dividend taxes, 4 option trades, 0 baseline ticker snapshots, 0 baseline currency snapshots in 123ms
 
-[0:] [21:49:32.408] DEBUG: [TickerSnapshotBatchManager] Phase 2: Calculating snapshots...
+[0:] [08:42:32.494] DEBUG: [TickerSnapshotBatchManager] Phase 2: Calculating snapshots...
 
-[0:] [21:49:32.423] INFO : [TickerSnapshotBatchManager] Smart date filtering: 3 dates with movements to process (vs 91 days in full range)
+[0:] [08:42:32.504] INFO : [TickerSnapshotBatchManager] Smart date filtering: 3 dates with movements to process (vs 91 days in full range)
 
-[0:] [21:49:32.432] DEBUG: [TickerSnapshotBatchManager] Adding current date 2025-10-05T21:49:32 to process list (after last movement 2025-10-03T00:00:01)
+[0:] [08:42:32.509] DEBUG: [TickerSnapshotBatchManager] Adding current date 2025-10-06T08:42:32 to process list (after last movement 2025-10-03T00:00:01)
 
-[0:] [21:49:32.442] INFO : [TickerSnapshotBatchCalculator] Starting batch calculation for 1 tickers, 4 dates, 0 baseline currency snapshots
+[0:] [08:42:32.515] INFO : [TickerSnapshotBatchCalculator] Starting batch calculation for 1 tickers, 4 dates, 0 baseline currency snapshots
 
-[0:] [21:49:32.450] DEBUG: [TickerSnapshotBatchCalculator] Processing date 2025-08-25T00:00:01
+[0:] [08:42:32.519] DEBUG: [TickerSnapshotBatchCalculator] Processing date 2025-08-25T00:00:01
 
-[0:] [21:49:32.470] DEBUG: [TickerSnapshotBatchCalculator] Processing ticker 2 on date 2025-08-25T00:00:01 (1 currencies)
+[0:] [08:42:32.530] DEBUG: [TickerSnapshotBatchCalculator] Processing ticker 2 on date 2025-08-25T00:00:01 (1 currencies)
 
-[0:] [21:49:32.482] DEBUG: [TickerSnapshotBatchCalculator] SCENARIO B: ticker 2 currency 141 date 2025-08-25T00:00:01 (first snapshot)
+[0:] [08:42:32.537] DEBUG: [TickerSnapshotBatchCalculator] SCENARIO B: ticker 2 currency 141 date 2025-08-25T00:00:01 (first snapshot)
 
-[0:] [21:49:32.498] DEBUG: [TickerSnapshotCalculateInMemory] Calculating INITIAL snapshot - Ticker:2 Currency:141 Date:2025-08-25T00:00:01 (Trades:0 Divs:0 Options:1)
+[0:] [08:42:32.546] DEBUG: [TickerSnapshotCalculateInMemory] Calculating INITIAL snapshot - Ticker:2 Currency:141 Date:2025-08-25T00:00:01 (Trades:0 Divs:0 Options:1)
 
-[0:] [21:49:32.510] DEBUG: [TickerSnapshotCalculateInMemory] Calculated INITIAL snapshot - Shares:0 CostBasis:0 Unrealized:0 Options:-555.12
+[0:] [08:42:32.555] DEBUG: [TickerSnapshotCalculateInMemory] Calculated INITIAL snapshot - Shares:0 CostBasis:0 SharesUnrealized:0 OpenOptions:0 TotalUnrealized:0 Dividends:0 Options:-555.12
 
-[0:] [21:49:32.520] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-08-25T00:00:01
+[0:] [08:42:32.559] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-08-25T00:00:01
 
-[0:] [21:49:32.530] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-08-25T23:59:59
+[0:] [08:42:32.564] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-08-25T23:59:59
 
-[0:] [21:49:32.543] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:32.572] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:32.553] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:32.577] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:32.560] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-08-25T00:00:01
+[0:] [08:42:32.582] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-08-25T00:00:01
 
-[0:] [21:49:32.569] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-08-25T23:59:59
+[0:] [08:42:32.590] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-08-25T23:59:59
 
-[0:] [21:49:32.598] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:32.595] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:32.606] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:32.600] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:32.616] DEBUG: [TickerSnapshotBatchCalculator] Created TickerSnapshot for ticker 2 date 2025-08-25T00:00:01 (1 currencies)
+[0:] [08:42:32.607] DEBUG: [TickerSnapshotBatchCalculator] Created TickerSnapshot for ticker 2 date 2025-08-25T00:00:01 (1 currencies)
 
-[0:] [21:49:32.625] DEBUG: [TickerSnapshotBatchCalculator] Processing date 2025-10-01T00:00:01
+[0:] [08:42:32.611] DEBUG: [TickerSnapshotBatchCalculator] Processing date 2025-10-01T00:00:01
 
-[0:] [21:49:32.632] DEBUG: [TickerSnapshotBatchCalculator] Processing ticker 2 on date 2025-10-01T00:00:01 (1 currencies)
+[0:] [08:42:32.616] DEBUG: [TickerSnapshotBatchCalculator] Processing ticker 2 on date 2025-10-01T00:00:01 (1 currencies)
 
-[0:] [21:49:32.640] DEBUG: [TickerSnapshotBatchCalculator] SCENARIO A: ticker 2 currency 141 date 2025-10-01T00:00:01 (with movements)
+[0:] [08:42:32.624] DEBUG: [TickerSnapshotBatchCalculator] SCENARIO A: ticker 2 currency 141 date 2025-10-01T00:00:01 (with movements)
 
-[0:] [21:49:32.654] DEBUG: [TickerSnapshotCalculateInMemory] Calculating NEW snapshot - Ticker:2 Currency:141 Date:2025-10-01T00:00:01 (Trades:0 Divs:0 Options:1) Previous:8/25/2025 11:59:59 PM
+[0:] [08:42:32.635] DEBUG: [TickerSnapshotCalculateInMemory] Calculating NEW snapshot - Ticker:2 Currency:141 Date:2025-10-01T00:00:01 (Trades:0 Divs:0 Options:1) Previous:8/25/2025 11:59:59 PM
 
-[0:] [21:49:32.665] DEBUG: [TickerSnapshotCalculateInMemory] Realized gains - Total closed trades: 2, Sum: -505.24 (Previous: 0.0)
+[0:] [08:42:32.648] DEBUG: [TickerSnapshotCalculateInMemory] Realized gains - Total closed trades: 2, Sum: -505.24 (Previous: 0.0)
 
-[0:] [21:49:32.679] DEBUG: [TickerSnapshotCalculateInMemory] Calculated NEW snapshot - Shares:0 CostBasis:0 Unrealized:0 Options:-505.24 Realized:-505.24
+[0:] [08:42:32.659] DEBUG: [TickerSnapshotCalculateInMemory] Calculated NEW snapshot - Shares:0 CostBasis:0 SharesUnrealized:0 OpenOptions:0 TotalUnrealized:0 Dividends:0 Options:-505.24 Realized:-505.24
 
-[0:] [21:49:32.687] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-01T00:00:01
+[0:] [08:42:32.663] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-01T00:00:01
 
-[0:] [21:49:32.693] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-01T23:59:59
+[0:] [08:42:32.668] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-01T23:59:59
 
-[0:] [21:49:32.700] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:32.673] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:32.708] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:32.678] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:32.716] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-01T00:00:01
+[0:] [08:42:32.682] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-01T00:00:01
 
-[0:] [21:49:32.725] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-01T23:59:59
+[0:] [08:42:32.687] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-01T23:59:59
 
-[0:] [21:49:32.733] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:32.692] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:32.742] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:32.698] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:32.749] DEBUG: [TickerSnapshotBatchCalculator] Created TickerSnapshot for ticker 2 date 2025-10-01T00:00:01 (1 currencies)
+[0:] [08:42:32.702] DEBUG: [TickerSnapshotBatchCalculator] Created TickerSnapshot for ticker 2 date 2025-10-01T00:00:01 (1 currencies)
 
-[0:] [21:49:32.758] DEBUG: [TickerSnapshotBatchCalculator] Processing date 2025-10-03T00:00:01
+[0:] [08:42:32.707] DEBUG: [TickerSnapshotBatchCalculator] Processing date 2025-10-03T00:00:01
 
-[0:] [21:49:32.765] DEBUG: [TickerSnapshotBatchCalculator] Processing ticker 2 on date 2025-10-03T00:00:01 (1 currencies)
+[0:] [08:42:32.713] DEBUG: [TickerSnapshotBatchCalculator] Processing ticker 2 on date 2025-10-03T00:00:01 (1 currencies)
 
-[0:] [21:49:32.775] DEBUG: [TickerSnapshotBatchCalculator] SCENARIO A: ticker 2 currency 141 date 2025-10-03T00:00:01 (with movements)
+[0:] [08:42:32.717] DEBUG: [TickerSnapshotBatchCalculator] SCENARIO A: ticker 2 currency 141 date 2025-10-03T00:00:01 (with movements)
 
-[0:] [21:49:32.782] DEBUG: [TickerSnapshotCalculateInMemory] Calculating NEW snapshot - Ticker:2 Currency:141 Date:2025-10-03T00:00:01 (Trades:0 Divs:0 Options:2) Previous:10/1/2025 11:59:59 PM
+[0:] [08:42:32.724] DEBUG: [TickerSnapshotCalculateInMemory] Calculating NEW snapshot - Ticker:2 Currency:141 Date:2025-10-03T00:00:01 (Trades:0 Divs:0 Options:2) Previous:10/1/2025 11:59:59 PM
 
-[0:] [21:49:32.791] DEBUG: [TickerSnapshotCalculateInMemory] Realized gains - Total closed trades: 4, Sum: 175.52 (Previous: -505.24)
+[0:] [08:42:32.730] DEBUG: [TickerSnapshotCalculateInMemory] Realized gains - Total closed trades: 4, Sum: 175.52 (Previous: -505.24)
 
-[0:] [21:49:32.796] DEBUG: [TickerSnapshotCalculateInMemory] Calculated NEW snapshot - Shares:0 CostBasis:0 Unrealized:0 Options:175.52 Realized:175.52
+[0:] [08:42:32.739] DEBUG: [TickerSnapshotCalculateInMemory] Calculated NEW snapshot - Shares:0 CostBasis:0 SharesUnrealized:0 OpenOptions:0 TotalUnrealized:0 Dividends:0 Options:175.52 Realized:175.52
 
-[0:] [21:49:32.805] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-03T00:00:01
+[0:] [08:42:32.745] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-03T00:00:01
 
-[0:] [21:49:32.816] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-03T23:59:59
+[0:] [08:42:32.751] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-03T23:59:59
 
-[0:] [21:49:32.823] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:32.755] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:32.829] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:32.760] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:32.836] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-03T00:00:01
+[0:] [08:42:32.764] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-03T00:00:01
 
-[0:] [21:49:32.842] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-03T23:59:59
+[0:] [08:42:32.770] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-03T23:59:59
 
-[0:] [21:49:32.847] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:32.775] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:32.854] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:32.779] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:32.860] DEBUG: [TickerSnapshotBatchCalculator] Created TickerSnapshot for ticker 2 date 2025-10-03T00:00:01 (1 currencies)
+[0:] [08:42:32.784] DEBUG: [TickerSnapshotBatchCalculator] Created TickerSnapshot for ticker 2 date 2025-10-03T00:00:01 (1 currencies)
 
-[0:] [21:49:32.871] DEBUG: [TickerSnapshotBatchCalculator] Processing date 2025-10-05T21:49:32
+[0:] [08:42:32.789] DEBUG: [TickerSnapshotBatchCalculator] Processing date 2025-10-06T08:42:32
 
-[0:] [21:49:32.879] DEBUG: [TickerSnapshotBatchCalculator] Processing ticker 2 on date 2025-10-05T21:49:32 (1 currencies)
+[0:] [08:42:32.794] DEBUG: [TickerSnapshotBatchCalculator] Processing ticker 2 on date 2025-10-06T08:42:32 (1 currencies)
 
-[0:] [21:49:32.887] DEBUG: [TickerSnapshotBatchCalculator] SCENARIO D: ticker 2 currency 141 date 2025-10-05T21:49:32 (carry forward)
+[0:] [08:42:32.800] DEBUG: [TickerSnapshotBatchCalculator] SCENARIO D: ticker 2 currency 141 date 2025-10-06T08:42:32 (carry forward)
 
-[0:] [21:49:32.899] DEBUG: [TickerSnapshotCalculateInMemory] Carrying forward snapshot - Ticker:2 Currency:141 From:10/3/2025 11:59:59 PM To:2025-10-05T21:49:32
+[0:] [08:42:32.809] DEBUG: [TickerSnapshotCalculateInMemory] Carrying forward snapshot - Ticker:2 Currency:141 From:10/3/2025 11:59:59 PM To:2025-10-06T08:42:32
 
-[0:] [21:49:32.910] DEBUG: [TickerSnapshotCalculateInMemory] Carried forward - Shares:0 Price:0->0 Unrealized:0->0 Options:175.52 Realized:175.52
+[0:] [08:42:32.816] DEBUG: [TickerSnapshotCalculateInMemory] Carried forward - Shares:0 Price:0->0 SharesUnrealized:0 OpenOptions:0.00 TotalUnrealized:0.00 Dividends:0 Realized:175.52
 
-[0:] [21:49:32.919] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-05T21:49:32
+[0:] [08:42:32.821] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-06T08:42:32
 
-[0:] [21:49:32.926] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-05T23:59:59
+[0:] [08:42:32.826] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-06T23:59:59
 
-[0:] [21:49:32.936] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:32.830] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:32.944] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:32.836] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:32.957] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-05T21:49:32
+[0:] [08:42:32.842] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 1: Creating base snapshot for date 2025-10-06T08:42:32
 
-[0:] [21:49:32.970] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-05T23:59:59
+[0:] [08:42:32.846] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 2: Normalized date = 2025-10-06T23:59:59
 
-[0:] [21:49:32.977] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
+[0:] [08:42:32.853] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 3: Created audit entity
 
-[0:] [21:49:32.987] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
+[0:] [08:42:32.859] DEBUG: [SnapshotManagerUtils] createBaseSnapshot - Step 4: Base snapshot created successfully with ID = 0
 
-[0:] [21:49:33.002] DEBUG: [TickerSnapshotBatchCalculator] Created TickerSnapshot for ticker 2 date 2025-10-05T21:49:32 (1 currencies)
+[0:] [08:42:32.863] DEBUG: [TickerSnapshotBatchCalculator] Created TickerSnapshot for ticker 2 date 2025-10-06T08:42:32 (1 currencies)
 
-[0:] [21:49:33.016] INFO : [TickerSnapshotBatchCalculator] Batch calculation completed: 4 snapshots, 4 currency snapshots, 4 movements in 570ms
+[0:] [08:42:32.872] INFO : [TickerSnapshotBatchCalculator] Batch calculation completed: 4 snapshots, 4 currency snapshots, 4 movements in 355ms
 
-[0:] [21:49:33.028] INFO : [TickerSnapshotBatchManager] Batch calculations completed: 4 ticker snapshots calculated, 4 currency snapshots calculated in 570ms
+[0:] [08:42:32.878] INFO : [TickerSnapshotBatchManager] Batch calculations completed: 4 ticker snapshots calculated, 4 currency snapshots calculated in 355ms
 
-[0:] [21:49:33.036] DEBUG: [TickerSnapshotBatchManager] Phase 3: Persisting snapshots...
+[0:] [08:42:32.882] DEBUG: [TickerSnapshotBatchManager] Phase 3: Persisting snapshots...
 
-[0:] [21:49:33.047] INFO : [TickerSnapshotBatchPersistence] Starting batch persistence of 4 ticker snapshots and 4 currency snapshots with deduplication
+[0:] [08:42:32.890] INFO : [TickerSnapshotBatchPersistence] Starting batch persistence of 4 ticker snapshots and 4 currency snapshots with deduplication
 
-[0:] [21:49:33.058] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerSnapshot for Ticker=2, Date=2025-08-25T23:59:59
+[0:] [08:42:32.896] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerSnapshot for Ticker=2, Date=2025-08-25T23:59:59
 
-[0:] [21:49:33.081] DEBUG: [TickerSnapshotBatchPersistence] Saved TickerSnapshot ID 2 for Ticker=2, Date=2025-08-25T23:59:59
+[0:] [08:42:32.907] DEBUG: [TickerSnapshotBatchPersistence] Saved TickerSnapshot ID 2 for Ticker=2, Date=2025-08-25T23:59:59
 
-[0:] [21:49:33.090] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerSnapshot for Ticker=2, Date=2025-10-01T23:59:59
+[0:] [08:42:32.914] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerSnapshot for Ticker=2, Date=2025-10-01T23:59:59
 
-[0:] [21:49:33.120] DEBUG: [TickerSnapshotBatchPersistence] Saved TickerSnapshot ID 3 for Ticker=2, Date=2025-10-01T23:59:59
+[0:] [08:42:32.926] DEBUG: [TickerSnapshotBatchPersistence] Saved TickerSnapshot ID 3 for Ticker=2, Date=2025-10-01T23:59:59
 
-[0:] [21:49:33.127] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerSnapshot for Ticker=2, Date=2025-10-03T23:59:59
+[0:] [08:42:32.931] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerSnapshot for Ticker=2, Date=2025-10-03T23:59:59
 
-[0:] [21:49:33.150] DEBUG: [TickerSnapshotBatchPersistence] Saved TickerSnapshot ID 4 for Ticker=2, Date=2025-10-03T23:59:59
+[0:] [08:42:32.942] DEBUG: [TickerSnapshotBatchPersistence] Saved TickerSnapshot ID 4 for Ticker=2, Date=2025-10-03T23:59:59
 
-[0:] [21:49:33.158] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerSnapshot for Ticker=2, Date=2025-10-05T23:59:59
+[0:] [08:42:32.946] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerSnapshot for Ticker=2, Date=2025-10-06T23:59:59
 
-[0:] [21:49:33.181] DEBUG: [TickerSnapshotBatchPersistence] Saved TickerSnapshot ID 5 for Ticker=2, Date=2025-10-05T23:59:59
+[0:] [08:42:32.958] DEBUG: [TickerSnapshotBatchPersistence] Saved TickerSnapshot ID 5 for Ticker=2, Date=2025-10-06T23:59:59
 
-[0:] [21:49:33.193] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerCurrencySnapshot for Ticker=2, Currency=141, Date=2025-08-25T23:59:59
+[0:] [08:42:32.963] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerCurrencySnapshot for Ticker=2, Currency=141, Date=2025-08-25T23:59:59
 
-[0:] [21:49:33.221] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerCurrencySnapshot for Ticker=2, Currency=141, Date=2025-10-01T23:59:59
+[0:] [08:42:32.976] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerCurrencySnapshot for Ticker=2, Currency=141, Date=2025-10-01T23:59:59
 
-[0:] [21:49:33.244] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerCurrencySnapshot for Ticker=2, Currency=141, Date=2025-10-03T23:59:59
+[0:] [08:42:32.990] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerCurrencySnapshot for Ticker=2, Currency=141, Date=2025-10-03T23:59:59
 
-[0:] [21:49:33.264] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerCurrencySnapshot for Ticker=2, Currency=141, Date=2025-10-05T23:59:59
+[0:] [08:42:33.002] DEBUG: [TickerSnapshotBatchPersistence] Creating new TickerCurrencySnapshot for Ticker=2, Currency=141, Date=2025-10-06T23:59:59
 
-[0:] [21:49:33.289] INFO : [TickerSnapshotBatchPersistence] Successfully persisted 4 ticker snapshots, 4 currency snapshots (0 updated) in 242ms
+[0:] [08:42:33.014] INFO : [TickerSnapshotBatchPersistence] Successfully persisted 4 ticker snapshots, 4 currency snapshots (0 updated) in 124ms
 
-[0:] [21:49:33.310] INFO : [TickerSnapshotBatchManager] Batch processing completed successfully: 4 ticker snapshots saved, 4 currency snapshots saved in 242ms (total: 1093ms)
+[0:] [08:42:33.023] INFO : [TickerSnapshotBatchManager] Batch processing completed successfully: 4 ticker snapshots saved, 4 currency snapshots saved in 124ms (total: 672ms)
 
-[0:] [21:49:33.318] INFO : [TickerSnapshotBatchManager] Performance breakdown: Load=163ms, Calculate=570ms, Persist=242ms, Total=1093ms
+[0:] [08:42:33.027] INFO : [TickerSnapshotBatchManager] Performance breakdown: Load=123ms, Calculate=355ms, Persist=124ms, Total=672ms
 
-[0:] [21:49:33.328] INFO : [TickerSnapshotBatchManager] Import batch processing completed: 4 ticker snapshots, 4 currency snapshots saved in 1093ms
+[0:] [08:42:33.032] INFO : [TickerSnapshotBatchManager] Import batch processing completed: 4 ticker snapshots, 4 currency snapshots saved in 672ms
 
-[0:] [21:49:33.340] INFO : [ImportManager] Ticker snapshot batch processing completed: 4 ticker snapshots, 4 currency snapshots in 1093ms (Load: 163ms, Calc: 570ms, Save: 242ms)
+[0:] [08:42:33.040] INFO : [ImportManager] Ticker snapshot batch processing completed: 4 ticker snapshots, 4 currency snapshots in 672ms (Load: 123ms, Calc: 355ms, Save: 124ms)
 
-[0:] [21:49:33.352] DEBUG: [ReactiveSnapshotManager] Skipping loadSnapshots - import in progress, will update after completion
+[0:] [08:42:33.045] DEBUG: [ReactiveSnapshotManager] Skipping loadSnapshots - import in progress, will update after completion
 
-[0:] [21:49:33.362] DEBUG: [ReactiveSnapshotManager] Starting loadSnapshots
+[0:] [08:42:33.051] DEBUG: [ReactiveSnapshotManager] Starting loadSnapshots
 
-[0:] [21:49:33.379] DEBUG: [BrokerAccountSnapshotLoader] Loading financial snapshots for BrokerAccountId: 1, SnapshotDate: 2025-10-05T23:59:59
+[0:] [08:42:33.060] DEBUG: [BrokerAccountSnapshotLoader] Loading financial snapshots for BrokerAccountId: 1, SnapshotDate: 2025-10-06T23:59:59
 
-[0:] [21:49:33.390] DEBUG: [BrokerAccountSnapshotLoader] Found 2 financial snapshots
+[0:] [08:42:33.064] DEBUG: [BrokerAccountSnapshotLoader] Found 2 financial snapshots
 
 [0:] [DatabaseToModels] Converting broker account snapshot - BrokerAccountId: 1, FinancialSnapshots count: 2
 
@@ -2035,21 +2037,21 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [0:] [DatabaseToModels] Financial snapshot - Deposited: 0.0, MovementCounter: 0
 
-[0:] [21:49:33.450] DEBUG: [ReactiveSnapshotManager] Completed loadSnapshots
+[0:] [08:42:33.095] DEBUG: [ReactiveSnapshotManager] Completed loadSnapshots
 
-[0:] [21:49:33.470] DEBUG: [ImportManager] File processing cleanup complete
+[0:] [08:42:33.106] DEBUG: [ImportManager] File processing cleanup complete
 
-[0:] [21:49:33.477] DEBUG: [ImportManager] Triggering post-import reactive updates
+[0:] [08:42:33.111] DEBUG: [ImportManager] Triggering post-import reactive updates
 
-[0:] [21:49:33.493] DEBUG: [ReactiveMovementManager] Starting loadMovements
+[0:] [08:42:33.115] DEBUG: [ReactiveMovementManager] Starting loadMovements
 
-[0:] [21:49:33.510] DEBUG: [ReactiveMovementManager] Completed loadMovements
+[0:] [08:42:33.129] DEBUG: [ReactiveMovementManager] Completed loadMovements
 
-[0:] [21:49:33.520] DEBUG: [ReactiveSnapshotManager] Starting loadSnapshots
+[0:] [08:42:33.133] DEBUG: [ReactiveSnapshotManager] Starting loadSnapshots
 
-[0:] [21:49:33.533] DEBUG: [BrokerAccountSnapshotLoader] Loading financial snapshots for BrokerAccountId: 1, SnapshotDate: 2025-10-05T23:59:59
+[0:] [08:42:33.143] DEBUG: [BrokerAccountSnapshotLoader] Loading financial snapshots for BrokerAccountId: 1, SnapshotDate: 2025-10-06T23:59:59
 
-[0:] [21:49:33.545] DEBUG: [BrokerAccountSnapshotLoader] Found 2 financial snapshots
+[0:] [08:42:33.149] DEBUG: [BrokerAccountSnapshotLoader] Found 2 financial snapshots
 
 [0:] [DatabaseToModels] Converting broker account snapshot - BrokerAccountId: 1, FinancialSnapshots count: 2
 
@@ -2059,87 +2061,206 @@ Loaded assembly: /data/data/com.companyname.core.platform.mauitester/files/.__ov
 
 [0:] [DatabaseToModels] Financial snapshot - Deposited: 0.0, MovementCounter: 0
 
-[0:] [21:49:33.599] DEBUG: [ReactiveSnapshotManager] Completed loadSnapshots
+[0:] [08:42:33.177] DEBUG: [ReactiveSnapshotManager] Completed loadSnapshots
 
-[0:] [21:49:33.609] DEBUG: [ImportManager] Post-import reactive updates completed successfully
+[0:] [08:42:33.182] DEBUG: [ImportManager] Post-import reactive updates completed successfully
 
-[0:] [21:49:33.620] INFO : [ImportManager] Import completed: success=true, processedRecords=4, errors=0
+[0:] [08:42:33.188] INFO : [ImportManager] Import completed: success=true, processedRecords=4, errors=0
 
-[0:] [21:49:33.630] INFO : [PfizerTest] ✅ Import completed. Success: True
+[0:] [08:42:33.194] INFO : [PfizerTest] ✅ Import completed. Success: True
 
-[0:] [21:49:33.638] INFO : [PfizerTest] Waiting for reactive signals...
+[0:] [08:42:33.198] INFO : [PfizerTest] Waiting for reactive signals...
 
-[0:] [21:49:33.647] INFO : [PfizerTest] ✅ All signals received
+[0:] [08:42:33.205] INFO : [PfizerTest] ✅ All signals received
 
-[0:] [21:49:33.656] INFO : [PfizerTest] Starting validation...
+[0:] [08:42:33.210] INFO : [PfizerTest] Starting validation...
 
-[0:] [21:49:33.663] INFO : [PfizerTest] Movements count: 4
+[0:] [08:42:33.216] INFO : [PfizerTest] Movements count: 4
 
-[0:] [21:49:33.675] INFO : [PfizerTest] Tickers count: 2
+[0:] [08:42:33.222] INFO : [PfizerTest] Tickers count: 2
 
-[0:] [21:49:33.685] INFO : [PfizerTest] Snapshots count: 1
+[0:] [08:42:33.228] INFO : [PfizerTest] Snapshots count: 1
 
-[0:] [21:49:33.696] INFO : [PfizerTest] TickerSnapshots count: 2
+[0:] [08:42:33.234] INFO : [PfizerTest] TickerSnapshots count: 2
 
-[0:] [21:49:33.705] INFO : [PfizerTest] Validating broker account snapshot...
+[0:] [08:42:33.241] INFO : [PfizerTest] Validating broker account snapshot...
 
-[0:] [21:49:33.715] INFO : [PfizerTest] ✅ Found broker account snapshot
+[0:] [08:42:33.248] INFO : [PfizerTest] ✅ Found broker account snapshot
 
-[0:] [21:49:33.725] INFO : [PfizerTest] MovementCounter: 4 (expected 4)
+[0:] [08:42:33.254] INFO : [PfizerTest] MovementCounter: 4 (expected 4)
 
-[0:] [21:49:33.735] INFO : [PfizerTest] OptionsIncome: $175.52 (expected $175.52)
+[0:] [08:42:33.262] INFO : [PfizerTest] OptionsIncome: $175.52 (expected $175.52)
 
-[0:] [21:49:33.746] INFO : [PfizerTest] RealizedGains: $0.00 (expected $0.00)
+[0:] [08:42:33.269] INFO : [PfizerTest] RealizedGains: $0.00 (expected $0.00)
 
-[0:] [21:49:33.758] INFO : [PfizerTest] UnrealizedGains: $0.00 (expected $0.00)
+[0:] [08:42:33.277] INFO : [PfizerTest] UnrealizedGains: $0.00 (expected $0.00)
 
-[0:] [21:49:33.773] INFO : [PfizerTest] Validating PFE TickerSnapshots...
+[0:] [08:42:33.283] INFO : [PfizerTest] Validating PFE TickerSnapshots...
 
-[0:] [21:49:33.789] INFO : [PfizerTest] ✅ Found PFE ticker with ID: 2
+[0:] [08:42:33.291] INFO : [PfizerTest] ✅ Found PFE ticker with ID: 2
 
-[0:] [21:49:33.799] INFO : [PfizerTest] Calling Tickers.GetSnapshots...
+[0:] [08:42:33.297] INFO : [PfizerTest] Calling Tickers.GetSnapshots...
 
-[0:] [21:49:33.847] INFO : [PfizerTest] ✅ Tickers.GetSnapshots returned 4 snapshots
+[0:] [08:42:33.326] INFO : [PfizerTest] ✅ Tickers.GetSnapshots returned 4 snapshots
 
-[0:] [21:49:33.854] INFO : [PfizerTest] === ALL Retrieved PFE Snapshots ===
+[0:] [08:42:33.331] INFO : [PfizerTest] === ALL Retrieved PFE Snapshots ===
 
-[0:] [21:49:33.863] INFO : [PfizerTest]   [1] Date=2025-08-25, Ticker=PFE, Options=$-555.12, Unrealized=$0.00, Realized=$0.00, TotalShares=0.00, CostBasis=$0.00
+[0:] [08:42:33.338] INFO : [PfizerTest]   [1] Date=2025-08-25, Ticker=PFE, Options=$-555.12, Unrealized=$0.00, Realized=$0.00, TotalShares=0.00, CostBasis=$0.00
 
-[0:] [21:49:33.873] INFO : [PfizerTest]   [2] Date=2025-10-01, Ticker=PFE, Options=$-505.24, Unrealized=$0.00, Realized=$-505.24, TotalShares=0.00, CostBasis=$0.00
+[0:] [08:42:33.343] INFO : [PfizerTest]   [2] Date=2025-10-01, Ticker=PFE, Options=$-505.24, Unrealized=$0.00, Realized=$-505.24, TotalShares=0.00, CostBasis=$0.00
 
-[0:] [21:49:33.880] INFO : [PfizerTest]   [3] Date=2025-10-03, Ticker=PFE, Options=$175.52, Unrealized=$0.00, Realized=$175.52, TotalShares=0.00, CostBasis=$0.00
+[0:] [08:42:33.350] INFO : [PfizerTest]   [3] Date=2025-10-03, Ticker=PFE, Options=$175.52, Unrealized=$0.00, Realized=$175.52, TotalShares=0.00, CostBasis=$0.00
 
-[0:] [21:49:33.888] INFO : [PfizerTest]   [4] Date=2025-10-05, Ticker=PFE, Options=$175.52, Unrealized=$0.00, Realized=$175.52, TotalShares=0.00, CostBasis=$0.00
+[0:] [08:42:33.357] INFO : [PfizerTest]   [4] Date=2025-10-06, Ticker=PFE, Options=$175.52, Unrealized=$0.00, Realized=$175.52, TotalShares=0.00, CostBasis=$0.00
 
-[0:] [21:49:33.895] INFO : [PfizerTest] PFE snapshots retrieved: 4 (expected 3) - FAIL
+[0:] [08:42:33.364] INFO : [PfizerTest] PFE snapshots retrieved: 4 (expected 4) - PASS
 
-[0:] [21:49:33.904] INFO : [PfizerTest] === Individual PFE TickerSnapshot Validation ===
+[0:] [08:42:33.372] INFO : [PfizerTest] === Individual PFE TickerSnapshot Validation ===
 
-[0:] [21:49:33.918] INFO : [PfizerTest] === Validate Individual PFE Snapshots ===
+[0:] [08:42:33.380] INFO : [PfizerTest] === Validate Individual PFE Snapshots ===
 
-[0:] [21:49:33.926] INFO : [PfizerTest] Total PFE snapshots to validate: 4
+[0:] [08:42:33.386] INFO : [PfizerTest] Total PFE snapshots to validate: 4
 
-[0:] [21:49:33.934] INFO : [PfizerTest]   Snapshot [1]: Date=2025-08-25, Options=-555.12, Unrealized=0.00, Realized=0.00, TotalShares=0.00
+[0:] [08:42:33.392] INFO : [PfizerTest]   Snapshot [1]: Date=2025-08-25, Options=-555.12, Unrealized=0.00, Realized=0.00, TotalShares=0.00
 
-[0:] [21:49:33.945] INFO : [PfizerTest]   Snapshot [2]: Date=2025-10-01, Options=-505.24, Unrealized=0.00, Realized=-505.24, TotalShares=0.00
+[0:] [08:42:33.397] INFO : [PfizerTest]   Snapshot [2]: Date=2025-10-01, Options=-505.24, Unrealized=0.00, Realized=-505.24, TotalShares=0.00
 
-[0:] [21:49:33.954] INFO : [PfizerTest]   Snapshot [3]: Date=2025-10-03, Options=175.52, Unrealized=0.00, Realized=175.52, TotalShares=0.00
+[0:] [08:42:33.403] INFO : [PfizerTest]   Snapshot [3]: Date=2025-10-03, Options=175.52, Unrealized=0.00, Realized=175.52, TotalShares=0.00
 
-[0:] [21:49:33.962] INFO : [PfizerTest]   Snapshot [4]: Date=2025-10-05, Options=175.52, Unrealized=0.00, Realized=175.52, TotalShares=0.00
+[0:] [08:42:33.409] INFO : [PfizerTest]   Snapshot [4]: Date=2025-10-06, Options=175.52, Unrealized=0.00, Realized=175.52, TotalShares=0.00
 
-[0:] [21:49:33.973] ERROR: [PfizerTest] ❌ PFE Snapshot count mismatch: Expected 3, Got 4
+[0:] [08:42:33.414] INFO : [PfizerTest] --- Validating Snapshot [1/4]: 2025-08-25 ---
 
-[0:] [21:49:33.985] INFO : [PfizerTest] Final result - Success: False
+[0:] [08:42:33.420] INFO : [PfizerTest]   Date: Expected=2025-08-25, Actual=2025-08-25, Match=True
 
-[0:] [21:49:33.995] INFO : [PfizerTest] Cleaning up temp file: /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6cc357e9-68f0-4e05-b6cf-b4023d0a6644.csv
+[0:] [08:42:33.427] INFO : [PfizerTest]   TotalShares: Expected=0.00, Actual=0.00, Match=True
 
-[0:] [21:49:34.008] INFO : [PfizerTest] ❌ TEST FAILED
+[0:] [08:42:33.433] INFO : [PfizerTest]   Options: Expected=$-555.12, Actual=$-555.12, Match=True
 
-[0:] [21:49:34.015] DEBUG: [PfizerTest] Stopping reactive observations...
+[0:] [08:42:33.439] INFO : [PfizerTest]   CostBasis: Expected=$0.00, Actual=$0.00, Match=True
 
-[0:] [21:49:34.040] INFO : [PfizerTest] Test execution completed
+[0:] [08:42:33.445] INFO : [PfizerTest]   RealCost: Expected=$0.00, Actual=$0.00, Match=True
 
-[0:] ERROR: [21:49:34.048] ERROR: Execute Reactive Pfizer Import Integration Test failed in 00:07.358: === Reactive Pfizer Import Integration Test ===
+[0:] [08:42:33.450] INFO : [PfizerTest]   Unrealized: Expected=$-555.12, Actual=$0.00, Match=False
+
+[0:] [08:42:33.456] INFO : [PfizerTest]   Realized: Expected=$0.00, Actual=$0.00, Match=True
+
+[0:] [08:42:33.463] ERROR: [PfizerTest] ❌ [1/4] 2025-08-25: Unrealized: Expected $-555.12, Got $0.00 (Δ $555.12)
+
+[0:] [08:42:33.469] INFO : [PfizerTest] --- Validating Snapshot [2/4]: 2025-10-01 ---
+
+[0:] [08:42:33.475] INFO : [PfizerTest]   Date: Expected=2025-10-01, Actual=2025-10-01, Match=True
+
+[0:] [08:42:33.481] INFO : [PfizerTest]   TotalShares: Expected=0.00, Actual=0.00, Match=True
+
+[0:] [08:42:33.487] INFO : [PfizerTest]   Options: Expected=$-505.24, Actual=$-505.24, Match=True
+
+[0:] [08:42:33.493] INFO : [PfizerTest]   CostBasis: Expected=$0.00, Actual=$0.00, Match=True
+
+[0:] [08:42:33.499] INFO : [PfizerTest]   RealCost: Expected=$0.00, Actual=$0.00, Match=True
+
+[0:] [08:42:33.505] INFO : [PfizerTest]   Unrealized: Expected=$-505.24, Actual=$0.00, Match=False
+
+[0:] [08:42:33.511] INFO : [PfizerTest]   Realized: Expected=$0.00, Actual=$-505.24, Match=False
+
+[0:] [08:42:33.517] ERROR: [PfizerTest] ❌ [2/4] 2025-10-01: Unrealized: Expected $-505.24, Got $0.00 (Δ $505.24) | Realized: Expected $0.00, Got $-505.24 (Δ $505.24)
+
+[0:] [08:42:33.524] INFO : [PfizerTest] --- Validating Snapshot [3/4]: 2025-10-03 ---
+
+[0:] [08:42:33.530] INFO : [PfizerTest]   Date: Expected=2025-10-03, Actual=2025-10-03, Match=True
+
+[0:] [08:42:33.536] INFO : [PfizerTest]   TotalShares: Expected=0.00, Actual=0.00, Match=True
+
+[0:] [08:42:33.541] INFO : [PfizerTest]   Options: Expected=$175.52, Actual=$175.52, Match=True
+
+[0:] [08:42:33.548] INFO : [PfizerTest]   CostBasis: Expected=$0.00, Actual=$0.00, Match=True
+
+[0:] [08:42:33.554] INFO : [PfizerTest]   RealCost: Expected=$0.00, Actual=$0.00, Match=True
+
+[0:] [08:42:33.560] INFO : [PfizerTest]   Unrealized: Expected=$0.00, Actual=$0.00, Match=True
+
+[0:] [08:42:33.566] INFO : [PfizerTest]   Realized: Expected=$175.52, Actual=$175.52, Match=True
+
+[0:] [08:42:33.573] INFO : [PfizerTest] ✅ [3/4] 2025-10-03: TotalShares=0.00, Options=$175.52, Unrealized=$0.00, Realized=$175.52
+
+[0:] [08:42:33.578] INFO : [PfizerTest] --- Validating Snapshot [4/4]: 2025-10-05 ---
+
+[0:] [08:42:33.585] INFO : [PfizerTest]   Date: Expected=2025-10-05, Actual=2025-10-06, Match=False
+
+[0:] [08:42:33.591] INFO : [PfizerTest]   TotalShares: Expected=0.00, Actual=0.00, Match=True
+
+[0:] [08:42:33.597] INFO : [PfizerTest]   Options: Expected=$175.52, Actual=$175.52, Match=True
+
+[0:] [08:42:33.603] INFO : [PfizerTest]   CostBasis: Expected=$0.00, Actual=$0.00, Match=True
+
+[0:] [08:42:33.609] INFO : [PfizerTest]   RealCost: Expected=$0.00, Actual=$0.00, Match=True
+
+[0:] [08:42:33.615] INFO : [PfizerTest]   Unrealized: Expected=$0.00, Actual=$0.00, Match=True
+
+[0:] [08:42:33.620] INFO : [PfizerTest]   Realized: Expected=$175.52, Actual=$175.52, Match=True
+
+[0:] [08:42:33.627] ERROR: [PfizerTest] ❌ [4/4] 2025-10-05: Date: Expected 2025-10-05, Got 2025-10-06
+
+[0:] [08:42:33.633] INFO : [PfizerTest] 
+PFE Snapshot Validation Summary: 1 passed, 3 failed out of 4 total
+
+[0:] [08:42:33.639] INFO : [PfizerTest] 
+=== Validating TickerCurrencySnapshots per TickerSnapshot ===
+
+[0:] [08:42:33.645] INFO : [PfizerTest] --- Currency Snapshot Validation [1/3]: 2025-08-25 ---
+
+[0:] [08:42:33.651] INFO : [PfizerTest]   HasMainCurrency: True
+
+[0:] [08:42:33.657] INFO : [PfizerTest]   OtherCurrenciesCount: 0
+
+[0:] [08:42:33.663] INFO : [PfizerTest]   Currency: USD
+
+[0:] [08:42:33.669] INFO : [PfizerTest] ✅ [1/3] 2025-08-25: 1 currency snapshot (USD)
+
+[0:] [08:42:33.675] INFO : [PfizerTest] --- Currency Snapshot Validation [2/3]: 2025-10-01 ---
+
+[0:] [08:42:33.681] INFO : [PfizerTest]   HasMainCurrency: True
+
+[0:] [08:42:33.687] INFO : [PfizerTest]   OtherCurrenciesCount: 0
+
+[0:] [08:42:33.692] INFO : [PfizerTest]   Currency: USD
+
+[0:] [08:42:33.698] INFO : [PfizerTest] ✅ [2/3] 2025-10-01: 1 currency snapshot (USD)
+
+[0:] [08:42:33.703] INFO : [PfizerTest] --- Currency Snapshot Validation [3/3]: 2025-10-03 ---
+
+[0:] [08:42:33.709] INFO : [PfizerTest]   HasMainCurrency: True
+
+[0:] [08:42:33.715] INFO : [PfizerTest]   OtherCurrenciesCount: 0
+
+[0:] [08:42:33.723] INFO : [PfizerTest]   Currency: USD
+
+[0:] [08:42:33.728] INFO : [PfizerTest] ✅ [3/3] 2025-10-03: 1 currency snapshot (USD)
+
+[0:] [08:42:33.734] INFO : [PfizerTest] --- Currency Snapshot Validation [4/3]: 2025-10-05 ---
+
+[0:] [08:42:33.740] INFO : [PfizerTest]   HasMainCurrency: True
+
+[0:] [08:42:33.746] INFO : [PfizerTest]   OtherCurrenciesCount: 0
+
+[0:] [08:42:33.751] INFO : [PfizerTest]   Currency: USD
+
+[0:] [08:42:33.757] INFO : [PfizerTest] ✅ [4/3] 2025-10-05: 1 currency snapshot (USD)
+
+[0:] [08:42:33.762] INFO : [PfizerTest] 
+TickerCurrencySnapshot Count Validation: 4 passed, 0 failed out of 4 total
+
+[0:] [08:42:33.768] INFO : [PfizerTest] Final result - Success: False
+
+[0:] [08:42:33.774] INFO : [PfizerTest] Cleaning up temp file: /data/user/0/com.companyname.core.platform.mauitester/cache/pfizer_test_6a6d7c51-b8eb-48fe-a094-1ceac46febfd.csv
+
+[0:] [08:42:33.780] INFO : [PfizerTest] ❌ TEST FAILED
+
+[0:] [08:42:33.785] DEBUG: [PfizerTest] Stopping reactive observations...
+
+[0:] [08:42:33.800] INFO : [PfizerTest] Test execution completed
+
+[0:] ERROR: [08:42:33.807] ERROR: Execute Reactive Pfizer Import Integration Test failed in 00:04.860: === Reactive Pfizer Import Integration Test ===
 === Validation Results ===
 Collections.Movements: Expected 4, Got 4 - ✅ PASS
 Tickers: Expected 2, Got 2 - ✅ PASS
@@ -2149,26 +2270,43 @@ Database MovementCounter: Expected 4, Got 4 - ✅ PASS
 OptionsIncome: Expected $175.52, Got $175.52 - ✅ PASS
 RealizedGains: Expected $0.00, Got $0.00 - ✅ PASS
 UnrealizedGains: Expected $0.00, Got $0.00 - ✅ PASS
-Tickers.GetSnapshots (PFE): Expected 3, Got 4 - ❌ FAIL
+Tickers.GetSnapshots (PFE): Expected 4, Got 4 - ✅ PASS
 
 === Individual PFE TickerSnapshot Validation (Date-by-Date) ===
-❌ PFE Snapshot count mismatch: Expected 3, Got 4
+❌ [1/4] 2025-08-25: Unrealized: Expected $-555.12, Got $0.00 (Δ $555.12)
+❌ [2/4] 2025-10-01: Unrealized: Expected $-505.24, Got $0.00 (Δ $505.24) | Realized: Expected $0.00, Got $-505.24 (Δ $505.24)
+✅ [3/4] 2025-10-03: TotalShares=0.00, Options=$175.52, Unrealized=$0.00, Realized=$175.52
+❌ [4/4] 2025-10-05: Date: Expected 2025-10-05, Got 2025-10-06
+
+PFE Snapshot Validation Summary: 1 passed, 3 failed out of 4 total
+
+=== TickerCurrencySnapshots per TickerSnapshot Validation ===
+✅ [1/3] 2025-08-25: 1 currency snapshot (USD)
+✅ [2/3] 2025-10-01: 1 currency snapshot (USD)
+✅ [3/3] 2025-10-03: 1 currency snapshot (USD)
+✅ [4/3] 2025-10-05: 1 currency snapshot (USD)
+
+TickerCurrencySnapshot Count Validation: 4 passed, 0 failed out of 4 total
 
 ❌ TEST FAILED
 
-[0:] LOG: [21:49:34.069] Pfizer Import Integration Test test execution completed. Overall result: False
+[0:] LOG: [08:42:33.824] Pfizer Import Integration Test test execution completed. Overall result: False
 
-[Choreographer] Skipped 452 frames!  The application may be doing too much work on its main thread.
+[Choreographer] Skipped 298 frames!  The application may be doing too much work on its main thread.
 
-[form.mauitester] Explicit concurrent copying GC freed 147KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4694KB/9388KB, paused 155us,37us total 9.507ms
+[form.mauitester] Explicit concurrent copying GC freed 91KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4628KB/9257KB, paused 153us,38us total 8.096ms
 
-[form.mauitester] Explicit concurrent copying GC freed 215KB AllocSpace bytes, 31(976KB) LOS objects, 49% free, 4687KB/9374KB, paused 125us,37us total 8.177ms
+[HWUI] Davey! duration=5201ms; Flags=0, FrameTimelineVsyncId=14449, IntendedVsync=144432345890, Vsync=149399012358, InputEventId=0, HandleInputStart=149414645400, AnimationStart=149414677300, PerformTraversalsStart=149414706900, DrawStart=149585964700, FrameDeadline=149615679016, FrameStartTime=149414432300, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=149596021200, SyncStart=149596166700, IssueDrawCommandsStart=149596318600, SwapBuffers=149618570300, FrameCompleted=149633881600, DequeueBufferDuration=41500, QueueBufferDuration=119200, GpuCompleted=149633881600, SwapBuffersCompleted=149619079800, DisplayPresentTime=0, CommandSubmissionCompleted=149618570300, 
 
-[form.mauitester] Explicit concurrent copying GC freed 112KB AllocSpace bytes, 30(960KB) LOS objects, 49% free, 4686KB/9372KB, paused 140us,40us total 8.320ms
+[form.mauitester] Explicit concurrent copying GC freed 122KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4698KB/9396KB, paused 154us,40us total 7.756ms
 
-[form.mauitester] Explicit concurrent copying GC freed 80KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4686KB/9372KB, paused 124us,36us total 7.546ms
+[form.mauitester] Explicit concurrent copying GC freed 213KB AllocSpace bytes, 31(976KB) LOS objects, 49% free, 4692KB/9385KB, paused 151us,37us total 8.256ms
 
-[form.mauitester] Explicit concurrent copying GC freed 80KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4686KB/9372KB, paused 154us,45us total 8.226ms
+[form.mauitester] Explicit concurrent copying GC freed 112KB AllocSpace bytes, 30(960KB) LOS objects, 49% free, 4692KB/9384KB, paused 170us,42us total 7.605ms
 
-[form.mauitester] Explicit concurrent copying GC freed 56KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4677KB/9355KB, paused 119us,45us total 7.884ms
+[form.mauitester] Explicit concurrent copying GC freed 128KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4692KB/9384KB, paused 152us,35us total 8.137ms
+
+[form.mauitester] Explicit concurrent copying GC freed 49KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4690KB/9381KB, paused 124us,36us total 7.648ms
+
+[form.mauitester] Explicit concurrent copying GC freed 60KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 4678KB/9357KB, paused 115us,36us total 6.294ms
 
