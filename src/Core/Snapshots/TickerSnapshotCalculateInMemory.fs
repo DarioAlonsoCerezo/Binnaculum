@@ -22,6 +22,10 @@ module internal TickerSnapshotCalculateInMemory =
             Dividends: Dividend list
             DividendTaxes: DividendTax list
             OptionTrades: OptionTrade list
+            /// ALL opening option trades (BuyToOpen/SellToOpen) for this ticker/currency
+            /// Includes both currently open and historically closed opening trades
+            /// Used for temporal unrealized gains calculation (checking which were open at snapshot date)
+            AllOpeningTrades: OptionTrade list
             /// ALL closed option trades for this ticker/currency (not just current date)
             /// Used for accurate realized gains calculation across historical round-trips
             AllClosedOptionTrades: OptionTrade list
@@ -101,7 +105,7 @@ module internal TickerSnapshotCalculateInMemory =
         // Calculate unrealized gains/losses from open positions only:
         // 1. Shares: (market value - cost basis)
         // 2. Open options: net premium of positions still open
-        // 
+        //
         // Dividends and Realized are tracked separately in their own fields
 
         // Shares unrealized
@@ -110,44 +114,35 @@ module internal TickerSnapshotCalculateInMemory =
 
         // Options unrealized (only open positions at this snapshot date)
         // Check if the trade was open AS OF the snapshot date by comparing timestamps
-        // A trade is considered open if:
-        // 1. It's an opening trade (BuyToOpen/SellToOpen)
-        // 2. It was not closed before or on the snapshot date
+        // Use AllOpeningTrades which contains ALL opening trades (BuyToOpen/SellToOpen)
+        // regardless of their final IsOpen status, allowing temporal evaluation
         let normalizedSnapshotDate = SnapshotManagerUtils.normalizeToStartOfDay date
-        
+
         let openOptionsUnrealized =
-            movements.OptionTrades
+            movements.AllOpeningTrades
             |> List.filter (fun opt ->
-                // Must be an opening trade
-                match opt.Code with
-                | OptionCode.BuyToOpen
-                | OptionCode.SellToOpen ->
-                    // Check if it was closed by comparing with the closing trade's timestamp
-                    match opt.ClosedWith with
-                    | Some closingTradeId ->
-                        // Find the closing trade in all option trades
-                        let closingTrade =
-                            movements.AllClosedOptionTrades
-                            |> List.tryFind (fun t -> t.Id = closingTradeId)
-                        
-                        match closingTrade with
-                        | Some ct ->
-                            let normalizedClosingDate = SnapshotManagerUtils.normalizeToStartOfDay ct.TimeStamp
-                            // Trade was open if closing happened AFTER snapshot date
-                            normalizedClosingDate.Value > normalizedSnapshotDate.Value
-                        | None ->
-                            // Closing trade not found in our dataset - consider it open
-                            true
+                // Already filtered to opening trades, now check temporal state
+                match opt.ClosedWith with
+                | Some closingTradeId ->
+                    // Find the closing trade in all option trades
+                    let closingTrade =
+                        movements.AllClosedOptionTrades |> List.tryFind (fun t -> t.Id = closingTradeId)
+
+                    match closingTrade with
+                    | Some ct ->
+                        let normalizedClosingDate = SnapshotManagerUtils.normalizeToStartOfDay ct.TimeStamp
+                        // Trade was open if closing happened AFTER snapshot date
+                        normalizedClosingDate.Value > normalizedSnapshotDate.Value
                     | None ->
-                        // Not closed yet - definitely open
+                        // Closing trade not found in our dataset - consider it open
                         true
-                | _ ->
-                    // Closing trades don't contribute to open positions
-                    false)
+                | None ->
+                    // Not closed yet - definitely open
+                    true)
             |> List.sumBy (fun opt -> opt.NetPremium.Value)
 
         // Total unrealized = shares unrealized + open options unrealized (positions still in market)
-        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)        // Calculate realized gains from closed option positions
+        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized) // Calculate realized gains from closed option positions
         //
         // Now properly implemented with access to ALL closed option trades for this ticker!
         // The batch loader provides all historical closed trades, allowing accurate round-trip calculations.
@@ -295,7 +290,7 @@ module internal TickerSnapshotCalculateInMemory =
         // Calculate unrealized gains/losses from open positions only:
         // 1. Shares: (market value - cost basis)
         // 2. Open options: net premium of positions still open
-        // 
+        //
         // Dividends and Realized are tracked separately in their own fields
 
         // Shares unrealized
@@ -304,47 +299,39 @@ module internal TickerSnapshotCalculateInMemory =
 
         // Options unrealized (only open positions at this snapshot date)
         // Check if the trade was open AS OF the snapshot date by comparing timestamps
-        // A trade is considered open if:
-        // 1. It's an opening trade (BuyToOpen/SellToOpen)
-        // 2. It was not closed before or on the snapshot date
+        // Use AllOpeningTrades which contains ALL opening trades (BuyToOpen/SellToOpen)
+        // regardless of their final IsOpen status, allowing temporal evaluation
         let normalizedSnapshotDate = SnapshotManagerUtils.normalizeToStartOfDay date
-        
+
         let openOptionsUnrealized =
-            movements.OptionTrades
+            movements.AllOpeningTrades
             |> List.filter (fun opt ->
-                // Must be an opening trade
-                match opt.Code with
-                | OptionCode.BuyToOpen
-                | OptionCode.SellToOpen ->
-                    // Check if it was closed by comparing with the closing trade's timestamp
-                    match opt.ClosedWith with
-                    | Some closingTradeId ->
-                        // Find the closing trade in all option trades
-                        let closingTrade =
-                            movements.AllClosedOptionTrades
-                            |> List.tryFind (fun t -> t.Id = closingTradeId)
-                        
-                        match closingTrade with
-                        | Some ct ->
-                            let normalizedClosingDate = SnapshotManagerUtils.normalizeToStartOfDay ct.TimeStamp
-                            // Trade was open if closing happened AFTER snapshot date
-                            normalizedClosingDate.Value > normalizedSnapshotDate.Value
-                        | None ->
-                            // Closing trade not found in our dataset - consider it open
-                            true
+                // Already filtered to opening trades, now check temporal state
+                match opt.ClosedWith with
+                | Some closingTradeId ->
+                    // Find the closing trade in all option trades
+                    let closingTrade =
+                        movements.AllClosedOptionTrades |> List.tryFind (fun t -> t.Id = closingTradeId)
+
+                    match closingTrade with
+                    | Some ct ->
+                        let normalizedClosingDate = SnapshotManagerUtils.normalizeToStartOfDay ct.TimeStamp
+                        // Trade was open if closing happened AFTER snapshot date
+                        normalizedClosingDate.Value > normalizedSnapshotDate.Value
                     | None ->
-                        // Not closed yet - definitely open
+                        // Closing trade not found in our dataset - consider it open
                         true
-                | _ ->
-                    // Closing trades don't contribute to open positions
-                    false)
+                | None ->
+                    // Not closed yet - definitely open
+                    true)
             |> List.sumBy (fun opt -> opt.NetPremium.Value)
 
         // Total unrealized = shares unrealized + open options unrealized (positions still in market)
         let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)
 
         // Calculate realized gains (zero for initial snapshot)
-        let realized = Money.FromAmount(0.0m)        // Calculate performance percentage
+        let realized = Money.FromAmount(0.0m) // Calculate performance percentage
+
         let performance =
             if costBasis.Value <> 0.0m then
                 (unrealized.Value / costBasis.Value) * 100.0m
@@ -539,6 +526,11 @@ module internal TickerSnapshotCalculateInMemory =
             allMovements.AllClosedOptionTrades.TryFind(tickerCurrencyKey)
             |> Option.defaultValue []
 
+        // Get ALL opening option trades for this ticker/currency (not filtered by date)
+        // This is needed for temporal unrealized gains calculation
+        let allOpeningTrades =
+            allMovements.AllOpeningTrades.TryFind(tickerCurrencyKey) |> Option.defaultValue []
+
         // Only return Some if there are any movements
         if
             trades.IsEmpty
@@ -553,6 +545,7 @@ module internal TickerSnapshotCalculateInMemory =
                   Dividends = dividends
                   DividendTaxes = dividendTaxes
                   OptionTrades = optionTrades
+                  AllOpeningTrades = allOpeningTrades
                   AllClosedOptionTrades = allClosedOptionTrades }
 
     /// <summary>
