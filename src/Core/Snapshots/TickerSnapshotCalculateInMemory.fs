@@ -186,8 +186,9 @@ module internal TickerSnapshotCalculateInMemory =
                 0.0m
 
         // Check for open trades - include both share positions and open option trades
+        // Use temporal check: if openOptionsUnrealized is non-zero, there are open options at this snapshot date
         let hasOpenShares = totalShares <> 0.0m
-        let hasOpenOptions = movements.OptionTrades |> List.exists (fun opt -> opt.IsOpen)
+        let hasOpenOptions = openOptionsUnrealized <> 0.0m
         let openTrades = hasOpenShares || hasOpenOptions
 
         // Weight is not calculated here - it's calculated at TickerSnapshot level
@@ -339,8 +340,9 @@ module internal TickerSnapshotCalculateInMemory =
                 0.0m
 
         // Check for open trades - include both share positions and open option trades
+        // Use temporal check: if openOptionsUnrealized is non-zero, there are open options at this snapshot date
         let hasOpenShares = totalShares <> 0.0m
-        let hasOpenOptions = movements.OptionTrades |> List.exists (fun opt -> opt.IsOpen)
+        let hasOpenOptions = openOptionsUnrealized <> 0.0m
         let openTrades = hasOpenShares || hasOpenOptions
 
         // Weight is not calculated here - it's calculated at TickerSnapshot level
