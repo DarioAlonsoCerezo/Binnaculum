@@ -20,7 +20,7 @@ on:
       run_all_targets:
         description: 'Run tests on all available Windows targets'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 jobs:
@@ -52,6 +52,17 @@ jobs:
           dotnet-version: '9.0.x'
           cache: true
           cache-dependency-path: '**/Directory.Packages.props'
+
+      - name: Exclude MCP server from platform tests
+        if: ${{ !(matrix.target == 'net9.0-android' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_all_targets != 'true') }}
+        run: |
+          echo "Temporarily excluding MCP server from solution for platform tests..."
+          cp Binnaculum.sln Binnaculum.sln.backup
+          # Remove MCP project lines from solution file
+          sed -i '/Binnaculum\.MCP/,/EndProject/d' Binnaculum.sln
+          # Remove MCP project configuration lines
+          sed -i '/09ABB5C8-A92D-FC3A-7903-B7EBAE916269/,+10d' Binnaculum.sln
+        shell: bash
           
       - name: Cache MAUI Workloads
         if: ${{ !(matrix.target == 'net9.0-android' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_all_targets != 'true') }}
@@ -139,6 +150,15 @@ jobs:
           echo "- **Coverage**: Overview.InitDatabase(), Overview.LoadData(), Collections validation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "These tests validate the same workflows that the MAUI app uses in production." >> $GITHUB_STEP_SUMMARY
+
+      - name: Restore MCP server in solution
+        if: ${{ always() && !(matrix.target == 'net9.0-android' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_all_targets != 'true') }}
+        run: |
+          echo "Restoring MCP server to solution file..."
+          if [ -f Binnaculum.sln.backup ]; then
+            mv Binnaculum.sln.backup Binnaculum.sln
+          fi
+        shell: bash
 
   platform-test-summary:
     name: Platform Test Summary
