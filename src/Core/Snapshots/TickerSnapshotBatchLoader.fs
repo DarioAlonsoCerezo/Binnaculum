@@ -263,7 +263,8 @@ module internal TickerSnapshotBatchLoader =
                     |> Array.collect (List.toArray)
                     |> Array.filter (fun (ot: OptionTrade) ->
                         match ot.Code with
-                        | OptionCode.BuyToOpen | OptionCode.SellToOpen -> true
+                        | OptionCode.BuyToOpen
+                        | OptionCode.SellToOpen -> true
                         | _ -> false)
                     |> Array.groupBy (fun (ot: OptionTrade) -> (ot.TickerId, ot.CurrencyId))
                     |> Array.map (fun (key, options) -> (key, Array.toList options))
