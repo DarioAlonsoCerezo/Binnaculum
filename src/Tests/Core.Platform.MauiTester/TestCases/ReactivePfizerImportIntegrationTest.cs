@@ -170,12 +170,7 @@ namespace Core.Platform.MauiTester.TestCases
                 // PFE 27.00 CALL 10/10/25: $49.88 (SELL_TO_OPEN) - $64.12 (BUY_TO_CLOSE) = -$14.24
                 // PFE 20.00 CALL 01/16/26: $744.88 (SELL_TO_CLOSE) - $555.12 (BUY_TO_OPEN) = $189.76
                 // Total Realized: -$14.24 + $189.76 = $175.52
-                // 
-                // IMPORTANT: Based on actual test results, the system reports $0.00 for RealizedGains.
-                // This may be due to the options closing logic or how the system tracks realized vs unrealized.
-                // The OptionsIncome correctly shows $175.52, but RealizedGains shows $0.00.
-                // This needs investigation in the Core library's options calculation logic.
-                const decimal EXPECTED_REALIZED_GAINS = 0.00m; // System reports 0.00, not 175.52
+                const decimal EXPECTED_REALIZED_GAINS = 175.52m;
 
                 // Unrealized Gains: Net premium from OPEN positions (not yet closed)
                 // Based on test results, all gains appear to be in OptionsIncome, not RealizedGains
@@ -286,8 +281,9 @@ namespace Core.Platform.MauiTester.TestCases
                                 $"TotalShares={mainCurrency.TotalShares:F2}, CostBasis=${mainCurrency.CostBasis:F2}");
                         }
 
-                        // Expected: 4 snapshots (2025-08-25, 2025-10-01, 2025-10-03, 2025-10-05)
-                        // 3 from CSV data + 1 for today (current date snapshot)
+                        // Expected: 4 snapshots (2025-08-25, 2025-10-01, 2025-10-03 + today's snapshot)
+                        // 3 from CSV data + 1 for today's date (current date snapshot)
+                        // Note: The 4th snapshot is for today's date (2025-10-16 when test runs)
                         const int EXPECTED_PFE_SNAPSHOTS = 4;
                         bool pfeSnapshotCountValid = pfeSnapshotCount == EXPECTED_PFE_SNAPSHOTS;
                         results.Add($"Tickers.GetSnapshots (PFE): Expected {EXPECTED_PFE_SNAPSHOTS}, Got {pfeSnapshotCount} - {(pfeSnapshotCountValid ? "✅ PASS" : "❌ FAIL")}");
@@ -374,9 +370,9 @@ namespace Core.Platform.MauiTester.TestCases
                 // Realized: $175.52 (cumulative realized gains from all closed trades)
                 (new DateOnly(2025, 10, 3), 0.00m, 175.52m, 0.00m, 0.00m, 0.00m, 175.52m),
                 
-                // 2025-10-05: Today's snapshot - carry forward from 10-03 (no movements)
+                // Today's snapshot - carry forward all values (no new movements since 10-03)
                 // All values same as 10-03 (no new activity)
-                (new DateOnly(2025, 10, 5), 0.00m, 175.52m, 0.00m, 0.00m, 0.00m, 175.52m)
+                (DateOnly.FromDateTime(DateTime.Today), 0.00m, 175.52m, 0.00m, 0.00m, 0.00m, 175.52m)
             };
 
             // Convert F# list to C# list and sort by date
@@ -414,7 +410,7 @@ namespace Core.Platform.MauiTester.TestCases
                 var actual = pfeSnapshots[i];
                 var mainCurrency = actual.MainCurrency;
 
-                CoreLogger.logInfo("PfizerTest", $"--- Validating Snapshot [{i + 1}/4]: {expected.date:yyyy-MM-dd} ---");
+                CoreLogger.logInfo("PfizerTest", $"--- Validating Snapshot [{i + 1}/{expectedSnapshots.Count}]: {expected.date:yyyy-MM-dd} ---");
 
                 var dateMatch = actual.Date == expected.date;
                 var totalSharesMatch = Math.Abs(mainCurrency.TotalShares - expected.totalShares) <= TOLERANCE;
@@ -436,7 +432,7 @@ namespace Core.Platform.MauiTester.TestCases
                                    realCostMatch && unrealizedMatch && realizedMatch; if (snapshotValid)
                 {
                     passedCount++;
-                    var msg = $"✅ [{i + 1}/4] {expected.date:yyyy-MM-dd}: TotalShares={mainCurrency.TotalShares:F2}, Options=${mainCurrency.Options:F2}, Unrealized=${mainCurrency.Unrealized:F2}, Realized=${mainCurrency.Realized:F2}";
+                    var msg = $"✅ [{i + 1}/{expectedSnapshots.Count}] {expected.date:yyyy-MM-dd}: TotalShares={mainCurrency.TotalShares:F2}, Options=${mainCurrency.Options:F2}, Unrealized=${mainCurrency.Unrealized:F2}, Realized=${mainCurrency.Realized:F2}";
                     CoreLogger.logInfo("PfizerTest", msg);
                     results.Add(msg);
                 }
@@ -461,7 +457,7 @@ namespace Core.Platform.MauiTester.TestCases
                     if (!realizedMatch)
                         issues.Add($"Realized: Expected ${expected.realized:F2}, Got ${mainCurrency.Realized:F2} (Δ ${Math.Abs(mainCurrency.Realized - expected.realized):F2})");
 
-                    var msg = $"❌ [{i + 1}/4] {expected.date:yyyy-MM-dd}: {string.Join(" | ", issues)}";
+                    var msg = $"❌ [{i + 1}/{expectedSnapshots.Count}] {expected.date:yyyy-MM-dd}: {string.Join(" | ", issues)}";
                     CoreLogger.logError("PfizerTest", msg);
                     results.Add(msg);
                 }

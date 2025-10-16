@@ -143,7 +143,15 @@ module internal BrokerMovementBatchLoader =
             let trades = tradesByDate.TryFind(date) |> Option.defaultValue []
             let divs = dividendsByDate.TryFind(date) |> Option.defaultValue []
             let divTaxes = dividendTaxesByDate.TryFind(date) |> Option.defaultValue []
-            let optTrades = optionTradesByDate.TryFind(date) |> Option.defaultValue []
+
+            // CRITICAL FIX: Pass ALL cumulative option trades up to this date (not just today's trades)
+            // This allows FIFO matching in calculateOptionsSummary() to find opening trades when processing closing trades
+            // For example: on 2025-10-03 with closing trades, need opening trades from 2025-08-25 and 2025-10-01
+            let optTrades =
+                movements.OptionTrades
+                |> List.filter (fun ot ->
+                    let otDate = SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp
+                    otDate.Value <= date.Value)
 
             let movementData =
                 BrokerAccountMovementData.create date brokerAccountId brokerMovs trades divs divTaxes optTrades

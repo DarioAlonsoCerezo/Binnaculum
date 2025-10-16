@@ -921,6 +921,13 @@ type OptionTradeCalculations() =
 
         CoreLogger.logDebugf
             "OptionTradeCalculations"
+            "Realized gains calculation - TargetDate:%s TradesUpToTarget:%d TradesBeforeTarget:%d"
+            (targetDate.ToString("yyyy-MM-dd"))
+            tradesUpToTarget.Length
+            tradesBeforeTarget.Length
+
+        CoreLogger.logDebugf
+            "OptionTradeCalculations"
             "Realized breakdown - Cumulative:%M Previous:%M Daily:%M"
             cumulativeRealized.Value
             previousRealized.Value

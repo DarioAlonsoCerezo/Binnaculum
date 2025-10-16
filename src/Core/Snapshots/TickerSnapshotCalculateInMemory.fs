@@ -148,40 +148,35 @@ module internal TickerSnapshotCalculateInMemory =
             |> List.sumBy (fun opt -> opt.NetPremium.Value)
 
         // Total unrealized = shares unrealized + open options unrealized (positions still in market)
-        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized) // Calculate realized gains from closed option positions
+        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)
+
+        // Calculate realized gains from closed option positions using proper FIFO pair matching
+        // This uses OptionTradeCalculations.calculateRealizedGains which properly
+        // matches opening trades with their corresponding closing trades.
+        // For example:
+        // - Pair 1: BuyToOpen (Trade #1, 8/25, -555.12) + SellToClose (Trade #3, 10/3, +744.88) = +189.76
+        // - Pair 2: SellToOpen (Trade #2, 10/1, +49.88) + BuyToClose (Trade #4, 10/3, -64.12) = -14.24
+        // - Total realized on 2025-10-03: +189.76 - 14.24 = +175.52
         //
-        // Now properly implemented with access to ALL closed option trades for this ticker!
-        // The batch loader provides all historical closed trades, allowing accurate round-trip calculations.
-        //
-        // Realized gains = Total net premiums of all closed trades up to current date
-        // We subtract the previous snapshot's realized to get only NEW realized gains from this period.
-        //
-        // Example: If trades close on different dates:
-        // - 8/25: BuyToOpen (Trade #1) → initially IsOpen=true
-        // - 10/3: SellToClose (Trade #3) → Both #1 and #3 now have IsOpen=false
-        // - AllClosedOptionTrades contains BOTH trades, so we can calculate the full round-trip
-        //
-        // IMPORTANT: Normalize both dates to start-of-day for comparison to include all trades from the snapshot date
+        // We need to include only trades up to the snapshot date to ensure proper cumulative calculations
         let normalizedSnapshotDate = SnapshotManagerUtils.normalizeToStartOfDay date
 
-        let totalRealizedFromAllClosedTrades =
+        let tradesUpToSnapshot =
             movements.AllClosedOptionTrades
             |> List.filter (fun opt ->
-                let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp
+                let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp in
                 normalizedTradeDate.Value <= normalizedSnapshotDate.Value)
-            |> List.sumBy (fun opt -> opt.NetPremium.Value)
 
-        let realized = Money.FromAmount(totalRealizedFromAllClosedTrades)
+        // Use the official FIFO pair-matching calculation for accurate realized gains
+        // Call the static method directly on the extension type
+        let realized =
+            OptionTradeExtensions.OptionTradeCalculations.calculateRealizedGains (tradesUpToSnapshot, date.Value)
 
         CoreLogger.logDebugf
             "TickerSnapshotCalculateInMemory"
-            "Realized gains - Total closed trades: %d, Sum: %M (Previous: %M)"
-            (movements.AllClosedOptionTrades
-             |> List.filter (fun opt ->
-                 let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp
-                 normalizedTradeDate.Value <= normalizedSnapshotDate.Value)
-             |> List.length)
-            totalRealizedFromAllClosedTrades
+            "Realized gains - Total trades by snapshot date: %d, Calculated: %M (Previous: %M)"
+            tradesUpToSnapshot.Length
+            realized.Value
             previousSnapshot.Realized.Value
 
         // Calculate performance percentage

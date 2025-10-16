@@ -245,12 +245,14 @@ module internal TickerSnapshotBatchLoader =
                     (allDividendTaxes |> Array.sumBy (fun (arr: DividendTax list) -> arr.Length))
                     (allOptionTrades |> Array.sumBy (fun (arr: OptionTrade list) -> arr.Length))
 
-                // Group ALL closed option trades by (tickerId, currencyId) for realized gains calculation
-                // This gives access to historical closed trades needed for proper round-trip calculations
+                // Group ALL option trades by (tickerId, currencyId) for realized gains calculation
+                // This includes both opening and closing trades. The realized gains calculation
+                // will filter by closing codes (BuyToClose, SellToClose, Assigned, Exercised, etc.)
+                // to extract only realized gains from closed positions.
+                // We need ALL trades here so we can match opening trades with their closing partners.
                 let allClosedOptionTradesByTickerCurrency: Map<(int * int), OptionTrade list> =
                     allOptionTrades
                     |> Array.collect (List.toArray)
-                    |> Array.filter (fun (ot: OptionTrade) -> not ot.IsOpen)
                     |> Array.groupBy (fun (ot: OptionTrade) -> (ot.TickerId, ot.CurrencyId))
                     |> Array.map (fun (key, options) -> (key, Array.toList options))
                     |> Map.ofArray

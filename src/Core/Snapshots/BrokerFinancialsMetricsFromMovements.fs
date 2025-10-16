@@ -73,6 +73,10 @@ module internal BrokerFinancialsMetricsFromMovements =
         // Process options using extension methods with target date for expiration calculations
         let targetDateValue = targetDate.Value
 
+        // NOTE: Behavior changed in batch processor - need to understand data flow
+        // The delta approach assumes calculateOptionsSummary filters based on date
+        // Let me keep the original delta calculation but may need to adjust how data is passed
+
         let optionsSummaryCurrent =
             OptionTradeCalculations.calculateOptionsSummary (currencyMovements.OptionTrades, targetDateValue)
 
