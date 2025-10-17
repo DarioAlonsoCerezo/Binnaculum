@@ -25,14 +25,23 @@ module internal BrokerFinancialCalculate =
             Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
 
         // Calculate NetCashFlow as the actual contributed capital
+        // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
+        // We do NOT subtract Commissions and Fees separately to avoid double-counting
         let netCashFlow =
-            calculatedMetrics.Deposited.Value
-            - calculatedMetrics.Withdrawn.Value
-            - calculatedMetrics.Commissions.Value
-            - calculatedMetrics.Fees.Value
+            calculatedMetrics.Deposited.Value - calculatedMetrics.Withdrawn.Value
             + calculatedMetrics.DividendsReceived.Value
             + calculatedMetrics.OptionsIncome.Value
             + calculatedMetrics.OtherIncome.Value
+
+        CoreLogger.logDebugf
+            "BrokerFinancialCalculate"
+            "NetCashFlow calculation: Deposited=%M, Withdrawn=%M, DividendsReceived=%M, OptionsIncome=%M, OtherIncome=%M => NetCashFlow=%M"
+            calculatedMetrics.Deposited.Value
+            calculatedMetrics.Withdrawn.Value
+            calculatedMetrics.DividendsReceived.Value
+            calculatedMetrics.OptionsIncome.Value
+            calculatedMetrics.OtherIncome.Value
+            netCashFlow
 
         let unrealizedPercentage =
             if netCashFlow > 0m then

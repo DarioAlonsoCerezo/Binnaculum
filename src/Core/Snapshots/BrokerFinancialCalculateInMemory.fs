@@ -174,11 +174,10 @@ module internal BrokerFinancialCalculateInMemory =
             Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
 
         // Calculate cumulative NetCashFlow as the actual contributed capital
+        // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
+        // We do NOT subtract Commissions and Fees separately to avoid double-counting
         let cumulativeNetCashFlow =
-            cumulativeDeposited.Value
-            - cumulativeWithdrawn.Value
-            - cumulativeCommissions.Value
-            - cumulativeFees.Value
+            cumulativeDeposited.Value - cumulativeWithdrawn.Value
             + cumulativeDividendsReceived.Value
             + cumulativeOptionsIncome.Value
             + cumulativeOtherIncome.Value
@@ -330,11 +329,10 @@ module internal BrokerFinancialCalculateInMemory =
             Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
 
         // Calculate cumulative NetCashFlow as the actual contributed capital
+        // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
+        // We do NOT subtract Commissions and Fees separately to avoid double-counting
         let cumulativeNetCashFlow =
-            cumulativeDeposited.Value
-            - cumulativeWithdrawn.Value
-            - cumulativeCommissions.Value
-            - cumulativeFees.Value
+            cumulativeDeposited.Value - cumulativeWithdrawn.Value
             + cumulativeDividendsReceived.Value
             + cumulativeOptionsIncome.Value
             + cumulativeOtherIncome.Value
@@ -393,11 +391,10 @@ module internal BrokerFinancialCalculateInMemory =
             Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
 
         // Calculate NetCashFlow as the actual contributed capital
+        // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
+        // We do NOT subtract Commissions and Fees separately to avoid double-counting
         let netCashFlow =
-            calculatedMetrics.Deposited.Value
-            - calculatedMetrics.Withdrawn.Value
-            - calculatedMetrics.Commissions.Value
-            - calculatedMetrics.Fees.Value
+            calculatedMetrics.Deposited.Value - calculatedMetrics.Withdrawn.Value
             + calculatedMetrics.DividendsReceived.Value
             + calculatedMetrics.OptionsIncome.Value
             + calculatedMetrics.OtherIncome.Value

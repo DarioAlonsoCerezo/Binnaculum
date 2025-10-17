@@ -570,13 +570,21 @@ module internal DatabaseToModels =
               OtherIncome = dbFinancial.OtherIncome.Value
               OpenTrades = dbFinancial.OpenTrades
               NetCashFlow =
-                dbFinancial.Deposited.Value
-                - dbFinancial.Withdrawn.Value
-                - dbFinancial.Commissions.Value
-                - dbFinancial.Fees.Value
-                + dbFinancial.DividendsReceived.Value
-                + dbFinancial.OptionsIncome.Value
-                + dbFinancial.OtherIncome.Value }
+                // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
+                // We do NOT subtract Commissions and Fees separately to avoid double-counting
+                let calculatedNetCashFlow =
+                    dbFinancial.Deposited.Value - dbFinancial.Withdrawn.Value
+                    + dbFinancial.DividendsReceived.Value
+                    + dbFinancial.OptionsIncome.Value
+                    + dbFinancial.OtherIncome.Value
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"[DatabaseToModels] NetCashFlow calculation - Deposited: {dbFinancial.Deposited.Value}, Withdrawn: {dbFinancial.Withdrawn.Value}, "
+                    + $"DividendsReceived: {dbFinancial.DividendsReceived.Value}, OptionsIncome: {dbFinancial.OptionsIncome.Value}, "
+                    + $"OtherIncome: {dbFinancial.OtherIncome.Value} => NetCashFlow: {calculatedNetCashFlow}"
+                )
+
+                calculatedNetCashFlow }
 
         [<Extension>]
         static member brokerAccountSnapshotToOverviewSnapshot

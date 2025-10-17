@@ -116,11 +116,10 @@ module internal BrokerFinancialCumulativeFinancial =
                 Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
 
             // Calculate cumulative NetCashFlow as the actual contributed capital
+            // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
+            // We do NOT subtract Commissions and Fees separately to avoid double-counting
             let cumulativeNetCashFlow =
-                cumulativeDeposited.Value
-                - cumulativeWithdrawn.Value
-                - cumulativeCommissions.Value
-                - cumulativeFees.Value
+                cumulativeDeposited.Value - cumulativeWithdrawn.Value
                 + cumulativeDividendsReceived.Value
                 + cumulativeOptionsIncome.Value
                 + cumulativeOtherIncome.Value
