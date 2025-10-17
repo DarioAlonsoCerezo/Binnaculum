@@ -20,19 +20,9 @@ namespace Core.Platform.MauiTester
             BindingContext = _currentResult;
         }
 
-        private async void OnRunTestClicked(object? sender, EventArgs e)
-        {
-            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Overview Platform Validation", callback), "Run Overview Test", "Overview");
-        }
-
         private async void OnRunOverviewReactiveTestClicked(object? sender, EventArgs e)
         {
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Overview Reactive Validation", callback), "Run Overview Reactive Test", "Overview Reactive");
-        }
-
-        private async void OnRunBrokerAccountTestClicked(object? sender, EventArgs e)
-        {
-            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Creation", callback), "Run BrokerAccount Creation Test", "BrokerAccount Creation");
         }
 
         private async void OnRunBrokerAccountReactiveTestClicked(object? sender, EventArgs e)
@@ -40,34 +30,14 @@ namespace Core.Platform.MauiTester
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Creation Reactive Validation", callback), "Run BrokerAccount Creation Reactive Test", "BrokerAccount Creation Reactive");
         }
 
-        private async void OnRunBrokerAccountDepositTestClicked(object? sender, EventArgs e)
-        {
-            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount + Deposit", callback), "Run BrokerAccount + Deposit Test", "BrokerAccount + Deposit");
-        }
-
         private async void OnRunBrokerAccountDepositReactiveTestClicked(object? sender, EventArgs e)
         {
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount + Deposit Reactive Validation", callback), "Run BrokerAccount + Deposit Reactive Test", "BrokerAccount + Deposit Reactive");
         }
 
-        private async void OnRunBrokerAccountMultipleMovementsTestClicked(object? sender, EventArgs e)
-        {
-            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Multiple Movements", callback), "Run BrokerAccount Multiple Movements Test", "BrokerAccount Multiple Movements");
-        }
-
-        private async void OnRunBrokerAccountMultipleMovementsReactiveTestClicked(object? sender, EventArgs e)
-        {
-            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Multiple Movements Reactive Validation", callback), "Run BrokerAccount Multiple Movements Reactive Test", "BrokerAccount Multiple Movements Reactive");
-        }
-
         private async void OnRunBrokerAccountMultipleMovementsSignalBasedTestClicked(object? sender, EventArgs e)
         {
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("BrokerAccount Multiple Movements Signal-Based Validation", callback), "Run BrokerAccount Multiple Movements Signal-Based Test", "BrokerAccount Multiple Movements Signal-Based");
-        }
-
-        private async void OnRunOptionsImportIntegrationTestClicked(object? sender, EventArgs e)
-        {
-            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Options Import Integration Test", callback), "Run Options Import Integration Test", "Options Import Integration Test");
         }
 
         private async void OnRunOptionsImportIntegrationSignalBasedTestClicked(object? sender, EventArgs e)
@@ -80,12 +50,12 @@ namespace Core.Platform.MauiTester
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Deposits & Withdrawals Integration Test", callback), "Run Deposits & Withdrawals Integration Test", "Deposits & Withdrawals Integration Test");
         }
 
-        private async void OnRunTastytradeImportIntegrationTestClicked(object? sender, EventArgs e)
+        private async void OnTastytradeImportIntegrationTestClicked(object? sender, EventArgs e)
         {
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Tastytrade Import Integration Test", callback), "Execute Tastytrade Import Test", "Tastytrade Import Integration Test");
         }
 
-        private async void OnRunTsllImportIntegrationTestClicked(object? sender, EventArgs e)
+        private async void OnTsllImportIntegrationTestClicked(object? sender, EventArgs e)
         {
             await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("TSLL Import Integration Test", callback), "Execute TSLL Import Test", "TSLL Import Integration Test");
         }
@@ -183,40 +153,24 @@ namespace Core.Platform.MauiTester
 
         private void SetAllButtonsToRunningText()
         {
-            RunTestButton.Text = "Running Test...";
             RunOverviewReactiveTestButton.Text = "Running Test...";
-            RunBrokerAccountTestButton.Text = "Running Test...";
             RunBrokerAccountReactiveTestButton.Text = "Running Test...";
-            RunBrokerAccountDepositTestButton.Text = "Running Test...";
             RunBrokerAccountDepositReactiveTestButton.Text = "Running Test...";
-            RunBrokerAccountMultipleMovementsTestButton.Text = "Running Test...";
-            RunBrokerAccountMultipleMovementsReactiveTestButton.Text = "Running Test...";
             RunBrokerAccountMultipleMovementsSignalBasedTestButton.Text = "Running Test...";
-            RunOptionsImportIntegrationTestButton.Text = "Running Test...";
             RunOptionsImportIntegrationSignalBasedTestButton.Text = "Running Test...";
             RunDepositsWithdrawalsIntegrationTestButton.Text = "Running Test...";
-            RunTastytradeImportIntegrationTestButton.Text = "Running Test...";
-            RunTsllImportIntegrationTestButton.Text = "Running Test...";
             RunPfizerImportIntegrationTestButton.Text = "Running Test...";
         }
 
         private void ResetAllButtonsToOriginalText()
         {
-            RunTestButton.Text = "Run Overview Test";
-            RunOverviewReactiveTestButton.Text = "Run Overview Reactive Test";
-            RunBrokerAccountTestButton.Text = "Run BrokerAccount Creation Test";
-            RunBrokerAccountReactiveTestButton.Text = "Run BrokerAccount Creation Reactive Test";
-            RunBrokerAccountDepositTestButton.Text = "Run BrokerAccount + Deposit Test";
-            RunBrokerAccountDepositReactiveTestButton.Text = "Run BrokerAccount + Deposit Reactive Test";
-            RunBrokerAccountMultipleMovementsTestButton.Text = "Run BrokerAccount Multiple Movements Test";
-            RunBrokerAccountMultipleMovementsReactiveTestButton.Text = "Run BrokerAccount Multiple Movements Reactive Test";
-            RunBrokerAccountMultipleMovementsSignalBasedTestButton.Text = "Run BrokerAccount Multiple Movements Signal-Based Test";
-            RunOptionsImportIntegrationTestButton.Text = "Run Options Import Integration Test";
-            RunOptionsImportIntegrationSignalBasedTestButton.Text = "Run Options Import Integration Signal-Based Test";
-            RunDepositsWithdrawalsIntegrationTestButton.Text = "Run Deposits & Withdrawals Integration Test";
-            RunTastytradeImportIntegrationTestButton.Text = "Execute Tastytrade Import Test";
-            RunTsllImportIntegrationTestButton.Text = "Execute TSLL Import Test";
-            RunPfizerImportIntegrationTestButton.Text = "Execute Pfizer Import Test";
+            RunOverviewReactiveTestButton.Text = "Run Overview Test";
+            RunBrokerAccountReactiveTestButton.Text = "Run BrokerAccount Creation Test";
+            RunBrokerAccountDepositReactiveTestButton.Text = "Run BrokerAccount + Deposit Test";
+            RunBrokerAccountMultipleMovementsSignalBasedTestButton.Text = "Run BrokerAccount Multiple Movements Test";
+            RunOptionsImportIntegrationSignalBasedTestButton.Text = "Run Options Import Test";
+            RunDepositsWithdrawalsIntegrationTestButton.Text = "Run Money Movements Test";
+            RunPfizerImportIntegrationTestButton.Text = "Run Pfizer Import Test";
         }
     }
 }
