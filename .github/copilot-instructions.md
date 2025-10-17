@@ -12,8 +12,17 @@ Binnaculum is a cross-platform investment tracking app built with .NET 9 and .NE
 - **UI Component Development**: MAUI pages and controls for investment tracking
 - **Bug Fixes**: Specific compilation errors, test failures, package reference issues
 - **Code Quality**: XAML formatting, code style compliance, adding missing tests
-- **Documentation**: Update README files, add code comments, create examples
+- **Documentation**: Update README files, add code comments, create examples (only if explicitly requested)
 - **Performance Optimization**: Memory leak detection, Observable chain cleanup
+
+### ❌ PROHIBITED Tasks - DO NOT CREATE UNLESS EXPLICITLY REQUESTED
+- **New Documentation Files**: Do NOT create markdown files, analysis documents, summary files, or logs unless explicitly requested
+- **Temporary Files**: Do NOT create intermediate files, debug files, or working documents
+- **Report Generation**: Do NOT create test reports, build logs analysis, or summary documents
+- **Auto-Documentation**: Do NOT auto-generate documentation for changes made
+- **Issue Tracking**: Do NOT create issue or problem summary files
+
+**If a task requires documentation, ask the user first before creating any new files.**
 
 ### ? Tasks to Handle Manually (Complex/Critical)
 - **Core Financial Logic**: Complex percentage calculations, portfolio balance algorithms
