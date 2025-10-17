@@ -302,12 +302,60 @@ namespace Core.Platform.MauiTester.TestCases
                     tickerSnapshotValid = false;
                 }
 
+                // Validate BrokerAccount snapshots using BrokerAccounts.GetSnapshots
+                bool brokerAccountSnapshotValid = false;
+                try
+                {
+                    CoreLogger.logInfo("PfizerTest", "=== Validating BrokerAccount Snapshots ===");
+
+                    // Get the broker account from the created account
+                    var brokerAccountsCollection = Collections.Accounts.Items
+                        .Where(a => a.Broker != null)
+                        .Select(a => a.Broker.Value)
+                        .FirstOrDefault();
+
+                    if (brokerAccountsCollection != null)
+                    {
+                        int brokerAccountId = brokerAccountsCollection.Id;
+                        CoreLogger.logInfo("PfizerTest", $"✅ Found BrokerAccount with ID: {brokerAccountId}");
+
+                        // Call BrokerAccounts.GetSnapshots to retrieve all historical snapshots
+                        var brokerAccountSnapshots = await BrokerAccounts.GetSnapshots(brokerAccountId);
+                        int brokerAccountSnapshotCount = brokerAccountSnapshots.Count();
+
+                        CoreLogger.logInfo("PfizerTest", $"BrokerAccounts.GetSnapshots returned {brokerAccountSnapshotCount} snapshots");
+
+                        const int EXPECTED_BROKER_ACCOUNT_SNAPSHOTS = 4;
+                        bool brokerAccountCountValid = brokerAccountSnapshotCount == EXPECTED_BROKER_ACCOUNT_SNAPSHOTS;
+                        results.Add($"BrokerAccount Snapshots: Expected {EXPECTED_BROKER_ACCOUNT_SNAPSHOTS}, Got {brokerAccountSnapshotCount} - {(brokerAccountCountValid ? "✅ PASS" : "❌ FAIL")}");
+                        CoreLogger.logInfo("PfizerTest", $"BrokerAccount snapshots retrieved: {brokerAccountSnapshotCount} (expected {EXPECTED_BROKER_ACCOUNT_SNAPSHOTS}) - {(brokerAccountCountValid ? "PASS" : "FAIL")}");
+
+                        // Validate individual broker account snapshots
+                        var brokerIndividualValidation = ValidateBrokerAccountSnapshots(brokerAccountSnapshots.ToList(), results);
+
+                        brokerAccountSnapshotValid = brokerAccountCountValid && brokerIndividualValidation;
+                    }
+                    else
+                    {
+                        CoreLogger.logError("PfizerTest", "❌ BrokerAccount not found in collections");
+                        results.Add("❌ BrokerAccount not found in collections");
+                        brokerAccountSnapshotValid = false;
+                    }
+                }
+                catch (Exception brokerSnapEx)
+                {
+                    CoreLogger.logError("PfizerTest", $"❌ BrokerAccount snapshot validation error: {brokerSnapEx.Message}");
+                    results.Add($"❌ BrokerAccount snapshot validation error: {brokerSnapEx.Message}");
+                    brokerAccountSnapshotValid = false;
+                }
+
                 var success = importResult.Success &&
                              movementCountValid &&
                              tickerCountValid &&
                              snapshotCountValid &&
                              tickerSnapshotCountValid &&
                              tickerSnapshotValid &&
+                             brokerAccountSnapshotValid &&
                              importSignalsReceived;
 
                 CoreLogger.logInfo("PfizerTest", $"Final result - Success: {success}");
@@ -575,6 +623,59 @@ namespace Core.Platform.MauiTester.TestCases
             CoreLogger.logInfo("PfizerTest", "✅ File created successfully");
 
             return tempPath;
+        }
+
+        /// <summary>
+        /// Validate individual BrokerAccount snapshots for data consistency and log financial details
+        /// </summary>
+        private bool ValidateBrokerAccountSnapshots(List<CoreModels.OverviewSnapshot> snapshots, List<string> results)
+        {
+            if (snapshots == null || snapshots.Count == 0)
+            {
+                CoreLogger.logInfo("PfizerTest", "No broker account snapshots to validate");
+                return true;
+            }
+
+            CoreLogger.logInfo("PfizerTest", $"Validating {snapshots.Count} broker account snapshots");
+            bool allValid = true;
+
+            for (int i = 0; i < snapshots.Count; i++)
+            {
+                try
+                {
+                    var snapshot = snapshots[i];
+                    CoreLogger.logInfo("PfizerTest", $"Snapshot {i + 1}/{snapshots.Count}: Validating data consistency");
+
+                    if (snapshot.BrokerAccount?.Value?.Financial != null)
+                    {
+                        var financial = snapshot.BrokerAccount.Value.Financial;
+                        var date = snapshot.BrokerAccount.Value.Date.ToString("yyyy-MM-dd");
+                        var portfolioValue = snapshot.BrokerAccount.Value.PortfolioValue;
+
+                        // Log detailed financial metrics
+                        CoreLogger.logInfo("PfizerTest", $"  📊 [{date}] Portfolio Value: ${portfolioValue:F2}");
+                        CoreLogger.logInfo("PfizerTest", $"  🔢 MovementCounter: {financial.MovementCounter}");
+                        CoreLogger.logInfo("PfizerTest", $"  💰 OptionsIncome: ${financial.OptionsIncome:F2}");
+                        CoreLogger.logInfo("PfizerTest", $"  📈 RealizedGains: ${financial.RealizedGains:F2} ({financial.RealizedPercentage:F2}%)");
+                        CoreLogger.logInfo("PfizerTest", $"  📊 UnrealizedGains: ${financial.UnrealizedGains:F2} ({financial.UnrealizedGainsPercentage:F2}%)");
+                        CoreLogger.logInfo("PfizerTest", $"  💸 NetCashFlow: ${financial.NetCashFlow:F2}");
+                        CoreLogger.logInfo("PfizerTest", $"  ✅ Snapshot {i + 1}/{snapshots.Count}: Data valid");
+                    }
+                    else
+                    {
+                        CoreLogger.logError("PfizerTest", $"❌ Snapshot {i + 1}/{snapshots.Count}: BrokerAccount financial data not found");
+                        allValid = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    CoreLogger.logError("PfizerTest", $"❌ Snapshot {i + 1}/{snapshots.Count}: Validation error - {ex.Message}");
+                    results.Add($"❌ Snapshot {i + 1}/{snapshots.Count}: Validation error - {ex.Message}");
+                    allValid = false;
+                }
+            }
+
+            return allValid;
         }
     }
 }
