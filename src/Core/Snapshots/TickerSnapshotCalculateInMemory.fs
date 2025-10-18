@@ -158,19 +158,52 @@ module internal TickerSnapshotCalculateInMemory =
         // - Pair 2: SellToOpen (Trade #2, 10/1, +49.88) + BuyToClose (Trade #4, 10/3, -64.12) = -14.24
         // - Total realized on 2025-10-03: +189.76 - 14.24 = +175.52
         //
-        // We need to include only trades up to the snapshot date to ensure proper cumulative calculations
+        // We need to calculate cumulative realized gains:
+        // - Realized gains are cumulative: once a trade pair is closed, its gains stay
+        // - To avoid recalculating ALL pairs every snapshot, we:
+        //   1. Calculate total realized from ALL trades up to this date
+        //   2. Compare with previous snapshot to get only new realized gains
+        //   3. Add new gains to previous cumulative realized
         let normalizedSnapshotDate = SnapshotManagerUtils.normalizeToStartOfDay date
 
+        let normalizedPreviousDate =
+            SnapshotManagerUtils.normalizeToStartOfDay previousSnapshot.Base.Date
+
+        // All trades that closed up to (and including) this snapshot date
         let tradesUpToSnapshot =
             movements.AllClosedOptionTrades
             |> List.filter (fun opt ->
                 let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp in
                 normalizedTradeDate.Value <= normalizedSnapshotDate.Value)
 
-        // Use the official FIFO pair-matching calculation for accurate realized gains
-        // Call the static method directly on the extension type
-        let realized =
+        // All trades that closed up to (but NOT including) this snapshot date
+        let tradesBeforePreviousDate =
+            movements.AllClosedOptionTrades
+            |> List.filter (fun opt ->
+                let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp in
+                normalizedTradeDate.Value < normalizedPreviousDate.Value)
+
+        // Calculate total realized gains from ALL trades up to this snapshot date
+        let totalRealizedUpToSnapshot =
             OptionTradeExtensions.OptionTradeCalculations.calculateRealizedGains (tradesUpToSnapshot, date.Value)
+
+        // Calculate realized gains from trades before previous snapshot (what we already had)
+        let realizedBeforePrevious =
+            if tradesBeforePreviousDate.IsEmpty then
+                Money.FromAmount(0m)
+            else
+                OptionTradeExtensions.OptionTradeCalculations.calculateRealizedGains (
+                    tradesBeforePreviousDate,
+                    previousSnapshot.Base.Date.Value.AddDays(-1.0)
+                )
+
+        // New realized gains are the difference between total and what we already had
+        let newRealizedGains =
+            Money.FromAmount(totalRealizedUpToSnapshot.Value - realizedBeforePrevious.Value)
+
+        // Cumulative realized gains = previous cumulative + new gains from this period
+        let realized =
+            Money.FromAmount(previousSnapshot.Realized.Value + newRealizedGains.Value)
 
         CoreLogger.logDebugf
             "TickerSnapshotCalculateInMemory"

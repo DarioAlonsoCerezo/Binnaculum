@@ -485,20 +485,29 @@ type OptionTradeCalculations() =
                         let oldestOpen = updatedOpenPositions.Head
 
                         // Calculate realized gain for this matched pair
+                        // NetPremium values are signed: negative for costs (buys), positive for income (sells)
+                        // For SellToOpen → BuyToClose: gain = premium received - abs(premium paid)
+                        // For BuyToOpen → SellToClose: gain = premium received + premium paid (both signed)
                         let gain =
                             match oldestOpen.Code, trade.Code with
                             // Sold to open, now buying to close: gain = premium received - premium paid
                             | OptionCode.SellToOpen, OptionCode.BuyToClose ->
                                 oldestOpen.NetPremium - abs (trade.NetPremium.Value)
-                            // Bought to open, now selling to close: gain = proceeds - cost
+                            // Bought to open, now selling to close: gain = proceeds + cost (cost is already negative)
                             | OptionCode.BuyToOpen, OptionCode.SellToClose ->
-                                trade.NetPremium.Value - oldestOpen.NetPremium
+                                trade.NetPremium.Value + oldestOpen.NetPremium
                             // Other combinations should not occur in normal trading
                             | _ -> 0m
 
+                        // Enhanced diagnostic logging for gain calculation
+                        let absOpening = abs (oldestOpen.NetPremium)
+                        let absClosing = abs (trade.NetPremium.Value)
+                        let signedFormula = trade.NetPremium.Value - oldestOpen.NetPremium
+                        let absFormula = absClosing - absOpening
+
                         CoreLogger.logDebugf
                             "OptionTradeCalculations"
-                            "    → MATCHED PAIR: OpenTradeId:%d (Code:%A, Premium:%M) + CloseTradeId:%d (Code:%A, Premium:%M) = Gain:%M"
+                            "    → MATCHED PAIR: OpenTradeId:%d (Code:%A, Premium:%M) + CloseTradeId:%d (Code:%A, Premium:%M) = Gain:%M | DEBUG: abs(open)=%M abs(close)=%M signed=%M abs=%M"
                             oldestOpen.TradeId
                             oldestOpen.Code
                             oldestOpen.NetPremium
@@ -506,6 +515,10 @@ type OptionTradeCalculations() =
                             trade.Code
                             trade.NetPremium.Value
                             gain
+                            absOpening
+                            absClosing
+                            signedFormula
+                            absFormula
 
                         realizedGains <- realizedGains + gain
                         remainingToClose <- remainingToClose - 1

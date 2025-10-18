@@ -225,15 +225,17 @@ namespace Core.Platform.MauiTester.TestCases
                 // This represents the actual net income from options trading after all costs
                 const decimal EXPECTED_OPTIONS_INCOME = 54.37m;
 
-                // Realized Gains: Net profit/loss from CLOSED positions (round-trip calculations)
+                // Realized Gains: Net profit/loss from CLOSED positions (round-trip FIFO calculations)
+                // NetPremium values are signed: negative for buys (costs), positive for sells (income)
+                // Formula: SellToOpen + BuyToClose OR BuyToOpen + SellToClose (always add signed values)
                 // See docs/options-realized-unrealized-gains-calculation.md for detailed breakdown
-                // SOFI 7.00 PUT (closed portion): $33.86 - $17.13 = $16.73
-                // MPW 4.50 PUT: $17.86 - $8.13 = $9.73
-                // MPW 4.00 PUT: $0.86 - (-$5.13) = $5.99
-                // PLTR 21.00 PUT: $4.86 - (-$12.13) = $16.99
-                // PLTR 21.50 PUT: $17.86 - $8.13 = $8.73
-                // Total Realized: $16.73 + $9.73 + $5.99 + $16.99 + $8.73 = $58.17
-                const decimal EXPECTED_REALIZED_GAINS = 58.17m;
+                // Pair 1: SOFI 7.00 PUT (SellToOpen +33.86) + (BuyToClose -17.13) = $16.73
+                // Pair 2: MPW 4.50 PUT (SellToOpen +17.86) + (BuyToClose -8.13) = $9.73
+                // Pair 3: MPW 4.00 PUT (BuyToOpen -5.13) + (SellToClose +0.86) = -$4.27
+                // Pair 4: PLTR 21.00 PUT (BuyToOpen -12.13) + (SellToClose +4.86) = -$7.27
+                // Pair 5: PLTR 21.50 PUT (SellToOpen +17.86) + (BuyToClose -9.13) = $8.73
+                // Total Realized: $16.73 + $9.73 + (-$4.27) + (-$7.27) + $8.73 = $23.65
+                const decimal EXPECTED_REALIZED_GAINS = 23.65m;
 
                 // Unrealized Gains: Net premium from OPEN positions (not yet closed)
                 // SOFI 7.00 PUT (re-opened): $15.86

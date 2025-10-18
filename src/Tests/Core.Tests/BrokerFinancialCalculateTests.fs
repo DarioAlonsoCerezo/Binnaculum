@@ -370,5 +370,12 @@ type BrokerFinancialCalculateTests() =
         Assert.That(summary.OptionsIncome.Value, Is.EqualTo(54.37m).Within(0.01m))
         // OptionsInvestment = Total cost of buying options = Sum of absolute NetPremiums for buys
         Assert.That(summary.OptionsInvestment.Value, Is.EqualTo(51.65m).Within(0.01m))
-        Assert.That(summary.RealizedGains.Value, Is.EqualTo(58.17m).Within(0.01m))
+        // RealizedGains: Correctly calculated with FIFO matching
+        // Pair 1: SellToOpen(33.86) + BuyToClose(-17.13) = 16.73
+        // Pair 2: BuyToOpen(-12.13) + SellToClose(4.86) = -7.27
+        // Pair 3: SellToOpen(17.86) + BuyToClose(-9.13) = 8.73
+        // Pair 4: BuyToOpen(-5.13) + SellToClose(0.86) = -4.27
+        // Pair 5: SellToOpen(17.86) + BuyToClose(-8.13) = 9.73
+        // Total: 16.73 + (-7.27) + 8.73 + (-4.27) + 9.73 = 23.65
+        Assert.That(summary.RealizedGains.Value, Is.EqualTo(23.65m).Within(0.01m))
         Assert.That(summary.UnrealizedGains.Value, Is.EqualTo(14.86m).Within(0.01m))
