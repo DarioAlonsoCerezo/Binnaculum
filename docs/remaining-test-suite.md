@@ -7,7 +7,7 @@ After modernizing the test infrastructure to use event-driven reactive testing, 
 
 | # | Test Name | UI Button | Event Handler | Scenario Method | Approach | Verification Strategy |
 |---|-----------|-----------|----------------|-----------------|----------|----------------------|
-| 1 | Overview Test | `RunOverviewReactiveTestButton` | `OnRunOverviewReactiveTestClicked()` | `RegisterOverviewReactiveTest()` | Reactive | 500ms delay for reactive stream processing |
+| 1 | Overview Test | `RunOverviewReactiveTestButton` | `OnRunOverviewReactiveTestClicked()` | `RegisterOverviewReactiveTest()` | Signal-Based | Waits for "Database_Initialized", then "Snapshots_Updated", "Accounts_Updated", "Data_Loaded" |
 | 2 | BrokerAccount Creation Test | `RunBrokerAccountReactiveTestButton` | `OnRunBrokerAccountReactiveTestClicked()` | `RegisterBrokerAccountCreationReactiveTest()` | Reactive | Validates BrokerAccount creation and automatic snapshot generation |
 | 3 | BrokerAccount + Deposit Test | `RunBrokerAccountDepositReactiveTestButton` | `OnRunBrokerAccountDepositReactiveTestClicked()` | `RegisterBrokerAccountDepositReactiveTest()` | Reactive | Tests BrokerAccount with single deposit movement |
 | 4 | BrokerAccount Multiple Movements Test | `RunBrokerAccountMultipleMovementsSignalBasedTestButton` | `OnRunBrokerAccountMultipleMovementsSignalBasedTestClicked()` | `RegisterBrokerAccountMultipleMovementsSignalBasedTest()` | Signal-Based | Waits for reactive signals: "Movements_Updated", "Snapshots_Updated" |
@@ -20,44 +20,77 @@ After modernizing the test infrastructure to use event-driven reactive testing, 
 
 ## Architecture Changes
 
-### From Time-Based to Signal-Based Testing  
-The test infrastructure supports both approaches:
+### Signal-Based Testing (Current Standard)
+The test infrastructure now primarily uses signal-based verification for reliable reactive testing:
 
-**Signal-Based Approach (Recommended for Complex Operations):**
-- Used for BrokerAccount operations with actual reactive signal emission
-- Waits for specific signals: "Accounts_Updated", "Movements_Updated", "Snapshots_Updated"
-- Works well when observable streams emit during operations
-- Example: BrokerAccount Multiple Movements Test uses `AddSignalWaitStep()`
-
-```csharp
-.AddSignalWaitStep("Wait for Signals", TimeSpan.FromSeconds(10), 
-    "Movements_Updated", "Snapshots_Updated")
-```
-
-**Time-Based Approach (Suitable for Initialization Tests):**
-- Used for Overview initialization which doesn't emit trackable signals
-- Provides sufficient time for reactive processing to complete
-- Simple and reliable for setup operations
-- Example: Overview Test uses `AddDelay()`
+**Signal-Based Approach (Recommended for All Operations):**
+- Waits for actual reactive signal emissions instead of arbitrary timeouts
+- Signals emitted: "Accounts_Updated", "Movements_Updated", "Snapshots_Updated", "Database_Initialized", "Data_Loaded"
+- Works when observable streams emit during operations
+- Example: Overview Test uses `AddSignalWaitStepOnly()` with 500ms settling delay
 
 ```csharp
-.AddDelay("Allow reactive processing", TimeSpan.FromMilliseconds(500))
+.AddSyncStep("Prepare to Expect Database Initialization Signal", () =>
+{
+    ReactiveTestVerifications.ExpectSignals("Database_Initialized");
+    return (true, "Ready to capture signal");
+})
+.AddAsyncStep("Overview.InitDatabase() [Reactive]", () => testRunner.Actions.InitializeDatabaseAsync())
+.AddSignalWaitStepOnly("Wait for Database Initialization Signal", 
+    TimeSpan.FromSeconds(10), "Database_Initialized")
 ```
 
-### Previous Conversion Attempt
-The Overview Test was initially converted to signal-based (waiting for "Snapshots_Updated" and "Accounts_Updated"), but was reverted because:
-1. Overview initialization doesn't emit these specific signals through the observation system
-2. The signal-based approach proved unreliable for simple initialization workflows
-3. The 500ms delay is adequate and more predictable for this use case
+**Settling Delay Pattern:**
+- A 500ms delay between major operations allows concurrent operations to complete
+- Placed after signal wait to let collections stabilize before next operation
+- Prevents index-out-of-range exceptions from rapid consecutive database operations
 
-**Lesson Learned:** Not all operations are suitable for signal-based testing. Complex operations with actual reactive changes (BrokerAccount movements, imports) benefit greatly from signal-based verification, but simple initialization workflows are better served with time delays.
+```csharp
+.AddSignalWaitStepOnly("Wait for Database Initialization Signal", TimeSpan.FromSeconds(10), "Database_Initialized")
+.AddDelay("Allow database state to settle after initialization", TimeSpan.FromMilliseconds(500))
+.AddSyncStep("Prepare to Expect Data Loaded Signals", ...)
+```
+
+### Implementation Details
+
+**TaskCompletionSource Pattern:**
+- Thread-safe async signal waiting with lock-based synchronization
+- Signals received BEFORE `ExpectSignals()` is called are captured if TCS already exists
+- `ExpectSignals()` must be called in a SYNC step BEFORE the action step
+- Pattern: Prepare (sync) → Action (async) → Wait (async)
+
+**Race Condition Solution:**
+- Problem: Signals can arrive before test starts waiting for them
+- Solution: Call `ExpectSignals()` in a sync step before the async action
+- This ensures `TaskCompletionSource` is created before any signals are emitted
+
+### Conversion History
+The Overview Test evolution demonstrates signal-based testing success:
+1. **Initial State**: Used 500ms arbitrary delay
+2. **First Attempt**: Converted to signal-based but with wrong signal set
+3. **Issue**: Waited for signals that don't emit during LoadData (Currencies_Updated, Brokers_Updated, Tickers_Updated)
+4. **Root Cause**: Those collections are loaded during InitDatabase, not LoadData
+5. **Solution**: Modified to only wait for signals that actually occur (Snapshots_Updated, Accounts_Updated, Data_Loaded)
+6. **Current State**: ✅ Fully signal-based with proper 500ms settling delay between phases
 
 ## Key Signals Monitored
 
-The test suite verifies the app's reactivity by waiting for these core signals:
-- **Accounts_Updated** - Account collection has changed
-- **Movements_Updated** - Movement transactions have been added/modified
-- **Snapshots_Updated** - Financial snapshots have been recalculated
+The test suite verifies the app's reactivity by waiting for these core signals emitted during operations:
+
+| Signal | Emitted During | Indicates |
+|--------|----------------|-----------|
+| **Database_Initialized** | `Overview.InitDatabase()` | Database has been initialized and basic data loaded |
+| **Currencies_Updated** | `InitDatabase()` during currency load | Currency collection has been populated |
+| **Brokers_Updated** | `InitDatabase()` during broker load | Broker collection has been populated |
+| **Tickers_Updated** | `InitDatabase()` during ticker load | Ticker collection has been populated |
+| **Accounts_Updated** | `LoadData()` or account creation | Account collection has changed |
+| **Snapshots_Updated** | `LoadData()` or snapshot generation | Financial snapshots have been recalculated |
+| **Movements_Updated** | Movement transaction import/creation | Movement transactions have been added/modified |
+| **Data_Loaded** | `Overview.LoadData()` completion | All data loading is complete, transactions loaded |
+
+**Critical Insight:** Signals only emit during their respective operations. Attempting to wait for a signal outside its operation window causes timeout. For example:
+- ❌ Don't expect Currencies_Updated during LoadData (already loaded in InitDatabase)
+- ✅ Do expect Snapshots_Updated during LoadData (snapshots are generated for loaded data)
 
 ## UI Button Status
 
@@ -101,18 +134,20 @@ The remaining test suite validates the Core library's functionality **as it actu
 - **Signal-Based**: Waits for Observable streams to emit expected notifications
 - **Comprehensive**: Covers account creation, transactions, imports, and complex workflows
 
-### Signal-Based Tests (Recommended Approach)
-Tests using `AddSignalWaitStep()` to wait for actual reactive signals:
-- ✅ Overview Test (Recently converted)
-- ✅ BrokerAccount Multiple Movements Test
-- ✅ Options Import Test
-- ✅ Pfizer Import Test
-- ✅ Tastytrade Import Test
-- ✅ TSLL Import Test
+### Signal-Based Tests (Current Standard - All Working)
+Tests using `AddSignalWaitStepOnly()` to wait for actual reactive signals:
+- ✅ **Overview Test** - Database initialization and data loading (2 signal wait phases)
+- ✅ **BrokerAccount Multiple Movements Test** - Account creation with movements
+- ✅ **Options Import Test** - CSV import workflow verification
+- ✅ **Pfizer Import Test** - Specific ticker import scenario
+- ✅ **Tastytrade Import Test** - Broker statement import
+- ✅ **TSLL Import Test** - Third-party data import
 
-### Traditional Reactive Tests (Legacy - Being Modernized)
-Tests still using time delays - candidates for future signal-based conversion:
-- BrokerAccount Creation Test
-- BrokerAccount + Deposit Test
-- Money Movements Test
+### Traditional Reactive Tests (Legacy - Still Functional)
+Tests using time-based delays - working correctly but use less precise verification:
+- BrokerAccount Creation Test (500ms delay)
+- BrokerAccount + Deposit Test (500ms delay)
+- Money Movements Test (500ms delay)
+
+**Migration Path:** These tests could be converted to signal-based if specific signals are identified for their operations.
 

@@ -27,16 +27,41 @@ namespace Core.Platform.MauiTester.Services
         }
 
         /// <summary>
-        /// Overview Reactive Test - Validates reactive streams during Overview operations
+        /// Overview Reactive Test - Validates reactive streams during Overview operations using signal-based testing
         /// </summary>
         private static void RegisterOverviewReactiveTest(TestDiscoveryService discoveryService, TestRunner testRunner)
         {
             discoveryService.RegisterTest(() => TestScenarioBuilder.Create()
                 .Named("Overview Reactive Validation")
-                .WithDescription("Validates reactive stream emissions during Overview.InitDatabase() and Overview.LoadData() operations")
+                .WithDescription("Validates reactive stream emissions during Overview.InitDatabase() and Overview.LoadData() operations using signal-based approach")
                 .WithTags(TestTags.Overview, TestTags.Database, TestTags.Collection, TestTags.Reactive)
-                .AddReactiveOverviewSetup(testRunner)
-                .AddDelay("Allow reactive processing", TimeSpan.FromMilliseconds(500))
+                .AddAsyncStep("Wipe All Data for Testing", () => testRunner.Actions.WipeDataForTestingAsync())
+                .AddSyncStep("Initialize MAUI Platform Services", () => testRunner.Actions.InitializePlatformServicesAsync().Result)
+                .AddSyncStep("Start Reactive Stream Observation [Overview]", () =>
+                {
+                    ReactiveTestVerifications.StartObserving();
+                    return (true, "Started observing reactive streams for Overview");
+                })
+                .AddSyncStep("Prepare to Expect Database Initialization Signal", () =>
+                {
+                    ReactiveTestVerifications.ExpectSignals("Database_Initialized");
+                    return (true, "Ready to capture Database_Initialized signal");
+                })
+                .AddAsyncStep("Overview.InitDatabase() [Reactive]", () => testRunner.Actions.InitializeDatabaseAsync())
+                .AddSignalWaitStepOnly("Wait for Database Initialization Signal", TimeSpan.FromSeconds(10), "Database_Initialized")
+                .AddDelay("Allow database state to settle after initialization", TimeSpan.FromMilliseconds(500))
+                .AddSyncStep("Prepare to Expect Data Loaded Signals", () =>
+                {
+                    ReactiveTestVerifications.ExpectSignals("Snapshots_Updated", "Accounts_Updated", "Data_Loaded");
+                    return (true, "Ready to capture data loading signals");
+                })
+                .AddAsyncStep("Overview.LoadData() [Reactive]", () => testRunner.Actions.LoadDataAsync())
+                .AddSignalWaitStepOnly("Wait for Data Loaded Signals", TimeSpan.FromSeconds(10), "Snapshots_Updated", "Accounts_Updated", "Data_Loaded")
+                .AddSyncStep("Stop Reactive Stream Observation", () =>
+                {
+                    ReactiveTestVerifications.StopObserving();
+                    return (true, "Stopped observing reactive streams");
+                })
                 .AddVerificationStep("Verify Overview.Data Stream", ReactiveTestVerifications.VerifyOverviewDataStream)
                 .AddVerificationStep("Verify Currencies Stream", ReactiveTestVerifications.VerifyCurrenciesStream)
                 .AddVerificationStep("Verify Brokers Stream", ReactiveTestVerifications.VerifyBrokersStream)

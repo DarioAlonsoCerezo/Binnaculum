@@ -291,6 +291,12 @@ namespace Core.Platform.MauiTester.Services
                 case "Tickers":
                     SignalReceived("Tickers_Updated");
                     break;
+                case "Currencies":
+                    SignalReceived("Currencies_Updated");
+                    break;
+                case "Brokers":
+                    SignalReceived("Brokers_Updated");
+                    break;
                 case "Overview.Data":
                     var emissionStr = emission?.ToString() ?? "";
                     if (emissionStr.Contains("IsDatabaseInitialized"))
