@@ -370,5 +370,5 @@ type BrokerFinancialCalculateTests() =
         Assert.That(summary.OptionsIncome.Value, Is.EqualTo(54.37m).Within(0.01m))
         // OptionsInvestment = Total cost of buying options = Sum of absolute NetPremiums for buys
         Assert.That(summary.OptionsInvestment.Value, Is.EqualTo(51.65m).Within(0.01m))
-        Assert.That(summary.RealizedGains.Value, Is.EqualTo(23.65m).Within(0.01m))
+        Assert.That(summary.RealizedGains.Value, Is.EqualTo(58.17m).Within(0.01m))
         Assert.That(summary.UnrealizedGains.Value, Is.EqualTo(14.86m).Within(0.01m))

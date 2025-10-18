@@ -412,18 +412,29 @@ type OptionTradeCalculations() =
             |> List.groupBy (fun trade ->
                 (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
 
+        CoreLogger.logDebugf
+            "OptionTradeCalculations"
+            "calculateRealizedGains: Grouped %d trades into %d option groups"
+            optionTrades.Length
+            tradesByOption.Length
+
         let mutable totalRealizedGains = 0m
+        let mutable groupIndex = 1
 
         // Process each option type/strike/expiration combination separately for FIFO calculation
         for ((tickerId, optionType, strike, expiration), optionTrades) in tradesByOption do
             CoreLogger.logDebugf
                 "OptionTradeCalculations"
-                "Processing option group - TickerId:%d Type:%A Strike:%M Expiration:%s TradeCount:%d"
+                "  GROUP %d/%d: TickerId:%d Type:%A Strike:%M Expiration:%s | Trades in group: %d"
+                groupIndex
+                tradesByOption.Length
                 tickerId
                 optionType
                 strike
                 (expiration.ToString("yyyy-MM-dd"))
                 optionTrades.Length
+
+            groupIndex <- groupIndex + 1
 
             let mutable openPositions = [] // Queue of open positions (FIFO)
             let mutable realizedGains = 0m
@@ -431,11 +442,12 @@ type OptionTradeCalculations() =
             for trade in optionTrades do
                 CoreLogger.logDebugf
                     "OptionTradeCalculations"
-                    "  Evaluating trade Id:%d Code:%A NetPremium:%M Time:%s"
+                    "  Evaluating trade Id:%d Code:%A NetPremium:%M Time:%s | Open queue size before: %d"
                     trade.Id
                     trade.Code
                     trade.NetPremium.Value
                     (trade.TimeStamp.Value.ToString("yyyy-MM-dd"))
+                    openPositions.Length
 
                 match trade.Code with
                 | OptionCode.SellToOpen
@@ -449,11 +461,25 @@ type OptionTradeCalculations() =
 
                     openPositions <- openPositions @ [ openPosition ]
 
+                    CoreLogger.logDebugf
+                        "OptionTradeCalculations"
+                        "    → OPEN: Added TradeId:%d Code:%A to queue | Queue size after: %d"
+                        trade.Id
+                        trade.Code
+                        (openPositions.Length)
+
                 | OptionCode.SellToClose
                 | OptionCode.BuyToClose ->
                     // Closing position - match against open positions using FIFO
                     let mutable remainingToClose = 1 // Typically 1 contract per option trade
                     let mutable updatedOpenPositions = openPositions
+
+                    CoreLogger.logDebugf
+                        "OptionTradeCalculations"
+                        "    → CLOSE: Starting match for TradeId:%d Code:%A | Queue size: %d"
+                        trade.Id
+                        trade.Code
+                        updatedOpenPositions.Length
 
                     while remainingToClose > 0 && not updatedOpenPositions.IsEmpty do
                         let oldestOpen = updatedOpenPositions.Head
@@ -464,11 +490,22 @@ type OptionTradeCalculations() =
                             // Sold to open, now buying to close: gain = premium received - premium paid
                             | OptionCode.SellToOpen, OptionCode.BuyToClose ->
                                 oldestOpen.NetPremium - abs (trade.NetPremium.Value)
-                            // Bought to open, now selling to close: gain = premium received - premium paid
+                            // Bought to open, now selling to close: gain = proceeds - cost
                             | OptionCode.BuyToOpen, OptionCode.SellToClose ->
-                                trade.NetPremium.Value - abs (oldestOpen.NetPremium)
+                                trade.NetPremium.Value - oldestOpen.NetPremium
                             // Other combinations should not occur in normal trading
                             | _ -> 0m
+
+                        CoreLogger.logDebugf
+                            "OptionTradeCalculations"
+                            "    → MATCHED PAIR: OpenTradeId:%d (Code:%A, Premium:%M) + CloseTradeId:%d (Code:%A, Premium:%M) = Gain:%M"
+                            oldestOpen.TradeId
+                            oldestOpen.Code
+                            oldestOpen.NetPremium
+                            trade.Id
+                            trade.Code
+                            trade.NetPremium.Value
+                            gain
 
                         realizedGains <- realizedGains + gain
                         remainingToClose <- remainingToClose - 1
@@ -477,6 +514,12 @@ type OptionTradeCalculations() =
                         updatedOpenPositions <- updatedOpenPositions.Tail
 
                     openPositions <- updatedOpenPositions
+
+                    CoreLogger.logDebugf
+                        "OptionTradeCalculations"
+                        "    → CLOSE DONE: Queue size after matching: %d | Realized gains so far: %M"
+                        openPositions.Length
+                        realizedGains
 
                 // Handle expired, assigned, and cash settled options
                 | OptionCode.Expired
@@ -520,9 +563,20 @@ type OptionTradeCalculations() =
                     realizedGains <- realizedGains + gain
             *)
 
+            CoreLogger.logDebugf
+                "OptionTradeCalculations"
+                "  GROUP RESULT: Realized gains for this group: $%M | Running total: $%M"
+                realizedGains
+                (totalRealizedGains + realizedGains)
+
             totalRealizedGains <- totalRealizedGains + realizedGains
 
-        CoreLogger.logDebugf "OptionTradeCalculations" "Total realized gains calculated: $%.2f" totalRealizedGains
+        CoreLogger.logDebugf
+            "OptionTradeCalculations"
+            "calculateRealizedGains FINAL: Processed %d trades across %d groups | TOTAL REALIZED GAINS: $%.2f"
+            optionTrades.Length
+            tradesByOption.Length
+            totalRealizedGains
 
         Money.FromAmount totalRealizedGains
 

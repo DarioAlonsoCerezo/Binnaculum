@@ -122,14 +122,37 @@ module TastytradeStatementParser =
 
     /// <summary>
     /// Validate CSV headers match expected Tastytrade format
+    /// Accepts both formats: with "Total" column and without
     /// </summary>
-    let private validateHeaders (headers: string array) : Result<unit, string> =
+    let private validateHeaders (headers: string array) : Result<int, string> =
         let normalizedHeaders = headers |> Array.map (fun h -> h.Trim())
         let normalizedExpected = expectedHeaders |> List.toArray
 
-        if normalizedHeaders.Length <> normalizedExpected.Length then
-            Error $"Expected {normalizedExpected.Length} columns, found {normalizedHeaders.Length}"
-        else
+        let headersWithoutTotal =
+            [ "Date"
+              "Type"
+              "Sub Type"
+              "Action"
+              "Symbol"
+              "Instrument Type"
+              "Description"
+              "Value"
+              "Quantity"
+              "Average Price"
+              "Commissions"
+              "Fees"
+              "Multiplier"
+              "Root Symbol"
+              "Underlying Symbol"
+              "Expiration Date"
+              "Strike Price"
+              "Call or Put"
+              "Order #"
+              "Currency" ]
+            |> List.toArray
+
+        // Check if headers match the expected format (with Total column)
+        if normalizedHeaders.Length = normalizedExpected.Length then
             let mismatches =
                 Array.zip normalizedHeaders normalizedExpected
                 |> Array.mapi (fun i (actual, expected) ->
@@ -139,11 +162,28 @@ module TastytradeStatementParser =
                         Some $"Column {i}: expected '{expected}', found '{actual}'")
                 |> Array.choose id
 
-            if mismatches.Length > 0 then
-                let errorMsg = sprintf "Header mismatches: %s" (String.Join("; ", mismatches))
-                Error errorMsg
+            if mismatches.Length = 0 then
+                Ok 0 // 0 = has Total column
             else
-                Ok()
+                Error(sprintf "Header mismatches: %s" (String.Join("; ", mismatches)))
+        // Check if headers match the format without Total column
+        elif normalizedHeaders.Length = headersWithoutTotal.Length then
+            let mismatches =
+                Array.zip normalizedHeaders headersWithoutTotal
+                |> Array.mapi (fun i (actual, expected) ->
+                    if actual.Equals(expected, StringComparison.OrdinalIgnoreCase) then
+                        None
+                    else
+                        Some $"Column {i}: expected '{expected}', found '{actual}'")
+                |> Array.choose id
+
+            if mismatches.Length = 0 then
+                Ok 1 // 1 = no Total column
+            else
+                Error(sprintf "Header mismatches: %s" (String.Join("; ", mismatches)))
+        else
+            Error
+                $"Expected {normalizedExpected.Length} or {headersWithoutTotal.Length} columns, found {normalizedHeaders.Length}"
 
     /// <summary>
     /// Parse a single CSV line into a TastytradeTransaction
@@ -152,12 +192,15 @@ module TastytradeStatementParser =
         (fields: string array)
         (lineNumber: int)
         (rawLine: string)
+        (hasTotal: int)
         : Result<TastytradeTransaction, TastytradeParsingError> =
         try
-            if fields.Length < expectedHeaders.Length then
+            let expectedLength = if hasTotal = 0 then 21 else 20
+
+            if fields.Length < expectedLength then
                 Error
                     { LineNumber = lineNumber
-                      ErrorMessage = $"Expected {expectedHeaders.Length} fields, found {fields.Length}"
+                      ErrorMessage = $"Expected {expectedLength} fields, found {fields.Length}"
                       RawCsvLine = rawLine
                       ErrorType = MissingRequiredField("All fields") }
             else
@@ -227,8 +270,13 @@ module TastytradeStatementParser =
                         None
                     else
                         Some fields.[18]
-                // fields.[19] is "Total" - not used in our model
-                let currency = fields.[20]
+
+                // Handle both formats: with and without Total column
+                let currency =
+                    if hasTotal = 0 then
+                        fields.[20] // Has Total column at index 19
+                    else
+                        fields.[19] // No Total column
 
                 Ok
                     { Date = date
@@ -304,7 +352,7 @@ module TastytradeStatementParser =
                             ErrorType = MissingRequiredField("Headers") } ]
                       ProcessedLines = 0
                       SkippedLines = lines.Length }
-                | Ok() ->
+                | Ok hasTotal ->
                     // Parse data lines
                     let dataLines = lines.[1..] // Skip header
                     let mutable transactions = []
@@ -320,7 +368,7 @@ module TastytradeStatementParser =
                         else
                             let fields = splitCsvLine line
 
-                            match parseTransactionLine fields lineNumber line with
+                            match parseTransactionLine fields lineNumber line hasTotal with
                             | Ok transaction ->
                                 transactions <- transaction :: transactions
                                 processedLines <- processedLines + 1

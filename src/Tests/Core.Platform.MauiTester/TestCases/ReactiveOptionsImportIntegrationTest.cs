@@ -40,6 +40,13 @@ namespace Core.Platform.MauiTester.TestCases
                 System.Diagnostics.Debug.WriteLine("[ReactiveTest] Test started");
                 Console.WriteLine("[ReactiveTest] Test started");
 
+                // CRITICAL: Start observing reactive streams BEFORE any operations
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Starting reactive stream observation...");
+                Console.WriteLine("[ReactiveTest] Starting reactive stream observation...");
+                ReactiveTestVerifications.StartObserving();
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] ✅ Reactive stream observation started");
+                Console.WriteLine("[ReactiveTest] ✅ Reactive stream observation started");
+
                 // Extract embedded CSV file
                 System.Diagnostics.Debug.WriteLine("[ReactiveTest] Extracting CSV file...");
                 Console.WriteLine("[ReactiveTest] Extracting CSV file...");
@@ -99,9 +106,11 @@ namespace Core.Platform.MauiTester.TestCases
                 System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ✅ Found account with ID: {testBrokerAccountId}");
                 Console.WriteLine($"[ReactiveTest] ✅ Found account with ID: {testBrokerAccountId}");
 
-                // Set up signal monitoring for import
-                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Setting up signal monitoring...");
-                Console.WriteLine("[ReactiveTest] Setting up signal monitoring...");
+                // Set up signal monitoring BEFORE import to avoid race conditions
+                // CRITICAL: Must call ExpectSignals() BEFORE the import operation starts!
+                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Setting up signal monitoring BEFORE import...");
+                Console.WriteLine("[ReactiveTest] Setting up signal monitoring BEFORE import...");
+                // Always expect these signals from successful import
                 ReactiveTestVerifications.ExpectSignals("Movements_Updated", "Tickers_Updated", "Snapshots_Updated");
 
                 // Execute import
@@ -124,25 +133,38 @@ namespace Core.Platform.MauiTester.TestCases
                     return (false, string.Join("\n", results), "Import timeout");
                 }
 
-                // Wait for import signals
-                System.Diagnostics.Debug.WriteLine("[ReactiveTest] Waiting for reactive signals...");
-                Console.WriteLine("[ReactiveTest] Waiting for reactive signals...");
-                var importSignalsReceived = await ReactiveTestVerifications.WaitForAllSignalsAsync(TimeSpan.FromSeconds(15));
-                if (!importSignalsReceived)
+                // Wait for signals that should have been emitted by import
+                bool importSignalsReceived = true;
+                if (importResult.Success)
                 {
-                    var (expected, received, missing) = ReactiveTestVerifications.GetSignalStatus();
-                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ⚠️ Missing signals: [{string.Join(", ", missing)}]");
-                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Expected: [{string.Join(", ", expected)}]");
-                    System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Received: [{string.Join(", ", received)}]");
-                    Console.WriteLine($"[ReactiveTest] ⚠️ Missing signals: [{string.Join(", ", missing)}]");
-                    Console.WriteLine($"[ReactiveTest] Expected: [{string.Join(", ", expected)}]");
-                    Console.WriteLine($"[ReactiveTest] Received: [{string.Join(", ", received)}]");
-                    results.Add($"⚠️ Missing signals: [{string.Join(", ", missing)}]");
+                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] Import succeeded, waiting for reactive signals...");
+                    Console.WriteLine("[ReactiveTest] Import succeeded, waiting for reactive signals...");
+
+                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] Waiting for reactive signals...");
+                    Console.WriteLine("[ReactiveTest] Waiting for reactive signals...");
+                    importSignalsReceived = await ReactiveTestVerifications.WaitForAllSignalsAsync(TimeSpan.FromSeconds(15));
+                    if (!importSignalsReceived)
+                    {
+                        var (expected, received, missing) = ReactiveTestVerifications.GetSignalStatus();
+                        System.Diagnostics.Debug.WriteLine($"[ReactiveTest] ⚠️ Missing signals: [{string.Join(", ", missing)}]");
+                        System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Expected: [{string.Join(", ", expected)}]");
+                        System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Received: [{string.Join(", ", received)}]");
+                        Console.WriteLine($"[ReactiveTest] ⚠️ Missing signals: [{string.Join(", ", missing)}]");
+                        Console.WriteLine($"[ReactiveTest] Expected: [{string.Join(", ", expected)}]");
+                        Console.WriteLine($"[ReactiveTest] Received: [{string.Join(", ", received)}]");
+                        results.Add($"⚠️ Missing signals: [{string.Join(", ", missing)}]");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("[ReactiveTest] ✅ All signals received");
+                        Console.WriteLine("[ReactiveTest] ✅ All signals received");
+                    }
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] ✅ All signals received");
-                    Console.WriteLine("[ReactiveTest] ✅ All signals received");
+                    System.Diagnostics.Debug.WriteLine("[ReactiveTest] Import failed - signals may not have been emitted");
+                    Console.WriteLine("[ReactiveTest] Import failed - signals may not have been emitted");
+                    importSignalsReceived = false;
                 }
 
                 // Validation
@@ -295,11 +317,12 @@ namespace Core.Platform.MauiTester.TestCases
                     results.Add($"❌ Snapshot validation error: {snapValidationEx.Message}");
                     snapshotCountValid = false;
                 }
-                var success = importResult.Success &&
-                             movementCountValid &&
-                             tickerCountValid &&
+                var success = (importResult.Success ?
+                             (movementCountValid && tickerCountValid) :
+                             true) &&  // For failed imports, we only care about structure
                              snapshotCountValid &&
-                             importSignalsReceived; // All validations must pass
+                             importSignalsReceived &&
+                             importResult.Success;  // Import must ultimately succeed for test to pass
 
                 System.Diagnostics.Debug.WriteLine($"[ReactiveTest] Final result - Success: {success}");
                 Console.WriteLine($"[ReactiveTest] Final result - Success: {success}");
