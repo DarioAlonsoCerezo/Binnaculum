@@ -33,48 +33,78 @@ namespace Core.Platform.MauiTester.Services
         public static void StartObserving()
         {
             ClearObservations();
+            Debug.WriteLine("[RxTest] 📡 Starting observation of all reactive collections...");
 
             // Observe Overview.Data stream
             var overviewSubscription = Overview.Data
                 .Select(data => new { Type = "Overview.Data", Data = data, Timestamp = DateTime.Now })
-                .Subscribe(emission => RecordEmission("Overview.Data", emission));
+                .Subscribe(
+                    emission => RecordEmission("Overview.Data", emission),
+                    error => Debug.WriteLine($"[RxTest] ❌ Overview.Data stream error: {error.Message}"),
+                    () => Debug.WriteLine("[RxTest] ✓ Overview.Data stream completed"));
             ActiveSubscriptions.Add(overviewSubscription);
+            Debug.WriteLine("[RxTest] ✓ Subscribed to Overview.Data stream");
 
             // Observe Collections.Currencies stream
             var currenciesSubscription = Collections.Currencies.Connect()
                 .Select(changes => new { Type = "Currencies", ChangeCount = changes.Count, Timestamp = DateTime.Now })
-                .Subscribe(emission => RecordEmission("Currencies", emission));
+                .Subscribe(
+                    emission => RecordEmission("Currencies", emission),
+                    error => Debug.WriteLine($"[RxTest] ❌ Currencies stream error: {error.Message}"),
+                    () => Debug.WriteLine("[RxTest] ✓ Currencies stream completed"));
             ActiveSubscriptions.Add(currenciesSubscription);
+            Debug.WriteLine("[RxTest] ✓ Subscribed to Collections.Currencies stream");
 
             // Observe Collections.Brokers stream
             var brokersSubscription = Collections.Brokers.Connect()
                 .Select(changes => new { Type = "Brokers", ChangeCount = changes.Count, Timestamp = DateTime.Now })
-                .Subscribe(emission => RecordEmission("Brokers", emission));
+                .Subscribe(
+                    emission => RecordEmission("Brokers", emission),
+                    error => Debug.WriteLine($"[RxTest] ❌ Brokers stream error: {error.Message}"),
+                    () => Debug.WriteLine("[RxTest] ✓ Brokers stream completed"));
             ActiveSubscriptions.Add(brokersSubscription);
+            Debug.WriteLine("[RxTest] ✓ Subscribed to Collections.Brokers stream");
 
             // Observe Collections.Tickers stream
             var tickersSubscription = Collections.Tickers.Connect()
                 .Select(changes => new { Type = "Tickers", ChangeCount = changes.Count, Timestamp = DateTime.Now })
-                .Subscribe(emission => RecordEmission("Tickers", emission));
+                .Subscribe(
+                    emission => RecordEmission("Tickers", emission),
+                    error => Debug.WriteLine($"[RxTest] ❌ Tickers stream error: {error.Message}"),
+                    () => Debug.WriteLine("[RxTest] ✓ Tickers stream completed"));
             ActiveSubscriptions.Add(tickersSubscription);
+            Debug.WriteLine("[RxTest] ✓ Subscribed to Collections.Tickers stream");
 
             // Observe Collections.Snapshots stream
             var snapshotsSubscription = Collections.Snapshots.Connect()
                 .Select(changes => new { Type = "Snapshots", ChangeCount = changes.Count, Timestamp = DateTime.Now })
-                .Subscribe(emission => RecordEmission("Snapshots", emission));
+                .Subscribe(
+                    emission => RecordEmission("Snapshots", emission),
+                    error => Debug.WriteLine($"[RxTest] ❌ Snapshots stream error: {error.Message}"),
+                    () => Debug.WriteLine("[RxTest] ✓ Snapshots stream completed"));
             ActiveSubscriptions.Add(snapshotsSubscription);
+            Debug.WriteLine("[RxTest] ✓ Subscribed to Collections.Snapshots stream");
 
             // Observe Collections.Accounts stream (for BrokerAccount tests)
             var accountsSubscription = Collections.Accounts.Connect()
                 .Select(changes => new { Type = "Accounts", ChangeCount = changes.Count, Timestamp = DateTime.Now })
-                .Subscribe(emission => RecordEmission("Accounts", emission));
+                .Subscribe(
+                    emission => RecordEmission("Accounts", emission),
+                    error => Debug.WriteLine($"[RxTest] ❌ Accounts stream error: {error.Message}"),
+                    () => Debug.WriteLine("[RxTest] ✓ Accounts stream completed"));
             ActiveSubscriptions.Add(accountsSubscription);
+            Debug.WriteLine("[RxTest] ✓ Subscribed to Collections.Accounts stream");
 
             // Observe Collections.Movements stream (for BrokerAccount + Deposit tests)
             var movementsSubscription = Collections.Movements.Connect()
                 .Select(changes => new { Type = "Movements", ChangeCount = changes.Count, Timestamp = DateTime.Now })
-                .Subscribe(emission => RecordEmission("Movements", emission));
+                .Subscribe(
+                    emission => RecordEmission("Movements", emission),
+                    error => Debug.WriteLine($"[RxTest] ❌ Movements stream error: {error.Message}"),
+                    () => Debug.WriteLine("[RxTest] ✓ Movements stream completed"));
             ActiveSubscriptions.Add(movementsSubscription);
+            Debug.WriteLine("[RxTest] ✓ Subscribed to Collections.Movements stream");
+            Debug.WriteLine("[RxTest] ✅ All collection subscriptions established successfully");
         }
 
         /// <summary>
@@ -100,8 +130,12 @@ namespace Core.Platform.MauiTester.Services
             }
             StreamObservations[streamName].Add(emission);
 
+            // Log the collection change
+            var emissionDetails = emission?.ToString() ?? "null";
+            Debug.WriteLine($"[RxTest] 🔔 Collection change detected from '{streamName}': {emissionDetails}");
+
             // Auto-emit signals based on stream activity
-            EmitSignalsForStreamActivity(streamName, emission);
+            EmitSignalsForStreamActivity(streamName, emission!);
         }
 
         /// <summary>
@@ -125,21 +159,45 @@ namespace Core.Platform.MauiTester.Services
         private static readonly ConcurrentBag<string> ReceivedSignals = new();
 
         /// <summary>
-        /// Semaphore for signal completion waiting
+        /// TaskCompletionSource for async signal waiting
         /// </summary>
-        private static readonly SemaphoreSlim CompletionSemaphore = new(0);
+        private static TaskCompletionSource<bool>? SignalCompletionSource = null;
+
+        /// <summary>
+        /// Lock to prevent race conditions when resetting signals
+        /// </summary>
+        private static readonly object SignalLock = new object();
 
         /// <summary>
         /// Setup expected signals for a test scenario
         /// </summary>
         public static void ExpectSignals(params string[] signals)
         {
-            ExpectedSignals.Clear();
-            ReceivedSignals.Clear();
-
-            foreach (var signal in signals)
+            lock (SignalLock)
             {
-                ExpectedSignals.Add(signal);
+                ExpectedSignals.Clear();
+                ReceivedSignals.Clear();
+
+                Debug.WriteLine($"[RxTest] 🚀 Expecting signals: {string.Join(", ", signals)}");
+
+                // Create a new TaskCompletionSource for this signal wait
+                SignalCompletionSource = new TaskCompletionSource<bool>();
+
+                foreach (var signal in signals)
+                {
+                    ExpectedSignals.Add(signal);
+                }
+
+                // Check if signals have already been received before we set up expectations
+                if (AllExpectedSignalsReceived())
+                {
+                    Debug.WriteLine($"[RxTest] ✅ All signals already received before ExpectSignals completed!");
+                    SignalCompletionSource.TrySetResult(true);
+                }
+                else
+                {
+                    Debug.WriteLine($"[RxTest] ⏳ Waiting for signals... TaskCompletionSource created");
+                }
             }
         }
 
@@ -148,12 +206,24 @@ namespace Core.Platform.MauiTester.Services
         /// </summary>
         public static void SignalReceived(string signal)
         {
-            ReceivedSignals.Add(signal);
-
-            // Check if all expected signals received
-            if (AllExpectedSignalsReceived())
+            lock (SignalLock)
             {
-                CompletionSemaphore.Release();
+                ReceivedSignals.Add(signal);
+                Debug.WriteLine($"[RxTest] 📨 Signal received: '{signal}' | Total received so far: {ReceivedSignals.Count}");
+
+                // Check if all expected signals received
+                if (SignalCompletionSource != null && AllExpectedSignalsReceived())
+                {
+                    Debug.WriteLine($"[RxTest] ✅ All expected signals received! Setting completion.");
+                    SignalCompletionSource.TrySetResult(true);
+                }
+                else if (SignalCompletionSource != null)
+                {
+                    var expected = ExpectedSignals.ToArray();
+                    var received = ReceivedSignals.ToArray();
+                    var missing = expected.Except(received).ToArray();
+                    Debug.WriteLine($"[RxTest] ⏳ Waiting for more signals. Expected: {string.Join(",", expected)}, Received: {string.Join(",", received)}, Missing: {string.Join(",", missing)}");
+                }
             }
         }
 
@@ -164,17 +234,23 @@ namespace Core.Platform.MauiTester.Services
         {
             try
             {
-                return await CompletionSemaphore.WaitAsync(timeout);
+                if (SignalCompletionSource == null)
+                    return false;
+
+                var completedTask = await Task.WhenAny(
+                    SignalCompletionSource.Task,
+                    Task.Delay(timeout)
+                );
+
+                return completedTask == SignalCompletionSource.Task;
             }
             catch (Exception)
             {
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Check if all expected signals have been received
-        /// </summary>
+        }        /// <summary>
+                 /// Check if all expected signals have been received
+                 /// </summary>
         private static bool AllExpectedSignalsReceived()
         {
             if (ExpectedSignals.IsEmpty) return false;

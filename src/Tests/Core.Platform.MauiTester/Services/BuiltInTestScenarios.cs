@@ -187,22 +187,47 @@ namespace Core.Platform.MauiTester.Services
                     if (success) testRunner.SetUsdCurrencyId(id);
                     return (success, details, error);
                 })
+                .AddSyncStep("Prepare to Expect Account Creation Signals", () =>
+                {
+                    ReactiveTestVerifications.ExpectSignals("Accounts_Updated", "Snapshots_Updated");
+                    return (true, "ExpectSignals called - ready to capture signals");
+                })
                 .AddAsyncStep("Create BrokerAccount [Signal-Based]", () => testActions.CreateBrokerAccountAsync("Signal-Based Testing"))
-                .AddSignalWaitStep("Wait for Account Creation Signals", TimeSpan.FromSeconds(10), "Accounts_Updated", "Snapshots_Updated")
+                .AddSignalWaitStepOnly("Wait for Account Creation Signals", TimeSpan.FromSeconds(10), "Accounts_Updated", "Snapshots_Updated")
                 .AddVerificationStep("Find Created BrokerAccount", () =>
                 {
                     var (success, details, error, id) = TestVerifications.FindCreatedBrokerAccount(testRunner.GetTastytradeId());
                     if (success) testRunner.SetBrokerAccountId(id);
                     return (success, details, error);
                 })
+                .AddSyncStep("Prepare to Expect First Movement Signals", () =>
+                {
+                    ReactiveTestVerifications.ExpectSignals("Movements_Updated", "Snapshots_Updated");
+                    return (true, "ExpectSignals called for first movement");
+                })
                 .AddAsyncStep("Create Historical Deposit ($1200, 60 days ago) [Signal-Based]", () => testActions.CreateMovementAsync(1200m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -60))
-                .AddSignalWaitStep("Wait for First Movement Signals", TimeSpan.FromSeconds(10), "Movements_Updated", "Snapshots_Updated")
+                .AddSignalWaitStepOnly("Wait for First Movement Signals", TimeSpan.FromSeconds(10), "Movements_Updated", "Snapshots_Updated")
+                .AddSyncStep("Prepare to Expect Second Movement Signals", () =>
+                {
+                    ReactiveTestVerifications.ExpectSignals("Movements_Updated", "Snapshots_Updated");
+                    return (true, "ExpectSignals called for second movement");
+                })
                 .AddAsyncStep("Create Historical Withdrawal ($300, 55 days ago) [Signal-Based]", () => testActions.CreateMovementAsync(300m, Binnaculum.Core.Models.BrokerMovementType.Withdrawal, -55))
-                .AddSignalWaitStep("Wait for Second Movement Signals", TimeSpan.FromSeconds(10), "Movements_Updated", "Snapshots_Updated")
+                .AddSignalWaitStepOnly("Wait for Second Movement Signals", TimeSpan.FromSeconds(10), "Movements_Updated", "Snapshots_Updated")
+                .AddSyncStep("Prepare to Expect Third Movement Signals", () =>
+                {
+                    ReactiveTestVerifications.ExpectSignals("Movements_Updated", "Snapshots_Updated");
+                    return (true, "ExpectSignals called for third movement");
+                })
                 .AddAsyncStep("Create Historical Withdrawal ($300, 50 days ago) [Signal-Based]", () => testActions.CreateMovementAsync(300m, Binnaculum.Core.Models.BrokerMovementType.Withdrawal, -50))
-                .AddSignalWaitStep("Wait for Third Movement Signals", TimeSpan.FromSeconds(10), "Movements_Updated", "Snapshots_Updated")
+                .AddSignalWaitStepOnly("Wait for Third Movement Signals", TimeSpan.FromSeconds(10), "Movements_Updated", "Snapshots_Updated")
+                .AddSyncStep("Prepare to Expect Final Movement Signals", () =>
+                {
+                    ReactiveTestVerifications.ExpectSignals("Movements_Updated", "Snapshots_Updated");
+                    return (true, "ExpectSignals called for final movement");
+                })
                 .AddAsyncStep("Create Historical Deposit ($600, 10 days ago) [Signal-Based]", () => testActions.CreateMovementAsync(600m, Binnaculum.Core.Models.BrokerMovementType.Deposit, -10))
-                .AddSignalWaitStep("Wait for Final Movement Signals", TimeSpan.FromSeconds(10), "Movements_Updated", "Snapshots_Updated")
+                .AddSignalWaitStepOnly("Wait for Final Movement Signals", TimeSpan.FromSeconds(10), "Movements_Updated", "Snapshots_Updated")
                 .AddSyncStep("Stop Reactive Stream Observation", () =>
                 {
                     ReactiveTestVerifications.StopObserving();

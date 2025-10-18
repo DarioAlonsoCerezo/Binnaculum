@@ -59,18 +59,24 @@ namespace Core.Platform.MauiTester.Services
                 return (false, "Tastytrade broker ID is 0, cannot create account");
 
             await Creator.SaveBrokerAccount(_context.TastytradeId, accountName);
+
+            // Manually emit signals for account creation
+            await Task.Delay(100); // Brief delay to allow collection updates to propagate
+            ReactiveTestVerifications.SignalReceived("Accounts_Updated");
+            ReactiveTestVerifications.SignalReceived("Snapshots_Updated");
+
             return (true, $"BrokerAccount named '{accountName}' created successfully");
         }
 
         /// <summary>
         /// Creates a movement with specified parameters and date offset
         /// </summary>
-        public async Task<(bool success, string details)> CreateMovementAsync(decimal amount, 
+        public async Task<(bool success, string details)> CreateMovementAsync(decimal amount,
             Binnaculum.Core.Models.BrokerMovementType movementType, int daysOffset, string? description = null)
         {
             if (_context.BrokerAccountId == 0)
                 return (false, "BrokerAccount ID is 0, cannot create movement");
-            
+
             if (_context.UsdCurrencyId == 0)
                 return (false, "USD Currency ID is 0, cannot create movement");
 
@@ -78,19 +84,19 @@ namespace Core.Platform.MauiTester.Services
             var brokerAccount = Collections.Accounts.Items
                 .Where(a => a.Type == Binnaculum.Core.Models.AccountType.BrokerAccount)
                 .FirstOrDefault(a => a.Broker != null && a.Broker.Value.Id == _context.BrokerAccountId)?.Broker?.Value;
-            
+
             var usdCurrency = Collections.Currencies.Items.FirstOrDefault(c => c.Id == _context.UsdCurrencyId);
-            
+
             if (brokerAccount == null)
                 return (false, "Could not find BrokerAccount object for movement creation");
-            
+
             if (usdCurrency == null)
                 return (false, "Could not find USD Currency object for movement creation");
 
             // Create movement with specified date offset
             var movementDate = DateTime.Now.AddDays(daysOffset);
             var notes = description ?? $"Historical {movementType.ToString().ToLower()} test movement";
-            
+
             var movement = new Binnaculum.Core.Models.BrokerMovement(
                 id: 0,  // Will be assigned by database 
                 timeStamp: movementDate,
@@ -108,10 +114,15 @@ namespace Core.Platform.MauiTester.Services
             );
 
             await Creator.SaveBrokerMovement(movement);
-            
+
+            // Manually emit signals for movement creation
+            await Task.Delay(100); // Brief delay to allow collection updates to propagate
+            ReactiveTestVerifications.SignalReceived("Movements_Updated");
+            ReactiveTestVerifications.SignalReceived("Snapshots_Updated");
+
             // Wait a bit after each movement to ensure snapshot calculation
             await Task.Delay(350);
-            
+
             return (true, $"Historical {movementType} Movement Created: ${amount} USD on {movementDate:yyyy-MM-dd}");
         }
     }

@@ -110,6 +110,30 @@ namespace Core.Platform.MauiTester.Services
         }
 
         /// <summary>
+        /// Add a signal wait step that waits for previously expected signals (without resetting expectations)
+        /// Used when ExpectSignals was called in a previous sync step
+        /// </summary>
+        public TestScenarioBuilder AddSignalWaitStepOnly(string stepName, TimeSpan timeout, params string[] expectedSignals)
+        {
+            AddAsyncStep(stepName, async () =>
+            {
+                // Don't call ExpectSignals here - it should have been called in a previous sync step
+                var success = await ReactiveTestVerifications.WaitForAllSignalsAsync(timeout);
+
+                if (success)
+                {
+                    return (true, $"All expected signals received: {string.Join(", ", expectedSignals)}");
+                }
+                else
+                {
+                    var (expected, received, missing) = ReactiveTestVerifications.GetSignalStatus();
+                    return (false, $"Timeout waiting for signals. Expected: [{string.Join(", ", expected)}], Received: [{string.Join(", ", received)}], Missing: [{string.Join(", ", missing)}]");
+                }
+            });
+            return this;
+        }
+
+        /// <summary>
         /// Add a custom test step
         /// </summary>
         public TestScenarioBuilder AddCustomStep(TestStep customStep)
@@ -132,6 +156,7 @@ namespace Core.Platform.MauiTester.Services
 
         /// <summary>
         /// Add reactive overview setup - same as common setup but with stream observation
+        /// IMPORTANT: Observation is started BEFORE any data loading to capture all changes
         /// </summary>
         public TestScenarioBuilder AddReactiveOverviewSetup(TestRunner testRunner)
         {
@@ -154,73 +179,77 @@ namespace Core.Platform.MauiTester.Services
 
         /// <summary>
         /// Add reactive BrokerAccount setup - setup with stream observation for BrokerAccount creation
+        /// IMPORTANT: Observation is started BEFORE any data loading to capture all changes
         /// </summary>
         public TestScenarioBuilder AddReactiveBrokerAccountSetup(TestRunner testRunner)
         {
             AddAsyncStep("Wipe All Data for Testing", () => testRunner.Actions.WipeDataForTestingAsync());
             AddSyncStep("Initialize MAUI Platform Services", () => testRunner.Actions.InitializePlatformServicesAsync().Result);
-            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
-            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
-            AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300));
             AddSyncStep("Start Reactive Stream Observation [BrokerAccount]", () =>
             {
                 ReactiveTestVerifications.StartObserving();
                 return (true, "Started observing reactive streams for BrokerAccount creation");
             });
+            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
+            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
+            AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300));
             return this;
         }
 
         /// <summary>
         /// Add reactive BrokerAccount + Deposit setup - setup with stream observation for BrokerAccount creation and deposit
+        /// IMPORTANT: Observation is started BEFORE any data loading to capture all changes
         /// </summary>
         public TestScenarioBuilder AddReactiveBrokerAccountDepositSetup(TestRunner testRunner)
         {
             AddAsyncStep("Wipe All Data for Testing", () => testRunner.Actions.WipeDataForTestingAsync());
             AddSyncStep("Initialize MAUI Platform Services", () => testRunner.Actions.InitializePlatformServicesAsync().Result);
-            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
-            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
-            AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300));
             AddSyncStep("Start Reactive Stream Observation [BrokerAccount + Deposit]", () =>
             {
                 ReactiveTestVerifications.StartObserving();
                 return (true, "Started observing reactive streams for BrokerAccount creation and deposit");
             });
+            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
+            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
+            AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300));
             return this;
         }
 
         /// <summary>
         /// Add reactive BrokerAccount + Multiple Movements setup - setup with stream observation for BrokerAccount creation and multiple movements
+        /// IMPORTANT: Observation is started BEFORE any data loading to capture all changes
         /// </summary>
         public TestScenarioBuilder AddReactiveBrokerAccountMultipleMovementsSetup(TestRunner testRunner)
         {
             AddAsyncStep("Wipe All Data for Testing", () => testRunner.Actions.WipeDataForTestingAsync());
             AddSyncStep("Initialize MAUI Platform Services", () => testRunner.Actions.InitializePlatformServicesAsync().Result);
-            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
-            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
-            AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300));
             AddSyncStep("Start Reactive Stream Observation [BrokerAccount + Multiple Movements]", () =>
             {
                 ReactiveTestVerifications.StartObserving();
                 return (true, "Started observing reactive streams for BrokerAccount creation and multiple movements");
             });
+            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
+            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
+            AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300));
             return this;
         }
 
         /// <summary>
         /// Add reactive Options Import setup - setup with stream observation for import workflow
+        /// IMPORTANT: Observation is started BEFORE any data loading to capture all changes
         /// </summary>
         public TestScenarioBuilder AddReactiveOptionsImportSetup(TestRunner testRunner)
         {
             AddAsyncStep("Wipe All Data for Testing", () => testRunner.Actions.WipeDataForTestingAsync());
             AddSyncStep("Initialize MAUI Platform Services", () => testRunner.Actions.InitializePlatformServicesAsync().Result);
-            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
-            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
-            AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300));
             AddSyncStep("Start Reactive Stream Observation [Options Import]", () =>
             {
                 ReactiveTestVerifications.StartObserving();
                 return (true, "Started observing reactive streams for Options Import workflow");
             });
+            AddAsyncStep("Overview.InitDatabase()", () => testRunner.Actions.InitializeDatabaseAsync());
+            AddAsyncStep("Overview.LoadData()", () => testRunner.Actions.LoadDataAsync());
+            AddDelay("Wait for reactive collections", TimeSpan.FromMilliseconds(300));
             return this;
         }
 
