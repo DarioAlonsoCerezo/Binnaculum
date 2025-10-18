@@ -8,11 +8,11 @@ After modernizing the test infrastructure to use event-driven reactive testing, 
 | # | Test Name | UI Button | Event Handler | Scenario Method | Approach | Verification Strategy |
 |---|-----------|-----------|----------------|-----------------|----------|----------------------|
 | 1 | Overview Test | `RunOverviewReactiveTestButton` | `OnRunOverviewReactiveTestClicked()` | `RegisterOverviewReactiveTest()` | Signal-Based | Waits for "Database_Initialized", then "Snapshots_Updated", "Accounts_Updated", "Data_Loaded" |
-| 2 | BrokerAccount Creation Test | `RunBrokerAccountReactiveTestButton` | `OnRunBrokerAccountReactiveTestClicked()` | `RegisterBrokerAccountCreationReactiveTest()` | Reactive | Validates BrokerAccount creation and automatic snapshot generation |
-| 3 | BrokerAccount + Deposit Test | `RunBrokerAccountDepositReactiveTestButton` | `OnRunBrokerAccountDepositReactiveTestClicked()` | `RegisterBrokerAccountDepositReactiveTest()` | Reactive | Tests BrokerAccount with single deposit movement |
+| 2 | BrokerAccount Creation Test | `RunBrokerAccountReactiveTestButton` | `OnRunBrokerAccountReactiveTestClicked()` | `RegisterBrokerAccountCreationReactiveTest()` | Signal-Based | Validates BrokerAccount creation and automatic snapshot generation with reactive verification |
+| 3 | BrokerAccount + Deposit Test | `RunBrokerAccountDepositReactiveTestButton` | `OnRunBrokerAccountDepositReactiveTestClicked()` | `RegisterBrokerAccountDepositReactiveTest()` | Signal-Based | Tests BrokerAccount with deposit movement and reactive signal verification |
 | 4 | BrokerAccount Multiple Movements Test | `RunBrokerAccountMultipleMovementsSignalBasedTestButton` | `OnRunBrokerAccountMultipleMovementsSignalBasedTestClicked()` | `RegisterBrokerAccountMultipleMovementsSignalBasedTest()` | Signal-Based | Waits for reactive signals: "Movements_Updated", "Snapshots_Updated" |
 | 5 | Options Import Test | `RunOptionsImportIntegrationSignalBasedTestButton` | `OnRunOptionsImportIntegrationSignalBasedTestClicked()` | `RegisterOptionsImportIntegrationSignalBasedTest()` | Signal-Based | Validates Tastytrade options CSV import workflow with reactive verification |
-| 6 | Money Movements Test | `RunDepositsWithdrawalsIntegrationTestButton` | `OnRunDepositsWithdrawalsIntegrationTestClicked()` | `RegisterDepositsWithdrawalsIntegrationTest()` | Reactive | Tests money movements (deposits/withdrawals) import integration |
+| 6 | Money Movements Test | `RunDepositsWithdrawalsIntegrationTestButton` | `OnRunDepositsWithdrawalsIntegrationTestClicked()` | `RegisterDepositsWithdrawalsIntegrationTest()` | Signal-Based | Tests money movements (deposits/withdrawals) import with reactive verification |
 | 7 | Pfizer Import Test | `RunPfizerImportIntegrationTestButton` | `OnRunPfizerImportIntegrationTestClicked()` | `RegisterPfizerImportIntegrationTest()` | Signal-Based | Validates Pfizer (PFE) options import with signal verification |
 | 8 | Tastytrade Import Test | (Script/Programmatic) | `OnTastytradeImportIntegrationTestClicked()` | `RegisterTastytradeImportIntegrationTest()` | Signal-Based | Tastytrade broker statement import integration test |
 | 9 | TSLL Import Test | (Script/Programmatic) | `OnTsllImportIntegrationTestClicked()` | `RegisterTsllImportIntegrationTest()` | Signal-Based | TSLL (Third-party Statement Loader) import test |
@@ -137,17 +137,17 @@ The remaining test suite validates the Core library's functionality **as it actu
 ### Signal-Based Tests (Current Standard - All Working)
 Tests using `AddSignalWaitStepOnly()` to wait for actual reactive signals:
 - ✅ **Overview Test** - Database initialization and data loading (2 signal wait phases)
-- ✅ **BrokerAccount Multiple Movements Test** - Account creation with movements
+- ✅ **BrokerAccount Creation Test** - Account creation with signal-based verification (SUCCESSFUL)
+- ✅ **BrokerAccount + Deposit Test** - Complex operation with settling delays (SUCCESSFUL)
+- ✅ **BrokerAccount Multiple Movements Test** - Account creation with multiple movement signals
 - ✅ **Options Import Test** - CSV import workflow verification
+- ✅ **Money Movements Test** - Deposits and withdrawals import integration
 - ✅ **Pfizer Import Test** - Specific ticker import scenario
 - ✅ **Tastytrade Import Test** - Broker statement import
 - ✅ **TSLL Import Test** - Third-party data import
 
-### Traditional Reactive Tests (Legacy - Still Functional)
-Tests using time-based delays - working correctly but use less precise verification:
-- BrokerAccount Creation Test (500ms delay)
-- BrokerAccount + Deposit Test (500ms delay)
-- Money Movements Test (500ms delay)
+**Total: 9/10 tests using signal-based approach** ✓
 
-**Migration Path:** These tests could be converted to signal-based if specific signals are identified for their operations.
+### Deprecated Tests (Reference Only)
+- **Multiple Movements (Delay-Based)** - Kept in codebase for reference (replaced by signal-based version)
 

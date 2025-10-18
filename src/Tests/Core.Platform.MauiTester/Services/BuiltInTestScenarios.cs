@@ -80,6 +80,7 @@ namespace Core.Platform.MauiTester.Services
                 .WithDescription("Validates reactive stream emissions during broker account creation and snapshot generation")
                 .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Integration, TestTags.Reactive)
                 .AddReactiveBrokerAccountSetup(testRunner)
+                .AddDelay("Allow setup to complete", TimeSpan.FromMilliseconds(500))
                 .AddVerificationStep("Find Tastytrade Broker", () =>
                 {
                     var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
@@ -109,6 +110,7 @@ namespace Core.Platform.MauiTester.Services
                 .WithDescription("Validates reactive stream emissions during broker account creation with deposit movement and snapshot generation")
                 .WithTags(TestTags.BrokerAccount, TestTags.Financial, TestTags.Movement, TestTags.Integration, TestTags.Reactive)
                 .AddReactiveBrokerAccountDepositSetup(testRunner)
+                .AddDelay("Allow setup to complete", TimeSpan.FromMilliseconds(500))
                 .AddVerificationStep("Find Tastytrade Broker", () =>
                 {
                     var (success, details, error, id) = TestVerifications.FindTastytradeBroker();
