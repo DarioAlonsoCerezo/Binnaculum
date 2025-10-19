@@ -291,8 +291,17 @@ public static class BusinessRulesManager
         rules.AppendLine("   - `TickerSnapshotId` must exist in `TickerSnapshots` table");
         rules.AppendLine();
         rules.AppendLine("6. **Open Trades Consistency**:");
-        rules.AppendLine("   - If `TotalShares = 0`, then `OpenTrades` should be `false`");
-        rules.AppendLine("   - If `TotalShares > 0`, then `OpenTrades` should be `true`");
+        rules.AppendLine("   - **For Share Positions:**");
+        rules.AppendLine("     - If `TotalShares = 0`, shares do NOT contribute to OpenTrades");
+        rules.AppendLine("     - If `TotalShares > 0`, then `OpenTrades` should be `true`");
+        rules.AppendLine("   - **For Option Positions:**");
+        rules.AppendLine("     - OpenTrades depends on net position (netPosition) for each option (strike/expiration)");
+        rules.AppendLine("     - netPosition = sum of: BuyToOpen(+1) + SellToOpen(-1) + BuyToClose(-1) + SellToClose(+1)");
+        rules.AppendLine("     - If netPosition = 0 for ALL options, then options do NOT contribute to OpenTrades");
+        rules.AppendLine("     - If netPosition ≠ 0 for ANY option group, then `OpenTrades` should be `true`");
+        rules.AppendLine("   - **Overall Rule:**");
+        rules.AppendLine("     - `OpenTrades = true` if (TotalShares > 0) OR (any option has netPosition ≠ 0)");
+        rules.AppendLine("     - `OpenTrades = false` if (TotalShares = 0) AND (all options have netPosition = 0)");
         rules.AppendLine();
 
         // Database Schema

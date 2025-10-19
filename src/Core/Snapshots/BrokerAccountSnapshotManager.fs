@@ -79,36 +79,36 @@ module internal BrokerAccountSnapshotManager =
 
     let private getAllMovementsFromDate (brokerAccountId, snapshotDate) =
         task {
-            CoreLogger.logDebug
-                "BrokerAccountSnapshotManager"
-                $"getAllMovementsFromDate - BrokerAccountId: {brokerAccountId}, Date: {snapshotDate}"
+            // CoreLogger.logDebug
+            //     "BrokerAccountSnapshotManager"
+            //     $"getAllMovementsFromDate - BrokerAccountId: {brokerAccountId}, Date: {snapshotDate}"
 
-            CoreLogger.logDebug "BrokerAccountSnapshotManager" $"Loading all movements from start date {snapshotDate}"
+            // CoreLogger.logDebug "BrokerAccountSnapshotManager" $"Loading all movements from start date {snapshotDate}"
 
             let! brokerMovements =
                 BrokerMovementExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
 
-            CoreLogger.logDebug
-                "BrokerAccountSnapshotManager"
-                $"BrokerMovements loaded (from date): {brokerMovements.Length}"
+            // CoreLogger.logDebug
+            //     "BrokerAccountSnapshotManager"
+            //     $"BrokerMovements loaded (from date): {brokerMovements.Length}"
 
             let! trades = TradeExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
 
-            CoreLogger.logDebug "BrokerAccountSnapshotManager" $"Trades loaded (from date): {trades.Length}"
+            // CoreLogger.logDebug "BrokerAccountSnapshotManager" $"Trades loaded (from date): {trades.Length}"
 
             let! dividends = DividendExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
 
-            CoreLogger.logDebug "BrokerAccountSnapshotManager" $"Dividends loaded (from date): {dividends.Length}"
+            // CoreLogger.logDebug "BrokerAccountSnapshotManager" $"Dividends loaded (from date): {dividends.Length}"
 
             let! dividendTaxes = DividendTaxExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
 
-            CoreLogger.logDebug
-                "BrokerAccountSnapshotManager"
-                $"DividendTaxes loaded (from date): {dividendTaxes.Length}"
+            // CoreLogger.logDebug
+            //     "BrokerAccountSnapshotManager"
+            //     $"DividendTaxes loaded (from date): {dividendTaxes.Length}"
 
             let! optionTrades = OptionTradeExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, snapshotDate)
 
-            CoreLogger.logDebug "BrokerAccountSnapshotManager" $"OptionTrades loaded (from date): {optionTrades.Length}"
+            // CoreLogger.logDebug "BrokerAccountSnapshotManager" $"OptionTrades loaded (from date): {optionTrades.Length}"
 
 
             return
@@ -153,55 +153,55 @@ module internal BrokerAccountSnapshotManager =
     let handleBrokerAccountChange (brokerAccountId: int, date: DateTimePattern) =
         task {
             // Entry logging
-            CoreLogger.logDebug
-                "BrokerAccountSnapshotManager"
-                $"Entering handleBrokerAccountChange - BrokerAccountId: {brokerAccountId}, Date: {date}"
+            // CoreLogger.logDebug
+            //     "BrokerAccountSnapshotManager"
+            //     $"Entering handleBrokerAccountChange - BrokerAccountId: {brokerAccountId}, Date: {date}"
 
             let snapshotDate = getDateOnly date
             let! snapshot = getOrCreateSnapshot (brokerAccountId, snapshotDate)
 
-            CoreLogger.logDebug
-                "BrokerAccountSnapshotManager"
-                $"Snapshot retrieved/created - Id: {snapshot.Base.Id}, Date: {snapshot.Base.Date}"
+            // CoreLogger.logDebug
+            //     "BrokerAccountSnapshotManager"
+            //     $"Snapshot retrieved/created - Id: {snapshot.Base.Id}, Date: {snapshot.Base.Date}"
 
             // 1. Get all movements FROM this date onwards (inclusive) - using START OF DAY to capture entire day
             let movementRetrievalDate = getDateOnlyStartOfDay date
 
-            CoreLogger.logDebug "BrokerAccountSnapshotManager" $"Movement retrieval date: {movementRetrievalDate}"
+            // CoreLogger.logDebug "BrokerAccountSnapshotManager" $"Movement retrieval date: {movementRetrievalDate}"
 
             let! allMovementsFromDate = getAllMovementsFromDate (brokerAccountId, movementRetrievalDate)
 
-            CoreLogger.logDebug
-                "BrokerAccountSnapshotManager"
-                $"Movements loaded - HasMovements: {allMovementsFromDate.HasMovements}"
+            // CoreLogger.logDebug
+            //     "BrokerAccountSnapshotManager"
+            //     $"Movements loaded - HasMovements: {allMovementsFromDate.HasMovements}"
 
             let! futureSnapshots = getAllSnapshotsAfterDate (brokerAccountId, snapshotDate)
 
-            CoreLogger.logDebug
-                "BrokerAccountSnapshotManager"
-                $"Future snapshots loaded - Count: {futureSnapshots.Length}"
+            // CoreLogger.logDebug
+            //     "BrokerAccountSnapshotManager"
+            //     $"Future snapshots loaded - Count: {futureSnapshots.Length}"
 
             // 2. Extract affected dates from movement data (reuse the same data)
             let datesWithMovements = allMovementsFromDate.UniqueDates
             let datesWithSnapshots = extractDatesFromSnapshots (futureSnapshots)
             let missingSnapshotDates = Set.difference datesWithMovements datesWithSnapshots
 
-            CoreLogger.logDebug
-                "BrokerAccountSnapshotManager"
-                $"Date analysis - DatesWithMovements: {datesWithMovements.Count}, DatesWithSnapshots: {datesWithSnapshots.Count}, MissingSnapshotDates: {missingSnapshotDates.Count}"
+            // CoreLogger.logDebug
+            //     "BrokerAccountSnapshotManager"
+            //     $"Date analysis - DatesWithMovements: {datesWithMovements.Count}, DatesWithSnapshots: {datesWithSnapshots.Count}, MissingSnapshotDates: {missingSnapshotDates.Count}"
 
             // 3. Decision logic using the pre-fetched data
             match allMovementsFromDate.HasMovements, futureSnapshots.IsEmpty, missingSnapshotDates.IsEmpty with
             | false, true, _ ->
                 // No future activity - simple one-day update
-                CoreLogger.logDebug "BrokerAccountSnapshotManager" "Decision: One-day update (no future activity)"
+                // CoreLogger.logDebug "BrokerAccountSnapshotManager" "Decision: One-day update (no future activity)"
 
                 do! BrokerFinancialSnapshotManager.brokerAccountOneDayUpdate snapshot allMovementsFromDate
             | true, _, false ->
                 // Future movements exist with missing snapshots - create missing snapshots then cascade
-                CoreLogger.logDebug
-                    "BrokerAccountSnapshotManager"
-                    "Decision: Cascade update with missing snapshots creation"
+                // CoreLogger.logDebug
+                //     "BrokerAccountSnapshotManager"
+                //     "Decision: Cascade update with missing snapshots creation"
 
                 let! missedSnapshots = createAndGetMissingSnapshots (brokerAccountId, missingSnapshotDates)
 
@@ -211,7 +211,7 @@ module internal BrokerAccountSnapshotManager =
                 do! BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate snapshot allSnapshots allMovementsFromDate
             | true, false, true ->
                 // Future movements exist, all snapshots present - standard cascade
-                CoreLogger.logDebug "BrokerAccountSnapshotManager" "Decision: Standard cascade update"
+                // CoreLogger.logDebug "BrokerAccountSnapshotManager" "Decision: Standard cascade update"
 
                 do!
                     BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate
@@ -220,7 +220,7 @@ module internal BrokerAccountSnapshotManager =
                         allMovementsFromDate
             | _ ->
                 // Edge cases - default to cascade for safety
-                CoreLogger.logDebug "BrokerAccountSnapshotManager" "Decision: Edge case - default to cascade for safety"
+                // CoreLogger.logDebug "BrokerAccountSnapshotManager" "Decision: Edge case - default to cascade for safety"
 
                 do!
                     BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate
@@ -228,9 +228,9 @@ module internal BrokerAccountSnapshotManager =
                         futureSnapshots
                         allMovementsFromDate
 
-            CoreLogger.logDebug
-                "BrokerAccountSnapshotManager"
-                $"Exiting handleBrokerAccountChange - BrokerAccountId: {brokerAccountId}"
+            // CoreLogger.logDebug
+            //     "BrokerAccountSnapshotManager"
+            //     $"Exiting handleBrokerAccountChange - BrokerAccountId: {brokerAccountId}"
 
             return ()
         }
@@ -251,60 +251,60 @@ module internal BrokerAccountSnapshotManager =
             if dates.IsEmpty then
                 return ()
             else
-                CoreLogger.logInfof
-                    "BrokerAccountSnapshotManager"
-                    "Starting batch processing for %d dates (account %d)"
-                    dates.Length
-                    brokerAccountId
+                // CoreLogger.logInfof
+                //     "BrokerAccountSnapshotManager"
+                //     "Starting batch processing for %d dates (account %d)"
+                //     dates.Length
+                //     brokerAccountId
 
                 // Sort dates to process chronologically
                 let sortedDates = dates |> List.sortBy (fun d -> d.Value)
                 let minDate = sortedDates.Head
                 let maxDate = sortedDates |> List.last
 
-                CoreLogger.logDebugf
-                    "BrokerAccountSnapshotManager"
-                    "Batch date range: %s to %s"
-                    (minDate.ToString())
-                    (maxDate.ToString())
+                // CoreLogger.logDebugf
+                //     "BrokerAccountSnapshotManager"
+                //     "Batch date range: %s to %s"
+                //     (minDate.ToString())
+                //     (maxDate.ToString())
 
                 // OPTIMIZATION: Load ALL movements from the earliest date ONCE
                 let movementRetrievalDate = getDateOnlyStartOfDay minDate
 
-                CoreLogger.logDebug
-                    "BrokerAccountSnapshotManager"
-                    "Loading all movements from earliest date (batch optimization)"
+                // CoreLogger.logDebug
+                //     "BrokerAccountSnapshotManager"
+                //     "Loading all movements from earliest date (batch optimization)"
 
                 let! allMovementsFromEarliestDate = getAllMovementsFromDate (brokerAccountId, movementRetrievalDate)
 
-                CoreLogger.logDebugf
-                    "BrokerAccountSnapshotManager"
-                    "Batch movements loaded - BrokerMovements: %d, Trades: %d, Dividends: %d, Options: %d"
-                    allMovementsFromEarliestDate.BrokerMovements.Length
-                    allMovementsFromEarliestDate.Trades.Length
-                    allMovementsFromEarliestDate.Dividends.Length
-                    allMovementsFromEarliestDate.OptionTrades.Length
+                // CoreLogger.logDebugf
+                //     "BrokerAccountSnapshotManager"
+                //     "Batch movements loaded - BrokerMovements: %d, Trades: %d, Dividends: %d, Options: %d"
+                //     allMovementsFromEarliestDate.BrokerMovements.Length
+                //     allMovementsFromEarliestDate.Trades.Length
+                //     allMovementsFromEarliestDate.Dividends.Length
+                //     allMovementsFromEarliestDate.OptionTrades.Length
 
                 // OPTIMIZATION: Load all snapshots after the earliest date ONCE
                 let earliestSnapshotDate = getDateOnly minDate
 
                 let! allFutureSnapshots = getAllSnapshotsAfterDate (brokerAccountId, earliestSnapshotDate)
 
-                CoreLogger.logDebugf
-                    "BrokerAccountSnapshotManager"
-                    "Batch snapshots loaded - Count: %d"
-                    allFutureSnapshots.Length
+                // CoreLogger.logDebugf
+                //     "BrokerAccountSnapshotManager"
+                //     "Batch snapshots loaded - Count: %d"
+                //     allFutureSnapshots.Length
 
                 // Process each date using the pre-loaded data (no additional queries)
                 for date in sortedDates do
                     let snapshotDate = getDateOnly date
                     let! snapshot = getOrCreateSnapshot (brokerAccountId, snapshotDate)
 
-                    CoreLogger.logDebugf
-                        "BrokerAccountSnapshotManager"
-                        "Processing date %s (snapshot ID: %d)"
-                        (snapshotDate.ToString())
-                        snapshot.Base.Id
+                    // CoreLogger.logDebugf
+                    //     "BrokerAccountSnapshotManager"
+                    //     "Processing date %s (snapshot ID: %d)"
+                    //     (snapshotDate.ToString())
+                    //     snapshot.Base.Id
 
                     // Filter movements to only those from this specific date onwards
                     let movementsFromThisDate =
@@ -322,30 +322,30 @@ module internal BrokerAccountSnapshotManager =
                     let datesWithSnapshots = extractDatesFromSnapshots (snapshotsAfterThisDate)
                     let missingSnapshotDates = Set.difference datesWithMovements datesWithSnapshots
 
-                    CoreLogger.logDebugf
-                        "BrokerAccountSnapshotManager"
-                        "Date %s analysis - Movements: %d, FutureSnapshots: %d, Missing: %d"
-                        (snapshotDate.ToString())
-                        datesWithMovements.Count
-                        snapshotsAfterThisDate.Length
-                        missingSnapshotDates.Count
+                    // CoreLogger.logDebugf
+                    //     "BrokerAccountSnapshotManager"
+                    //     "Date %s analysis - Movements: %d, FutureSnapshots: %d, Missing: %d"
+                    //     (snapshotDate.ToString())
+                    //     datesWithMovements.Count
+                    //     snapshotsAfterThisDate.Length
+                    //     missingSnapshotDates.Count
 
                     // Apply the same decision logic as single-date version
                     match
                         movementsFromThisDate.HasMovements, snapshotsAfterThisDate.IsEmpty, missingSnapshotDates.IsEmpty
                     with
                     | false, true, _ ->
-                        CoreLogger.logDebugf
-                            "BrokerAccountSnapshotManager"
-                            "Date %s: One-day update (no future activity)"
-                            (snapshotDate.ToString())
+                        // CoreLogger.logDebugf
+                        //     "BrokerAccountSnapshotManager"
+                        //     "Date %s: One-day update (no future activity)"
+                        //     (snapshotDate.ToString())
 
                         do! BrokerFinancialSnapshotManager.brokerAccountOneDayUpdate snapshot movementsFromThisDate
                     | true, _, false ->
-                        CoreLogger.logDebugf
-                            "BrokerAccountSnapshotManager"
-                            "Date %s: Cascade with missing snapshots creation"
-                            (snapshotDate.ToString())
+                        // CoreLogger.logDebugf
+                        //     "BrokerAccountSnapshotManager"
+                        //     "Date %s: Cascade with missing snapshots creation"
+                        //     (snapshotDate.ToString())
 
                         let! missedSnapshots = createAndGetMissingSnapshots (brokerAccountId, missingSnapshotDates)
 
@@ -359,10 +359,10 @@ module internal BrokerAccountSnapshotManager =
                                 allSnapshots
                                 movementsFromThisDate
                     | true, false, true ->
-                        CoreLogger.logDebugf
-                            "BrokerAccountSnapshotManager"
-                            "Date %s: Standard cascade update"
-                            (snapshotDate.ToString())
+                        // CoreLogger.logDebugf
+                        //     "BrokerAccountSnapshotManager"
+                        //     "Date %s: Standard cascade update"
+                        //     (snapshotDate.ToString())
 
                         do!
                             BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate
@@ -370,10 +370,10 @@ module internal BrokerAccountSnapshotManager =
                                 snapshotsAfterThisDate
                                 movementsFromThisDate
                     | _ ->
-                        CoreLogger.logDebugf
-                            "BrokerAccountSnapshotManager"
-                            "Date %s: Edge case - default to cascade"
-                            (snapshotDate.ToString())
+                        // CoreLogger.logDebugf
+                        //     "BrokerAccountSnapshotManager"
+                        //     "Date %s: Edge case - default to cascade"
+                        //     (snapshotDate.ToString())
 
                         do!
                             BrokerFinancialSnapshotManager.brokerAccountCascadeUpdate
@@ -381,10 +381,10 @@ module internal BrokerAccountSnapshotManager =
                                 snapshotsAfterThisDate
                                 movementsFromThisDate
 
-                CoreLogger.logInfof
-                    "BrokerAccountSnapshotManager"
-                    "Batch processing completed for %d dates"
-                    dates.Length
+                // CoreLogger.logInfof
+                //     "BrokerAccountSnapshotManager"
+                //     "Batch processing completed for %d dates"
+                //     dates.Length
 
                 return ()
         }
@@ -420,50 +420,50 @@ module internal BrokerAccountSnapshotManager =
             else
                 let startTime = System.Diagnostics.Stopwatch.StartNew()
 
-                CoreLogger.logInfof
-                    "BrokerAccountSnapshotManager"
-                    "Starting OPTIMIZED batch processing for %d dates (account %d)"
-                    dates.Length
-                    brokerAccountId
+                // CoreLogger.logInfof
+                //     "BrokerAccountSnapshotManager"
+                //     "Starting OPTIMIZED batch processing for %d dates (account %d)"
+                //     dates.Length
+                //     brokerAccountId
 
                 // Sort dates to process chronologically (CRITICAL for correctness)
                 let sortedDates = dates |> List.sortBy (fun d -> d.Value)
                 let minDate = sortedDates.Head
                 let maxDate = sortedDates |> List.last
 
-                CoreLogger.logDebugf
-                    "BrokerAccountSnapshotManager"
-                    "Batch date range: %s to %s"
-                    (minDate.ToString())
-                    (maxDate.ToString())
+                // CoreLogger.logDebugf
+                //     "BrokerAccountSnapshotManager"
+                //     "Batch date range: %s to %s"
+                //     (minDate.ToString())
+                //     (maxDate.ToString())
 
                 // Load ALL movements from the earliest date ONCE (same as before)
                 let movementRetrievalDate = getDateOnlyStartOfDay minDate
 
-                CoreLogger.logDebug
-                    "BrokerAccountSnapshotManager"
-                    "Loading all movements from earliest date (batch optimization)"
+                // CoreLogger.logDebug
+                //     "BrokerAccountSnapshotManager"
+                //     "Loading all movements from earliest date (batch optimization)"
 
                 let! allMovementsFromEarliestDate = getAllMovementsFromDate (brokerAccountId, movementRetrievalDate)
 
-                CoreLogger.logDebugf
-                    "BrokerAccountSnapshotManager"
-                    "Batch movements loaded - BrokerMovements: %d, Trades: %d, Dividends: %d, Options: %d (in %dms)"
-                    allMovementsFromEarliestDate.BrokerMovements.Length
-                    allMovementsFromEarliestDate.Trades.Length
-                    allMovementsFromEarliestDate.Dividends.Length
-                    allMovementsFromEarliestDate.OptionTrades.Length
-                    startTime.ElapsedMilliseconds
+                // CoreLogger.logDebugf
+                //     "BrokerAccountSnapshotManager"
+                //     "Batch movements loaded - BrokerMovements: %d, Trades: %d, Dividends: %d, Options: %d (in %dms)"
+                //     allMovementsFromEarliestDate.BrokerMovements.Length
+                //     allMovementsFromEarliestDate.Trades.Length
+                //     allMovementsFromEarliestDate.Dividends.Length
+                //     allMovementsFromEarliestDate.OptionTrades.Length
+                //     startTime.ElapsedMilliseconds
 
                 // Load ALL existing financial snapshots ONCE (for finding previous snapshots)
                 let! allExistingFinancialSnapshots =
                     BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountId (brokerAccountId)
 
-                CoreLogger.logDebugf
-                    "BrokerAccountSnapshotManager"
-                    "Batch existing snapshots loaded - Count: %d (in %dms)"
-                    allExistingFinancialSnapshots.Length
-                    startTime.ElapsedMilliseconds
+                // CoreLogger.logDebugf
+                //     "BrokerAccountSnapshotManager"
+                //     "Batch existing snapshots loaded - Count: %d (in %dms)"
+                //     allExistingFinancialSnapshots.Length
+                //     startTime.ElapsedMilliseconds
 
                 // Process each date chronologically using ONLY the pre-loaded data
                 // No cascade updates, no additional queries - just build snapshots progressively
@@ -472,13 +472,13 @@ module internal BrokerAccountSnapshotManager =
                     let snapshotDate = getDateOnly date
                     let! snapshot = getOrCreateSnapshot (brokerAccountId, snapshotDate)
 
-                    CoreLogger.logDebugf
-                        "BrokerAccountSnapshotManager"
-                        "[%d/%d] Processing date %s (snapshot ID: %d)"
-                        (i + 1)
-                        sortedDates.Length
-                        (snapshotDate.ToString())
-                        snapshot.Base.Id
+                    // CoreLogger.logDebugf
+                    //     "BrokerAccountSnapshotManager"
+                    //     "[%d/%d] Processing date %s (snapshot ID: %d)"
+                    //     (i + 1)
+                    //     sortedDates.Length
+                    //     (snapshotDate.ToString())
+                    //     snapshot.Base.Id
 
                     // Check if financial snapshots already exist for this date
                     // If batch processing already created them with correct cumulative values, don't recalculate
@@ -487,12 +487,12 @@ module internal BrokerAccountSnapshotManager =
 
                     if existingFinancialSnapshots.IsEmpty then
                         // No existing financial snapshots - need to calculate them
-                        CoreLogger.logDebugf
-                            "BrokerAccountSnapshotManager"
-                            "[%d/%d] No financial snapshots exist for %s - will calculate"
-                            (i + 1)
-                            sortedDates.Length
-                            (snapshotDate.ToString())
+                        // CoreLogger.logDebugf
+                        //     "BrokerAccountSnapshotManager"
+                        //     "[%d/%d] No financial snapshots exist for %s - will calculate"
+                        //     (i + 1)
+                        //     sortedDates.Length
+                        //     (snapshotDate.ToString())
 
                         // Filter movements to only those ON this specific date
                         // CRITICAL: brokerAccountOneDayUpdate expects movements for the specific day,
@@ -517,14 +517,14 @@ module internal BrokerAccountSnapshotManager =
                                  |> List.filter (fun ot ->
                                      SnapshotManagerUtils.normalizeToStartOfDay ot.TimeStamp = snapshotDate))
 
-                        CoreLogger.logDebugf
-                            "BrokerAccountSnapshotManager"
-                            "[%d/%d] Movements on %s: BrokerMovements=%d, Trades=%d"
-                            (i + 1)
-                            sortedDates.Length
-                            (snapshotDate.ToString())
-                            movementsForThisDate.BrokerMovements.Length
-                            movementsForThisDate.Trades.Length
+                        // CoreLogger.logDebugf
+                        //     "BrokerAccountSnapshotManager"
+                        //     "[%d/%d] Movements on %s: BrokerMovements=%d, Trades=%d"
+                        //     (i + 1)
+                        //     sortedDates.Length
+                        //     (snapshotDate.ToString())
+                        //     movementsForThisDate.BrokerMovements.Length
+                        //     movementsForThisDate.Trades.Length
 
                         // Call the one-day update with movements for THIS DAY ONLY
                         // brokerAccountOneDayUpdate will find the previous snapshot and calculate proper deltas
@@ -532,44 +532,45 @@ module internal BrokerAccountSnapshotManager =
                     else
                         // Financial snapshots already exist (likely created by batch processing)
                         // Just update the BrokerAccountSnapshotId link, don't recalculate
-                        CoreLogger.logDebugf
-                            "BrokerAccountSnapshotManager"
-                            "[%d/%d] Found %d existing financial snapshot(s) for %s - updating links only"
-                            (i + 1)
-                            sortedDates.Length
-                            existingFinancialSnapshots.Length
-                            (snapshotDate.ToString())
+                        // CoreLogger.logDebugf
+                        //     "BrokerAccountSnapshotManager"
+                        //     "[%d/%d] Found %d existing financial snapshot(s) for %s - updating links only"
+                        //     (i + 1)
+                        //     sortedDates.Length
+                        //     existingFinancialSnapshots.Length
+                        //     (snapshotDate.ToString())
 
                         // Update BrokerAccountSnapshotId on existing financial snapshots
-                        let! updatedCount =
-                            BrokerFinancialBatchPersistence.updateBrokerAccountSnapshotIds
-                                brokerAccountId
-                                snapshotDate
-                                snapshot.Base.Id
+                        // let! updatedCount =
+                        //     BrokerFinancialBatchPersistence.updateBrokerAccountSnapshotIds
+                        //         brokerAccountId
+                        //         snapshotDate
+                        //         snapshot.Base.Id
 
-                        CoreLogger.logDebugf
-                            "BrokerAccountSnapshotManager"
-                            "[%d/%d] Updated %d financial snapshot link(s) for %s"
-                            (i + 1)
-                            sortedDates.Length
-                            updatedCount
-                            (snapshotDate.ToString())
+                        // CoreLogger.logDebugf
+                        //     "BrokerAccountSnapshotManager"
+                        //     "[%d/%d] Updated %d financial snapshot link(s) for %s"
+                        //     (i + 1)
+                        //     sortedDates.Length
+                        //     updatedCount
+                        //     (snapshotDate.ToString())
 
-                    CoreLogger.logDebugf
-                        "BrokerAccountSnapshotManager"
-                        "[%d/%d] Completed date %s in %dms (total: %dms)"
-                        (i + 1)
-                        sortedDates.Length
-                        (snapshotDate.ToString())
-                        dateStartTime.ElapsedMilliseconds
-                        startTime.ElapsedMilliseconds
+                        // CoreLogger.logDebugf
+                        //     "BrokerAccountSnapshotManager"
+                        //     "[%d/%d] Completed date %s in %dms (total: %dms)"
+                        //     (i + 1)
+                        //     sortedDates.Length
+                        //     (snapshotDate.ToString())
+                        //     dateStartTime.ElapsedMilliseconds
+                        //     startTime.ElapsedMilliseconds
+                        ()
 
-                CoreLogger.logInfof
-                    "BrokerAccountSnapshotManager"
-                    "OPTIMIZED batch processing completed for %d dates in %dms (avg: %dms/date)"
-                    dates.Length
-                    startTime.ElapsedMilliseconds
-                    (startTime.ElapsedMilliseconds / int64 dates.Length)
+                // CoreLogger.logInfof
+                //     "BrokerAccountSnapshotManager"
+                //     "OPTIMIZED batch processing completed for %d dates in %dms (avg: %dms/date)"
+                //     dates.Length
+                //     startTime.ElapsedMilliseconds
+                //     (startTime.ElapsedMilliseconds / int64 dates.Length)
 
                 return ()
         }

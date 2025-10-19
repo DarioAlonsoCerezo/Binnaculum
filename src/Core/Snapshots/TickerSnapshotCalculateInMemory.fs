@@ -52,16 +52,16 @@ module internal TickerSnapshotCalculateInMemory =
         (currencyId: int)
         : TickerCurrencySnapshot =
 
-        CoreLogger.logDebugf
-            "TickerSnapshotCalculateInMemory"
-            "Calculating NEW snapshot - Ticker:%d Currency:%d Date:%s (Trades:%d Divs:%d Options:%d) Previous:%s"
-            tickerId
-            currencyId
-            (date.ToString())
-            movements.Trades.Length
-            movements.Dividends.Length
-            movements.OptionTrades.Length
-            (previousSnapshot.Base.Date.Value.ToString())
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "Calculating NEW snapshot - Ticker:%d Currency:%d Date:%s (Trades:%d Divs:%d Options:%d) Previous:%s"
+        //     tickerId
+        //     currencyId
+        //     (date.ToString())
+        //     movements.Trades.Length
+        //     movements.Dividends.Length
+        //     movements.OptionTrades.Length
+        //     (previousSnapshot.Base.Date.Value.ToString())
 
         // Calculate shares delta from trades
         // CRITICAL FIX: Account for buy/sell direction using TradeCode
@@ -216,12 +216,12 @@ module internal TickerSnapshotCalculateInMemory =
         let realized =
             Money.FromAmount(previousSnapshot.Realized.Value + newRealizedGains.Value)
 
-        CoreLogger.logDebugf
-            "TickerSnapshotCalculateInMemory"
-            "Realized gains - Total trades by snapshot date: %d, Calculated: %M (Previous: %M)"
-            tradesUpToSnapshot.Length
-            realized.Value
-            previousSnapshot.Realized.Value
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "Realized gains - Total trades by snapshot date: %d, Calculated: %M (Previous: %M)"
+        //     tradesUpToSnapshot.Length
+        //     realized.Value
+        //     previousSnapshot.Realized.Value
 
         // Calculate performance percentage
         let performance =
@@ -231,25 +231,32 @@ module internal TickerSnapshotCalculateInMemory =
                 0.0m
 
         // Check for open trades - include both share positions and open option trades
-        // Use temporal check: if openOptionsUnrealized is non-zero, there are open options at this snapshot date
+        // Per business rules: OpenTrades = true if (TotalShares > 0) OR (any option has netPosition ≠ 0)
+        // Calculate open positions map to check if there are truly open option contracts
+        let openPositionsMap =
+            OptionTradeExtensions.OptionTradeCalculations.calculateOpenPositions (movements.OptionTrades)
+
         let hasOpenShares = totalShares <> 0.0m
-        let hasOpenOptions = openOptionsUnrealized <> 0.0m
+        let hasOpenOptions = not (Map.isEmpty openPositionsMap)
         let openTrades = hasOpenShares || hasOpenOptions
 
         // Weight is not calculated here - it's calculated at TickerSnapshot level
         let weight = 0.0m
 
-        CoreLogger.logDebugf
-            "TickerSnapshotCalculateInMemory"
-            "Calculated NEW snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Dividends:%M Options:%M Realized:%M"
-            totalShares
-            costBasis.Value
-            sharesUnrealized
-            openOptionsUnrealized
-            unrealized.Value
-            totalDividends.Value
-            totalOptions.Value
-            realized.Value
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "Calculated NEW snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Dividends:%M Options:%M Realized:%M OpenTrades:%b (Shares:%b Options:%b)"
+        //     totalShares
+        //     costBasis.Value
+        //     sharesUnrealized
+        //     openOptionsUnrealized
+        //     unrealized.Value
+        //     totalDividends.Value
+        //     totalOptions.Value
+        //     realized.Value
+        //     openTrades
+        //     hasOpenShares
+        //     hasOpenOptions
 
         { Base = SnapshotManagerUtils.createBaseSnapshot date
           TickerId = tickerId
@@ -287,15 +294,15 @@ module internal TickerSnapshotCalculateInMemory =
         (currencyId: int)
         : TickerCurrencySnapshot =
 
-        CoreLogger.logDebugf
-            "TickerSnapshotCalculateInMemory"
-            "Calculating INITIAL snapshot - Ticker:%d Currency:%d Date:%s (Trades:%d Divs:%d Options:%d)"
-            tickerId
-            currencyId
-            (date.ToString())
-            movements.Trades.Length
-            movements.Dividends.Length
-            movements.OptionTrades.Length
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "Calculating INITIAL snapshot - Ticker:%d Currency:%d Date:%s (Trades:%d Divs:%d Options:%d)"
+        //     tickerId
+        //     currencyId
+        //     (date.ToString())
+        //     movements.Trades.Length
+        //     movements.Dividends.Length
+        //     movements.OptionTrades.Length
 
         // Calculate shares from trades (no previous)
         // CRITICAL FIX: Account for buy/sell direction using TradeCode
@@ -401,24 +408,31 @@ module internal TickerSnapshotCalculateInMemory =
                 0.0m
 
         // Check for open trades - include both share positions and open option trades
-        // Use temporal check: if openOptionsUnrealized is non-zero, there are open options at this snapshot date
+        // Per business rules: OpenTrades = true if (TotalShares > 0) OR (any option has netPosition ≠ 0)
+        // Calculate open positions map to check if there are truly open option contracts
+        let openPositionsMap =
+            OptionTradeExtensions.OptionTradeCalculations.calculateOpenPositions (movements.OptionTrades)
+
         let hasOpenShares = totalShares <> 0.0m
-        let hasOpenOptions = openOptionsUnrealized <> 0.0m
+        let hasOpenOptions = not (Map.isEmpty openPositionsMap)
         let openTrades = hasOpenShares || hasOpenOptions
 
         // Weight is not calculated here - it's calculated at TickerSnapshot level
         let weight = 0.0m
 
-        CoreLogger.logDebugf
-            "TickerSnapshotCalculateInMemory"
-            "Calculated INITIAL snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Dividends:%M Options:%M"
-            totalShares
-            costBasis.Value
-            sharesUnrealized
-            openOptionsUnrealized
-            unrealized.Value
-            totalDividends.Value
-            totalOptions.Value
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "Calculated INITIAL snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Dividends:%M Options:%M OpenTrades:%b (Shares:%b Options:%b)"
+        //     totalShares
+        //     costBasis.Value
+        //     sharesUnrealized
+        //     openOptionsUnrealized
+        //     unrealized.Value
+        //     totalDividends.Value
+        //     totalOptions.Value
+        //     openTrades
+        //     hasOpenShares
+        //     hasOpenOptions
 
         { Base = SnapshotManagerUtils.createBaseSnapshot date
           TickerId = tickerId
@@ -454,15 +468,15 @@ module internal TickerSnapshotCalculateInMemory =
         (marketPrice: decimal)
         : TickerCurrencySnapshot =
 
-        CoreLogger.logDebugf
-            "TickerSnapshotCalculateInMemory"
-            "Updating EXISTING snapshot - Ticker:%d Currency:%d Date:%s (Existing:%d movements)"
-            existingSnapshot.TickerId
-            existingSnapshot.CurrencyId
-            (existingSnapshot.Base.Date.Value.ToString())
-            (movements.Trades.Length
-             + movements.Dividends.Length
-             + movements.OptionTrades.Length)
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "Updating EXISTING snapshot - Ticker:%d Currency:%d Date:%s (Existing:%d movements)"
+        //     existingSnapshot.TickerId
+        //     existingSnapshot.CurrencyId
+        //     (existingSnapshot.Base.Date.Value.ToString())
+        //     (movements.Trades.Length
+        //      + movements.Dividends.Length
+        //      + movements.OptionTrades.Length)
 
         // Recalculate as if it's a new snapshot (this ensures consistency)
         let recalculated =
@@ -495,13 +509,13 @@ module internal TickerSnapshotCalculateInMemory =
         (marketPrice: decimal)
         : TickerCurrencySnapshot =
 
-        CoreLogger.logDebugf
-            "TickerSnapshotCalculateInMemory"
-            "Carrying forward snapshot - Ticker:%d Currency:%d From:%s To:%s"
-            previousSnapshot.TickerId
-            previousSnapshot.CurrencyId
-            (previousSnapshot.Base.Date.Value.ToString())
-            (newDate.ToString())
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "Carrying forward snapshot - Ticker:%d Currency:%d From:%s To:%s"
+        //     previousSnapshot.TickerId
+        //     previousSnapshot.CurrencyId
+        //     (previousSnapshot.Base.Date.Value.ToString())
+        //     (newDate.ToString())
 
         // Recalculate unrealized gains with new market price
         // Following "Open Positions Only" approach:
@@ -526,17 +540,17 @@ module internal TickerSnapshotCalculateInMemory =
             else
                 0.0m
 
-        CoreLogger.logDebugf
-            "TickerSnapshotCalculateInMemory"
-            "Carried forward - Shares:%M Price:%M->%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Dividends:%M Realized:%M"
-            previousSnapshot.TotalShares
-            previousSnapshot.LatestPrice.Value
-            marketPrice
-            sharesUnrealized
-            openOptionsUnrealized
-            unrealized.Value
-            previousSnapshot.Dividends.Value
-            previousSnapshot.Realized.Value
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "Carried forward - Shares:%M Price:%M->%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Dividends:%M Realized:%M"
+        //     previousSnapshot.TotalShares
+        //     previousSnapshot.LatestPrice.Value
+        //     marketPrice
+        //     sharesUnrealized
+        //     openOptionsUnrealized
+        //     unrealized.Value
+        //     previousSnapshot.Dividends.Value
+        //     previousSnapshot.Realized.Value
 
         // Create new snapshot with same cumulative values but updated price/unrealized
         { Base = SnapshotManagerUtils.createBaseSnapshot newDate

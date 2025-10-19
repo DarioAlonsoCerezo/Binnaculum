@@ -44,28 +44,28 @@ module internal SnapshotManagerUtils =
     /// Creates a base snapshot with the given date
     let createBaseSnapshot (date: DateTimePattern) : BaseSnapshot =
         try
-            CoreLogger.logDebug
-                "SnapshotManagerUtils"
-                $"createBaseSnapshot - Step 1: Creating base snapshot for date {date}"
+            // CoreLogger.logDebug
+            //     "SnapshotManagerUtils"
+            //     $"createBaseSnapshot - Step 1: Creating base snapshot for date {date}"
 
             let normalizedDate = getDateOnly date
 
-            CoreLogger.logDebug
-                "SnapshotManagerUtils"
-                $"createBaseSnapshot - Step 2: Normalized date = {normalizedDate}"
+            // CoreLogger.logDebug
+            //     "SnapshotManagerUtils"
+            //     $"createBaseSnapshot - Step 2: Normalized date = {normalizedDate}"
 
             let auditEntity = AuditableEntity.FromDateTime(DateTime.UtcNow)
 
-            CoreLogger.logDebug "SnapshotManagerUtils" $"createBaseSnapshot - Step 3: Created audit entity"
+            // CoreLogger.logDebug "SnapshotManagerUtils" $"createBaseSnapshot - Step 3: Created audit entity"
 
             let baseSnapshot =
                 { Id = 0
                   Date = normalizedDate
                   Audit = auditEntity }
 
-            CoreLogger.logDebug
-                "SnapshotManagerUtils"
-                $"createBaseSnapshot - Step 4: Base snapshot created successfully with ID = {baseSnapshot.Id}"
+            // CoreLogger.logDebug
+            //     "SnapshotManagerUtils"
+            //     $"createBaseSnapshot - Step 4: Base snapshot created successfully with ID = {baseSnapshot.Id}"
 
             baseSnapshot
         with ex ->
@@ -86,29 +86,29 @@ module internal SnapshotManagerUtils =
     let getDefaultCurrency () =
         task {
             try
-                CoreLogger.logDebug "SnapshotManagerUtils" "getDefaultCurrency - Step 1: Getting preference currency..."
+                // CoreLogger.logDebug "SnapshotManagerUtils" "getDefaultCurrency - Step 1: Getting preference currency..."
 
                 let preferenceCurrency = Preferences.Get(CurrencyKey, DefaultCurrency)
 
-                CoreLogger.logDebug
-                    "SnapshotManagerUtils"
-                    $"getDefaultCurrency - Step 2: Preference currency = {preferenceCurrency}"
+                // CoreLogger.logDebug
+                //     "SnapshotManagerUtils"
+                //     $"getDefaultCurrency - Step 2: Preference currency = {preferenceCurrency}"
 
-                CoreLogger.logDebug
-                    "SnapshotManagerUtils"
-                    "getDefaultCurrency - Step 3: Calling CurrencyExtensions.Do.getByCode..."
+                // CoreLogger.logDebug
+                //     "SnapshotManagerUtils"
+                //     "getDefaultCurrency - Step 3: Calling CurrencyExtensions.Do.getByCode..."
 
                 let! defaultCurrency = CurrencyExtensions.Do.getByCode (preferenceCurrency)
 
-                CoreLogger.logDebug
-                    "SnapshotManagerUtils"
-                    "getDefaultCurrency - Step 4: CurrencyExtensions.Do.getByCode completed"
+                // CoreLogger.logDebug
+                //     "SnapshotManagerUtils"
+                //     "getDefaultCurrency - Step 4: CurrencyExtensions.Do.getByCode completed"
 
                 match defaultCurrency with
                 | Some currency ->
-                    CoreLogger.logDebug
-                        "SnapshotManagerUtils"
-                        $"getDefaultCurrency - Success: Found currency ID = {currency.Id}"
+                    // CoreLogger.logDebug
+                    //     "SnapshotManagerUtils"
+                    //     $"getDefaultCurrency - Success: Found currency ID = {currency.Id}"
 
                     return currency.Id
                 | None ->
@@ -375,10 +375,10 @@ module internal BrokerAccountMovementData =
                   optionTradeCurrencies ]
 
         // Group movements by currency
-        do
-            CoreLogger.logDebug
-                "BrokerAccountMovementData"
-                $"Creating movement data - Total BrokerMovements: {brokerMovements.Length}, Total Trades: {trades.Length}, Total OptionTrades: {optionTrades.Length}, UniqueCurrencies: {allCurrencies.Count}"
+        // do
+        // CoreLogger.logDebug
+        //     "BrokerAccountMovementData"
+        //     $"Creating movement data - Total BrokerMovements: {brokerMovements.Length}, Total Trades: {trades.Length}, Total OptionTrades: {optionTrades.Length}, UniqueCurrencies: {allCurrencies.Count}"
 
         let movementsByCurrency =
             allCurrencies
@@ -398,24 +398,24 @@ module internal BrokerAccountMovementData =
                 let optionTradesForCurrency =
                     optionTrades |> List.filter (fun ot -> ot.CurrencyId = currencyId)
 
-                do
-                    CoreLogger.logDebug
-                        "BrokerAccountMovementData"
-                        $"Currency {currencyId} - BrokerMovements: {brokerMovementsForCurrency.Length}, Trades: {tradesForCurrency.Length}, OptionTrades: {optionTradesForCurrency.Length}"
+                // do
+                //     CoreLogger.logDebug
+                //         "BrokerAccountMovementData"
+                //         $"Currency {currencyId} - BrokerMovements: {brokerMovementsForCurrency.Length}, Trades: {tradesForCurrency.Length}, OptionTrades: {optionTradesForCurrency.Length}"
 
-                if brokerMovementsForCurrency.Length > 0 then
-                    brokerMovementsForCurrency
-                    |> List.iter (fun m ->
-                        CoreLogger.logDebug
-                            "BrokerAccountMovementData"
-                            $"Movement for currency {currencyId} - ID: {m.Id}, Type: {m.MovementType}, Amount: {m.Amount.Value}")
+                // if brokerMovementsForCurrency.Length > 0 then
+                //     brokerMovementsForCurrency
+                //     |> List.iter (fun m ->
+                //         CoreLogger.logDebug
+                //             "BrokerAccountMovementData"
+                //             $"Movement for currency {currencyId} - ID: {m.Id}, Type: {m.MovementType}, Amount: {m.Amount.Value}")
 
-                if optionTradesForCurrency.Length > 0 then
-                    optionTradesForCurrency
-                    |> List.iter (fun ot ->
-                        CoreLogger.logDebug
-                            "BrokerAccountMovementData"
-                            $"OptionTrade for currency {currencyId} - ID: {ot.Id}, Code: {ot.Code}, Strike: {ot.Strike.Value}, Expiration: {ot.ExpirationDate.Value}, NetPremium: {ot.NetPremium.Value}")
+                // if optionTradesForCurrency.Length > 0 then
+                //     optionTradesForCurrency
+                //     |> List.iter (fun ot ->
+                //         CoreLogger.logDebug
+                //             "BrokerAccountMovementData"
+                //             $"OptionTrade for currency {currencyId} - ID: {ot.Id}, Code: {ot.Code}, Strike: {ot.Strike.Value}, Expiration: {ot.ExpirationDate.Value}, NetPremium: {ot.NetPremium.Value}")
 
                 let currencyData =
                     createCurrencyMovementData

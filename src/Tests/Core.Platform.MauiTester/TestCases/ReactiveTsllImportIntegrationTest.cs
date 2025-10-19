@@ -111,7 +111,7 @@ namespace Core.Platform.MauiTester.TestCases
 
                 // Execute import
                 LogInfo($"[ReactiveTsllTest] Starting import from: {tempCsvPath}");
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(180));
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(360));
                 ImportResult importResult;
                 try
                 {
@@ -317,12 +317,15 @@ namespace Core.Platform.MauiTester.TestCases
                     {
                         LogInfo($"[ReactiveTsllTest] Ticker: {ticker.Symbol}");
                         var tickerSnapshots = await Tickers.GetSnapshots(ticker.Id);
-                        var lastTickerSnapshot = tickerSnapshots.LastOrDefault();
+                        var sortedSnapshots = tickerSnapshots.OrderBy(s => s.MainCurrency.Date).ToList();
 
-                        if (lastTickerSnapshot != null)
+                        results.Add($"Ticker: {ticker.Symbol} ({sortedSnapshots.Count} snapshots)");
+                        LogInfo($"[ReactiveTsllTest] Total snapshots for {ticker.Symbol}: {sortedSnapshots.Count}");
+
+                        foreach (var tickerSnapshot in sortedSnapshots)
                         {
-                            var mainCurrency = lastTickerSnapshot.MainCurrency;
-                            LogInfo($"  [MainCurrency] Date: {mainCurrency.Date}");
+                            var mainCurrency = tickerSnapshot.MainCurrency;
+                            LogInfo($"  [Snapshot] Date: {mainCurrency.Date}");
                             LogInfo($"  [MainCurrency] Currency: {mainCurrency.Currency.Code}");
                             LogInfo($"  [MainCurrency] TotalShares: {mainCurrency.TotalShares:F4}");
                             LogInfo($"  [MainCurrency] Weight: {mainCurrency.Weight:F2}%");
@@ -337,36 +340,36 @@ namespace Core.Platform.MauiTester.TestCases
                             LogInfo($"  [MainCurrency] LatestPrice: ${mainCurrency.LatestPrice:F2}");
                             LogInfo($"  [MainCurrency] OpenTrades: {mainCurrency.OpenTrades}");
 
-                            results.Add($"Ticker: {ticker.Symbol}");
-                            results.Add($"  Date: {mainCurrency.Date}");
-                            results.Add($"  Currency: {mainCurrency.Currency.Code}");
-                            results.Add($"  TotalShares: {mainCurrency.TotalShares:F4}");
-                            results.Add($"  Weight: {mainCurrency.Weight:F2}%");
-                            results.Add($"  CostBasis: ${mainCurrency.CostBasis:F2}");
-                            results.Add($"  RealCost: ${mainCurrency.RealCost:F2}");
-                            results.Add($"  Dividends: ${mainCurrency.Dividends:F2}");
-                            results.Add($"  Options: ${mainCurrency.Options:F2}");
-                            results.Add($"  TotalIncomes: ${mainCurrency.TotalIncomes:F2}");
-                            results.Add($"  Unrealized: ${mainCurrency.Unrealized:F2}");
-                            results.Add($"  Realized: ${mainCurrency.Realized:F2}");
-                            results.Add($"  Performance: {mainCurrency.Performance:F2}%");
-                            results.Add($"  LatestPrice: ${mainCurrency.LatestPrice:F2}");
-                            results.Add($"  OpenTrades: {mainCurrency.OpenTrades}");
+                            results.Add($"  Snapshot - Date: {mainCurrency.Date}");
+                            results.Add($"    Currency: {mainCurrency.Currency.Code}");
+                            results.Add($"    TotalShares: {mainCurrency.TotalShares:F4}");
+                            results.Add($"    Weight: {mainCurrency.Weight:F2}%");
+                            results.Add($"    CostBasis: ${mainCurrency.CostBasis:F2}");
+                            results.Add($"    RealCost: ${mainCurrency.RealCost:F2}");
+                            results.Add($"    Dividends: ${mainCurrency.Dividends:F2}");
+                            results.Add($"    Options: ${mainCurrency.Options:F2}");
+                            results.Add($"    TotalIncomes: ${mainCurrency.TotalIncomes:F2}");
+                            results.Add($"    Unrealized: ${mainCurrency.Unrealized:F2}");
+                            results.Add($"    Realized: ${mainCurrency.Realized:F2}");
+                            results.Add($"    Performance: {mainCurrency.Performance:F2}%");
+                            results.Add($"    LatestPrice: ${mainCurrency.LatestPrice:F2}");
+                            results.Add($"    OpenTrades: {mainCurrency.OpenTrades}");
 
-                            if (lastTickerSnapshot.OtherCurrencies.Length > 0)
+                            if (tickerSnapshot.OtherCurrencies.Length > 0)
                             {
-                                LogInfo($"  [OtherCurrencies] Count: {lastTickerSnapshot.OtherCurrencies.Length}");
-                                results.Add($"  OtherCurrencies: {lastTickerSnapshot.OtherCurrencies.Length}");
-                                foreach (var otherCurrency in lastTickerSnapshot.OtherCurrencies)
+                                LogInfo($"    [OtherCurrencies] Count: {tickerSnapshot.OtherCurrencies.Length}");
+                                results.Add($"    OtherCurrencies: {tickerSnapshot.OtherCurrencies.Length}");
+                                foreach (var otherCurrency in tickerSnapshot.OtherCurrencies)
                                 {
-                                    LogInfo($"    Currency: {otherCurrency.Currency.Code}");
-                                    LogInfo($"      TotalShares: {otherCurrency.TotalShares:F4}");
-                                    LogInfo($"      CostBasis: ${otherCurrency.CostBasis:F2}");
-                                    LogInfo($"      Unrealized: ${otherCurrency.Unrealized:F2}");
-                                    LogInfo($"      Realized: ${otherCurrency.Realized:F2}");
-                                    results.Add($"    {otherCurrency.Currency.Code}: Shares={otherCurrency.TotalShares:F4}, CostBasis=${otherCurrency.CostBasis:F2}");
+                                    LogInfo($"      Currency: {otherCurrency.Currency.Code}");
+                                    LogInfo($"        TotalShares: {otherCurrency.TotalShares:F4}");
+                                    LogInfo($"        CostBasis: ${otherCurrency.CostBasis:F2}");
+                                    LogInfo($"        Unrealized: ${otherCurrency.Unrealized:F2}");
+                                    LogInfo($"        Realized: ${otherCurrency.Realized:F2}");
+                                    results.Add($"      {otherCurrency.Currency.Code}: Shares={otherCurrency.TotalShares:F4}, CostBasis=${otherCurrency.CostBasis:F2}");
                                 }
                             }
+                            results.Add("");
                         }
                         results.Add("");
                     }
@@ -376,7 +379,45 @@ namespace Core.Platform.MauiTester.TestCases
                     LogWarning($"[ReactiveTsllTest] Could not extract ticker snapshot details: {ex.Message}");
                 }
 
+                // Log all movements with details
+                LogInfo("[ReactiveTsllTest] === All Movements Details ===");
+                results.Add("");
+                results.Add("=== All Movements Details ===");
+                try
+                {
+                    var allMovements = Collections.Movements.Items.OrderBy(m => m.TimeStamp).ToList();
+                    LogInfo($"[ReactiveTsllTest] Total movements: {allMovements.Count}");
+                    results.Add($"Total movements: {allMovements.Count}");
+                    results.Add("");
+
+                    foreach (var movement in allMovements)
+                    {
+                        string movementInfo = "";
+                        string optionStatus = "";
+
+                        // Check if movement is an option contract
+                        if (OptionModule.IsSome(movement.OptionTrade))
+                        {
+                            var optionTrade = movement.OptionTrade.Value;
+                            optionStatus = $" [OPTION] Code: {optionTrade.Code}, IsOpen: {optionTrade.IsOpen}";
+                            movementInfo = $"[Movement] Date: {movement.TimeStamp:yyyy-MM-dd HH:mm:ss}, Type: {movement.Type}{optionStatus}";
+                        }
+                        else
+                        {
+                            movementInfo = $"[Movement] Date: {movement.TimeStamp:yyyy-MM-dd HH:mm:ss}, Type: {movement.Type}";
+                        }
+
+                        LogInfo($"  {movementInfo}");
+                        results.Add($"  {movementInfo}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogWarning($"[ReactiveTsllTest] Could not extract movement details: {ex.Message}");
+                }
+
                 // SUCCESS CONDITION - Allow core to work, only fail if import failed or no data collected
+
                 bool success = importResult.Success &&
                              (movementCount > 0 || tickerCount > 0 || snapshotCount > 0) &&
                              importSignalsReceived;

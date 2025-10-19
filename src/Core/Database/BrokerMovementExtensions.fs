@@ -52,20 +52,20 @@ type Do() =
               Quantity = reader.getDecimalOrNone FieldName.Quantity
               Audit = reader.getAudit () }
 
-        CoreLogger.logDebug
-            "BrokerMovementExtensions"
-            $"Read movement - ID: {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}, BrokerAccountId: {movement.BrokerAccountId}"
+        // CoreLogger.logDebug
+        //     "BrokerMovementExtensions"
+        //     $"Read movement - ID: {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}, BrokerAccountId: {movement.BrokerAccountId}"
 
         movement
 
     [<Extension>]
     static member save(brokerMovement: BrokerMovement) =
-        CoreLogger.logDebug
-            "BrokerMovementExtensions"
-            $"Starting save for movement - Amount: {brokerMovement.Amount.Value}, Type: {brokerMovement.MovementType}"
+        // CoreLogger.logDebug
+        //     "BrokerMovementExtensions"
+        //     $"Starting save for movement - Amount: {brokerMovement.Amount.Value}, Type: {brokerMovement.MovementType}"
 
         let result = Database.Do.saveEntity brokerMovement (fun t c -> t.fill c)
-        CoreLogger.logDebug "BrokerMovementExtensions" "Save operation initiated for movement"
+        // CoreLogger.logDebug "BrokerMovementExtensions" "Save operation initiated for movement"
         result
 
     [<Extension>]
@@ -137,16 +137,16 @@ type FinancialCalculations() =
     /// <returns>Total deposited amount as Money</returns>
     [<Extension>]
     static member calculateTotalDeposited(movements: BrokerMovement list) =
-        CoreLogger.logDebug
-            "FinancialCalculations"
-            $"calculateTotalDeposited - Processing {movements.Length} total movements"
+        // CoreLogger.logDebug
+        //     "FinancialCalculations"
+        //     $"calculateTotalDeposited - Processing {movements.Length} total movements"
 
         // Log each movement before filtering
-        movements
-        |> List.iter (fun movement ->
-            CoreLogger.logDebug
-                "FinancialCalculations"
-                $"Movement ID {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}")
+        // movements
+        // |> List.iter (fun movement ->
+        //     CoreLogger.logDebug
+        //         "FinancialCalculations"
+        //         $"Movement ID {movement.Id}, Type: {movement.MovementType}, Amount: {movement.Amount.Value}")
 
         let depositMovements =
             movements
@@ -157,12 +157,12 @@ type FinancialCalculations() =
                 | BrokerMovementType.Conversion -> true // Conversion adds money to target currency
                 | _ -> false)
 
-        CoreLogger.logDebugf "FinancialCalculations" "Found %A deposit movements" depositMovements.Length
+        // CoreLogger.logDebugf "FinancialCalculations" "Found %A deposit movements" depositMovements.Length
 
         let totalAmount =
             depositMovements |> List.sumBy (fun movement -> movement.Amount.Value)
 
-        CoreLogger.logDebugf "FinancialCalculations" "Total deposited amount calculated: %A" totalAmount
+        // CoreLogger.logDebugf "FinancialCalculations" "Total deposited amount calculated: %A" totalAmount
         Money.FromAmount totalAmount
 
     /// <summary>
@@ -331,16 +331,16 @@ type FinancialCalculations() =
     /// <returns>Financial summary record with calculated totals</returns>
     [<Extension>]
     static member calculateFinancialSummary(movements: BrokerMovement list, ?currencyId: int) =
-        CoreLogger.logDebug
-            "FinancialCalculations"
-            $"calculateFinancialSummary - Processing {movements.Length} movements, CurrencyFilter: {currencyId}"
+        // CoreLogger.logDebug
+        //     "FinancialCalculations"
+        //     $"calculateFinancialSummary - Processing {movements.Length} movements, CurrencyFilter: {currencyId}"
 
         let relevantMovements =
             match currencyId with
             | Some id ->
                 let filtered = movements.filterByCurrency (id)
 
-                CoreLogger.logDebug "FinancialCalculations" $"Filtered to {filtered.Length} movements for currency {id}"
+                // CoreLogger.logDebug "FinancialCalculations" $"Filtered to {filtered.Length} movements for currency {id}"
 
                 filtered
             | None -> movements
@@ -359,8 +359,8 @@ type FinancialCalculations() =
                MovementCount = relevantMovements.calculateMovementCount ()
                UniqueCurrencies = relevantMovements.getUniqueCurrencyIds () |}
 
-        CoreLogger.logDebug
-            "FinancialCalculations"
-            $"Financial summary calculated - TotalDeposited: {summary.TotalDeposited.Value}, MovementCount: {summary.MovementCount}"
+        // CoreLogger.logDebug
+        //     "FinancialCalculations"
+        //     $"Financial summary calculated - TotalDeposited: {summary.TotalDeposited.Value}, MovementCount: {summary.MovementCount}"
 
         summary

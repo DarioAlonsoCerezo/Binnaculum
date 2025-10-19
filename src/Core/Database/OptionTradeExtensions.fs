@@ -400,10 +400,10 @@ type OptionTradeCalculations() =
     /// <returns>Total realized gains as Money (can be negative for losses)</returns>
     [<Extension>]
     static member calculateRealizedGains(optionTrades: OptionTrade list, currentDate: DateTime) =
-        CoreLogger.logDebugf
-            "OptionTradeCalculations"
-            "calculateRealizedGains called with currentDate: %s"
-            (currentDate.ToString("yyyy-MM-dd"))
+        // CoreLogger.logDebugf
+        //     "OptionTradeCalculations"
+        //     "calculateRealizedGains called with currentDate: %s"
+        //     (currentDate.ToString("yyyy-MM-dd"))
 
         // Group option trades by ticker and option details for FIFO matching
         let tradesByOption =
@@ -412,27 +412,27 @@ type OptionTradeCalculations() =
             |> List.groupBy (fun trade ->
                 (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
 
-        CoreLogger.logDebugf
-            "OptionTradeCalculations"
-            "calculateRealizedGains: Grouped %d trades into %d option groups"
-            optionTrades.Length
-            tradesByOption.Length
+        // CoreLogger.logDebugf
+        //     "OptionTradeCalculations"
+        //     "calculateRealizedGains: Grouped %d trades into %d option groups"
+        //     optionTrades.Length
+        //     tradesByOption.Length
 
         let mutable totalRealizedGains = 0m
         let mutable groupIndex = 1
 
         // Process each option type/strike/expiration combination separately for FIFO calculation
         for ((tickerId, optionType, strike, expiration), optionTrades) in tradesByOption do
-            CoreLogger.logDebugf
-                "OptionTradeCalculations"
-                "  GROUP %d/%d: TickerId:%d Type:%A Strike:%M Expiration:%s | Trades in group: %d"
-                groupIndex
-                tradesByOption.Length
-                tickerId
-                optionType
-                strike
-                (expiration.ToString("yyyy-MM-dd"))
-                optionTrades.Length
+            // CoreLogger.logDebugf
+            //     "OptionTradeCalculations"
+            //     "  GROUP %d/%d: TickerId:%d Type:%A Strike:%M Expiration:%s | Trades in group: %d"
+            //     groupIndex
+            //     tradesByOption.Length
+            //     tickerId
+            //     optionType
+            //     strike
+            //     (expiration.ToString("yyyy-MM-dd"))
+            //     optionTrades.Length
 
             groupIndex <- groupIndex + 1
 
@@ -440,14 +440,14 @@ type OptionTradeCalculations() =
             let mutable realizedGains = 0m
 
             for trade in optionTrades do
-                CoreLogger.logDebugf
-                    "OptionTradeCalculations"
-                    "  Evaluating trade Id:%d Code:%A NetPremium:%M Time:%s | Open queue size before: %d"
-                    trade.Id
-                    trade.Code
-                    trade.NetPremium.Value
-                    (trade.TimeStamp.Value.ToString("yyyy-MM-dd"))
-                    openPositions.Length
+                // CoreLogger.logDebugf
+                //     "OptionTradeCalculations"
+                //     "  Evaluating trade Id:%d Code:%A NetPremium:%M Time:%s | Open queue size before: %d"
+                //     trade.Id
+                //     trade.Code
+                //     trade.NetPremium.Value
+                //     (trade.TimeStamp.Value.ToString("yyyy-MM-dd"))
+                //     openPositions.Length
 
                 match trade.Code with
                 | OptionCode.SellToOpen
@@ -461,12 +461,12 @@ type OptionTradeCalculations() =
 
                     openPositions <- openPositions @ [ openPosition ]
 
-                    CoreLogger.logDebugf
-                        "OptionTradeCalculations"
-                        "    → OPEN: Added TradeId:%d Code:%A to queue | Queue size after: %d"
-                        trade.Id
-                        trade.Code
-                        (openPositions.Length)
+                // CoreLogger.logDebugf
+                //     "OptionTradeCalculations"
+                //     "    → OPEN: Added TradeId:%d Code:%A to queue | Queue size after: %d"
+                //     trade.Id
+                //     trade.Code
+                //     (openPositions.Length)
 
                 | OptionCode.SellToClose
                 | OptionCode.BuyToClose ->
@@ -474,12 +474,12 @@ type OptionTradeCalculations() =
                     let mutable remainingToClose = 1 // Typically 1 contract per option trade
                     let mutable updatedOpenPositions = openPositions
 
-                    CoreLogger.logDebugf
-                        "OptionTradeCalculations"
-                        "    → CLOSE: Starting match for TradeId:%d Code:%A | Queue size: %d"
-                        trade.Id
-                        trade.Code
-                        updatedOpenPositions.Length
+                    // CoreLogger.logDebugf
+                    //     "OptionTradeCalculations"
+                    //     "    → CLOSE: Starting match for TradeId:%d Code:%A | Queue size: %d"
+                    //     trade.Id
+                    //     trade.Code
+                    //     updatedOpenPositions.Length
 
                     while remainingToClose > 0 && not updatedOpenPositions.IsEmpty do
                         let oldestOpen = updatedOpenPositions.Head
@@ -505,20 +505,20 @@ type OptionTradeCalculations() =
                         let signedFormula = trade.NetPremium.Value - oldestOpen.NetPremium
                         let absFormula = absClosing - absOpening
 
-                        CoreLogger.logDebugf
-                            "OptionTradeCalculations"
-                            "    → MATCHED PAIR: OpenTradeId:%d (Code:%A, Premium:%M) + CloseTradeId:%d (Code:%A, Premium:%M) = Gain:%M | DEBUG: abs(open)=%M abs(close)=%M signed=%M abs=%M"
-                            oldestOpen.TradeId
-                            oldestOpen.Code
-                            oldestOpen.NetPremium
-                            trade.Id
-                            trade.Code
-                            trade.NetPremium.Value
-                            gain
-                            absOpening
-                            absClosing
-                            signedFormula
-                            absFormula
+                        // CoreLogger.logDebugf
+                        //     "OptionTradeCalculations"
+                        //     "    → MATCHED PAIR: OpenTradeId:%d (Code:%A, Premium:%M) + CloseTradeId:%d (Code:%A, Premium:%M) = Gain:%M | DEBUG: abs(open)=%M abs(close)=%M signed=%M abs=%M"
+                        //     oldestOpen.TradeId
+                        //     oldestOpen.Code
+                        //     oldestOpen.NetPremium
+                        //     trade.Id
+                        //     trade.Code
+                        //     trade.NetPremium.Value
+                        //     gain
+                        //     absOpening
+                        //     absClosing
+                        //     signedFormula
+                        //     absFormula
 
                         realizedGains <- realizedGains + gain
                         remainingToClose <- remainingToClose - 1
@@ -528,11 +528,11 @@ type OptionTradeCalculations() =
 
                     openPositions <- updatedOpenPositions
 
-                    CoreLogger.logDebugf
-                        "OptionTradeCalculations"
-                        "    → CLOSE DONE: Queue size after matching: %d | Realized gains so far: %M"
-                        openPositions.Length
-                        realizedGains
+                // CoreLogger.logDebugf
+                //     "OptionTradeCalculations"
+                //     "    → CLOSE DONE: Queue size after matching: %d | Realized gains so far: %M"
+                //     openPositions.Length
+                //     realizedGains
 
                 // Handle expired, assigned, and cash settled options
                 | OptionCode.Expired
@@ -576,20 +576,20 @@ type OptionTradeCalculations() =
                     realizedGains <- realizedGains + gain
             *)
 
-            CoreLogger.logDebugf
-                "OptionTradeCalculations"
-                "  GROUP RESULT: Realized gains for this group: $%M | Running total: $%M"
-                realizedGains
-                (totalRealizedGains + realizedGains)
+            // CoreLogger.logDebugf
+            //     "OptionTradeCalculations"
+            //     "  GROUP RESULT: Realized gains for this group: $%M | Running total: $%M"
+            //     realizedGains
+            //     (totalRealizedGains + realizedGains)
 
             totalRealizedGains <- totalRealizedGains + realizedGains
 
-        CoreLogger.logDebugf
-            "OptionTradeCalculations"
-            "calculateRealizedGains FINAL: Processed %d trades across %d groups | TOTAL REALIZED GAINS: $%.2f"
-            optionTrades.Length
-            tradesByOption.Length
-            totalRealizedGains
+        // CoreLogger.logDebugf
+        //     "OptionTradeCalculations"
+        //     "calculateRealizedGains FINAL: Processed %d trades across %d groups | TOTAL REALIZED GAINS: $%.2f"
+        //     optionTrades.Length
+        //     tradesByOption.Length
+        //     totalRealizedGains
 
         Money.FromAmount totalRealizedGains
 
@@ -747,15 +747,15 @@ type OptionTradeCalculations() =
 
         // Process each option type/strike/expiration combination separately
         for ((tickerId, optionType, strike, expiration), optionTradesForKey) in tradesByOption do
-            CoreLogger.logDebugf
-                "OptionTradeCalculations"
-                "Unrealized analysis - TickerId:%d Type:%A Strike:%M Expiration:%s CurrentDate:%s TradeCount:%d"
-                tickerId
-                optionType
-                strike
-                (expiration.ToString("yyyy-MM-dd"))
-                (currentDate.ToString("yyyy-MM-dd"))
-                optionTradesForKey.Length
+            // CoreLogger.logDebugf
+            //     "OptionTradeCalculations"
+            //     "Unrealized analysis - TickerId:%d Type:%A Strike:%M Expiration:%s CurrentDate:%s TradeCount:%d"
+            //     tickerId
+            //     optionType
+            //     strike
+            //     (expiration.ToString("yyyy-MM-dd"))
+            //     (currentDate.ToString("yyyy-MM-dd"))
+            //     optionTradesForKey.Length
 
             let mutable openPositions = [] // Queue of open positions (FIFO)
 
@@ -769,12 +769,12 @@ type OptionTradeCalculations() =
                            NetPremium = trade.NetPremium.Value
                            TradeId = trade.Id |}
 
-                    CoreLogger.logDebugf
-                        "OptionTradeCalculations"
-                        "  Open position recorded - TradeId:%d Code:%A NetPremium:%M"
-                        trade.Id
-                        trade.Code
-                        openPosition.NetPremium
+                    // CoreLogger.logDebugf
+                    //     "OptionTradeCalculations"
+                    //     "  Open position recorded - TradeId:%d Code:%A NetPremium:%M"
+                    //     trade.Id
+                    //     trade.Code
+                    //     openPosition.NetPremium
 
                     openPositions <- openPositions @ [ openPosition ]
 
@@ -788,22 +788,23 @@ type OptionTradeCalculations() =
                         let oldestOpen = updatedOpenPositions.Head
                         remainingToClose <- remainingToClose - 1
 
-                        CoreLogger.logDebugf
-                            "OptionTradeCalculations"
-                            "  Closing match - ClosingTradeId:%d OpenTradeId:%d OpenCode:%A"
-                            trade.Id
-                            oldestOpen.TradeId
-                            oldestOpen.Code
+                        // CoreLogger.logDebugf
+                        //     "OptionTradeCalculations"
+                        //     "  Closing match - ClosingTradeId:%d OpenTradeId:%d OpenCode:%A"
+                        //     trade.Id
+                        //     oldestOpen.TradeId
+                        //     oldestOpen.Code
 
                         // Remove the matched position from queue
                         updatedOpenPositions <- updatedOpenPositions.Tail
 
                     if remainingToClose > 0 then
-                        CoreLogger.logDebugf
-                            "OptionTradeCalculations"
-                            "  WARNING: Closing trade %d left %d unmatched contract(s)"
-                            trade.Id
-                            remainingToClose
+                        // CoreLogger.logDebugf
+                        //     "OptionTradeCalculations"
+                        //     "  WARNING: Closing trade %d left %d unmatched contract(s)"
+                        //     trade.Id
+                        //     remainingToClose
+                        ()
 
                     openPositions <- updatedOpenPositions
 
@@ -813,41 +814,45 @@ type OptionTradeCalculations() =
                 | OptionCode.CashSettledAssigned
                 | OptionCode.CashSettledExercised
                 | OptionCode.Exercised ->
-                    CoreLogger.logDebugf
-                        "OptionTradeCalculations"
-                        "  Informational event %A observed for TradeId:%d (positions remain open)"
-                        trade.Code
-                        trade.Id
+                    // CoreLogger.logDebugf
+                    //     "OptionTradeCalculations"
+                    //     "  Informational event %A observed for TradeId:%d (positions remain open)"
+                    //     trade.Code
+                    //     trade.Id
+                    ()
 
             if openPositions.IsEmpty then
-                CoreLogger.logDebugf
-                    "OptionTradeCalculations"
-                    "  No open positions remain for TickerId:%d Strike:%M Expiration:%s"
-                    tickerId
-                    strike
-                    (expiration.ToString("yyyy-MM-dd"))
+                // CoreLogger.logDebugf
+                //     "OptionTradeCalculations"
+                //     "  No open positions remain for TickerId:%d Strike:%M Expiration:%s"
+                //     tickerId
+                //     strike
+                //     (expiration.ToString("yyyy-MM-dd"))
+                ()
             else
                 let expirationDate = expiration.Date
                 let currentDateOnly = currentDate.Date
 
                 if expirationDate < currentDateOnly then
-                    CoreLogger.logDebugf
-                        "OptionTradeCalculations"
-                        "  NOTE: Expiration %s is before current date %s but positions remain open due to missing close events. Excluding from unrealized gains and relying on explicit close events."
-                        (expirationDate.ToString("yyyy-MM-dd"))
-                        (currentDateOnly.ToString("yyyy-MM-dd"))
+                    // CoreLogger.logDebugf
+                    //     "OptionTradeCalculations"
+                    //     "  NOTE: Expiration %s is before current date %s but positions remain open due to missing close events. Excluding from unrealized gains and relying on explicit close events."
+                    //     (expirationDate.ToString("yyyy-MM-dd"))
+                    //     (currentDateOnly.ToString("yyyy-MM-dd"))
+                    ()
                 else
                     for openPosition in openPositions do
-                        CoreLogger.logDebugf
-                            "OptionTradeCalculations"
-                            "  Unrealized contribution - OpenTradeId:%d Code:%A NetPremium:%M"
-                            openPosition.TradeId
-                            openPosition.Code
-                            openPosition.NetPremium
+                        // CoreLogger.logDebugf
+                        //     "OptionTradeCalculations"
+                        //     "  Unrealized contribution - OpenTradeId:%d Code:%A NetPremium:%M"
+                        //     openPosition.TradeId
+                        //     openPosition.Code
+                        //     openPosition.NetPremium
+                        ()
 
                         totalUnrealizedGains <- totalUnrealizedGains + openPosition.NetPremium
 
-        CoreLogger.logDebugf "OptionTradeCalculations" "Total unrealized gains calculated: $%.2f" totalUnrealizedGains
+        // CoreLogger.logDebugf "OptionTradeCalculations" "Total unrealized gains calculated: $%.2f" totalUnrealizedGains
 
         Money.FromAmount totalUnrealizedGains
 
@@ -878,25 +883,26 @@ type OptionTradeCalculations() =
             | Some id -> optionTrades.filterByCurrency (id)
             | None -> optionTrades
 
-        CoreLogger.logDebugf
-            "OptionTradeCalculations"
-            "Summary inputs - TargetDate: %s, CurrencyId: %A, TotalTrades: %d"
-            (targetDate.ToString("yyyy-MM-dd"))
-            currencyId
-            relevantTrades.Length
+        // CoreLogger.logDebugf
+        //     "OptionTradeCalculations"
+        //     "Summary inputs - TargetDate: %s, CurrencyId: %A, TotalTrades: %d"
+        //     (targetDate.ToString("yyyy-MM-dd"))
+        //     currencyId
+        //     relevantTrades.Length
 
         for trade in relevantTrades do
-            CoreLogger.logDebugf
-                "OptionTradeCalculations"
-                "Trade Detail - Id:%d Time:%s Code:%A NetPremium:%M Premium:%M Commissions:%M Fees:%M ClosedWith:%A"
-                trade.Id
-                (trade.TimeStamp.Value.ToString("yyyy-MM-dd"))
-                trade.Code
-                trade.NetPremium.Value
-                trade.Premium.Value
-                trade.Commissions.Value
-                trade.Fees.Value
-                trade.ClosedWith
+            // CoreLogger.logDebugf
+            //     "OptionTradeCalculations"
+            //     "Trade Detail - Id:%d Time:%s Code:%A NetPremium:%M Premium:%M Commissions:%M Fees:%M ClosedWith:%A"
+            //     trade.Id
+            //     (trade.TimeStamp.Value.ToString("yyyy-MM-dd"))
+            //     trade.Code
+            //     trade.NetPremium.Value
+            //     trade.Premium.Value
+            //     trade.Commissions.Value
+            //     trade.Fees.Value
+            //     trade.ClosedWith
+            ()
 
         let targetDay = targetDate.Date
 
@@ -915,12 +921,12 @@ type OptionTradeCalculations() =
             tradesUpToTarget
             |> List.filter (fun trade -> trade.TimeStamp.Value.Date = targetDay)
 
-        CoreLogger.logDebugf
-            "OptionTradeCalculations"
-            "Trade cohorts - Context:%d Previous:%d Current:%d"
-            tradesUpToTarget.Length
-            tradesBeforeTarget.Length
-            tradesOnTarget.Length
+        // CoreLogger.logDebugf
+        //     "OptionTradeCalculations"
+        //     "Trade cohorts - Context:%d Previous:%d Current:%d"
+        //     tradesUpToTarget.Length
+        //     tradesBeforeTarget.Length
+        //     tradesOnTarget.Length
 
         let openPositionsMap = tradesUpToTarget.calculateOpenPositions ()
 
@@ -938,11 +944,11 @@ type OptionTradeCalculations() =
                 if targetDay <= expirationDay then
                     targetDate
                 else
-                    CoreLogger.logDebugf
-                        "OptionTradeCalculations"
-                        "Adjusting valuation date from target %s to latest open expiration %s"
-                        (targetDay.ToString("yyyy-MM-dd"))
-                        (expirationDay.ToString("yyyy-MM-dd"))
+                    // CoreLogger.logDebugf
+                    //     "OptionTradeCalculations"
+                    //     "Adjusting valuation date from target %s to latest open expiration %s"
+                    //     (targetDay.ToString("yyyy-MM-dd"))
+                    //     (expirationDay.ToString("yyyy-MM-dd"))
 
                     DateTime(
                         expirationDay.Year,
@@ -962,10 +968,10 @@ type OptionTradeCalculations() =
                     if targetDay <= lastTradeDay then
                         targetDate
                     else
-                        CoreLogger.logDebugf
-                            "OptionTradeCalculations"
-                            "No open positions; capping valuation date to last trade day %s"
-                            (lastTradeDay.ToString("yyyy-MM-dd"))
+                        // CoreLogger.logDebugf
+                        //     "OptionTradeCalculations"
+                        //     "No open positions; capping valuation date to last trade day %s"
+                        //     (lastTradeDay.ToString("yyyy-MM-dd"))
 
                         DateTime(
                             lastTradeDay.Year,
@@ -986,24 +992,24 @@ type OptionTradeCalculations() =
 
         let dailyRealizedAmount = cumulativeRealized.Value - previousRealized.Value
 
-        CoreLogger.logDebugf
-            "OptionTradeCalculations"
-            "Realized gains calculation - TargetDate:%s TradesUpToTarget:%d TradesBeforeTarget:%d"
-            (targetDate.ToString("yyyy-MM-dd"))
-            tradesUpToTarget.Length
-            tradesBeforeTarget.Length
+        // CoreLogger.logDebugf
+        //     "OptionTradeCalculations"
+        //     "Realized gains calculation - TargetDate:%s TradesUpToTarget:%d TradesBeforeTarget:%d"
+        //     (targetDate.ToString("yyyy-MM-dd"))
+        //     tradesUpToTarget.Length
+        //     tradesBeforeTarget.Length
 
-        CoreLogger.logDebugf
-            "OptionTradeCalculations"
-            "Realized breakdown - Cumulative:%M Previous:%M Daily:%M"
-            cumulativeRealized.Value
-            previousRealized.Value
-            dailyRealizedAmount
+        // CoreLogger.logDebugf
+        //     "OptionTradeCalculations"
+        //     "Realized breakdown - Cumulative:%M Previous:%M Daily:%M"
+        //     cumulativeRealized.Value
+        //     previousRealized.Value
+        //     dailyRealizedAmount
 
-        CoreLogger.logDebugf
-            "OptionTradeCalculations"
-            "Effective valuation date for unrealized calculations: %s"
-            (effectiveValuationDate.ToString("yyyy-MM-dd"))
+        // CoreLogger.logDebugf
+        //     "OptionTradeCalculations"
+        //     "Effective valuation date for unrealized calculations: %s"
+        //     (effectiveValuationDate.ToString("yyyy-MM-dd"))
 
         let hasOpenOptions = not (Map.isEmpty openPositionsMap)
 
@@ -1019,14 +1025,14 @@ type OptionTradeCalculations() =
            TradeCount = tradesOnTarget.calculateTradeCount ()
            UniqueCurrencies = tradesUpToTarget.getUniqueCurrencyIds () |}
         |> fun summary ->
-            CoreLogger.logDebugf
-                "OptionTradeCalculations"
-                "Summary output - CumulativeRealized:%M Unrealized:%M CumulativeIncome:%M CumulativeInvestment:%M OpenPositions:%d HasOpen:%b"
-                summary.RealizedGains.Value
-                summary.UnrealizedGains.Value
-                summary.OptionsIncome.Value
-                summary.OptionsInvestment.Value
-                summary.OpenPositions.Count
-                summary.HasOpenOptions
+            // CoreLogger.logDebugf
+            //     "OptionTradeCalculations"
+            //     "Summary output - CumulativeRealized:%M Unrealized:%M CumulativeIncome:%M CumulativeInvestment:%M OpenPositions:%d HasOpen:%b"
+            //     summary.RealizedGains.Value
+            //     summary.UnrealizedGains.Value
+            //     summary.OptionsIncome.Value
+            //     summary.OptionsInvestment.Value
+            //     summary.OpenPositions.Count
+            //     summary.HasOpenOptions
 
             summary

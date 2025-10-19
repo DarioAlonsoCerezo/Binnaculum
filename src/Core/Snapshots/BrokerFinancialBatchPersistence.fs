@@ -24,7 +24,7 @@ module internal BrokerFinancialBatchPersistence =
     let persistBatchedSnapshots (snapshots: BrokerFinancialSnapshot list) =
         task {
             if snapshots.IsEmpty then
-                CoreLogger.logDebug "BrokerFinancialBatchPersistence" "No snapshots to persist"
+                // CoreLogger.logDebug "BrokerFinancialBatchPersistence" "No snapshots to persist"
 
                 return
                     Ok
@@ -34,10 +34,10 @@ module internal BrokerFinancialBatchPersistence =
                 let stopwatch = Stopwatch.StartNew()
 
                 try
-                    CoreLogger.logInfof
-                        "BrokerFinancialBatchPersistence"
-                        "Starting batch persistence of %d snapshots with deduplication"
-                        snapshots.Length
+                    // CoreLogger.logInfof
+                    //     "BrokerFinancialBatchPersistence"
+                    //     "Starting batch persistence of %d snapshots with deduplication"
+                    //     snapshots.Length
 
                     // Save snapshots individually, checking for duplicates
                     let mutable savedCount = 0
@@ -64,13 +64,13 @@ module internal BrokerFinancialBatchPersistence =
                                         { snapshot.Base with
                                             Id = existing.Base.Id } }
 
-                            CoreLogger.logDebugf
-                                "BrokerFinancialBatchPersistence"
-                                "Updating existing snapshot ID %d for Date=%s, Currency=%d, BrokerAccount=%d"
-                                existing.Base.Id
-                                (snapshot.Base.Date.ToString())
-                                snapshot.CurrencyId
-                                snapshot.BrokerAccountId
+                            // CoreLogger.logDebugf
+                            //     "BrokerFinancialBatchPersistence"
+                            //     "Updating existing snapshot ID %d for Date=%s, Currency=%d, BrokerAccount=%d"
+                            //     existing.Base.Id
+                            //     (snapshot.Base.Date.ToString())
+                            //     snapshot.CurrencyId
+                            //     snapshot.BrokerAccountId
 
                             do! updatedSnapshot.save ()
                             updatedCount <- updatedCount + 1
@@ -78,25 +78,25 @@ module internal BrokerFinancialBatchPersistence =
 
                         | None ->
                             // No existing snapshot - save as new
-                            CoreLogger.logDebugf
-                                "BrokerFinancialBatchPersistence"
-                                "Creating new snapshot for Date=%s, Currency=%d, BrokerAccount=%d"
-                                (snapshot.Base.Date.ToString())
-                                snapshot.CurrencyId
-                                snapshot.BrokerAccountId
+                            // CoreLogger.logDebugf
+                            //     "BrokerFinancialBatchPersistence"
+                            //     "Creating new snapshot for Date=%s, Currency=%d, BrokerAccount=%d"
+                            //     (snapshot.Base.Date.ToString())
+                            //     snapshot.CurrencyId
+                            //     snapshot.BrokerAccountId
 
                             do! snapshot.save ()
                             savedCount <- savedCount + 1
 
                     stopwatch.Stop()
 
-                    CoreLogger.logInfof
-                        "BrokerFinancialBatchPersistence"
-                        "Successfully persisted %d snapshots (%d updated, %d new) in %dms"
-                        savedCount
-                        updatedCount
-                        (savedCount - updatedCount)
-                        stopwatch.ElapsedMilliseconds
+                    // CoreLogger.logInfof
+                    //     "BrokerFinancialBatchPersistence"
+                    //     "Successfully persisted %d snapshots (%d updated, %d new) in %dms"
+                    //     savedCount
+                    //     updatedCount
+                    //     (savedCount - updatedCount)
+                    //     stopwatch.ElapsedMilliseconds
 
                     return
                         Ok
@@ -109,7 +109,7 @@ module internal BrokerFinancialBatchPersistence =
                     let errorMsg =
                         sprintf "Batch persistence failed after %dms: %s" stopwatch.ElapsedMilliseconds ex.Message
 
-                    CoreLogger.logError "BrokerFinancialBatchPersistence" errorMsg
+                    // CoreLogger.logError "BrokerFinancialBatchPersistence" errorMsg
                     return Error errorMsg
         }
 
@@ -124,12 +124,12 @@ module internal BrokerFinancialBatchPersistence =
     let updateBrokerAccountSnapshotIds (brokerAccountId: int) (date: DateTimePattern) (brokerAccountSnapshotId: int) =
         task {
             try
-                CoreLogger.logDebugf
-                    "BrokerFinancialBatchPersistence"
-                    "Updating BrokerAccountSnapshotId to %d for all financial snapshots on Date=%s, BrokerAccount=%d"
-                    brokerAccountSnapshotId
-                    (date.ToString())
-                    brokerAccountId
+                // CoreLogger.logDebugf
+                //     "BrokerFinancialBatchPersistence"
+                //     "Updating BrokerAccountSnapshotId to %d for all financial snapshots on Date=%s, BrokerAccount=%d"
+                //     brokerAccountSnapshotId
+                //     (date.ToString())
+                //     brokerAccountId
 
                 // Get all financial snapshots for this date and account
                 let! existingSnapshots =
@@ -147,17 +147,17 @@ module internal BrokerFinancialBatchPersistence =
                         do! updatedSnapshot.save ()
                         updatedCount <- updatedCount + 1
 
-                        CoreLogger.logDebugf
-                            "BrokerFinancialBatchPersistence"
-                            "Updated snapshot ID %d: BrokerAccountSnapshotId %d -> %d"
-                            snapshot.Base.Id
-                            snapshot.BrokerAccountSnapshotId
-                            brokerAccountSnapshotId
+                // CoreLogger.logDebugf
+                //     "BrokerFinancialBatchPersistence"
+                //     "Updated snapshot ID %d: BrokerAccountSnapshotId %d -> %d"
+                //     snapshot.Base.Id
+                //     snapshot.BrokerAccountSnapshotId
+                //     brokerAccountSnapshotId
 
-                CoreLogger.logInfof
-                    "BrokerFinancialBatchPersistence"
-                    "Updated BrokerAccountSnapshotId for %d financial snapshots"
-                    updatedCount
+                // CoreLogger.logInfof
+                //     "BrokerFinancialBatchPersistence"
+                //     "Updated BrokerAccountSnapshotId for %d financial snapshots"
+                //     updatedCount
 
                 return updatedCount
 
@@ -181,12 +181,12 @@ module internal BrokerFinancialBatchPersistence =
     let deleteSnapshotsInRange (brokerAccountId: int) (startDate: DateTimePattern) (endDate: DateTimePattern) =
         task {
             try
-                CoreLogger.logInfof
-                    "BrokerFinancialBatchPersistence"
-                    "Deleting existing snapshots for account %d from %s to %s"
-                    brokerAccountId
-                    (startDate.ToString())
-                    (endDate.ToString())
+                // CoreLogger.logInfof
+                //     "BrokerFinancialBatchPersistence"
+                //     "Deleting existing snapshots for account %d from %s to %s"
+                //     brokerAccountId
+                //     (startDate.ToString())
+                //     (endDate.ToString())
 
                 // Get existing snapshots in the range
                 let! existingSnapshots =
@@ -199,7 +199,7 @@ module internal BrokerFinancialBatchPersistence =
                     do! snapshot.delete ()
                     deletedCount <- deletedCount + 1
 
-                CoreLogger.logInfof "BrokerFinancialBatchPersistence" "Deleted %d existing snapshots" deletedCount
+                // CoreLogger.logInfof "BrokerFinancialBatchPersistence" "Deleted %d existing snapshots" deletedCount
 
                 return deletedCount
 
@@ -228,11 +228,11 @@ module internal BrokerFinancialBatchPersistence =
             // First delete any existing snapshots in the range
             let! deletedCount = deleteSnapshotsInRange brokerAccountId startDate endDate
 
-            CoreLogger.logInfof
-                "BrokerFinancialBatchPersistence"
-                "Deleted %d existing snapshots, now persisting %d new snapshots"
-                deletedCount
-                snapshots.Length
+            // CoreLogger.logInfof
+            //     "BrokerFinancialBatchPersistence"
+            //     "Deleted %d existing snapshots, now persisting %d new snapshots"
+            //     deletedCount
+            //     snapshots.Length
 
             // Then persist the new snapshots
             return! persistBatchedSnapshots snapshots

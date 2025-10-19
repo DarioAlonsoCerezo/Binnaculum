@@ -98,12 +98,12 @@ module internal TickerSnapshotBatchCalculator =
         let mutable currencySnapshotsCreated = 0
 
         try
-            CoreLogger.logInfof
-                "TickerSnapshotBatchCalculator"
-                "Starting batch calculation for %d tickers, %d dates, %d baseline currency snapshots"
-                context.TickerIds.Length
-                context.DateRange.Length
-                context.BaselineCurrencySnapshots.Count
+            // CoreLogger.logInfof
+            //     "TickerSnapshotBatchCalculator"
+            //     "Starting batch calculation for %d tickers, %d dates, %d baseline currency snapshots"
+            //     context.TickerIds.Length
+            //     context.DateRange.Length
+            //     context.BaselineCurrencySnapshots.Count
 
             // Track latest TickerCurrencySnapshot for each (ticker, currency) as we process chronologically
             let mutable latestCurrencySnapshots = context.BaselineCurrencySnapshots
@@ -111,7 +111,7 @@ module internal TickerSnapshotBatchCalculator =
             // Process each date in chronological order (critical for cumulative calculations)
             for date in context.DateRange do
                 try
-                    CoreLogger.logDebugf "TickerSnapshotBatchCalculator" "Processing date %s" (date.ToString())
+                    // CoreLogger.logDebugf "TickerSnapshotBatchCalculator" "Processing date %s" (date.ToString())
 
                     // Track snapshots created for this date (will be grouped into TickerSnapshot)
                     let mutable currencySnapshotsForDate: Map<int, TickerCurrencySnapshot list> =
@@ -135,12 +135,12 @@ module internal TickerSnapshotBatchCalculator =
                                     tickerId
                                     (date.ToString())
                             else
-                                CoreLogger.logDebugf
-                                    "TickerSnapshotBatchCalculator"
-                                    "Processing ticker %d on date %s (%d currencies)"
-                                    tickerId
-                                    (date.ToString())
-                                    relevantCurrencies.Length
+                                // CoreLogger.logDebugf
+                                //     "TickerSnapshotBatchCalculator"
+                                //     "Processing ticker %d on date %s (%d currencies)"
+                                //     tickerId
+                                //     (date.ToString())
+                                //     relevantCurrencies.Length
 
                                 let mutable tickerCurrencySnapshots = []
 
@@ -178,12 +178,12 @@ module internal TickerSnapshotBatchCalculator =
                                             match movements, previousSnapshot with
                                             // SCENARIO A: New movements + previous snapshot → Calculate cumulative
                                             | Some mvts, Some prev ->
-                                                CoreLogger.logDebugf
-                                                    "TickerSnapshotBatchCalculator"
-                                                    "SCENARIO A: ticker %d currency %d date %s (with movements)"
-                                                    tickerId
-                                                    currencyId
-                                                    (date.ToString())
+                                                // CoreLogger.logDebugf
+                                                //     "TickerSnapshotBatchCalculator"
+                                                //     "SCENARIO A: ticker %d currency %d date %s (with movements)"
+                                                //     tickerId
+                                                //     currencyId
+                                                //     (date.ToString())
 
                                                 Some(
                                                     TickerSnapshotCalculateInMemory.calculateNewSnapshot
@@ -197,12 +197,12 @@ module internal TickerSnapshotBatchCalculator =
 
                                             // SCENARIO B: New movements + no previous → Calculate from zero
                                             | Some mvts, None ->
-                                                CoreLogger.logDebugf
-                                                    "TickerSnapshotBatchCalculator"
-                                                    "SCENARIO B: ticker %d currency %d date %s (first snapshot)"
-                                                    tickerId
-                                                    currencyId
-                                                    (date.ToString())
+                                                // CoreLogger.logDebugf
+                                                //     "TickerSnapshotBatchCalculator"
+                                                //     "SCENARIO B: ticker %d currency %d date %s (first snapshot)"
+                                                //     tickerId
+                                                //     currencyId
+                                                //     (date.ToString())
 
                                                 Some(
                                                     TickerSnapshotCalculateInMemory.calculateInitialSnapshot
@@ -215,12 +215,12 @@ module internal TickerSnapshotBatchCalculator =
 
                                             // SCENARIO D: No movements + previous → Carry forward
                                             | None, Some prev ->
-                                                CoreLogger.logDebugf
-                                                    "TickerSnapshotBatchCalculator"
-                                                    "SCENARIO D: ticker %d currency %d date %s (carry forward)"
-                                                    tickerId
-                                                    currencyId
-                                                    (date.ToString())
+                                                // CoreLogger.logDebugf
+                                                //     "TickerSnapshotBatchCalculator"
+                                                //     "SCENARIO D: ticker %d currency %d date %s (carry forward)"
+                                                //     tickerId
+                                                //     currencyId
+                                                //     (date.ToString())
 
                                                 Some(
                                                     TickerSnapshotCalculateInMemory.carryForwardSnapshot
@@ -231,12 +231,12 @@ module internal TickerSnapshotBatchCalculator =
 
                                             // No snapshot needed: no movements and no previous
                                             | None, None ->
-                                                CoreLogger.logDebugf
-                                                    "TickerSnapshotBatchCalculator"
-                                                    "SCENARIO SKIP: ticker %d currency %d date %s (no data)"
-                                                    tickerId
-                                                    currencyId
-                                                    (date.ToString())
+                                                // CoreLogger.logDebugf
+                                                //     "TickerSnapshotBatchCalculator"
+                                                //     "SCENARIO SKIP: ticker %d currency %d date %s (no data)"
+                                                //     tickerId
+                                                //     currencyId
+                                                //     (date.ToString())
 
                                                 None
 
@@ -263,7 +263,7 @@ module internal TickerSnapshotBatchCalculator =
                                                 (date.ToString())
                                                 ex.Message
 
-                                        CoreLogger.logError "TickerSnapshotBatchCalculator" errorMsg
+                                        // CoreLogger.logError "TickerSnapshotBatchCalculator" errorMsg
                                         errors <- errorMsg :: errors
 
                                 // If we created currency snapshots for this ticker, create TickerSnapshot
@@ -275,12 +275,12 @@ module internal TickerSnapshotBatchCalculator =
                                     tickerSnapshots <- tickerSnapshot :: tickerSnapshots
                                     snapshotsCreated <- snapshotsCreated + 1
 
-                                    CoreLogger.logDebugf
-                                        "TickerSnapshotBatchCalculator"
-                                        "Created TickerSnapshot for ticker %d date %s (%d currencies)"
-                                        tickerId
-                                        (date.ToString())
-                                        tickerCurrencySnapshots.Length
+                        // CoreLogger.logDebugf
+                        //     "TickerSnapshotBatchCalculator"
+                        //     "Created TickerSnapshot for ticker %d date %s (%d currencies)"
+                        //     tickerId
+                        //     (date.ToString())
+                        //     tickerCurrencySnapshots.Length
 
                         with ex ->
                             let errorMsg =
@@ -290,7 +290,7 @@ module internal TickerSnapshotBatchCalculator =
                                     (date.ToString())
                                     ex.Message
 
-                            CoreLogger.logError "TickerSnapshotBatchCalculator" errorMsg
+                            // CoreLogger.logError "TickerSnapshotBatchCalculator" errorMsg
                             errors <- errorMsg :: errors
 
                 with ex ->
@@ -300,13 +300,13 @@ module internal TickerSnapshotBatchCalculator =
 
             stopwatch.Stop()
 
-            CoreLogger.logInfof
-                "TickerSnapshotBatchCalculator"
-                "Batch calculation completed: %d snapshots, %d currency snapshots, %d movements in %dms"
-                snapshotsCreated
-                currencySnapshotsCreated
-                movementsProcessed
-                stopwatch.ElapsedMilliseconds
+            // CoreLogger.logInfof
+            //     "TickerSnapshotBatchCalculator"
+            //     "Batch calculation completed: %d snapshots, %d currency snapshots, %d movements in %dms"
+            //     snapshotsCreated
+            //     currencySnapshotsCreated
+            //     movementsProcessed
+            //     stopwatch.ElapsedMilliseconds
 
             { TickerSnapshots = tickerSnapshots |> List.rev // Reverse to chronological order
               CurrencySnapshots = currencySnapshots |> List.rev // Reverse to chronological order

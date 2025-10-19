@@ -28,13 +28,13 @@ module internal BrokerFinancialCalculateInMemory =
         (targetCurrencyId: int)
         (marketPrices: Map<(int * int * DateTimePattern), decimal>)
         =
-        CoreLogger.logDebugf
-            "BrokerFinancialCalculateInMemory"
-            "Calculating unrealized gains - Positions:%d CostBasis:%d Date:%s CurrencyId:%d"
-            currentPositions.Count
-            costBasisInfo.Count
-            (targetDate.ToString())
-            targetCurrencyId
+        // CoreLogger.logDebugf
+        //     "BrokerFinancialCalculateInMemory"
+        //     "Calculating unrealized gains - Positions:%d CostBasis:%d Date:%s CurrencyId:%d"
+        //     currentPositions.Count
+        //     costBasisInfo.Count
+        //     (targetDate.ToString())
+        //     targetCurrencyId
 
         let mutable totalMarketValue = 0m
         let mutable totalCostBasis = 0m
@@ -74,13 +74,13 @@ module internal BrokerFinancialCalculateInMemory =
             else
                 0m
 
-        CoreLogger.logDebugf
-            "BrokerFinancialCalculateInMemory"
-            "Unrealized gains calculated - MarketValue:%M CostBasis:%M Gains:%M Percentage:%M%%"
-            totalMarketValue
-            totalCostBasis
-            unrealizedGains
-            unrealizedGainsPercentage
+        // CoreLogger.logDebugf
+        //     "BrokerFinancialCalculateInMemory"
+        //     "Unrealized gains calculated - MarketValue:%M CostBasis:%M Gains:%M Percentage:%M%%"
+        //     totalMarketValue
+        //     totalCostBasis
+        //     unrealizedGains
+        //     unrealizedGainsPercentage
 
         (Money.FromAmount unrealizedGains, unrealizedGainsPercentage)
 

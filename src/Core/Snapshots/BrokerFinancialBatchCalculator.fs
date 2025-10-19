@@ -63,11 +63,11 @@ module internal BrokerFinancialBatchCalculator =
         let mutable snapshotsCreated = 0
 
         try
-            CoreLogger.logInfof
-                "BrokerFinancialBatchCalculator"
-                "Starting batch calculation for %d dates, %d baseline currencies"
-                context.DateRange.Length
-                context.BaselineSnapshots.Count
+            // CoreLogger.logInfof
+            //     "BrokerFinancialBatchCalculator"
+            //     "Starting batch calculation for %d dates, %d baseline currencies"
+            //     context.DateRange.Length
+            //     context.BaselineSnapshots.Count
 
             // Track latest snapshot for each currency as we process
             let mutable latestSnapshotsByCurrency = context.BaselineSnapshots
@@ -75,7 +75,7 @@ module internal BrokerFinancialBatchCalculator =
             // Process each date in chronological order
             for date in context.DateRange do
                 try
-                    CoreLogger.logDebugf "BrokerFinancialBatchCalculator" "Processing date %s" (date.ToString())
+                    // CoreLogger.logDebugf "BrokerFinancialBatchCalculator" "Processing date %s" (date.ToString())
 
                     // Get movements for this date
                     let dailyMovements =
@@ -101,14 +101,14 @@ module internal BrokerFinancialBatchCalculator =
                     let allRelevantCurrencies =
                         Set.union currenciesWithMovements currenciesWithPreviousSnapshots
 
-                    CoreLogger.logDebugf
-                        "BrokerFinancialBatchCalculator"
-                        "Date %s: %d movements, %d currencies with movements, %d with previous snapshots, %d total to process"
-                        (date.ToString())
-                        dailyMovements.TotalMovementCount
-                        currenciesWithMovements.Count
-                        currenciesWithPreviousSnapshots.Count
-                        allRelevantCurrencies.Count
+                    // CoreLogger.logDebugf
+                    //     "BrokerFinancialBatchCalculator"
+                    //     "Date %s: %d movements, %d currencies with movements, %d with previous snapshots, %d total to process"
+                    //     (date.ToString())
+                    //     dailyMovements.TotalMovementCount
+                    //     currenciesWithMovements.Count
+                    //     currenciesWithPreviousSnapshots.Count
+                    //     allRelevantCurrencies.Count
 
                     // Process each currency that needs attention
                     for currencyId in allRelevantCurrencies do
@@ -128,11 +128,11 @@ module internal BrokerFinancialBatchCalculator =
 
                                 // SCENARIO A: New movements, has previous snapshot, no existing snapshot
                                 | Some movements, Some prev, None ->
-                                    CoreLogger.logDebugf
-                                        "BrokerFinancialBatchCalculator"
-                                        "SCENARIO A: currency %d date %s"
-                                        currencyId
-                                        (date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "BrokerFinancialBatchCalculator"
+                                    //     "SCENARIO A: currency %d date %s"
+                                    //     currencyId
+                                    //     (date.ToString())
 
                                     Some(
                                         BrokerFinancialCalculateInMemory.calculateNewSnapshot
@@ -147,11 +147,11 @@ module internal BrokerFinancialBatchCalculator =
 
                                 // SCENARIO B: New movements, no previous snapshot, no existing snapshot
                                 | Some movements, None, None ->
-                                    CoreLogger.logDebugf
-                                        "BrokerFinancialBatchCalculator"
-                                        "SCENARIO B: currency %d date %s"
-                                        currencyId
-                                        (date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "BrokerFinancialBatchCalculator"
+                                    //     "SCENARIO B: currency %d date %s"
+                                    //     currencyId
+                                    //     (date.ToString())
 
                                     Some(
                                         BrokerFinancialCalculateInMemory.calculateInitialSnapshot
@@ -165,11 +165,11 @@ module internal BrokerFinancialBatchCalculator =
 
                                 // SCENARIO C: New movements, has previous snapshot, has existing snapshot
                                 | Some movements, Some prev, Some existing ->
-                                    CoreLogger.logDebugf
-                                        "BrokerFinancialBatchCalculator"
-                                        "SCENARIO C: currency %d date %s"
-                                        currencyId
-                                        (date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "BrokerFinancialBatchCalculator"
+                                    //     "SCENARIO C: currency %d date %s"
+                                    //     currencyId
+                                    //     (date.ToString())
 
                                     Some(
                                         BrokerFinancialCalculateInMemory.updateExistingSnapshot
@@ -184,11 +184,11 @@ module internal BrokerFinancialBatchCalculator =
 
                                 // SCENARIO D: New movements, no previous snapshot, has existing snapshot
                                 | Some movements, None, Some existing ->
-                                    CoreLogger.logDebugf
-                                        "BrokerFinancialBatchCalculator"
-                                        "SCENARIO D: currency %d date %s"
-                                        currencyId
-                                        (date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "BrokerFinancialBatchCalculator"
+                                    //     "SCENARIO D: currency %d date %s"
+                                    //     currencyId
+                                    //     (date.ToString())
 
                                     Some(
                                         BrokerFinancialCalculateInMemory.directUpdateSnapshot
@@ -202,11 +202,11 @@ module internal BrokerFinancialBatchCalculator =
 
                                 // SCENARIO E: No movements, has previous snapshot, no existing snapshot
                                 | None, Some prev, None ->
-                                    CoreLogger.logDebugf
-                                        "BrokerFinancialBatchCalculator"
-                                        "SCENARIO E: currency %d date %s"
-                                        currencyId
-                                        (date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "BrokerFinancialBatchCalculator"
+                                    //     "SCENARIO E: currency %d date %s"
+                                    //     currencyId
+                                    //     (date.ToString())
 
                                     Some(
                                         BrokerFinancialCalculateInMemory.carryForwardSnapshot
@@ -217,31 +217,31 @@ module internal BrokerFinancialBatchCalculator =
 
                                 // SCENARIO F: No movements, no previous snapshot, no existing snapshot
                                 | None, None, None ->
-                                    CoreLogger.logDebugf
-                                        "BrokerFinancialBatchCalculator"
-                                        "SCENARIO F: currency %d date %s - no action needed"
-                                        currencyId
-                                        (date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "BrokerFinancialBatchCalculator"
+                                    //     "SCENARIO F: currency %d date %s - no action needed"
+                                    //     currencyId
+                                    //     (date.ToString())
 
                                     None
 
                                 // SCENARIO G: No movements, has previous snapshot, has existing snapshot
                                 | None, Some prev, Some existing ->
-                                    CoreLogger.logDebugf
-                                        "BrokerFinancialBatchCalculator"
-                                        "SCENARIO G: currency %d date %s"
-                                        currencyId
-                                        (date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "BrokerFinancialBatchCalculator"
+                                    //     "SCENARIO G: currency %d date %s"
+                                    //     currencyId
+                                    //     (date.ToString())
                                     // Returns Some if correction needed, None if snapshots match
                                     BrokerFinancialCalculateInMemory.validateAndCorrectSnapshot prev existing
 
                                 // SCENARIO H: No movements, no previous snapshot, has existing snapshot
                                 | None, None, Some existing ->
-                                    CoreLogger.logDebugf
-                                        "BrokerFinancialBatchCalculator"
-                                        "SCENARIO H: currency %d date %s"
-                                        currencyId
-                                        (date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "BrokerFinancialBatchCalculator"
+                                    //     "SCENARIO H: currency %d date %s"
+                                    //     currencyId
+                                    //     (date.ToString())
 
                                     Some(BrokerFinancialCalculateInMemory.resetSnapshot existing)
 
@@ -252,13 +252,13 @@ module internal BrokerFinancialBatchCalculator =
                                 latestSnapshotsByCurrency <- latestSnapshotsByCurrency.Add(currencyId, newSnapshot)
                                 snapshotsCreated <- snapshotsCreated + 1
 
-                                CoreLogger.logDebugf
-                                    "BrokerFinancialBatchCalculator"
-                                    "Snapshot for currency %d on %s (Deposited: %M, Counter: %d)"
-                                    currencyId
-                                    (date.ToString())
-                                    newSnapshot.Deposited.Value
-                                    newSnapshot.MovementCounter
+                            // CoreLogger.logDebugf
+                            //     "BrokerFinancialBatchCalculator"
+                            //     "Snapshot for currency %d on %s (Deposited: %M, Counter: %d)"
+                            //     currencyId
+                            //     (date.ToString())
+                            //     newSnapshot.Deposited.Value
+                            //     newSnapshot.MovementCounter
                             | None ->
                                 CoreLogger.logDebugf
                                     "BrokerFinancialBatchCalculator"
@@ -284,12 +284,12 @@ module internal BrokerFinancialBatchCalculator =
 
             stopwatch.Stop()
 
-            CoreLogger.logInfof
-                "BrokerFinancialBatchCalculator"
-                "Batch calculation completed: %d snapshots created from %d movements in %dms"
-                snapshotsCreated
-                movementsProcessed
-                stopwatch.ElapsedMilliseconds
+            // CoreLogger.logInfof
+            //     "BrokerFinancialBatchCalculator"
+            //     "Batch calculation completed: %d snapshots created from %d movements in %dms"
+            //     snapshotsCreated
+            //     movementsProcessed
+            //     stopwatch.ElapsedMilliseconds
 
             { CalculatedSnapshots = calculatedSnapshots |> List.rev // Restore chronological order
               ProcessingMetrics =
