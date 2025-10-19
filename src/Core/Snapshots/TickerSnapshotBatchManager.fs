@@ -2,6 +2,7 @@ namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
+open Binnaculum.Core.Import
 open System.Diagnostics
 open System.Threading.Tasks
 
@@ -278,8 +279,9 @@ module internal TickerSnapshotBatchManager =
     /// This is the main entry point called from ImportManager after CSV import completes.
     /// </summary>
     /// <param name="brokerAccountId">The broker account ID that was imported</param>
+    /// <param name="importMetadata">Metadata from the import containing oldest movement date</param>
     /// <returns>Task containing BatchProcessingResult</returns>
-    let processBatchedTickersForImport (brokerAccountId: int) =
+    let processBatchedTickersForImport (brokerAccountId: int) (importMetadata: ImportMetadata) =
         task {
             try
                 CoreLogger.logInfof
@@ -288,8 +290,18 @@ module internal TickerSnapshotBatchManager =
                     brokerAccountId
 
                 // Determine which tickers are affected by this import
-                // Use a reasonable lookback period - last 90 days should cover most imports
-                let sinceDate = DateTimePattern.FromDateTime(System.DateTime.Now.AddDays(-90.0))
+                // Use the actual oldest movement date from import metadata to determine lookback period
+                let sinceDate =
+                    match importMetadata.OldestMovementDate with
+                    | Some date -> DateTimePattern.FromDateTime(date)
+                    | None ->
+                        // Fallback: if no movement date (shouldn't happen), use current date
+                        CoreLogger.logWarning
+                            "TickerSnapshotBatchManager"
+                            "No OldestMovementDate in import metadata - using current date as fallback"
+
+                        DateTimePattern.FromDateTime(System.DateTime.Now)
+
                 let! affectedTickers = TickerSnapshotBatchLoader.getTickersAffectedByImport brokerAccountId sinceDate
 
                 if affectedTickers.IsEmpty then

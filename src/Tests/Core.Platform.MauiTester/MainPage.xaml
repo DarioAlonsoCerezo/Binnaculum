@@ -109,6 +109,18 @@
                 SemanticProperties.Hint="Validates Pfizer (PFE) options import"
                 HorizontalOptions="Fill"/>
 
+            <Button
+                x:Name="RunTsllImportIntegrationTestButton"
+                Text="Run TSLL Import Test"
+                FontSize="16"
+                BackgroundColor="Teal"
+                TextColor="White"
+                HeightRequest="50"
+                Clicked="OnTsllImportIntegrationTestClicked"
+                IsEnabled="{Binding CanRunTest}"
+                SemanticProperties.Hint="Validates TSLL multi-asset import with equities, options, and dividends"
+                HorizontalOptions="Fill"/>
+
             <!--  Loading Indicator  -->
             <StackLayout
                 Orientation="Horizontal"

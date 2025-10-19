@@ -5,19 +5,24 @@ open Binnaculum.Core.Models
 open Binnaculum.Core
 
 module internal DiscriminatedToModel =
-    
+
     [<Extension>]
     type Do() =
-        
+
         [<Extension>]
-        static member bankMovementTypeToModel(movementType: Binnaculum.Core.Database.DatabaseModel.BankAccountMovementType) =
+        static member bankMovementTypeToModel
+            (movementType: Binnaculum.Core.Database.DatabaseModel.BankAccountMovementType)
+            =
             match movementType with
             | Binnaculum.Core.Database.DatabaseModel.BankAccountMovementType.Balance -> BankAccountMovementType.Balance
-            | Binnaculum.Core.Database.DatabaseModel.BankAccountMovementType.Interest -> BankAccountMovementType.Interest
+            | Binnaculum.Core.Database.DatabaseModel.BankAccountMovementType.Interest ->
+                BankAccountMovementType.Interest
             | Binnaculum.Core.Database.DatabaseModel.BankAccountMovementType.Fee -> BankAccountMovementType.Fee
 
         [<Extension>]
-        static member supportedBrokerToModel(databaseSupportedBroker: Binnaculum.Core.Database.DatabaseModel.SupportedBroker) =
+        static member supportedBrokerToModel
+            (databaseSupportedBroker: Binnaculum.Core.Database.DatabaseModel.SupportedBroker)
+            =
             match databaseSupportedBroker with
             | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.IBKR -> Models.SupportedBroker.IBKR
             | Binnaculum.Core.Database.DatabaseModel.SupportedBroker.Tastytrade -> Models.SupportedBroker.Tastytrade
@@ -25,20 +30,28 @@ module internal DiscriminatedToModel =
 
 
         [<Extension>]
-        static member brokerMovementTypeToModel(movementType: Binnaculum.Core.Database.DatabaseModel.BrokerMovementType) =
+        static member brokerMovementTypeToModel
+            (movementType: Binnaculum.Core.Database.DatabaseModel.BrokerMovementType)
+            =
             match movementType with
             | Database.DatabaseModel.BrokerMovementType.Deposit -> BrokerMovementType.Deposit
             | Database.DatabaseModel.BrokerMovementType.Withdrawal -> BrokerMovementType.Withdrawal
             | Database.DatabaseModel.BrokerMovementType.Fee -> BrokerMovementType.Fee
             | Database.DatabaseModel.BrokerMovementType.InterestsGained -> BrokerMovementType.InterestsGained
+            | Database.DatabaseModel.BrokerMovementType.DividendReceived -> BrokerMovementType.DividendReceived
+            | Database.DatabaseModel.BrokerMovementType.DividendTaxWithheld -> BrokerMovementType.DividendTaxWithheld
             | Database.DatabaseModel.BrokerMovementType.Lending -> BrokerMovementType.Lending
-            | Database.DatabaseModel.BrokerMovementType.ACATMoneyTransferSent -> BrokerMovementType.ACATMoneyTransferSent
-            | Database.DatabaseModel.BrokerMovementType.ACATMoneyTransferReceived -> BrokerMovementType.ACATMoneyTransferReceived
-            | Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransferSent -> BrokerMovementType.ACATSecuritiesTransferSent
-            | Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransferReceived -> BrokerMovementType.ACATSecuritiesTransferReceived
+            | Database.DatabaseModel.BrokerMovementType.ACATMoneyTransferSent ->
+                BrokerMovementType.ACATMoneyTransferSent
+            | Database.DatabaseModel.BrokerMovementType.ACATMoneyTransferReceived ->
+                BrokerMovementType.ACATMoneyTransferReceived
+            | Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransferSent ->
+                BrokerMovementType.ACATSecuritiesTransferSent
+            | Database.DatabaseModel.BrokerMovementType.ACATSecuritiesTransferReceived ->
+                BrokerMovementType.ACATSecuritiesTransferReceived
             | Database.DatabaseModel.BrokerMovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
             | Database.DatabaseModel.BrokerMovementType.Conversion -> BrokerMovementType.Conversion
-            
+
         [<Extension>]
         static member databaseToTradeCode(tradeCode: Binnaculum.Core.Database.DatabaseModel.TradeCode) =
             match tradeCode with

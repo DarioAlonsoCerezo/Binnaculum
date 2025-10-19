@@ -4,7 +4,7 @@ open DatabaseModel
 open Binnaculum.Core
 
 module internal TypeParser =
-    
+
     let fromDatabaseToSupportedBroker (value: string) =
         match value with
         | Keys.Broker_IBKR -> SupportedBroker.IBKR
@@ -16,8 +16,8 @@ module internal TypeParser =
         | SupportedBroker.IBKR -> Keys.Broker_IBKR
         | SupportedBroker.Tastytrade -> Keys.Broker_Tastytrade
         | SupportedBroker.Unknown -> Keys.Broker_Unknown
-    
-    let fromTextToOptionCode(code: string) =
+
+    let fromTextToOptionCode (code: string) =
         match code with
         | "BUY_TO_OPEN" -> OptionCode.BuyToOpen
         | "SELL_TO_OPEN" -> OptionCode.SellToOpen
@@ -42,7 +42,7 @@ module internal TypeParser =
         | "CASH_SETTLED" -> OptionCode.CashSettledAssigned
         | _ -> failwith $"Invalid Option Code: {code}"
 
-    let fromOptionCodeToDatabase(code: OptionCode) =
+    let fromOptionCodeToDatabase (code: OptionCode) =
         match code with
         | OptionCode.BuyToOpen -> SQLConstants.BuyToOpen
         | OptionCode.SellToOpen -> SQLConstants.SellToOpen
@@ -54,7 +54,7 @@ module internal TypeParser =
         | OptionCode.CashSettledExercised -> SQLConstants.CashSettledExercided
         | OptionCode.Exercised -> SQLConstants.Excerciced
 
-    let fromDatabaseToOptionCode(code: string) =
+    let fromDatabaseToOptionCode (code: string) =
         match code with
         | SQLConstants.BuyToOpen -> OptionCode.BuyToOpen
         | SQLConstants.SellToOpen -> OptionCode.SellToOpen
@@ -67,25 +67,25 @@ module internal TypeParser =
         | SQLConstants.Excerciced -> OptionCode.Exercised
         | _ -> failwith $"Invalid Option Code: {code}"
 
-    let fromOptionTypeToDatabase(optionType: OptionType) =
+    let fromOptionTypeToDatabase (optionType: OptionType) =
         match optionType with
         | OptionType.Call -> SQLConstants.Call
-        | OptionType.Put -> SQLConstants.Put 
+        | OptionType.Put -> SQLConstants.Put
 
-    let fromDatabaseToOptionType(optionType: string) =
+    let fromDatabaseToOptionType (optionType: string) =
         match optionType with
         | SQLConstants.Call -> OptionType.Call
         | SQLConstants.Put -> OptionType.Put
         | _ -> failwith $"Invalid Option Type: {optionType}"
 
-    let fromTradeCodeToDatabase(tradeCode: TradeCode) =
+    let fromTradeCodeToDatabase (tradeCode: TradeCode) =
         match tradeCode with
         | TradeCode.BuyToOpen -> SQLConstants.BuyToOpen
         | TradeCode.SellToOpen -> SQLConstants.SellToOpen
         | TradeCode.BuyToClose -> SQLConstants.BuyToClose
         | TradeCode.SellToClose -> SQLConstants.SellToClose
 
-    let fromDatabaseToTradeCode(tradeCode: string) =
+    let fromDatabaseToTradeCode (tradeCode: string) =
         match tradeCode with
         | SQLConstants.BuyToOpen -> TradeCode.BuyToOpen
         | SQLConstants.SellToOpen -> TradeCode.SellToOpen
@@ -93,23 +93,25 @@ module internal TypeParser =
         | SQLConstants.SellToClose -> TradeCode.SellToClose
         | _ -> failwith $"Invalid Trade Code: {tradeCode}"
 
-    let fromTradeTypeToDatabase(tradeType: TradeType) =
+    let fromTradeTypeToDatabase (tradeType: TradeType) =
         match tradeType with
         | TradeType.Long -> SQLConstants.Long
         | TradeType.Short -> SQLConstants.Short
 
-    let fromDatabaseToTradeType(tradeType: string) =
+    let fromDatabaseToTradeType (tradeType: string) =
         match tradeType with
         | SQLConstants.Long -> TradeType.Long
         | SQLConstants.Short -> TradeType.Short
         | _ -> failwith $"Invalid Trade Type: {tradeType}"
 
-    let fromDataseToMovementType(value: string) =
+    let fromDataseToMovementType (value: string) =
         match value with
         | SQLConstants.Deposit -> BrokerMovementType.Deposit
         | SQLConstants.Withdrawal -> BrokerMovementType.Withdrawal
         | SQLConstants.Fee -> BrokerMovementType.Fee
         | SQLConstants.InterestsGained -> BrokerMovementType.InterestsGained
+        | SQLConstants.DividendReceived -> BrokerMovementType.DividendReceived
+        | SQLConstants.DividendTaxWithheld -> BrokerMovementType.DividendTaxWithheld
         | SQLConstants.Lending -> BrokerMovementType.Lending
         | SQLConstants.AcatMoneyTransferSent -> BrokerMovementType.ACATMoneyTransferSent
         | SQLConstants.AcatMoneyTransferReceived -> BrokerMovementType.ACATMoneyTransferReceived
@@ -119,12 +121,14 @@ module internal TypeParser =
         | SQLConstants.Conversion -> BrokerMovementType.Conversion
         | _ -> failwith $"Invalid Movement Type: {value}"
 
-    let fromMovementTypeToDatabase(value: BrokerMovementType) =
+    let fromMovementTypeToDatabase (value: BrokerMovementType) =
         match value with
         | BrokerMovementType.Deposit -> SQLConstants.Deposit
         | BrokerMovementType.Withdrawal -> SQLConstants.Withdrawal
         | BrokerMovementType.Fee -> SQLConstants.Fee
         | BrokerMovementType.InterestsGained -> SQLConstants.InterestsGained
+        | BrokerMovementType.DividendReceived -> SQLConstants.DividendReceived
+        | BrokerMovementType.DividendTaxWithheld -> SQLConstants.DividendTaxWithheld
         | BrokerMovementType.Lending -> SQLConstants.Lending
         | BrokerMovementType.ACATMoneyTransferSent -> SQLConstants.AcatMoneyTransferSent
         | BrokerMovementType.ACATMoneyTransferReceived -> SQLConstants.AcatMoneyTransferReceived
@@ -133,25 +137,25 @@ module internal TypeParser =
         | BrokerMovementType.InterestsPaid -> SQLConstants.InterestsPaid
         | BrokerMovementType.Conversion -> SQLConstants.Conversion
 
-    let fromDividendDateCodeToDatabase(value: DividendCode) =
+    let fromDividendDateCodeToDatabase (value: DividendCode) =
         match value with
         | DividendCode.ExDividendDate -> SQLConstants.ExDividendDate
         | DividendCode.PayDividendDate -> SQLConstants.PayDividendDate
 
-    let fromDatabaseToDividendDateCode(value: string) =
+    let fromDatabaseToDividendDateCode (value: string) =
         match value with
         | SQLConstants.ExDividendDate -> DividendCode.ExDividendDate
         | SQLConstants.PayDividendDate -> DividendCode.PayDividendDate
         | _ -> failwith $"Invalid Dividend Code: {value}"
 
-    let fromDatabaseToBankMovementType(value: string) =
+    let fromDatabaseToBankMovementType (value: string) =
         match value with
         | SQLConstants.Balance -> BankAccountMovementType.Balance
         | SQLConstants.Interest -> BankAccountMovementType.Interest
         | SQLConstants.Fee -> BankAccountMovementType.Fee
         | _ -> failwith $"Invalid Bank Movement Type: {value}"
 
-    let fromBankMovementTypeToDatabase(value: BankAccountMovementType) =
+    let fromBankMovementTypeToDatabase (value: BankAccountMovementType) =
         match value with
         | BankAccountMovementType.Balance -> SQLConstants.Balance
         | BankAccountMovementType.Interest -> SQLConstants.Interest

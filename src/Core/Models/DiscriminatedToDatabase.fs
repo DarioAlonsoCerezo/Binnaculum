@@ -4,10 +4,10 @@ open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.DatabaseModel
 
 module internal DiscriminatedToDatabase =
-    
+
     [<Extension>]
     type Do() =
-        
+
         [<Extension>]
         static member bankMovementTypeToDatabase(movementType: Binnaculum.Core.Models.BankAccountMovementType) =
             match movementType with
@@ -24,9 +24,12 @@ module internal DiscriminatedToDatabase =
             | Binnaculum.Core.Models.MovementType.InterestsGained -> BrokerMovementType.InterestsGained
             | Binnaculum.Core.Models.MovementType.Lending -> BrokerMovementType.Lending
             | Binnaculum.Core.Models.MovementType.ACATMoneyTransferSent -> BrokerMovementType.ACATMoneyTransferSent
-            | Binnaculum.Core.Models.MovementType.ACATMoneyTransferReceived -> BrokerMovementType.ACATMoneyTransferReceived
-            | Binnaculum.Core.Models.MovementType.ACATSecuritiesTransferSent -> BrokerMovementType.ACATSecuritiesTransferSent
-            | Binnaculum.Core.Models.MovementType.ACATSecuritiesTransferReceived -> BrokerMovementType.ACATSecuritiesTransferReceived
+            | Binnaculum.Core.Models.MovementType.ACATMoneyTransferReceived ->
+                BrokerMovementType.ACATMoneyTransferReceived
+            | Binnaculum.Core.Models.MovementType.ACATSecuritiesTransferSent ->
+                BrokerMovementType.ACATSecuritiesTransferSent
+            | Binnaculum.Core.Models.MovementType.ACATSecuritiesTransferReceived ->
+                BrokerMovementType.ACATSecuritiesTransferReceived
             | Binnaculum.Core.Models.MovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
             | Binnaculum.Core.Models.MovementType.Conversion -> BrokerMovementType.Conversion
             | _ -> failwithf "MovementType %A is not a BrokerMovementType" movementType
@@ -38,11 +41,17 @@ module internal DiscriminatedToDatabase =
             | Binnaculum.Core.Models.BrokerMovementType.Withdrawal -> BrokerMovementType.Withdrawal
             | Binnaculum.Core.Models.BrokerMovementType.Fee -> BrokerMovementType.Fee
             | Binnaculum.Core.Models.BrokerMovementType.InterestsGained -> BrokerMovementType.InterestsGained
+            | Binnaculum.Core.Models.BrokerMovementType.DividendReceived -> BrokerMovementType.DividendReceived
+            | Binnaculum.Core.Models.BrokerMovementType.DividendTaxWithheld -> BrokerMovementType.DividendTaxWithheld
             | Binnaculum.Core.Models.BrokerMovementType.Lending -> BrokerMovementType.Lending
-            | Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransferSent -> BrokerMovementType.ACATMoneyTransferSent
-            | Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransferReceived -> BrokerMovementType.ACATMoneyTransferReceived
-            | Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransferSent -> BrokerMovementType.ACATSecuritiesTransferSent
-            | Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransferReceived -> BrokerMovementType.ACATSecuritiesTransferReceived
+            | Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransferSent ->
+                BrokerMovementType.ACATMoneyTransferSent
+            | Binnaculum.Core.Models.BrokerMovementType.ACATMoneyTransferReceived ->
+                BrokerMovementType.ACATMoneyTransferReceived
+            | Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransferSent ->
+                BrokerMovementType.ACATSecuritiesTransferSent
+            | Binnaculum.Core.Models.BrokerMovementType.ACATSecuritiesTransferReceived ->
+                BrokerMovementType.ACATSecuritiesTransferReceived
             | Binnaculum.Core.Models.BrokerMovementType.InterestsPaid -> BrokerMovementType.InterestsPaid
             | Binnaculum.Core.Models.BrokerMovementType.Conversion -> BrokerMovementType.Conversion
 
@@ -65,7 +74,7 @@ module internal DiscriminatedToDatabase =
             match dividendCode with
             | Binnaculum.Core.Models.DividendCode.ExDividendDate -> DividendCode.ExDividendDate
             | Binnaculum.Core.Models.DividendCode.PayDividendDate -> DividendCode.PayDividendDate
-        
+
         [<Extension>]
         static member optionTypeToDatabase(optionType: Binnaculum.Core.Models.OptionType) =
             match optionType with

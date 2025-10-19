@@ -46,16 +46,14 @@ module DatabasePersistence =
     let internal orderTransactionsForPersistence (transactions: TastytradeTransaction list) =
         CoreLogger.logDebugf
             "DatabasePersistence"
-            "orderTransactionsForPersistence: Starting to sort %d transactions"
+            "orderTransactionsForPersistence: Starting to sort %d transactions by date"
             transactions.Length
 
-        let sorted =
-            transactions
-            |> List.sortBy (fun t -> t.Date, getTransactionProcessingPriority t, t.LineNumber)
+        let sorted = transactions |> List.sortBy (fun t -> t.Date)
 
         CoreLogger.logDebugf
             "DatabasePersistence"
-            "orderTransactionsForPersistence: Sorting completed, returning %d transactions"
+            "orderTransactionsForPersistence: Sorting completed by date, returning %d transactions in chronological order"
             sorted.Length
 
         sorted
@@ -112,6 +110,26 @@ module DatabasePersistence =
                         "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Deposit"
 
                     BrokerMovementType.Deposit // Default transfers to deposits
+                | Dividend ->
+                    CoreLogger.logDebugf
+                        "DatabasePersistence"
+                        "createBrokerMovementFromTransaction: Processing Dividend with amount: %M"
+                        transaction.Value
+
+                    // Determine dividend type based on amount sign
+                    // Positive amount = dividend received, Negative amount = tax withheld
+                    if transaction.Value > 0m then
+                        CoreLogger.logDebug
+                            "DatabasePersistence"
+                            "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.DividendReceived (positive amount)"
+
+                        BrokerMovementType.DividendReceived
+                    else
+                        CoreLogger.logDebug
+                            "DatabasePersistence"
+                            "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.DividendTaxWithheld (negative amount)"
+
+                        BrokerMovementType.DividendTaxWithheld
 
             CoreLogger.logDebug
                 "DatabasePersistence"
@@ -370,6 +388,60 @@ module DatabasePersistence =
         }
 
     /// <summary>
+    /// Create a Dividend record from a MoneyMovement(Dividend) transaction with positive amount
+    /// </summary>
+    let private createDividendFromTransaction
+        (transaction: TastytradeTransaction)
+        (brokerAccountId: int)
+        (currencyId: int)
+        (tickerId: int)
+        : Dividend =
+        CoreLogger.logDebugf
+            "DatabasePersistence"
+            "createDividendFromTransaction: Creating dividend record for ticker %d with amount %M"
+            tickerId
+            transaction.Value
+
+        let timeStamp = DateTimePattern.FromDateTime(transaction.Date)
+        let amount = Money.FromAmount(Math.Abs(transaction.Value))
+        let audit = AuditableEntity.FromDateTime(DateTime.UtcNow)
+
+        { Id = 0
+          TimeStamp = timeStamp
+          DividendAmount = amount
+          TickerId = tickerId
+          CurrencyId = currencyId
+          BrokerAccountId = brokerAccountId
+          Audit = audit }
+
+    /// <summary>
+    /// Create a DividendTax record from a MoneyMovement(Dividend) transaction with negative amount
+    /// </summary>
+    let private createDividendTaxFromTransaction
+        (transaction: TastytradeTransaction)
+        (brokerAccountId: int)
+        (currencyId: int)
+        (tickerId: int)
+        : DividendTax =
+        CoreLogger.logDebugf
+            "DatabasePersistence"
+            "createDividendTaxFromTransaction: Creating dividend tax record for ticker %d with amount %M"
+            tickerId
+            (Math.Abs(transaction.Value))
+
+        let timeStamp = DateTimePattern.FromDateTime(transaction.Date)
+        let taxAmount = Money.FromAmount(Math.Abs(transaction.Value))
+        let audit = AuditableEntity.FromDateTime(DateTime.UtcNow)
+
+        { Id = 0
+          TimeStamp = timeStamp
+          DividendTaxAmount = taxAmount
+          TickerId = tickerId
+          CurrencyId = currencyId
+          BrokerAccountId = brokerAccountId
+          Audit = audit }
+
+    /// <summary>
     /// Convert parsed TastytradeTransactions to domain objects and persist to database
     /// </summary>
     let persistTransactionsToDatabase
@@ -388,7 +460,8 @@ module DatabasePersistence =
             let mutable brokerMovements = []
             let mutable optionTrades = []
             let mutable stockTrades = []
-            let mutable dividends = [] // Not implemented yet for Tastytrade
+            let mutable dividends = [] // Dividend records for ticker-level dividend tracking
+            let mutable dividendTaxes = [] // DividendTax records for ticker-level tax tracking
             let mutable errors = []
 
             // Collect metadata for targeted snapshot updates
@@ -467,6 +540,75 @@ module DatabasePersistence =
                                 CoreLogger.logDebug
                                     "DatabasePersistence"
                                     "BrokerMovement added to collection, continuing to next step"
+
+                                // Handle dividend transactions by creating Dividend/DividendTax records for tickers
+                                match transaction.TransactionType with
+                                | MoneyMovement(Dividend) ->
+                                    let tickerSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
+
+                                    if tickerSymbol <> "UNKNOWN" && tickerSymbol <> "" then
+                                        CoreLogger.logDebugf
+                                            "DatabasePersistence"
+                                            "Processing dividend transaction for ticker: %s, amount: %M"
+                                            tickerSymbol
+                                            transaction.Value
+
+                                        let! tickerId = getOrCreateTickerId (tickerSymbol)
+
+                                        // Add to affected tickers for metadata
+                                        affectedTickerSymbols <- Set.add tickerSymbol affectedTickerSymbols
+
+                                        if transaction.Value > 0m then
+                                            // Positive amount = Dividend received
+                                            CoreLogger.logDebugf
+                                                "DatabasePersistence"
+                                                "Creating Dividend record for %s: %M"
+                                                tickerSymbol
+                                                transaction.Value
+
+                                            let dividend =
+                                                createDividendFromTransaction
+                                                    transaction
+                                                    brokerAccountId
+                                                    currencyId
+                                                    tickerId
+
+                                            do! DividendExtensions.Do.save (dividend) |> Async.AwaitTask
+                                            dividends <- dividend :: dividends
+
+                                            CoreLogger.logDebugf
+                                                "DatabasePersistence"
+                                                "Dividend record saved for %s"
+                                                tickerSymbol
+                                        else
+                                            // Negative amount = Dividend tax withheld
+                                            CoreLogger.logDebugf
+                                                "DatabasePersistence"
+                                                "Creating DividendTax record for %s: %M"
+                                                tickerSymbol
+                                                (Math.Abs(transaction.Value))
+
+                                            let dividendTax =
+                                                createDividendTaxFromTransaction
+                                                    transaction
+                                                    brokerAccountId
+                                                    currencyId
+                                                    tickerId
+
+                                            do! DividendTaxExtensions.Do.save (dividendTax) |> Async.AwaitTask
+                                            dividendTaxes <- dividendTax :: dividendTaxes
+
+                                            CoreLogger.logDebugf
+                                                "DatabasePersistence"
+                                                "DividendTax record saved for %s"
+                                                tickerSymbol
+                                    else
+                                        CoreLogger.logWarning
+                                            "DatabasePersistence"
+                                            "Dividend transaction has no ticker symbol, skipping dividend record creation"
+                                | _ ->
+                                    // For non-dividend money movements, no ticker-level records needed
+                                    ()
                             | None ->
                                 errors <-
                                     $"Failed to create BrokerMovement from line {transaction.LineNumber}" :: errors
@@ -489,7 +631,14 @@ module DatabasePersistence =
 
                                     match linkResult with
                                     | Ok _ -> ()
-                                    | Error message -> errors <- message :: errors
+                                    | Error message ->
+                                        // Log the linking error but don't count it as a persistence error
+                                        // Linking can fail due to strike adjustments from dividends, stock splits, etc.
+                                        // The trade is still persisted successfully - this is just metadata linking
+                                        CoreLogger.logDebugf
+                                            "DatabasePersistence"
+                                            "Option trade linking failed (non-critical): %s"
+                                            message
                             | None ->
                                 errors <- $"Failed to create OptionTrade from line {transaction.LineNumber}" :: errors
 
@@ -547,6 +696,14 @@ module DatabasePersistence =
                                 stockSymbol
                                 transaction.Quantity
 
+                        | ReceiveDeliver(_) when transaction.InstrumentType = Some "Equity Option" ->
+                            // Option expirations/assignments/exercises - informational only, no tradeable record
+                            // These are silently skipped as they don't represent new positions
+                            CoreLogger.logDebugf
+                                "DatabasePersistence"
+                                "Skipping ReceiveDeliver option event (informational only): %s"
+                                (transaction.Description)
+
                         | _ ->
                             errors <-
                                 $"Unsupported transaction type on line {transaction.LineNumber}: {transaction.TransactionType}"
@@ -577,10 +734,12 @@ module DatabasePersistence =
                 do
                     CoreLogger.logInfof
                         "DatabasePersistence"
-                        "Persistence complete. BrokerMovements=%d, OptionTrades=%d, StockTrades=%d, Errors=%d"
+                        "Persistence complete. BrokerMovements=%d, OptionTrades=%d, StockTrades=%d, Dividends=%d, DividendTaxes=%d, Errors=%d"
                         brokerMovements.Length
                         optionTrades.Length
                         stockTrades.Length
+                        dividends.Length
+                        dividendTaxes.Length
                         errors.Length
 
                 // Create import metadata for targeted snapshot updates
@@ -598,13 +757,14 @@ module DatabasePersistence =
                         brokerMovements.Length
                         + optionTrades.Length
                         + stockTrades.Length
-                        + dividends.Length }
+                        + dividends.Length
+                        + dividendTaxes.Length }
 
                 return
                     { BrokerMovementsCreated = brokerMovements.Length
                       OptionTradesCreated = optionTrades.Length
                       StockTradesCreated = stockTrades.Length
-                      DividendsCreated = dividends.Length
+                      DividendsCreated = dividends.Length + dividendTaxes.Length
                       ErrorsCount = errors.Length
                       Errors = List.rev errors
                       ImportMetadata = importMetadata }
@@ -618,7 +778,7 @@ module DatabasePersistence =
                     { BrokerMovementsCreated = brokerMovements.Length
                       OptionTradesCreated = optionTrades.Length
                       StockTradesCreated = stockTrades.Length
-                      DividendsCreated = dividends.Length
+                      DividendsCreated = dividends.Length + dividendTaxes.Length
                       ErrorsCount = 1
                       Errors = [ "Operation was cancelled" ]
                       ImportMetadata = ImportMetadata.createEmpty () }
@@ -630,7 +790,7 @@ module DatabasePersistence =
                     { BrokerMovementsCreated = brokerMovements.Length
                       OptionTradesCreated = optionTrades.Length
                       StockTradesCreated = stockTrades.Length
-                      DividendsCreated = dividends.Length
+                      DividendsCreated = dividends.Length + dividendTaxes.Length
                       ErrorsCount = errors.Length
                       Errors = List.rev errors
                       ImportMetadata = ImportMetadata.createEmpty () }

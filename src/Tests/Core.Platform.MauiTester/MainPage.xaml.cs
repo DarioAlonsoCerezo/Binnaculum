@@ -57,7 +57,7 @@ namespace Core.Platform.MauiTester
 
         private async void OnTsllImportIntegrationTestClicked(object? sender, EventArgs e)
         {
-            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("TSLL Import Integration Test", callback), "Execute TSLL Import Test", "TSLL Import Integration Test");
+            await ExecuteTestAsync((callback) => _testRunner.ExecuteScenarioByNameAsync("Reactive TSLL Multi-Asset Import Integration Test", callback), "Execute Reactive TSLL Import Test", "Reactive TSLL Multi-Asset Import Integration Test");
         }
 
         private async void OnRunPfizerImportIntegrationTestClicked(object? sender, EventArgs e)
@@ -160,6 +160,7 @@ namespace Core.Platform.MauiTester
             RunOptionsImportIntegrationSignalBasedTestButton.Text = "Running Test...";
             RunDepositsWithdrawalsIntegrationTestButton.Text = "Running Test...";
             RunPfizerImportIntegrationTestButton.Text = "Running Test...";
+            RunTsllImportIntegrationTestButton.Text = "Running Test...";
         }
 
         private void ResetAllButtonsToOriginalText()
@@ -171,6 +172,7 @@ namespace Core.Platform.MauiTester
             RunOptionsImportIntegrationSignalBasedTestButton.Text = "Run Options Import Test";
             RunDepositsWithdrawalsIntegrationTestButton.Text = "Run Money Movements Test";
             RunPfizerImportIntegrationTestButton.Text = "Run Pfizer Import Test";
+            RunTsllImportIntegrationTestButton.Text = "Run TSLL Import Test";
         }
     }
 }

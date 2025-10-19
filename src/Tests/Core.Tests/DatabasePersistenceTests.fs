@@ -281,10 +281,11 @@ type DatabasePersistenceTests() =
 
     [<Test>]
     member _.``orderTransactionsForPersistence processes opening trades before closings``() =
-        let timestamp = DateTime(2024, 5, 1, 14, 30, 0, DateTimeKind.Utc)
+        let openingTimestamp = DateTime(2024, 5, 1, 14, 30, 0, DateTimeKind.Utc)
+        let closingTimestamp = DateTime(2024, 5, 2, 14, 30, 0, DateTimeKind.Utc)
 
         let closingTrade =
-            { Date = timestamp
+            { Date = closingTimestamp
               TransactionType = Trade(TastytradeModels.BuyToClose, TastytradeModels.BUY_TO_CLOSE)
               Symbol = Some "XYZ  240517C00020000"
               InstrumentType = Some "Equity Option"
@@ -306,7 +307,7 @@ type DatabasePersistenceTests() =
               LineNumber = 2 }
 
         let openingTrade =
-            { Date = timestamp
+            { Date = openingTimestamp
               TransactionType = Trade(TastytradeModels.SellToOpen, TastytradeModels.SELL_TO_OPEN)
               Symbol = Some "XYZ  240517C00020000"
               InstrumentType = Some "Equity Option"

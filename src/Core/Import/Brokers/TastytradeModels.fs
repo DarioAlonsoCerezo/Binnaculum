@@ -10,94 +10,92 @@ module TastytradeModels =
     /// <summary>
     /// Main transaction types in Tastytrade CSV files
     /// </summary>
-    type TastytradeTransactionType = 
+    type TastytradeTransactionType =
         | Trade of TradeSubType * TradeAction
         | MoneyMovement of MoneyMovementSubType
         | ReceiveDeliver of string // ACAT, etc.
-        
+
     /// <summary>
     /// Trade sub-types for equity and option transactions
     /// </summary>
-    and TradeSubType = 
-        | BuyToOpen 
-        | SellToOpen 
-        | BuyToClose 
+    and TradeSubType =
+        | BuyToOpen
+        | SellToOpen
+        | BuyToClose
         | SellToClose
-        
+
     /// <summary>
     /// Trade action mapping from Tastytrade CSV Action field
     /// </summary>
     and TradeAction =
         | BUY_TO_OPEN
-        | SELL_TO_OPEN  
+        | SELL_TO_OPEN
         | BUY_TO_CLOSE
         | SELL_TO_CLOSE
-        
+
     /// <summary>
     /// Money movement sub-types for cash transactions
     /// </summary>
-    and MoneyMovementSubType = 
-        | Deposit 
-        | BalanceAdjustment 
-        | CreditInterest 
+    and MoneyMovementSubType =
+        | Deposit
+        | BalanceAdjustment
+        | CreditInterest
         | Transfer
         | Withdrawal
+        | Dividend
 
     /// <summary>
     /// Parsed option symbol components from complex Tastytrade format
     /// Examples: PLTR  240531C00022000 -> ticker=PLTR, exp=5/31/24, strike=22, type=CALL
     /// </summary>
-    type ParsedOptionSymbol = {
-        Ticker: string
-        ExpirationDate: DateTime
-        Strike: decimal
-        OptionType: string // "CALL" or "PUT"
-    }
+    type ParsedOptionSymbol =
+        { Ticker: string
+          ExpirationDate: DateTime
+          Strike: decimal
+          OptionType: string } // "CALL" or "PUT"
 
     /// <summary>
     /// Core transaction record parsed from Tastytrade CSV line
     /// Maps directly to CSV column structure with proper type conversion
     /// </summary>
-    type TastytradeTransaction = {
-        Date: DateTime
-        TransactionType: TastytradeTransactionType
-        Symbol: string option
-        InstrumentType: string option // "Equity Option", "Equity"
-        Description: string
-        Value: decimal
-        Quantity: decimal
-        AveragePrice: decimal option
-        Commissions: decimal
-        Fees: decimal
-        Multiplier: decimal option
-        RootSymbol: string option
-        UnderlyingSymbol: string option
-        ExpirationDate: DateTime option
-        StrikePrice: decimal option
-        CallOrPut: string option
-        OrderNumber: string option
-        Currency: string
-        // Raw CSV line for error reporting
-        RawCsvLine: string
-        LineNumber: int
-    }
+    type TastytradeTransaction =
+        { Date: DateTime
+          TransactionType: TastytradeTransactionType
+          Symbol: string option
+          InstrumentType: string option // "Equity Option", "Equity"
+          Description: string
+          Value: decimal
+          Quantity: decimal
+          AveragePrice: decimal option
+          Commissions: decimal
+          Fees: decimal
+          Multiplier: decimal option
+          RootSymbol: string option
+          UnderlyingSymbol: string option
+          ExpirationDate: DateTime option
+          StrikePrice: decimal option
+          CallOrPut: string option
+          OrderNumber: string option
+          Currency: string
+          // Raw CSV line for error reporting
+          RawCsvLine: string
+          LineNumber: int }
 
     /// <summary>
     /// Multi-leg strategy grouping by order number
     /// Used to identify spreads, straddles, and other complex strategies
     /// </summary>
-    type TastytradeStrategy = {
-        OrderNumber: string
-        Transactions: TastytradeTransaction list
-        StrategyType: StrategyType option
-    }
-        
+    type TastytradeStrategy =
+        { OrderNumber: string
+          Transactions: TastytradeTransaction list
+          StrategyType: StrategyType option }
+
     /// <summary>
     /// Detected strategy types for multi-leg options
     /// </summary>
     and StrategyType =
         | CalendarSpread
-        | VerticalSpread  
+        | VerticalSpread
         | IronCondor
         | Straddle
         | Strangle
@@ -107,13 +105,12 @@ module TastytradeModels =
     /// <summary>
     /// Error information for parsing issues
     /// </summary>
-    type TastytradeParsingError = {
-        LineNumber: int
-        ErrorMessage: string
-        RawCsvLine: string
-        ErrorType: TastytradeErrorType
-    }
-        
+    type TastytradeParsingError =
+        { LineNumber: int
+          ErrorMessage: string
+          RawCsvLine: string
+          ErrorType: TastytradeErrorType }
+
     /// <summary>
     /// Classification of Tastytrade-specific parsing errors
     /// </summary>
@@ -128,17 +125,16 @@ module TastytradeModels =
     /// <summary>
     /// Result of parsing a Tastytrade CSV file
     /// </summary>
-    type TastytradeParsingResult = {
-        Transactions: TastytradeTransaction list
-        Strategies: TastytradeStrategy list
-        Errors: TastytradeParsingError list
-        ProcessedLines: int
-        SkippedLines: int
-    }
+    type TastytradeParsingResult =
+        { Transactions: TastytradeTransaction list
+          Strategies: TastytradeStrategy list
+          Errors: TastytradeParsingError list
+          ProcessedLines: int
+          SkippedLines: int }
 
     /// Helper functions for transaction type detection
     module TransactionTypeDetection =
-        
+
         /// <summary>
         /// Parse transaction type from CSV Type and Sub Type columns
         /// </summary>
@@ -153,6 +149,7 @@ module TastytradeModels =
             | "Money Movement", "Credit Interest" -> MoneyMovement(CreditInterest)
             | "Money Movement", "Transfer" -> MoneyMovement(Transfer)
             | "Money Movement", "Withdrawal" -> MoneyMovement(Withdrawal)
+            | "Money Movement", "Dividend" -> MoneyMovement(Dividend)
             | "Receive Deliver", subType -> ReceiveDeliver(subType)
             | _ -> failwith $"Unsupported transaction type: {typeCol} / {subTypeCol}"
 

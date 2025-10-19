@@ -13,31 +13,37 @@ module internal SQLConstants =
 
     [<Literal>]
     let InterestsGained = "INTERESTS_GAINED"
-    
+
+    [<Literal>]
+    let DividendReceived = "DIVIDEND_RECEIVED"
+
+    [<Literal>]
+    let DividendTaxWithheld = "DIVIDEND_TAX_WITHHELD"
+
     [<Literal>]
     let Lending = "LENDING"
-    
+
     [<Literal>]
     let AcatMoneyTransferSent = "ACAT_MONEY_TRANSFER_SENT"
-    
+
     [<Literal>]
     let AcatMoneyTransferReceived = "ACAT_MONEY_TRANSFER_RECEIVED"
-    
+
     [<Literal>]
     let AcatSecuritiesTransferSent = "ACAT_SECURITIES_TRANSFER_SENT"
-    
+
     [<Literal>]
     let AcatSecuritiesTransferReceived = "ACAT_SECURITIES_TRANSFER_RECEIVED"
-    
+
     [<Literal>]
     let InterestsPaid = "INTERESTS_PAID"
-    
+
     [<Literal>]
     let Conversion = "CONVERSION"
 
     [<Literal>]
     let ExDividendDate = "EX_DIVIDEND_DATE"
-    
+
     [<Literal>]
     let PayDividendDate = "PAY_DIVIDEND_DATE"
 
@@ -49,31 +55,31 @@ module internal SQLConstants =
 
     [<Literal>]
     let BuyToOpen = "BUY_TO_OPEN"
-    
+
     [<Literal>]
     let SellToOpen = "SELL_TO_OPEN"
-    
+
     [<Literal>]
     let BuyToClose = "BUY_TO_CLOSE"
-    
+
     [<Literal>]
     let SellToClose = "SELL_TO_CLOSE"
-    
+
     [<Literal>]
     let Expired = "EXPIRED"
-    
+
     [<Literal>]
     let Assigned = "ASSIGNED"
 
     [<Literal>]
     let Long = "LONG"
-    
+
     [<Literal>]
     let Short = "SHORT"
 
     [<Literal>]
     let Balance = "BALANCE"
-    
+
     [<Literal>]
     let Interest = "INTEREST"
 
@@ -82,6 +88,6 @@ module internal SQLConstants =
 
     [<Literal>]
     let CashSettledExercided = "CASH_SETTLED_EXCERCICED"
-    
+
     [<Literal>]
     let Excerciced = "EXCERCICED"

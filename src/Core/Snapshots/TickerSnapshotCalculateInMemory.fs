@@ -64,7 +64,18 @@ module internal TickerSnapshotCalculateInMemory =
             (previousSnapshot.Base.Date.Value.ToString())
 
         // Calculate shares delta from trades
-        let sharesDelta = movements.Trades |> List.sumBy (fun t -> t.Quantity)
+        // CRITICAL FIX: Account for buy/sell direction using TradeCode
+        // Buy trades (BuyToOpen, BuyToClose) add shares (+)
+        // Sell trades (SellToOpen, SellToClose) reduce shares (-)
+        let sharesDelta =
+            movements.Trades
+            |> List.sumBy (fun t ->
+                match t.TradeCode with
+                | TradeCode.BuyToOpen
+                | TradeCode.BuyToClose -> t.Quantity
+                | TradeCode.SellToOpen
+                | TradeCode.SellToClose -> -t.Quantity)
+
         let totalShares = previousSnapshot.TotalShares + sharesDelta
 
         // Calculate cost basis delta from trades
@@ -287,7 +298,17 @@ module internal TickerSnapshotCalculateInMemory =
             movements.OptionTrades.Length
 
         // Calculate shares from trades (no previous)
-        let totalShares = movements.Trades |> List.sumBy (fun t -> t.Quantity)
+        // CRITICAL FIX: Account for buy/sell direction using TradeCode
+        // Buy trades (BuyToOpen, BuyToClose) add shares (+)
+        // Sell trades (SellToOpen, SellToClose) reduce shares (-)
+        let totalShares =
+            movements.Trades
+            |> List.sumBy (fun t ->
+                match t.TradeCode with
+                | TradeCode.BuyToOpen
+                | TradeCode.BuyToClose -> t.Quantity
+                | TradeCode.SellToOpen
+                | TradeCode.SellToClose -> -t.Quantity)
 
         // Calculate cost basis from trades (no previous)
         let tradeCostBasis =

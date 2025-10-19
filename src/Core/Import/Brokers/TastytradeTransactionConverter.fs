@@ -11,24 +11,22 @@ module TastytradeTransactionConverter =
     /// <summary>
     /// Conversion result for a single transaction
     /// </summary>
-    type ConversionResult = {
-        BrokerMovementsCount: int
-        OptionTradesCount: int
-        StockTradesCount: int
-        Errors: string list
-    }
+    type ConversionResult =
+        { BrokerMovementsCount: int
+          OptionTradesCount: int
+          StockTradesCount: int
+          Errors: string list }
 
     /// <summary>
     /// Conversion statistics for the entire file
     /// </summary>
-    type ConversionStats = {
-        TotalTransactions: int
-        BrokerMovementsCreated: int
-        OptionTradesCreated: int
-        StockTradesCreated: int
-        ErrorsCount: int
-        Errors: string list
-    }
+    type ConversionStats =
+        { TotalTransactions: int
+          BrokerMovementsCreated: int
+          OptionTradesCreated: int
+          StockTradesCreated: int
+          ErrorsCount: int
+          Errors: string list }
 
     /// <summary>
     /// Convert a single TastytradeTransaction to appropriate counts by type
@@ -50,28 +48,31 @@ module TastytradeTransactionConverter =
             | Trade(_, _) when transaction.InstrumentType = Some "Equity" ->
                 // Stock trades should create Trade records
                 stockTradesCount <- 1
+            | ReceiveDeliver(_) ->
+                // ReceiveDeliver transactions (Expiration, Special Dividend, etc.)
+                // are informational and don't create tradeable records - skip them
+                ()
             | _ ->
                 // Unknown transaction type
-                errors <- $"Unsupported transaction type: {transaction.TransactionType} for line {transaction.LineNumber}" :: errors
-        with
-        | ex ->
-            errors <- $"Error converting transaction on line {transaction.LineNumber}: {ex.Message}" :: errors
+                errors <-
+                    $"Unsupported transaction type: {transaction.TransactionType} for line {transaction.LineNumber}"
+                    :: errors
+        with ex ->
+            errors <-
+                $"Error converting transaction on line {transaction.LineNumber}: {ex.Message}"
+                :: errors
 
-        {
-            BrokerMovementsCount = brokerMovementsCount
-            OptionTradesCount = optionTradesCount
-            StockTradesCount = stockTradesCount
-            Errors = errors
-        }
+        { BrokerMovementsCount = brokerMovementsCount
+          OptionTradesCount = optionTradesCount
+          StockTradesCount = stockTradesCount
+          Errors = errors }
 
     /// <summary>
     /// Convert a list of TastytradeTransactions to counts by type with date sorting
     /// </summary>
     let convertTransactions (transactions: TastytradeTransaction list) : ConversionStats =
         // Sort transactions by date in ascending order (chronological)
-        let sortedTransactions = 
-            transactions 
-            |> List.sortBy (fun t -> t.Date)
+        let sortedTransactions = transactions |> List.sortBy (fun t -> t.Date)
 
         let mutable totalBrokerMovements = 0
         let mutable totalOptionTrades = 0
@@ -86,11 +87,9 @@ module TastytradeTransactionConverter =
             totalStockTrades <- totalStockTrades + result.StockTradesCount
             allErrors <- List.append allErrors result.Errors
 
-        {
-            TotalTransactions = sortedTransactions.Length
-            BrokerMovementsCreated = totalBrokerMovements
-            OptionTradesCreated = totalOptionTrades
-            StockTradesCreated = totalStockTrades
-            ErrorsCount = allErrors.Length
-            Errors = allErrors
-        }
+        { TotalTransactions = sortedTransactions.Length
+          BrokerMovementsCreated = totalBrokerMovements
+          OptionTradesCreated = totalOptionTrades
+          StockTradesCreated = totalStockTrades
+          ErrorsCount = allErrors.Length
+          Errors = allErrors }

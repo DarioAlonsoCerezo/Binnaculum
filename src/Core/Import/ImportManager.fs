@@ -206,10 +206,21 @@ module ImportManager =
                                                             persistenceResult.StockTradesCreated
                                                             persistenceResult.ErrorsCount
 
-                                                        // Use targeted reactive updates if persistence was successful and data was imported
+                                                        // Log individual errors for debugging
+                                                        if persistenceResult.Errors.Length > 0 then
+                                                            persistenceResult.Errors
+                                                            |> List.iteri (fun idx error ->
+                                                                CoreLogger.logErrorf
+                                                                    "ImportManager"
+                                                                    "Persistence error %d/%d: %s"
+                                                                    (idx + 1)
+                                                                    persistenceResult.Errors.Length
+                                                                    error)
+
+                                                        // Use targeted reactive updates if ANY data was imported
+                                                        // (even if there are some linkClosingTrade or other non-critical errors)
                                                         if
-                                                            persistenceResult.ErrorsCount = 0
-                                                            && persistenceResult.ImportMetadata.TotalMovementsImported > 0
+                                                            persistenceResult.ImportMetadata.TotalMovementsImported > 0
                                                         then
                                                             // Refresh reactive managers in dependency order
                                                             CoreLogger.logDebug
@@ -251,8 +262,9 @@ module ImportManager =
                                                                 "Starting batch ticker snapshot processing for import"
 
                                                             let! tickerBatchResult =
-                                                                TickerSnapshotBatchManager
-                                                                    .processBatchedTickersForImport (brokerAccount.Id)
+                                                                TickerSnapshotBatchManager.processBatchedTickersForImport
+                                                                    (brokerAccount.Id)
+                                                                    (persistenceResult.ImportMetadata)
 
                                                             if tickerBatchResult.Success then
                                                                 CoreLogger.logInfof
@@ -275,18 +287,11 @@ module ImportManager =
 
                                                             // Refresh TickerSnapshots collection to pick up newly created ticker snapshots
                                                             do! TickerSnapshotLoader.load ()
-                                                        elif persistenceResult.ErrorsCount = 0 then
-                                                            // Fallback to full refresh if no movements were imported
+                                                        else
+                                                            // No movements imported, just do a basic refresh
                                                             CoreLogger.logDebug
                                                                 "ImportManager"
-                                                                "No movements imported; executing full reactive refresh"
-
-                                                            do! ReactiveTickerManager.refreshAsync ()
-                                                            do! ReactiveMovementManager.refreshAsync ()
-                                                            do! ReactiveSnapshotManager.refreshAsync ()
-
-                                                            // Refresh TickerSnapshots collection
-                                                            do! TickerSnapshotLoader.load ()
+                                                                "No movements imported; skipping reactive updates"
 
                                                         // Update the ImportResult with actual database persistence results
                                                         let updatedImportedData =
@@ -314,7 +319,7 @@ module ImportManager =
                                                                 Errors = updatedErrors
                                                                 Success =
                                                                     parseResult.Success
-                                                                    && persistenceResult.ErrorsCount = 0 }
+                                                                    && persistenceResult.ImportMetadata.TotalMovementsImported > 0 }
 
                                                     with
                                                     | :? OperationCanceledException ->
@@ -338,6 +343,21 @@ module ImportManager =
                                                         "ImportManager"
                                                         "Tastytrade parse result indicates failure with %d errors"
                                                         parseResult.Errors.Length
+
+                                                    // Log individual error details
+                                                    parseResult.Errors
+                                                    |> List.iteri (fun idx error ->
+                                                        let rowInfo =
+                                                            match error.RowNumber with
+                                                            | Some row -> $"Row {row}"
+                                                            | None -> "Unknown row"
+
+                                                        CoreLogger.logErrorf
+                                                            "ImportManager"
+                                                            "Error %d: %s - %s"
+                                                            (idx + 1)
+                                                            rowInfo
+                                                            error.ErrorMessage)
 
                                                     return parseResult
                                             }
@@ -363,6 +383,7 @@ module ImportManager =
                                     CoreLogger.logDebug "ImportManager" "Triggering post-import reactive updates"
 
                                     try
+                                        do! ReactiveTickerManager.refreshAsync ()
                                         do! ReactiveMovementManager.refreshAsync ()
                                         do! ReactiveSnapshotManager.refreshAsync ()
 

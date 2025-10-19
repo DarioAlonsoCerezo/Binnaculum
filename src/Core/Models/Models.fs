@@ -43,6 +43,8 @@ module Models =
         | Withdrawal
         | Fee
         | InterestsGained
+        | DividendReceived
+        | DividendTaxWithheld
         | Lending
         | ACATMoneyTransferSent
         | ACATMoneyTransferReceived

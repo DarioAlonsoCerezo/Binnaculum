@@ -16,7 +16,7 @@ module internal BrokerMovementQuery =
             {BrokerAccountId} INTEGER NOT NULL,
             {Commissions} TEXT NOT NULL DEFAULT '0',
             {Fees} TEXT NOT NULL DEFAULT '0',
-            {MovementType} TEXT NOT NULL CHECK ({MovementType} IN ('{SQLConstants.Deposit}', '{SQLConstants.Withdrawal}', '{SQLConstants.Fee}', '{SQLConstants.InterestsGained}', '{SQLConstants.Lending}', '{SQLConstants.AcatMoneyTransferSent}', '{SQLConstants.AcatMoneyTransferReceived}', '{SQLConstants.AcatSecuritiesTransferSent}', '{SQLConstants.AcatSecuritiesTransferReceived}', '{SQLConstants.InterestsPaid}', '{SQLConstants.Conversion}')),
+            {MovementType} TEXT NOT NULL CHECK ({MovementType} IN ('{SQLConstants.Deposit}', '{SQLConstants.Withdrawal}', '{SQLConstants.Fee}', '{SQLConstants.InterestsGained}', '{SQLConstants.DividendReceived}', '{SQLConstants.DividendTaxWithheld}', '{SQLConstants.Lending}', '{SQLConstants.AcatMoneyTransferSent}', '{SQLConstants.AcatMoneyTransferReceived}', '{SQLConstants.AcatSecuritiesTransferSent}', '{SQLConstants.AcatSecuritiesTransferReceived}', '{SQLConstants.InterestsPaid}', '{SQLConstants.Conversion}')),
             {Notes} TEXT,
             {FromCurrencyId} INTEGER,
             {AmountChanged} TEXT,
@@ -110,7 +110,7 @@ module internal BrokerMovementQuery =
             {Id} = {SQLParameterName.Id}
         """
 
-    let delete = 
+    let delete =
         $"""
         DELETE FROM {BrokerMovements}
         WHERE
@@ -129,7 +129,7 @@ module internal BrokerMovementQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
-    
+
     let getByBrokerAccountIdAndDateRange =
         $"""
         SELECT * FROM {BrokerMovements}
@@ -147,7 +147,7 @@ module internal BrokerMovementQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
-    
+
     let getByBrokerAccountIdForDate =
         $"""
         SELECT * FROM {BrokerMovements}
