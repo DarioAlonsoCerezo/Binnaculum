@@ -150,6 +150,7 @@ module TastytradeModels =
             | "Money Movement", "Transfer" -> MoneyMovement(Transfer)
             | "Money Movement", "Withdrawal" -> MoneyMovement(Withdrawal)
             | "Money Movement", "Dividend" -> MoneyMovement(Dividend)
+            | "Receive Deliver", "Expiration" -> Trade(BuyToClose, BUY_TO_CLOSE)
             | "Receive Deliver", subType -> ReceiveDeliver(subType)
             | _ -> failwith $"Unsupported transaction type: {typeCol} / {subTypeCol}"
 
