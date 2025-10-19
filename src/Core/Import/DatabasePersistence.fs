@@ -212,61 +212,72 @@ module DatabasePersistence =
         (brokerAccountId: int)
         (currencyId: int)
         (tickerId: int)
-        : OptionTrade option =
+        : OptionTrade list =
         match transaction.TransactionType, transaction.InstrumentType with
         | Trade(_, _), Some "Equity Option" ->
-            let optionCode =
-                match transaction.TransactionType with
-                | Trade(BuyToOpen, _) -> OptionCode.BuyToOpen
-                | Trade(SellToOpen, _) -> OptionCode.SellToOpen
-                | Trade(BuyToClose, _) -> OptionCode.BuyToClose
-                | Trade(SellToClose, _) -> OptionCode.SellToClose
-                | _ -> OptionCode.BuyToOpen // Default fallback
+            // Validate quantity
+            if transaction.Quantity <= 0m then
+                [] // Invalid quantity - return empty list
+            else
+                let optionCode =
+                    match transaction.TransactionType with
+                    | Trade(BuyToOpen, _) -> OptionCode.BuyToOpen
+                    | Trade(SellToOpen, _) -> OptionCode.SellToOpen
+                    | Trade(BuyToClose, _) -> OptionCode.BuyToClose
+                    | Trade(SellToClose, _) -> OptionCode.SellToClose
+                    | _ -> OptionCode.BuyToOpen // Default fallback
 
-            let optionType =
-                match transaction.CallOrPut with
-                | Some "CALL" -> OptionType.Call
-                | Some "PUT" -> OptionType.Put
-                | _ -> OptionType.Put // Default fallback
+                let optionType =
+                    match transaction.CallOrPut with
+                    | Some "CALL" -> OptionType.Call
+                    | Some "PUT" -> OptionType.Put
+                    | _ -> OptionType.Put // Default fallback
 
-            let expirationDate =
-                match transaction.ExpirationDate with
-                | Some date -> DateTimePattern.FromDateTime(date)
-                | None -> DateTimePattern.FromDateTime(transaction.Date.AddDays(30)) // Default fallback
+                let expirationDate =
+                    match transaction.ExpirationDate with
+                    | Some date -> DateTimePattern.FromDateTime(date)
+                    | None -> DateTimePattern.FromDateTime(transaction.Date.AddDays(30)) // Default fallback
 
-            // Premium should preserve sign: positive for SELL, negative for BUY
-            let premium = transaction.Value
-            let commissionCost = Math.Abs(transaction.Commissions)
-            let feeCost = Math.Abs(transaction.Fees)
+                // Premium should preserve sign: positive for SELL, negative for BUY
+                let premium = transaction.Value
+                let commissionCost = Math.Abs(transaction.Commissions)
+                let feeCost = Math.Abs(transaction.Fees)
 
-            // NetPremium calculation:
-            // For SELL trades: Premium (positive) - Commissions - Fees = Net income
-            // For BUY trades: Premium (negative) - Commissions - Fees = Net cost (more negative)
-            let netPremium = premium - commissionCost - feeCost
+                // NetPremium calculation:
+                // For SELL trades: Premium (positive) - Commissions - Fees = Net income
+                // For BUY trades: Premium (negative) - Commissions - Fees = Net cost (more negative)
+                let netPremium = premium - commissionCost - feeCost
 
-            let multiplier = transaction.Multiplier |> Option.defaultValue 100m
-            let strike = transaction.StrikePrice |> Option.defaultValue 0m
+                let multiplier = transaction.Multiplier |> Option.defaultValue 100m
+                let strike = transaction.StrikePrice |> Option.defaultValue 0m
 
-            Some
-                { Id = 0 // Will be set by database
-                  TimeStamp = DateTimePattern.FromDateTime(transaction.Date)
-                  ExpirationDate = expirationDate
-                  Premium = Money.FromAmount(premium)
-                  NetPremium = Money.FromAmount(netPremium)
-                  TickerId = tickerId
-                  BrokerAccountId = brokerAccountId
-                  CurrencyId = currencyId
-                  OptionType = optionType
-                  Code = optionCode
-                  Strike = Money.FromAmount(strike)
-                  Commissions = Money.FromAmount(Math.Abs(transaction.Commissions))
-                  Fees = Money.FromAmount(Math.Abs(transaction.Fees))
-                  IsOpen = isOpeningCode optionCode
-                  ClosedWith = None
-                  Multiplier = multiplier
-                  Notes = Some transaction.Description
-                  Audit = AuditableEntity.FromDateTime(DateTime.UtcNow) }
-        | _ -> None
+                // CRITICAL: Expand trades with quantity > 1 into multiple records with quantity = 1
+                // This ensures consistency with UI behavior and enables proper FIFO matching
+                let netPremiumPerContract = netPremium / transaction.Quantity
+
+                let baseOptionTrade =
+                    { Id = 0 // Will be set by database
+                      TimeStamp = DateTimePattern.FromDateTime(transaction.Date)
+                      ExpirationDate = expirationDate
+                      Premium = Money.FromAmount(premium / transaction.Quantity)
+                      NetPremium = Money.FromAmount(netPremiumPerContract)
+                      TickerId = tickerId
+                      BrokerAccountId = brokerAccountId
+                      CurrencyId = currencyId
+                      OptionType = optionType
+                      Code = optionCode
+                      Strike = Money.FromAmount(strike)
+                      Commissions = Money.FromAmount(Math.Abs(transaction.Commissions) / transaction.Quantity)
+                      Fees = Money.FromAmount(Math.Abs(transaction.Fees) / transaction.Quantity)
+                      IsOpen = isOpeningCode optionCode
+                      ClosedWith = None
+                      Multiplier = multiplier
+                      Notes = Some transaction.Description
+                      Audit = AuditableEntity.FromDateTime(DateTime.UtcNow) }
+
+                // Expand into multiple records (one per contract)
+                [ for _ in 1m .. transaction.Quantity -> baseOptionTrade ]
+        | _ -> []
 
     /// <summary>
     /// Convert TastytradeTransaction to Trade domain object
@@ -609,27 +620,31 @@ module DatabasePersistence =
                             // Add to affected tickers for metadata
                             affectedTickerSymbols <- Set.add underlyingSymbol affectedTickerSymbols
 
-                            match createOptionTradeFromTransaction transaction brokerAccountId currencyId tickerId with
-                            | Some optionTrade ->
-                                let! persistedTrade = OptionTradeExtensions.Do.saveAndReturn (optionTrade)
-                                optionTrades <- persistedTrade :: optionTrades
+                            let expandedOptionTrades =
+                                createOptionTradeFromTransaction transaction brokerAccountId currencyId tickerId
 
-                                if isClosingCode persistedTrade.Code then
-                                    let! linkResult = OptionTradeExtensions.Do.linkClosingTrade (persistedTrade)
-
-                                    match linkResult with
-                                    | Ok _ -> ()
-                                    | Error message ->
-                                        // Log the linking error but don't count it as a persistence error
-                                        // Linking can fail due to strike adjustments from dividends, stock splits, etc.
-                                        // The trade is still persisted successfully - this is just metadata linking
-                                        // CoreLogger.logDebugf
-                                        //     "DatabasePersistence"
-                                        //     "Option trade linking failed (non-critical): %s"
-                                        //     message
-                                        ()
-                            | None ->
+                            if expandedOptionTrades.Length = 0 then
                                 errors <- $"Failed to create OptionTrade from line {transaction.LineNumber}" :: errors
+                            else
+                                // Process each expanded option trade (normally will be Quantity=1 per trade)
+                                for optionTrade in expandedOptionTrades do
+                                    let! persistedTrade = OptionTradeExtensions.Do.saveAndReturn (optionTrade)
+                                    optionTrades <- persistedTrade :: optionTrades
+
+                                    if isClosingCode persistedTrade.Code then
+                                        let! linkResult = OptionTradeExtensions.Do.linkClosingTrade (persistedTrade)
+
+                                        match linkResult with
+                                        | Ok _ -> ()
+                                        | Error message ->
+                                            // Log the linking error but don't count it as a persistence error
+                                            // Linking can fail due to strike adjustments from dividends, stock splits, etc.
+                                            // The trade is still persisted successfully - this is just metadata linking
+                                            // CoreLogger.logDebugf
+                                            //     "DatabasePersistence"
+                                            //     "Option trade linking failed (non-critical): %s"
+                                            //     message
+                                            ()
 
                         | Trade(_, _) when transaction.InstrumentType = Some "Equity" ->
                             // Get ticker ID for the stock symbol
