@@ -698,13 +698,13 @@ namespace Core.Platform.MauiTester.TestCases
                 Dividends = 0.00m,
                 Options = 13.86m,
                 TotalIncomes = 13.86m,
-                Unrealized = 13.86m,
+                Unrealized = 0.00m,  // No shares = no unrealized (unrealized only for stock positions)
                 Realized = 0.00m,
                 Performance = 0.00m,
                 LatestPrice = 0.00m,
                 OpenTrades = true,
                 ValidationContext = "TSLL Oldest Snapshot",
-                Description = "Baseline snapshot at 5/30/2024"
+                Description = "Baseline snapshot at 5/30/2024 - open option contracts with no shares"
             },
             new SnapshotValidationData
             {
@@ -717,13 +717,13 @@ namespace Core.Platform.MauiTester.TestCases
                 Dividends = 0.00m,
                 Options = 13.86m,
                 TotalIncomes = 13.86m,
-                Unrealized = 0.00m,
+                Unrealized = 0.00m,  // No shares = no unrealized
                 Realized = 13.86m,
                 Performance = 0.00m,
                 LatestPrice = 0.00m,
                 OpenTrades = false,
                 ValidationContext = "TSLL Snapshot After Expiration",
-                Description = "Put option expired worthless on 6/7/2024"
+                Description = "Put option expired worthless on 6/7/2024 - all positions closed/realized"
             },
             new SnapshotValidationData
             {
@@ -736,13 +736,13 @@ namespace Core.Platform.MauiTester.TestCases
                 Dividends = 0.00m,
                 Options = -474.41m,
                 TotalIncomes = -474.41m,
-                Unrealized = -488.27m,
+                Unrealized = 0.00m,  // No shares = no unrealized
                 Realized = 13.86m,
                 Performance = 0.00m,
                 LatestPrice = 0.00m,
                 OpenTrades = true,
-                ValidationContext = "TSLL Snapshot with Unrealized Losses",
-                Description = "Open call positions showing unrealized losses"
+                ValidationContext = "TSLL Snapshot with Open Call Positions",
+                Description = "Open call positions - no shares, so unrealized = 0"
             },
             new SnapshotValidationData
             {
@@ -755,13 +755,13 @@ namespace Core.Platform.MauiTester.TestCases
                 Dividends = 0.00m,
                 Options = -6932.80m,
                 TotalIncomes = -6932.80m,
-                Unrealized = -6946.66m,
+                Unrealized = 0.00m,  // No shares = no unrealized
                 Realized = 13.86m,
                 Performance = 0.00m,
                 LatestPrice = 0.00m,
                 OpenTrades = true,
                 ValidationContext = "TSLL Snapshot After Additional Trades",
-                Description = "Sold 13 calls 10/25, bought 13 calls 01/16/26"
+                Description = "Sold 13 calls 10/25, bought 13 calls 01/16/26 - no shares, unrealized = 0"
             },
             new SnapshotValidationData
             {
@@ -774,13 +774,13 @@ namespace Core.Platform.MauiTester.TestCases
                 Dividends = 0.00m,
                 Options = -7060.59m,
                 TotalIncomes = -7060.59m,
-                Unrealized = -7157.80m,  // Sum of ALL currently open option positions (BuyToOpen trades not yet closed)
+                Unrealized = 0.00m,  // No shares = no unrealized (unrealized only for stock positions)
                 Realized = 97.21m,  // Cumulative gains from closed positions (13.86 from 6/7 + 83.35 from 10/21 closing)
                 Performance = 0.00m,
                 LatestPrice = 0.00m,
                 OpenTrades = true,
                 ValidationContext = "TSLL Snapshot After Closing Calls",
-                Description = "Bought to close 14 calls 10/25, realizing gains. Unrealized reflects remaining open BuyToOpen positions."
+                Description = "Bought to close 14 calls 10/25, realizing gains. Unrealized = 0 because no shares held."
             }
         };
     }
