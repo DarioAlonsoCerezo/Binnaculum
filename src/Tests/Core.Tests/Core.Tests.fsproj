@@ -48,6 +48,7 @@
     <Compile Include="TastytradeImportTests.fs" />
     <Compile Include="TastytradeTransactionConverterTests.fs" />
     <Compile Include="OptionTradeLinkingTests.fs" />
+    <Compile Include="SpecialDividendAdjustmentTests.fs" />
     <!-- <Compile Include="SavedPreferencesTests.fs" /> Disabled - MAUI platform APIs don't work in headless test environment -->
   </ItemGroup>
 
