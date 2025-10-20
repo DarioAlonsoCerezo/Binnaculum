@@ -11,4 +11,8 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
 		<PackageReference Include="ModelContextProtocol" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Resources/**/*.md" />
+	</ItemGroup>
 </Project>
