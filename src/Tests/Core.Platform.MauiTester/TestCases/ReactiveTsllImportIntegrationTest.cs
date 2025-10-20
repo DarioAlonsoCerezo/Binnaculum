@@ -112,7 +112,7 @@ namespace Core.Platform.MauiTester.TestCases
 
                 // Execute import
                 LogInfo($"[ReactiveTsllTest] Starting import from: {tempCsvPath}");
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(360));
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
                 ImportResult importResult;
                 try
                 {
@@ -555,6 +555,12 @@ namespace Core.Platform.MauiTester.TestCases
                     var validationResult = TestVerifications.ValidateTickerSnapshot(snapshot, expectedData);
                     results.AddRange(validationResult.Item2);
 
+                    // Log all validation details to console
+                    foreach (var detail in validationResult.Item2)
+                    {
+                        LogInfo($"[ReactiveTsllTest] {detail}");
+                    }
+
                     if (validationResult.Item1)
                     {
                         LogInfo($"[ReactiveTsllTest] ✅ {expectedData.ValidationContext} validation PASSED");
@@ -737,6 +743,44 @@ namespace Core.Platform.MauiTester.TestCases
                 OpenTrades = true,
                 ValidationContext = "TSLL Snapshot with Unrealized Losses",
                 Description = "Open call positions showing unrealized losses"
+            },
+            new SnapshotValidationData
+            {
+                ExpectedDate = new DateTime(2024, 10, 18),
+                Currency = "USD",
+                TotalShares = 0.0000m,
+                Weight = 0.00m,
+                CostBasis = 0.00m,
+                RealCost = 0.00m,
+                Dividends = 0.00m,
+                Options = -6932.80m,
+                TotalIncomes = -6932.80m,
+                Unrealized = -6946.66m,
+                Realized = 13.86m,
+                Performance = 0.00m,
+                LatestPrice = 0.00m,
+                OpenTrades = true,
+                ValidationContext = "TSLL Snapshot After Additional Trades",
+                Description = "Sold 13 calls 10/25, bought 13 calls 01/16/26"
+            },
+            new SnapshotValidationData
+            {
+                ExpectedDate = new DateTime(2024, 10, 21),
+                Currency = "USD",
+                TotalShares = 0.0000m,
+                Weight = 0.00m,
+                CostBasis = 0.00m,
+                RealCost = 0.00m,
+                Dividends = 0.00m,
+                Options = -7060.59m,
+                TotalIncomes = -7060.59m,
+                Unrealized = -7157.80m,  // Sum of ALL currently open option positions (BuyToOpen trades not yet closed)
+                Realized = 97.21m,  // Cumulative gains from closed positions (13.86 from 6/7 + 83.35 from 10/21 closing)
+                Performance = 0.00m,
+                LatestPrice = 0.00m,
+                OpenTrades = true,
+                ValidationContext = "TSLL Snapshot After Closing Calls",
+                Description = "Bought to close 14 calls 10/25, realizing gains. Unrealized reflects remaining open BuyToOpen positions."
             }
         };
     }

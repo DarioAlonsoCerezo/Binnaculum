@@ -130,36 +130,71 @@ module internal TickerSnapshotCalculateInMemory =
         let normalizedSnapshotDate = SnapshotManagerUtils.normalizeToStartOfDay date
 
         let openOptionsUnrealized =
-            movements.AllOpeningTrades
-            |> List.filter (fun opt ->
-                // First check: Trade must have occurred ON OR BEFORE snapshot date
-                let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp
+            let openTrades =
+                movements.AllOpeningTrades
+                |> List.filter (fun opt ->
+                    // First check: Trade must have occurred ON OR BEFORE snapshot date
+                    let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp
 
-                if normalizedTradeDate.Value > normalizedSnapshotDate.Value then
-                    false // Trade hasn't happened yet at this snapshot date
-                else
-                    // Second check: Was it still open at snapshot date?
-                    match opt.ClosedWith with
-                    | Some closingTradeId ->
-                        // Find the closing trade in all option trades
-                        let closingTrade =
-                            movements.AllClosedOptionTrades |> List.tryFind (fun t -> t.Id = closingTradeId)
+                    if normalizedTradeDate.Value > normalizedSnapshotDate.Value then
+                        false // Trade hasn't happened yet at this snapshot date
+                    else
+                        // Second check: Was it still open at snapshot date?
+                        match opt.ClosedWith with
+                        | Some closingTradeId ->
+                            // Find the closing trade in all option trades
+                            let closingTrade =
+                                movements.AllClosedOptionTrades |> List.tryFind (fun t -> t.Id = closingTradeId)
 
-                        match closingTrade with
-                        | Some ct ->
-                            let normalizedClosingDate = SnapshotManagerUtils.normalizeToStartOfDay ct.TimeStamp
-                            // Trade was open if closing happened AFTER snapshot date
-                            normalizedClosingDate.Value > normalizedSnapshotDate.Value
+                            match closingTrade with
+                            | Some ct ->
+                                let normalizedClosingDate = SnapshotManagerUtils.normalizeToStartOfDay ct.TimeStamp
+                                // BUG FIX: Trade was open if closing happened AFTER snapshot date
+                                // If closing happened ON OR BEFORE snapshot date, the trade is CLOSED
+                                // and should NOT be included in unrealized
+                                normalizedClosingDate.Value > normalizedSnapshotDate.Value
+                            | None ->
+                                // Closing trade not found in our dataset - consider it open
+                                true
                         | None ->
-                            // Closing trade not found in our dataset - consider it open
-                            true
-                    | None ->
-                        // Not closed yet - definitely open
-                        true)
-            |> List.sumBy (fun opt -> opt.NetPremium.Value)
+                            // Not closed yet - definitely open
+                            true)
+
+            // DEBUG: Log each open trade included for this snapshot
+            // CoreLogger.logDebugf
+            //     "TickerSnapshotCalculateInMemory"
+            //     "[Date:%s] Open trades count: %d out of %d total opening trades"
+            //     (date.ToString())
+            //     openTrades.Length
+            //     movements.AllOpeningTrades.Length
+
+            openTrades
+            |> List.iter (fun opt -> ()
+            // CoreLogger.logDebugf
+            //     "TickerSnapshotCalculateInMemory"
+            //     "[Date:%s] Open trade included: Id:%d Code:%A NetPremium:%M ClosedWith:%A"
+            //     (date.ToString())
+            //     opt.Id
+            //     opt.Code
+            //     opt.NetPremium.Value
+            //     opt.ClosedWith
+            )
+            |> ignore
+
+            openTrades |> List.sumBy (fun opt -> opt.NetPremium.Value)
 
         // Total unrealized = shares unrealized + open options unrealized (positions still in market)
         let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)
+
+        // DEBUG: Log unrealized calculation details
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "[Date:%s] Unrealized calculation - SharesUnrealized:%M + OpenOptionsUnrealized:%M = %M (Previous:%M)"
+        //     (date.ToString())
+        //     sharesUnrealized
+        //     openOptionsUnrealized
+        //     unrealized.Value
+        //     previousSnapshot.Unrealized.Value
 
         // Calculate realized gains from closed option positions using proper FIFO pair matching
         // This uses OptionTradeCalculations.calculateRealizedGains which properly
@@ -217,12 +252,16 @@ module internal TickerSnapshotCalculateInMemory =
         let realized =
             Money.FromAmount(previousSnapshot.Realized.Value + newRealizedGains.Value)
 
+        // DEBUG: Log realized gains calculation details
         // CoreLogger.logDebugf
         //     "TickerSnapshotCalculateInMemory"
-        //     "Realized gains - Total trades by snapshot date: %d, Calculated: %M (Previous: %M)"
+        //     "[Date:%s] Realized gains - Closed trades: %d | Total up to snapshot: %M | Total up to previous: %M | New gains: %M | Cumulative: %M"
+        //     (date.ToString())
         //     tradesUpToSnapshot.Length
+        //     totalRealizedUpToSnapshot.Value
+        //     realizedUpToPreviousDate.Value
+        //     newRealizedGains.Value
         //     realized.Value
-        //     previousSnapshot.Realized.Value
 
         // Calculate performance percentage
         let performance =
@@ -241,9 +280,20 @@ module internal TickerSnapshotCalculateInMemory =
         // Weight is not calculated here - it's calculated at TickerSnapshot level
         let weight = 0.0m
 
+        // DEBUG: Log complete snapshot calculation summary
         // CoreLogger.logDebugf
         //     "TickerSnapshotCalculateInMemory"
-        //     "Calculated NEW snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Dividends:%M Options:%M Realized:%M OpenTrades:%b (Shares:%b Options:%b)"
+        //     "[Date:%s] SNAPSHOT_FINAL - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptionsUnrealized:%M TotalUnrealized:%M Dividends:%M Options:%M Realized:%M OpenTrades:%b"
+        //     (date.ToString())
+        //     totalShares
+        //     costBasis.Value
+        //     sharesUnrealized
+        //     openOptionsUnrealized
+        //     unrealized.Value
+        //     totalDividends.Value
+        //     totalOptions.Value
+        //     realized.Value
+        //     openTrades
         //     totalShares
         //     costBasis.Value
         //     sharesUnrealized
