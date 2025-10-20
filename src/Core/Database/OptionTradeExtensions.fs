@@ -639,12 +639,17 @@ type OptionTradeCalculations() =
     /// <summary>
     /// Calculates current open option positions by option details.
     /// Returns a map of option identifier to net position (positive = long, negative = short).
+    /// Only considers trades where IsOpen=true to account for positions closed via FIFO matching.
     /// </summary>
     /// <param name="optionTrades">List of option trades to analyze</param>
     /// <returns>Map of (tickerId, optionType, strike, expiration) to net position</returns>
     [<Extension>]
     static member calculateOpenPositions(optionTrades: OptionTrade list) =
-        optionTrades
+        // When FIFO matching links a closing trade, it sets IsOpen=false on the opening trade
+        // We must only count trades with IsOpen=true to get accurate open positions
+        let openTrades = optionTrades |> List.filter (fun t -> t.IsOpen)
+
+        openTrades
         |> List.groupBy (fun trade ->
             (trade.TickerId, trade.OptionType, trade.Strike.Value, trade.ExpirationDate.Value))
         |> List.choose (fun (key, trades) ->
@@ -1011,7 +1016,11 @@ type OptionTradeCalculations() =
         //     "Effective valuation date for unrealized calculations: %s"
         //     (effectiveValuationDate.ToString("yyyy-MM-dd"))
 
-        let hasOpenOptions = not (Map.isEmpty openPositionsMap)
+        let unrealizedGains =
+            tradesUpToTarget.calculateUnrealizedGains (effectiveValuationDate)
+        // ✅ CRITICAL FIX: Use unrealized amount as the indicator of open positions
+        // Unrealized gains/losses only exist if position is open
+        let hasOpenOptions = unrealizedGains.Value <> 0.0m
 
         {| OptionsIncome = tradesUpToTarget.calculateOptionsIncome ()
            OptionsInvestment = tradesUpToTarget.calculateOptionsInvestment ()
@@ -1019,7 +1028,7 @@ type OptionTradeCalculations() =
            TotalCommissions = tradesUpToTarget.calculateTotalCommissions ()
            TotalFees = tradesUpToTarget.calculateTotalFees ()
            RealizedGains = cumulativeRealized
-           UnrealizedGains = tradesUpToTarget.calculateUnrealizedGains (effectiveValuationDate)
+           UnrealizedGains = unrealizedGains
            HasOpenOptions = hasOpenOptions
            OpenPositions = openPositionsMap
            TradeCount = tradesOnTarget.calculateTradeCount ()

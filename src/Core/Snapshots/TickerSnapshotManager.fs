@@ -120,8 +120,10 @@ module internal TickerSnapshotManager =
                 0.0m
 
         // Check for open trades - include both share positions and open option trades
+        // Per business rules: OpenTrades = true if (TotalShares > 0) OR (Unrealized ≠ 0)
+        // Unrealized gains/losses only exist if position is open at this snapshot date
         let hasOpenShares = totalShares <> 0.0m
-        let hasOpenOptions = optionTrades |> List.exists (fun opt -> opt.IsOpen)
+        let hasOpenOptions = unrealized <> 0.0m // Any unrealized = position open at this date
         let openTrades = hasOpenShares || hasOpenOptions
 
         { TotalShares = totalShares

@@ -231,13 +231,10 @@ module internal TickerSnapshotCalculateInMemory =
                 0.0m
 
         // Check for open trades - include both share positions and open option trades
-        // Per business rules: OpenTrades = true if (TotalShares > 0) OR (any option has netPosition ≠ 0)
-        // Calculate open positions map to check if there are truly open option contracts
-        let openPositionsMap =
-            OptionTradeExtensions.OptionTradeCalculations.calculateOpenPositions (movements.OptionTrades)
-
+        // Per business rules: OpenTrades = true if (TotalShares > 0) OR (Unrealized ≠ 0)
+        // Unrealized gains/losses only exist if position is open at this snapshot date
         let hasOpenShares = totalShares <> 0.0m
-        let hasOpenOptions = not (Map.isEmpty openPositionsMap)
+        let hasOpenOptions = unrealized.Value <> 0.0m // Any unrealized = position open at this date
         let openTrades = hasOpenShares || hasOpenOptions
 
         // Weight is not calculated here - it's calculated at TickerSnapshot level
@@ -408,13 +405,10 @@ module internal TickerSnapshotCalculateInMemory =
                 0.0m
 
         // Check for open trades - include both share positions and open option trades
-        // Per business rules: OpenTrades = true if (TotalShares > 0) OR (any option has netPosition ≠ 0)
-        // Calculate open positions map to check if there are truly open option contracts
-        let openPositionsMap =
-            OptionTradeExtensions.OptionTradeCalculations.calculateOpenPositions (movements.OptionTrades)
-
+        // Per business rules: OpenTrades = true if (TotalShares > 0) OR (Unrealized ≠ 0)
+        // Unrealized gains/losses only exist if position is open at this snapshot date
         let hasOpenShares = totalShares <> 0.0m
-        let hasOpenOptions = not (Map.isEmpty openPositionsMap)
+        let hasOpenOptions = unrealized.Value <> 0.0m // Any unrealized = position open at this date
         let openTrades = hasOpenShares || hasOpenOptions
 
         // Weight is not calculated here - it's calculated at TickerSnapshot level
