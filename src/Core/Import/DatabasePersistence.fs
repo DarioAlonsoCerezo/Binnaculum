@@ -441,6 +441,114 @@ module DatabasePersistence =
           Audit = audit }
 
     /// <summary>
+    /// Apply strike adjustments from special dividend transactions to option trades.
+    /// Updates the Strike and Notes fields of affected OptionTrade records.
+    /// </summary>
+    let private applyStrikeAdjustments
+        (transactions: TastytradeTransaction list)
+        (optionTrades: DatabaseModel.OptionTrade list)
+        : DatabaseModel.OptionTrade list =
+        try
+            // Detect all adjustment pairs from transactions
+            let adjustments: SpecialDividendAdjustmentDetector.DetectedAdjustment list =
+                SpecialDividendAdjustmentDetector.detectAdjustments transactions
+
+            if List.isEmpty adjustments then
+                CoreLogger.logDebugf
+                    "DatabasePersistence"
+                    "No strike adjustments detected - returning option trades unchanged"
+
+                optionTrades
+            else
+                CoreLogger.logInfof
+                    "DatabasePersistence"
+                    "Applying %d detected strike adjustments to option trades"
+                    adjustments.Length
+
+                // Apply each adjustment to matching option trades
+                let mutable updatedTrades = optionTrades
+
+                for (adjustment: SpecialDividendAdjustmentDetector.DetectedAdjustment) in adjustments do
+                    // Find option trades that match this adjustment
+                    // Matching criteria: same expiration, option type, and ORIGINAL strike
+                    let matchingTrades =
+                        updatedTrades
+                        |> List.filter (fun (trade: DatabaseModel.OptionTrade) ->
+                            // Same expiration date
+                            let sameExpiration =
+                                match adjustment.ClosingTransaction.ExpirationDate with
+                                | Some closeExp -> trade.ExpirationDate = DateTimePattern.FromDateTime(closeExp)
+                                | None -> false
+
+                            // Same original strike (this is what we're updating FROM)
+                            let sameOriginalStrike = trade.Strike.Value = adjustment.OriginalStrike
+
+                            // Same option type
+                            let sameOptionType =
+                                match adjustment.OptionType with
+                                | "CALL" -> trade.OptionType = OptionType.Call
+                                | "PUT" -> trade.OptionType = OptionType.Put
+                                | _ -> false
+
+                            // Is open (not already closed)
+                            let isOpen = trade.IsOpen
+
+                            sameExpiration && sameOriginalStrike && sameOptionType && isOpen)
+
+                    // Update each matching trade
+                    for matchingTrade in matchingTrades do
+                        try
+                            // Format adjustment note
+                            let adjustmentNote =
+                                SpecialDividendAdjustmentDetector.formatAdjustmentNote
+                                    adjustment.OriginalStrike
+                                    adjustment.NewStrike
+                                    adjustment.DividendAmount
+
+                            // Create updated trade record
+                            let updatedTrade =
+                                { matchingTrade with
+                                    Strike = Money.FromAmount(adjustment.NewStrike)
+                                    Notes = Some adjustmentNote
+                                    Audit =
+                                        { matchingTrade.Audit with
+                                            UpdatedAt = Some(DateTimePattern.FromDateTime(DateTime.UtcNow)) } }
+
+                            // Replace in the list
+                            updatedTrades <-
+                                updatedTrades
+                                |> List.map (fun t -> if t.Id = matchingTrade.Id then updatedTrade else t)
+
+                            CoreLogger.logDebugf
+                                "DatabasePersistence"
+                                "Updated option trade ID=%d: strike %.2f -> %.2f, adjustment note added"
+                                matchingTrade.Id
+                                adjustment.OriginalStrike
+                                adjustment.NewStrike
+                        with ex ->
+                            CoreLogger.logWarningf
+                                "DatabasePersistence"
+                                "Failed to apply adjustment to option trade ID=%d: %s"
+                                matchingTrade.Id
+                                ex.Message
+
+                    if List.isEmpty matchingTrades then
+                        CoreLogger.logWarningf
+                            "DatabasePersistence"
+                            "No matching open option trades found for adjustment: %s %s strike=%.2f"
+                            adjustment.TickerSymbol
+                            adjustment.OptionType
+                            adjustment.OriginalStrike
+
+                updatedTrades
+        with ex ->
+            CoreLogger.logErrorf "DatabasePersistence" "Error applying strike adjustments: %s" ex.Message
+
+            optionTrades
+
+
+
+    /// <summary>
     /// Convert parsed TastytradeTransactions to domain objects and persist to database
     /// </summary>
     let persistTransactionsToDatabase
@@ -540,18 +648,20 @@ module DatabasePersistence =
                                 //     "DatabasePersistence"
                                 //     "BrokerMovement added to collection, continuing to next step"
 
-                                // Handle dividend transactions by creating Dividend/DividendTax records for tickers
+                                // For non-dividend money movements, no ticker-level records needed
+                                // (Dividends return None from createBrokerMovementFromTransaction and are handled separately)
+                                match transaction.TransactionType with
+                                | MoneyMovement(_) -> ()
+                                | _ -> ()
+                            | None ->
+                                // Dividend transactions intentionally return None from createBrokerMovementFromTransaction
+                                // because they're processed as ticker-level Dividend/DividendTax records, not BrokerMovements
                                 match transaction.TransactionType with
                                 | MoneyMovement(Dividend) ->
+                                    // Handle dividend transactions by creating Dividend/DividendTax records for tickers
                                     let tickerSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
 
                                     if tickerSymbol <> "UNKNOWN" && tickerSymbol <> "" then
-                                        // CoreLogger.logDebugf
-                                        //     "DatabasePersistence"
-                                        //     "Processing dividend transaction for ticker: %s, amount: %M"
-                                        //     tickerSymbol
-                                        //     transaction.Value
-
                                         let! tickerId = getOrCreateTickerId (tickerSymbol)
 
                                         // Add to affected tickers for metadata
@@ -559,12 +669,6 @@ module DatabasePersistence =
 
                                         if transaction.Value > 0m then
                                             // Positive amount = Dividend received
-                                            // CoreLogger.logDebugf
-                                            //     "DatabasePersistence"
-                                            //     "Creating Dividend record for %s: %M"
-                                            //     tickerSymbol
-                                            //     transaction.Value
-
                                             let dividend =
                                                 createDividendFromTransaction
                                                     transaction
@@ -574,19 +678,8 @@ module DatabasePersistence =
 
                                             do! DividendExtensions.Do.save (dividend) |> Async.AwaitTask
                                             dividends <- dividend :: dividends
-
-                                        // CoreLogger.logDebugf
-                                        //     "DatabasePersistence"
-                                        //     "Dividend record saved for %s"
-                                        //     tickerSymbol
                                         else
                                             // Negative amount = Dividend tax withheld
-                                            // CoreLogger.logDebugf
-                                            //     "DatabasePersistence"
-                                            //     "Creating DividendTax record for %s: %M"
-                                            //     tickerSymbol
-                                            //     (Math.Abs(transaction.Value))
-
                                             let dividendTax =
                                                 createDividendTaxFromTransaction
                                                     transaction
@@ -596,21 +689,14 @@ module DatabasePersistence =
 
                                             do! DividendTaxExtensions.Do.save (dividendTax) |> Async.AwaitTask
                                             dividendTaxes <- dividendTax :: dividendTaxes
-
-                                    // CoreLogger.logDebugf
-                                    //     "DatabasePersistence"
-                                    //     "DividendTax record saved for %s"
-                                    //     tickerSymbol
                                     else
                                         CoreLogger.logWarning
                                             "DatabasePersistence"
                                             "Dividend transaction has no ticker symbol, skipping dividend record creation"
                                 | _ ->
-                                    // For non-dividend money movements, no ticker-level records needed
-                                    ()
-                            | None ->
-                                errors <-
-                                    $"Failed to create BrokerMovement from line {transaction.LineNumber}" :: errors
+                                    // Other transaction types returning None is an actual error
+                                    errors <-
+                                        $"Failed to create BrokerMovement from line {transaction.LineNumber}" :: errors
 
                         | Trade(_, _) when transaction.InstrumentType = Some "Equity Option" ->
                             // Get ticker ID for the underlying symbol
@@ -735,6 +821,39 @@ module DatabasePersistence =
                     ()
 
                 // CoreLogger.logDebug "DatabasePersistence" "All transactions processed, finalizing"
+
+                // Apply strike adjustments from special dividends to option trades
+                CoreLogger.logDebug "DatabasePersistence" "Applying strike adjustments from special dividends..."
+                let adjustedOptionTrades = applyStrikeAdjustments orderedTransactions optionTrades
+
+                // Build a set of original trade IDs for comparison
+                let originalTradeIds = optionTrades |> List.map (fun t -> t.Id) |> Set.ofList
+
+                // Save adjusted trades back to database if they were modified
+                for adjustedTrade in adjustedOptionTrades do
+                    try
+                        // Check if this trade was modified by finding original and comparing strike
+                        let originalTrade = optionTrades |> List.tryFind (fun t -> t.Id = adjustedTrade.Id)
+
+                        let wasModified =
+                            match originalTrade with
+                            | Some orig -> orig.Strike <> adjustedTrade.Strike || orig.Notes <> adjustedTrade.Notes
+                            | None -> true // New trades should always be saved
+
+                        if wasModified then
+                            do! OptionTradeExtensions.Do.save (adjustedTrade) |> Async.AwaitTask
+
+                            CoreLogger.logDebugf
+                                "DatabasePersistence"
+                                "Saved adjusted option trade ID=%d with strike update"
+                                adjustedTrade.Id
+                    with ex ->
+                        CoreLogger.logWarningf
+                            "DatabasePersistence"
+                            "Failed to save adjusted option trade ID=%d: %s"
+                            adjustedTrade.Id
+                            ex.Message
+
                 // Final progress update
                 ImportState.updateStatus (SavingToDatabase("Database save completed", 1.0))
 
@@ -742,7 +861,7 @@ module DatabasePersistence =
                 //     "DatabasePersistence"
                 //     "Persistence complete. BrokerMovements=%d, OptionTrades=%d, StockTrades=%d, Dividends=%d, DividendTaxes=%d, Errors=%d"
                 //     brokerMovements.Length
-                //     optionTrades.Length
+                //     adjustedOptionTrades.Length
                 //     stockTrades.Length
                 //     dividends.Length
                 //     dividendTaxes.Length
@@ -761,14 +880,14 @@ module DatabasePersistence =
                       AffectedTickerSymbols = affectedTickerSymbols
                       TotalMovementsImported =
                         brokerMovements.Length
-                        + optionTrades.Length
+                        + adjustedOptionTrades.Length
                         + stockTrades.Length
                         + dividends.Length
                         + dividendTaxes.Length }
 
                 return
                     { BrokerMovementsCreated = brokerMovements.Length
-                      OptionTradesCreated = optionTrades.Length
+                      OptionTradesCreated = adjustedOptionTrades.Length
                       StockTradesCreated = stockTrades.Length
                       DividendsCreated = dividends.Length + dividendTaxes.Length
                       ErrorsCount = errors.Length

@@ -38,6 +38,12 @@ module Models =
         | ExDividendDate
         | PayDividendDate
 
+    type StrikeAdjustmentReason =
+        | SpecialDividend of dividendAmount: decimal
+        | StockSplit of splitFactor: decimal
+        | CorporateAction of description: string
+        | Unknown
+
     type BrokerMovementType =
         | Deposit
         | Withdrawal

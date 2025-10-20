@@ -67,17 +67,17 @@ module internal TickerSnapshotBatchManager =
             let mutable errors = []
 
             try
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchManager"
-                    "Starting batch processing for %d tickers from %s to %s"
-                    request.TickerIds.Length
-                    (request.StartDate.ToString())
-                    (request.EndDate.ToString())
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchManager"
+                //     "Starting batch processing for %d tickers from %s to %s"
+                //     request.TickerIds.Length
+                //     (request.StartDate.ToString())
+                //     (request.EndDate.ToString())
 
                 // ========== PHASE 1: LOAD ALL REQUIRED DATA ==========
                 let loadStopwatch = Stopwatch.StartNew()
 
-                CoreLogger.logDebug "TickerSnapshotBatchManager" "Phase 1: Loading data..."
+                // CoreLogger.logDebug "TickerSnapshotBatchManager" "Phase 1: Loading data..."
 
                 // Load baseline snapshots (latest before start date)
                 let! (baselineTickerSnapshots, baselineCurrencySnapshots) =
@@ -113,19 +113,19 @@ module internal TickerSnapshotBatchManager =
                     |> Map.toSeq
                     |> Seq.sumBy (fun (_, opts) -> opts.Length)
 
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchManager"
-                    "Data loading completed: %d trades, %d dividends, %d dividend taxes, %d option trades, %d baseline ticker snapshots, %d baseline currency snapshots in %dms"
-                    totalTrades
-                    totalDividends
-                    totalDividendTaxes
-                    totalOptionTrades
-                    baselineTickerSnapshots.Count
-                    baselineCurrencySnapshots.Count
-                    loadStopwatch.ElapsedMilliseconds
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchManager"
+                //     "Data loading completed: %d trades, %d dividends, %d dividend taxes, %d option trades, %d baseline ticker snapshots, %d baseline currency snapshots in %dms"
+                //     totalTrades
+                //     totalDividends
+                //     totalDividendTaxes
+                //     totalOptionTrades
+                //     baselineTickerSnapshots.Count
+                //     baselineCurrencySnapshots.Count
+                //     loadStopwatch.ElapsedMilliseconds
 
                 // ========== PHASE 2: CALCULATE ALL SNAPSHOTS IN MEMORY ==========
-                CoreLogger.logDebug "TickerSnapshotBatchManager" "Phase 2: Calculating snapshots..."
+                // CoreLogger.logDebug "TickerSnapshotBatchManager" "Phase 2: Calculating snapshots..."
 
                 // SMART DATE FILTERING: Only process dates that actually have activity
                 // Extract dates from movements (normalized to start of day)
@@ -147,11 +147,11 @@ module internal TickerSnapshotBatchManager =
                     |> Set.toList
                     |> List.sort
 
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchManager"
-                    "Smart date filtering: %d dates with movements to process (vs %d days in full range)"
-                    movementDates.Length
-                    ((request.EndDate.Value - request.StartDate.Value).Days + 1)
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchManager"
+                //     "Smart date filtering: %d dates with movements to process (vs %d days in full range)"
+                //     movementDates.Length
+                //     ((request.EndDate.Value - request.StartDate.Value).Days + 1)
 
                 // Add current date to the range if it's after the last movement date
                 // This ensures the current snapshot is updated with the latest state
@@ -161,11 +161,11 @@ module internal TickerSnapshotBatchManager =
                         let currentDate = DateTimePattern.FromDateTime(System.DateTime.Now)
 
                         if currentDate.Value.Date > lastMovementDate.Value.Date then
-                            CoreLogger.logDebugf
-                                "TickerSnapshotBatchManager"
-                                "Adding current date %s to process list (after last movement %s)"
-                                (currentDate.ToString())
-                                (lastMovementDate.ToString())
+                            // CoreLogger.logDebugf
+                            //     "TickerSnapshotBatchManager"
+                            //     "Adding current date %s to process list (after last movement %s)"
+                            //     (currentDate.ToString())
+                            //     (lastMovementDate.ToString())
 
                             movementDates @ [ currentDate ]
                         else
@@ -188,15 +188,15 @@ module internal TickerSnapshotBatchManager =
 
                 errors <- errors @ calculationResult.Errors
 
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchManager"
-                    "Batch calculations completed: %d ticker snapshots calculated, %d currency snapshots calculated in %dms"
-                    calculationResult.ProcessingMetrics.SnapshotsCreated
-                    calculationResult.ProcessingMetrics.CurrencySnapshotsCreated
-                    calculationResult.ProcessingMetrics.CalculationTimeMs
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchManager"
+                //     "Batch calculations completed: %d ticker snapshots calculated, %d currency snapshots calculated in %dms"
+                //     calculationResult.ProcessingMetrics.SnapshotsCreated
+                //     calculationResult.ProcessingMetrics.CurrencySnapshotsCreated
+                //     calculationResult.ProcessingMetrics.CalculationTimeMs
 
                 // ========== PHASE 3: PERSIST ALL RESULTS ==========
-                CoreLogger.logDebug "TickerSnapshotBatchManager" "Phase 3: Persisting snapshots..."
+                // CoreLogger.logDebug "TickerSnapshotBatchManager" "Phase 3: Persisting snapshots..."
 
                 let! persistenceResult =
                     // Persist new snapshots (with deduplication and FK linking)
@@ -206,21 +206,21 @@ module internal TickerSnapshotBatchManager =
                 | Ok metrics ->
                     totalStopwatch.Stop()
 
-                    CoreLogger.logInfof
-                        "TickerSnapshotBatchManager"
-                        "Batch processing completed successfully: %d ticker snapshots saved, %d currency snapshots saved in %dms (total: %dms)"
-                        metrics.TickerSnapshotsSaved
-                        metrics.CurrencySnapshotsSaved
-                        metrics.TransactionTimeMs
-                        totalStopwatch.ElapsedMilliseconds
+                    // CoreLogger.logInfof
+                    //     "TickerSnapshotBatchManager"
+                    //     "Batch processing completed successfully: %d ticker snapshots saved, %d currency snapshots saved in %dms (total: %dms)"
+                    //     metrics.TickerSnapshotsSaved
+                    //     metrics.CurrencySnapshotsSaved
+                    //     metrics.TransactionTimeMs
+                    //     totalStopwatch.ElapsedMilliseconds
 
-                    CoreLogger.logInfof
-                        "TickerSnapshotBatchManager"
-                        "Performance breakdown: Load=%dms, Calculate=%dms, Persist=%dms, Total=%dms"
-                        loadStopwatch.ElapsedMilliseconds
-                        calculationResult.ProcessingMetrics.CalculationTimeMs
-                        metrics.TransactionTimeMs
-                        totalStopwatch.ElapsedMilliseconds
+                    // CoreLogger.logInfof
+                    //     "TickerSnapshotBatchManager"
+                    //     "Performance breakdown: Load=%dms, Calculate=%dms, Persist=%dms, Total=%dms"
+                    //     loadStopwatch.ElapsedMilliseconds
+                    //     calculationResult.ProcessingMetrics.CalculationTimeMs
+                    //     metrics.TransactionTimeMs
+                    //     totalStopwatch.ElapsedMilliseconds
 
                     return
                         { Success = errors.IsEmpty
@@ -238,10 +238,10 @@ module internal TickerSnapshotBatchManager =
                     totalStopwatch.Stop()
                     errors <- errorMsg :: errors
 
-                    CoreLogger.logErrorf
-                        "TickerSnapshotBatchManager"
-                        "Batch processing failed during persistence: %s"
-                        errorMsg
+                    // CoreLogger.logErrorf
+                    //     "TickerSnapshotBatchManager"
+                    //     "Batch processing failed during persistence: %s"
+                    //     errorMsg
 
                     return
                         { Success = false
@@ -284,10 +284,10 @@ module internal TickerSnapshotBatchManager =
     let processBatchedTickersForImport (brokerAccountId: int) (importMetadata: ImportMetadata) =
         task {
             try
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchManager"
-                    "Starting batch processing for recent imports on broker account %d"
-                    brokerAccountId
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchManager"
+                //     "Starting batch processing for recent imports on broker account %d"
+                //     brokerAccountId
 
                 // Determine which tickers are affected by this import
                 // Use the actual oldest movement date from import metadata to determine lookback period
@@ -296,19 +296,19 @@ module internal TickerSnapshotBatchManager =
                     | Some date -> DateTimePattern.FromDateTime(date)
                     | None ->
                         // Fallback: if no movement date (shouldn't happen), use current date
-                        CoreLogger.logWarning
-                            "TickerSnapshotBatchManager"
-                            "No OldestMovementDate in import metadata - using current date as fallback"
+                        // CoreLogger.logWarning
+                        //     "TickerSnapshotBatchManager"
+                        //     "No OldestMovementDate in import metadata - using current date as fallback"
 
                         DateTimePattern.FromDateTime(System.DateTime.Now)
 
                 let! affectedTickers = TickerSnapshotBatchLoader.getTickersAffectedByImport brokerAccountId sinceDate
 
                 if affectedTickers.IsEmpty then
-                    CoreLogger.logWarningf
-                        "TickerSnapshotBatchManager"
-                        "No affected tickers found for broker account %d - skipping batch processing"
-                        brokerAccountId
+                    // CoreLogger.logWarningf
+                    //     "TickerSnapshotBatchManager"
+                    //     "No affected tickers found for broker account %d - skipping batch processing"
+                    //     brokerAccountId
 
                     return
                         { Success = true
@@ -322,10 +322,10 @@ module internal TickerSnapshotBatchManager =
                           TotalTimeMs = 0L
                           Errors = [] }
                 else
-                    CoreLogger.logInfof
-                        "TickerSnapshotBatchManager"
-                        "Found %d affected tickers for batch processing"
-                        affectedTickers.Length
+                    // CoreLogger.logInfof
+                    //     "TickerSnapshotBatchManager"
+                    //     "Found %d affected tickers for batch processing"
+                    //     affectedTickers.Length
 
                     // For import scenario, use the lookback period as start date
                     // This ensures we capture all movements for affected tickers
@@ -335,12 +335,12 @@ module internal TickerSnapshotBatchManager =
                     // End date is always current date to ensure latest snapshots are calculated
                     let endDate = DateTimePattern.FromDateTime(System.DateTime.Now)
 
-                    CoreLogger.logInfof
-                        "TickerSnapshotBatchManager"
-                        "Processing %d tickers from %s to %s (using import lookback period)"
-                        affectedTickers.Length
-                        (startDate.ToString())
-                        (endDate.ToString())
+                    // CoreLogger.logInfof
+                    //     "TickerSnapshotBatchManager"
+                    //     "Processing %d tickers from %s to %s (using import lookback period)"
+                    //     affectedTickers.Length
+                    //     (startDate.ToString())
+                    //     (endDate.ToString())
 
                     let request =
                         { TickerIds = affectedTickers
@@ -351,18 +351,18 @@ module internal TickerSnapshotBatchManager =
 
                     let! result = processBatchedTickers request
 
-                    if result.Success then
-                        CoreLogger.logInfof
-                            "TickerSnapshotBatchManager"
-                            "Import batch processing completed: %d ticker snapshots, %d currency snapshots saved in %dms"
-                            result.TickerSnapshotsSaved
-                            result.CurrencySnapshotsSaved
-                            result.TotalTimeMs
-                    else
-                        CoreLogger.logErrorf
-                            "TickerSnapshotBatchManager"
-                            "Import batch processing completed with %d errors"
-                            result.Errors.Length
+                    // if result.Success then
+                    //     CoreLogger.logInfof
+                    //         "TickerSnapshotBatchManager"
+                    //         "Import batch processing completed: %d ticker snapshots, %d currency snapshots saved in %dms"
+                    //         result.TickerSnapshotsSaved
+                    //         result.CurrencySnapshotsSaved
+                    //         result.TotalTimeMs
+                    // else
+                    //     CoreLogger.logErrorf
+                    //         "TickerSnapshotBatchManager"
+                    //         "Import batch processing completed with %d errors"
+                    //         result.Errors.Length
 
                     return result
 
@@ -399,13 +399,13 @@ module internal TickerSnapshotBatchManager =
         (forceRecalculation: bool)
         =
         task {
-            CoreLogger.logInfof
-                "TickerSnapshotBatchManager"
-                "Processing single ticker %d from %s to %s (force=%b)"
-                tickerId
-                (startDate.ToString())
-                (endDate.ToString())
-                forceRecalculation
+            // CoreLogger.logInfof
+            //     "TickerSnapshotBatchManager"
+            //     "Processing single ticker %d from %s to %s (force=%b)"
+            //     tickerId
+            //     (startDate.ToString())
+            //     (endDate.ToString())
+            //     forceRecalculation
 
             let request =
                 { TickerIds = [ tickerId ]

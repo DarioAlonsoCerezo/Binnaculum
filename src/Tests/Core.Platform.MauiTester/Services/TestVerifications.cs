@@ -1,7 +1,9 @@
 using Binnaculum.Core.UI;
+using Core.Platform.MauiTester.Models;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.FSharp.Core;
+using static Binnaculum.Core.Models;
 
 namespace Core.Platform.MauiTester.Services
 {
@@ -106,7 +108,7 @@ namespace Core.Platform.MauiTester.Services
         {
             var snapshotCount = Collections.Snapshots.Items.Count;
             var emptySnapshotCount = Collections.Snapshots.Items.Count(s => s.Type == Binnaculum.Core.Models.OverviewSnapshotType.Empty);
-            
+
             return (snapshotCount == 1 && emptySnapshotCount == 1)
                 ? (true, "Single Empty Snapshot Found: True", "")
                 : (false, "", $"Expected exactly 1 Empty snapshot but found {snapshotCount} total snapshots ({emptySnapshotCount} Empty)");
@@ -150,7 +152,7 @@ namespace Core.Platform.MauiTester.Services
             var brokerAccount = Collections.Accounts.Items
                 .Where(a => a.Type == Binnaculum.Core.Models.AccountType.BrokerAccount)
                 .FirstOrDefault(a => a.Broker != null && a.Broker.Value.Broker.Id == tastytradeId);
-            
+
             if (brokerAccount?.Broker != null)
             {
                 return (true, $"BrokerAccount Found: ID = {brokerAccount.Broker.Value.Id}", "", brokerAccount.Broker.Value.Id);
@@ -202,14 +204,14 @@ namespace Core.Platform.MauiTester.Services
 
             var brokerAccountSnapshot = snapshot.BrokerAccount.Value;
             var financial = brokerAccountSnapshot.Financial;
-            
+
             // Verify the key financial data from the deposit
             if (financial.Deposited != expectedDeposited)
                 return (false, "", $"Expected Deposited = {expectedDeposited} but found {financial.Deposited}");
-            
+
             if (financial.MovementCounter != expectedMovementCount)
                 return (false, "", $"Expected MovementCounter = {expectedMovementCount} but found {financial.MovementCounter}");
-            
+
             if (financial.Currency.Code != "USD")
                 return (false, "", $"Expected Currency = USD but found {financial.Currency.Code}");
 
@@ -230,29 +232,29 @@ namespace Core.Platform.MauiTester.Services
 
             var brokerAccountSnapshot = snapshot.BrokerAccount.Value;
             var financial = brokerAccountSnapshot.Financial;
-            
+
             // Verify the key financial data from multiple movements
             if (financial.MovementCounter != 4)
                 return (false, "", $"Expected MovementCounter = 4 but found {financial.MovementCounter}");
-            
+
             // Calculate expected values based on test requirements
             var actualDeposited = financial.Deposited;
             var actualWithdrawn = financial.Withdrawn;
             var netAmount = actualDeposited - actualWithdrawn;
-            
+
             var expectedTotalDeposited = 1800.0m; // 1200 + 600
             var expectedTotalWithdrawn = 600.0m;  // 300 + 300
             var expectedNetDeposited = 1200.0m;   // 1800 - 600
-            
+
             if (actualDeposited != expectedTotalDeposited)
                 return (false, "", $"Expected Total Deposited = {expectedTotalDeposited} but found {actualDeposited}");
-            
+
             if (actualWithdrawn != expectedTotalWithdrawn)
                 return (false, "", $"Expected Total Withdrawn = {expectedTotalWithdrawn} but found {actualWithdrawn}");
-            
+
             if (netAmount != expectedNetDeposited)
                 return (false, "", $"Expected Net Deposited = {expectedNetDeposited} but found {netAmount}");
-            
+
             if (financial.Currency.Code != "USD")
                 return (false, "", $"Expected Currency = USD but found {financial.Currency.Code}");
 
@@ -289,48 +291,48 @@ namespace Core.Platform.MauiTester.Services
                 .FirstOrDefault();
             if (snapshot == null)
                 return (false, "", "No snapshots with BrokerAccount data found");
-                
+
             Debug.WriteLine($"📊 VERIFY: Using LATEST BrokerAccount snapshot from Date: {snapshot.BrokerAccount.Value.Date}");
-            
+
             var brokerAccountSnapshot = snapshot.BrokerAccount.Value;
             var financial = brokerAccountSnapshot.Financial;
-            
+
             Debug.WriteLine($"💰 VERIFY: Latest Financial Data - Deposited={financial.Deposited:F2}, Realized={financial.RealizedGains:F2}, Unrealized={financial.UnrealizedGains:F2}, Movements={financial.MovementCounter}");
-            
+
             // Expected values based on corrected analysis - NO automatic expiration
             // All values should come from explicit transactions only
             const decimal expectedDeposited = 878.79m;           // Total deposits: 844.56 + 24.23 + 10.00
             const decimal expectedRealizedGains = 23.65m;        // Only explicitly closed positions (SOFI + spreads)
             const decimal expectedUnrealizedGains = 14.86m;      // Only open SOFI 240510 position
             const decimal tolerance = 0.50m;                     // Tighter tolerance for final values
-            
+
             Debug.WriteLine($"🎯 VERIFY: Expected values - Deposited={expectedDeposited:F2}, Realized={expectedRealizedGains:F2}, Unrealized={expectedUnrealizedGains:F2}, Movements=16");
-            
+
             // Cash flow validation
             var depositedMatch = Math.Abs(financial.Deposited - expectedDeposited) <= tolerance;
             Debug.WriteLine($"💵 VERIFY: Deposited check - Expected={expectedDeposited:F2}, Actual={financial.Deposited:F2}, Diff={Math.Abs(financial.Deposited - expectedDeposited):F2}, Match={depositedMatch}");
             if (!depositedMatch)
                 return (false, "", $"Expected Deposited ≈ {expectedDeposited} but found {financial.Deposited}");
-            
+
             // Realized performance validation (completed strategies)
             var realizedMatch = Math.Abs(financial.RealizedGains - expectedRealizedGains) <= tolerance;
             Debug.WriteLine($"📈 VERIFY: Realized gains check - Expected={expectedRealizedGains:F2}, Actual={financial.RealizedGains:F2}, Diff={Math.Abs(financial.RealizedGains - expectedRealizedGains):F2}, Match={realizedMatch}");
             if (!realizedMatch)
                 return (false, "", $"Expected Realized gains ≈ {expectedRealizedGains} but found {financial.RealizedGains}");
-            
+
             // Unrealized performance validation (open positions)
             var unrealizedMatch = Math.Abs(financial.UnrealizedGains - expectedUnrealizedGains) <= tolerance;
             Debug.WriteLine($"📊 VERIFY: Unrealized gains check - Expected={expectedUnrealizedGains:F2}, Actual={financial.UnrealizedGains:F2}, Diff={Math.Abs(financial.UnrealizedGains - expectedUnrealizedGains):F2}, Match={unrealizedMatch}");
             if (!unrealizedMatch)
                 return (false, "", $"Expected Unrealized gains ≈ {expectedUnrealizedGains} but found {financial.UnrealizedGains}");
-            
+
             // Movement count validation (12 option trades + 3 deposits + 1 adjustment = 16)
             const int expectedMovements = 16;
             var movementMatch = financial.MovementCounter == expectedMovements;
             Debug.WriteLine($"🔢 VERIFY: Movement counter check - Expected={expectedMovements}, Actual={financial.MovementCounter}, Match={movementMatch}");
             if (!movementMatch)
                 return (false, "", $"Expected MovementCounter = {expectedMovements} but found {financial.MovementCounter}");
-            
+
             // Currency validation
             var currencyMatch = financial.Currency.Code == "USD";
             Debug.WriteLine($"💴 VERIFY: Currency check - Expected=USD, Actual={financial.Currency.Code}, Match={currencyMatch}");
@@ -345,7 +347,7 @@ namespace Core.Platform.MauiTester.Services
             Debug.WriteLine($"✅ VERIFY: All checks passed! Final result:");
             Debug.WriteLine($"   Deposited=${financial.Deposited:F2}, Realized=${financial.RealizedGains:F2} ({realizedPercentage:F2}%), Unrealized=${financial.UnrealizedGains:F2} ({unrealizedPercentage:F2}%), Total={totalPerformance:F2}%");
 
-            return (true, 
+            return (true,
                 $"Options Financial Data: " +
                 $"Deposited=${financial.Deposited:F2}, " +
                 $"Realized=${financial.RealizedGains:F2} ({realizedPercentage:F2}%), " +
@@ -357,14 +359,246 @@ namespace Core.Platform.MauiTester.Services
 
         #endregion
 
+        #region Ticker Snapshot Verifications
+
+        /// <summary>
+        /// Validates a ticker snapshot against expected values using a strongly-typed data model.
+        /// This is the preferred method for new tests - provides type safety, intellisense, and cleaner code.
+        /// Validates all 14 financial fields with tolerance-based decimal comparison.
+        /// </summary>
+        /// <param name="snapshot">The actual TickerSnapshot from the core model (strongly typed)</param>
+        /// <param name="expectedData">The expected values encapsulated in SnapshotValidationData model</param>
+        /// <returns>Tuple of (success, details list) matching the standard verification format</returns>
+        public static (bool success, List<string> details) ValidateTickerSnapshot(
+            TickerSnapshot snapshot,
+            SnapshotValidationData expectedData)
+        {
+            if (snapshot == null)
+                return (false, new List<string> { "❌ Snapshot is null" });
+
+            // Delegate to the detailed validation method with mapped expected values
+            return ValidateTickerSnapshot(
+                snapshot,
+                expectedData.ExpectedDate,
+                expectedData.Currency,
+                expectedData.TotalShares,
+                expectedData.Weight,
+                expectedData.CostBasis,
+                expectedData.RealCost,
+                expectedData.Dividends,
+                expectedData.Options,
+                expectedData.TotalIncomes,
+                expectedData.Unrealized,
+                expectedData.Realized,
+                expectedData.Performance,
+                expectedData.LatestPrice,
+                expectedData.OpenTrades,
+                expectedData.ValidationContext);
+        }
+
+        /// <summary>
+        /// Validates a specific ticker snapshot's financial data against expected values.
+        /// Reusable method for all ticker snapshot validation scenarios across different test cases.
+        /// Validates all 14 financial fields with tolerance-based decimal comparison.
+        /// [LEGACY] Use the strongly-typed overload ValidateTickerSnapshot(TickerSnapshot, SnapshotValidationData) instead.
+        /// </summary>
+        public static (bool success, List<string> details) ValidateTickerSnapshot(
+            dynamic snapshot,
+            DateTime expectedDate,
+            string expectedCurrency,
+            decimal expectedTotalShares,
+            decimal expectedWeight,
+            decimal expectedCostBasis,
+            decimal expectedRealCost,
+            decimal expectedDividends,
+            decimal expectedOptions,
+            decimal expectedTotalIncomes,
+            decimal expectedUnrealized,
+            decimal expectedRealized,
+            decimal expectedPerformance,
+            decimal expectedLatestPrice,
+            bool expectedOpenTrades,
+            string validationContext = "")
+        {
+            var details = new List<string>();
+            var tolerance = 0.01m; // 0.01 tolerance for decimal comparisons
+            bool allValid = true;
+
+            string contextLabel = string.IsNullOrEmpty(validationContext) ? "" : $" ({validationContext})";
+
+            details.Add($"=== Ticker Snapshot Validation{contextLabel} ===");
+            details.Add($"Date: {snapshot.MainCurrency.Date:yyyy-MM-dd} | Expected: {expectedDate:yyyy-MM-dd}");
+
+            // Date validation
+            var snapshotDate = new DateTime(snapshot.MainCurrency.Date.Year, snapshot.MainCurrency.Date.Month, snapshot.MainCurrency.Date.Day);
+            if (snapshotDate.Date != expectedDate.Date)
+            {
+                details.Add($"❌ Date mismatch: {snapshot.MainCurrency.Date:yyyy-MM-dd} != {expectedDate:yyyy-MM-dd}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ Date matches");
+            }
+
+            // Currency validation
+            if (snapshot.MainCurrency.Currency.Code != expectedCurrency)
+            {
+                details.Add($"❌ Currency mismatch: {snapshot.MainCurrency.Currency.Code} != {expectedCurrency}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ Currency: {snapshot.MainCurrency.Currency.Code}");
+            }
+
+            // TotalShares validation
+            if (Math.Abs(snapshot.MainCurrency.TotalShares - expectedTotalShares) > tolerance)
+            {
+                details.Add($"❌ TotalShares: {snapshot.MainCurrency.TotalShares:F4} != {expectedTotalShares:F4}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ TotalShares: {snapshot.MainCurrency.TotalShares:F4}");
+            }
+
+            // Weight validation
+            if (Math.Abs(snapshot.MainCurrency.Weight - expectedWeight) > tolerance)
+            {
+                details.Add($"❌ Weight: {snapshot.MainCurrency.Weight:F2}% != {expectedWeight:F2}%");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ Weight: {snapshot.MainCurrency.Weight:F2}%");
+            }
+
+            // CostBasis validation
+            if (Math.Abs(snapshot.MainCurrency.CostBasis - expectedCostBasis) > tolerance)
+            {
+                details.Add($"❌ CostBasis: ${snapshot.MainCurrency.CostBasis:F2} != ${expectedCostBasis:F2}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ CostBasis: ${snapshot.MainCurrency.CostBasis:F2}");
+            }
+
+            // RealCost validation
+            if (Math.Abs(snapshot.MainCurrency.RealCost - expectedRealCost) > tolerance)
+            {
+                details.Add($"❌ RealCost: ${snapshot.MainCurrency.RealCost:F2} != ${expectedRealCost:F2}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ RealCost: ${snapshot.MainCurrency.RealCost:F2}");
+            }
+
+            // Dividends validation
+            if (Math.Abs(snapshot.MainCurrency.Dividends - expectedDividends) > tolerance)
+            {
+                details.Add($"❌ Dividends: ${snapshot.MainCurrency.Dividends:F2} != ${expectedDividends:F2}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ Dividends: ${snapshot.MainCurrency.Dividends:F2}");
+            }
+
+            // Options validation
+            if (Math.Abs(snapshot.MainCurrency.Options - expectedOptions) > tolerance)
+            {
+                details.Add($"❌ Options: ${snapshot.MainCurrency.Options:F2} != ${expectedOptions:F2}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ Options: ${snapshot.MainCurrency.Options:F2}");
+            }
+
+            // TotalIncomes validation
+            if (Math.Abs(snapshot.MainCurrency.TotalIncomes - expectedTotalIncomes) > tolerance)
+            {
+                details.Add($"❌ TotalIncomes: ${snapshot.MainCurrency.TotalIncomes:F2} != ${expectedTotalIncomes:F2}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ TotalIncomes: ${snapshot.MainCurrency.TotalIncomes:F2}");
+            }
+
+            // Unrealized validation
+            if (Math.Abs(snapshot.MainCurrency.Unrealized - expectedUnrealized) > tolerance)
+            {
+                details.Add($"❌ Unrealized: ${snapshot.MainCurrency.Unrealized:F2} != ${expectedUnrealized:F2}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ Unrealized: ${snapshot.MainCurrency.Unrealized:F2}");
+            }
+
+            // Realized validation
+            if (Math.Abs(snapshot.MainCurrency.Realized - expectedRealized) > tolerance)
+            {
+                details.Add($"❌ Realized: ${snapshot.MainCurrency.Realized:F2} != ${expectedRealized:F2}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ Realized: ${snapshot.MainCurrency.Realized:F2}");
+            }
+
+            // Performance validation
+            if (Math.Abs(snapshot.MainCurrency.Performance - expectedPerformance) > tolerance)
+            {
+                details.Add($"❌ Performance: {snapshot.MainCurrency.Performance:F2}% != {expectedPerformance:F2}%");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ Performance: {snapshot.MainCurrency.Performance:F2}%");
+            }
+
+            // LatestPrice validation
+            if (Math.Abs(snapshot.MainCurrency.LatestPrice - expectedLatestPrice) > tolerance)
+            {
+                details.Add($"❌ LatestPrice: ${snapshot.MainCurrency.LatestPrice:F2} != ${expectedLatestPrice:F2}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ LatestPrice: ${snapshot.MainCurrency.LatestPrice:F2}");
+            }
+
+            // OpenTrades validation
+            if (snapshot.MainCurrency.OpenTrades != expectedOpenTrades)
+            {
+                details.Add($"❌ OpenTrades: {snapshot.MainCurrency.OpenTrades} != {expectedOpenTrades}");
+                allValid = false;
+            }
+            else
+            {
+                details.Add($"✅ OpenTrades: {snapshot.MainCurrency.OpenTrades}");
+            }
+
+            details.Add($"\nResult: {(allValid ? "✅ ALL FIELDS VALID" : "❌ VALIDATION FAILED")}");
+
+            return (allValid, details);
+        }
+
+        #endregion
+
         #region Helper Methods for Common Verification Patterns
 
         /// <summary>
         /// Verify that a collection has a minimum count
         /// </summary>
         public static (bool success, string details, string error) VerifyCollectionMinimumCount<T>(
-            IEnumerable<T> collection, 
-            int minimumCount, 
+            IEnumerable<T> collection,
+            int minimumCount,
             string collectionName)
         {
             var actualCount = collection.Count();

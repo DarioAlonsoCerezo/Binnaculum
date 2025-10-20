@@ -187,30 +187,31 @@ module internal TickerSnapshotCalculateInMemory =
                 let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp in
                 normalizedTradeDate.Value <= normalizedSnapshotDate.Value)
 
-        // All trades that closed up to (but NOT including) this snapshot date
-        let tradesBeforePreviousDate =
+        // All trades that closed up to (and including) the previous snapshot date
+        // This prevents double-counting: we only count NEW realized gains from trades after the previous snapshot
+        let tradesUpToPreviousDate =
             movements.AllClosedOptionTrades
             |> List.filter (fun opt ->
                 let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp in
-                normalizedTradeDate.Value < normalizedPreviousDate.Value)
+                normalizedTradeDate.Value <= normalizedPreviousDate.Value)
 
         // Calculate total realized gains from ALL trades up to this snapshot date
         let totalRealizedUpToSnapshot =
             OptionTradeExtensions.OptionTradeCalculations.calculateRealizedGains (tradesUpToSnapshot, date.Value)
 
-        // Calculate realized gains from trades before previous snapshot (what we already had)
-        let realizedBeforePrevious =
-            if tradesBeforePreviousDate.IsEmpty then
+        // Calculate realized gains from trades before/on previous snapshot (what we already had)
+        let realizedUpToPreviousDate =
+            if tradesUpToPreviousDate.IsEmpty then
                 Money.FromAmount(0m)
             else
                 OptionTradeExtensions.OptionTradeCalculations.calculateRealizedGains (
-                    tradesBeforePreviousDate,
+                    tradesUpToPreviousDate,
                     previousSnapshot.Base.Date.Value.AddDays(-1.0)
                 )
 
         // New realized gains are the difference between total and what we already had
         let newRealizedGains =
-            Money.FromAmount(totalRealizedUpToSnapshot.Value - realizedBeforePrevious.Value)
+            Money.FromAmount(totalRealizedUpToSnapshot.Value - realizedUpToPreviousDate.Value)
 
         // Cumulative realized gains = previous cumulative + new gains from this period
         let realized =

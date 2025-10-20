@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using Binnaculum.Core.Import;
 using Binnaculum.Core.UI;
+using Core.Platform.MauiTester.Models;
 using Core.Platform.MauiTester.Services;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
@@ -394,13 +395,25 @@ namespace Core.Platform.MauiTester.TestCases
                     {
                         string movementInfo = "";
                         string optionStatus = "";
+                        string strikeInfo = "";
+                        string notesInfo = "";
 
                         // Check if movement is an option contract
                         if (OptionModule.IsSome(movement.OptionTrade))
                         {
                             var optionTrade = movement.OptionTrade.Value;
                             optionStatus = $" [OPTION] Code: {optionTrade.Code}, IsOpen: {optionTrade.IsOpen}";
-                            movementInfo = $"[Movement] Date: {movement.TimeStamp:yyyy-MM-dd HH:mm:ss}, Type: {movement.Type}{optionStatus}";
+
+                            // Extract strike price
+                            strikeInfo = $", Strike: ${optionTrade.Strike:F2}";
+
+                            // Extract notes from option trade
+                            if (OptionModule.IsSome(optionTrade.Notes))
+                            {
+                                notesInfo = $" | Notes: {optionTrade.Notes.Value}";
+                            }
+
+                            movementInfo = $"[Movement] Date: {movement.TimeStamp:yyyy-MM-dd HH:mm:ss}, Type: {movement.Type}{optionStatus}{strikeInfo}{notesInfo}";
                         }
                         else
                         {
@@ -416,11 +429,147 @@ namespace Core.Platform.MauiTester.TestCases
                     LogWarning($"[ReactiveTsllTest] Could not extract movement details: {ex.Message}");
                 }
 
-                // SUCCESS CONDITION - Allow core to work, only fail if import failed or no data collected
+                // SNAPSHOT VALIDATION FOR TSLL AND BROKER ACCOUNT
+                // Based on analysis of TsllImportTest.csv: should produce exactly 71 snapshots for TSLL ticker
+                results.Add("");
+                results.Add("=== Snapshot Validation ===");
 
+                int expectedTsllSnapshots = 71;
+                int tsllSnapshotCount = 0;
+                int brokerAccountSnapshotCount = 0;
+                bool tsllValidationPassed = false;
+
+                try
+                {
+                    // Validate TSLL ticker snapshots
+                    var snapshotCountTicker = Collections.Tickers.Items.FirstOrDefault(t => t.Symbol == "TSLL");
+                    if (snapshotCountTicker != null)
+                    {
+                        var snapshotCountSnapshots = await Tickers.GetSnapshots(snapshotCountTicker.Id);
+                        tsllSnapshotCount = snapshotCountSnapshots.Count();
+
+                        LogInfo($"[ReactiveTsllTest] TSLL Snapshots validation:");
+                        LogInfo($"[ReactiveTsllTest]   Expected: {expectedTsllSnapshots} snapshots");
+                        LogInfo($"[ReactiveTsllTest]   Actual: {tsllSnapshotCount} snapshots");
+
+                        results.Add($"Expected TSLL Snapshots: {expectedTsllSnapshots}");
+                        results.Add($"Actual TSLL Snapshots: {tsllSnapshotCount}");
+
+                        if (tsllSnapshotCount == expectedTsllSnapshots)
+                        {
+                            LogInfo($"[ReactiveTsllTest] ✅ TSLL snapshot count validation PASSED");
+                            results.Add("✅ TSLL snapshot count validation PASSED");
+                            tsllValidationPassed = true;
+                        }
+                        else
+                        {
+                            LogWarning($"[ReactiveTsllTest] ⚠️ TSLL snapshot count mismatch: expected {expectedTsllSnapshots}, got {tsllSnapshotCount}");
+                            results.Add($"⚠️ TSLL snapshot count mismatch: expected {expectedTsllSnapshots}, got {tsllSnapshotCount}");
+                            results.Add($"   Difference: {Math.Abs(expectedTsllSnapshots - tsllSnapshotCount)} snapshots");
+                            if (tsllSnapshotCount > expectedTsllSnapshots)
+                            {
+                                results.Add($"   Result: {tsllSnapshotCount - expectedTsllSnapshots} MORE snapshots than expected");
+                            }
+                            else
+                            {
+                                results.Add($"   Result: {expectedTsllSnapshots - tsllSnapshotCount} FEWER snapshots than expected");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LogWarning("[ReactiveTsllTest] ⚠️ TSLL ticker not found in collections");
+                        results.Add("⚠️ TSLL ticker not found");
+                    }
+
+                    // Validate Broker Account snapshots
+                    results.Add("");
+                    var brokerAccountId = testAccount.Broker.Value.Id;
+                    var brokerSnapshots = await BrokerAccounts.GetSnapshots(brokerAccountId);
+                    brokerAccountSnapshotCount = brokerSnapshots.Count();
+
+                    LogInfo($"[ReactiveTsllTest] Broker Account Snapshots validation:");
+                    LogInfo($"[ReactiveTsllTest]   Actual: {brokerAccountSnapshotCount} snapshots");
+
+                    results.Add($"Broker Account Snapshots: {brokerAccountSnapshotCount}");
+
+                    if (brokerAccountSnapshotCount > 0)
+                    {
+                        LogInfo($"[ReactiveTsllTest] ✅ Broker account has snapshot history");
+                        results.Add("✅ Broker account has snapshot history");
+                    }
+                    else
+                    {
+                        LogWarning($"[ReactiveTsllTest] ⚠️ Broker account has no snapshots");
+                        results.Add("⚠️ Broker account has no snapshots");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogWarning($"[ReactiveTsllTest] Could not validate snapshots: {ex.Message}");
+                    results.Add($"⚠️ Could not validate snapshots: {ex.Message}");
+                }
+
+                results.Add("");
+                results.Add("=== Snapshot Validation Summary ===");
+                results.Add($"TSLL Ticker Snapshots: {tsllSnapshotCount}/{expectedTsllSnapshots}");
+                results.Add($"Broker Account Snapshots: {brokerAccountSnapshotCount}");
+                results.Add($"Validation Status: {(tsllValidationPassed ? "✅ PASSED" : "⚠️ REVIEW NEEDED")}");
+
+                // Load TSLL snapshots ONCE for all validations
+                LogInfo("[ReactiveTsllTest] Loading TSLL snapshots for validation...");
+                var tsllTicker = Collections.Tickers.Items.FirstOrDefault(t => t.Symbol == "TSLL");
+                IEnumerable<dynamic> tsllSnapshots = new List<dynamic>();
+
+                if (tsllTicker != null)
+                {
+                    tsllSnapshots = await Tickers.GetSnapshots(tsllTicker.Id);
+                    LogInfo($"[ReactiveTsllTest] ✅ Loaded {tsllSnapshots.Count()} TSLL snapshots for detailed validation");
+                }
+                else
+                {
+                    LogWarning("[ReactiveTsllTest] ⚠️ TSLL ticker not found - skipping detailed snapshot validations");
+                }
+
+                // Validate oldest TSLL snapshot baseline
+                LogInfo("[ReactiveTsllTest] Starting TSLL snapshot validations...");
+                var allSnapshotValidationsValid = true;
+
+                foreach (var expectedData in TsllSnapshotValidations)
+                {
+                    LogInfo($"[ReactiveTsllTest] Validating: {expectedData.ValidationContext}");
+
+                    // Find snapshot by expected date
+                    var targetDate = new DateOnly(expectedData.ExpectedDate.Year, expectedData.ExpectedDate.Month, expectedData.ExpectedDate.Day);
+                    var snapshot = FindSnapshotByDate(tsllSnapshots, targetDate, expectedData.ValidationContext);
+
+                    if (snapshot == null)
+                    {
+                        LogWarning($"[ReactiveTsllTest] ⚠️ No snapshot found for {expectedData.ValidationContext}");
+                        results.Add($"⚠️ No snapshot found for {expectedData.ValidationContext}");
+                        allSnapshotValidationsValid = false;
+                        continue;
+                    }
+
+                    // Validate snapshot - use Item property for tuple access since snapshot is dynamic
+                    var validationResult = TestVerifications.ValidateTickerSnapshot(snapshot, expectedData);
+                    results.AddRange(validationResult.Item2);
+
+                    if (validationResult.Item1)
+                    {
+                        LogInfo($"[ReactiveTsllTest] ✅ {expectedData.ValidationContext} validation PASSED");
+                    }
+                    else
+                    {
+                        LogWarning($"[ReactiveTsllTest] ⚠️ {expectedData.ValidationContext} validation FAILED");
+                        allSnapshotValidationsValid = false;
+                    }
+                }                // SUCCESS CONDITION - All validations must pass
+                // Core import must succeed AND have data AND all snapshot validations must pass
                 bool success = importResult.Success &&
                              (movementCount > 0 || tickerCount > 0 || snapshotCount > 0) &&
-                             importSignalsReceived;
+                             importSignalsReceived &&
+                             allSnapshotValidationsValid;
 
                 // Cleanup
                 if (!string.IsNullOrEmpty(tempCsvPath) && File.Exists(tempCsvPath))
@@ -496,5 +645,99 @@ namespace Core.Platform.MauiTester.TestCases
                 return null;
             }
         }
+
+        /// <summary>
+        /// Finds a snapshot by specific date and logs debug info if not found.
+        /// </summary>
+        private dynamic? FindSnapshotByDate(
+            IEnumerable<dynamic> snapshots,
+            DateOnly targetDate,
+            string snapshotDescription)
+        {
+            var snapshot = snapshots.FirstOrDefault(s => s.MainCurrency.Date == targetDate);
+
+            if (snapshot == null)
+            {
+                // Debug: Log available dates around target date
+                var snapshotsInMonth = snapshots
+                    .Where(s => s.MainCurrency.Date.Month == targetDate.Month &&
+                               s.MainCurrency.Date.Year == targetDate.Year)
+                    .OrderBy(s => s.MainCurrency.Date)
+                    .ToList();
+
+                LogWarning($"[ReactiveTsllTest] No snapshot found for {targetDate:yyyy-MM-dd}. Found {snapshotsInMonth.Count} snapshots in {targetDate:MMMM yyyy}:");
+                foreach (var snap in snapshotsInMonth.Take(5))
+                {
+                    LogWarning($"[ReactiveTsllTest]   - {snap.MainCurrency.Date:yyyy-MM-dd}");
+                }
+            }
+
+            return snapshot;
+        }
+
+        /// <summary>
+        /// Static list of TSLL snapshot validation scenarios.
+        /// Data-driven approach: each entry defines expected values for a specific snapshot.
+        /// </summary>
+        private static readonly List<SnapshotValidationData> TsllSnapshotValidations = new()
+        {
+            new SnapshotValidationData
+            {
+                ExpectedDate = new DateTime(2024, 5, 30),
+                Currency = "USD",
+                TotalShares = 0.0000m,
+                Weight = 0.00m,
+                CostBasis = 0.00m,
+                RealCost = 0.00m,
+                Dividends = 0.00m,
+                Options = 13.86m,
+                TotalIncomes = 13.86m,
+                Unrealized = 13.86m,
+                Realized = 0.00m,
+                Performance = 0.00m,
+                LatestPrice = 0.00m,
+                OpenTrades = true,
+                ValidationContext = "TSLL Oldest Snapshot",
+                Description = "Baseline snapshot at 5/30/2024"
+            },
+            new SnapshotValidationData
+            {
+                ExpectedDate = new DateTime(2024, 6, 7),
+                Currency = "USD",
+                TotalShares = 0.0000m,
+                Weight = 0.00m,
+                CostBasis = 0.00m,
+                RealCost = 0.00m,
+                Dividends = 0.00m,
+                Options = 13.86m,
+                TotalIncomes = 13.86m,
+                Unrealized = 0.00m,
+                Realized = 13.86m,
+                Performance = 0.00m,
+                LatestPrice = 0.00m,
+                OpenTrades = false,
+                ValidationContext = "TSLL Snapshot After Expiration",
+                Description = "Put option expired worthless on 6/7/2024"
+            },
+            new SnapshotValidationData
+            {
+                ExpectedDate = new DateTime(2024, 10, 15),
+                Currency = "USD",
+                TotalShares = 0.0000m,
+                Weight = 0.00m,
+                CostBasis = 0.00m,
+                RealCost = 0.00m,
+                Dividends = 0.00m,
+                Options = -474.41m,
+                TotalIncomes = -474.41m,
+                Unrealized = -488.27m,
+                Realized = 13.86m,
+                Performance = 0.00m,
+                LatestPrice = 0.00m,
+                OpenTrades = true,
+                ValidationContext = "TSLL Snapshot with Unrealized Losses",
+                Description = "Open call positions showing unrealized losses"
+            }
+        };
     }
 }

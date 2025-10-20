@@ -98,6 +98,8 @@
 		<Compile Include="Import\Brokers\TastytradeStrategyDetector.fs" />
 		<Compile Include="Import\Brokers\TastytradeTransactionConverter.fs" />
 		<Compile Include="Import\Brokers\TastytradeImporter.fs" />
+		<Compile Include="Import\Brokers\SpecialDividendAdjustmentDetector.fs" />
+		<Compile Include="Import\Brokers\AdjustmentValidation.fs" />
 		<Compile Include="Models\Models.fs" />
 		<Compile Include="Memory\Collections.fs" />
 		<Compile Include="Memory\ReactiveCurrencyManager.fs" />
