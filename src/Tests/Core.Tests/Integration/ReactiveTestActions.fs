@@ -427,6 +427,124 @@ type ReactiveTestActions(context: ReactiveTestContext) =
         }
     
     /// <summary>
+    /// Verify total deposited amount in broker account snapshot
+    /// Query: BrokerAccount.Financial.Deposited
+    /// Returns: (success, actual_amount_string, error_option)
+    /// </summary>
+    member _.verifyDeposited(expectedAmount: decimal) : Async<bool * string * string option> =
+        async {
+            try
+                // Get the latest broker account snapshot from Collections.Snapshots
+                let brokerAccountSnapshot = 
+                    Collections.Snapshots.Items
+                    |> Seq.filter (fun s -> s.Type = OverviewSnapshotType.BrokerAccount)
+                    |> Seq.tryHead
+                
+                match brokerAccountSnapshot with
+                | Some snapshot when snapshot.BrokerAccount.IsSome ->
+                    let deposited = snapshot.BrokerAccount.Value.Financial.Deposited
+                    let success = deposited = expectedAmount
+                    let message = sprintf "%M" deposited
+                    printfn "[ReactiveTestActions] %s Deposited: expected=%M, actual=%M" 
+                        (if success then "✅" else "❌") expectedAmount deposited
+                    return (success, message, if success then None else Some "Deposited mismatch")
+                | _ ->
+                    let error = "No BrokerAccount snapshot found in Collections.Snapshots"
+                    printfn "[ReactiveTestActions] ❌ %s" error
+                    return (false, "0", Some error)
+            with ex ->
+                let error = sprintf "Deposited verification failed: %s" ex.Message
+                printfn "[ReactiveTestActions] ❌ %s" error
+                return (false, "Verification failed", Some error)
+        }
+    
+    /// <summary>
+    /// Verify total withdrawn amount in broker account snapshot
+    /// Query: BrokerAccount.Financial.Withdrawn
+    /// Returns: (success, actual_amount_string, error_option)
+    /// </summary>
+    member _.verifyWithdrawn(expectedAmount: decimal) : Async<bool * string * string option> =
+        async {
+            try
+                // Get the latest broker account snapshot from Collections.Snapshots
+                let brokerAccountSnapshot = 
+                    Collections.Snapshots.Items
+                    |> Seq.filter (fun s -> s.Type = OverviewSnapshotType.BrokerAccount)
+                    |> Seq.tryHead
+                
+                match brokerAccountSnapshot with
+                | Some snapshot when snapshot.BrokerAccount.IsSome ->
+                    let withdrawn = snapshot.BrokerAccount.Value.Financial.Withdrawn
+                    let success = withdrawn = expectedAmount
+                    let message = sprintf "%M" withdrawn
+                    printfn "[ReactiveTestActions] %s Withdrawn: expected=%M, actual=%M" 
+                        (if success then "✅" else "❌") expectedAmount withdrawn
+                    return (success, message, if success then None else Some "Withdrawn mismatch")
+                | _ ->
+                    let error = "No BrokerAccount snapshot found in Collections.Snapshots"
+                    printfn "[ReactiveTestActions] ❌ %s" error
+                    return (false, "0", Some error)
+            with ex ->
+                let error = sprintf "Withdrawn verification failed: %s" ex.Message
+                printfn "[ReactiveTestActions] ❌ %s" error
+                return (false, "Verification failed", Some error)
+        }
+    
+    /// <summary>
+    /// Verify MovementCounter in broker account snapshot
+    /// Query: BrokerAccount.Financial.MovementCounter
+    /// Returns: (success, count_as_string, error_option)
+    /// </summary>
+    member _.verifyMovementCounter(expectedCount: int) : Async<bool * string * string option> =
+        async {
+            try
+                // Get the latest broker account snapshot from Collections.Snapshots
+                let brokerAccountSnapshot = 
+                    Collections.Snapshots.Items
+                    |> Seq.filter (fun s -> s.Type = OverviewSnapshotType.BrokerAccount)
+                    |> Seq.tryHead
+                
+                match brokerAccountSnapshot with
+                | Some snapshot when snapshot.BrokerAccount.IsSome ->
+                    let counter = snapshot.BrokerAccount.Value.Financial.MovementCounter
+                    let success = counter = expectedCount
+                    let message = sprintf "%d" counter
+                    printfn "[ReactiveTestActions] %s MovementCounter: expected=%d, actual=%d" 
+                        (if success then "✅" else "❌") expectedCount counter
+                    return (success, message, if success then None else Some "MovementCounter mismatch")
+                | _ ->
+                    let error = "No BrokerAccount snapshot found in Collections.Snapshots"
+                    printfn "[ReactiveTestActions] ❌ %s" error
+                    return (false, "0", Some error)
+            with ex ->
+                let error = sprintf "MovementCounter verification failed: %s" ex.Message
+                printfn "[ReactiveTestActions] ❌ %s" error
+                return (false, "Verification failed", Some error)
+        }
+    
+    /// <summary>
+    /// Calls BrokerAccounts.GetSnapshots and verifies count
+    /// Query: BrokerAccounts.GetSnapshots(accountId) length
+    /// Returns: (success, count_as_string, error_option)
+    /// </summary>
+    member _.verifyBrokerAccountSnapshots(accountId: int, expectedCount: int) : Async<bool * string * string option> =
+        async {
+            try
+                // Call BrokerAccounts.GetSnapshots to retrieve snapshots for the account
+                let! snapshots = BrokerAccounts.GetSnapshots(accountId) |> Async.AwaitTask
+                let actualCount = snapshots |> List.length
+                let success = actualCount = expectedCount
+                let message = sprintf "%d" actualCount
+                printfn "[ReactiveTestActions] %s BrokerAccounts.GetSnapshots: expected=%d, actual=%d" 
+                    (if success then "✅" else "❌") expectedCount actualCount
+                return (success, message, if success then None else Some "Snapshot count mismatch")
+            with ex ->
+                let error = sprintf "BrokerAccounts.GetSnapshots verification failed: %s" ex.Message
+                printfn "[ReactiveTestActions] ❌ %s" error
+                return (false, "Verification failed", Some error)
+        }
+    
+    /// <summary>
     /// Get the ReactiveTestContext
     /// </summary>
     member _.Context = context
