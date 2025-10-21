@@ -28,6 +28,7 @@
     <Compile Include="Integration/ReactiveTestSetup.fs" />
     <Compile Include="Integration/ReactiveTestFixtureBase.fs" />
     <Compile Include="Integration/ReactiveOverviewTests.fs" />
+    <Compile Include="Integration/ReactiveBrokerAccountTests.fs" />
     <Compile Include="BrokerAccountSnapshotTests.fs" />
     <Compile Include="BrokerAccountMultiCurrencySnapshotTests.fs" />
     <Compile Include="BrokerSnapshotTests.fs" />
