@@ -2,7 +2,6 @@ namespace Core.Tests.Integration
 
 open NUnit.Framework
 open System
-open System.Threading.Tasks
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
 
@@ -10,34 +9,12 @@ open Binnaculum.Core.UI
 /// Reactive integration tests using signal-based approach.
 /// Mirrors the MAUI tester's "Overview Reactive Validation" test.
 /// Validates the core library's reactive stream emissions during Overview initialization and data loading.
+///
+/// Inherits from ReactiveTestFixtureBase to reuse setup/teardown logic.
 /// </summary>
 [<TestFixture>]
 type ReactiveOverviewTests() =
-
-    let mutable testContext: ReactiveTestContext option = None
-    let mutable testActions: ReactiveTestActions option = None
-
-    /// <summary>
-    /// Setup before each test - prepare environment and start observing streams
-    /// </summary>
-    [<SetUp>]
-    member _.Setup() =
-        async {
-            let! (ctx, actions) = ReactiveTestSetup.setupTestEnvironment ()
-            testContext <- Some ctx
-            testActions <- Some actions
-        }
-
-    /// <summary>
-    /// Teardown after each test - stop observing streams
-    /// </summary>
-    [<TearDown>]
-    member _.Teardown() =
-        async {
-            do! ReactiveTestSetup.teardownTestEnvironment ()
-            testContext <- None
-            testActions <- None
-        }
+    inherit ReactiveTestFixtureBase()
 
     /// <summary>
     /// Test: Overview Reactive Validation
@@ -53,11 +30,11 @@ type ReactiveOverviewTests() =
     /// </summary>
     [<Test>]
     [<Category("Integration")>]
-    member _.``Overview reactive validation``() =
+    member this.``Overview reactive validation``() =
         async {
             printfn "\n=== TEST: Overview Reactive Validation ==="
 
-            let actions = testActions.Value
+            let actions = this.Actions
 
             // ==================== PHASE 1: DATABASE INITIALIZATION ====================
             ReactiveTestSetup.printPhaseHeader 1 "Database Initialization and Data Loading"
