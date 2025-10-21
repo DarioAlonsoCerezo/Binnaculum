@@ -545,6 +545,39 @@ type ReactiveTestActions(context: ReactiveTestContext) =
         }
     
     /// <summary>
+    /// Verify PFE ticker snapshots using Tickers.GetSnapshots
+    /// Query: Tickers.GetSnapshots(pfeTickerId) length
+    /// Returns: (success, count_as_string, error_option)
+    /// </summary>
+    member _.verifyPfizerSnapshots(expectedCount: int) : Async<bool * string * string option> =
+        async {
+            try
+                // Find PFE ticker in Collections
+                let pfeTicker = 
+                    Collections.Tickers.Items
+                    |> Seq.tryFind (fun t -> t.Symbol = "PFE")
+                
+                match pfeTicker with
+                | Some ticker ->
+                    // Call Tickers.GetSnapshots to retrieve snapshots for PFE
+                    let! snapshots = Tickers.GetSnapshots(ticker.Id) |> Async.AwaitTask
+                    let actualCount = snapshots |> List.length
+                    let success = actualCount = expectedCount
+                    let message = sprintf "%d" actualCount
+                    printfn "[ReactiveTestActions] %s Tickers.GetSnapshots(PFE): expected=%d, actual=%d" 
+                        (if success then "✅" else "❌") expectedCount actualCount
+                    return (success, message, if success then None else Some "Snapshot count mismatch")
+                | None ->
+                    let error = "PFE ticker not found in Collections.Tickers"
+                    printfn "[ReactiveTestActions] ❌ %s" error
+                    return (false, "0", Some error)
+            with ex ->
+                let error = sprintf "Tickers.GetSnapshots verification failed: %s" ex.Message
+                printfn "[ReactiveTestActions] ❌ %s" error
+                return (false, "Verification failed", Some error)
+        }
+    
+    /// <summary>
     /// Get the ReactiveTestContext
     /// </summary>
     member _.Context = context
