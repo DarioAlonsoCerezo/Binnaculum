@@ -21,12 +21,12 @@ module internal Do =
 
     let mutable private connection: SqliteConnection = null
     
-    /// Mutable connection mode - defaults to file system mode
-    let mutable private connectionMode: DatabaseMode = ConnectionProvider.defaultFileSystemMode ()
+    /// Mutable connection mode - None means use default file system mode
+    let mutable private connectionMode: DatabaseMode option = None
     
     /// Sets the database connection mode (for testing purposes)
     let setConnectionMode (mode: DatabaseMode) =
-        connectionMode <- mode
+        connectionMode <- Some mode
         // Close existing connection to force reconnection with new mode
         if connection <> null then
             try
@@ -36,7 +36,9 @@ module internal Do =
             with _ -> ()
 
     let private getConnectionString () =
-        ConnectionProvider.createConnectionString connectionMode
+        match connectionMode with
+        | Some mode -> ConnectionProvider.createConnectionString mode
+        | None -> ConnectionProvider.createConnectionString (ConnectionProvider.defaultFileSystemMode ())
 
     let private tablesSQL: string list =
         [ Binnaculum.Core.SQL.BrokerQuery.createTable
