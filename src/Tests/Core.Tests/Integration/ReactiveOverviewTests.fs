@@ -6,11 +6,15 @@ open Binnaculum.Core.Models
 open Binnaculum.Core.UI
 
 /// <summary>
-/// Reactive integration tests using signal-based approach.
-/// Mirrors the MAUI tester's "Overview Reactive Validation" test.
-/// Validates the core library's reactive stream emissions during Overview initialization and data loading.
+/// Example reactive integration test - Overview validation.
 ///
-/// Inherits from ReactiveTestFixtureBase to reuse setup/teardown logic.
+/// Mirrors Core.Platform.MauiTester's "Overview Reactive Validation" test.
+/// Demonstrates the Setup/Expect/Execute/Wait/Verify pattern.
+///
+/// Inherits from ReactiveTestFixtureBase - no setup/teardown boilerplate needed.
+///
+/// See README.md for pattern documentation and more examples.
+/// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
 [<TestFixture>]
 type ReactiveOverviewTests() =

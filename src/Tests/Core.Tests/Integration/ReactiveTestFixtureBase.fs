@@ -4,7 +4,52 @@ open NUnit.Framework
 open System
 
 /// <summary>
-/// Base class for reactive integration tests.
+/// Base class for reactive integration tests using signal-based approach.
+///
+/// Handles all Setup/Teardown boilerplate:
+/// - InMemory database initialization
+/// - Reactive stream observation start/stop
+/// - Test context and actions management
+///
+/// USAGE:
+/// ------
+/// 1. Inherit from this class
+/// 2. Add [<Test>] methods using this.Actions
+/// 3. Use ReactiveStreamObserver.expectSignals() and waitForAllSignalsAsync()
+/// 4. Use ReactiveTestVerifications for assertions
+///
+/// EXAMPLE:
+/// --------
+///     [<TestFixture>]
+///     type MyTests() =
+///         inherit ReactiveTestFixtureBase()
+///
+///         [<Test>]
+///         member this.``My test``() = async {
+///             let actions = this.Actions
+///
+///             // Setup
+///             let! (ok, _, _) = actions.initDatabase()
+///
+///             // Expect signals BEFORE operation
+///             ReactiveStreamObserver.expectSignals([ Accounts_Updated ])
+///
+///             // Execute
+///             let! (ok, _) = actions.createBrokerAccount("Test")
+///
+///             // Wait for signals (NOT Thread.Sleep!)
+///             let! received = ReactiveStreamObserver.waitForAllSignalsAsync(TimeSpan.FromSeconds(10.0))
+///             Assert.That(received, Is.True)
+///
+///             // Verify
+///             let! (verified, count, _) = actions.verifyAccountCount(1)
+///             Assert.That(verified, Is.True)
+///         }
+///
+/// PATTERN: Setup/Expect/Execute/Wait/Verify
+/// See README.md for full documentation and more examples.
+/// See PATTERN_GUIDE.fs for detailed implementation guide.
+///
 /// Provides common setup, teardown, and access to test context and actions.
 ///
 /// Derived classes should:
@@ -12,17 +57,6 @@ open System
 /// 2. Use Context property to access ReactiveTestContext
 /// 3. Use Actions property to access ReactiveTestActions
 /// 4. Call ReactiveTestSetup utility functions for standardized operations
-///
-/// Example:
-///     type MyReactiveTests() =
-///         inherit ReactiveTestFixtureBase()
-///
-///         [<Test>]
-///         member this.``My test``() = async {
-///             let actions = this.Actions
-///             let! result = actions.initDatabase()
-///             // assertions
-///         }
 /// </summary>
 [<AbstractClass>]
 type ReactiveTestFixtureBase() =

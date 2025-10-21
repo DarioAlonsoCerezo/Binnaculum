@@ -7,7 +7,27 @@ open NUnit.Framework
 
 /// <summary>
 /// Reusable verification utilities for reactive integration tests.
-/// Provides common assertion and verification patterns used across multiple test scenarios.
+///
+/// Provides common assertion patterns:
+/// - verifyBrokers(minCount) - Verify broker count
+/// - verifyCurrencies(minCount) - Verify currency count
+/// - verifyTickers(minCount) - Verify ticker count
+/// - verifySnapshots(minCount) - Verify snapshot count
+/// - verifyAccounts(minCount) - Verify account count
+/// - verifyStandardCurrencies() - Verify USD and EUR present
+/// - verifyFullDatabaseState() - Run all standard verifications
+///
+/// USAGE:
+/// ------
+/// let (success, message) = ReactiveTestVerifications.verifyBrokers 2
+/// Assert.That(success, Is.True, message)
+///
+/// Or batch verify:
+/// let verifications = ReactiveTestVerifications.verifyFullDatabaseState()
+/// for (success, message) in verifications do
+///     Assert.That(success, Is.True, message)
+///
+/// See README.md for more examples.
 /// </summary>
 module ReactiveTestVerifications =
 

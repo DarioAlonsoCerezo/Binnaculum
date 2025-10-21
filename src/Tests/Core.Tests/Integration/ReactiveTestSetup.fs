@@ -5,7 +5,14 @@ open Binnaculum.Core.UI
 
 /// <summary>
 /// Reusable test environment setup and teardown utilities.
-/// Provides common initialization and cleanup patterns for reactive integration tests.
+///
+/// Provides:
+/// - setupTestEnvironment() - Initialize InMemory DB and signal observation
+/// - teardownTestEnvironment() - Cleanup streams
+/// - initializeDatabaseAndVerifySignals() - DB init with signal wait
+/// - printPhaseHeader() - Standardized phase reporting
+///
+/// See README.md for usage examples.
 /// </summary>
 module ReactiveTestSetup =
 
