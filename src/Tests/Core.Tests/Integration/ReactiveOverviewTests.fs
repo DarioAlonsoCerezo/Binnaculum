@@ -23,25 +23,9 @@ type ReactiveOverviewTests() =
     [<SetUp>]
     member _.Setup() =
         async {
-            printfn "\n=== Test Setup ==="
-
-            // Ensure we're in memory mode to avoid platform dependencies
-            Overview.WorkOnMemory()
-
-            try
-                do! Overview.WipeAllDataForTesting() |> Async.AwaitTask
-                printfn "✅ Data wiped successfully"
-            with ex ->
-                printfn "⚠️  Wipe failed: %s (may be expected if DB not initialized)" ex.Message
-
-            // Start observing reactive streams
-            ReactiveStreamObserver.startObserving ()
-
-            let ctx = ReactiveTestContext.create ()
+            let! (ctx, actions) = ReactiveTestSetup.setupTestEnvironment ()
             testContext <- Some ctx
-            testActions <- Some(ReactiveTestActions(ctx))
-
-            printfn "=== Setup Complete ===\n"
+            testActions <- Some actions
         }
 
     /// <summary>
@@ -50,11 +34,9 @@ type ReactiveOverviewTests() =
     [<TearDown>]
     member _.Teardown() =
         async {
-            printfn "\n=== Test Teardown ==="
-            ReactiveStreamObserver.stopObserving ()
+            do! ReactiveTestSetup.teardownTestEnvironment ()
             testContext <- None
             testActions <- None
-            printfn "=== Teardown Complete ===\n"
         }
 
     /// <summary>
@@ -78,34 +60,22 @@ type ReactiveOverviewTests() =
             let actions = testActions.Value
 
             // ==================== PHASE 1: DATABASE INITIALIZATION ====================
-            printfn "\n--- Phase 1: Database Initialization and Data Loading ---"
+            ReactiveTestSetup.printPhaseHeader 1 "Database Initialization and Data Loading"
 
             // Expect signals for database init and data loading
-            // initDatabase() calls Overview.InitDatabase() and Overview.LoadData()
-            ReactiveStreamObserver.expectSignals (
+            let expectedSignals =
                 [ Brokers_Updated
                   Currencies_Updated
                   Tickers_Updated
                   Accounts_Updated
                   Snapshots_Updated ]
-            )
 
-            printfn
-                "Expecting signals: Brokers_Updated, Currencies_Updated, Tickers_Updated, Accounts_Updated, Snapshots_Updated"
-
-            // Initialize database (loads brokers, currencies, tickers, accounts, snapshots)
-            let! (ok, _, error) = actions.initDatabase ()
-
-            Assert.That(
-                ok,
-                Is.True,
-                sprintf "Database initialization should succeed: %s" (error |> Option.defaultValue "")
-            )
-
-            printfn "✅ Database initialized and data loaded"
-
-            // Wait for all expected signals
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            // Initialize database with signal verification
+            let! signalsReceived =
+                ReactiveTestSetup.initializeDatabaseAndVerifySignals
+                    actions
+                    expectedSignals
+                    (TimeSpan.FromSeconds(10.0))
 
             Assert.That(
                 signalsReceived,
@@ -113,58 +83,42 @@ type ReactiveOverviewTests() =
                 "All database initialization and data loading signals should be received"
             )
 
-            printfn "✅ All signals received"
+            // ==================== PHASE 2: VERIFY COLLECTIONS ====================
+            ReactiveTestSetup.printPhaseHeader 2 "Verify Collections"
 
-            // ==================== PHASE 2: VERIFY DATABASE STATE ====================
-            printfn "\n--- Phase 2: Verify Collections ---"
+            // Run all standard verifications using the verification module
+            let verifications = ReactiveTestVerifications.verifyFullDatabaseState ()
 
-            // Verify Brokers
-            let brokerCount = Collections.Brokers.Count
-            printfn "Brokers loaded: %d" brokerCount
-            Assert.That(brokerCount, Is.GreaterThanOrEqualTo(2), "Should have at least Tastytrade and IBKR brokers")
+            // Assert all verifications passed
+            for (success, message) in verifications do
+                Assert.That(success, Is.True, message)
+                printfn "✅ %s" message
 
-            // Verify Currencies
-            let currencyCount = Collections.Currencies.Count
-            printfn "Currencies loaded: %d" currencyCount
-            Assert.That(currencyCount, Is.GreaterThanOrEqualTo(2), "Should have at least USD and EUR currencies")
+            // Additional detailed verifications
+            let (brokerSuccess, brokerMsg) = ReactiveTestVerifications.verifyBrokers 2
+            Assert.That(brokerSuccess, Is.True, brokerMsg)
 
-            let hasUsd = Collections.Currencies.Items |> Seq.exists (fun c -> c.Code = "USD")
-            let hasEur = Collections.Currencies.Items |> Seq.exists (fun c -> c.Code = "EUR")
-            Assert.That(hasUsd, Is.True, "Should have USD currency")
-            Assert.That(hasEur, Is.True, "Should have EUR currency")
-            printfn "✅ USD and EUR currencies verified"
+            let (currencySuccess, currencyMsg) = ReactiveTestVerifications.verifyCurrencies 2
+            Assert.That(currencySuccess, Is.True, currencyMsg)
 
-            // Verify Tickers
-            let tickerCount = Collections.Tickers.Count
-            printfn "Tickers loaded: %d" tickerCount
-            Assert.That(tickerCount, Is.GreaterThan(0), "Should have at least one ticker (SPY)")
+            let (tickerSuccess, tickerMsg) = ReactiveTestVerifications.verifyTickers 1
+            Assert.That(tickerSuccess, Is.True, tickerMsg)
 
-            // Verify Snapshots were loaded
-            let snapshotCount = Collections.Snapshots.Count
-            printfn "Snapshots loaded: %d" snapshotCount
+            let (accountSuccess, accountMsg) = ReactiveTestVerifications.verifyAccounts 0
+            Assert.That(accountSuccess, Is.True, accountMsg)
 
-            Assert.That(
-                snapshotCount,
-                Is.GreaterThanOrEqualTo(0),
-                "Should have snapshots loaded (may be 0 in empty DB)"
-            )
-
-            // Verify Accounts were loaded
-            let accountCount = Collections.Accounts.Count
-            printfn "Accounts loaded: %d" accountCount
-            Assert.That(accountCount, Is.GreaterThanOrEqualTo(0), "Should have accounts loaded (may be 0 in empty DB)")
-
-            printfn "✅ All collections verified"
+            let (snapshotSuccess, snapshotMsg) = ReactiveTestVerifications.verifySnapshots 0
+            Assert.That(snapshotSuccess, Is.True, snapshotMsg)
 
             // ==================== SUMMARY ====================
-            printfn "\n--- Test Summary ---"
+            ReactiveTestSetup.printPhaseHeader 3 "Test Summary"
 
-            printfn
-                "✅ Database initialized: %d brokers, %d currencies, %d tickers"
-                brokerCount
-                currencyCount
-                tickerCount
+            let (stateSuccess, stateSummary) =
+                ReactiveTestVerifications.verifyCollectionsState ()
 
-            printfn "✅ Data loaded: %d accounts, %d snapshots" accountCount snapshotCount
-            printfn "=== Overview Reactive Validation Complete ✅ ==="
+            printfn "%s" stateSummary
+
+            ReactiveTestSetup.printTestCompletionSummary
+                "Overview Reactive Validation"
+                (sprintf "Verified all signals and collections: %s" stateSummary)
         }

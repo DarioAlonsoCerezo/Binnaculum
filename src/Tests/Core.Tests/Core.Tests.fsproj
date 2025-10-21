@@ -24,6 +24,8 @@
     <Compile Include="Integration/ReactiveTestContext.fs" />
     <Compile Include="Integration/ReactiveStreamObserver.fs" />
     <Compile Include="Integration/ReactiveTestActions.fs" />
+    <Compile Include="Integration/ReactiveTestVerifications.fs" />
+    <Compile Include="Integration/ReactiveTestSetup.fs" />
     <Compile Include="Integration/ReactiveOverviewTests.fs" />
     <Compile Include="BrokerAccountSnapshotTests.fs" />
     <Compile Include="BrokerAccountMultiCurrencySnapshotTests.fs" />
