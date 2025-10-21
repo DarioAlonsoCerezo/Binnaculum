@@ -7,6 +7,7 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Microsoft.Maui.Storage
 open Binnaculum.Core.Keys
 open System
+open Binnaculum.Core.Providers
 
 /// <summary>
 /// Utility functions for snapshot managers.
@@ -88,7 +89,7 @@ module internal SnapshotManagerUtils =
             try
                 // CoreLogger.logDebug "SnapshotManagerUtils" "getDefaultCurrency - Step 1: Getting preference currency..."
 
-                let preferenceCurrency = Preferences.Get(CurrencyKey, DefaultCurrency)
+                let preferenceCurrency = PreferencesProvider.getString CurrencyKey DefaultCurrency
 
                 // CoreLogger.logDebug
                 //     "SnapshotManagerUtils"

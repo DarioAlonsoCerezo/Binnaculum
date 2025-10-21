@@ -8,6 +8,7 @@ open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage.SnapshotManagerUtils
 open Binnaculum.Core.Logging
 open Microsoft.Maui.Storage
+open Binnaculum.Core.Providers
 open Binnaculum.Core.Keys
 open TickerSnapshotExtensions
 open TickerCurrencySnapshotExtensions
@@ -387,7 +388,7 @@ module internal TickerSnapshotManager =
                     "TickerSnapshotManager"
                     $"[createTickerSnapshot] TickerSnapshot retrieved. ID: {snapshot.Base.Id}"
 
-                let preferenceCurrency = Preferences.Get(CurrencyKey, DefaultCurrency)
+                let preferenceCurrency = PreferencesProvider.getString CurrencyKey DefaultCurrency
 
                 CoreLogger.logInfo
                     "TickerSnapshotManager"

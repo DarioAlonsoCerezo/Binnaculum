@@ -54,7 +54,8 @@
 		<Compile Include="SQL\BankAccountSnapshotQuery.fs" />
 		<Compile Include="SQL\BankSnapshotQuery.fs" />
 		<Compile Include="SQL\InvestmentOverviewSnapshotQuery.fs" />
-		<Compile Include="Database\ConnectionProvider.fs" />
+		<Compile Include="Providers\ConnectionProvider.fs" />
+		<Compile Include="Providers\PreferencesProvider.fs" />
 		<Compile Include="Database\Database.fs" />
 		<Compile Include="Database\OptionExtensions.fs" />
 		<Compile Include="Database\DatabaseModel.fs" />
@@ -170,7 +171,6 @@
 		<Compile Include="UI\ReactiveApplicationManager.fs" />
 		
 		<Compile Include="Storage\Saver.fs" />
-		<Compile Include="Storage\PreferencesProvider.fs" />
 		<Compile Include="Utilities\FilePickerService.fs" />
 		<Compile Include="UI\SavedPrefereces.fs" />
 		<Compile Include="UI\Overview.fs" />

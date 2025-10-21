@@ -7,6 +7,7 @@ open Microsoft.Maui.Storage
 open System.Data
 open Binnaculum.Core.TableName
 open Binnaculum.Core.Logging.CoreLogger
+open Binnaculum.Core.Providers
 
 module internal Do =
     type IEntity =
@@ -20,10 +21,10 @@ module internal Do =
         abstract member UpdatedAt: Binnaculum.Core.Patterns.DateTimePattern option
 
     let mutable private connection: SqliteConnection = null
-    
+
     /// Mutable connection mode - None means use default file system mode
     let mutable private connectionMode: DatabaseMode option = None
-    
+
     /// Sets the database connection mode (for testing purposes)
     let setConnectionMode (mode: DatabaseMode) =
         connectionMode <- Some mode
@@ -33,7 +34,8 @@ module internal Do =
                 connection.Close()
                 connection.Dispose()
                 connection <- null
-            with _ -> ()
+            with _ ->
+                ()
 
     let private getConnectionString () =
         match connectionMode with

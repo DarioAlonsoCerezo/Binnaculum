@@ -2,6 +2,7 @@ namespace Binnaculum.Core.Tests
 
 open NUnit.Framework
 open Binnaculum.Core.Database
+open Binnaculum.Core.Providers
 open System
 
 /// <summary>
@@ -10,13 +11,12 @@ open System
 /// </summary>
 [<AbstractClass>]
 type InMemoryDatabaseFixture() =
-    
+
     let mutable testDatabaseName = ""
-    
+
     // Initialize SQLite native library once for all tests
-    static do
-        SQLitePCL.Batteries_V2.Init()
-    
+    static do SQLitePCL.Batteries_V2.Init()
+
     /// <summary>
     /// Sets up a fresh in-memory database before each test.
     /// Called automatically by NUnit before each test method.
@@ -26,14 +26,14 @@ type InMemoryDatabaseFixture() =
         // Generate a unique database name for this test to ensure isolation
         let uniqueId = Guid.NewGuid().ToString("N")
         testDatabaseName <- $"test_db_{uniqueId}"
-        
+
         // Configure database to use in-memory mode with the unique name
         let inMemoryMode = DatabaseMode.InMemory testDatabaseName
         Do.setConnectionMode inMemoryMode
-        
+
         // Initialize the database (creates tables)
-        Do.init() |> Async.AwaitTask |> Async.RunSynchronously
-    
+        Do.init () |> Async.AwaitTask |> Async.RunSynchronously
+
     /// <summary>
     /// Cleans up the in-memory database after each test.
     /// Called automatically by NUnit after each test method.
@@ -45,7 +45,7 @@ type InMemoryDatabaseFixture() =
         // The database will be automatically disposed when we close the connection
         // and a new unique database name will be generated for the next test
         ()
-    
+
     /// <summary>
     /// Gets the current test database name (useful for debugging)
     /// </summary>
