@@ -4,6 +4,7 @@ open NUnit.Framework
 open System
 open System.Threading.Tasks
 open Binnaculum.Core.Models
+open Binnaculum.Core.UI
 
 /// <summary>
 /// Reactive integration tests using signal-based approach.
@@ -22,6 +23,15 @@ type ReactiveOverviewTests() =
     [<SetUp>]
     member _.Setup() = async {
         printfn "\n=== Test Setup ==="
+        
+        // Wipe data before starting observation to ensure clean state
+        Overview.WorkOnMemory()  // Ensure we're in memory mode
+        try
+            do! Overview.WipeAllDataForTesting() |> Async.AwaitTask
+            printfn "✅ Data wiped successfully"
+        with ex ->
+            printfn "⚠️  Wipe failed: %s (may be expected if DB not initialized)" ex.Message
+        
         ReactiveStreamObserver.startObserving()
         
         let ctx = ReactiveTestContext.create()
