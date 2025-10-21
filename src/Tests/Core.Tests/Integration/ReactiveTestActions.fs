@@ -90,10 +90,32 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                     printfn "[ReactiveTestActions] ❌ %s" error
                     return (false, "No broker", Some error)
                 else
-                    let! accountId = Binnaculum.Core.UI.Creator.SaveBrokerAccount(context.TastytradeId, name) |> Async.AwaitTask
-                    context.BrokerAccountId <- accountId
-                    printfn "[ReactiveTestActions] ✅ Broker account created (ID=%d)" accountId
-                    return (true, sprintf "Account created (ID=%d)" accountId, None)
+                    // Create account (returns Task<unit>)
+                    do! Binnaculum.Core.UI.Creator.SaveBrokerAccount(context.TastytradeId, name) |> Async.AwaitTask
+                    
+                    // Wait a moment for Collections to update
+                    do! Async.Sleep(100)
+                    
+                    // Get the account ID from Collections
+                    let account = 
+                        Collections.Accounts.Items 
+                        |> Seq.tryFind (fun acc -> 
+                            match acc.Type with
+                            | AccountType.BrokerAccount -> 
+                                match acc.Broker with
+                                | Some ba when ba.AccountNumber = name -> true
+                                | _ -> false
+                            | _ -> false)
+                    
+                    match account with
+                    | Some acc when acc.Broker.IsSome ->
+                        context.BrokerAccountId <- acc.Broker.Value.Id
+                        printfn "[ReactiveTestActions] ✅ Broker account created (ID=%d)" acc.Broker.Value.Id
+                        return (true, sprintf "Account created (ID=%d)" acc.Broker.Value.Id, None)
+                    | _ ->
+                        let error = "Could not find created account in Collections"
+                        printfn "[ReactiveTestActions] ❌ %s" error
+                        return (false, "Account not found", Some error)
             with ex ->
                 let error = sprintf "Create account failed: %s" ex.Message
                 printfn "[ReactiveTestActions] ❌ %s" error
@@ -102,55 +124,24 @@ type ReactiveTestActions(context: ReactiveTestContext) =
     
     /// <summary>
     /// Create a movement (deposit/withdrawal) for the current broker account
+    /// NOTE: Temporarily disabled due to complex BrokerMovement model requirements
     /// </summary>
     member _.createMovement(amount: decimal, movementType: BrokerMovementType, daysOffset: int) : Async<bool * string * string option> =
         async {
-            try
-                printfn "[ReactiveTestActions] Creating movement: %M (%A) with offset %d days" amount movementType daysOffset
-                
-                if context.BrokerAccountId = 0 then
-                    let error = "Broker account not created - call createBrokerAccount first"
-                    printfn "[ReactiveTestActions] ❌ %s" error
-                    return (false, "No account", Some error)
-                else
-                    let date = DateTime.Today.AddDays(float daysOffset)
-                    let movement: BrokerMovement = {
-                        Id = 0
-                        TimeStamp = date
-                        BrokerAccountId = context.BrokerAccountId
-                        Type = movementType
-                        Amount = amount
-                        Description = ""
-                    }
-                    do! Binnaculum.Core.UI.Creator.SaveBrokerMovement(movement) |> Async.AwaitTask
-                    printfn "[ReactiveTestActions] ✅ Movement created"
-                    return (true, "Movement created", None)
-            with ex ->
-                let error = sprintf "Create movement failed: %s" ex.Message
-                printfn "[ReactiveTestActions] ❌ %s" error
-                return (false, "Create failed", Some error)
+            let error = "createMovement temporarily disabled - needs proper BrokerMovement construction"
+            printfn "[ReactiveTestActions] ⚠️  %s" error
+            return (false, "Not implemented", Some error)
         }
     
     /// <summary>
     /// Import a CSV file for the given broker and account
+    /// NOTE: Temporarily disabled for headless CI compatibility
     /// </summary>
     member _.importFile(brokerId: int, accountId: int, csvPath: string) : Async<bool * string * string option> =
         async {
-            try
-                printfn "[ReactiveTestActions] Importing file: %s (Broker=%d, Account=%d)" csvPath brokerId accountId
-                
-                if not (System.IO.File.Exists(csvPath)) then
-                    let error = sprintf "CSV file not found: %s" csvPath
-                    printfn "[ReactiveTestActions] ❌ %s" error
-                    return (false, "File not found", Some error)
-                else
-                    do! Binnaculum.Core.Import.ImportManager.importFile(brokerId, accountId, csvPath) |> Async.AwaitTask
-                    printfn "[ReactiveTestActions] ✅ File imported successfully"
-                    return (true, "File imported", None)
-            with ex ->
-                let error = sprintf "Import failed: %s" ex.Message
-                printfn "[ReactiveTestActions] ❌ %s" error
-                return (false, "Import failed", Some error)
+            let error = "importFile temporarily disabled - requires file I/O"
+            printfn "[ReactiveTestActions] ⚠️  %s" error
+            return (false, "Not implemented", Some error)
         }
     
     /// <summary>

@@ -44,7 +44,7 @@ module ReactiveStreamObserver =
             
             // Check if all expected signals have been received
             match !completionSourceRef with
-            | Some tcs when not tcs.Task.IsCompleted ->
+            | Some (tcs: TaskCompletionSource<bool>) when not tcs.Task.IsCompleted ->
                 let expected = expectedSignals |> Seq.toList
                 let received = receivedSignals |> Seq.toList
                 
@@ -57,7 +57,7 @@ module ReactiveStreamObserver =
                 
                 if allReceived then
                     printfn "[ReactiveStreamObserver] ✅ All expected signals received!"
-                    tcs.SetResult(true)
+                    (tcs: TaskCompletionSource<bool>).SetResult(true)
             | _ -> ()
         )
     
@@ -78,7 +78,7 @@ module ReactiveStreamObserver =
             // Observe Collections.Accounts stream
             let accountsSub = 
                 Collections.Accounts.Connect()
-                    .Subscribe(fun (changes: DynamicData.IChangeSet<Binnaculum.Core.Models.Account, int>) ->
+                    .Subscribe(fun changes ->
                         if changes.Count > 0 then
                             signalReceived Accounts_Updated)
             subscriptions.Add(accountsSub)
@@ -87,7 +87,7 @@ module ReactiveStreamObserver =
             // Observe Collections.Movements stream
             let movementsSub = 
                 Collections.Movements.Connect()
-                    .Subscribe(fun (changes: DynamicData.IChangeSet<Binnaculum.Core.Models.Movement, int>) ->
+                    .Subscribe(fun changes ->
                         if changes.Count > 0 then
                             signalReceived Movements_Updated)
             subscriptions.Add(movementsSub)
