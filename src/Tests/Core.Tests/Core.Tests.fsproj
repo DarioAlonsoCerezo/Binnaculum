@@ -32,6 +32,7 @@
     <Compile Include="Integration/ReactiveBrokerAccountDepositTests.fs" />
     <Compile Include="Integration/ReactiveBrokerAccountMultipleMovementsTests.fs" />
     <Compile Include="Integration/ReactiveOptionsImportTests.fs" />
+    <Compile Include="Integration/ReactiveDepositsWithdrawalsTests.fs" />
     <Compile Include="BrokerAccountSnapshotTests.fs" />
     <Compile Include="BrokerAccountMultiCurrencySnapshotTests.fs" />
     <Compile Include="BrokerSnapshotTests.fs" />
