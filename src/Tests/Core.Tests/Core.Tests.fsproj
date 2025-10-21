@@ -19,6 +19,12 @@
   <ItemGroup>
     <Compile Include="InMemoryDatabaseFixture.fs" />
     <Compile Include="InMemoryDatabaseExampleTests.fs" />
+    <!-- Integration Tests - Signal-Based Reactive Testing -->
+    <Compile Include="Integration/ReactiveTestEnvironment.fs" />
+    <Compile Include="Integration/ReactiveTestContext.fs" />
+    <Compile Include="Integration/ReactiveStreamObserver.fs" />
+    <Compile Include="Integration/ReactiveTestActions.fs" />
+    <Compile Include="Integration/ReactiveOverviewTests.fs" />
     <Compile Include="BrokerAccountSnapshotTests.fs" />
     <Compile Include="BrokerAccountMultiCurrencySnapshotTests.fs" />
     <Compile Include="BrokerSnapshotTests.fs" />
