@@ -45,6 +45,7 @@
     <Compile Include="DataLoaderTests.fs" />
     <Compile Include="EmptySnapshotManagementTests.fs" />
     <Compile Include="OverviewWipingTests.fs" />
+    <Compile Include="WorkOnMemoryIntegrationExample.fs" />
     <Compile Include="ImportManagerTests.fs" />
     <Compile Include="DatabasePersistenceTests.fs" />
     <Compile Include="IBKRImportTests.fs" />
