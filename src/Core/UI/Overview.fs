@@ -70,6 +70,59 @@ module Overview =
     /// <summary>
     /// 🚨🚨🚨 WARNING: TEST-ONLY METHOD - NEVER USE IN PRODUCTION CODE! 🚨🚨🚨
     ///
+    /// Configures both the database and preferences systems to operate entirely in
+    /// memory, enabling comprehensive integration testing without requiring MAUI
+    /// platform services or file system access.
+    ///
+    /// This method MUST be called BEFORE any other initialization methods 
+    /// (InitDatabase, LoadData) to ensure the in-memory configuration is active.
+    ///
+    /// ✅ WHEN TO USE:
+    /// - Integration tests that need fresh database + preferences state
+    /// - Headless/CI environments without MAUI platform services
+    /// - Testing import workflows and preference persistence
+    /// - Parallel test execution (each test gets isolated in-memory storage)
+    ///
+    /// ❌ NEVER USE IN:
+    /// - Production code or any production-like environments
+    /// - Tests that need persistent state across app restarts
+    /// - Scenarios requiring real platform API behavior
+    ///
+    /// USAGE EXAMPLE:
+    /// ```fsharp
+    /// test "Import and verify with preferences" {
+    ///     // Configure in-memory mode FIRST
+    ///     Overview.WorkOnMemory()
+    ///     
+    ///     // Initialize system
+    ///     do! Overview.InitDatabase()
+    ///     do! Overview.LoadData()
+    ///     
+    ///     // Configure preferences
+    ///     SavedPrefereces.ChangeLanguage("es")
+    ///     SavedPrefereces.ChangeCurrency("EUR")
+    ///     
+    ///     // Run test logic
+    ///     let! result = ImportCsv(testFile)
+    ///     
+    ///     // Verify results (all in-memory, isolated, fast)
+    ///     Assert.That(Collections.Accounts.Items.Count, Is.GreaterThan(0))
+    ///     Assert.That(SavedPrefereces.UserPreferences.Value.Language, Is.EqualTo("es"))
+    /// }
+    /// ```
+    ///
+    /// ISOLATION & CLEANUP:
+    /// Each call to WorkOnMemory() creates fresh in-memory storage.
+    /// Use WipeAllDataForTesting() between test scenarios to reset while 
+    /// maintaining in-memory mode.
+    /// </summary>
+    let WorkOnMemory () =
+        Do.setConnectionMode (DatabaseMode.InMemory "test_memory_db")
+        SavedPrefereces.setPreferencesMode PreferencesMode.InMemory
+
+    /// <summary>
+    /// 🚨🚨🚨 WARNING: TEST-ONLY METHOD - NEVER USE IN PRODUCTION CODE! 🚨🚨🚨
+    ///
     /// Wipes all data from the database and clears all in-memory collections,
     /// intended strictly for testing purposes. This allows tests to reset the
     /// application state and re-run initialization logic as if the app was
@@ -87,6 +140,9 @@ module Overview =
 
             // Clear all in-memory collections
             Collections.clearAllCollectionsForTesting ()
+
+            // Clear in-memory preferences storage if operating in in-memory mode
+            SavedPrefereces.clearInMemoryPreferences ()
 
             // Reset the Overview.Data state to initial values
             Data.OnNext

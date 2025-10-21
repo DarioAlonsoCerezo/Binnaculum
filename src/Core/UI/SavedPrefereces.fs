@@ -4,6 +4,7 @@ open Microsoft.Maui.ApplicationModel
 open Microsoft.Maui.Storage
 open System.Reactive.Subjects
 open Binnaculum.Core.Storage
+open Binnaculum.Core.Storage.PreferencesProvider
 open System.Threading.Tasks
 open System
 open Binnaculum.Core.Keys // Added for key access
@@ -35,26 +36,26 @@ module SavedPrefereces =
     }
 
     let private loadPreferences() = 
-        let theme = Preferences.Get(ThemeKey, parseTheme AppTheme.Unspecified)
-        let language = Preferences.Get(LanguageKey, DefaultLanguage)
-        let currency = Preferences.Get(CurrencyKey, DefaultCurrency)
-        let allowCreateAccount = Preferences.Get(AllowCreateAccountKey, true)
-        let defaultTicker = Preferences.Get(TickerKey, DefaultTicker)
-        let groupOptions = Preferences.Get(GroupOptionsKey, true)
+        let theme = PreferencesProvider.getPreference ThemeKey (parseTheme AppTheme.Unspecified)
+        let language = PreferencesProvider.getString LanguageKey DefaultLanguage
+        let currency = PreferencesProvider.getString CurrencyKey DefaultCurrency
+        let allowCreateAccount = PreferencesProvider.getBoolean AllowCreateAccountKey true
+        let defaultTicker = PreferencesProvider.getString TickerKey DefaultTicker
+        let groupOptions = PreferencesProvider.getBoolean GroupOptionsKey true
         { Theme = themeIntToEnum theme; Language = language; Currency = currency; AllowCreateAccount = allowCreateAccount; Ticker = defaultTicker; GroupOptions = groupOptions; PolygonApiKey = None }
 
     let private loadPreferencesAsync() = task {
-        let theme = Preferences.Get(ThemeKey, parseTheme AppTheme.Unspecified)
-        let language = Preferences.Get(LanguageKey, DefaultLanguage)
-        let currency = Preferences.Get(CurrencyKey, DefaultCurrency)
-        let allowCreateAccount = Preferences.Get(AllowCreateAccountKey, true)
-        let defaultTicker = Preferences.Get(TickerKey, DefaultTicker)
-        let groupOptions = Preferences.Get(GroupOptionsKey, true)
+        let theme = PreferencesProvider.getPreference ThemeKey (parseTheme AppTheme.Unspecified)
+        let language = PreferencesProvider.getString LanguageKey DefaultLanguage
+        let currency = PreferencesProvider.getString CurrencyKey DefaultCurrency
+        let allowCreateAccount = PreferencesProvider.getBoolean AllowCreateAccountKey true
+        let defaultTicker = PreferencesProvider.getString TickerKey DefaultTicker
+        let groupOptions = PreferencesProvider.getBoolean GroupOptionsKey true
         
         // Load Polygon API Key from SecureStorage with error handling
         let! polygonApiKey = task {
             try
-                let! key = SecureStorage.GetAsync(PolygonApiKeyKey)
+                let! key = PreferencesProvider.getSecureAsync(PolygonApiKeyKey)
                 return if String.IsNullOrEmpty(key) then None else Some key
             with
             | ex ->
@@ -75,23 +76,23 @@ module SavedPrefereces =
     }
 
     let ChangeAppTheme theme =
-        Preferences.Set(ThemeKey, parseTheme theme)
+        PreferencesProvider.setPreference ThemeKey (parseTheme theme)
         UserPreferences.OnNext({ UserPreferences.Value with Theme = theme })
 
     let ChangeLanguage(language: string) =
-        Preferences.Set(LanguageKey, language)
+        PreferencesProvider.setString LanguageKey language
         UserPreferences.OnNext({ UserPreferences.Value with Language = language })
 
     let ChangeCurrency(currency: string) =
-        Preferences.Set(CurrencyKey, currency)
+        PreferencesProvider.setString CurrencyKey currency
         UserPreferences.OnNext({ UserPreferences.Value with Currency = currency })
 
     let ChangeAllowCreateAccount(allow: bool) =
-        Preferences.Set(AllowCreateAccountKey, allow)
+        PreferencesProvider.setBoolean AllowCreateAccountKey allow
         UserPreferences.OnNext({ UserPreferences.Value with AllowCreateAccount = allow })
 
     let ChangeDefaultTicker(ticker: string) =
-        Preferences.Set(TickerKey, ticker)
+        PreferencesProvider.setString TickerKey ticker
         UserPreferences.OnNext({ UserPreferences.Value with Ticker = ticker })
 
     // Fire-and-forget helper function
@@ -107,7 +108,7 @@ module SavedPrefereces =
     let ChangeGroupOption(group: bool) =
         // Check if the group option has changed
         let currentValue = UserPreferences.Value.GroupOptions
-        Preferences.Set(GroupOptionsKey, group)
+        PreferencesProvider.setBoolean GroupOptionsKey group
         UserPreferences.OnNext({ UserPreferences.Value with GroupOptions = group })
         
         // If the value has changed, reload option trades
@@ -119,8 +120,8 @@ module SavedPrefereces =
         try
             // Save to SecureStorage
             match apiKey with
-            | Some key -> do! SecureStorage.SetAsync(PolygonApiKeyKey, key)
-            | None -> SecureStorage.Remove(PolygonApiKeyKey) |> ignore
+            | Some key -> do! PreferencesProvider.setSecureAsync PolygonApiKeyKey key
+            | None -> PreferencesProvider.removeSecure(PolygonApiKeyKey) |> ignore
             
             // Update UserPreferences
             UserPreferences.OnNext({ UserPreferences.Value with PolygonApiKey = apiKey })
@@ -131,6 +132,22 @@ module SavedPrefereces =
             // Still update the in-memory preferences for consistency
             UserPreferences.OnNext({ UserPreferences.Value with PolygonApiKey = apiKey })
     }
+
+    /// <summary>
+    /// Sets the preferences storage mode (FileSystem or InMemory).
+    /// This is primarily intended for testing purposes to enable in-memory preference storage.
+    /// </summary>
+    /// <param name="mode">The preferences mode to use</param>
+    let setPreferencesMode (mode: PreferencesMode) =
+        PreferencesProvider.setPreferencesMode mode
+    
+    /// <summary>
+    /// Clears all in-memory preferences storage.
+    /// Only affects InMemory mode; FileSystem mode is unaffected.
+    /// This is primarily intended for testing purposes to reset state between tests.
+    /// </summary>
+    let clearInMemoryPreferences () =
+        PreferencesProvider.clearInMemoryStorage()
 
     // TODO: Add Information button to all settings where we need to explain the user
     // what the setting does.
