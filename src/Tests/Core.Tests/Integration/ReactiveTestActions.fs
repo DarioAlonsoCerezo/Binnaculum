@@ -57,8 +57,8 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                 // Store common IDs from collections for later use
                 let tastytrade = Collections.Brokers.Items |> Seq.tryFind (fun (b: Broker) -> b.Name = "Tastytrade")
                 let ibkr = Collections.Brokers.Items |> Seq.tryFind (fun (b: Broker) -> b.Name = "IBKR")
-                let usd = Collections.Currencies.Items |> Seq.tryFind (fun (c: Currency) -> c.Symbol = "USD")
-                let eur = Collections.Currencies.Items |> Seq.tryFind (fun (c: Currency) -> c.Symbol = "EUR")
+                let usd = Collections.Currencies.Items |> Seq.tryFind (fun (c: Currency) -> c.Code = "USD")
+                let eur = Collections.Currencies.Items |> Seq.tryFind (fun (c: Currency) -> c.Code = "EUR")
                 let spy = Collections.Tickers.Items |> Seq.tryFind (fun (t: Ticker) -> t.Symbol = "SPY")
                 
                 tastytrade |> Option.iter (fun b -> context.TastytradeId <- b.Id)
@@ -139,13 +139,78 @@ type ReactiveTestActions(context: ReactiveTestContext) =
     
     /// <summary>
     /// Create a movement (deposit/withdrawal) for the current broker account
-    /// NOTE: Temporarily disabled due to complex BrokerMovement model requirements
     /// </summary>
-    member _.createMovement(amount: decimal, movementType: BrokerMovementType, daysOffset: int) : Async<bool * string * string option> =
+    member _.createMovement(amount: decimal, movementType: BrokerMovementType, daysOffset: int, ?description: string) : Async<bool * string * string option> =
         async {
-            let error = "createMovement temporarily disabled - needs proper BrokerMovement construction"
-            printfn "[ReactiveTestActions] ⚠️  %s" error
-            return (false, "Not implemented", Some error)
+            try
+                printfn "[ReactiveTestActions] Creating movement: amount=%M, type=%A, daysOffset=%d" amount movementType daysOffset
+                
+                if context.BrokerAccountId = 0 then
+                    let error = "BrokerAccount ID is 0 - call createBrokerAccount first"
+                    printfn "[ReactiveTestActions] ❌ %s" error
+                    return (false, "No account", Some error)
+                elif context.UsdCurrencyId = 0 then
+                    let error = "USD Currency ID is 0 - call initDatabase first"
+                    printfn "[ReactiveTestActions] ❌ %s" error
+                    return (false, "No currency", Some error)
+                else
+                    // Get the actual BrokerAccount and Currency objects from Collections
+                    let brokerAccount = 
+                        Collections.Accounts.Items
+                        |> Seq.filter (fun acc -> acc.Type = AccountType.BrokerAccount)
+                        |> Seq.tryPick (fun acc -> 
+                            match acc.Broker with
+                            | Some ba when ba.Id = context.BrokerAccountId -> Some ba
+                            | _ -> None)
+                    
+                    let usdCurrency = 
+                        Collections.Currencies.Items
+                        |> Seq.tryFind (fun c -> c.Id = context.UsdCurrencyId)
+                    
+                    match brokerAccount, usdCurrency with
+                    | None, _ ->
+                        let error = "Could not find BrokerAccount object in Collections"
+                        printfn "[ReactiveTestActions] ❌ %s" error
+                        return (false, "Account not found", Some error)
+                    | _, None ->
+                        let error = "Could not find USD Currency object in Collections"
+                        printfn "[ReactiveTestActions] ❌ %s" error
+                        return (false, "Currency not found", Some error)
+                    | Some ba, Some curr ->
+                        // Create movement with specified date offset
+                        let movementDate = DateTime.Now.AddDays(float daysOffset)
+                        let notes = 
+                            match description with
+                            | Some desc -> desc
+                            | None -> sprintf "Test %A movement" movementType
+                        
+                        let movement = {
+                            Id = 0  // Will be assigned by database
+                            TimeStamp = movementDate
+                            Amount = amount
+                            Currency = curr
+                            BrokerAccount = ba
+                            Commissions = 0.0m
+                            Fees = 0.0m
+                            MovementType = movementType
+                            Notes = Some notes
+                            FromCurrency = None
+                            AmountChanged = None
+                            Ticker = None
+                            Quantity = None
+                        }
+                        
+                        do! Binnaculum.Core.UI.Creator.SaveBrokerMovement(movement) |> Async.AwaitTask
+                        
+                        // Wait a moment for Collections to update
+                        do! Async.Sleep(100)
+                        
+                        printfn "[ReactiveTestActions] ✅ Movement created successfully"
+                        return (true, sprintf "Movement created: %M %A" amount movementType, None)
+            with ex ->
+                let error = sprintf "Create movement failed: %s" ex.Message
+                printfn "[ReactiveTestActions] ❌ %s" error
+                return (false, "Create failed", Some error)
         }
     
     /// <summary>
