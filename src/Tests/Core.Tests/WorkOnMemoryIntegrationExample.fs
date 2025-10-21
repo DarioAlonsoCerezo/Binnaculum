@@ -160,7 +160,7 @@ type WorkOnMemoryIntegrationExample() =
     /// 1. Configure in-memory mode
     /// 2. Set all preference types
     /// 3. Verify state
-    /// 4. Reset and repeat with different settings
+    /// 4. Clear preferences and repeat with different settings
     /// 
     /// This showcases the full power of WorkOnMemory() for preference management
     /// testing without platform dependencies. For database integration tests,
@@ -191,9 +191,10 @@ type WorkOnMemoryIntegrationExample() =
         Assert.That(prefs1.Ticker, Is.EqualTo("SPY"), "Phase 1: Ticker should be SPY")
         Assert.That(prefs1.PolygonApiKey, Is.EqualTo(Some "key-phase1"), "Phase 1: API key set")
         
-        // === Phase 2: Reset and Configure with Spanish/EUR ===
-        do! Overview.WipeAllDataForTesting()
-        Overview.WorkOnMemory()
+        // === Phase 2: Clear preferences and Configure with Spanish/EUR ===
+        // Manually clear preferences (WipeAllDataForTesting requires database initialization)
+        SavedPrefereces.clearInMemoryPreferences()
+        Overview.WorkOnMemory()  // Reinitialize for fresh state
         
         // Configure different preferences
         SavedPrefereces.ChangeLanguage("es")
