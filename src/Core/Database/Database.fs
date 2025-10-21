@@ -20,14 +20,25 @@ module internal Do =
         abstract member UpdatedAt: Binnaculum.Core.Patterns.DateTimePattern option
 
     let mutable private connection: SqliteConnection = null
+    
+    /// Mutable connection mode - None means use default file system mode
+    let mutable private connectionMode: DatabaseMode option = None
+    
+    /// Sets the database connection mode (for testing purposes)
+    let setConnectionMode (mode: DatabaseMode) =
+        connectionMode <- Some mode
+        // Close existing connection to force reconnection with new mode
+        if connection <> null then
+            try
+                connection.Close()
+                connection.Dispose()
+                connection <- null
+            with _ -> ()
 
     let private getConnectionString () =
-        let databasePath =
-            Path.Combine(FileSystem.AppDataDirectory, "binnaculumDatabase.db")
-
-        let init = SqliteConnectionStringBuilder($"Data Source = {databasePath}")
-        init.Mode <- SqliteOpenMode.ReadWriteCreate
-        init.ToString()
+        match connectionMode with
+        | Some mode -> ConnectionProvider.createConnectionString mode
+        | None -> ConnectionProvider.createConnectionString (ConnectionProvider.defaultFileSystemMode ())
 
     let private tablesSQL: string list =
         [ Binnaculum.Core.SQL.BrokerQuery.createTable
