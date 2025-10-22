@@ -1,5 +1,0 @@
-Date,Type,Sub Type,Action,Symbol,Instrument Type,Description,Value,Quantity,Average Price,Commissions,Fees,Multiplier,Root Symbol,Underlying Symbol,Expiration Date,Strike Price,Call or Put,Order #,Total,Currency
-2025-10-03T20:55:09+0100,Trade,Sell to Close,SELL_TO_CLOSE,PFE   260116C00020000,Equity Option,Sold 1 PFE 01/16/26 Call 20.00 @ 7.45,745.00,1,745.00,0.00,-0.12,100,PFE,PFE,1/16/26,20,CALL,411322652,744.88,USD
-2025-10-03T20:55:09+0100,Trade,Buy to Close,BUY_TO_CLOSE,PFE   251010C00027000,Equity Option,Bought 1 PFE 10/10/25 Call 27.00 @ 0.64,-64.00,1,-64.00,0.00,-0.12,100,PFE,PFE,10/10/25,27,CALL,411322652,-64.12,USD
-2025-10-01T16:16:44+0100,Trade,Sell to Open,SELL_TO_OPEN,PFE   251010C00027000,Equity Option,Sold 1 PFE 10/10/25 Call 27.00 @ 0.51,51.00,1,51.00,-1.00,-0.12,100,PFE,PFE,10/10/25,27,CALL,410536999,49.88,USD
-2025-08-25T19:26:41+0100,Trade,Buy to Open,BUY_TO_OPEN,PFE   260116C00020000,Equity Option,Bought 1 PFE 01/16/26 Call 20.00 @ 5.54,-554.00,1,-554.00,-1.00,-0.12,100,PFE,PFE,1/16/26,20,CALL,403310257,-555.12,USD
