@@ -14,7 +14,8 @@ open Binnaculum.Core.Import.IBKRSectionFilter
 [<TestFixture>]
 type IBKRImportTests() =
 
-    let testDataPath = Path.Combine(__SOURCE_DIRECTORY__, "TestData", "IBKR_Samples")
+    let testDataPath =
+        Path.Combine(__SOURCE_DIRECTORY__, "..", "..", "TestData", "IBKR_Samples")
 
 
     /// <summary>

@@ -13,7 +13,7 @@ open Binnaculum.Core.Import.TastytradeStrategyDetector
 type TastytradeImportTests() =
 
     let testDataPath =
-        Path.Combine(__SOURCE_DIRECTORY__, "TestData", "Tastytrade_Samples")
+        Path.Combine(__SOURCE_DIRECTORY__, "..", "..", "TestData", "Tastytrade_Samples")
 
     [<Test>]
     member this.``TastytradeOptionSymbolParser should parse complex option symbol correctly``() =
