@@ -51,38 +51,34 @@ type ReactiveBrokerAccountDepositTests() =
             ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
 
             // Wipe all data for clean slate
-            let! (ok, _, error) = actions.wipeDataForTesting()
+            let! (ok, _, error) = actions.wipeDataForTesting ()
             Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
             printfn "✅ Data wiped successfully"
 
-            // Initialize database
-            let! (ok, _, error) = actions.initDatabase()
+            // Initialize database (includes schema init and data loading)
+            let! (ok, _, error) = actions.initDatabase ()
             Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
             printfn "✅ Database initialized successfully"
-
-            // Load data
-            let! (ok, _, error) = actions.loadData()
-            Assert.That(ok, Is.True, sprintf "Data loading should succeed: %A" error)
-            printfn "✅ Data loaded successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
             ReactiveTestSetup.printPhaseHeader 2 "Create BrokerAccount"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals([
-                Accounts_Updated      // Account added to Collections.Accounts
-                Snapshots_Updated     // Snapshot calculated in Collections.Snapshots
-            ])
+            ReactiveStreamObserver.expectSignals (
+                [ Accounts_Updated // Account added to Collections.Accounts
+                  Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
+            )
+
             printfn "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
-            let! (ok, details, error) = actions.createBrokerAccount("Trading")
+            let! (ok, details, error) = actions.createBrokerAccount ("Trading")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
             printfn "✅ BrokerAccount created: %s" details
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for account creation reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync(TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
             printfn "✅ Account creation signals received successfully"
 
@@ -90,20 +86,23 @@ type ReactiveBrokerAccountDepositTests() =
             ReactiveTestSetup.printPhaseHeader 3 "Create Deposit Movement"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals([
-                Movements_Updated     // Movement added to Collections.Movements
-                Snapshots_Updated     // Snapshot recalculated with deposit
-            ])
+            ReactiveStreamObserver.expectSignals (
+                [ Movements_Updated // Movement added to Collections.Movements
+                  Snapshots_Updated ] // Snapshot recalculated with deposit
+            )
+
             printfn "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
 
             // EXECUTE: Create deposit movement (historical, -30 days)
-            let! (ok, details, error) = actions.createMovement(5000m, BrokerMovementType.Deposit, -30, "Reactive deposit test")
+            let! (ok, details, error) =
+                actions.createMovement (5000m, BrokerMovementType.Deposit, -30, "Reactive deposit test")
+
             Assert.That(ok, Is.True, sprintf "Deposit creation should succeed: %s - %A" details error)
             printfn "✅ Deposit movement created: %s" details
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for deposit creation reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync(TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Deposit creation signals should have been received")
             printfn "✅ Deposit creation signals received successfully"
 
@@ -111,21 +110,31 @@ type ReactiveBrokerAccountDepositTests() =
             ReactiveTestSetup.printPhaseHeader 4 "Verify Final State"
 
             // Verify account was created
-            let! (verified, count, error) = actions.verifyAccountCount(1)
+            let! (verified, count, error) = actions.verifyAccountCount (1)
             Assert.That(verified, Is.True, sprintf "Account count verification should succeed: %s - %A" count error)
-            Assert.That(count, Is.EqualTo("Account count: expected=1, actual=1"), 
-                sprintf "Should have exactly 1 account, but got: %s" count)
+
+            Assert.That(
+                count,
+                Is.EqualTo("Account count: expected=1, actual=1"),
+                sprintf "Should have exactly 1 account, but got: %s" count
+            )
+
             printfn "✅ Account count verified: 1"
 
             // Verify movement was created
-            let! (verified, count, error) = actions.verifyMovementCount(1)
+            let! (verified, count, error) = actions.verifyMovementCount (1)
             Assert.That(verified, Is.True, sprintf "Movement count verification should succeed: %s - %A" count error)
-            Assert.That(count, Is.EqualTo("Movement count: expected=1, actual=1"),
-                sprintf "Should have exactly 1 movement, but got: %s" count)
+
+            Assert.That(
+                count,
+                Is.EqualTo("Movement count: expected=1, actual=1"),
+                sprintf "Should have exactly 1 movement, but got: %s" count
+            )
+
             printfn "✅ Movement count verified: 1"
 
             // Verify snapshots were calculated
-            let! (verified, count, error) = actions.verifySnapshotCount(1)
+            let! (verified, count, error) = actions.verifySnapshotCount (1)
             Assert.That(verified, Is.True, sprintf "Snapshot count verification should succeed: %s - %A" count error)
             printfn "✅ Snapshot count verified: >= 1 (%s)" count
 

@@ -28,91 +28,89 @@ type ReactiveTestActions(context: ReactiveTestContext) =
         }
 
     /// <summary>
-    /// Initialize database using WorkOnMemory
+    /// Initialize database using correct sequence:
+    /// 1. Configure WorkOnMemory mode
+    /// 2. Initialize database schema/structure
+    /// 3. Load reference data and populate Collections
+    /// 4. Extract and cache common entity IDs for later use
     /// </summary>
     member _.initDatabase() : Async<bool * string * string option> =
         async {
             try
-                CoreLogger.logInfo "ReactiveTestActions" "Initializing database (WorkOnMemory)..."
+                CoreLogger.logInfo "ReactiveTestActions" "Step 1: Configuring WorkOnMemory mode..."
                 do! ReactiveTestEnvironment.initializeDatabase ()
 
-                // Load brokers, currencies, and tickers explicitly
-                CoreLogger.logInfo "ReactiveTestActions" "Loading brokers..."
-                do! Binnaculum.Core.DataLoader.BrokerLoader.load () |> Async.AwaitTask
+                CoreLogger.logInfo "ReactiveTestActions" "Step 2: Initializing database schema..."
+                do! Overview.InitDatabase() |> Async.AwaitTask
 
-                CoreLogger.logInfo "ReactiveTestActions" "Loading currencies..."
-                do! Binnaculum.Core.DataLoader.CurrencyLoader.load () |> Async.AwaitTask
+                CoreLogger.logInfo "ReactiveTestActions" "Step 3: Loading reference data..."
+                do! Overview.LoadData() |> Async.AwaitTask
 
-                CoreLogger.logInfo "ReactiveTestActions" "Loading tickers..."
-                do! Binnaculum.Core.DataLoader.TikerLoader.load () |> Async.AwaitTask
+                // Wait a moment for Collections to populate
+                CoreLogger.logInfo "ReactiveTestActions" "Step 4: Verifying Collections population..."
+                do! Async.Sleep(200)
 
-                // Load initial data (accounts, snapshots)
-                // Note: LoadData may fail in headless mode due to file system dependencies
-                // We catch the error and continue
-                CoreLogger.logInfo "ReactiveTestActions" "Loading accounts and snapshots..."
+                // Verify Collections are populated
+                let collectionsValid =
+                    if Collections.Brokers.Count = 0 then
+                        CoreLogger.logError "ReactiveTestActions" "❌ Brokers collection is empty after LoadData"
+                        None
+                    elif Collections.Currencies.Count = 0 then
+                        CoreLogger.logError "ReactiveTestActions" "❌ Currencies collection is empty after LoadData"
+                        None
+                    elif Collections.Tickers.Count = 0 then
+                        CoreLogger.logError "ReactiveTestActions" "❌ Tickers collection is empty after LoadData"
+                        None
+                    else
+                        Some()
 
-                try
-                    do! Overview.LoadData() |> Async.AwaitTask
-                with ex ->
-                    CoreLogger.logWarning
+                match collectionsValid with
+                | None -> return (false, "Collections empty", Some "One or more collections failed to populate")
+                | Some() ->
+                    CoreLogger.logInfo "ReactiveTestActions" "Step 5: Extracting common entity IDs..."
+
+                    // Store common IDs from collections for later use
+                    let tastytrade =
+                        Collections.Brokers.Items
+                        |> Seq.tryFind (fun (b: Broker) -> b.Name = "Tastytrade")
+
+                    let ibkr =
+                        Collections.Brokers.Items |> Seq.tryFind (fun (b: Broker) -> b.Name = "IBKR")
+
+                    let usd =
+                        Collections.Currencies.Items
+                        |> Seq.tryFind (fun (c: Currency) -> c.Code = "USD")
+
+                    let eur =
+                        Collections.Currencies.Items
+                        |> Seq.tryFind (fun (c: Currency) -> c.Code = "EUR")
+
+                    let spy =
+                        Collections.Tickers.Items |> Seq.tryFind (fun (t: Ticker) -> t.Symbol = "SPY")
+
+                    tastytrade |> Option.iter (fun b -> context.TastytradeId <- b.Id)
+                    ibkr |> Option.iter (fun b -> context.IbkrId <- b.Id)
+                    usd |> Option.iter (fun c -> context.UsdCurrencyId <- c.Id)
+                    eur |> Option.iter (fun c -> context.EurCurrencyId <- c.Id)
+                    spy |> Option.iter (fun t -> context.SpyTickerId <- t.Id)
+
+                    CoreLogger.logInfof
                         "ReactiveTestActions"
-                        (sprintf "LoadData failed (expected in headless mode): %s" ex.Message)
+                        "✅ Database initialized (Brokers=%d, Currencies=%d, Tickers=%d, Tastytrade=%d, IBKR=%d, USD=%d, EUR=%d, SPY=%d)"
+                        Collections.Brokers.Count
+                        Collections.Currencies.Count
+                        Collections.Tickers.Count
+                        context.TastytradeId
+                        context.IbkrId
+                        context.UsdCurrencyId
+                        context.EurCurrencyId
+                        context.SpyTickerId
 
-                // Store common IDs from collections for later use
-                let tastytrade =
-                    Collections.Brokers.Items
-                    |> Seq.tryFind (fun (b: Broker) -> b.Name = "Tastytrade")
-
-                let ibkr =
-                    Collections.Brokers.Items |> Seq.tryFind (fun (b: Broker) -> b.Name = "IBKR")
-
-                let usd =
-                    Collections.Currencies.Items
-                    |> Seq.tryFind (fun (c: Currency) -> c.Code = "USD")
-
-                let eur =
-                    Collections.Currencies.Items
-                    |> Seq.tryFind (fun (c: Currency) -> c.Code = "EUR")
-
-                let spy =
-                    Collections.Tickers.Items |> Seq.tryFind (fun (t: Ticker) -> t.Symbol = "SPY")
-
-                tastytrade |> Option.iter (fun b -> context.TastytradeId <- b.Id)
-                ibkr |> Option.iter (fun b -> context.IbkrId <- b.Id)
-                usd |> Option.iter (fun c -> context.UsdCurrencyId <- c.Id)
-                eur |> Option.iter (fun c -> context.EurCurrencyId <- c.Id)
-                spy |> Option.iter (fun t -> context.SpyTickerId <- t.Id)
-
-                CoreLogger.logInfof
-                    "ReactiveTestActions"
-                    "✅ Database initialized (Tastytrade=%d, IBKR=%d, USD=%d, EUR=%d, SPY=%d)"
-                    context.TastytradeId
-                    context.IbkrId
-                    context.UsdCurrencyId
-                    context.EurCurrencyId
-                    context.SpyTickerId
-
-                return (true, "Database initialized", None)
+                    return (true, "Database initialized", None)
             with ex ->
                 let error = sprintf "❌ Init failed: %s" ex.Message
                 CoreLogger.logError "ReactiveTestActions" error
                 return (false, "Init failed", Some error)
-        }
-
-    /// <summary>
-    /// Load data (brokers, currencies, etc.)
-    /// </summary>
-    member _.loadData() : Async<bool * string * string option> =
-        async {
-            try
-                CoreLogger.logInfo "ReactiveTestActions" "Loading data..."
-                do! Overview.LoadData() |> Async.AwaitTask
-                CoreLogger.logInfo "ReactiveTestActions" "✅ Data loaded"
-                return (true, "Data loaded", None)
-            with ex ->
-                let error = sprintf "❌ Load failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
-                return (false, "Load failed", Some error)
         }
 
     /// <summary>
@@ -303,15 +301,17 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let actual = Collections.Accounts.Count
             let success = actual = expected
 
-            let message =
+            let logMessage =
                 sprintf "%s Account count: expected=%d, actual=%d" (if success then "✅" else "❌") expected actual
 
-            if success then
-                CoreLogger.logInfo "ReactiveTestActions" message
-            else
-                CoreLogger.logError "ReactiveTestActions" message
+            let cleanMessage = sprintf "Account count: expected=%d, actual=%d" expected actual
 
-            return (success, message, if success then None else Some "Count mismatch")
+            if success then
+                CoreLogger.logInfo "ReactiveTestActions" logMessage
+            else
+                CoreLogger.logError "ReactiveTestActions" logMessage
+
+            return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
 
     /// <summary>
@@ -322,15 +322,17 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let actual = Collections.Movements.Count
             let success = actual = expected
 
-            let message =
+            let logMessage =
                 sprintf "%s Movement count: expected=%d, actual=%d" (if success then "✅" else "❌") expected actual
 
-            if success then
-                CoreLogger.logInfo "ReactiveTestActions" message
-            else
-                CoreLogger.logError "ReactiveTestActions" message
+            let cleanMessage = sprintf "Movement count: expected=%d, actual=%d" expected actual
 
-            return (success, message, if success then None else Some "Count mismatch")
+            if success then
+                CoreLogger.logInfo "ReactiveTestActions" logMessage
+            else
+                CoreLogger.logError "ReactiveTestActions" logMessage
+
+            return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
 
     /// <summary>
@@ -341,15 +343,17 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let actual = Collections.Tickers.Count
             let success = actual = expected
 
-            let message =
+            let logMessage =
                 sprintf "%s Ticker count: expected=%d, actual=%d" (if success then "✅" else "❌") expected actual
 
-            if success then
-                CoreLogger.logInfo "ReactiveTestActions" message
-            else
-                CoreLogger.logError "ReactiveTestActions" message
+            let cleanMessage = sprintf "Ticker count: expected=%d, actual=%d" expected actual
 
-            return (success, message, if success then None else Some "Count mismatch")
+            if success then
+                CoreLogger.logInfo "ReactiveTestActions" logMessage
+            else
+                CoreLogger.logError "ReactiveTestActions" logMessage
+
+            return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
 
     /// <summary>
@@ -360,15 +364,17 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let actual = Collections.Snapshots.Count
             let success = actual >= expected // Use >= for minimum count validation
 
-            let message =
+            let logMessage =
                 sprintf "%s Snapshot count: expected>=%d, actual=%d" (if success then "✅" else "❌") expected actual
 
-            if success then
-                CoreLogger.logInfo "ReactiveTestActions" message
-            else
-                CoreLogger.logError "ReactiveTestActions" message
+            let cleanMessage = sprintf "Snapshot count: expected>=%d, actual=%d" expected actual
 
-            return (success, message, if success then None else Some "Count too low")
+            if success then
+                CoreLogger.logInfo "ReactiveTestActions" logMessage
+            else
+                CoreLogger.logError "ReactiveTestActions" logMessage
+
+            return (success, cleanMessage, if success then None else Some "Count too low")
         }
 
     /// <summary>
@@ -379,15 +385,17 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let actual = Collections.Brokers.Count
             let success = actual = expected
 
-            let message =
+            let logMessage =
                 sprintf "%s Broker count: expected=%d, actual=%d" (if success then "✅" else "❌") expected actual
 
-            if success then
-                CoreLogger.logInfo "ReactiveTestActions" message
-            else
-                CoreLogger.logError "ReactiveTestActions" message
+            let cleanMessage = sprintf "Broker count: expected=%d, actual=%d" expected actual
 
-            return (success, message, if success then None else Some "Count mismatch")
+            if success then
+                CoreLogger.logInfo "ReactiveTestActions" logMessage
+            else
+                CoreLogger.logError "ReactiveTestActions" logMessage
+
+            return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
 
     /// <summary>
@@ -398,15 +406,17 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let actual = Collections.Currencies.Count
             let success = actual = expected
 
-            let message =
+            let logMessage =
                 sprintf "%s Currency count: expected=%d, actual=%d" (if success then "✅" else "❌") expected actual
 
-            if success then
-                CoreLogger.logInfo "ReactiveTestActions" message
-            else
-                CoreLogger.logError "ReactiveTestActions" message
+            let cleanMessage = sprintf "Currency count: expected=%d, actual=%d" expected actual
 
-            return (success, message, if success then None else Some "Count mismatch")
+            if success then
+                CoreLogger.logInfo "ReactiveTestActions" logMessage
+            else
+                CoreLogger.logError "ReactiveTestActions" logMessage
+
+            return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
 
     /// <summary>
