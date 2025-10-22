@@ -4,11 +4,11 @@ open System
 open Binnaculum.Core.Providers
 
 /// <summary>
-/// Reactive test environment detection and configuration.
+/// Test environment detection and configuration.
 /// Provides utilities to detect CI/headless environments and configure
 /// appropriate test execution strategies.
 /// </summary>
-module ReactiveTestEnvironment =
+module TestEnvironment =
 
     /// <summary>
     /// Detects if running in GitHub Actions CI environment
@@ -39,7 +39,7 @@ module ReactiveTestEnvironment =
     let requiresFileSystem (test: unit -> Async<unit>) : Async<unit> =
         async {
             if isHeadlessCI then
-                printfn "[ReactiveTestEnvironment] Skipping file system test in headless CI"
+                printfn "[TestEnvironment] Skipping file system test in headless CI"
                 return ()
             else
                 do! test ()
@@ -53,14 +53,14 @@ module ReactiveTestEnvironment =
     let initializeDatabase () : Async<unit> =
         async {
             if isHeadlessCI then
-                printfn "[ReactiveTestEnvironment] Using WorkOnMemory for headless CI"
+                printfn "[TestEnvironment] Using WorkOnMemory for headless CI"
                 Binnaculum.Core.UI.Overview.WorkOnMemory()
             else
-                printfn "[ReactiveTestEnvironment] Using standard database initialization"
+                printfn "[TestEnvironment] Using standard database initialization"
                 Binnaculum.Core.UI.Overview.WorkOnMemory()
 
             // Set AppDataDirectoryProvider to InMemory mode to avoid platform-specific file system issues
-            printfn "[ReactiveTestEnvironment] Setting AppDataDirectoryProvider to InMemory mode"
+            printfn "[TestEnvironment] Setting AppDataDirectoryProvider to InMemory mode"
             AppDataDirectoryProvider.setMode AppDataDirectoryMode.InMemory
 
             return ()

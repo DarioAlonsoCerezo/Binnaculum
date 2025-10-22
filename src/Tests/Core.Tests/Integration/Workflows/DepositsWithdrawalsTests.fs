@@ -13,14 +13,14 @@ open Binnaculum.Core.UI
 /// This test replicates the exact workflow of the MAUI Tester's
 /// "RunDepositsWithdrawalsIntegrationTestButton" test.
 ///
-/// Inherits from ReactiveTestFixtureBase - no setup/teardown boilerplate needed.
+/// Inherits from TestFixtureBase - no setup/teardown boilerplate needed.
 ///
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
 [<TestFixture>]
-type ReactiveDepositsWithdrawalsTests() =
-    inherit ReactiveTestFixtureBase()
+type DepositsWithdrawalsTests() =
+    inherit TestFixtureBase()
 
     /// <summary>
     /// Helper method to get path to embedded CSV test data
@@ -71,7 +71,7 @@ type ReactiveDepositsWithdrawalsTests() =
             let actions = this.Actions
 
             // ==================== PHASE 1: SETUP ====================
-            ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
+            TestSetup.printPhaseHeader 1 "Database Initialization"
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
@@ -84,10 +84,10 @@ type ReactiveDepositsWithdrawalsTests() =
             printfn "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
-            ReactiveTestSetup.printPhaseHeader 2 "Create BrokerAccount for Import"
+            TestSetup.printPhaseHeader 2 "Create BrokerAccount for Import"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Accounts_Updated // Account added to Collections.Accounts
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
@@ -101,12 +101,12 @@ type ReactiveDepositsWithdrawalsTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for account creation reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
             printfn "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: IMPORT DEPOSITS/WITHDRAWALS CSV ====================
-            ReactiveTestSetup.printPhaseHeader 3 "Import Deposits/Withdrawals CSV File"
+            TestSetup.printPhaseHeader 3 "Import Deposits/Withdrawals CSV File"
 
             // Get CSV path
             let csvPath = this.getCsvPath ("TastytradeDeposits.csv")
@@ -114,7 +114,7 @@ type ReactiveDepositsWithdrawalsTests() =
             Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Movements_Updated // Money movements (deposits/withdrawals) added
                   Snapshots_Updated ] // Snapshots recalculated
             )
@@ -132,12 +132,12 @@ type ReactiveDepositsWithdrawalsTests() =
 
             // WAIT: Wait for import signals (longer timeout for import processing)
             printfn "⏳ Waiting for import reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
             Assert.That(signalsReceived, Is.True, "Import signals should have been received")
             printfn "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY DATA COUNTS ====================
-            ReactiveTestSetup.printPhaseHeader 4 "Verify Imported Data Counts"
+            TestSetup.printPhaseHeader 4 "Verify Imported Data Counts"
 
             // Verify movement count (19 deposits + 1 withdrawal = 20)
             let! (verified, movementCount, error) = actions.verifyMovementCount (20)
@@ -164,7 +164,7 @@ type ReactiveDepositsWithdrawalsTests() =
                 snapshotCount
 
             // ==================== PHASE 5: VERIFY FINANCIAL CALCULATIONS ====================
-            ReactiveTestSetup.printPhaseHeader 5 "Verify Financial Calculations"
+            TestSetup.printPhaseHeader 5 "Verify Financial Calculations"
 
             // Verify deposited amount ($19,388.40 total from 19 deposits)
             let! (verified, deposited, error) = actions.verifyDeposited (19388.40m)
@@ -194,7 +194,7 @@ type ReactiveDepositsWithdrawalsTests() =
             printfn "✅ MovementCounter verified: 20"
 
             // ==================== PHASE 6: VERIFY BROKERACCOUNTS.GETSNAPSHOTS ====================
-            ReactiveTestSetup.printPhaseHeader 6 "Verify BrokerAccounts.GetSnapshots"
+            TestSetup.printPhaseHeader 6 "Verify BrokerAccounts.GetSnapshots"
 
             // Verify BrokerAccounts.GetSnapshots returns exactly 21 snapshots
             let! (verified, retrievedCount, error) = actions.verifyBrokerAccountSnapshots (accountId, 21)
@@ -208,7 +208,7 @@ type ReactiveDepositsWithdrawalsTests() =
             printfn "✅ BrokerAccounts.GetSnapshots verified: 21 snapshots retrieved"
 
             // ==================== SUMMARY ====================
-            ReactiveTestSetup.printTestCompletionSummary
+            TestSetup.printTestCompletionSummary
                 "Money Movements Import from CSV"
                 "Successfully created BrokerAccount, imported deposits/withdrawals CSV, received all signals, verified financial data and snapshot counts"
 

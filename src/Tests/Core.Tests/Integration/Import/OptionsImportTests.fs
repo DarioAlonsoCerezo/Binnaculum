@@ -7,20 +7,20 @@ open Binnaculum.Core.Models
 open Binnaculum.Core.UI
 
 /// <summary>
-/// Pfizer (PFE) options import signal-based reactive integration tests.
-/// Validates complex FIFO pair matching with realistic options trading data.
+/// Options import signal-based reactive integration tests.
+/// Validates CSV import workflows with realistic Tastytrade options trading data.
 ///
 /// This test replicates the exact workflow of the MAUI Tester's
-/// "RunPfizerImportIntegrationTestButton" test.
+/// "RunOptionsImportIntegrationSignalBasedTestButton" test.
 ///
-/// Inherits from ReactiveTestFixtureBase - no setup/teardown boilerplate needed.
+/// Inherits from TestFixtureBase - no setup/teardown boilerplate needed.
 ///
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
 [<TestFixture>]
-type ReactivePfizerImportTests() =
-    inherit ReactiveTestFixtureBase()
+type OptionsImportTests() =
+    inherit TestFixtureBase()
 
     /// <summary>
     /// Helper method to get path to embedded CSV test data
@@ -35,44 +35,41 @@ type ReactivePfizerImportTests() =
         testDataPath
 
     /// <summary>
-    /// Test: Pfizer options import CSV workflow with FIFO matching
-    /// Mirrors Core.Platform.MauiTester's "RunPfizerImportIntegrationTestButton" test.
+    /// Test: Options import from CSV updates collections
+    /// Mirrors Core.Platform.MauiTester's "RunOptionsImportIntegrationSignalBasedTestButton" test.
     ///
     /// This test validates:
     /// 1. Database initialization completes successfully
     /// 2. BrokerAccount creation triggers Accounts_Updated and Snapshots_Updated signals
     /// 3. CSV import triggers Movements_Updated, Tickers_Updated, and Snapshots_Updated signals
-    /// 4. 4 option movements are imported (2 SELL, 2 BUY - forming 2 complete round-trips)
-    /// 5. 2 tickers are present (PFE + SPY default)
-    /// 6. Financial calculations are correct with FIFO pair matching
-    /// 7. PFE ticker has 4 snapshots (3 from trades + 1 today)
+    /// 4. 16 movements are imported (12 option trades + 4 money movements)
+    /// 5. 4 tickers are present (SOFI, PLTR, MPW + SPY)
+    /// 6. Financial calculations are correct (options income, realized/unrealized gains)
     ///
     /// The test uses signal-based verification instead of timing-based assertions,
     /// making it robust and portable across platforms.
     ///
-    /// CSV Data: PfizerImportTest.csv
-    /// - 4 option trades (2 complete round-trip pairs):
-    ///   * PFE 20.00 CALL 01/16/26: BUY_TO_OPEN -> SELL_TO_CLOSE (+$189.76 profit)
-    ///   * PFE 27.00 CALL 10/10/25: SELL_TO_OPEN -> BUY_TO_CLOSE (-$14.24 loss)
+    /// CSV Data: TastytradeOptionsTest.csv
+    /// - 12 option trades (various open/close positions)
+    /// - 4 money movements (3 deposits + 1 balance adjustment)
     ///
     /// Expected Results:
-    /// - 4 total movements (2 BUY, 2 SELL)
-    /// - 2 tickers (PFE + SPY default)
-    /// - Options income: $175.52 (sum of all option trade premiums)
-    /// - Realized gains: $175.52 (FIFO matching: -$14.24 + $189.76)
-    /// - Unrealized gains: $0.00 (all positions closed)
-    /// - PFE snapshots: 4 (2025-08-25, 2025-10-01, 2025-10-03, + today)
+    /// - 16 total movements
+    /// - 4 tickers (SOFI, PLTR, MPW + SPY default)
+    /// - Options income: $54.37 (sum of all option trade premiums)
+    /// - Realized gains: -$28.67 (sum of closed position premiums)
+    /// - Unrealized gains: $83.04 (sum of open position premiums)
     /// </summary>
     [<Test>]
     [<Category("Integration")>]
-    member this.``Pfizer options import CSV workflow with FIFO matching``() =
+    member this.``Options import from CSV updates collections``() =
         async {
-            printfn "\n=== TEST: Pfizer Options Import CSV Workflow with FIFO Matching ==="
+            printfn "\n=== TEST: Options Import from CSV Updates Collections ==="
 
             let actions = this.Actions
 
             // ==================== PHASE 1: SETUP ====================
-            ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
+            TestSetup.printPhaseHeader 1 "Database Initialization"
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
@@ -85,10 +82,10 @@ type ReactivePfizerImportTests() =
             printfn "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
-            ReactiveTestSetup.printPhaseHeader 2 "Create BrokerAccount for Pfizer Import"
+            TestSetup.printPhaseHeader 2 "Create BrokerAccount for Import"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Accounts_Updated // Account added to Collections.Accounts
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
@@ -96,28 +93,28 @@ type ReactivePfizerImportTests() =
             printfn "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
-            let! (ok, details, error) = actions.createBrokerAccount ("Pfizer-Import-Test")
+            let! (ok, details, error) = actions.createBrokerAccount ("Options-Import-Test")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
             printfn "✅ BrokerAccount created: %s" details
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for account creation reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
             printfn "✅ Account creation signals received successfully"
 
-            // ==================== PHASE 3: IMPORT PFIZER OPTIONS CSV ====================
-            ReactiveTestSetup.printPhaseHeader 3 "Import Pfizer Options CSV File"
+            // ==================== PHASE 3: IMPORT OPTIONS CSV ====================
+            TestSetup.printPhaseHeader 3 "Import Options CSV File"
 
             // Get CSV path
-            let csvPath = this.getCsvPath ("PfizerImportTest.csv")
+            let csvPath = this.getCsvPath ("TastytradeOptionsTest.csv")
             printfn "📄 CSV file path: %s" csvPath
             Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
-            ReactiveStreamObserver.expectSignals (
-                [ Movements_Updated // Option trades added
-                  Tickers_Updated // PFE ticker added
+            StreamObserver.expectSignals (
+                [ Movements_Updated // Option trades and money movements added
+                  Tickers_Updated // New tickers (SOFI, PLTR, MPW) added
                   Snapshots_Updated ] // Snapshots recalculated
             )
 
@@ -134,15 +131,15 @@ type ReactivePfizerImportTests() =
 
             // WAIT: Wait for import signals (longer timeout for import processing)
             printfn "⏳ Waiting for import reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
             Assert.That(signalsReceived, Is.True, "Import signals should have been received")
             printfn "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY DATA COUNTS ====================
-            ReactiveTestSetup.printPhaseHeader 4 "Verify Imported Data Counts"
+            TestSetup.printPhaseHeader 4 "Verify Imported Data Counts"
 
-            // Verify movement count (4 option trades)
-            let! (verified, movementCount, error) = actions.verifyMovementCount (4)
+            // Verify movement count (12 option trades + 4 money movements = 16)
+            let! (verified, movementCount, error) = actions.verifyMovementCount (16)
 
             Assert.That(
                 verified,
@@ -150,10 +147,10 @@ type ReactivePfizerImportTests() =
                 sprintf "Movement count verification should succeed: %s - %A" movementCount error
             )
 
-            printfn "✅ Movement count verified: 4 option trades"
+            printfn "✅ Movement count verified: 16 movements (12 option trades + 4 money movements)"
 
-            // Verify ticker count (PFE + SPY default = 2)
-            let! (verified, tickerCount, error) = actions.verifyTickerCount (2)
+            // Verify ticker count (SOFI, PLTR, MPW + SPY default = 4)
+            let! (verified, tickerCount, error) = actions.verifyTickerCount (4)
 
             Assert.That(
                 verified,
@@ -161,7 +158,7 @@ type ReactivePfizerImportTests() =
                 sprintf "Ticker count verification should succeed: %s - %A" tickerCount error
             )
 
-            printfn "✅ Ticker count verified: 2 tickers (PFE + SPY)"
+            printfn "✅ Ticker count verified: 4 tickers (SOFI, PLTR, MPW + SPY)"
 
             // Verify snapshots were calculated
             let! (verified, snapshotCount, error) = actions.verifySnapshotCount (1)
@@ -175,30 +172,23 @@ type ReactivePfizerImportTests() =
             printfn "✅ Snapshot count verified: >= 1 (%s)" snapshotCount
 
             // ==================== PHASE 5: VERIFY FINANCIAL CALCULATIONS ====================
-            ReactiveTestSetup.printPhaseHeader 5 "Verify Financial Calculations with FIFO Matching"
+            TestSetup.printPhaseHeader 5 "Verify Financial Calculations"
 
             // Verify options income calculation
             // Total options income from all option trades (sum of NetPremium)
-            // Round-trip 1: +$49.88 - $64.12 = -$14.24
-            // Round-trip 2: -$555.12 + $744.88 = +$189.76
-            // Total: -$14.24 + $189.76 = $175.52
-            let! (verified, income, error) = actions.verifyOptionsIncome (175.52m)
+            let! (verified, income, error) = actions.verifyOptionsIncome (54.37m)
             Assert.That(verified, Is.True, sprintf "Options income verification should succeed: %s - %A" income error)
-            printfn "✅ Options income verified: $175.52"
+            printfn "✅ Options income verified: $54.37"
 
             // Verify realized gains calculation
-            // Sum of close movements: SELL_TO_CLOSE ($744.88) + BUY_TO_CLOSE (-$64.12) = $680.76
-            // Note: This is the current implementation's calculation (sum of close premiums)
-            // not the true FIFO matched realized gains ($175.52 from the issue)
-            let! (verified, realized, error) = actions.verifyRealizedGains (680.76m)
+            // Realized gains from closed option positions (sum of close trades NetPremium)
+            let! (verified, realized, error) = actions.verifyRealizedGains (-28.67m)
             Assert.That(verified, Is.True, sprintf "Realized gains verification should succeed: %s - %A" realized error)
-            printfn "✅ Realized gains verified: $680.76 (sum of close premiums)"
+            printfn "✅ Realized gains verified: -$28.67"
 
             // Verify unrealized gains calculation
-            // Sum of open movements: BUY_TO_OPEN (-$555.12) + SELL_TO_OPEN ($49.88) = -$505.24
-            // Note: This is the current implementation's calculation (sum of open premiums)
-            // The true value should be $0.00 since all positions are closed
-            let! (verified, unrealized, error) = actions.verifyUnrealizedGains (-505.24m)
+            // Unrealized gains from open option positions (sum of open trades NetPremium)
+            let! (verified, unrealized, error) = actions.verifyUnrealizedGains (83.04m)
 
             Assert.That(
                 verified,
@@ -206,30 +196,12 @@ type ReactivePfizerImportTests() =
                 sprintf "Unrealized gains verification should succeed: %s - %A" unrealized error
             )
 
-            printfn "✅ Unrealized gains verified: -$505.24 (sum of open premiums)"
-
-            // ==================== PHASE 6: VERIFY TICKER SNAPSHOTS ====================
-            ReactiveTestSetup.printPhaseHeader 6 "Verify PFE Ticker Snapshots"
-
-            // Verify PFE ticker snapshots (4 snapshots: 3 from trade dates + 1 today)
-            // - 2025-08-25: BUY_TO_OPEN
-            // - 2025-10-01: SELL_TO_OPEN
-            // - 2025-10-03: BUY_TO_CLOSE and SELL_TO_CLOSE
-            // - Today: Current snapshot
-            let! (verified, snapshotCount, error) = actions.verifyPfizerSnapshots (4)
-
-            Assert.That(
-                verified,
-                Is.True,
-                sprintf "PFE snapshots verification should succeed: %s - %A" snapshotCount error
-            )
-
-            printfn "✅ PFE ticker snapshots verified: 4 snapshots (3 trade dates + today)"
+            printfn "✅ Unrealized gains verified: $83.04"
 
             // ==================== SUMMARY ====================
-            ReactiveTestSetup.printTestCompletionSummary
-                "Pfizer Options Import with FIFO Matching"
-                "Successfully created BrokerAccount, imported Pfizer options CSV, received all signals, verified FIFO matching ($175.52), and validated PFE ticker snapshots"
+            TestSetup.printTestCompletionSummary
+                "Options Import from CSV"
+                "Successfully created BrokerAccount, imported options CSV, received all signals, and verified data counts in Collections"
 
             printfn "=== TEST COMPLETED SUCCESSFULLY ==="
         }

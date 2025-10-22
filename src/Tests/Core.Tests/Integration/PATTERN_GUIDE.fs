@@ -1,16 +1,16 @@
 /// <summary>
-/// REACTIVE INTEGRATION TEST PATTERN - Implementation Guide
-/// ========================================================
+/// INTEGRATION TEST PATTERN - Implementation Guide
+/// ================================================
 ///
-/// This document explains the reactive integration testing pattern used in Core.Tests.
+/// This document explains the integration testing pattern used in Core.Tests.
 /// It mirrors the Core.Platform.MauiTester approach and enables signal-based testing
 /// for headless environments.
 ///
 /// QUICK START FOR DEVELOPERS
 /// ==========================
 ///
-/// 1. Create a new test file: ReactiveBrokerAccountTests.fs
-/// 2. Inherit from ReactiveTestFixtureBase
+/// 1. Create a new test file: BrokerAccountTests.fs
+/// 2. Inherit from TestFixtureBase
 /// 3. Write test methods using the provided actions and verifications
 /// 4. Run with: dotnet test --filter "Category=Integration"
 ///
@@ -27,9 +27,9 @@
 ///
 ///     NEW (DO):
 ///     --------
-///     ReactiveStreamObserver.expectSignals([ Accounts_Updated ])
+///     StreamObserver.expectSignals([ Accounts_Updated ])
 ///     let! result = actions.createBrokerAccount("Test")
-///     let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync(...)
+///     let! signalsReceived = StreamObserver.waitForAllSignalsAsync(...)
 ///     Assert.That(signalsReceived, Is.True)  // ✅ Signal-based waiting
 ///
 /// WHY THIS MATTERS
@@ -47,15 +47,15 @@
 /// Integration Tests Directory Structure:
 ///
 ///     Integration/
-///     ├── ReactiveTestEnvironment.fs          (Environment detection)
-///     ├── ReactiveTestContext.fs              (Test state container)
-///     ├── ReactiveStreamObserver.fs           (Signal monitoring)
-///     ├── ReactiveTestActions.fs              (Test operations)
-///     ├── ReactiveTestVerifications.fs        (Assertion helpers)
-///     ├── ReactiveTestSetup.fs                (Setup/teardown utilities)
-///     ├── ReactiveTestFixtureBase.fs          (Base class for tests)
-///     ├── ReactiveOverviewTests.fs            (Example: Overview test)
-///     ├── ReactiveBrokerAccountTests.fs       (Example: BrokerAccount test)
+///     ├── TestEnvironment.fs          (Environment detection)
+///     ├── TestContext.fs              (Test state container)
+///     ├── StreamObserver.fs           (Signal monitoring)
+///     ├── TestActions.fs              (Test operations)
+///     ├── TestVerifications.fs        (Assertion helpers)
+///     ├── TestSetup.fs                (Setup/teardown utilities)
+///     ├── TestFixtureBase.fs          (Base class for tests)
+///     ├── OverviewTests.fs            (Example: Overview test)
+///     ├── BrokerAccountTests.fs       (Example: BrokerAccount test)
 ///     └── README.md                           (Full documentation)
 ///
 /// KEY CONCEPTS
@@ -74,9 +74,9 @@
 /// 2. SIGNAL WAITING
 ///    Instead of Thread.Sleep(), we wait for signals:
 ///
-///    ReactiveStreamObserver.expectSignals([ Accounts_Updated ])
+///    StreamObserver.expectSignals([ Accounts_Updated ])
 ///    let! (ok, _) = actions.createBrokerAccount("Test")
-///    let! received = ReactiveStreamObserver.waitForAllSignalsAsync(timeout)
+///    let! received = StreamObserver.waitForAllSignalsAsync(timeout)
 ///    Assert.That(received, Is.True)
 ///
 /// 3. INMEMORY MODE
@@ -88,14 +88,14 @@
 ///
 /// Step 1: Create Test Class
 /// -------------------------
-/// Inherit from ReactiveTestFixtureBase - it provides:
+/// Inherit from TestFixtureBase - it provides:
 /// - this.Actions: Access to test operations
 /// - this.Context: Access to test context
 /// - Automatic Setup/Teardown with signal observation
 ///
 ///     [<TestFixture>]
-///     type MyReactiveTests() =
-///         inherit ReactiveTestFixtureBase()
+///     type MyTests() =
+///         inherit TestFixtureBase()
 ///
 /// Step 2: Write Test Method
 /// -------------------------
@@ -112,14 +112,14 @@
 ///             Assert.That(ok, Is.True)
 ///
 ///             // EXPECT: Declare signals before operation
-///             ReactiveStreamObserver.expectSignals([ Accounts_Updated ])
+///             StreamObserver.expectSignals([ Accounts_Updated ])
 ///
 ///             // EXECUTE: Perform operation
 ///             let! (ok, details) = actions.createBrokerAccount("Test")
 ///             Assert.That(ok, Is.True)
 ///
 ///             // WAIT: Wait for signals (not arbitrary delays!)
-///             let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync(
+///             let! signalsReceived = StreamObserver.waitForAllSignalsAsync(
 ///                 TimeSpan.FromSeconds(10.0)
 ///             )
 ///             Assert.That(signalsReceived, Is.True)
@@ -131,7 +131,7 @@
 ///
 /// Step 3: Use Available Actions
 /// ----------------------------
-/// ReactiveTestActions provides common operations:
+/// TestActions provides common operations:
 ///
 ///     - initDatabase() : Async<bool * string * string option>
 ///       Initializes database, loads brokers/currencies/tickers
@@ -146,7 +146,7 @@
 ///
 /// Step 4: Use Available Verifications
 /// -----------------------------------
-/// ReactiveTestVerifications provides assertion helpers:
+/// TestVerifications provides assertion helpers:
 ///
 ///     - verifyBrokers(minCount)
 ///     - verifyCurrencies(minCount)
@@ -157,7 +157,7 @@
 ///     - verifyFullDatabaseState()   // Run all verifications
 ///
 /// Usage:
-///     let verifications = ReactiveTestVerifications.verifyFullDatabaseState()
+///     let verifications = TestVerifications.verifyFullDatabaseState()
 ///     for (success, message) in verifications do
 ///         Assert.That(success, Is.True, message)
 ///
@@ -203,8 +203,8 @@
 /// Here's a complete example for issue #388:
 ///
 ///     [<TestFixture>]
-///     type ReactiveBrokerAccountTests() =
-///         inherit ReactiveTestFixtureBase()
+///     type BrokerAccountTests() =
+///         inherit TestFixtureBase()
 ///
 ///         [<Test>]
 ///         [<Category("Integration")>]
@@ -217,7 +217,7 @@
 ///                 Assert.That(ok, Is.True, "Database init should succeed")
 ///
 ///                 // Expect signals
-///                 ReactiveStreamObserver.expectSignals([
+///                 StreamObserver.expectSignals([
 ///                     Accounts_Updated
 ///                     Snapshots_Updated
 ///                 ])
@@ -228,7 +228,7 @@
 ///
 ///                 // Wait for signals
 ///                 let! signalsReceived =
-///                     ReactiveStreamObserver.waitForAllSignalsAsync(TimeSpan.FromSeconds(10.0))
+///                     StreamObserver.waitForAllSignalsAsync(TimeSpan.FromSeconds(10.0))
 ///                 Assert.That(signalsReceived, Is.True, "Should receive both signals")
 ///
 ///                 // Verify account count
@@ -242,9 +242,9 @@
 /// To add a new reactive test following this pattern:
 ///
 /// 1. Create: ReactiveBrokerAccountDepositTests.fs
-/// 2. Inherit: from ReactiveTestFixtureBase
-/// 3. Add method to ReactiveTestActions for your operation
-/// 4. Add verification method to ReactiveTestActions
+/// 2. Inherit: from TestFixtureBase
+/// 3. Add method to TestActions for your operation
+/// 4. Add verification method to TestActions
 /// 5. Write test using Setup/Expect/Execute/Wait/Verify pattern
 /// 6. Add signals expected in your scenario
 /// 7. Run: dotnet test --filter "Category=Integration"
@@ -254,28 +254,28 @@
 ///
 /// Pattern 1: Verify Signal Received
 /// ----------------------------------
-///     ReactiveStreamObserver.expectSignals([ Accounts_Updated ])
+///     StreamObserver.expectSignals([ Accounts_Updated ])
 ///     let! (ok, _) = actions.createBrokerAccount("Test")
-///     let! received = ReactiveStreamObserver.waitForAllSignalsAsync(timeout)
+///     let! received = StreamObserver.waitForAllSignalsAsync(timeout)
 ///     Assert.That(received, Is.True, "Signal should be received")
 ///
 /// Pattern 2: Verify Collection Updated
 /// ------------------------------------
-///     let (success, count, _) = ReactiveTestVerifications.verifyAccounts(1)
+///     let (success, count, _) = TestVerifications.verifyAccounts(1)
 ///     Assert.That(success, Is.True, count)
 ///
 /// Pattern 3: Run All Verifications
 /// --------------------------------
-///     let verifications = ReactiveTestVerifications.verifyFullDatabaseState()
+///     let verifications = TestVerifications.verifyFullDatabaseState()
 ///     for (success, message) in verifications do
 ///         Assert.That(success, Is.True, message)
 ///         printfn "✅ %s" message
 ///
 /// Pattern 4: Print Phase Headers
 /// -------------------------------
-///     ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
+///     TestSetup.printPhaseHeader 1 "Database Initialization"
 ///     let! result = actions.initDatabase()
-///     ReactiveTestSetup.printPhaseHeader 2 "Account Creation"
+///     TestSetup.printPhaseHeader 2 "Account Creation"
 ///     // ...
 ///
 /// TROUBLESHOOTING
@@ -284,7 +284,7 @@
 /// Q: My test times out waiting for signals
 /// A: Check that your action actually triggers the expected signal
 ///    - Verify the operation modifies Collections correctly
-///    - Check ReactiveStreamObserver is started (inherited in base class)
+///    - Check StreamObserver is started (inherited in base class)
 ///    - Ensure you're expecting the right signals
 ///
 /// Q: Test passes locally but fails in CI
@@ -294,8 +294,8 @@
 ///    - Review signal timing in different CI environment
 ///
 /// Q: How do I debug signal flow?
-/// A: ReactiveStreamObserver logs signal reception:
-///    - Watch output for "[ReactiveStreamObserver] Signal received"
+/// A: StreamObserver logs signal reception:
+///    - Watch output for "[StreamObserver] Signal received"
 ///    - Check expected vs received signals in test output
 ///
 /// PERFORMANCE
@@ -310,10 +310,10 @@
 /// =========
 ///
 /// ✅ DO:
-///    - Inherit from ReactiveTestFixtureBase
+///    - Inherit from TestFixtureBase
 ///    - Use signal-based waiting
 ///    - Follow Setup/Expect/Execute/Wait/Verify pattern
-///    - Add methods to ReactiveTestActions for new operations
+///    - Add methods to TestActions for new operations
 ///    - Test in headless mode (no platform deps)
 ///    - Run tests in CI
 ///
@@ -331,7 +331,7 @@
 ///     dotnet test src/Tests/Core.Tests/Core.Tests.fsproj --filter "Category=Integration"
 ///
 /// Run specific test:
-///     dotnet test src/Tests/Core.Tests/Core.Tests.fsproj --filter "Name~ReactiveOverviewTests"
+///     dotnet test src/Tests/Core.Tests/Core.Tests.fsproj --filter "Name~OverviewTests"
 ///
 /// Run with verbose output:
 ///     dotnet test src/Tests/Core.Tests/Core.Tests.fsproj -v normal
@@ -340,7 +340,7 @@
 /// ==========
 ///
 /// - Core.Platform.MauiTester: Reference implementation in C#
-/// - Issue #386: Infrastructure foundation (ReactiveTestSetup, etc.)
+/// - Issue #386: Infrastructure foundation (TestSetup, etc.)
 /// - Issue #388: BrokerAccount test example
 /// - This file: Implementation guide
 ///
@@ -349,7 +349,7 @@
 ///
 /// For questions on this pattern:
 /// 1. Check README.md in this directory
-/// 2. Review ReactiveOverviewTests.fs for example
+/// 2. Review OverviewTests.fs for example
 /// 3. Check issue #386 for infrastructure details
 /// 4. Review Core.Platform.MauiTester for MAUI test patterns
 ///

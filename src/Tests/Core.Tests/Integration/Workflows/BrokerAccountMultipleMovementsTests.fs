@@ -19,14 +19,14 @@ open Binnaculum.Core.UI
 /// - Scales linearly with number of operations
 /// - Deterministic and reliable across platforms
 ///
-/// Inherits from ReactiveTestFixtureBase - no setup/teardown boilerplate needed.
+/// Inherits from TestFixtureBase - no setup/teardown boilerplate needed.
 ///
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
 [<TestFixture>]
-type ReactiveBrokerAccountMultipleMovementsTests() =
-    inherit ReactiveTestFixtureBase()
+type BrokerAccountMultipleMovementsTests() =
+    inherit TestFixtureBase()
 
     /// <summary>
     /// Test: BrokerAccount with multiple movements updates collections
@@ -69,7 +69,7 @@ type ReactiveBrokerAccountMultipleMovementsTests() =
             let actions = this.Actions
 
             // ==================== PHASE 1: SETUP ====================
-            ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
+            TestSetup.printPhaseHeader 1 "Database Initialization"
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
@@ -82,10 +82,10 @@ type ReactiveBrokerAccountMultipleMovementsTests() =
             printfn "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
-            ReactiveTestSetup.printPhaseHeader 2 "Create BrokerAccount"
+            TestSetup.printPhaseHeader 2 "Create BrokerAccount"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Accounts_Updated // Account added to Collections.Accounts
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
@@ -99,15 +99,15 @@ type ReactiveBrokerAccountMultipleMovementsTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for account creation reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
             printfn "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: MOVEMENT #1 (DEPOSIT $1200, -60 DAYS) ====================
-            ReactiveTestSetup.printPhaseHeader 3 "Create Movement #1: Deposit $1200 (-60 days)"
+            TestSetup.printPhaseHeader 3 "Create Movement #1: Deposit $1200 (-60 days)"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Movements_Updated // Movement added to Collections.Movements
                   Snapshots_Updated ] // Snapshot recalculated with deposit
             )
@@ -123,15 +123,15 @@ type ReactiveBrokerAccountMultipleMovementsTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for movement #1 reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Movement #1 signals should have been received")
             printfn "✅ Movement #1 signals received successfully"
 
             // ==================== PHASE 4: MOVEMENT #2 (WITHDRAWAL $300, -55 DAYS) ====================
-            ReactiveTestSetup.printPhaseHeader 4 "Create Movement #2: Withdrawal $300 (-55 days)"
+            TestSetup.printPhaseHeader 4 "Create Movement #2: Withdrawal $300 (-55 days)"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Movements_Updated // Movement added to Collections.Movements
                   Snapshots_Updated ] // Snapshot recalculated with withdrawal
             )
@@ -147,15 +147,15 @@ type ReactiveBrokerAccountMultipleMovementsTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for movement #2 reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Movement #2 signals should have been received")
             printfn "✅ Movement #2 signals received successfully"
 
             // ==================== PHASE 5: MOVEMENT #3 (WITHDRAWAL $300, -50 DAYS) ====================
-            ReactiveTestSetup.printPhaseHeader 5 "Create Movement #3: Withdrawal $300 (-50 days)"
+            TestSetup.printPhaseHeader 5 "Create Movement #3: Withdrawal $300 (-50 days)"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Movements_Updated // Movement added to Collections.Movements
                   Snapshots_Updated ] // Snapshot recalculated with withdrawal
             )
@@ -171,15 +171,15 @@ type ReactiveBrokerAccountMultipleMovementsTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for movement #3 reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Movement #3 signals should have been received")
             printfn "✅ Movement #3 signals received successfully"
 
             // ==================== PHASE 6: MOVEMENT #4 (DEPOSIT $600, -10 DAYS) ====================
-            ReactiveTestSetup.printPhaseHeader 6 "Create Movement #4: Deposit $600 (-10 days)"
+            TestSetup.printPhaseHeader 6 "Create Movement #4: Deposit $600 (-10 days)"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Movements_Updated // Movement added to Collections.Movements
                   Snapshots_Updated ] // Snapshot recalculated with deposit
             )
@@ -195,12 +195,12 @@ type ReactiveBrokerAccountMultipleMovementsTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for movement #4 reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Movement #4 signals should have been received")
             printfn "✅ Movement #4 signals received successfully"
 
             // ==================== PHASE 7: VERIFY FINAL STATE ====================
-            ReactiveTestSetup.printPhaseHeader 7 "Verify Final State"
+            TestSetup.printPhaseHeader 7 "Verify Final State"
 
             // Verify account was created
             let! (verified, count, error) = actions.verifyAccountCount (1)
@@ -232,7 +232,7 @@ type ReactiveBrokerAccountMultipleMovementsTests() =
             printfn "✅ Snapshot count verified: >= 1 (%s)" count
 
             // ==================== SUMMARY ====================
-            ReactiveTestSetup.printTestCompletionSummary
+            TestSetup.printTestCompletionSummary
                 "BrokerAccount + Multiple Movements Creation"
                 "Successfully created BrokerAccount, added 4 movements (2 deposits + 2 withdrawals), received all signals, and verified state in Collections. Net cash flow: +$1200"
 

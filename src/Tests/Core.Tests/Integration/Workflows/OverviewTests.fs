@@ -11,14 +11,14 @@ open Binnaculum.Core.UI
 /// Mirrors Core.Platform.MauiTester's "Overview Reactive Validation" test.
 /// Demonstrates the Setup/Expect/Execute/Wait/Verify pattern.
 ///
-/// Inherits from ReactiveTestFixtureBase - no setup/teardown boilerplate needed.
+/// Inherits from TestFixtureBase - no setup/teardown boilerplate needed.
 ///
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
 [<TestFixture>]
-type ReactiveOverviewTests() =
-    inherit ReactiveTestFixtureBase()
+type OverviewTests() =
+    inherit TestFixtureBase()
 
     /// <summary>
     /// Test: Overview Reactive Validation
@@ -41,7 +41,7 @@ type ReactiveOverviewTests() =
             let actions = this.Actions
 
             // ==================== PHASE 1: DATABASE INITIALIZATION ====================
-            ReactiveTestSetup.printPhaseHeader 1 "Database Initialization and Data Loading"
+            TestSetup.printPhaseHeader 1 "Database Initialization and Data Loading"
 
             // Expect signals for database init and data loading
             let expectedSignals =
@@ -53,7 +53,7 @@ type ReactiveOverviewTests() =
 
             // Initialize database with signal verification
             let! signalsReceived =
-                ReactiveTestSetup.initializeDatabaseAndVerifySignals
+                TestSetup.initializeDatabaseAndVerifySignals
                     actions
                     expectedSignals
                     (TimeSpan.FromSeconds(10.0))
@@ -65,10 +65,10 @@ type ReactiveOverviewTests() =
             )
 
             // ==================== PHASE 2: VERIFY COLLECTIONS ====================
-            ReactiveTestSetup.printPhaseHeader 2 "Verify Collections"
+            TestSetup.printPhaseHeader 2 "Verify Collections"
 
             // Run all standard verifications using the verification module
-            let verifications = ReactiveTestVerifications.verifyFullDatabaseState ()
+            let verifications = TestVerifications.verifyFullDatabaseState ()
 
             // Assert all verifications passed
             for (success, message) in verifications do
@@ -76,30 +76,30 @@ type ReactiveOverviewTests() =
                 printfn "✅ %s" message
 
             // Additional detailed verifications
-            let (brokerSuccess, brokerMsg) = ReactiveTestVerifications.verifyBrokers 2
+            let (brokerSuccess, brokerMsg) = TestVerifications.verifyBrokers 2
             Assert.That(brokerSuccess, Is.True, brokerMsg)
 
-            let (currencySuccess, currencyMsg) = ReactiveTestVerifications.verifyCurrencies 2
+            let (currencySuccess, currencyMsg) = TestVerifications.verifyCurrencies 2
             Assert.That(currencySuccess, Is.True, currencyMsg)
 
-            let (tickerSuccess, tickerMsg) = ReactiveTestVerifications.verifyTickers 1
+            let (tickerSuccess, tickerMsg) = TestVerifications.verifyTickers 1
             Assert.That(tickerSuccess, Is.True, tickerMsg)
 
-            let (accountSuccess, accountMsg) = ReactiveTestVerifications.verifyAccounts 0
+            let (accountSuccess, accountMsg) = TestVerifications.verifyAccounts 0
             Assert.That(accountSuccess, Is.True, accountMsg)
 
-            let (snapshotSuccess, snapshotMsg) = ReactiveTestVerifications.verifySnapshots 0
+            let (snapshotSuccess, snapshotMsg) = TestVerifications.verifySnapshots 0
             Assert.That(snapshotSuccess, Is.True, snapshotMsg)
 
             // ==================== SUMMARY ====================
-            ReactiveTestSetup.printPhaseHeader 3 "Test Summary"
+            TestSetup.printPhaseHeader 3 "Test Summary"
 
             let (stateSuccess, stateSummary) =
-                ReactiveTestVerifications.verifyCollectionsState ()
+                TestVerifications.verifyCollectionsState ()
 
             printfn "%s" stateSummary
 
-            ReactiveTestSetup.printTestCompletionSummary
+            TestSetup.printTestCompletionSummary
                 "Overview Reactive Validation"
                 (sprintf "Verified all signals and collections: %s" stateSummary)
         }
