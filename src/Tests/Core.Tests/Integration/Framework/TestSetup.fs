@@ -2,6 +2,7 @@ namespace Core.Tests.Integration
 
 open System
 open Binnaculum.Core.UI
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// Reusable test environment setup and teardown utilities.
@@ -26,28 +27,28 @@ module TestSetup =
     /// </summary>
     let setupTestEnvironment () : Async<TestContext * TestActions> =
         async {
-            printfn "\n=== Test Setup ==="
+            CoreLogger.logInfo "[TestSetup]" "=== Test Setup ==="
 
             // Ensure we're in memory mode to avoid platform dependencies
             Overview.WorkOnMemory()
-            printfn "✅ Overview configured for InMemory mode"
+            CoreLogger.logInfo "[TestSetup]" "✅ Overview configured for InMemory mode"
 
             // Wipe all data
             try
                 do! Overview.WipeAllDataForTesting() |> Async.AwaitTask
-                printfn "✅ Data wiped successfully"
+                CoreLogger.logInfo "[TestSetup]" "✅ Data wiped successfully"
             with ex ->
-                printfn "⚠️  Wipe failed: %s (may be expected if DB not initialized)" ex.Message
+                CoreLogger.logWarning "[TestSetup]" (sprintf "⚠️  Wipe failed: %s (may be expected if DB not initialized)" ex.Message)
 
             // Start observing reactive streams
             StreamObserver.startObserving ()
-            printfn "✅ Reactive stream observation started"
+            CoreLogger.logInfo "[TestSetup]" "✅ Reactive stream observation started"
 
             // Create test context and actions
             let ctx = TestContext.create ()
             let actions = TestActions(ctx)
 
-            printfn "=== Setup Complete ===\n"
+            CoreLogger.logInfo "[TestSetup]" "=== Setup Complete ==="
 
             return (ctx, actions)
         }
@@ -59,10 +60,10 @@ module TestSetup =
     /// </summary>
     let teardownTestEnvironment () : Async<unit> =
         async {
-            printfn "\n=== Test Teardown ==="
+            CoreLogger.logInfo "[TestSetup]" "=== Test Teardown ==="
             StreamObserver.stopObserving ()
-            printfn "✅ Reactive stream observation stopped"
-            printfn "=== Teardown Complete ===\n"
+            CoreLogger.logInfo "[TestSetup]" "✅ Reactive stream observation stopped"
+            CoreLogger.logInfo "[TestSetup]" "=== Teardown Complete ==="
         }
 
     /// <summary>
@@ -81,23 +82,23 @@ module TestSetup =
             let signalNames =
                 expectedSignals |> List.map (fun s -> s.ToString()) |> String.concat ", "
 
-            printfn "Expecting signals: %s" signalNames
+            CoreLogger.logDebug "[TestSetup]" (sprintf "Expecting signals: %s" signalNames)
 
             // Initialize database
             let! (ok, _, error) = actions.initDatabase ()
 
             if not ok then
-                printfn "❌ Database initialization failed: %s" (error |> Option.defaultValue "Unknown error")
+                CoreLogger.logError "[TestSetup]" (sprintf "❌ Database initialization failed: %s" (error |> Option.defaultValue "Unknown error"))
             else
-                printfn "✅ Database initialized"
+                CoreLogger.logInfo "[TestSetup]" "✅ Database initialized"
 
             // Wait for signals
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync timeout
 
             if signalsReceived then
-                printfn "✅ All expected signals received"
+                CoreLogger.logInfo "[TestSetup]" "✅ All expected signals received"
             else
-                printfn "❌ Not all signals received (timeout)"
+                CoreLogger.logError "[TestSetup]" "❌ Not all signals received (timeout)"
 
             return signalsReceived
         }
@@ -107,17 +108,17 @@ module TestSetup =
     /// Standardizes phase reporting across tests.
     /// </summary>
     let printPhaseHeader (phaseNumber: int) (phaseName: string) : unit =
-        printfn "\n--- Phase %d: %s ---" phaseNumber phaseName
+        CoreLogger.logInfo "[Test]" (sprintf "--- Phase %d: %s ---" phaseNumber phaseName)
 
     /// <summary>
     /// Prints a formatted test completion summary.
     /// Standardizes test completion reporting.
     /// </summary>
     let printTestCompletionSummary (testName: string) (details: string) : unit =
-        printfn "\n=== Test Summary ==="
-        printfn "✅ %s" testName
-        printfn "%s" details
-        printfn "=== %s Complete ✅ ===" testName
+        CoreLogger.logInfo "[Test]" "=== Test Summary ==="
+        CoreLogger.logInfo "[Test]" (sprintf "✅ %s" testName)
+        CoreLogger.logInfo "[Test]" details
+        CoreLogger.logInfo "[Test]" (sprintf "=== %s Complete ✅ ===" testName)
 
     /// <summary>
     /// Verifies all standard verifications and prints results.
@@ -125,10 +126,10 @@ module TestSetup =
     let verifyAndPrintState (description: string) : Async<bool> =
         async {
             let (success, stateSummary) = TestVerifications.verifyCollectionsState ()
-            printfn "%s: %s" description stateSummary
+            CoreLogger.logInfo "[Verification]" (sprintf "%s: %s" description stateSummary)
 
             if not success then
-                printfn "⚠️  Some collections may not be populated as expected"
+                CoreLogger.logWarning "[Verification]" "⚠️  Some collections may not be populated as expected"
 
             return success
         }
