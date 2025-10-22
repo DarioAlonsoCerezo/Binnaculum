@@ -4,6 +4,7 @@ open NUnit.Framework
 open System
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// BrokerAccount Multiple Movements signal-based reactive integration tests.
@@ -64,7 +65,7 @@ type BrokerAccountMultipleMovementsTests() =
     [<Category("Integration")>]
     member this.``BrokerAccount with multiple movements updates collections``() =
         async {
-            printfn "\n=== TEST: BrokerAccount with Multiple Movements Updates Collections ==="
+            CoreLogger.logInfo "[Test]" "=== TEST: BrokerAccount with Multiple Movements Updates Collections ==="
 
             let actions = this.Actions
 
@@ -74,12 +75,12 @@ type BrokerAccountMultipleMovementsTests() =
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
             Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
-            printfn "✅ Data wiped successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
             Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
-            printfn "✅ Database initialized successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
             TestSetup.printPhaseHeader 2 "Create BrokerAccount"
@@ -90,18 +91,18 @@ type BrokerAccountMultipleMovementsTests() =
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
 
-            printfn "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("Signal-Based Testing")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
-            printfn "✅ BrokerAccount created: %s" details
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            printfn "⏳ Waiting for account creation reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
-            printfn "✅ Account creation signals received successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: MOVEMENT #1 (DEPOSIT $1200, -60 DAYS) ====================
             TestSetup.printPhaseHeader 3 "Create Movement #1: Deposit $1200 (-60 days)"
@@ -112,20 +113,20 @@ type BrokerAccountMultipleMovementsTests() =
                   Snapshots_Updated ] // Snapshot recalculated with deposit
             )
 
-            printfn "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
 
             // EXECUTE: Create deposit movement (historical, -60 days)
             let! (ok, details, error) =
                 actions.createMovement (1200m, BrokerMovementType.Deposit, -60, "60-day-old deposit")
 
             Assert.That(ok, Is.True, sprintf "Movement #1 creation should succeed: %s - %A" details error)
-            printfn "✅ Movement #1 created: %s" details
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ Movement #1 created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            printfn "⏳ Waiting for movement #1 reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for movement #1 reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Movement #1 signals should have been received")
-            printfn "✅ Movement #1 signals received successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Movement #1 signals received successfully"
 
             // ==================== PHASE 4: MOVEMENT #2 (WITHDRAWAL $300, -55 DAYS) ====================
             TestSetup.printPhaseHeader 4 "Create Movement #2: Withdrawal $300 (-55 days)"
@@ -136,20 +137,20 @@ type BrokerAccountMultipleMovementsTests() =
                   Snapshots_Updated ] // Snapshot recalculated with withdrawal
             )
 
-            printfn "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
 
             // EXECUTE: Create withdrawal movement (historical, -55 days)
             let! (ok, details, error) =
                 actions.createMovement (300m, BrokerMovementType.Withdrawal, -55, "55-day-old withdrawal")
 
             Assert.That(ok, Is.True, sprintf "Movement #2 creation should succeed: %s - %A" details error)
-            printfn "✅ Movement #2 created: %s" details
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ Movement #2 created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            printfn "⏳ Waiting for movement #2 reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for movement #2 reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Movement #2 signals should have been received")
-            printfn "✅ Movement #2 signals received successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Movement #2 signals received successfully"
 
             // ==================== PHASE 5: MOVEMENT #3 (WITHDRAWAL $300, -50 DAYS) ====================
             TestSetup.printPhaseHeader 5 "Create Movement #3: Withdrawal $300 (-50 days)"
@@ -160,20 +161,20 @@ type BrokerAccountMultipleMovementsTests() =
                   Snapshots_Updated ] // Snapshot recalculated with withdrawal
             )
 
-            printfn "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
 
             // EXECUTE: Create withdrawal movement (historical, -50 days)
             let! (ok, details, error) =
                 actions.createMovement (300m, BrokerMovementType.Withdrawal, -50, "50-day-old withdrawal")
 
             Assert.That(ok, Is.True, sprintf "Movement #3 creation should succeed: %s - %A" details error)
-            printfn "✅ Movement #3 created: %s" details
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ Movement #3 created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            printfn "⏳ Waiting for movement #3 reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for movement #3 reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Movement #3 signals should have been received")
-            printfn "✅ Movement #3 signals received successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Movement #3 signals received successfully"
 
             // ==================== PHASE 6: MOVEMENT #4 (DEPOSIT $600, -10 DAYS) ====================
             TestSetup.printPhaseHeader 6 "Create Movement #4: Deposit $600 (-10 days)"
@@ -184,20 +185,20 @@ type BrokerAccountMultipleMovementsTests() =
                   Snapshots_Updated ] // Snapshot recalculated with deposit
             )
 
-            printfn "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
 
             // EXECUTE: Create deposit movement (historical, -10 days)
             let! (ok, details, error) =
                 actions.createMovement (600m, BrokerMovementType.Deposit, -10, "10-day-old deposit")
 
             Assert.That(ok, Is.True, sprintf "Movement #4 creation should succeed: %s - %A" details error)
-            printfn "✅ Movement #4 created: %s" details
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ Movement #4 created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            printfn "⏳ Waiting for movement #4 reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for movement #4 reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Movement #4 signals should have been received")
-            printfn "✅ Movement #4 signals received successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Movement #4 signals received successfully"
 
             // ==================== PHASE 7: VERIFY FINAL STATE ====================
             TestSetup.printPhaseHeader 7 "Verify Final State"
@@ -212,7 +213,7 @@ type BrokerAccountMultipleMovementsTests() =
                 sprintf "Should have exactly 1 account, but got: %s" count
             )
 
-            printfn "✅ Account count verified: 1"
+            CoreLogger.logInfo "[Verification]" "✅ Account count verified: 1"
 
             // Verify 4 movements were created
             let! (verified, count, error) = actions.verifyMovementCount (4)
@@ -224,17 +225,17 @@ type BrokerAccountMultipleMovementsTests() =
                 sprintf "Should have exactly 4 movements, but got: %s" count
             )
 
-            printfn "✅ Movement count verified: 4"
+            CoreLogger.logInfo "[Verification]" "✅ Movement count verified: 4"
 
             // Verify snapshots were calculated
             let! (verified, count, error) = actions.verifySnapshotCount (1)
             Assert.That(verified, Is.True, sprintf "Snapshot count verification should succeed: %s - %A" count error)
-            printfn "✅ Snapshot count verified: >= 1 (%s)" count
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ Snapshot count verified: >= 1 (%s)" count)
 
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
                 "BrokerAccount + Multiple Movements Creation"
                 "Successfully created BrokerAccount, added 4 movements (2 deposits + 2 withdrawals), received all signals, and verified state in Collections. Net cash flow: +$1200"
 
-            printfn "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
         }

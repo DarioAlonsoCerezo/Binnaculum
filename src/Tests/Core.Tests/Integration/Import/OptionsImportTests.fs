@@ -5,6 +5,7 @@ open System
 open System.IO
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// Options import signal-based reactive integration tests.
@@ -64,7 +65,7 @@ type OptionsImportTests() =
     [<Category("Integration")>]
     member this.``Options import from CSV updates collections``() =
         async {
-            printfn "\n=== TEST: Options Import from CSV Updates Collections ==="
+            CoreLogger.logInfo "[Test]" "=== TEST: Options Import from CSV Updates Collections ==="
 
             let actions = this.Actions
 
@@ -74,12 +75,12 @@ type OptionsImportTests() =
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
             Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
-            printfn "✅ Data wiped successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
             Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
-            printfn "✅ Database initialized successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
             TestSetup.printPhaseHeader 2 "Create BrokerAccount for Import"
@@ -90,25 +91,25 @@ type OptionsImportTests() =
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
 
-            printfn "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("Options-Import-Test")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
-            printfn "✅ BrokerAccount created: %s" details
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            printfn "⏳ Waiting for account creation reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
-            printfn "✅ Account creation signals received successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: IMPORT OPTIONS CSV ====================
             TestSetup.printPhaseHeader 3 "Import Options CSV File"
 
             // Get CSV path
             let csvPath = this.getCsvPath ("TastytradeOptionsTest.csv")
-            printfn "📄 CSV file path: %s" csvPath
+            CoreLogger.logDebug "[Import]" (sprintf "📄 CSV file path: %s" csvPath)
             Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
@@ -118,22 +119,22 @@ type OptionsImportTests() =
                   Snapshots_Updated ] // Snapshots recalculated
             )
 
-            printfn "🎯 Expecting signals: Movements_Updated, Tickers_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Movements_Updated, Tickers_Updated, Snapshots_Updated"
 
             // EXECUTE: Import CSV file
             let tastytradeId = actions.Context.TastytradeId
             let accountId = actions.Context.BrokerAccountId
-            printfn "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId
+            CoreLogger.logDebug "[TestSetup]" (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
             Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
-            printfn "✅ CSV import completed: %s" importDetails
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ CSV import completed: %s" importDetails)
 
             // WAIT: Wait for import signals (longer timeout for import processing)
-            printfn "⏳ Waiting for import reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for import reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
             Assert.That(signalsReceived, Is.True, "Import signals should have been received")
-            printfn "✅ Import signals received successfully"
+            CoreLogger.logInfo "[Verification]" "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY DATA COUNTS ====================
             TestSetup.printPhaseHeader 4 "Verify Imported Data Counts"
@@ -147,7 +148,7 @@ type OptionsImportTests() =
                 sprintf "Movement count verification should succeed: %s - %A" movementCount error
             )
 
-            printfn "✅ Movement count verified: 16 movements (12 option trades + 4 money movements)"
+            CoreLogger.logInfo "[Verification]" "✅ Movement count verified: 16 movements (12 option trades + 4 money movements)"
 
             // Verify ticker count (SOFI, PLTR, MPW + SPY default = 4)
             let! (verified, tickerCount, error) = actions.verifyTickerCount (4)
@@ -158,7 +159,7 @@ type OptionsImportTests() =
                 sprintf "Ticker count verification should succeed: %s - %A" tickerCount error
             )
 
-            printfn "✅ Ticker count verified: 4 tickers (SOFI, PLTR, MPW + SPY)"
+            CoreLogger.logInfo "[Verification]" "✅ Ticker count verified: 4 tickers (SOFI, PLTR, MPW + SPY)"
 
             // Verify snapshots were calculated
             let! (verified, snapshotCount, error) = actions.verifySnapshotCount (1)
@@ -169,7 +170,7 @@ type OptionsImportTests() =
                 sprintf "Snapshot count verification should succeed: %s - %A" snapshotCount error
             )
 
-            printfn "✅ Snapshot count verified: >= 1 (%s)" snapshotCount
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ Snapshot count verified: >= 1 (%s)" snapshotCount)
 
             // ==================== PHASE 5: VERIFY FINANCIAL CALCULATIONS ====================
             TestSetup.printPhaseHeader 5 "Verify Financial Calculations"
@@ -178,13 +179,13 @@ type OptionsImportTests() =
             // Total options income from all option trades (sum of NetPremium)
             let! (verified, income, error) = actions.verifyOptionsIncome (54.37m)
             Assert.That(verified, Is.True, sprintf "Options income verification should succeed: %s - %A" income error)
-            printfn "✅ Options income verified: $54.37"
+            CoreLogger.logInfo "[Verification]" "✅ Options income verified: $54.37"
 
             // Verify realized gains calculation
             // Realized gains from closed option positions (sum of close trades NetPremium)
             let! (verified, realized, error) = actions.verifyRealizedGains (-28.67m)
             Assert.That(verified, Is.True, sprintf "Realized gains verification should succeed: %s - %A" realized error)
-            printfn "✅ Realized gains verified: -$28.67"
+            CoreLogger.logInfo "[Verification]" "✅ Realized gains verified: -$28.67"
 
             // Verify unrealized gains calculation
             // Unrealized gains from open option positions (sum of open trades NetPremium)
@@ -196,12 +197,12 @@ type OptionsImportTests() =
                 sprintf "Unrealized gains verification should succeed: %s - %A" unrealized error
             )
 
-            printfn "✅ Unrealized gains verified: $83.04"
+            CoreLogger.logInfo "[Verification]" "✅ Unrealized gains verified: $83.04"
 
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
                 "Options Import from CSV"
                 "Successfully created BrokerAccount, imported options CSV, received all signals, and verified data counts in Collections"
 
-            printfn "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
         }

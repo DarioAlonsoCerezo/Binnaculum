@@ -4,6 +4,7 @@ open NUnit.Framework
 open System
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// BrokerAccount + Deposit reactive integration tests.
@@ -43,7 +44,7 @@ type BrokerAccountDepositTests() =
     [<Category("Integration")>]
     member this.``BrokerAccount creation with deposit updates collections``() =
         async {
-            printfn "\n=== TEST: BrokerAccount Creation with Deposit Updates Collections ==="
+            CoreLogger.logInfo "[Test]" "=== TEST: BrokerAccount Creation with Deposit Updates Collections ==="
 
             let actions = this.Actions
 
@@ -53,12 +54,12 @@ type BrokerAccountDepositTests() =
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
             Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
-            printfn "✅ Data wiped successfully"
+            CoreLogger.logInfo "[TestSetup]" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
             Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
-            printfn "✅ Database initialized successfully"
+            CoreLogger.logInfo "[TestSetup]" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
             TestSetup.printPhaseHeader 2 "Create BrokerAccount"
@@ -69,18 +70,18 @@ type BrokerAccountDepositTests() =
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
 
-            printfn "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("Trading")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
-            printfn "✅ BrokerAccount created: %s" details
+            CoreLogger.logInfo "[TestActions]" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            printfn "⏳ Waiting for account creation reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
-            printfn "✅ Account creation signals received successfully"
+            CoreLogger.logInfo "[StreamObserver]" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: CREATE DEPOSIT MOVEMENT ====================
             TestSetup.printPhaseHeader 3 "Create Deposit Movement"
@@ -91,20 +92,20 @@ type BrokerAccountDepositTests() =
                   Snapshots_Updated ] // Snapshot recalculated with deposit
             )
 
-            printfn "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
 
             // EXECUTE: Create deposit movement (historical, -30 days)
             let! (ok, details, error) =
                 actions.createMovement (5000m, BrokerMovementType.Deposit, -30, "Reactive deposit test")
 
             Assert.That(ok, Is.True, sprintf "Deposit creation should succeed: %s - %A" details error)
-            printfn "✅ Deposit movement created: %s" details
+            CoreLogger.logInfo "[TestActions]" (sprintf "✅ Deposit movement created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            printfn "⏳ Waiting for deposit creation reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for deposit creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Deposit creation signals should have been received")
-            printfn "✅ Deposit creation signals received successfully"
+            CoreLogger.logInfo "[StreamObserver]" "✅ Deposit creation signals received successfully"
 
             // ==================== PHASE 4: VERIFY ====================
             TestSetup.printPhaseHeader 4 "Verify Final State"
@@ -119,7 +120,7 @@ type BrokerAccountDepositTests() =
                 sprintf "Should have exactly 1 account, but got: %s" count
             )
 
-            printfn "✅ Account count verified: 1"
+            CoreLogger.logInfo "[Verification]" "✅ Account count verified: 1"
 
             // Verify movement was created
             let! (verified, count, error) = actions.verifyMovementCount (1)
@@ -131,17 +132,17 @@ type BrokerAccountDepositTests() =
                 sprintf "Should have exactly 1 movement, but got: %s" count
             )
 
-            printfn "✅ Movement count verified: 1"
+            CoreLogger.logInfo "[Verification]" "✅ Movement count verified: 1"
 
             // Verify snapshots were calculated
             let! (verified, count, error) = actions.verifySnapshotCount (1)
             Assert.That(verified, Is.True, sprintf "Snapshot count verification should succeed: %s - %A" count error)
-            printfn "✅ Snapshot count verified: >= 1 (%s)" count
+            CoreLogger.logInfo "[Verification]" (sprintf "✅ Snapshot count verified: >= 1 (%s)" count)
 
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
                 "BrokerAccount + Deposit Creation"
                 "Successfully created BrokerAccount, added deposit movement, received all signals, and verified state in Collections"
 
-            printfn "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
         }

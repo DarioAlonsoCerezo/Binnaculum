@@ -4,6 +4,7 @@ open NUnit.Framework
 open System
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// BrokerAccount reactive integration tests.
@@ -39,7 +40,7 @@ type BrokerAccountTests() =
     [<Category("Integration")>]
     member this.``BrokerAccount creation updates collections``() =
         async {
-            printfn "\n=== TEST: BrokerAccount Creation Updates Collections ==="
+            CoreLogger.logInfo "[Test]" "=== TEST: BrokerAccount Creation Updates Collections ==="
 
             let actions = this.Actions
 
@@ -49,12 +50,12 @@ type BrokerAccountTests() =
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
             Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
-            printfn "✅ Data wiped successfully"
+            CoreLogger.logInfo "[TestSetup]" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
             Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
-            printfn "✅ Database initialized successfully"
+            CoreLogger.logInfo "[TestSetup]" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
             TestSetup.printPhaseHeader 2 "Create BrokerAccount"
@@ -65,18 +66,18 @@ type BrokerAccountTests() =
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
 
-            printfn "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("TestAccount")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
-            printfn "✅ BrokerAccount created: %s" details
+            CoreLogger.logInfo "[TestActions]" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            printfn "⏳ Waiting for reactive signals..."
+            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Expected signals should have been received")
-            printfn "✅ All signals received successfully"
+            CoreLogger.logInfo "[StreamObserver]" "✅ All signals received successfully"
 
             // ==================== PHASE 3: VERIFY ====================
             TestSetup.printPhaseHeader 3 "Verify Account Created"
@@ -91,12 +92,12 @@ type BrokerAccountTests() =
                 sprintf "Should have exactly 1 account, but got: %s" count
             )
 
-            printfn "✅ Account count verified: 1"
+            CoreLogger.logInfo "[Verification]" "✅ Account count verified: 1"
 
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
                 "BrokerAccount Creation"
                 "Successfully created BrokerAccount, received all signals, and verified account in Collections"
 
-            printfn "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
         }
