@@ -54,6 +54,9 @@
     <Compile Include="Unit/Financial/NetCashFlowTests.fs" />
     <Compile Include="Unit/Financial/PercentageCalculationTests.fs" />
     
+    <!-- Unit Tests - Verifications -->
+    <Compile Include="Unit/Verifications/SnapshotVerificationTests.fs" />
+    
     <!-- Unit Tests - Reactive Managers -->
     <Compile Include="Unit/Managers/ReactiveCurrencyManagerTests.fs" />
     <Compile Include="Unit/Managers/ReactiveTickerManagerTests.fs" />
@@ -89,6 +92,7 @@
     <!-- Additional Examples -->
     <Compile Include="Examples/WorkOnMemoryIntegrationExample.fs" />
     <Compile Include="Examples/ImportManagerTests.fs" />
+    <Compile Include="Examples/HolisticSnapshotVerificationExample.fs" />
     
     <!-- <Compile Include="SavedPreferencesTests.fs" /> Disabled - MAUI platform APIs don't work in headless test environment -->
   </ItemGroup>
