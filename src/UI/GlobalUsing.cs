@@ -9,6 +9,7 @@ global using Binnaculum.Resources.Languages;
 global using System.Reactive;
 global using System.Reactive.Disposables;
 global using System.Reactive.Concurrency;
+global using System.Reactive.Disposables.Fluent;
 global using System.Collections.ObjectModel;
 global using System;
 global using ReactiveUI;
