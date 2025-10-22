@@ -1,6 +1,8 @@
 namespace Core.Tests.Integration
 
 open System
+open System.Threading
+open System.Threading.Tasks
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open Binnaculum.Core.Logging
@@ -10,6 +12,178 @@ open Binnaculum.Core.Logging
 /// All operations return Async<bool * string * string option> for consistent error handling.
 /// </summary>
 type ReactiveTestActions(context: ReactiveTestContext) =
+
+    /// <summary>
+    /// Start listening for Collections to be populated and cache entity IDs when ready.
+    /// Uses reactive subscriptions - fire and forget, listener reacts when data arrives.
+    /// This is non-blocking - returns immediately while listener works in background.
+    /// </summary>
+    member _.startCollectionsListener() : unit =
+        async {
+            CoreLogger.logInfo "ReactiveTestActions" "Starting reactive Collections listener (fire and forget)..."
+
+            let mutable brokersReady = false
+            let mutable currenciesReady = false
+            let mutable tickersReady = false
+
+            let tryExtractIds () =
+                try
+                    let tastytrade =
+                        Collections.Brokers.Items |> Seq.tryFind (fun b -> b.Name = "Tastytrade")
+
+                    let ibkr = Collections.Brokers.Items |> Seq.tryFind (fun b -> b.Name = "IBKR")
+                    let usd = Collections.Currencies.Items |> Seq.tryFind (fun c -> c.Code = "USD")
+                    let eur = Collections.Currencies.Items |> Seq.tryFind (fun c -> c.Code = "EUR")
+                    let spy = Collections.Tickers.Items |> Seq.tryFind (fun t -> t.Symbol = "SPY")
+
+                    tastytrade |> Option.iter (fun b -> context.TastytradeId <- b.Id)
+                    ibkr |> Option.iter (fun b -> context.IbkrId <- b.Id)
+                    usd |> Option.iter (fun c -> context.UsdCurrencyId <- c.Id)
+                    eur |> Option.iter (fun c -> context.EurCurrencyId <- c.Id)
+                    spy |> Option.iter (fun t -> context.SpyTickerId <- t.Id)
+
+                    CoreLogger.logInfof
+                        "ReactiveTestActions"
+                        "✅ Entity IDs cached (Tastytrade=%d, USD=%d, EUR=%d, SPY=%d)"
+                        context.TastytradeId
+                        context.UsdCurrencyId
+                        context.EurCurrencyId
+                        context.SpyTickerId
+
+                    true
+                with ex ->
+                    CoreLogger.logError "ReactiveTestActions" (sprintf "❌ Failed to extract IDs: %s" ex.Message)
+                    false
+
+            // Subscribe to Brokers collection changes
+            Collections.Brokers
+                .Connect()
+                .Subscribe(fun _ ->
+                    let hasRequiredBrokers =
+                        Collections.Brokers.Items |> Seq.exists (fun b -> b.Name = "Tastytrade")
+
+                    if hasRequiredBrokers && not brokersReady then
+                        brokersReady <- true
+                        CoreLogger.logInfo "ReactiveTestActions" "✅ Brokers ready (Tastytrade found)"
+
+                        // Check if all are ready and extract IDs
+                        if brokersReady && currenciesReady && tickersReady then
+                            tryExtractIds () |> ignore)
+            |> ignore
+
+            // Subscribe to Currencies collection changes
+            Collections.Currencies
+                .Connect()
+                .Subscribe(fun _ ->
+                    let hasRequiredCurrencies =
+                        Collections.Currencies.Items |> Seq.exists (fun c -> c.Code = "USD")
+
+                    if hasRequiredCurrencies && not currenciesReady then
+                        currenciesReady <- true
+                        CoreLogger.logInfo "ReactiveTestActions" "✅ Currencies ready (USD found)"
+
+                        // Check if all are ready
+                        if brokersReady && currenciesReady && tickersReady then
+                            tryExtractIds () |> ignore)
+            |> ignore
+
+            // Subscribe to Tickers collection changes
+            Collections.Tickers
+                .Connect()
+                .Subscribe(fun _ ->
+                    let hasRequiredTickers =
+                        Collections.Tickers.Items |> Seq.exists (fun t -> t.Symbol = "SPY")
+
+                    if hasRequiredTickers && not tickersReady then
+                        tickersReady <- true
+                        CoreLogger.logInfo "ReactiveTestActions" "✅ Tickers ready (SPY found)"
+
+                        // Check if all are ready
+                        if brokersReady && currenciesReady && tickersReady then
+                            tryExtractIds () |> ignore)
+            |> ignore
+
+            CoreLogger.logInfo "ReactiveTestActions" "✅ Reactive listener started (non-blocking)"
+        }
+        |> Async.StartImmediate
+
+    /// <summary>
+    /// Wait for entity IDs to be cached by the reactive listener.
+    /// Polls the context to see when IDs have been populated.
+    /// Blocks until IDs are available or timeout occurs.
+    /// </summary>
+    member _.waitForEntityIdsCached(timeoutMs: int) : Async<bool * string * string option> =
+        async {
+            let cts = new CancellationTokenSource(timeoutMs)
+            let sw = System.Diagnostics.Stopwatch.StartNew()
+
+            while context.TastytradeId = 0
+                  && context.UsdCurrencyId = 0
+                  && not cts.Token.IsCancellationRequested do
+                do! Async.Sleep(50)
+
+            if context.TastytradeId <> 0 && context.UsdCurrencyId <> 0 then
+                CoreLogger.logInfof
+                    "ReactiveTestActions"
+                    "✅ Entity IDs became available after %dms"
+                    sw.ElapsedMilliseconds
+
+                return (true, "Entity IDs cached", None)
+            else
+                let error =
+                    sprintf "❌ Timeout waiting for entity IDs after %dms" sw.ElapsedMilliseconds
+
+                CoreLogger.logError "ReactiveTestActions" error
+                return (false, "ID caching timeout", Some error)
+        }
+
+    /// <summary>
+    /// Initialize database using correct sequence:
+    /// 1. Configure WorkOnMemory mode
+    /// 2. Start reactive listener (fire and forget)
+    /// 3. Initialize database schema/structure
+    /// 4. Load reference data and populate Collections
+    /// 5. Wait for entity IDs to be cached by reactive listener
+    /// </summary>
+    member self.initDatabase() : Async<bool * string * string option> =
+        async {
+            try
+                CoreLogger.logInfo "ReactiveTestActions" "Step 1: Configuring WorkOnMemory mode..."
+                do! ReactiveTestEnvironment.initializeDatabase ()
+
+                CoreLogger.logInfo "ReactiveTestActions" "Step 2: Starting reactive Collections listener..."
+                self.startCollectionsListener ()
+
+                CoreLogger.logInfo "ReactiveTestActions" "Step 3: Initializing database schema..."
+                do! Overview.InitDatabase() |> Async.AwaitTask
+
+                CoreLogger.logInfo "ReactiveTestActions" "Step 4: Loading reference data..."
+                do! Overview.LoadData() |> Async.AwaitTask
+
+                CoreLogger.logInfo "ReactiveTestActions" "Step 5: Waiting for entity IDs to be cached..."
+                let! (cached, _, cacheError) = self.waitForEntityIdsCached (10000) // 10 second timeout
+
+                if cached then
+                    CoreLogger.logInfof
+                        "ReactiveTestActions"
+                        "✅ Database initialized (Brokers=%d, Currencies=%d, Tickers=%d, Tastytrade=%d, IBKR=%d, USD=%d, EUR=%d, SPY=%d)"
+                        Collections.Brokers.Count
+                        Collections.Currencies.Count
+                        Collections.Tickers.Count
+                        context.TastytradeId
+                        context.IbkrId
+                        context.UsdCurrencyId
+                        context.EurCurrencyId
+                        context.SpyTickerId
+
+                    return (true, "Database initialized", None)
+                else
+                    return (false, "ID caching failed", cacheError)
+            with ex ->
+                let error = sprintf "❌ Init failed: %s" ex.Message
+                CoreLogger.logError "ReactiveTestActions" error
+                return (false, "Init failed", Some error)
+        }
 
     /// <summary>
     /// Wipe all data for testing (clean slate)
@@ -25,92 +199,6 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                 let error = sprintf "❌ Wipe failed: %s" ex.Message
                 CoreLogger.logError "ReactiveTestActions" error
                 return (false, "Wipe failed", Some error)
-        }
-
-    /// <summary>
-    /// Initialize database using correct sequence:
-    /// 1. Configure WorkOnMemory mode
-    /// 2. Initialize database schema/structure
-    /// 3. Load reference data and populate Collections
-    /// 4. Extract and cache common entity IDs for later use
-    /// </summary>
-    member _.initDatabase() : Async<bool * string * string option> =
-        async {
-            try
-                CoreLogger.logInfo "ReactiveTestActions" "Step 1: Configuring WorkOnMemory mode..."
-                do! ReactiveTestEnvironment.initializeDatabase ()
-
-                CoreLogger.logInfo "ReactiveTestActions" "Step 2: Initializing database schema..."
-                do! Overview.InitDatabase() |> Async.AwaitTask
-
-                CoreLogger.logInfo "ReactiveTestActions" "Step 3: Loading reference data..."
-                do! Overview.LoadData() |> Async.AwaitTask
-
-                // Wait a moment for Collections to populate
-                CoreLogger.logInfo "ReactiveTestActions" "Step 4: Verifying Collections population..."
-                do! Async.Sleep(200)
-
-                // Verify Collections are populated
-                let collectionsValid =
-                    if Collections.Brokers.Count = 0 then
-                        CoreLogger.logError "ReactiveTestActions" "❌ Brokers collection is empty after LoadData"
-                        None
-                    elif Collections.Currencies.Count = 0 then
-                        CoreLogger.logError "ReactiveTestActions" "❌ Currencies collection is empty after LoadData"
-                        None
-                    elif Collections.Tickers.Count = 0 then
-                        CoreLogger.logError "ReactiveTestActions" "❌ Tickers collection is empty after LoadData"
-                        None
-                    else
-                        Some()
-
-                match collectionsValid with
-                | None -> return (false, "Collections empty", Some "One or more collections failed to populate")
-                | Some() ->
-                    CoreLogger.logInfo "ReactiveTestActions" "Step 5: Extracting common entity IDs..."
-
-                    // Store common IDs from collections for later use
-                    let tastytrade =
-                        Collections.Brokers.Items
-                        |> Seq.tryFind (fun (b: Broker) -> b.Name = "Tastytrade")
-
-                    let ibkr =
-                        Collections.Brokers.Items |> Seq.tryFind (fun (b: Broker) -> b.Name = "IBKR")
-
-                    let usd =
-                        Collections.Currencies.Items
-                        |> Seq.tryFind (fun (c: Currency) -> c.Code = "USD")
-
-                    let eur =
-                        Collections.Currencies.Items
-                        |> Seq.tryFind (fun (c: Currency) -> c.Code = "EUR")
-
-                    let spy =
-                        Collections.Tickers.Items |> Seq.tryFind (fun (t: Ticker) -> t.Symbol = "SPY")
-
-                    tastytrade |> Option.iter (fun b -> context.TastytradeId <- b.Id)
-                    ibkr |> Option.iter (fun b -> context.IbkrId <- b.Id)
-                    usd |> Option.iter (fun c -> context.UsdCurrencyId <- c.Id)
-                    eur |> Option.iter (fun c -> context.EurCurrencyId <- c.Id)
-                    spy |> Option.iter (fun t -> context.SpyTickerId <- t.Id)
-
-                    CoreLogger.logInfof
-                        "ReactiveTestActions"
-                        "✅ Database initialized (Brokers=%d, Currencies=%d, Tickers=%d, Tastytrade=%d, IBKR=%d, USD=%d, EUR=%d, SPY=%d)"
-                        Collections.Brokers.Count
-                        Collections.Currencies.Count
-                        Collections.Tickers.Count
-                        context.TastytradeId
-                        context.IbkrId
-                        context.UsdCurrencyId
-                        context.EurCurrencyId
-                        context.SpyTickerId
-
-                    return (true, "Database initialized", None)
-            with ex ->
-                let error = sprintf "❌ Init failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
-                return (false, "Init failed", Some error)
         }
 
     /// <summary>
