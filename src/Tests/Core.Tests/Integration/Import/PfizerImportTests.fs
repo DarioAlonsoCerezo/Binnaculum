@@ -122,12 +122,17 @@ type PfizerImportTests() =
                   Snapshots_Updated ] // Snapshots recalculated
             )
 
-            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Movements_Updated, Tickers_Updated, Snapshots_Updated"
+            CoreLogger.logDebug
+                "[StreamObserver]"
+                "🎯 Expecting signals: Movements_Updated, Tickers_Updated, Snapshots_Updated"
 
             // EXECUTE: Import CSV file
             let tastytradeId = actions.Context.TastytradeId
             let accountId = actions.Context.BrokerAccountId
-            CoreLogger.logDebug "[TestSetup]" (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
+
+            CoreLogger.logDebug
+                "[TestSetup]"
+                (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
             Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
@@ -175,57 +180,208 @@ type PfizerImportTests() =
 
             CoreLogger.logInfo "[Verification]" (sprintf "✅ Snapshot count verified: >= 1 (%s)" snapshotCount)
 
-            // ==================== PHASE 5: VERIFY FINANCIAL CALCULATIONS ====================
-            TestSetup.printPhaseHeader 5 "Verify Financial Calculations with FIFO Matching"
+            // ==================== PHASE 5: VERIFY PFE TICKER SNAPSHOTS CHRONOLOGICALLY ====================
+            TestSetup.printPhaseHeader 5 "Verify PFE Ticker Snapshots with Complete Financial State"
 
-            // Verify options income calculation
-            // Total options income from all option trades (sum of NetPremium)
-            // Round-trip 1: +$49.88 - $64.12 = -$14.24
-            // Round-trip 2: -$555.12 + $744.88 = +$189.76
-            // Total: -$14.24 + $189.76 = $175.52
-            let! (verified, income, error) = actions.verifyOptionsIncome (175.52m)
-            Assert.That(verified, Is.True, sprintf "Options income verification should succeed: %s - %A" income error)
-            CoreLogger.logInfo "[Verification]" "✅ Options income verified: $175.52"
+            // Get PFE ticker from Collections
+            let pfeTicker = Collections.Tickers.Items |> Seq.tryFind (fun t -> t.Symbol = "PFE")
 
-            // Verify realized gains calculation
-            // Sum of close movements: SELL_TO_CLOSE ($744.88) + BUY_TO_CLOSE (-$64.12) = $680.76
-            // Note: This is the current implementation's calculation (sum of close premiums)
-            // not the true FIFO matched realized gains ($175.52 from the issue)
-            let! (verified, realized, error) = actions.verifyRealizedGains (680.76m)
-            Assert.That(verified, Is.True, sprintf "Realized gains verification should succeed: %s - %A" realized error)
-            CoreLogger.logInfo "[Verification]" "✅ Realized gains verified: $680.76 (sum of close premiums)"
+            Assert.That(pfeTicker.IsSome, Is.True, "PFE ticker should exist in Collections")
 
-            // Verify unrealized gains calculation
-            // Sum of open movements: BUY_TO_OPEN (-$555.12) + SELL_TO_OPEN ($49.88) = -$505.24
-            // Note: This is the current implementation's calculation (sum of open premiums)
-            // The true value should be $0.00 since all positions are closed
-            let! (verified, unrealized, error) = actions.verifyUnrealizedGains (-505.24m)
+            let pfeTickerId = pfeTicker.Value.Id
+            CoreLogger.logInfo "[Verification]" (sprintf "📊 PFE Ticker ID: %d" pfeTickerId)
+
+            // Get all PFE snapshots using Tickers.GetSnapshots from Core (returns Task<TickerSnapshot list>)
+            let! pfeSnapshots = Tickers.GetSnapshots(pfeTickerId) |> Async.AwaitTask
+            let sortedSnapshots = pfeSnapshots |> List.sortBy (fun s -> s.Date)
+
+            CoreLogger.logInfo "[Verification]" (sprintf "📊 Found %d PFE snapshots" sortedSnapshots.Length)
+            Assert.That(sortedSnapshots.Length, Is.EqualTo(4), "Should have 4 PFE snapshots (3 trade dates + today)")
+
+            // Verify Snapshot 1: 2025-08-25 (After BUY_TO_OPEN -$555.12)
+            CoreLogger.logInfo "[Verification]" "📅 Verifying Snapshot 1: 2025-08-25 (After BUY_TO_OPEN)"
+            let snapshot1 = sortedSnapshots.[0]
+            let snapshot1Currency = snapshot1.MainCurrency
+            Assert.That(snapshot1.Date, Is.EqualTo(DateOnly(2025, 8, 25)), "Snapshot 1 date should be 2025-08-25")
+
+            let expected1: TickerCurrencySnapshot =
+                { Id = snapshot1Currency.Id // Use actual ID
+                  Date = DateOnly(2025, 8, 25)
+                  Ticker = snapshot1Currency.Ticker
+                  Currency = snapshot1Currency.Currency
+                  TotalShares = 0m // Options only, no shares
+                  Weight = 0m
+                  CostBasis = 0m
+                  RealCost = 0m
+                  Dividends = 0m
+                  Options = -555.12m // BUY_TO_OPEN premium
+                  TotalIncomes = -555.12m
+                  Unrealized = 0m
+                  Realized = 0m
+                  Performance = 0m
+                  LatestPrice = 0m
+                  OpenTrades = true }
+
+            let (match1, results1) =
+                TestVerifications.verifyTickerCurrencySnapshot expected1 snapshot1Currency
 
             Assert.That(
-                verified,
+                match1,
                 Is.True,
-                sprintf "Unrealized gains verification should succeed: %s - %A" unrealized error
+                sprintf
+                    "Snapshot 1 verification failed:\n%s"
+                    (results1
+                     |> List.filter (fun r -> not r.Match)
+                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
+                     |> String.concat "\n")
             )
 
-            CoreLogger.logInfo "[Verification]" "✅ Unrealized gains verified: -$505.24 (sum of open premiums)"
+            CoreLogger.logInfo "[Verification]" "✅ Snapshot 1 verified: Options=-$555.12"
 
-            // ==================== PHASE 6: VERIFY TICKER SNAPSHOTS ====================
-            TestSetup.printPhaseHeader 6 "Verify PFE Ticker Snapshots"
+            // Verify Snapshot 2: 2025-10-01 (After SELL_TO_OPEN +$49.88)
+            CoreLogger.logInfo "[Verification]" "📅 Verifying Snapshot 2: 2025-10-01 (After SELL_TO_OPEN)"
+            let snapshot2 = sortedSnapshots.[1]
+            let snapshot2Currency = snapshot2.MainCurrency
+            Assert.That(snapshot2.Date, Is.EqualTo(DateOnly(2025, 10, 1)), "Snapshot 2 date should be 2025-10-01")
 
-            // Verify PFE ticker snapshots (4 snapshots: 3 from trade dates + 1 today)
-            // - 2025-08-25: BUY_TO_OPEN
-            // - 2025-10-01: SELL_TO_OPEN
-            // - 2025-10-03: BUY_TO_CLOSE and SELL_TO_CLOSE
-            // - Today: Current snapshot
-            let! (verified, snapshotCount, error) = actions.verifyPfizerSnapshots (4)
+            let expected2: TickerCurrencySnapshot =
+                { Id = snapshot2Currency.Id
+                  Date = DateOnly(2025, 10, 1)
+                  Ticker = snapshot2Currency.Ticker
+                  Currency = snapshot2Currency.Currency
+                  TotalShares = 0m
+                  Weight = 0m
+                  CostBasis = 0m
+                  RealCost = 0m
+                  Dividends = 0m
+                  Options = -505.24m // Cumulative: -$555.12 + $49.88
+                  TotalIncomes = -505.24m
+                  Unrealized = 0m
+                  Realized = 0m
+                  Performance = 0m
+                  LatestPrice = 0m
+                  OpenTrades = true }
+
+            let (match2, results2) =
+                TestVerifications.verifyTickerCurrencySnapshot expected2 snapshot2Currency
 
             Assert.That(
-                verified,
+                match2,
                 Is.True,
-                sprintf "PFE snapshots verification should succeed: %s - %A" snapshotCount error
+                sprintf
+                    "Snapshot 2 verification failed:\n%s"
+                    (results2
+                     |> List.filter (fun r -> not r.Match)
+                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
+                     |> String.concat "\n")
             )
 
-            CoreLogger.logInfo "[Verification]" "✅ PFE ticker snapshots verified: 4 snapshots (3 trade dates + today)"
+            CoreLogger.logInfo "[Verification]" "✅ Snapshot 2 verified: Options=-$505.24 (cumulative)"
+
+            // Verify Snapshot 3: 2025-10-03 (After SELL_TO_CLOSE +$744.88 and BUY_TO_CLOSE -$64.12)
+            CoreLogger.logInfo "[Verification]" "📅 Verifying Snapshot 3: 2025-10-03 (After both close trades)"
+            let snapshot3 = sortedSnapshots.[2]
+            let snapshot3Currency = snapshot3.MainCurrency
+            Assert.That(snapshot3.Date, Is.EqualTo(DateOnly(2025, 10, 3)), "Snapshot 3 date should be 2025-10-03")
+
+            let expected3: TickerCurrencySnapshot =
+                { Id = snapshot3Currency.Id
+                  Date = DateOnly(2025, 10, 3)
+                  Ticker = snapshot3Currency.Ticker
+                  Currency = snapshot3Currency.Currency
+                  TotalShares = 0m
+                  Weight = 0m
+                  CostBasis = 0m
+                  RealCost = 0m
+                  Dividends = 0m
+                  Options = 175.52m // Cumulative: -$505.24 + $744.88 - $64.12
+                  TotalIncomes = 175.52m
+                  Unrealized = 0m
+                  Realized = 175.52m // FIFO matched realized gains from closed positions
+                  Performance = 0m
+                  LatestPrice = 0m
+                  OpenTrades = false // All positions closed
+                }
+
+            let (match3, results3) =
+                TestVerifications.verifyTickerCurrencySnapshot expected3 snapshot3Currency
+
+            Assert.That(
+                match3,
+                Is.True,
+                sprintf
+                    "Snapshot 3 verification failed:\n%s"
+                    (results3
+                     |> List.filter (fun r -> not r.Match)
+                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
+                     |> String.concat "\n")
+            )
+
+            CoreLogger.logInfo "[Verification]" "✅ Snapshot 3 verified: Options=$175.52 (all closed)"
+
+            // Verify Snapshot 4: Today (Current snapshot - should be same as snapshot 3)
+            CoreLogger.logInfo
+                "[Verification]"
+                (sprintf "📅 Verifying Snapshot 4: %s (Current snapshot)" (DateTime.Now.ToString("yyyy-MM-dd")))
+
+            let snapshot4 = sortedSnapshots.[3]
+            let snapshot4Currency = snapshot4.MainCurrency
+            let today = DateOnly.FromDateTime(DateTime.Now)
+            Assert.That(snapshot4.Date, Is.EqualTo(today), "Snapshot 4 date should be today")
+
+            let expected4: TickerCurrencySnapshot =
+                { Id = snapshot4Currency.Id
+                  Date = today
+                  Ticker = snapshot4Currency.Ticker
+                  Currency = snapshot4Currency.Currency
+                  TotalShares = 0m
+                  Weight = 0m
+                  CostBasis = 0m
+                  RealCost = 0m
+                  Dividends = 0m
+                  Options = 175.52m // Same as snapshot 3 (no new trades)
+                  TotalIncomes = 175.52m
+                  Unrealized = 0m
+                  Realized = 175.52m // Same as snapshot 3 (no new trades)
+                  Performance = 0m
+                  LatestPrice = 0m
+                  OpenTrades = false }
+
+            let (match4, results4) =
+                TestVerifications.verifyTickerCurrencySnapshot expected4 snapshot4Currency
+
+            Assert.That(
+                match4,
+                Is.True,
+                sprintf
+                    "Snapshot 4 verification failed:\n%s"
+                    (results4
+                     |> List.filter (fun r -> not r.Match)
+                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
+                     |> String.concat "\n")
+            )
+
+            CoreLogger.logInfo "[Verification]" "✅ Snapshot 4 verified: Options=$175.52 (current)"
+
+            CoreLogger.logInfo "[Verification]" "✅ All 4 PFE ticker snapshots verified chronologically"
+
+            // ==================== PHASE 6: COMMENTED OUT - REPLACED BY PHASE 5 ====================
+            // TestSetup.printPhaseHeader 6 "Verify PFE Ticker Snapshots"
+
+            // // Verify PFE ticker snapshots (4 snapshots: 3 from trade dates + 1 today)
+            // // - 2025-08-25: BUY_TO_OPEN
+            // // - 2025-10-01: SELL_TO_OPEN
+            // // - 2025-10-03: BUY_TO_CLOSE and SELL_TO_CLOSE
+            // // - Today: Current snapshot
+            // let! (verified, snapshotCount, error) = actions.verifyPfizerSnapshots (4)
+
+            // Assert.That(
+            //     verified,
+            //     Is.True,
+            //     sprintf "PFE snapshots verification should succeed: %s - %A" snapshotCount error
+            // )
+
+            // CoreLogger.logInfo "[Verification]" "✅ PFE ticker snapshots verified: 4 snapshots (3 trade dates + today)"
 
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
