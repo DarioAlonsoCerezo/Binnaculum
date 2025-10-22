@@ -13,14 +13,14 @@ open Binnaculum.Core.UI
 /// This test replicates the exact workflow of the MAUI Tester's
 /// "ReactiveTsllImportIntegrationTest" test.
 ///
-/// Inherits from ReactiveTestFixtureBase - no setup/teardown boilerplate needed.
+/// Inherits from TestFixtureBase - no setup/teardown boilerplate needed.
 ///
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
 [<TestFixture>]
-type ReactiveTsllImportTests() =
-    inherit ReactiveTestFixtureBase()
+type TsllImportTests() =
+    inherit TestFixtureBase()
 
     /// <summary>
     /// Helper method to get path to embedded CSV test data
@@ -70,7 +70,7 @@ type ReactiveTsllImportTests() =
             let actions = this.Actions
 
             // ==================== PHASE 1: SETUP ====================
-            ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
+            TestSetup.printPhaseHeader 1 "Database Initialization"
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
@@ -83,10 +83,10 @@ type ReactiveTsllImportTests() =
             printfn "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
-            ReactiveTestSetup.printPhaseHeader 2 "Create BrokerAccount for TSLL Import"
+            TestSetup.printPhaseHeader 2 "Create BrokerAccount for TSLL Import"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Accounts_Updated // Account added to Collections.Accounts
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
@@ -100,12 +100,12 @@ type ReactiveTsllImportTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for account creation reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
             printfn "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: IMPORT TSLL OPTIONS CSV ====================
-            ReactiveTestSetup.printPhaseHeader 3 "Import TSLL Multi-Asset CSV File"
+            TestSetup.printPhaseHeader 3 "Import TSLL Multi-Asset CSV File"
 
             // Get CSV path
             let csvPath = this.getCsvPath ("TsllImportTest.csv")
@@ -113,7 +113,7 @@ type ReactiveTsllImportTests() =
             Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Movements_Updated // Option trades added
                   Tickers_Updated // TSLL ticker added
                   Snapshots_Updated ] // Snapshots recalculated
@@ -132,12 +132,12 @@ type ReactiveTsllImportTests() =
 
             // WAIT: Wait for import signals (longer timeout for import processing)
             printfn "⏳ Waiting for import reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
             Assert.That(signalsReceived, Is.True, "Import signals should have been received")
             printfn "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY TSLL SNAPSHOT COUNT ====================
-            ReactiveTestSetup.printPhaseHeader 4 "Verify TSLL Ticker Snapshots (Exact Count)"
+            TestSetup.printPhaseHeader 4 "Verify TSLL Ticker Snapshots (Exact Count)"
 
             // Verify TSLL ticker snapshots (exactly 71)
             let! (verified, snapshotCount, error) = actions.verifyTsllSnapshotCount (71)
@@ -152,7 +152,7 @@ type ReactiveTsllImportTests() =
             printfn "✅ TSLL ticker snapshots verified: 71 snapshots"
 
             // ==================== PHASE 5: VALIDATE SPECIFIC SNAPSHOTS ====================
-            ReactiveTestSetup.printPhaseHeader 5 "Validate 4 Specific TSLL Snapshots by Date"
+            TestSetup.printPhaseHeader 5 "Validate 4 Specific TSLL Snapshots by Date"
 
             // Validate snapshot 1: 2024-05-30 (Oldest snapshot - initial put position)
             printfn "📅 Validating snapshot: 2024-05-30 (Oldest - initial put position)"
@@ -179,7 +179,7 @@ type ReactiveTsllImportTests() =
             printfn "✅ 2024-10-18 snapshot validated"
 
             // ==================== SUMMARY ====================
-            ReactiveTestSetup.printTestCompletionSummary
+            TestSetup.printTestCompletionSummary
                 "TSLL Multi-Asset Import with Signal Validation"
                 "Successfully created BrokerAccount, imported TSLL multi-asset CSV, received all signals, verified 71 snapshots, and validated 4 specific date-based snapshots"
 

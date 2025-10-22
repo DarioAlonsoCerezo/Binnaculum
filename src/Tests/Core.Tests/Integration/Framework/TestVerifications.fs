@@ -19,17 +19,17 @@ open NUnit.Framework
 ///
 /// USAGE:
 /// ------
-/// let (success, message) = ReactiveTestVerifications.verifyBrokers 2
+/// let (success, message) = TestVerifications.verifyBrokers 2
 /// Assert.That(success, Is.True, message)
 ///
 /// Or batch verify:
-/// let verifications = ReactiveTestVerifications.verifyFullDatabaseState()
+/// let verifications = TestVerifications.verifyFullDatabaseState()
 /// for (success, message) in verifications do
 ///     Assert.That(success, Is.True, message)
 ///
 /// See README.md for more examples.
 /// </summary>
-module ReactiveTestVerifications =
+module TestVerifications =
 
     /// <summary>
     /// Verifies that brokers were loaded with at least the minimum count.

@@ -11,7 +11,7 @@ open Binnaculum.Core.Logging
 /// Reactive test actions for performing operations and verifications.
 /// All operations return Async<bool * string * string option> for consistent error handling.
 /// </summary>
-type ReactiveTestActions(context: ReactiveTestContext) =
+type TestActions(context: TestContext) =
 
     /// <summary>
     /// Start listening for Collections to be populated and cache entity IDs when ready.
@@ -20,7 +20,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
     /// </summary>
     member _.startCollectionsListener() : unit =
         async {
-            CoreLogger.logInfo "ReactiveTestActions" "Starting reactive Collections listener (fire and forget)..."
+            CoreLogger.logInfo "TestActions" "Starting reactive Collections listener (fire and forget)..."
 
             let mutable brokersReady = false
             let mutable currenciesReady = false
@@ -43,7 +43,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                     spy |> Option.iter (fun t -> context.SpyTickerId <- t.Id)
 
                     CoreLogger.logInfof
-                        "ReactiveTestActions"
+                        "TestActions"
                         "✅ Entity IDs cached (Tastytrade=%d, USD=%d, EUR=%d, SPY=%d)"
                         context.TastytradeId
                         context.UsdCurrencyId
@@ -52,7 +52,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
 
                     true
                 with ex ->
-                    CoreLogger.logError "ReactiveTestActions" (sprintf "❌ Failed to extract IDs: %s" ex.Message)
+                    CoreLogger.logError "TestActions" (sprintf "❌ Failed to extract IDs: %s" ex.Message)
                     false
 
             // Subscribe to Brokers collection changes
@@ -64,7 +64,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
 
                     if hasRequiredBrokers && not brokersReady then
                         brokersReady <- true
-                        CoreLogger.logInfo "ReactiveTestActions" "✅ Brokers ready (Tastytrade found)"
+                        CoreLogger.logInfo "TestActions" "✅ Brokers ready (Tastytrade found)"
 
                         // Check if all are ready and extract IDs
                         if brokersReady && currenciesReady && tickersReady then
@@ -80,7 +80,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
 
                     if hasRequiredCurrencies && not currenciesReady then
                         currenciesReady <- true
-                        CoreLogger.logInfo "ReactiveTestActions" "✅ Currencies ready (USD found)"
+                        CoreLogger.logInfo "TestActions" "✅ Currencies ready (USD found)"
 
                         // Check if all are ready
                         if brokersReady && currenciesReady && tickersReady then
@@ -96,14 +96,14 @@ type ReactiveTestActions(context: ReactiveTestContext) =
 
                     if hasRequiredTickers && not tickersReady then
                         tickersReady <- true
-                        CoreLogger.logInfo "ReactiveTestActions" "✅ Tickers ready (SPY found)"
+                        CoreLogger.logInfo "TestActions" "✅ Tickers ready (SPY found)"
 
                         // Check if all are ready
                         if brokersReady && currenciesReady && tickersReady then
                             tryExtractIds () |> ignore)
             |> ignore
 
-            CoreLogger.logInfo "ReactiveTestActions" "✅ Reactive listener started (non-blocking)"
+            CoreLogger.logInfo "TestActions" "✅ Reactive listener started (non-blocking)"
         }
         |> Async.StartImmediate
 
@@ -124,7 +124,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
 
             if context.TastytradeId <> 0 && context.UsdCurrencyId <> 0 then
                 CoreLogger.logInfof
-                    "ReactiveTestActions"
+                    "TestActions"
                     "✅ Entity IDs became available after %dms"
                     sw.ElapsedMilliseconds
 
@@ -133,7 +133,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                 let error =
                     sprintf "❌ Timeout waiting for entity IDs after %dms" sw.ElapsedMilliseconds
 
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "ID caching timeout", Some error)
         }
 
@@ -148,24 +148,24 @@ type ReactiveTestActions(context: ReactiveTestContext) =
     member self.initDatabase() : Async<bool * string * string option> =
         async {
             try
-                CoreLogger.logInfo "ReactiveTestActions" "Step 1: Configuring WorkOnMemory mode..."
-                do! ReactiveTestEnvironment.initializeDatabase ()
+                CoreLogger.logInfo "TestActions" "Step 1: Configuring WorkOnMemory mode..."
+                do! TestEnvironment.initializeDatabase ()
 
-                CoreLogger.logInfo "ReactiveTestActions" "Step 2: Starting reactive Collections listener..."
+                CoreLogger.logInfo "TestActions" "Step 2: Starting reactive Collections listener..."
                 self.startCollectionsListener ()
 
-                CoreLogger.logInfo "ReactiveTestActions" "Step 3: Initializing database schema..."
+                CoreLogger.logInfo "TestActions" "Step 3: Initializing database schema..."
                 do! Overview.InitDatabase() |> Async.AwaitTask
 
-                CoreLogger.logInfo "ReactiveTestActions" "Step 4: Loading reference data..."
+                CoreLogger.logInfo "TestActions" "Step 4: Loading reference data..."
                 do! Overview.LoadData() |> Async.AwaitTask
 
-                CoreLogger.logInfo "ReactiveTestActions" "Step 5: Waiting for entity IDs to be cached..."
+                CoreLogger.logInfo "TestActions" "Step 5: Waiting for entity IDs to be cached..."
                 let! (cached, _, cacheError) = self.waitForEntityIdsCached (10000) // 10 second timeout
 
                 if cached then
                     CoreLogger.logInfof
-                        "ReactiveTestActions"
+                        "TestActions"
                         "✅ Database initialized (Brokers=%d, Currencies=%d, Tickers=%d, Tastytrade=%d, IBKR=%d, USD=%d, EUR=%d, SPY=%d)"
                         Collections.Brokers.Count
                         Collections.Currencies.Count
@@ -181,7 +181,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                     return (false, "ID caching failed", cacheError)
             with ex ->
                 let error = sprintf "❌ Init failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Init failed", Some error)
         }
 
@@ -191,13 +191,13 @@ type ReactiveTestActions(context: ReactiveTestContext) =
     member _.wipeDataForTesting() : Async<bool * string * string option> =
         async {
             try
-                CoreLogger.logInfo "ReactiveTestActions" "Wiping all data for testing..."
+                CoreLogger.logInfo "TestActions" "Wiping all data for testing..."
                 do! Overview.WipeAllDataForTesting() |> Async.AwaitTask
-                CoreLogger.logInfo "ReactiveTestActions" "✅ Data wiped successfully"
+                CoreLogger.logInfo "TestActions" "✅ Data wiped successfully"
                 return (true, "Data wiped", None)
             with ex ->
                 let error = sprintf "❌ Wipe failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Wipe failed", Some error)
         }
 
@@ -207,11 +207,11 @@ type ReactiveTestActions(context: ReactiveTestContext) =
     member _.createBrokerAccount(name: string) : Async<bool * string * string option> =
         async {
             try
-                CoreLogger.logInfof "ReactiveTestActions" "Creating broker account: %s" name
+                CoreLogger.logInfof "TestActions" "Creating broker account: %s" name
 
                 if context.TastytradeId = 0 then
                     let error = "❌ Tastytrade broker not initialized - call initDatabase first"
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "No broker", Some error)
                 else
                     // Create account (returns Task<unit>)
@@ -236,15 +236,15 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                     match account with
                     | Some acc when acc.Broker.IsSome ->
                         context.BrokerAccountId <- acc.Broker.Value.Id
-                        CoreLogger.logInfof "ReactiveTestActions" "✅ Broker account created (ID=%d)" acc.Broker.Value.Id
+                        CoreLogger.logInfof "TestActions" "✅ Broker account created (ID=%d)" acc.Broker.Value.Id
                         return (true, sprintf "Account created (ID=%d)" acc.Broker.Value.Id, None)
                     | _ ->
                         let error = "❌ Could not find created account in Collections"
-                        CoreLogger.logError "ReactiveTestActions" error
+                        CoreLogger.logError "TestActions" error
                         return (false, "Account not found", Some error)
             with ex ->
                 let error = sprintf "❌ Create account failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Create failed", Some error)
         }
 
@@ -257,7 +257,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
         async {
             try
                 CoreLogger.logInfof
-                    "ReactiveTestActions"
+                    "TestActions"
                     "Creating movement: amount=%M, type=%A, daysOffset=%d"
                     amount
                     movementType
@@ -265,11 +265,11 @@ type ReactiveTestActions(context: ReactiveTestContext) =
 
                 if context.BrokerAccountId = 0 then
                     let error = "❌ BrokerAccount ID is 0 - call createBrokerAccount first"
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "No account", Some error)
                 elif context.UsdCurrencyId = 0 then
                     let error = "❌ USD Currency ID is 0 - call initDatabase first"
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "No currency", Some error)
                 else
                     // Get the actual BrokerAccount and Currency objects from Collections
@@ -288,11 +288,11 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                     match brokerAccount, usdCurrency with
                     | None, _ ->
                         let error = "❌ Could not find BrokerAccount object in Collections"
-                        CoreLogger.logError "ReactiveTestActions" error
+                        CoreLogger.logError "TestActions" error
                         return (false, "Account not found", Some error)
                     | _, None ->
                         let error = "❌ Could not find USD Currency object in Collections"
-                        CoreLogger.logError "ReactiveTestActions" error
+                        CoreLogger.logError "TestActions" error
                         return (false, "Currency not found", Some error)
                     | Some ba, Some curr ->
                         // Create movement with specified date offset
@@ -323,11 +323,11 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                         // Wait a moment for Collections to update
                         do! Async.Sleep(100)
 
-                        CoreLogger.logInfo "ReactiveTestActions" "✅ Movement created successfully"
+                        CoreLogger.logInfo "TestActions" "✅ Movement created successfully"
                         return (true, sprintf "Movement created: %M %A" amount movementType, None)
             with ex ->
                 let error = sprintf "❌ Create movement failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Create failed", Some error)
         }
 
@@ -341,7 +341,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
         async {
             try
                 CoreLogger.logInfof
-                    "ReactiveTestActions"
+                    "TestActions"
                     "Importing CSV: broker=%d, account=%d, file=%s"
                     brokerId
                     accountId
@@ -349,7 +349,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
 
                 if not (System.IO.File.Exists(csvPath)) then
                     let error = sprintf "❌ CSV file not found: %s" csvPath
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "File not found", Some error)
                 else
                     // Call ImportManager.importFile
@@ -364,7 +364,7 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                                 result.ImportedData.BrokerMovements
                                 result.ImportedData.NewTickers
 
-                        CoreLogger.logInfo "ReactiveTestActions" details
+                        CoreLogger.logInfo "TestActions" details
                         return (true, details, None)
                     else
                         let errorMsg =
@@ -373,11 +373,11 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                             else
                                 result.Errors |> List.map (fun e -> e.ErrorMessage) |> String.concat "; "
 
-                        CoreLogger.logError "ReactiveTestActions" (sprintf "❌ Import failed: %s" errorMsg)
+                        CoreLogger.logError "TestActions" (sprintf "❌ Import failed: %s" errorMsg)
                         return (false, "Import failed", Some errorMsg)
             with ex ->
                 let error = sprintf "❌ Import exception: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Import exception", Some error)
         }
 
@@ -395,9 +395,9 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let cleanMessage = sprintf "Account count: expected=%d, actual=%d" expected actual
 
             if success then
-                CoreLogger.logInfo "ReactiveTestActions" logMessage
+                CoreLogger.logInfo "TestActions" logMessage
             else
-                CoreLogger.logError "ReactiveTestActions" logMessage
+                CoreLogger.logError "TestActions" logMessage
 
             return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
@@ -416,9 +416,9 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let cleanMessage = sprintf "Movement count: expected=%d, actual=%d" expected actual
 
             if success then
-                CoreLogger.logInfo "ReactiveTestActions" logMessage
+                CoreLogger.logInfo "TestActions" logMessage
             else
-                CoreLogger.logError "ReactiveTestActions" logMessage
+                CoreLogger.logError "TestActions" logMessage
 
             return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
@@ -437,9 +437,9 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let cleanMessage = sprintf "Ticker count: expected=%d, actual=%d" expected actual
 
             if success then
-                CoreLogger.logInfo "ReactiveTestActions" logMessage
+                CoreLogger.logInfo "TestActions" logMessage
             else
-                CoreLogger.logError "ReactiveTestActions" logMessage
+                CoreLogger.logError "TestActions" logMessage
 
             return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
@@ -458,9 +458,9 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let cleanMessage = sprintf "Snapshot count: expected>=%d, actual=%d" expected actual
 
             if success then
-                CoreLogger.logInfo "ReactiveTestActions" logMessage
+                CoreLogger.logInfo "TestActions" logMessage
             else
-                CoreLogger.logError "ReactiveTestActions" logMessage
+                CoreLogger.logError "TestActions" logMessage
 
             return (success, cleanMessage, if success then None else Some "Count too low")
         }
@@ -479,9 +479,9 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let cleanMessage = sprintf "Broker count: expected=%d, actual=%d" expected actual
 
             if success then
-                CoreLogger.logInfo "ReactiveTestActions" logMessage
+                CoreLogger.logInfo "TestActions" logMessage
             else
-                CoreLogger.logError "ReactiveTestActions" logMessage
+                CoreLogger.logError "TestActions" logMessage
 
             return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
@@ -500,9 +500,9 @@ type ReactiveTestActions(context: ReactiveTestContext) =
             let cleanMessage = sprintf "Currency count: expected=%d, actual=%d" expected actual
 
             if success then
-                CoreLogger.logInfo "ReactiveTestActions" logMessage
+                CoreLogger.logInfo "TestActions" logMessage
             else
-                CoreLogger.logError "ReactiveTestActions" logMessage
+                CoreLogger.logError "TestActions" logMessage
 
             return (success, cleanMessage, if success then None else Some "Count mismatch")
         }
@@ -532,14 +532,14 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                         totalIncome
 
                 if success then
-                    CoreLogger.logInfo "ReactiveTestActions" message
+                    CoreLogger.logInfo "TestActions" message
                 else
-                    CoreLogger.logError "ReactiveTestActions" message
+                    CoreLogger.logError "TestActions" message
 
                 return (success, message, if success then None else Some "Income mismatch")
             with ex ->
                 let error = sprintf "❌ Options income verification failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Verification failed", Some error)
         }
 
@@ -583,14 +583,14 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                         realizedGains
 
                 if success then
-                    CoreLogger.logInfo "ReactiveTestActions" message
+                    CoreLogger.logInfo "TestActions" message
                 else
-                    CoreLogger.logError "ReactiveTestActions" message
+                    CoreLogger.logError "TestActions" message
 
                 return (success, message, if success then None else Some "Gains mismatch")
             with ex ->
                 let error = sprintf "❌ Realized gains verification failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Verification failed", Some error)
         }
 
@@ -633,14 +633,14 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                         unrealizedGains
 
                 if success then
-                    CoreLogger.logInfo "ReactiveTestActions" message
+                    CoreLogger.logInfo "TestActions" message
                 else
-                    CoreLogger.logError "ReactiveTestActions" message
+                    CoreLogger.logError "TestActions" message
 
                 return (success, message, if success then None else Some "Gains mismatch")
             with ex ->
                 let error = sprintf "❌ Unrealized gains verification failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Verification failed", Some error)
         }
 
@@ -672,18 +672,18 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                             deposited
 
                     if success then
-                        CoreLogger.logInfo "ReactiveTestActions" logMsg
+                        CoreLogger.logInfo "TestActions" logMsg
                     else
-                        CoreLogger.logError "ReactiveTestActions" logMsg
+                        CoreLogger.logError "TestActions" logMsg
 
                     return (success, message, if success then None else Some "Deposited mismatch")
                 | _ ->
                     let error = "❌ No BrokerAccount snapshot found in Collections.Snapshots"
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "0", Some error)
             with ex ->
                 let error = sprintf "❌ Deposited verification failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Verification failed", Some error)
         }
 
@@ -715,18 +715,18 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                             withdrawn
 
                     if success then
-                        CoreLogger.logInfo "ReactiveTestActions" logMsg
+                        CoreLogger.logInfo "TestActions" logMsg
                     else
-                        CoreLogger.logError "ReactiveTestActions" logMsg
+                        CoreLogger.logError "TestActions" logMsg
 
                     return (success, message, if success then None else Some "Withdrawn mismatch")
                 | _ ->
                     let error = "❌ No BrokerAccount snapshot found in Collections.Snapshots"
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "0", Some error)
             with ex ->
                 let error = sprintf "❌ Withdrawn verification failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Verification failed", Some error)
         }
 
@@ -758,18 +758,18 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                             counter
 
                     if success then
-                        CoreLogger.logInfo "ReactiveTestActions" logMsg
+                        CoreLogger.logInfo "TestActions" logMsg
                     else
-                        CoreLogger.logError "ReactiveTestActions" logMsg
+                        CoreLogger.logError "TestActions" logMsg
 
                     return (success, message, if success then None else Some "MovementCounter mismatch")
                 | _ ->
                     let error = "❌ No BrokerAccount snapshot found in Collections.Snapshots"
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "0", Some error)
             with ex ->
                 let error = sprintf "❌ MovementCounter verification failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Verification failed", Some error)
         }
 
@@ -795,16 +795,16 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                         actualCount
 
                 if success then
-                    CoreLogger.logInfo "ReactiveTestActions" logMsg
+                    CoreLogger.logInfo "TestActions" logMsg
                 else
-                    CoreLogger.logError "ReactiveTestActions" logMsg
+                    CoreLogger.logError "TestActions" logMsg
 
                 return (success, message, if success then None else Some "Snapshot count mismatch")
             with ex ->
                 let error =
                     sprintf "❌ BrokerAccounts.GetSnapshots verification failed: %s" ex.Message
 
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Verification failed", Some error)
         }
 
@@ -835,18 +835,18 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                             actualCount
 
                     if success then
-                        CoreLogger.logInfo "ReactiveTestActions" logMsg
+                        CoreLogger.logInfo "TestActions" logMsg
                     else
-                        CoreLogger.logError "ReactiveTestActions" logMsg
+                        CoreLogger.logError "TestActions" logMsg
 
                     return (success, message, if success then None else Some "Snapshot count mismatch")
                 | None ->
                     let error = "❌ PFE ticker not found in Collections.Tickers"
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "0", Some error)
             with ex ->
                 let error = sprintf "❌ Tickers.GetSnapshots verification failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Verification failed", Some error)
         }
 
@@ -878,18 +878,18 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                             actualCount
 
                     if success then
-                        CoreLogger.logInfo "ReactiveTestActions" logMsg
+                        CoreLogger.logInfo "TestActions" logMsg
                     else
-                        CoreLogger.logError "ReactiveTestActions" logMsg
+                        CoreLogger.logError "TestActions" logMsg
 
                     return (success, message, if success then None else Some "Snapshot count mismatch")
                 | None ->
                     let error = "❌ TSLL ticker not found in Collections.Tickers"
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "0", Some error)
             with ex ->
                 let error = sprintf "❌ Tickers.GetSnapshots verification failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Verification failed", Some error)
         }
 
@@ -949,28 +949,28 @@ type ReactiveTestActions(context: ReactiveTestContext) =
                                 details
 
                         if allValid then
-                            CoreLogger.logInfo "ReactiveTestActions" message
+                            CoreLogger.logInfo "TestActions" message
                         else
-                            CoreLogger.logError "ReactiveTestActions" message
+                            CoreLogger.logError "TestActions" message
 
                         return (allValid, message, if allValid then None else Some "Validation failed")
                     | None ->
                         let error =
                             sprintf "❌ TSLL snapshot not found for date %04d-%02d-%02d" year month day
 
-                        CoreLogger.logError "ReactiveTestActions" error
+                        CoreLogger.logError "TestActions" error
                         return (false, error, Some error)
                 | None ->
                     let error = "❌ TSLL ticker not found in Collections.Tickers"
-                    CoreLogger.logError "ReactiveTestActions" error
+                    CoreLogger.logError "TestActions" error
                     return (false, "Ticker not found", Some error)
             with ex ->
                 let error = sprintf "❌ TSLL snapshot validation failed: %s" ex.Message
-                CoreLogger.logError "ReactiveTestActions" error
+                CoreLogger.logError "TestActions" error
                 return (false, "Validation exception", Some error)
         }
 
     /// <summary>
-    /// Get the ReactiveTestContext
+    /// Get the TestContext
     /// </summary>
     member _.Context = context

@@ -13,14 +13,14 @@ open Binnaculum.Core.UI
 /// Mirrors Core.Platform.MauiTester's "RunBrokerAccountDepositReactiveTestButton" test.
 /// Demonstrates the Setup/Expect/Execute/Wait/Verify pattern for multi-phase operations.
 ///
-/// Inherits from ReactiveTestFixtureBase - no setup/teardown boilerplate needed.
+/// Inherits from TestFixtureBase - no setup/teardown boilerplate needed.
 ///
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
 [<TestFixture>]
-type ReactiveBrokerAccountDepositTests() =
-    inherit ReactiveTestFixtureBase()
+type BrokerAccountDepositTests() =
+    inherit TestFixtureBase()
 
     /// <summary>
     /// Test: BrokerAccount creation with deposit updates collections
@@ -48,7 +48,7 @@ type ReactiveBrokerAccountDepositTests() =
             let actions = this.Actions
 
             // ==================== PHASE 1: SETUP ====================
-            ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
+            TestSetup.printPhaseHeader 1 "Database Initialization"
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
@@ -61,10 +61,10 @@ type ReactiveBrokerAccountDepositTests() =
             printfn "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
-            ReactiveTestSetup.printPhaseHeader 2 "Create BrokerAccount"
+            TestSetup.printPhaseHeader 2 "Create BrokerAccount"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Accounts_Updated // Account added to Collections.Accounts
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
@@ -78,15 +78,15 @@ type ReactiveBrokerAccountDepositTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for account creation reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
             printfn "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: CREATE DEPOSIT MOVEMENT ====================
-            ReactiveTestSetup.printPhaseHeader 3 "Create Deposit Movement"
+            TestSetup.printPhaseHeader 3 "Create Deposit Movement"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Movements_Updated // Movement added to Collections.Movements
                   Snapshots_Updated ] // Snapshot recalculated with deposit
             )
@@ -102,12 +102,12 @@ type ReactiveBrokerAccountDepositTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for deposit creation reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Deposit creation signals should have been received")
             printfn "✅ Deposit creation signals received successfully"
 
             // ==================== PHASE 4: VERIFY ====================
-            ReactiveTestSetup.printPhaseHeader 4 "Verify Final State"
+            TestSetup.printPhaseHeader 4 "Verify Final State"
 
             // Verify account was created
             let! (verified, count, error) = actions.verifyAccountCount (1)
@@ -139,7 +139,7 @@ type ReactiveBrokerAccountDepositTests() =
             printfn "✅ Snapshot count verified: >= 1 (%s)" count
 
             // ==================== SUMMARY ====================
-            ReactiveTestSetup.printTestCompletionSummary
+            TestSetup.printTestCompletionSummary
                 "BrokerAccount + Deposit Creation"
                 "Successfully created BrokerAccount, added deposit movement, received all signals, and verified state in Collections"
 

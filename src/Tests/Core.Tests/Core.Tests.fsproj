@@ -22,25 +22,25 @@
     <Compile Include="Examples/InMemoryDatabaseExampleTests.fs" />
     
     <!-- Integration Test Framework - MUST COME FIRST (other tests depend on these) -->
-    <Compile Include="Integration/Framework/ReactiveTestEnvironment.fs" />
-    <Compile Include="Integration/Framework/ReactiveTestContext.fs" />
-    <Compile Include="Integration/Framework/ReactiveStreamObserver.fs" />
-    <Compile Include="Integration/Framework/ReactiveTestActions.fs" />
-    <Compile Include="Integration/Framework/ReactiveTestVerifications.fs" />
-    <Compile Include="Integration/Framework/ReactiveTestSetup.fs" />
-    <Compile Include="Integration/Framework/ReactiveTestFixtureBase.fs" />
+    <Compile Include="Integration/Framework/TestEnvironment.fs" />
+    <Compile Include="Integration/Framework/TestContext.fs" />
+    <Compile Include="Integration/Framework/StreamObserver.fs" />
+    <Compile Include="Integration/Framework/TestActions.fs" />
+    <Compile Include="Integration/Framework/TestVerifications.fs" />
+    <Compile Include="Integration/Framework/TestSetup.fs" />
+    <Compile Include="Integration/Framework/TestFixtureBase.fs" />
     
     <!-- Integration Tests - Workflows -->
-    <Compile Include="Integration/Workflows/ReactiveOverviewTests.fs" />
-    <Compile Include="Integration/Workflows/ReactiveBrokerAccountTests.fs" />
-    <Compile Include="Integration/Workflows/ReactiveBrokerAccountDepositTests.fs" />
-    <Compile Include="Integration/Workflows/ReactiveBrokerAccountMultipleMovementsTests.fs" />
-    <Compile Include="Integration/Workflows/ReactiveDepositsWithdrawalsTests.fs" />
+    <Compile Include="Integration/Workflows/OverviewTests.fs" />
+    <Compile Include="Integration/Workflows/BrokerAccountTests.fs" />
+    <Compile Include="Integration/Workflows/BrokerAccountDepositTests.fs" />
+    <Compile Include="Integration/Workflows/BrokerAccountMultipleMovementsTests.fs" />
+    <Compile Include="Integration/Workflows/DepositsWithdrawalsTests.fs" />
     
     <!-- Integration Tests - Import -->
-    <Compile Include="Integration/Import/ReactiveOptionsImportTests.fs" />
-    <Compile Include="Integration/Import/ReactivePfizerImportTests.fs" />
-    <Compile Include="Integration/Import/ReactiveTsllImportTests.fs" />
+    <Compile Include="Integration/Import/OptionsImportTests.fs" />
+    <Compile Include="Integration/Import/PfizerImportTests.fs" />
+    <Compile Include="Integration/Import/TsllImportTests.fs" />
     
     <!-- Unit Tests - Financial Calculations -->
     <Compile Include="Unit/Financial/BrokerAccountSnapshotTests.fs" />

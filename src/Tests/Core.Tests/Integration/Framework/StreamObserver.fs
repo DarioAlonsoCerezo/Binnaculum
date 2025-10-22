@@ -11,7 +11,7 @@ open Binnaculum.Core.UI
 /// <summary>
 /// Signal types representing reactive stream emissions
 /// </summary>
-type ReactiveSignal =
+type Signal =
     | Accounts_Updated
     | Movements_Updated
     | Snapshots_Updated
@@ -25,21 +25,21 @@ type ReactiveSignal =
 /// Monitors Collections streams and emits signals when changes occur.
 /// Provides deterministic waiting for expected signals instead of arbitrary delays.
 /// </summary>
-module ReactiveStreamObserver =
+module StreamObserver =
     
     let private subscriptions = ResizeArray<IDisposable>()
-    let private expectedSignals = ConcurrentBag<ReactiveSignal>()
-    let private receivedSignals = ConcurrentBag<ReactiveSignal>()
+    let private expectedSignals = ConcurrentBag<Signal>()
+    let private receivedSignals = ConcurrentBag<Signal>()
     let private completionSourceRef = ref None
     let private lockObj = obj()
     
     /// <summary>
     /// Record that a signal was received
     /// </summary>
-    let signalReceived (signal: ReactiveSignal) : unit =
+    let signalReceived (signal: Signal) : unit =
         lock lockObj (fun () ->
             receivedSignals.Add(signal)
-            printfn "[ReactiveStreamObserver] Signal received: %A (Total: %d/%d)" 
+            printfn "[StreamObserver] Signal received: %A (Total: %d/%d)" 
                 signal receivedSignals.Count expectedSignals.Count
             
             // Check if all expected signals have been received
@@ -56,7 +56,7 @@ module ReactiveStreamObserver =
                         (expected |> List.filter ((=) exp) |> List.length))
                 
                 if allReceived then
-                    printfn "[ReactiveStreamObserver] ✅ All expected signals received!"
+                    printfn "[StreamObserver] ✅ All expected signals received!"
                     (tcs: TaskCompletionSource<bool>).SetResult(true)
             | _ -> ()
         )
@@ -66,7 +66,7 @@ module ReactiveStreamObserver =
     /// </summary>
     let startObserving() : unit =
         lock lockObj (fun () ->
-            printfn "[ReactiveStreamObserver] 📡 Starting observation of reactive collections..."
+            printfn "[StreamObserver] 📡 Starting observation of reactive collections..."
             
             // Clear previous observations
             subscriptions |> Seq.iter (fun d -> d.Dispose())
@@ -82,7 +82,7 @@ module ReactiveStreamObserver =
                         if changes.Count > 0 then
                             signalReceived Accounts_Updated)
             subscriptions.Add(accountsSub)
-            printfn "[ReactiveStreamObserver] ✓ Subscribed to Collections.Accounts"
+            printfn "[StreamObserver] ✓ Subscribed to Collections.Accounts"
             
             // Observe Collections.Movements stream
             let movementsSub = 
@@ -91,7 +91,7 @@ module ReactiveStreamObserver =
                         if changes.Count > 0 then
                             signalReceived Movements_Updated)
             subscriptions.Add(movementsSub)
-            printfn "[ReactiveStreamObserver] ✓ Subscribed to Collections.Movements"
+            printfn "[StreamObserver] ✓ Subscribed to Collections.Movements"
             
             // Observe Collections.Snapshots stream
             let snapshotsSub = 
@@ -100,7 +100,7 @@ module ReactiveStreamObserver =
                         if changes.Count > 0 then
                             signalReceived Snapshots_Updated)
             subscriptions.Add(snapshotsSub)
-            printfn "[ReactiveStreamObserver] ✓ Subscribed to Collections.Snapshots"
+            printfn "[StreamObserver] ✓ Subscribed to Collections.Snapshots"
             
             // Observe Collections.Tickers stream
             let tickersSub = 
@@ -109,7 +109,7 @@ module ReactiveStreamObserver =
                         if changes.Count > 0 then
                             signalReceived Tickers_Updated)
             subscriptions.Add(tickersSub)
-            printfn "[ReactiveStreamObserver] ✓ Subscribed to Collections.Tickers"
+            printfn "[StreamObserver] ✓ Subscribed to Collections.Tickers"
             
             // Observe Collections.Currencies stream
             let currenciesSub = 
@@ -118,7 +118,7 @@ module ReactiveStreamObserver =
                         if changes.Count > 0 then
                             signalReceived Currencies_Updated)
             subscriptions.Add(currenciesSub)
-            printfn "[ReactiveStreamObserver] ✓ Subscribed to Collections.Currencies"
+            printfn "[StreamObserver] ✓ Subscribed to Collections.Currencies"
             
             // Observe Collections.Brokers stream
             let brokersSub = 
@@ -127,7 +127,7 @@ module ReactiveStreamObserver =
                         if changes.Count > 0 then
                             signalReceived Brokers_Updated)
             subscriptions.Add(brokersSub)
-            printfn "[ReactiveStreamObserver] ✓ Subscribed to Collections.Brokers"
+            printfn "[StreamObserver] ✓ Subscribed to Collections.Brokers"
             
             // Observe Collections.Banks stream
             let banksSub = 
@@ -136,9 +136,9 @@ module ReactiveStreamObserver =
                         if changes.Count > 0 then
                             signalReceived Banks_Updated)
             subscriptions.Add(banksSub)
-            printfn "[ReactiveStreamObserver] ✓ Subscribed to Collections.Banks"
+            printfn "[StreamObserver] ✓ Subscribed to Collections.Banks"
             
-            printfn "[ReactiveStreamObserver] ✅ Observation started for all collections"
+            printfn "[StreamObserver] ✅ Observation started for all collections"
         )
     
     /// <summary>
@@ -146,32 +146,32 @@ module ReactiveStreamObserver =
     /// </summary>
     let stopObserving() : unit =
         lock lockObj (fun () ->
-            printfn "[ReactiveStreamObserver] Stopping observation..."
+            printfn "[StreamObserver] Stopping observation..."
             subscriptions |> Seq.iter (fun d -> d.Dispose())
             subscriptions.Clear()
             expectedSignals.Clear()
             receivedSignals.Clear()
             completionSourceRef := None
-            printfn "[ReactiveStreamObserver] ✅ Observation stopped"
+            printfn "[StreamObserver] ✅ Observation stopped"
         )
     
     /// <summary>
     /// Declare expected signals before performing an operation
     /// </summary>
-    let expectSignals (signals: ReactiveSignal list) : unit =
+    let expectSignals (signals: Signal list) : unit =
         lock lockObj (fun () ->
             expectedSignals.Clear()
             receivedSignals.Clear()
             signals |> List.iter expectedSignals.Add
             completionSourceRef := Some (new TaskCompletionSource<bool>())
-            printfn "[ReactiveStreamObserver] 🎯 Expecting %d signals: %A" signals.Length signals
+            printfn "[StreamObserver] 🎯 Expecting %d signals: %A" signals.Length signals
         )
     
     /// <summary>
     /// Get the current status of signal reception
     /// Returns (expected signals, received signals, missing signals)
     /// </summary>
-    let getSignalStatus() : (ReactiveSignal array * ReactiveSignal array * ReactiveSignal array) =
+    let getSignalStatus() : (Signal array * Signal array * Signal array) =
         lock lockObj (fun () ->
             let expected = expectedSignals |> Seq.toArray
             let received = receivedSignals |> Seq.toArray
@@ -193,25 +193,25 @@ module ReactiveStreamObserver =
         async {
             match !completionSourceRef with
             | None ->
-                printfn "[ReactiveStreamObserver] ⚠️  No signals expected - call expectSignals first"
+                printfn "[StreamObserver] ⚠️  No signals expected - call expectSignals first"
                 return false
             | Some tcs ->
-                printfn "[ReactiveStreamObserver] ⏳ Waiting for signals (timeout: %A)..." timeout
+                printfn "[StreamObserver] ⏳ Waiting for signals (timeout: %A)..." timeout
                 
                 use cts = new CancellationTokenSource(timeout)
                 use _ = cts.Token.Register(fun () ->
                     if not tcs.Task.IsCompleted then
-                        printfn "[ReactiveStreamObserver] ⏰ Timeout reached"
+                        printfn "[StreamObserver] ⏰ Timeout reached"
                         tcs.TrySetResult(false) |> ignore
                 )
                 
                 let! result = tcs.Task |> Async.AwaitTask
                 
                 if result then
-                    printfn "[ReactiveStreamObserver] ✅ All signals received successfully"
+                    printfn "[StreamObserver] ✅ All signals received successfully"
                 else
                     let (expected, received, missing) = getSignalStatus()
-                    printfn "[ReactiveStreamObserver] ❌ Timeout - Expected: %A, Received: %A, Missing: %A" 
+                    printfn "[StreamObserver] ❌ Timeout - Expected: %A, Received: %A, Missing: %A" 
                         expected received missing
                 
                 return result

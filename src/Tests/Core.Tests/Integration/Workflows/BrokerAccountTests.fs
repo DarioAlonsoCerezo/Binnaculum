@@ -13,14 +13,14 @@ open Binnaculum.Core.UI
 /// Mirrors Core.Platform.MauiTester's "RunBrokerAccountReactiveTestButton" test.
 /// Demonstrates the Setup/Expect/Execute/Wait/Verify pattern for BrokerAccount operations.
 ///
-/// Inherits from ReactiveTestFixtureBase - no setup/teardown boilerplate needed.
+/// Inherits from TestFixtureBase - no setup/teardown boilerplate needed.
 ///
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
 [<TestFixture>]
-type ReactiveBrokerAccountTests() =
-    inherit ReactiveTestFixtureBase()
+type BrokerAccountTests() =
+    inherit TestFixtureBase()
 
     /// <summary>
     /// Test: BrokerAccount creation updates collections
@@ -44,7 +44,7 @@ type ReactiveBrokerAccountTests() =
             let actions = this.Actions
 
             // ==================== PHASE 1: SETUP ====================
-            ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
+            TestSetup.printPhaseHeader 1 "Database Initialization"
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
@@ -57,10 +57,10 @@ type ReactiveBrokerAccountTests() =
             printfn "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
-            ReactiveTestSetup.printPhaseHeader 2 "Create BrokerAccount"
+            TestSetup.printPhaseHeader 2 "Create BrokerAccount"
 
             // EXPECT: Declare expected signals BEFORE operation
-            ReactiveStreamObserver.expectSignals (
+            StreamObserver.expectSignals (
                 [ Accounts_Updated // Account added to Collections.Accounts
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
@@ -74,12 +74,12 @@ type ReactiveBrokerAccountTests() =
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             printfn "⏳ Waiting for reactive signals..."
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Expected signals should have been received")
             printfn "✅ All signals received successfully"
 
             // ==================== PHASE 3: VERIFY ====================
-            ReactiveTestSetup.printPhaseHeader 3 "Verify Account Created"
+            TestSetup.printPhaseHeader 3 "Verify Account Created"
 
             // Verify account was created
             let! (verified, count, error) = actions.verifyAccountCount (1)
@@ -94,7 +94,7 @@ type ReactiveBrokerAccountTests() =
             printfn "✅ Account count verified: 1"
 
             // ==================== SUMMARY ====================
-            ReactiveTestSetup.printTestCompletionSummary
+            TestSetup.printTestCompletionSummary
                 "BrokerAccount Creation"
                 "Successfully created BrokerAccount, received all signals, and verified account in Collections"
 

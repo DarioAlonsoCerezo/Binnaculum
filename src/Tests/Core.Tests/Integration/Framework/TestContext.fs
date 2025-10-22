@@ -1,10 +1,10 @@
 namespace Core.Tests.Integration
 
 /// <summary>
-/// Reactive test context for maintaining state across test operations.
+/// Test context for maintaining state across test operations.
 /// Stores IDs and data created during test setup for use in subsequent operations.
 /// </summary>
-type ReactiveTestContext = {
+type TestContext = {
     mutable TastytradeId: int
     mutable IbkrId: int
     mutable BrokerAccountId: int
@@ -15,12 +15,12 @@ type ReactiveTestContext = {
     mutable SpyTickerId: int
 }
 
-module ReactiveTestContext =
+module TestContext =
     
     /// <summary>
     /// Create a new test context with default values
     /// </summary>
-    let create() : ReactiveTestContext =
+    let create() : TestContext =
         {
             TastytradeId = 0
             IbkrId = 0
@@ -35,7 +35,7 @@ module ReactiveTestContext =
     /// <summary>
     /// Reset context to default values
     /// </summary>
-    let reset(ctx: ReactiveTestContext) : unit =
+    let reset(ctx: TestContext) : unit =
         ctx.TastytradeId <- 0
         ctx.IbkrId <- 0
         ctx.BrokerAccountId <- 0

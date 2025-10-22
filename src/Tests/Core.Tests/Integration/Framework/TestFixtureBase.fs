@@ -15,14 +15,14 @@ open System
 /// ------
 /// 1. Inherit from this class
 /// 2. Add [<Test>] methods using this.Actions
-/// 3. Use ReactiveStreamObserver.expectSignals() and waitForAllSignalsAsync()
-/// 4. Use ReactiveTestVerifications for assertions
+/// 3. Use StreamObserver.expectSignals() and waitForAllSignalsAsync()
+/// 4. Use TestVerifications for assertions
 ///
 /// EXAMPLE:
 /// --------
 ///     [<TestFixture>]
 ///     type MyTests() =
-///         inherit ReactiveTestFixtureBase()
+///         inherit TestFixtureBase()
 ///
 ///         [<Test>]
 ///         member this.``My test``() = async {
@@ -32,13 +32,13 @@ open System
 ///             let! (ok, _, _) = actions.initDatabase()
 ///
 ///             // Expect signals BEFORE operation
-///             ReactiveStreamObserver.expectSignals([ Accounts_Updated ])
+///             StreamObserver.expectSignals([ Accounts_Updated ])
 ///
 ///             // Execute
 ///             let! (ok, _) = actions.createBrokerAccount("Test")
 ///
 ///             // Wait for signals (NOT Thread.Sleep!)
-///             let! received = ReactiveStreamObserver.waitForAllSignalsAsync(TimeSpan.FromSeconds(10.0))
+///             let! received = StreamObserver.waitForAllSignalsAsync(TimeSpan.FromSeconds(10.0))
 ///             Assert.That(received, Is.True)
 ///
 ///             // Verify
@@ -54,15 +54,15 @@ open System
 ///
 /// Derived classes should:
 /// 1. Override test methods with [<Test>] attribute
-/// 2. Use Context property to access ReactiveTestContext
-/// 3. Use Actions property to access ReactiveTestActions
-/// 4. Call ReactiveTestSetup utility functions for standardized operations
+/// 2. Use Context property to access TestContext
+/// 3. Use Actions property to access TestActions
+/// 4. Call TestSetup utility functions for standardized operations
 /// </summary>
 [<AbstractClass>]
-type ReactiveTestFixtureBase() =
+type TestFixtureBase() =
 
-    let mutable testContext: ReactiveTestContext option = None
-    let mutable testActions: ReactiveTestActions option = None
+    let mutable testContext: Core.Tests.Integration.TestContext option = None
+    let mutable testActions: Core.Tests.Integration.TestActions option = None
 
     /// <summary>
     /// Gets the test context.
@@ -89,7 +89,7 @@ type ReactiveTestFixtureBase() =
     [<SetUp>]
     member _.Setup() =
         async {
-            let! (ctx, actions) = ReactiveTestSetup.setupTestEnvironment ()
+            let! (ctx, actions) = TestSetup.setupTestEnvironment ()
             testContext <- Some ctx
             testActions <- Some actions
         }
@@ -101,7 +101,7 @@ type ReactiveTestFixtureBase() =
     [<TearDown>]
     member _.Teardown() =
         async {
-            do! ReactiveTestSetup.teardownTestEnvironment ()
+            do! TestSetup.teardownTestEnvironment ()
             testContext <- None
             testActions <- None
         }

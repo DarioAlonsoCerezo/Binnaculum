@@ -14,7 +14,7 @@ open Binnaculum.Core.UI
 ///
 /// See README.md for usage examples.
 /// </summary>
-module ReactiveTestSetup =
+module TestSetup =
 
     /// <summary>
     /// Sets up the test environment for reactive testing.
@@ -24,7 +24,7 @@ module ReactiveTestSetup =
     ///
     /// Returns a tuple of (testContext, testActions) for use in tests.
     /// </summary>
-    let setupTestEnvironment () : Async<ReactiveTestContext * ReactiveTestActions> =
+    let setupTestEnvironment () : Async<TestContext * TestActions> =
         async {
             printfn "\n=== Test Setup ==="
 
@@ -40,12 +40,12 @@ module ReactiveTestSetup =
                 printfn "⚠️  Wipe failed: %s (may be expected if DB not initialized)" ex.Message
 
             // Start observing reactive streams
-            ReactiveStreamObserver.startObserving ()
+            StreamObserver.startObserving ()
             printfn "✅ Reactive stream observation started"
 
             // Create test context and actions
-            let ctx = ReactiveTestContext.create ()
-            let actions = ReactiveTestActions(ctx)
+            let ctx = TestContext.create ()
+            let actions = TestActions(ctx)
 
             printfn "=== Setup Complete ===\n"
 
@@ -60,7 +60,7 @@ module ReactiveTestSetup =
     let teardownTestEnvironment () : Async<unit> =
         async {
             printfn "\n=== Test Teardown ==="
-            ReactiveStreamObserver.stopObserving ()
+            StreamObserver.stopObserving ()
             printfn "✅ Reactive stream observation stopped"
             printfn "=== Teardown Complete ===\n"
         }
@@ -70,13 +70,13 @@ module ReactiveTestSetup =
     /// Provides a reusable pattern for database initialization tests.
     /// </summary>
     let initializeDatabaseAndVerifySignals
-        (actions: ReactiveTestActions)
-        (expectedSignals: ReactiveSignal list)
+        (actions: TestActions)
+        (expectedSignals: Signal list)
         (timeout: TimeSpan)
         : Async<bool> =
         async {
             // Expect the signals
-            ReactiveStreamObserver.expectSignals expectedSignals
+            StreamObserver.expectSignals expectedSignals
 
             let signalNames =
                 expectedSignals |> List.map (fun s -> s.ToString()) |> String.concat ", "
@@ -92,7 +92,7 @@ module ReactiveTestSetup =
                 printfn "✅ Database initialized"
 
             // Wait for signals
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync timeout
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync timeout
 
             if signalsReceived then
                 printfn "✅ All expected signals received"
@@ -124,7 +124,7 @@ module ReactiveTestSetup =
     /// </summary>
     let verifyAndPrintState (description: string) : Async<bool> =
         async {
-            let (success, stateSummary) = ReactiveTestVerifications.verifyCollectionsState ()
+            let (success, stateSummary) = TestVerifications.verifyCollectionsState ()
             printfn "%s: %s" description stateSummary
 
             if not success then
