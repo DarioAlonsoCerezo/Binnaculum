@@ -34,6 +34,7 @@
     <Compile Include="Integration/ReactiveOptionsImportTests.fs" />
     <Compile Include="Integration/ReactiveDepositsWithdrawalsTests.fs" />
     <Compile Include="Integration/ReactivePfizerImportTests.fs" />
+    <Compile Include="Integration/ReactiveTsllImportTests.fs" />
     <Compile Include="BrokerAccountSnapshotTests.fs" />
     <Compile Include="BrokerAccountMultiCurrencySnapshotTests.fs" />
     <Compile Include="BrokerSnapshotTests.fs" />
