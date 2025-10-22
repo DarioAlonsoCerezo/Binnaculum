@@ -160,9 +160,9 @@ type DepositsWithdrawalsTests() =
                 sprintf "Snapshot count verification should succeed: %s - %A" snapshotCount error
             )
 
-            printfn
-                "✅ Collections.Snapshots verified: >= 1 (%s) [Collections only contains latest snapshot]"
-                snapshotCount
+            CoreLogger.logInfo "[Verification]"
+                (sprintf "✅ Collections.Snapshots verified: >= 1 (%s) [Collections only contains latest snapshot]"
+                snapshotCount)
 
             // ==================== PHASE 5: VERIFY FINANCIAL CALCULATIONS ====================
             TestSetup.printPhaseHeader 5 "Verify Financial Calculations"

@@ -156,25 +156,25 @@ type TsllImportTests() =
             TestSetup.printPhaseHeader 5 "Validate 4 Specific TSLL Snapshots by Date"
 
             // Validate snapshot 1: 2024-05-30 (Oldest snapshot - initial put position)
-            printfn "📅 Validating snapshot: 2024-05-30 (Oldest - initial put position)"
+            CoreLogger.logDebug "[Validation]" "📅 Validating snapshot: 2024-05-30 (Oldest - initial put position)"
             let! (verified, details, error) = actions.validateTsllSnapshot (2024, 5, 30)
             Assert.That(verified, Is.True, sprintf "2024-05-30 snapshot validation should pass: %s - %A" details error)
             CoreLogger.logInfo "[Verification]" "✅ 2024-05-30 snapshot validated"
 
             // Validate snapshot 2: 2024-06-07 (After expiration - put expired worthless)
-            printfn "📅 Validating snapshot: 2024-06-07 (After expiration)"
+            CoreLogger.logDebug "[Validation]" "📅 Validating snapshot: 2024-06-07 (After expiration)"
             let! (verified, details, error) = actions.validateTsllSnapshot (2024, 6, 7)
             Assert.That(verified, Is.True, sprintf "2024-06-07 snapshot validation should pass: %s - %A" details error)
             CoreLogger.logInfo "[Verification]" "✅ 2024-06-07 snapshot validated"
 
             // Validate snapshot 3: 2024-10-15 (Open calls - new call positions)
-            printfn "📅 Validating snapshot: 2024-10-15 (Open calls)"
+            CoreLogger.logDebug "[Validation]" "📅 Validating snapshot: 2024-10-15 (Open calls)"
             let! (verified, details, error) = actions.validateTsllSnapshot (2024, 10, 15)
             Assert.That(verified, Is.True, sprintf "2024-10-15 snapshot validation should pass: %s - %A" details error)
             CoreLogger.logInfo "[Verification]" "✅ 2024-10-15 snapshot validated"
 
             // Validate snapshot 4: 2024-10-18 (Additional trades - more call activity)
-            printfn "📅 Validating snapshot: 2024-10-18 (Additional trades)"
+            CoreLogger.logDebug "[Validation]" "📅 Validating snapshot: 2024-10-18 (Additional trades)"
             let! (verified, details, error) = actions.validateTsllSnapshot (2024, 10, 18)
             Assert.That(verified, Is.True, sprintf "2024-10-18 snapshot validation should pass: %s - %A" details error)
             CoreLogger.logInfo "[Verification]" "✅ 2024-10-18 snapshot validated"
