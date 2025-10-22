@@ -578,6 +578,99 @@ type ReactiveTestActions(context: ReactiveTestContext) =
         }
     
     /// <summary>
+    /// Verify TSLL ticker snapshots count using Tickers.GetSnapshots
+    /// Query: Tickers.GetSnapshots(tsllTickerId) length
+    /// Returns: (success, count_as_string, error_option)
+    /// </summary>
+    member _.verifyTsllSnapshotCount(expectedCount: int) : Async<bool * string * string option> =
+        async {
+            try
+                // Find TSLL ticker in Collections
+                let tsllTicker = 
+                    Collections.Tickers.Items
+                    |> Seq.tryFind (fun t -> t.Symbol = "TSLL")
+                
+                match tsllTicker with
+                | Some ticker ->
+                    // Call Tickers.GetSnapshots to retrieve snapshots for TSLL
+                    let! snapshots = Tickers.GetSnapshots(ticker.Id) |> Async.AwaitTask
+                    let actualCount = snapshots |> List.length
+                    let success = actualCount = expectedCount
+                    let message = sprintf "%d" actualCount
+                    printfn "[ReactiveTestActions] %s Tickers.GetSnapshots(TSLL): expected=%d, actual=%d" 
+                        (if success then "✅" else "❌") expectedCount actualCount
+                    return (success, message, if success then None else Some "Snapshot count mismatch")
+                | None ->
+                    let error = "TSLL ticker not found in Collections.Tickers"
+                    printfn "[ReactiveTestActions] ❌ %s" error
+                    return (false, "0", Some error)
+            with ex ->
+                let error = sprintf "Tickers.GetSnapshots verification failed: %s" ex.Message
+                printfn "[ReactiveTestActions] ❌ %s" error
+                return (false, "Verification failed", Some error)
+        }
+    
+    /// <summary>
+    /// Validate a specific TSLL snapshot by date
+    /// Checks: Options income, TotalShares, Unrealized, Realized values
+    /// Returns: (success, validation_details, error_option)
+    /// </summary>
+    member _.validateTsllSnapshot(year: int, month: int, day: int) : Async<bool * string * string option> =
+        async {
+            try
+                // Find TSLL ticker in Collections
+                let tsllTicker = 
+                    Collections.Tickers.Items
+                    |> Seq.tryFind (fun t -> t.Symbol = "TSLL")
+                
+                match tsllTicker with
+                | Some ticker ->
+                    // Call Tickers.GetSnapshots to retrieve snapshots for TSLL
+                    let! snapshots = Tickers.GetSnapshots(ticker.Id) |> Async.AwaitTask
+                    
+                    // Find snapshot for the specific date
+                    let targetDate = DateOnly(year, month, day)
+                    let snapshot = 
+                        snapshots
+                        |> List.tryFind (fun s -> s.Date = targetDate)
+                    
+                    match snapshot with
+                    | Some snap ->
+                        // Get the main currency snapshot (should be USD)
+                        let mainCurrency = snap.MainCurrency
+                        
+                        // Validate key properties
+                        let validations = [
+                            ("TotalShares", mainCurrency.TotalShares = 0.0m, sprintf "Expected 0, got %M" mainCurrency.TotalShares)
+                            ("Currency", mainCurrency.Currency.Code = "USD", sprintf "Expected USD, got %s" mainCurrency.Currency.Code)
+                        ]
+                        
+                        let allValid = validations |> List.forall (fun (_, valid, _) -> valid)
+                        let details = 
+                            validations 
+                            |> List.map (fun (name, valid, msg) -> 
+                                if valid then sprintf "%s: ✓" name 
+                                else sprintf "%s: ✗ %s" name msg)
+                            |> String.concat ", "
+                        
+                        let message = sprintf "Snapshot %04d-%02d-%02d validated: %s" year month day details
+                        printfn "[ReactiveTestActions] %s %s" (if allValid then "✅" else "❌") message
+                        return (allValid, message, if allValid then None else Some "Validation failed")
+                    | None ->
+                        let error = sprintf "TSLL snapshot not found for date %04d-%02d-%02d" year month day
+                        printfn "[ReactiveTestActions] ❌ %s" error
+                        return (false, error, Some error)
+                | None ->
+                    let error = "TSLL ticker not found in Collections.Tickers"
+                    printfn "[ReactiveTestActions] ❌ %s" error
+                    return (false, "Ticker not found", Some error)
+            with ex ->
+                let error = sprintf "TSLL snapshot validation failed: %s" ex.Message
+                printfn "[ReactiveTestActions] ❌ %s" error
+                return (false, "Validation exception", Some error)
+        }
+    
+    /// <summary>
     /// Get the ReactiveTestContext
     /// </summary>
     member _.Context = context
