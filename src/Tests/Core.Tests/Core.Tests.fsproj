@@ -17,58 +17,79 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="InMemoryDatabaseFixture.fs" />
-    <Compile Include="InMemoryDatabaseExampleTests.fs" />
-    <!-- Integration Tests - Signal-Based Reactive Testing -->
-    <Compile Include="Integration/ReactiveTestEnvironment.fs" />
-    <Compile Include="Integration/ReactiveTestContext.fs" />
-    <Compile Include="Integration/ReactiveStreamObserver.fs" />
-    <Compile Include="Integration/ReactiveTestActions.fs" />
-    <Compile Include="Integration/ReactiveTestVerifications.fs" />
-    <Compile Include="Integration/ReactiveTestSetup.fs" />
-    <Compile Include="Integration/ReactiveTestFixtureBase.fs" />
-    <Compile Include="Integration/ReactiveOverviewTests.fs" />
-    <Compile Include="Integration/ReactiveBrokerAccountTests.fs" />
-    <Compile Include="Integration/ReactiveBrokerAccountDepositTests.fs" />
-    <Compile Include="Integration/ReactiveBrokerAccountMultipleMovementsTests.fs" />
-    <Compile Include="Integration/ReactiveOptionsImportTests.fs" />
-    <Compile Include="Integration/ReactiveDepositsWithdrawalsTests.fs" />
-    <Compile Include="Integration/ReactivePfizerImportTests.fs" />
-    <Compile Include="Integration/ReactiveTsllImportTests.fs" />
-    <Compile Include="BrokerAccountSnapshotTests.fs" />
-    <Compile Include="BrokerAccountMultiCurrencySnapshotTests.fs" />
-    <Compile Include="BrokerSnapshotTests.fs" />
-    <Compile Include="BrokerFinancialSnapshotAggregationTests.fs" />
-  <Compile Include="BrokerFinancialCalculateTests.fs" />
-    <Compile Include="BrokerFinancialSnapshotRefactoredTests.fs" />
-    <Compile Include="BrokerAccountFinancialCalculationTests.fs" />
-    <Compile Include="BrokerFinancialSnapshotManagerIntegrationTests.fs" />
-    <Compile Include="BrokerFinancialSnapshotManagerPerformanceTests.fs" />
-    <Compile Include="HistoricalDepositTests.fs" />
-    <Compile Include="NetCashFlowTests.fs" />
-    <Compile Include="PercentageCalculationTests.fs" />
-    <Compile Include="ReactiveCurrencyManagerTests.fs" />
-    <Compile Include="ReactiveTickerManagerTests.fs" />
-    <Compile Include="ReactiveBrokerManagerTests.fs" />
-    <Compile Include="ReactiveBrokerAccountManagerTests.fs" />
-    <Compile Include="ReactiveBankManagerTests.fs" />
-    <Compile Include="ReactiveBankAccountManagerTests.fs" />
-    <Compile Include="ReactiveApplicationManagerTests.fs" />
-    <Compile Include="ReactiveTickerIntegrationTests.fs" />
-    <Compile Include="TickersUIAPITests.fs" />
-    <Compile Include="BrokerAccountsUIAPITests.fs" />
-    <Compile Include="TickerExtensionsAutoCreationTests.fs" />
-    <Compile Include="DataLoaderTests.fs" />
-    <Compile Include="EmptySnapshotManagementTests.fs" />
-    <Compile Include="OverviewWipingTests.fs" />
-    <Compile Include="WorkOnMemoryIntegrationExample.fs" />
-    <Compile Include="ImportManagerTests.fs" />
-    <Compile Include="DatabasePersistenceTests.fs" />
-    <Compile Include="IBKRImportTests.fs" />
-    <Compile Include="TastytradeImportTests.fs" />
-    <Compile Include="TastytradeTransactionConverterTests.fs" />
-    <Compile Include="OptionTradeLinkingTests.fs" />
-    <Compile Include="SpecialDividendAdjustmentTests.fs" />
+    <!-- Examples and Fixtures - Independent utilities -->
+    <Compile Include="Examples/InMemoryDatabaseFixture.fs" />
+    <Compile Include="Examples/InMemoryDatabaseExampleTests.fs" />
+    
+    <!-- Integration Test Framework - MUST COME FIRST (other tests depend on these) -->
+    <Compile Include="Integration/Framework/ReactiveTestEnvironment.fs" />
+    <Compile Include="Integration/Framework/ReactiveTestContext.fs" />
+    <Compile Include="Integration/Framework/ReactiveStreamObserver.fs" />
+    <Compile Include="Integration/Framework/ReactiveTestActions.fs" />
+    <Compile Include="Integration/Framework/ReactiveTestVerifications.fs" />
+    <Compile Include="Integration/Framework/ReactiveTestSetup.fs" />
+    <Compile Include="Integration/Framework/ReactiveTestFixtureBase.fs" />
+    
+    <!-- Integration Tests - Workflows -->
+    <Compile Include="Integration/Workflows/ReactiveOverviewTests.fs" />
+    <Compile Include="Integration/Workflows/ReactiveBrokerAccountTests.fs" />
+    <Compile Include="Integration/Workflows/ReactiveBrokerAccountDepositTests.fs" />
+    <Compile Include="Integration/Workflows/ReactiveBrokerAccountMultipleMovementsTests.fs" />
+    <Compile Include="Integration/Workflows/ReactiveDepositsWithdrawalsTests.fs" />
+    
+    <!-- Integration Tests - Import -->
+    <Compile Include="Integration/Import/ReactiveOptionsImportTests.fs" />
+    <Compile Include="Integration/Import/ReactivePfizerImportTests.fs" />
+    <Compile Include="Integration/Import/ReactiveTsllImportTests.fs" />
+    
+    <!-- Unit Tests - Financial Calculations -->
+    <Compile Include="Unit/Financial/BrokerAccountSnapshotTests.fs" />
+    <Compile Include="Unit/Financial/BrokerAccountMultiCurrencySnapshotTests.fs" />
+    <Compile Include="Unit/Financial/BrokerSnapshotTests.fs" />
+    <Compile Include="Unit/Financial/BrokerFinancialSnapshotAggregationTests.fs" />
+    <Compile Include="Unit/Financial/BrokerFinancialCalculateTests.fs" />
+    <Compile Include="Unit/Financial/BrokerFinancialSnapshotRefactoredTests.fs" />
+    <Compile Include="Unit/Financial/BrokerAccountFinancialCalculationTests.fs" />
+    <Compile Include="Unit/Financial/HistoricalDepositTests.fs" />
+    <Compile Include="Unit/Financial/NetCashFlowTests.fs" />
+    <Compile Include="Unit/Financial/PercentageCalculationTests.fs" />
+    
+    <!-- Unit Tests - Reactive Managers -->
+    <Compile Include="Unit/Managers/ReactiveCurrencyManagerTests.fs" />
+    <Compile Include="Unit/Managers/ReactiveTickerManagerTests.fs" />
+    <Compile Include="Unit/Managers/ReactiveBrokerManagerTests.fs" />
+    <Compile Include="Unit/Managers/ReactiveBrokerAccountManagerTests.fs" />
+    <Compile Include="Unit/Managers/ReactiveBankManagerTests.fs" />
+    <Compile Include="Unit/Managers/ReactiveBankAccountManagerTests.fs" />
+    <Compile Include="Unit/Managers/ReactiveApplicationManagerTests.fs" />
+    <Compile Include="Unit/Managers/ReactiveTickerIntegrationTests.fs" />
+    
+    <!-- Unit Tests - Import/Converters -->
+    <Compile Include="Unit/Import/IBKRImportTests.fs" />
+    <Compile Include="Unit/Import/TastytradeImportTests.fs" />
+    <Compile Include="Unit/Import/TastytradeTransactionConverterTests.fs" />
+    <Compile Include="Unit/Import/OptionTradeLinkingTests.fs" />
+    <Compile Include="Unit/Import/SpecialDividendAdjustmentTests.fs" />
+    
+    <!-- Unit Tests - Database -->
+    <Compile Include="Unit/Database/DataLoaderTests.fs" />
+    <Compile Include="Unit/Database/DatabasePersistenceTests.fs" />
+    <Compile Include="Unit/Database/EmptySnapshotManagementTests.fs" />
+    <Compile Include="Unit/Database/OverviewWipingTests.fs" />
+    
+    <!-- Performance Tests -->
+    <Compile Include="Performance/BrokerFinancialSnapshotManagerIntegrationTests.fs" />
+    <Compile Include="Performance/BrokerFinancialSnapshotManagerPerformanceTests.fs" />
+    
+    <!-- UI API Tests -->
+    <Compile Include="UIAPI/TickersUIAPITests.fs" />
+    <Compile Include="UIAPI/BrokerAccountsUIAPITests.fs" />
+    <Compile Include="UIAPI/TickerExtensionsAutoCreationTests.fs" />
+    
+    <!-- Additional Examples -->
+    <Compile Include="Examples/WorkOnMemoryIntegrationExample.fs" />
+    <Compile Include="Examples/ImportManagerTests.fs" />
+    
     <!-- <Compile Include="SavedPreferencesTests.fs" /> Disabled - MAUI platform APIs don't work in headless test environment -->
   </ItemGroup>
 
