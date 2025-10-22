@@ -76,7 +76,7 @@ module StreamObserver =
             subscriptions.Clear()
             expectedSignals.Clear()
             receivedSignals.Clear()
-            completionSourceRef := None
+            completionSourceRef.Value <- None
 
             // Observe Collections.Accounts stream
             let accountsSub =
@@ -167,7 +167,7 @@ module StreamObserver =
             subscriptions.Clear()
             expectedSignals.Clear()
             receivedSignals.Clear()
-            completionSourceRef := None
+            completionSourceRef.Value <- None
             printfn "[StreamObserver] ✅ Observation stopped")
 
     /// <summary>
@@ -178,7 +178,7 @@ module StreamObserver =
             expectedSignals.Clear()
             receivedSignals.Clear()
             signals |> List.iter expectedSignals.Add
-            completionSourceRef := Some(new TaskCompletionSource<bool>())
+            completionSourceRef.Value <- Some(new TaskCompletionSource<bool>())
             printfn "[StreamObserver] 🎯 Expecting %d signals: %A" signals.Length signals)
 
     /// <summary>
