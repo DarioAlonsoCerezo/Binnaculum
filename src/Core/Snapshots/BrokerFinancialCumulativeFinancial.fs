@@ -111,13 +111,11 @@ module internal BrokerFinancialCumulativeFinancial =
                     targetDate
                     currencyId
 
-            // Combine stock and option unrealized gains
-            let totalUnrealizedGains =
-                Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
+            // FIX: UnrealizedGains should ONLY include stock positions (not options)
+            // Options use OptionsIncome for tracking, not unrealized gains
+            let totalUnrealizedGains = stockUnrealizedGains
 
-            // Calculate cumulative NetCashFlow as the actual contributed capital
-            // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
-            // We do NOT subtract Commissions and Fees separately to avoid double-counting
+            // Calculate cumulative NetCashFlow - OptionsIncome already includes fees/commissions
             let cumulativeNetCashFlow =
                 cumulativeDeposited.Value - cumulativeWithdrawn.Value
                 + cumulativeDividendsReceived.Value

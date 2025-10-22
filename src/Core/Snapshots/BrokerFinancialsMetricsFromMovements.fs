@@ -154,7 +154,9 @@ module internal BrokerFinancialsMetricsFromMovements =
         let result =
             { Deposited = Money.FromAmount adjustedDeposited
               Withdrawn = Money.FromAmount adjustedWithdrawn
-              Invested = Money.FromAmount(tradingSummary.TotalInvested.Value + dailyOptionsInvestment.Value)
+              // FIX: Invested should ONLY include stock positions (not options)
+              // Options are tracked via OptionsIncome, not Invested
+              Invested = Money.FromAmount(tradingSummary.TotalInvested.Value)
               RealizedGains = Money.FromAmount(tradingSummary.RealizedGains.Value + dailyOptionRealized.Value)
               DividendsReceived = netDividendIncome
               OptionsIncome = dailyOptionsIncome

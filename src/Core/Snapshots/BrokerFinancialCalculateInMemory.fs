@@ -170,12 +170,12 @@ module internal BrokerFinancialCalculateInMemory =
                 currencyId
                 marketPrices
 
-        let totalUnrealizedGains =
-            Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
+        // FIX: UnrealizedGains should ONLY include stock positions (not options)
+        // Options use OptionsIncome for tracking, not unrealized gains
+        let totalUnrealizedGains = stockUnrealizedGains
 
         // Calculate cumulative NetCashFlow as the actual contributed capital
-        // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
-        // We do NOT subtract Commissions and Fees separately to avoid double-counting
+        // Note: OptionsIncome is NetPremium which already includes commissions and fees
         let cumulativeNetCashFlow =
             cumulativeDeposited.Value - cumulativeWithdrawn.Value
             + cumulativeDividendsReceived.Value
@@ -325,12 +325,10 @@ module internal BrokerFinancialCalculateInMemory =
         // Calculate unrealized gains (simplified for now - will be enhanced in Phase 2)
         let stockUnrealizedGains = Money.FromAmount(0m) // TODO: Phase 2 - pre-loaded market prices
 
-        let totalUnrealizedGains =
-            Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
+        // FIX: UnrealizedGains should ONLY include stock positions (not options)
+        let totalUnrealizedGains = stockUnrealizedGains
 
-        // Calculate cumulative NetCashFlow as the actual contributed capital
-        // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
-        // We do NOT subtract Commissions and Fees separately to avoid double-counting
+        // Calculate cumulative NetCashFlow - OptionsIncome already includes fees/commissions
         let cumulativeNetCashFlow =
             cumulativeDeposited.Value - cumulativeWithdrawn.Value
             + cumulativeDividendsReceived.Value
@@ -387,12 +385,10 @@ module internal BrokerFinancialCalculateInMemory =
         // Calculate unrealized gains (simplified for now - will be enhanced in Phase 2)
         let stockUnrealizedGains = Money.FromAmount(0m) // TODO: Phase 2 - pre-loaded market prices
 
-        let totalUnrealizedGains =
-            Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
+        // FIX: UnrealizedGains should ONLY include stock positions (not options)
+        let totalUnrealizedGains = stockUnrealizedGains
 
-        // Calculate NetCashFlow as the actual contributed capital
-        // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
-        // We do NOT subtract Commissions and Fees separately to avoid double-counting
+        // Calculate NetCashFlow - OptionsIncome already includes fees/commissions
         let netCashFlow =
             calculatedMetrics.Deposited.Value - calculatedMetrics.Withdrawn.Value
             + calculatedMetrics.DividendsReceived.Value

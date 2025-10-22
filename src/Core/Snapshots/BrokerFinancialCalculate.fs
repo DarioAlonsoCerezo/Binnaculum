@@ -21,12 +21,14 @@ module internal BrokerFinancialCalculate =
         (calculatedMetrics: CalculatedFinancialMetrics)
         (stockUnrealizedGains: Money)
         =
-        let totalUnrealizedGains =
-            Money.FromAmount(stockUnrealizedGains.Value + calculatedMetrics.OptionUnrealizedGains.Value)
+        // FIX: UnrealizedGains should ONLY include stock positions (not options)
+        // Options use OptionsIncome for tracking, not unrealized gains
+        let totalUnrealizedGains = stockUnrealizedGains
 
         // Calculate NetCashFlow as the actual contributed capital
-        // Note: OptionsIncome already includes commissions and fees (NetPremium = Premium - Commissions - Fees)
-        // We do NOT subtract Commissions and Fees separately to avoid double-counting
+        // Note: OptionsIncome is NetPremium which already includes commissions and fees
+        // (NetPremium = Premium - Commissions - Fees for each trade)
+        // Therefore, we do NOT subtract Commissions and Fees separately to avoid double-counting
         let netCashFlow =
             calculatedMetrics.Deposited.Value - calculatedMetrics.Withdrawn.Value
             + calculatedMetrics.DividendsReceived.Value
