@@ -269,7 +269,7 @@
 ///     let verifications = TestVerifications.verifyFullDatabaseState()
 ///     for (success, message) in verifications do
 ///         Assert.That(success, Is.True, message)
-///         printfn "✅ %s" message
+///         CoreLogger.logInfo "[Verification]" (sprintf "✅ %s" message)
 ///
 /// Pattern 4: Print Phase Headers
 /// -------------------------------
@@ -277,6 +277,55 @@
 ///     let! result = actions.initDatabase()
 ///     TestSetup.printPhaseHeader 2 "Account Creation"
 ///     // ...
+///
+/// LOGGING BEST PRACTICES
+/// ======================
+///
+/// All integration tests use CoreLogger for structured logging with component tags.
+///
+/// Log Level Guidelines:
+/// ---------------------
+/// - CoreLogger.logInfo    - Important milestones, test progress, completion
+/// - CoreLogger.logDebug   - Detailed tracking, signal expectations, internal state
+/// - CoreLogger.logWarning - Non-fatal issues, timeouts, missing expected data
+/// - CoreLogger.logError   - Test failures, errors that require attention
+///
+/// Component Tag Conventions:
+/// -------------------------
+/// - [Test]           - Test headers, summaries, completion messages
+/// - [TestSetup]      - Database initialization, test configuration
+/// - [TestActions]    - Test operations, waiting for operations to complete
+/// - [StreamObserver] - Signal tracking, expectation setup, reception status
+/// - [Verification]   - Assertion results, validation outcomes
+/// - [Import]         - CSV import operations, file processing
+///
+/// Example Usage:
+/// -------------
+///     // Test start/end
+///     CoreLogger.logInfo "[Test]" "=== TEST: BrokerAccount Creation ==="
+///     
+///     // Setup operations
+///     CoreLogger.logInfo "[TestSetup]" "✅ Data wiped successfully"
+///     
+///     // Signal expectations (verbose, use debug)
+///     CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+///     
+///     // Test operations
+///     CoreLogger.logInfo "[TestActions]" "⏳ Waiting for reactive signals..."
+///     
+///     // Verification results
+///     CoreLogger.logInfo "[Verification]" (sprintf "✅ Account count verified: %d" count)
+///     
+///     // Errors
+///     CoreLogger.logError "[TestActions]" (sprintf "❌ Import failed: %s" error)
+///
+/// Why CoreLogger over printfn:
+/// ---------------------------
+/// 1. Structured logging with component tags for filtering
+/// 2. Consistent log levels (INFO, DEBUG, WARNING, ERROR)
+/// 3. Central configuration and control
+/// 4. Better integration with test runners and CI systems
+/// 5. Easier to debug complex test scenarios
 ///
 /// TROUBLESHOOTING
 /// ===============

@@ -4,6 +4,7 @@ open NUnit.Framework
 open System
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// Example reactive integration test - Overview validation.
@@ -36,7 +37,7 @@ type OverviewTests() =
     [<Category("Integration")>]
     member this.``Overview reactive validation``() =
         async {
-            printfn "\n=== TEST: Overview Reactive Validation ==="
+            CoreLogger.logInfo "[Test]" "=== TEST: Overview Reactive Validation ==="
 
             let actions = this.Actions
 
@@ -73,7 +74,7 @@ type OverviewTests() =
             // Assert all verifications passed
             for (success, message) in verifications do
                 Assert.That(success, Is.True, message)
-                printfn "✅ %s" message
+                CoreLogger.logInfo "[Verification]" (sprintf "✅ %s" message)
 
             // Additional detailed verifications
             let (brokerSuccess, brokerMsg) = TestVerifications.verifyBrokers 2
@@ -97,7 +98,7 @@ type OverviewTests() =
             let (stateSuccess, stateSummary) =
                 TestVerifications.verifyCollectionsState ()
 
-            printfn "%s" stateSummary
+            CoreLogger.logInfo "[Test]" stateSummary
 
             TestSetup.printTestCompletionSummary
                 "Overview Reactive Validation"
