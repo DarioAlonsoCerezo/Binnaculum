@@ -1,31 +1,31 @@
-# Reactive Integration Testing Pattern
+# Integration Testing Pattern
 
 ## Overview
 
-This directory contains a reusable pattern for implementing signal-based integration tests that mirror the MAUI tester's reactive validation approach. The pattern enables headless testing of reactive streams without platform dependencies.
+This directory contains a reusable pattern for implementing signal-based integration tests that mirror the MAUI tester's validation approach. The pattern enables headless testing of reactive streams without platform dependencies.
 
 ## Architecture
 
 ```
 Integration/
-├── ReactiveTestEnvironment.fs        (Test environment configuration)
-├── ReactiveTestContext.fs             (Test context wrapper)
-├── ReactiveStreamObserver.fs           (Signal observation and waiting)
-├── ReactiveTestActions.fs              (Common test actions)
-├── ReactiveTestVerifications.fs        (Reusable verification helpers)
-├── ReactiveTestSetup.fs                (Setup/teardown utilities)
-├── ReactiveTestFixtureBase.fs          (Base class for test fixtures) ← NEW
-└── ReactiveOverviewTests.fs            (Example test implementation)
+├── TestEnvironment.fs        (Test environment configuration)
+├── TestContext.fs             (Test context wrapper)
+├── StreamObserver.fs           (Signal observation and waiting)
+├── TestActions.fs              (Common test actions)
+├── TestVerifications.fs        (Reusable verification helpers)
+├── TestSetup.fs                (Setup/teardown utilities)
+├── TestFixtureBase.fs          (Base class for test fixtures) ← NEW
+└── OverviewTests.fs            (Example test implementation)
 ```
 
-## Quick Start: Creating a New Reactive Test
+## Quick Start: Creating a New Integration Test
 
 ### Step 1: Inherit from Base Class
 
 ```fsharp
 [<TestFixture>]
-type MyReactiveTests() =
-    inherit ReactiveTestFixtureBase()
+type MyTests() =
+    inherit TestFixtureBase()
     
     // Setup and teardown are inherited!
 ```
@@ -35,7 +35,7 @@ type MyReactiveTests() =
 ```fsharp
     [<Test>]
     [<Category("Integration")>]
-    member this.``My reactive test``() =
+    member this.``My integration test``() =
         async {
             let actions = this.Actions  // Access Actions property
             let ctx = this.Context      // Access Context property
@@ -47,14 +47,14 @@ type MyReactiveTests() =
 ### Step 3: Use Verification Helpers
 
 ```fsharp
-    // Use ReactiveTestVerifications module
-    let (success, message) = ReactiveTestVerifications.verifyBrokers 2
+    // Use TestVerifications module
+    let (success, message) = TestVerifications.verifyBrokers 2
     Assert.That(success, Is.True, message)
     
-    // Use ReactiveTestSetup utilities
-    ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
+    // Use TestSetup utilities
+    TestSetup.printPhaseHeader 1 "Database Initialization"
     let! signalsReceived = 
-        ReactiveTestSetup.initializeDatabaseAndVerifySignals
+        TestSetup.initializeDatabaseAndVerifySignals
             actions
             expectedSignals
             (TimeSpan.FromSeconds(10.0))
@@ -62,17 +62,17 @@ type MyReactiveTests() =
 
 ## Components
 
-### ReactiveTestFixtureBase
+### TestFixtureBase
 
 **Purpose:** Base class for all reactive test fixtures  
 **Provides:**
 - Automatic `Setup()` / `Teardown()` via inheritance
-- `this.Actions` - Access to ReactiveTestActions
-- `this.Context` - Access to ReactiveTestContext
+- `this.Actions` - Access to TestActions
+- `this.Context` - Access to TestContext
 - InMemory database mode
 - Reactive stream observation
 
-### ReactiveTestSetup
+### TestSetup
 
 **Purpose:** Reusable setup and database utilities  
 **Functions:**
@@ -82,7 +82,7 @@ type MyReactiveTests() =
 - `printPhaseHeader()` - Standardized phase reporting
 - `printTestCompletionSummary()` - Standardized completion reporting
 
-### ReactiveTestVerifications
+### TestVerifications
 
 **Purpose:** Reusable collection verification helpers  
 **Functions:**
@@ -96,7 +96,7 @@ type MyReactiveTests() =
 - `verifyCollectionsState()` - Get formatted state summary
 - `verifyFullDatabaseState()` - Run all standard verifications
 
-### ReactiveStreamObserver
+### StreamObserver
 
 **Purpose:** Monitor reactive streams and emit signals  
 **Key Types:**
@@ -105,12 +105,12 @@ type MyReactiveTests() =
 - `waitForAllSignalsAsync()` - Wait for signals with timeout
 - `getSignalStatus()` - Get signal verification status
 
-## Pattern Example: ReactiveOverviewTests
+## Pattern Example: OverviewTests
 
 ```fsharp
 [<TestFixture>]
-type ReactiveOverviewTests() =
-    inherit ReactiveTestFixtureBase()
+type OverviewTests() =
+    inherit TestFixtureBase()
 
     [<Test>]
     [<Category("Integration")>]
@@ -119,11 +119,11 @@ type ReactiveOverviewTests() =
             let actions = this.Actions
 
             // Phase 1: Initialize and verify signals
-            ReactiveTestSetup.printPhaseHeader 1 "Database Initialization"
+            TestSetup.printPhaseHeader 1 "Database Initialization"
             let expectedSignals = [ Brokers_Updated; Currencies_Updated ]
             
             let! signalsReceived =
-                ReactiveTestSetup.initializeDatabaseAndVerifySignals
+                TestSetup.initializeDatabaseAndVerifySignals
                     actions
                     expectedSignals
                     (TimeSpan.FromSeconds(10.0))
@@ -131,8 +131,8 @@ type ReactiveOverviewTests() =
             Assert.That(signalsReceived, Is.True)
 
             // Phase 2: Verify collections
-            ReactiveTestSetup.printPhaseHeader 2 "Verify Collections"
-            let verifications = ReactiveTestVerifications.verifyFullDatabaseState()
+            TestSetup.printPhaseHeader 2 "Verify Collections"
+            let verifications = TestVerifications.verifyFullDatabaseState()
             
             for (success, message) in verifications do
                 Assert.That(success, Is.True, message)
@@ -148,8 +148,8 @@ Instead of arbitrary delays:
 // ❌ DON'T: Thread.Sleep(1000)
 
 // ✅ DO: Wait for signals
-ReactiveStreamObserver.expectSignals([ Brokers_Updated ])
-let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync timeout
+StreamObserver.expectSignals([ Brokers_Updated ])
+let! signalsReceived = StreamObserver.waitForAllSignalsAsync timeout
 Assert.That(signalsReceived, Is.True)
 ```
 
@@ -157,11 +157,11 @@ Assert.That(signalsReceived, Is.True)
 
 ```fsharp
 // ✅ Use built-in verifiers
-let (success, message) = ReactiveTestVerifications.verifyBrokers 2
+let (success, message) = TestVerifications.verifyBrokers 2
 Assert.That(success, Is.True, message)
 
 // ✅ Use batched verifications
-let verifications = ReactiveTestVerifications.verifyFullDatabaseState()
+let verifications = TestVerifications.verifyFullDatabaseState()
 for (success, message) in verifications do
     Assert.That(success, Is.True, message)
 ```
@@ -170,10 +170,10 @@ for (success, message) in verifications do
 
 When implementing new reactive tests:
 
-1. **Create new test class** inheriting from `ReactiveTestFixtureBase`
+1. **Create new test class** inheriting from `TestFixtureBase`
 2. **Use Actions property** for test operations
-3. **Use ReactiveTestSetup** for common operations
-4. **Use ReactiveTestVerifications** for assertions
+3. **Use TestSetup** for common operations
+4. **Use TestVerifications** for assertions
 5. **Follow naming convention** of existing tests
 
 Example:
@@ -181,18 +181,18 @@ Example:
 ```fsharp
 [<TestFixture>]
 type BrokerAccountReactiveTests() =
-    inherit ReactiveTestFixtureBase()
+    inherit TestFixtureBase()
 
     [<Test>]
     member this.``Create account fires signals``() =
         async {
             let actions = this.Actions
-            ReactiveTestSetup.printPhaseHeader 1 "Create Account"
+            TestSetup.printPhaseHeader 1 "Create Account"
             
-            ReactiveStreamObserver.expectSignals [ Accounts_Updated ]
+            StreamObserver.expectSignals [ Accounts_Updated ]
             let! (ok, _, error) = actions.createBrokerAccount("Test")
             
-            let! signalsReceived = ReactiveStreamObserver.waitForAllSignalsAsync timeout
+            let! signalsReceived = StreamObserver.waitForAllSignalsAsync timeout
             Assert.That(signalsReceived, Is.True)
         }
 ```
