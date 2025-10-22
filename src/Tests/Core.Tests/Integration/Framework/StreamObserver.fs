@@ -27,13 +27,13 @@ type Signal =
 /// Provides deterministic waiting for expected signals instead of arbitrary delays.
 /// </summary>
 module StreamObserver =
-    
+
     let private subscriptions = ResizeArray<IDisposable>()
     let private expectedSignals = ConcurrentBag<Signal>()
     let private receivedSignals = ConcurrentBag<Signal>()
     let private completionSourceRef = ref None
-    let private lockObj = obj()
-    
+    let private lockObj = obj ()
+
     /// <summary>
     /// Record that a signal was received
     /// </summary>
@@ -44,28 +44,27 @@ module StreamObserver =
                 signal receivedSignals.Count expectedSignals.Count)
             
             // Check if all expected signals have been received
-            match !completionSourceRef with
-            | Some (tcs: TaskCompletionSource<bool>) when not tcs.Task.IsCompleted ->
+            match completionSourceRef.Value with
+            | Some(tcs: TaskCompletionSource<bool>) when not tcs.Task.IsCompleted ->
                 let expected = expectedSignals |> Seq.toList
                 let received = receivedSignals |> Seq.toList
-                
+
                 // Check if all expected signals are in received
-                let allReceived = 
-                    expected 
-                    |> List.forall (fun exp -> 
-                        received |> List.filter ((=) exp) |> List.length >= 
-                        (expected |> List.filter ((=) exp) |> List.length))
-                
+                let allReceived =
+                    expected
+                    |> List.forall (fun exp ->
+                        received |> List.filter ((=) exp) |> List.length
+                        >= (expected |> List.filter ((=) exp) |> List.length))
+
                 if allReceived then
                     CoreLogger.logInfo "[StreamObserver]" "✅ All expected signals received!"
                     (tcs: TaskCompletionSource<bool>).SetResult(true)
-            | _ -> ()
-        )
-    
+            | _ -> ())
+
     /// <summary>
     /// Start observing all reactive streams
     /// </summary>
-    let startObserving() : unit =
+    let startObserving () : unit =
         lock lockObj (fun () ->
             CoreLogger.logInfo "[StreamObserver]" "📡 Starting observation of reactive collections..."
             
@@ -74,68 +73,82 @@ module StreamObserver =
             subscriptions.Clear()
             expectedSignals.Clear()
             receivedSignals.Clear()
-            completionSourceRef := None
-            
+            completionSourceRef.Value <- None
+
             // Observe Collections.Accounts stream
-            let accountsSub = 
-                Collections.Accounts.Connect()
+            let accountsSub =
+                Collections.Accounts
+                    .Connect()
                     .Subscribe(fun changes ->
                         if changes.Count > 0 then
                             signalReceived Accounts_Updated)
+
             subscriptions.Add(accountsSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Accounts"
             
             // Observe Collections.Movements stream
-            let movementsSub = 
-                Collections.Movements.Connect()
+            let movementsSub =
+                Collections.Movements
+                    .Connect()
                     .Subscribe(fun changes ->
                         if changes.Count > 0 then
                             signalReceived Movements_Updated)
+
             subscriptions.Add(movementsSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Movements"
             
             // Observe Collections.Snapshots stream
-            let snapshotsSub = 
-                Collections.Snapshots.Connect()
+            let snapshotsSub =
+                Collections.Snapshots
+                    .Connect()
                     .Subscribe(fun changes ->
                         if changes.Count > 0 then
                             signalReceived Snapshots_Updated)
+
             subscriptions.Add(snapshotsSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Snapshots"
             
             // Observe Collections.Tickers stream
-            let tickersSub = 
-                Collections.Tickers.Connect()
+            let tickersSub =
+                Collections.Tickers
+                    .Connect()
                     .Subscribe(fun changes ->
                         if changes.Count > 0 then
                             signalReceived Tickers_Updated)
+
             subscriptions.Add(tickersSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Tickers"
             
             // Observe Collections.Currencies stream
-            let currenciesSub = 
-                Collections.Currencies.Connect()
+            let currenciesSub =
+                Collections.Currencies
+                    .Connect()
                     .Subscribe(fun changes ->
                         if changes.Count > 0 then
                             signalReceived Currencies_Updated)
+
             subscriptions.Add(currenciesSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Currencies"
             
             // Observe Collections.Brokers stream
-            let brokersSub = 
-                Collections.Brokers.Connect()
+            let brokersSub =
+                Collections.Brokers
+                    .Connect()
                     .Subscribe(fun changes ->
                         if changes.Count > 0 then
                             signalReceived Brokers_Updated)
+
             subscriptions.Add(brokersSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Brokers"
             
             // Observe Collections.Banks stream
-            let banksSub = 
-                Collections.Banks.Connect()
+            let banksSub =
+                Collections.Banks
+                    .Connect()
                     .Subscribe(fun changes ->
                         if changes.Count > 0 then
                             signalReceived Banks_Updated)
+
             subscriptions.Add(banksSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Banks"
             
@@ -145,7 +158,7 @@ module StreamObserver =
     /// <summary>
     /// Stop observing reactive streams
     /// </summary>
-    let stopObserving() : unit =
+    let stopObserving () : unit =
         lock lockObj (fun () ->
             CoreLogger.logInfo "[StreamObserver]" "Stopping observation..."
             subscriptions |> Seq.iter (fun d -> d.Dispose())
@@ -172,27 +185,27 @@ module StreamObserver =
     /// Get the current status of signal reception
     /// Returns (expected signals, received signals, missing signals)
     /// </summary>
-    let getSignalStatus() : (Signal array * Signal array * Signal array) =
+    let getSignalStatus () : (Signal array * Signal array * Signal array) =
         lock lockObj (fun () ->
             let expected = expectedSignals |> Seq.toArray
             let received = receivedSignals |> Seq.toArray
-            let missing = 
-                expected 
+
+            let missing =
+                expected
                 |> Array.filter (fun exp ->
                     let expectedCount = expected |> Array.filter ((=) exp) |> Array.length
                     let receivedCount = received |> Array.filter ((=) exp) |> Array.length
                     receivedCount < expectedCount)
-            
-            (expected, received, missing)
-        )
-    
+
+            (expected, received, missing))
+
     /// <summary>
     /// Wait for all expected signals to be received (with timeout)
     /// Returns true if all signals were received, false if timeout occurred
     /// </summary>
     let waitForAllSignalsAsync (timeout: TimeSpan) : Async<bool> =
         async {
-            match !completionSourceRef with
+            match completionSourceRef.Value with
             | None ->
                 CoreLogger.logWarning "[StreamObserver]" "⚠️  No signals expected - call expectSignals first"
                 return false
@@ -207,7 +220,7 @@ module StreamObserver =
                 )
                 
                 let! result = tcs.Task |> Async.AwaitTask
-                
+
                 if result then
                     CoreLogger.logInfo "[StreamObserver]" "✅ All signals received successfully"
                 else
