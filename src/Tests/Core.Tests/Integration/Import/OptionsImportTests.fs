@@ -66,7 +66,7 @@ type OptionsImportTests() =
     [<Category("Integration")>]
     member this.``Options import from CSV updates collections``() =
         async {
-            CoreLogger.logInfo "[Test]" "=== TEST: Options Import from CSV Updates Collections ==="
+            CoreLogger.logInfo "Test" "=== TEST: Options Import from CSV Updates Collections ==="
 
             let actions = this.Actions
 
@@ -76,12 +76,12 @@ type OptionsImportTests() =
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
             Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
-            CoreLogger.logInfo "[Verification]" "✅ Data wiped successfully"
+            CoreLogger.logInfo "Verification" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
             Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
-            CoreLogger.logInfo "[Verification]" "✅ Database initialized successfully"
+            CoreLogger.logInfo "Verification" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
             TestSetup.printPhaseHeader 2 "Create BrokerAccount for Import"
@@ -92,25 +92,25 @@ type OptionsImportTests() =
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
 
-            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "StreamObserver" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("Options-Import-Test")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
-            CoreLogger.logInfo "[Verification]" (sprintf "✅ BrokerAccount created: %s" details)
+            CoreLogger.logInfo "Verification" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for account creation reactive signals..."
+            CoreLogger.logInfo "TestActions" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
-            CoreLogger.logInfo "[Verification]" "✅ Account creation signals received successfully"
+            CoreLogger.logInfo "Verification" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: IMPORT OPTIONS CSV ====================
             TestSetup.printPhaseHeader 3 "Import Options CSV File"
 
             // Get CSV path
             let csvPath = this.getCsvPath ("TastytradeOptionsTest.csv")
-            CoreLogger.logDebug "[Import]" (sprintf "📄 CSV file path: %s" csvPath)
+            CoreLogger.logDebug "Import" (sprintf "📄 CSV file path: %s" csvPath)
             Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
@@ -134,13 +134,13 @@ type OptionsImportTests() =
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
             Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
-            CoreLogger.logInfo "[Verification]" (sprintf "✅ CSV import completed: %s" importDetails)
+            CoreLogger.logInfo "Verification" (sprintf "✅ CSV import completed: %s" importDetails)
 
             // WAIT: Wait for import signals (longer timeout for import processing)
-            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for import reactive signals..."
+            CoreLogger.logInfo "TestActions" "⏳ Waiting for import reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
             Assert.That(signalsReceived, Is.True, "Import signals should have been received")
-            CoreLogger.logInfo "[Verification]" "✅ Import signals received successfully"
+            CoreLogger.logInfo "Verification" "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY SOFI TICKER SNAPSHOTS CHRONOLOGICALLY ====================
             TestSetup.printPhaseHeader 4 "Verify SOFI Ticker Snapshots with Complete Financial State"
@@ -153,13 +153,13 @@ type OptionsImportTests() =
 
             let sofiTickerId = sofiTicker.Value.Id
             let usd = Collections.Currencies.Items |> Seq.find (fun c -> c.Code = "USD")
-            CoreLogger.logInfo "[Verification]" (sprintf "📊 SOFI Ticker ID: %d" sofiTickerId)
+            CoreLogger.logInfo "Verification" (sprintf "📊 SOFI Ticker ID: %d" sofiTickerId)
 
             // Get all SOFI snapshots using Tickers.GetSnapshots from Core
             let! sofiSnapshots = Tickers.GetSnapshots(sofiTickerId) |> Async.AwaitTask
             let sortedSOFISnapshots = sofiSnapshots |> List.sortBy (fun s -> s.Date)
 
-            CoreLogger.logInfo "[Verification]" (sprintf "📊 Found %d SOFI snapshots" sortedSOFISnapshots.Length)
+            CoreLogger.logInfo "Verification" (sprintf "📊 Found %d SOFI snapshots" sortedSOFISnapshots.Length)
 
             Assert.That(
                 sortedSOFISnapshots.Length,
@@ -192,13 +192,13 @@ type OptionsImportTests() =
             Assert.That(mpwTicker.IsSome, Is.True, "MPW ticker should exist in Collections")
 
             let mpwTickerId = mpwTicker.Value.Id
-            CoreLogger.logInfo "[Verification]" (sprintf "📊 MPW Ticker ID: %d" mpwTickerId)
+            CoreLogger.logInfo "Verification" (sprintf "📊 MPW Ticker ID: %d" mpwTickerId)
 
             // Get all MPW snapshots using Tickers.GetSnapshots from Core
             let! mpwSnapshots = Tickers.GetSnapshots(mpwTickerId) |> Async.AwaitTask
             let sortedMPWSnapshots = mpwSnapshots |> List.sortBy (fun s -> s.Date)
 
-            CoreLogger.logInfo "[Verification]" (sprintf "📊 Found %d MPW snapshots" sortedMPWSnapshots.Length)
+            CoreLogger.logInfo "Verification" (sprintf "📊 Found %d MPW snapshots" sortedMPWSnapshots.Length)
 
             Assert.That(
                 sortedMPWSnapshots.Length,
@@ -233,13 +233,13 @@ type OptionsImportTests() =
             Assert.That(pltrTicker.IsSome, Is.True, "PLTR ticker should exist in Collections")
 
             let pltrTickerId = pltrTicker.Value.Id
-            CoreLogger.logInfo "[Verification]" (sprintf "📊 PLTR Ticker ID: %d" pltrTickerId)
+            CoreLogger.logInfo "Verification" (sprintf "📊 PLTR Ticker ID: %d" pltrTickerId)
 
             // Get all PLTR snapshots using Tickers.GetSnapshots from Core
             let! pltrSnapshots = Tickers.GetSnapshots(pltrTickerId) |> Async.AwaitTask
             let sortedPLTRSnapshots = pltrSnapshots |> List.sortBy (fun s -> s.Date)
 
-            CoreLogger.logInfo "[Verification]" (sprintf "📊 Found %d PLTR snapshots" sortedPLTRSnapshots.Length)
+            CoreLogger.logInfo "Verification" (sprintf "📊 Found %d PLTR snapshots" sortedPLTRSnapshots.Length)
 
             Assert.That(
                 sortedPLTRSnapshots.Length,
@@ -269,7 +269,7 @@ type OptionsImportTests() =
 
             // Get broker account from context
             let brokerAccountId = actions.Context.BrokerAccountId
-            CoreLogger.logInfo "[Verification]" (sprintf "📊 BrokerAccount ID: %d" brokerAccountId)
+            CoreLogger.logInfo "Verification" (sprintf "📊 BrokerAccount ID: %d" brokerAccountId)
 
             // Get all broker account snapshots using BrokerAccounts.GetSnapshots from Core
             let! overviewSnapshots = BrokerAccounts.GetSnapshots(brokerAccountId) |> Async.AwaitTask
@@ -282,7 +282,7 @@ type OptionsImportTests() =
                 |> List.map snd
 
             CoreLogger.logInfo
-                "[Verification]"
+                "Verification"
                 (sprintf "📊 Found %d BrokerAccount snapshots" brokerFinancialSnapshots.Length)
 
             Assert.That(brokerFinancialSnapshots.Length, Is.EqualTo(9), "Should have 9 BrokerAccount snapshots")
@@ -317,5 +317,5 @@ type OptionsImportTests() =
                 "Options Import from CSV"
                 "Successfully created BrokerAccount, imported options CSV, received all signals, and verified SOFI, MPW, and PLTR ticker snapshots with complete financial state"
 
-            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
         }

@@ -168,7 +168,7 @@ type TestFixtureBase() =
                             options.Actual
                             realized.Actual
 
-                CoreLogger.logInfo "[Verification]" message
+                CoreLogger.logInfo "Verification" message
 
             Assert.That(
                 allMatch,
@@ -177,7 +177,7 @@ type TestFixtureBase() =
             ))
 
         CoreLogger.logInfo
-            "[Verification]"
+            "Verification"
             (sprintf "✅ All %d %s ticker snapshots verified chronologically" results.Length snapshotName)
 
     /// <summary>
@@ -244,10 +244,10 @@ type TestFixtureBase() =
                         optionsIncome.Actual
                         realizedGains.Actual
 
-                CoreLogger.logInfo "[Verification]" message
+                CoreLogger.logInfo "Verification" message
 
             Assert.That(allMatch, Is.True, sprintf "BrokerSnapshot %d (%s) verification failed" (i + 1) description))
 
         CoreLogger.logInfo
-            "[Verification]"
+            "Verification"
             (sprintf "✅ All %d BrokerAccount snapshots verified chronologically" results.Length)

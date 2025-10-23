@@ -40,9 +40,11 @@ module StreamObserver =
     let signalReceived (signal: Signal) : unit =
         lock lockObj (fun () ->
             receivedSignals.Add(signal)
-            CoreLogger.logDebug "[StreamObserver]" (sprintf "Signal received: %A (Total: %d/%d)" 
-                signal receivedSignals.Count expectedSignals.Count)
-            
+
+            CoreLogger.logDebug
+                "[StreamObserver]"
+                (sprintf "Signal received: %A (Total: %d/%d)" signal receivedSignals.Count expectedSignals.Count)
+
             // Check if all expected signals have been received
             match completionSourceRef.Value with
             | Some(tcs: TaskCompletionSource<bool>) when not tcs.Task.IsCompleted ->
@@ -67,7 +69,7 @@ module StreamObserver =
     let startObserving () : unit =
         lock lockObj (fun () ->
             CoreLogger.logInfo "[StreamObserver]" "📡 Starting observation of reactive collections..."
-            
+
             // Clear previous observations
             subscriptions |> Seq.iter (fun d -> d.Dispose())
             subscriptions.Clear()
@@ -85,7 +87,7 @@ module StreamObserver =
 
             subscriptions.Add(accountsSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Accounts"
-            
+
             // Observe Collections.Movements stream
             let movementsSub =
                 Collections.Movements
@@ -96,7 +98,7 @@ module StreamObserver =
 
             subscriptions.Add(movementsSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Movements"
-            
+
             // Observe Collections.Snapshots stream
             let snapshotsSub =
                 Collections.Snapshots
@@ -107,7 +109,7 @@ module StreamObserver =
 
             subscriptions.Add(snapshotsSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Snapshots"
-            
+
             // Observe Collections.Tickers stream
             let tickersSub =
                 Collections.Tickers
@@ -118,7 +120,7 @@ module StreamObserver =
 
             subscriptions.Add(tickersSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Tickers"
-            
+
             // Observe Collections.Currencies stream
             let currenciesSub =
                 Collections.Currencies
@@ -129,7 +131,7 @@ module StreamObserver =
 
             subscriptions.Add(currenciesSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Currencies"
-            
+
             // Observe Collections.Brokers stream
             let brokersSub =
                 Collections.Brokers
@@ -140,7 +142,7 @@ module StreamObserver =
 
             subscriptions.Add(brokersSub)
             CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Brokers"
-            
+
             // Observe Collections.Banks stream
             let banksSub =
                 Collections.Banks
@@ -150,25 +152,23 @@ module StreamObserver =
                             signalReceived Banks_Updated)
 
             subscriptions.Add(banksSub)
-            CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Banks"
-            
-            CoreLogger.logInfo "[StreamObserver]" "✅ Observation started for all collections"
-        )
-    
+            CoreLogger.logDebug "StreamObserver" "✓ Subscribed to Collections.Banks"
+
+            CoreLogger.logInfo "StreamObserver" "✅ Observation started for all collections")
+
     /// <summary>
     /// Stop observing reactive streams
     /// </summary>
     let stopObserving () : unit =
         lock lockObj (fun () ->
-            CoreLogger.logInfo "[StreamObserver]" "Stopping observation..."
+            CoreLogger.logInfo "StreamObserver" "Stopping observation..."
             subscriptions |> Seq.iter (fun d -> d.Dispose())
             subscriptions.Clear()
             expectedSignals.Clear()
             receivedSignals.Clear()
             completionSourceRef := None
-            CoreLogger.logInfo "[StreamObserver]" "✅ Observation stopped"
-        )
-    
+            CoreLogger.logInfo "StreamObserver" "✅ Observation stopped")
+
     /// <summary>
     /// Declare expected signals before performing an operation
     /// </summary>
@@ -177,10 +177,9 @@ module StreamObserver =
             expectedSignals.Clear()
             receivedSignals.Clear()
             signals |> List.iter expectedSignals.Add
-            completionSourceRef := Some (new TaskCompletionSource<bool>())
-            CoreLogger.logDebug "[StreamObserver]" (sprintf "🎯 Expecting %d signals: %A" signals.Length signals)
-        )
-    
+            completionSourceRef := Some(new TaskCompletionSource<bool>())
+            CoreLogger.logDebug "StreamObserver" (sprintf "🎯 Expecting %d signals: %A" signals.Length signals))
+
     /// <summary>
     /// Get the current status of signal reception
     /// Returns (expected signals, received signals, missing signals)
@@ -207,26 +206,29 @@ module StreamObserver =
         async {
             match completionSourceRef.Value with
             | None ->
-                CoreLogger.logWarning "[StreamObserver]" "⚠️  No signals expected - call expectSignals first"
+                CoreLogger.logWarning "StreamObserver" "⚠️  No signals expected - call expectSignals first"
                 return false
             | Some tcs ->
-                CoreLogger.logInfo "[StreamObserver]" (sprintf "⏳ Waiting for signals (timeout: %A)..." timeout)
-                
+                CoreLogger.logInfo "StreamObserver" (sprintf "⏳ Waiting for signals (timeout: %A)..." timeout)
+
                 use cts = new CancellationTokenSource(timeout)
-                use _ = cts.Token.Register(fun () ->
-                    if not tcs.Task.IsCompleted then
-                        CoreLogger.logWarning "[StreamObserver]" "⏰ Timeout reached"
-                        tcs.TrySetResult(false) |> ignore
-                )
-                
+
+                use _ =
+                    cts.Token.Register(fun () ->
+                        if not tcs.Task.IsCompleted then
+                            CoreLogger.logWarning "StreamObserver" "⏰ Timeout reached"
+                            tcs.TrySetResult(false) |> ignore)
+
                 let! result = tcs.Task |> Async.AwaitTask
 
                 if result then
-                    CoreLogger.logInfo "[StreamObserver]" "✅ All signals received successfully"
+                    CoreLogger.logInfo "StreamObserver" "✅ All signals received successfully"
                 else
-                    let (expected, received, missing) = getSignalStatus()
-                    CoreLogger.logError "[StreamObserver]" (sprintf "❌ Timeout - Expected: %A, Received: %A, Missing: %A" 
-                        expected received missing)
-                
+                    let (expected, received, missing) = getSignalStatus ()
+
+                    CoreLogger.logError
+                        "StreamObserver"
+                        (sprintf "❌ Timeout - Expected: %A, Received: %A, Missing: %A" expected received missing)
+
                 return result
         }

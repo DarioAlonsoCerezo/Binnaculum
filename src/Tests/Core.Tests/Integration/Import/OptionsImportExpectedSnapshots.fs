@@ -471,10 +471,10 @@ module OptionsImportExpectedSnapshots =
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
-                OptionsIncome = 47.45m
+                OptionsIncome = 54.37m // SOFI + MPW + PLTR
                 OtherIncome = 0m
                 OpenTrades = true
-                NetCashFlow = 926.24m } // Adjusted for correct fees
+                NetCashFlow = 933.16m } // 878.79 - 7.00 - 1.65 + 54.37 + 23.65 - 15.00 (unrealized)
             Description = "2024-04-30 - Final SOFI trade" }
 
           // Snapshot 9: Today (Current snapshot - same as 2024-04-30)
@@ -495,8 +495,8 @@ module OptionsImportExpectedSnapshots =
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
-                OptionsIncome = 47.45m
+                OptionsIncome = 54.37m // SOFI + MPW + PLTR
                 OtherIncome = 0m
                 OpenTrades = true
-                NetCashFlow = 926.24m } // Adjusted for correct fees
+                NetCashFlow = 933.16m } // 878.79 - 7.00 - 1.65 + 54.37 + 23.65 - 15.00 (unrealized)
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
