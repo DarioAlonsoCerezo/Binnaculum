@@ -375,10 +375,10 @@ module OptionsImportExpectedSnapshots =
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
-                OptionsIncome = 33.86m
+                OptionsIncome = 35.00m // Pure premium from CSV Value column
                 OtherIncome = 0m
                 OpenTrades = true
-                NetCashFlow = 912.65m }
+                NetCashFlow = 912.65m } // 878.79 + 35.00 - 1.00 - 0.14
             Description = "2024-04-25 - SOFI trade" }
 
           // Snapshot 5: 2024-04-26 (MPW + PLTR trades)
@@ -399,10 +399,10 @@ module OptionsImportExpectedSnapshots =
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
-                OptionsIncome = 52.32m
+                OptionsIncome = 58.00m // 35.00 - 4.00 + 19.00 + 19.00 - 11.00
                 OtherIncome = 0m
                 OpenTrades = true
-                NetCashFlow = 931.11m }
+                NetCashFlow = 931.11m } // 878.79 + 58.00 - 5.00 - 0.68
             Description = "2024-04-26 - MPW + PLTR trades" }
 
           // Snapshot 6: 2024-04-27 (Balance adjustment)
@@ -423,10 +423,10 @@ module OptionsImportExpectedSnapshots =
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
-                OptionsIncome = 52.32m
+                OptionsIncome = 58.00m // Same as Snapshot 5 (no new trades)
                 OtherIncome = 0m
                 OpenTrades = true
-                NetCashFlow = 931.11m }
+                NetCashFlow = 931.09m } // 878.79 + 58.00 - 5.00 - 0.70
             Description = "2024-04-27 - Balance adjustment" }
 
           // Snapshot 7: 2024-04-29 (Multiple closing + reopening trades)
@@ -447,10 +447,10 @@ module OptionsImportExpectedSnapshots =
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
-                OptionsIncome = 39.51m
+                OptionsIncome = 47.00m // 58.00 - 17.00 + 17.00 - 8.00 + 1.00 + 5.00 - 9.00
                 OtherIncome = 0m
                 OpenTrades = true
-                NetCashFlow = 918.30m } // Adjusted for correct fees
+                NetCashFlow = 918.28m } // 878.79 + 47.00 - 6.00 - 1.51
             Description = "2024-04-29 - Closing + reopening trades" }
 
           // Snapshot 8: 2024-04-30 (Final SOFI trade)
@@ -471,10 +471,10 @@ module OptionsImportExpectedSnapshots =
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
-                OptionsIncome = 54.37m // SOFI + MPW + PLTR
+                OptionsIncome = 63.00m // 47.00 + 16.00 (SOFI SELL_TO_OPEN)
                 OtherIncome = 0m
                 OpenTrades = true
-                NetCashFlow = 933.16m } // 878.79 - 7.00 - 1.65 + 54.37 + 23.65 - 15.00 (unrealized)
+                NetCashFlow = 933.14m } // 878.79 + 63.00 - 7.00 - 1.65
             Description = "2024-04-30 - Final SOFI trade" }
 
           // Snapshot 9: Today (Current snapshot - same as 2024-04-30)
@@ -495,8 +495,8 @@ module OptionsImportExpectedSnapshots =
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
-                OptionsIncome = 54.37m // SOFI + MPW + PLTR
+                OptionsIncome = 63.00m // Same as Snapshot 8 (47.00 + 16.00)
                 OtherIncome = 0m
                 OpenTrades = true
-                NetCashFlow = 933.16m } // 878.79 - 7.00 - 1.65 + 54.37 + 23.65 - 15.00 (unrealized)
+                NetCashFlow = 933.14m } // 878.79 + 63.00 - 7.00 - 1.65 (same as Snapshot 8)
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
