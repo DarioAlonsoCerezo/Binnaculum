@@ -509,10 +509,175 @@ type OptionsImportTests() =
             CoreLogger.logInfo "[Verification]" "✅ MPW Snapshot 3 verified: Options=$5.46 (current)"
             CoreLogger.logInfo "[Verification]" "✅ All 3 MPW ticker snapshots verified chronologically"
 
+            // ==================== PHASE 6: VERIFY PLTR TICKER SNAPSHOTS CHRONOLOGICALLY ====================
+            TestSetup.printPhaseHeader 6 "Verify PLTR Ticker Snapshots with Complete Financial State"
+
+            // Get PLTR ticker from Collections
+            let pltrTicker =
+                Collections.Tickers.Items |> Seq.tryFind (fun t -> t.Symbol = "PLTR")
+
+            Assert.That(pltrTicker.IsSome, Is.True, "PLTR ticker should exist in Collections")
+
+            let pltrTickerId = pltrTicker.Value.Id
+            CoreLogger.logInfo "[Verification]" (sprintf "📊 PLTR Ticker ID: %d" pltrTickerId)
+
+            // Get all PLTR snapshots using Tickers.GetSnapshots from Core
+            let! pltrSnapshots = Tickers.GetSnapshots(pltrTickerId) |> Async.AwaitTask
+            let sortedPLTRSnapshots = pltrSnapshots |> List.sortBy (fun s -> s.Date)
+
+            CoreLogger.logInfo "[Verification]" (sprintf "📊 Found %d PLTR snapshots" sortedPLTRSnapshots.Length)
+
+            Assert.That(
+                sortedPLTRSnapshots.Length,
+                Is.EqualTo(3),
+                "Should have 3 PLTR snapshots (2024-04-26, 04-29 + today)"
+            )
+
+            // Verify Snapshot 1: 2024-04-26 (After opening vertical spread)
+            CoreLogger.logInfo
+                "[Verification]"
+                "📅 Verifying PLTR Snapshot 1: 2024-04-26 (After opening vertical spread)"
+
+            let pltrSnapshot1 = sortedPLTRSnapshots.[0]
+            let pltrSnapshot1Currency = pltrSnapshot1.MainCurrency
+
+            Assert.That(
+                pltrSnapshot1.Date,
+                Is.EqualTo(DateOnly(2024, 4, 26)),
+                "PLTR Snapshot 1 date should be 2024-04-26"
+            )
+
+            let expectedPLTR1: TickerCurrencySnapshot =
+                { Id = pltrSnapshot1Currency.Id
+                  Date = DateOnly(2024, 4, 26)
+                  Ticker = pltrSnapshot1Currency.Ticker
+                  Currency = pltrSnapshot1Currency.Currency
+                  TotalShares = 0m
+                  Weight = 0m
+                  CostBasis = 0m
+                  RealCost = 0m
+                  Dividends = 0m
+                  Options = 5.73m // 17.86 - 12.13 (net from opening spread)
+                  TotalIncomes = 5.73m
+                  Unrealized = 0m
+                  Realized = 0m
+                  Performance = 0m
+                  LatestPrice = 0m
+                  OpenTrades = true }
+
+            let (matchPLTR1, resultsPLTR1) =
+                TestVerifications.verifyTickerCurrencySnapshot expectedPLTR1 pltrSnapshot1Currency
+
+            Assert.That(
+                matchPLTR1,
+                Is.True,
+                sprintf
+                    "PLTR Snapshot 1 verification failed:\n%s"
+                    (resultsPLTR1
+                     |> List.filter (fun r -> not r.Match)
+                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
+                     |> String.concat "\n")
+            )
+
+            CoreLogger.logInfo "[Verification]" "✅ PLTR Snapshot 1 verified: Options=$5.73"
+
+            // Verify Snapshot 2: 2024-04-29 (After closing vertical spread)
+            CoreLogger.logInfo
+                "[Verification]"
+                "📅 Verifying PLTR Snapshot 2: 2024-04-29 (After closing vertical spread)"
+
+            let pltrSnapshot2 = sortedPLTRSnapshots.[1]
+            let pltrSnapshot2Currency = pltrSnapshot2.MainCurrency
+
+            Assert.That(
+                pltrSnapshot2.Date,
+                Is.EqualTo(DateOnly(2024, 4, 29)),
+                "PLTR Snapshot 2 date should be 2024-04-29"
+            )
+
+            let expectedPLTR2: TickerCurrencySnapshot =
+                { Id = pltrSnapshot2Currency.Id
+                  Date = DateOnly(2024, 4, 29)
+                  Ticker = pltrSnapshot2Currency.Ticker
+                  Currency = pltrSnapshot2Currency.Currency
+                  TotalShares = 0m
+                  Weight = 0m
+                  CostBasis = 0m
+                  RealCost = 0m
+                  Dividends = 0m
+                  Options = 1.46m // Cumulative: 5.73 + 4.86 - 9.13 = 1.46
+                  TotalIncomes = 1.46m
+                  Unrealized = 0m
+                  Realized = 1.46m // Positions closed
+                  Performance = 0m
+                  LatestPrice = 0m
+                  OpenTrades = false }
+
+            let (matchPLTR2, resultsPLTR2) =
+                TestVerifications.verifyTickerCurrencySnapshot expectedPLTR2 pltrSnapshot2Currency
+
+            Assert.That(
+                matchPLTR2,
+                Is.True,
+                sprintf
+                    "PLTR Snapshot 2 verification failed:\n%s"
+                    (resultsPLTR2
+                     |> List.filter (fun r -> not r.Match)
+                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
+                     |> String.concat "\n")
+            )
+
+            CoreLogger.logInfo "[Verification]" "✅ PLTR Snapshot 2 verified: Options=$1.46, Realized=$1.46"
+
+            // Verify Snapshot 3: Today (Current snapshot)
+            CoreLogger.logInfo
+                "[Verification]"
+                (sprintf "📅 Verifying PLTR Snapshot 3: %s (Current snapshot)" (DateTime.Now.ToString("yyyy-MM-dd")))
+
+            let pltrSnapshot3 = sortedPLTRSnapshots.[2]
+            let pltrSnapshot3Currency = pltrSnapshot3.MainCurrency
+            let today = DateOnly.FromDateTime(DateTime.Now)
+            Assert.That(pltrSnapshot3.Date, Is.EqualTo(today), "PLTR Snapshot 3 date should be today")
+
+            let expectedPLTR3: TickerCurrencySnapshot =
+                { Id = pltrSnapshot3Currency.Id
+                  Date = today
+                  Ticker = pltrSnapshot3Currency.Ticker
+                  Currency = pltrSnapshot3Currency.Currency
+                  TotalShares = 0m
+                  Weight = 0m
+                  CostBasis = 0m
+                  RealCost = 0m
+                  Dividends = 0m
+                  Options = 1.46m // Same as Snapshot 2 (no new trades)
+                  TotalIncomes = 1.46m
+                  Unrealized = 0m
+                  Realized = 1.46m
+                  Performance = 0m
+                  LatestPrice = 0m
+                  OpenTrades = false }
+
+            let (matchPLTR3, resultsPLTR3) =
+                TestVerifications.verifyTickerCurrencySnapshot expectedPLTR3 pltrSnapshot3Currency
+
+            Assert.That(
+                matchPLTR3,
+                Is.True,
+                sprintf
+                    "PLTR Snapshot 3 verification failed:\n%s"
+                    (resultsPLTR3
+                     |> List.filter (fun r -> not r.Match)
+                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
+                     |> String.concat "\n")
+            )
+
+            CoreLogger.logInfo "[Verification]" "✅ PLTR Snapshot 3 verified: Options=$1.46 (current)"
+            CoreLogger.logInfo "[Verification]" "✅ All 3 PLTR ticker snapshots verified chronologically"
+
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
                 "Options Import from CSV"
-                "Successfully created BrokerAccount, imported options CSV, received all signals, and verified SOFI and MPW ticker snapshots with complete financial state"
+                "Successfully created BrokerAccount, imported options CSV, received all signals, and verified SOFI, MPW, and PLTR ticker snapshots with complete financial state"
 
             CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
         }
