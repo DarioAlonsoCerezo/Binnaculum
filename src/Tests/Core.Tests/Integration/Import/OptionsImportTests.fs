@@ -173,16 +173,11 @@ type OptionsImportTests() =
             // Extract currency snapshots from actual snapshots
             let actualSOFISnapshots = sortedSOFISnapshots |> List.map (fun s -> s.MainCurrency)
 
-            // Verify all snapshots at once using the new list verification method
-            let sofiResults =
-                TestVerifications.verifyTickerCurrencySnapshotList expectedSOFISnapshots actualSOFISnapshots
+            // Define description function for SOFI snapshots
+            let getSOFIDescription i =
+                let date = expectedSOFISnapshots.[i].Date.ToString("yyyy-MM-dd")
 
-            // Check each snapshot result and log details if any mismatch
-            sofiResults
-            |> List.iteri (fun i (allMatch, fieldResults) ->
-                let snapshotDate = expectedSOFISnapshots.[i].Date.ToString("yyyy-MM-dd")
-
-                let snapshotName =
+                let name =
                     match i with
                     | 0 -> "After SELL_TO_OPEN"
                     | 1 -> "After close and reopen"
@@ -190,42 +185,10 @@ type OptionsImportTests() =
                     | 3 -> "Current snapshot"
                     | _ -> "Unknown"
 
-                if not allMatch then
-                    CoreLogger.logError
-                        "[Verification]"
-                        (sprintf
-                            "❌ SOFI Snapshot %d (%s - %s) failed:\n%s"
-                            (i + 1)
-                            snapshotDate
-                            snapshotName
-                            (fieldResults
-                             |> List.filter (fun r -> not r.Match)
-                             |> TestVerifications.formatValidationResults))
-                else
-                    let options = fieldResults |> List.find (fun r -> r.Field = "Options")
-                    let realized = fieldResults |> List.find (fun r -> r.Field = "Realized")
+                sprintf "%s - %s" date name
 
-                    let message =
-                        if i = 0 then
-                            sprintf "✅ SOFI Snapshot %d verified: Options=$%s" (i + 1) options.Actual
-                        elif i = 3 then
-                            sprintf "✅ SOFI Snapshot %d verified: Options=$%s (current)" (i + 1) options.Actual
-                        else
-                            sprintf
-                                "✅ SOFI Snapshot %d verified: Options=$%s, Realized=$%s"
-                                (i + 1)
-                                options.Actual
-                                realized.Actual
-
-                    CoreLogger.logInfo "[Verification]" message
-
-                Assert.That(
-                    allMatch,
-                    Is.True,
-                    sprintf "SOFI Snapshot %d (%s - %s) verification failed" (i + 1) snapshotDate snapshotName
-                ))
-
-            CoreLogger.logInfo "[Verification]" "✅ All 4 SOFI ticker snapshots verified chronologically"
+            // Use base class method for verification
+            this.VerifyTickerSnapshots "SOFI" expectedSOFISnapshots actualSOFISnapshots getSOFIDescription
 
             // ==================== PHASE 5: VERIFY MPW TICKER SNAPSHOTS CHRONOLOGICALLY ====================
             TestSetup.printPhaseHeader 5 "Verify MPW Ticker Snapshots with Complete Financial State"

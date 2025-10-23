@@ -2,6 +2,8 @@ namespace Core.Tests.Integration
 
 open NUnit.Framework
 open System
+open Binnaculum.Core.Models
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// Base class for reactive integration tests using signal-based approach.
@@ -105,3 +107,147 @@ type TestFixtureBase() =
             testContext <- None
             testActions <- None
         }
+
+    /// <summary>
+    /// Verify and assert a list of TickerCurrencySnapshots with standardized logging.
+    ///
+    /// USAGE:
+    /// ------
+    /// let getDescription i =
+    ///     let date = expectedSnapshots.[i].Date.ToString("yyyy-MM-dd")
+    ///     let name = match i with | 0 -> "Opening" | 1 -> "Closing" | 2 -> "Current" | _ -> "Unknown"
+    ///     sprintf "%s - %s" date name
+    ///
+    /// this.VerifyTickerSnapshots "SOFI" expectedSnapshots actualSnapshots getDescription
+    ///
+    /// This will:
+    /// - Compare all expected vs actual snapshots
+    /// - Log success/failure for each snapshot
+    /// - Assert that all snapshots match
+    /// - Show Options and Realized values in success messages
+    /// </summary>
+    member _.VerifyTickerSnapshots
+        (snapshotName: string)
+        (expected: TickerCurrencySnapshot list)
+        (actual: TickerCurrencySnapshot list)
+        (getDescription: int -> string)
+        : unit =
+
+        let results = TestVerifications.verifyTickerCurrencySnapshotList expected actual
+
+        results
+        |> List.iteri (fun i (allMatch, fieldResults) ->
+            let description = getDescription i
+
+            if not allMatch then
+                CoreLogger.logError
+                    "[Verification]"
+                    (sprintf
+                        "❌ %s Snapshot %d (%s) failed:\n%s"
+                        snapshotName
+                        (i + 1)
+                        description
+                        (fieldResults
+                         |> List.filter (fun r -> not r.Match)
+                         |> TestVerifications.formatValidationResults))
+            else
+                // Extract key fields for success message
+                let options = fieldResults |> List.find (fun r -> r.Field = "Options")
+                let realized = fieldResults |> List.find (fun r -> r.Field = "Realized")
+
+                let message =
+                    if i = 0 then
+                        sprintf "✅ %s Snapshot %d verified: Options=$%s" snapshotName (i + 1) options.Actual
+                    elif description.Contains("current") || description.Contains("Current") then
+                        sprintf "✅ %s Snapshot %d verified: Options=$%s (current)" snapshotName (i + 1) options.Actual
+                    else
+                        sprintf
+                            "✅ %s Snapshot %d verified: Options=$%s, Realized=$%s"
+                            snapshotName
+                            (i + 1)
+                            options.Actual
+                            realized.Actual
+
+                CoreLogger.logInfo "[Verification]" message
+
+            Assert.That(
+                allMatch,
+                Is.True,
+                sprintf "%s Snapshot %d (%s) verification failed" snapshotName (i + 1) description
+            ))
+
+        CoreLogger.logInfo
+            "[Verification]"
+            (sprintf "✅ All %d %s ticker snapshots verified chronologically" results.Length snapshotName)
+
+    /// <summary>
+    /// Verify and assert a list of BrokerFinancialSnapshots with standardized logging.
+    ///
+    /// USAGE:
+    /// ------
+    /// let getDescription i =
+    ///     let date = expectedSnapshots.[i].Date.ToString("yyyy-MM-dd")
+    ///     let name = match i with | 0 -> "First deposit" | 1 -> "Second deposit" | _ -> "Unknown"
+    ///     sprintf "%s - %s" date name
+    ///
+    /// this.VerifyBrokerSnapshots expectedSnapshots actualSnapshots getDescription
+    ///
+    /// This will:
+    /// - Compare all expected vs actual snapshots
+    /// - Log success/failure for each snapshot
+    /// - Assert that all snapshots match
+    /// - Show Deposited, Options, and Realized values in success messages
+    /// - Log ALL fields when verification fails (for debugging)
+    /// </summary>
+    member _.VerifyBrokerSnapshots
+        (expected: BrokerFinancialSnapshot list)
+        (actual: BrokerFinancialSnapshot list)
+        (getDescription: int -> string)
+        : unit =
+
+        let results = TestVerifications.verifyBrokerFinancialSnapshotList expected actual
+
+        results
+        |> List.iteri (fun i (allMatch, fieldResults) ->
+            let description = getDescription i
+
+            if not allMatch then
+                CoreLogger.logError
+                    "[Verification]"
+                    (sprintf
+                        "❌ BrokerSnapshot %d (%s) failed:\n%s"
+                        (i + 1)
+                        description
+                        (fieldResults
+                         |> List.filter (fun r -> not r.Match)
+                         |> TestVerifications.formatValidationResults))
+
+                // Also log ALL fields for debugging
+                CoreLogger.logInfo
+                    "[Verification]"
+                    (sprintf
+                        "All fields for BrokerSnapshot %d (%s):\n%s"
+                        (i + 1)
+                        description
+                        (TestVerifications.formatValidationResults fieldResults))
+            else
+                let deposited = fieldResults |> List.find (fun r -> r.Field = "Deposited")
+                let options = fieldResults |> List.find (fun r -> r.Field = "Options")
+                let realized = fieldResults |> List.find (fun r -> r.Field = "Realized")
+
+                let message =
+                    sprintf
+                        "✅ BrokerSnapshot %d (%s) verified: Deposited=$%s, Options=$%s, Realized=$%s"
+                        (i + 1)
+                        description
+                        deposited.Actual
+                        options.Actual
+                        realized.Actual
+
+                CoreLogger.logInfo "[Verification]" message
+
+            Assert.That(allMatch, Is.True, sprintf "BrokerSnapshot %d (%s) verification failed" (i + 1) description))
+
+        CoreLogger.logInfo
+            "[Verification]"
+            (sprintf "✅ All %d BrokerAccount snapshots verified chronologically" results.Length)
