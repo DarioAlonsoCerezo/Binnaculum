@@ -297,28 +297,17 @@ type OptionsImportTests() =
 
             let usd = Collections.Currencies.Items |> Seq.find (fun c -> c.Code = "USD")
 
-            // Get expected BrokerAccount snapshots from OptionsImportExpectedSnapshots
-            let expectedBrokerSnapshots =
+            // Get expected BrokerAccount snapshots with descriptions from OptionsImportExpectedSnapshots
+            let expectedBrokerSnapshotsWithDescriptions =
                 OptionsImportExpectedSnapshots.getBrokerAccountSnapshots broker brokerAccount usd
 
-            // Define description function for broker snapshots
+            // Extract data and descriptions
+            let expectedBrokerSnapshots =
+                expectedBrokerSnapshotsWithDescriptions |> TestModels.getData
+
+            // Description function using the pre-defined descriptions
             let getBrokerDescription i =
-                let date = expectedBrokerSnapshots.[i].Date.ToString("yyyy-MM-dd")
-
-                let name =
-                    match i with
-                    | 0 -> "First deposit"
-                    | 1 -> "Second deposit"
-                    | 2 -> "Third deposit"
-                    | 3 -> "SOFI trade"
-                    | 4 -> "MPW + PLTR trades"
-                    | 5 -> "Balance adjustment"
-                    | 6 -> "Closing + reopening trades"
-                    | 7 -> "Final SOFI trade"
-                    | 8 -> "Current snapshot"
-                    | _ -> "Unknown"
-
-                sprintf "%s - %s" date name
+                expectedBrokerSnapshotsWithDescriptions.[i].Description
 
             // Use base class method for verification
             this.VerifyBrokerSnapshots expectedBrokerSnapshots brokerFinancialSnapshots getBrokerDescription
