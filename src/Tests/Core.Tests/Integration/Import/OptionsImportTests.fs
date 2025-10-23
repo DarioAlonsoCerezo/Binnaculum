@@ -142,6 +142,41 @@ type OptionsImportTests() =
             Assert.That(signalsReceived, Is.True, "Import signals should have been received")
             CoreLogger.logInfo "[Verification]" "✅ Import signals received successfully"
 
+            // ==================== DEBUG: CHECK BROKER MOVEMENTS ====================
+            CoreLogger.logInfo "[Debug]" "=== BROKER MOVEMENTS ANALYSIS ==="
+
+            let allMovements = Collections.Movements.Items |> List.ofSeq
+
+            let brokerMovements =
+                allMovements
+                |> List.choose (fun m ->
+                    match m.Type with
+                    | AccountMovementType.BrokerMovement -> m.BrokerMovement
+                    | _ -> None)
+                |> List.sortBy (fun bm -> bm.TimeStamp)
+
+            CoreLogger.logInfo "[Debug]" (sprintf "📊 Total Movements in Collections: %d" allMovements.Length)
+            CoreLogger.logInfo "[Debug]" (sprintf "📊 Total BrokerMovements: %d" brokerMovements.Length)
+            CoreLogger.logInfo "[Debug]" ""
+
+            brokerMovements
+            |> List.iteri (fun i bm ->
+                CoreLogger.logInfo "[Debug]" (sprintf "  BrokerMovement %d:" (i + 1))
+                CoreLogger.logInfo "[Debug]" (sprintf "    Date: %s" (bm.TimeStamp.ToString("yyyy-MM-dd HH:mm")))
+                CoreLogger.logInfo "[Debug]" (sprintf "    Amount: $%M" bm.Amount)
+                CoreLogger.logInfo "[Debug]" (sprintf "    Fees: $%M" bm.Fees)
+                CoreLogger.logInfo "[Debug]" (sprintf "    Commissions: $%M" bm.Commissions)
+                CoreLogger.logInfo "[Debug]" (sprintf "    Type: %A" bm.MovementType)
+                CoreLogger.logInfo "[Debug]" (sprintf "    Notes: %A" bm.Notes)
+                CoreLogger.logInfo "[Debug]" "")
+
+            let totalFees = brokerMovements |> List.sumBy (fun bm -> bm.Fees)
+            let totalCommissions = brokerMovements |> List.sumBy (fun bm -> bm.Commissions)
+            CoreLogger.logInfo "[Debug]" (sprintf "💰 Sum of all BrokerMovement Fees: $%M" totalFees)
+            CoreLogger.logInfo "[Debug]" (sprintf "💰 Sum of all BrokerMovement Commissions: $%M" totalCommissions)
+            CoreLogger.logInfo "[Debug]" "=== END BROKER MOVEMENTS ANALYSIS ==="
+            CoreLogger.logInfo "[Debug]" ""
+
             // ==================== PHASE 4: VERIFY SOFI TICKER SNAPSHOTS CHRONOLOGICALLY ====================
             TestSetup.printPhaseHeader 4 "Verify SOFI Ticker Snapshots with Complete Financial State"
 

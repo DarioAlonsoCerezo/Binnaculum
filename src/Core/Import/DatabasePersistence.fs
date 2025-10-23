@@ -154,7 +154,23 @@ module DatabasePersistence =
                 //     "createBrokerMovementFromTransaction: DateTimePattern created successfully"
 
                 // CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating Money objects"
-                let amount = Money.FromAmount(Math.Abs(transaction.Value))
+
+                // Special handling for BalanceAdjustment (regulatory fees):
+                // CSV Value field contains the fee amount (negative = you pay, positive = refund)
+                // Store it in Fees field with proper sign convention:
+                //   - Negative CSV value (-0.02) → Positive Fees (+0.02) = fee paid
+                //   - Positive CSV value (+0.50) → Negative Fees (-0.50) = fee refund
+                let amount, fees =
+                    match movementSubType with
+                    | BalanceAdjustment ->
+                        // For balance adjustments, the Value field contains the fee amount
+                        // Negate the CSV value to convert to our fee convention
+                        let feeAmount = -transaction.Value // Flip sign: negative CSV → positive fee
+                        Money.FromAmount(0m), Money.FromAmount(feeAmount)
+                    | _ ->
+                        // For other movement types, use standard handling
+                        Money.FromAmount(Math.Abs(transaction.Value)), Money.FromAmount(Math.Abs(transaction.Fees))
+
                 // CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Amount Money object created"
                 let commissions = Money.FromAmount(Math.Abs(transaction.Commissions))
 
@@ -162,7 +178,6 @@ module DatabasePersistence =
                 //     "DatabasePersistence"
                 //     "createBrokerMovementFromTransaction: Commissions Money object created"
 
-                let fees = Money.FromAmount(Math.Abs(transaction.Fees))
                 // CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Fees Money object created"
 
                 // CoreLogger.logDebug "DatabasePersistence" "createBrokerMovementFromTransaction: Creating AuditableEntity"
