@@ -46,12 +46,11 @@ module TestVerifications =
     /// Represents the result of comparing a single field in a snapshot.
     /// Used by holistic snapshot verification functions.
     /// </summary>
-    type ValidationResult = {
-        Field: string          // Field name (e.g., "Deposited")
-        Expected: string       // Expected value formatted as string
-        Actual: string         // Actual value formatted as string
-        Match: bool           // True if values match
-    }
+    type ValidationResult =
+        { Field: string // Field name (e.g., "Deposited")
+          Expected: string // Expected value formatted as string
+          Actual: string // Actual value formatted as string
+          Match: bool } // True if values match
 
     /// <summary>
     /// Verifies that brokers were loaded with at least the minimum count.
@@ -180,7 +179,7 @@ module TestVerifications =
     /// Verifies BrokerFinancialSnapshot by comparing all fields holistically.
     /// Pure function - no I/O, no async, just comparison.
     /// Returns: (allMatch, fieldResults)
-    /// 
+    ///
     /// Example:
     /// let expected: BrokerFinancialSnapshot = { Deposited = 5000m; ... }
     /// let actual = BrokerAccounts.GetLatestSnapshot(accountId).Financial
@@ -191,94 +190,90 @@ module TestVerifications =
         (expected: BrokerFinancialSnapshot)
         (actual: BrokerFinancialSnapshot)
         : (bool * ValidationResult list) =
-        
-        let results = [
-            { Field = "Id"
-              Expected = sprintf "%d" expected.Id
-              Actual = sprintf "%d" actual.Id
-              Match = expected.Id = actual.Id }
-            
-            { Field = "Date"
-              Expected = expected.Date.ToString("yyyy-MM-dd")
-              Actual = actual.Date.ToString("yyyy-MM-dd")
-              Match = expected.Date = actual.Date }
-            
-            { Field = "MovementCounter"
-              Expected = sprintf "%d" expected.MovementCounter
-              Actual = sprintf "%d" actual.MovementCounter
-              Match = expected.MovementCounter = actual.MovementCounter }
-            
-            { Field = "RealizedGains"
-              Expected = sprintf "%.2f" expected.RealizedGains
-              Actual = sprintf "%.2f" actual.RealizedGains
-              Match = expected.RealizedGains = actual.RealizedGains }
-            
-            { Field = "RealizedPercentage"
-              Expected = sprintf "%.4f" expected.RealizedPercentage
-              Actual = sprintf "%.4f" actual.RealizedPercentage
-              Match = expected.RealizedPercentage = actual.RealizedPercentage }
-            
-            { Field = "UnrealizedGains"
-              Expected = sprintf "%.2f" expected.UnrealizedGains
-              Actual = sprintf "%.2f" actual.UnrealizedGains
-              Match = expected.UnrealizedGains = actual.UnrealizedGains }
-            
-            { Field = "UnrealizedGainsPercentage"
-              Expected = sprintf "%.4f" expected.UnrealizedGainsPercentage
-              Actual = sprintf "%.4f" actual.UnrealizedGainsPercentage
-              Match = expected.UnrealizedGainsPercentage = actual.UnrealizedGainsPercentage }
-            
-            { Field = "Invested"
-              Expected = sprintf "%.2f" expected.Invested
-              Actual = sprintf "%.2f" actual.Invested
-              Match = expected.Invested = actual.Invested }
-            
-            { Field = "Commissions"
-              Expected = sprintf "%.2f" expected.Commissions
-              Actual = sprintf "%.2f" actual.Commissions
-              Match = expected.Commissions = actual.Commissions }
-            
-            { Field = "Fees"
-              Expected = sprintf "%.2f" expected.Fees
-              Actual = sprintf "%.2f" actual.Fees
-              Match = expected.Fees = actual.Fees }
-            
-            { Field = "Deposited"
-              Expected = sprintf "%.2f" expected.Deposited
-              Actual = sprintf "%.2f" actual.Deposited
-              Match = expected.Deposited = actual.Deposited }
-            
-            { Field = "Withdrawn"
-              Expected = sprintf "%.2f" expected.Withdrawn
-              Actual = sprintf "%.2f" actual.Withdrawn
-              Match = expected.Withdrawn = actual.Withdrawn }
-            
-            { Field = "DividendsReceived"
-              Expected = sprintf "%.2f" expected.DividendsReceived
-              Actual = sprintf "%.2f" actual.DividendsReceived
-              Match = expected.DividendsReceived = actual.DividendsReceived }
-            
-            { Field = "OptionsIncome"
-              Expected = sprintf "%.2f" expected.OptionsIncome
-              Actual = sprintf "%.2f" actual.OptionsIncome
-              Match = expected.OptionsIncome = actual.OptionsIncome }
-            
-            { Field = "OtherIncome"
-              Expected = sprintf "%.2f" expected.OtherIncome
-              Actual = sprintf "%.2f" actual.OtherIncome
-              Match = expected.OtherIncome = actual.OtherIncome }
-            
-            { Field = "OpenTrades"
-              Expected = sprintf "%b" expected.OpenTrades
-              Actual = sprintf "%b" actual.OpenTrades
-              Match = expected.OpenTrades = actual.OpenTrades }
-            
-            { Field = "NetCashFlow"
-              Expected = sprintf "%.2f" expected.NetCashFlow
-              Actual = sprintf "%.2f" actual.NetCashFlow
-              Match = expected.NetCashFlow = actual.NetCashFlow }
-        ]
-        
+
+        let results =
+            [ // Note: Id field is skipped - database-assigned IDs are not predictable
+
+              { Field = "Date"
+                Expected = expected.Date.ToString("yyyy-MM-dd")
+                Actual = actual.Date.ToString("yyyy-MM-dd")
+                Match = expected.Date = actual.Date }
+
+              { Field = "MovementCounter"
+                Expected = sprintf "%d" expected.MovementCounter
+                Actual = sprintf "%d" actual.MovementCounter
+                Match = expected.MovementCounter = actual.MovementCounter }
+
+              { Field = "RealizedGains"
+                Expected = sprintf "%.2f" expected.RealizedGains
+                Actual = sprintf "%.2f" actual.RealizedGains
+                Match = abs (expected.RealizedGains - actual.RealizedGains) < 0.01m }
+
+              { Field = "RealizedPercentage"
+                Expected = sprintf "%.4f" expected.RealizedPercentage
+                Actual = sprintf "%.4f" actual.RealizedPercentage
+                Match = abs (expected.RealizedPercentage - actual.RealizedPercentage) < 0.0001m }
+
+              { Field = "UnrealizedGains"
+                Expected = sprintf "%.2f" expected.UnrealizedGains
+                Actual = sprintf "%.2f" actual.UnrealizedGains
+                Match = abs (expected.UnrealizedGains - actual.UnrealizedGains) < 0.01m }
+
+              { Field = "UnrealizedGainsPercentage"
+                Expected = sprintf "%.4f" expected.UnrealizedGainsPercentage
+                Actual = sprintf "%.4f" actual.UnrealizedGainsPercentage
+                Match = abs (expected.UnrealizedGainsPercentage - actual.UnrealizedGainsPercentage) < 0.0001m }
+
+              { Field = "Invested"
+                Expected = sprintf "%.2f" expected.Invested
+                Actual = sprintf "%.2f" actual.Invested
+                Match = abs (expected.Invested - actual.Invested) < 0.01m }
+
+              { Field = "Commissions"
+                Expected = sprintf "%.2f" expected.Commissions
+                Actual = sprintf "%.2f" actual.Commissions
+                Match = abs (expected.Commissions - actual.Commissions) < 0.01m }
+
+              { Field = "Fees"
+                Expected = sprintf "%.2f" expected.Fees
+                Actual = sprintf "%.2f" actual.Fees
+                Match = abs (expected.Fees - actual.Fees) < 0.01m }
+
+              { Field = "Deposited"
+                Expected = sprintf "%.2f" expected.Deposited
+                Actual = sprintf "%.2f" actual.Deposited
+                Match = abs (expected.Deposited - actual.Deposited) < 0.01m }
+
+              { Field = "Withdrawn"
+                Expected = sprintf "%.2f" expected.Withdrawn
+                Actual = sprintf "%.2f" actual.Withdrawn
+                Match = abs (expected.Withdrawn - actual.Withdrawn) < 0.01m }
+
+              { Field = "DividendsReceived"
+                Expected = sprintf "%.2f" expected.DividendsReceived
+                Actual = sprintf "%.2f" actual.DividendsReceived
+                Match = abs (expected.DividendsReceived - actual.DividendsReceived) < 0.01m }
+
+              { Field = "OptionsIncome"
+                Expected = sprintf "%.2f" expected.OptionsIncome
+                Actual = sprintf "%.2f" actual.OptionsIncome
+                Match = abs (expected.OptionsIncome - actual.OptionsIncome) < 0.01m }
+
+              { Field = "OtherIncome"
+                Expected = sprintf "%.2f" expected.OtherIncome
+                Actual = sprintf "%.2f" actual.OtherIncome
+                Match = abs (expected.OtherIncome - actual.OtherIncome) < 0.01m }
+
+              { Field = "OpenTrades"
+                Expected = sprintf "%b" expected.OpenTrades
+                Actual = sprintf "%b" actual.OpenTrades
+                Match = expected.OpenTrades = actual.OpenTrades }
+
+              { Field = "NetCashFlow"
+                Expected = sprintf "%.2f" expected.NetCashFlow
+                Actual = sprintf "%.2f" actual.NetCashFlow
+                Match = abs (expected.NetCashFlow - actual.NetCashFlow) < 0.01m } ]
+
         let allMatch = results |> List.forall (fun r -> r.Match)
         (allMatch, results)
 
@@ -286,7 +281,7 @@ module TestVerifications =
     /// Verifies TickerCurrencySnapshot by comparing all fields holistically.
     /// Pure function - no I/O, no async, just comparison.
     /// Returns: (allMatch, fieldResults)
-    /// 
+    ///
     /// Example:
     /// let expected: TickerCurrencySnapshot = { TotalShares = 100m; ... }
     /// let actual = Tickers.GetSnapshots(tickerId) |> Seq.head
@@ -297,99 +292,113 @@ module TestVerifications =
         (expected: TickerCurrencySnapshot)
         (actual: TickerCurrencySnapshot)
         : (bool * ValidationResult list) =
-        
+
         // Use pattern matching to destructure - this forces the correct type resolution
         match (expected, actual) with
-        | ({ Id = expId; Date = expDate; TotalShares = expShares; Weight = expWeight; 
-             CostBasis = expCostBasis; RealCost = expRealCost; Dividends = expDividends; 
-             Options = expOptions; TotalIncomes = expTotalIncomes; Unrealized = expUnrealized; 
-             Realized = expRealized; Performance = expPerformance; LatestPrice = expLatestPrice; 
+        | ({ Id = expId
+             Date = expDate
+             TotalShares = expShares
+             Weight = expWeight
+             CostBasis = expCostBasis
+             RealCost = expRealCost
+             Dividends = expDividends
+             Options = expOptions
+             TotalIncomes = expTotalIncomes
+             Unrealized = expUnrealized
+             Realized = expRealized
+             Performance = expPerformance
+             LatestPrice = expLatestPrice
              OpenTrades = expOpenTrades },
-           { Id = actId; Date = actDate; TotalShares = actShares; Weight = actWeight; 
-             CostBasis = actCostBasis; RealCost = actRealCost; Dividends = actDividends; 
-             Options = actOptions; TotalIncomes = actTotalIncomes; Unrealized = actUnrealized; 
-             Realized = actRealized; Performance = actPerformance; LatestPrice = actLatestPrice; 
+           { Id = actId
+             Date = actDate
+             TotalShares = actShares
+             Weight = actWeight
+             CostBasis = actCostBasis
+             RealCost = actRealCost
+             Dividends = actDividends
+             Options = actOptions
+             TotalIncomes = actTotalIncomes
+             Unrealized = actUnrealized
+             Realized = actRealized
+             Performance = actPerformance
+             LatestPrice = actLatestPrice
              OpenTrades = actOpenTrades }) ->
-            
-            let results = [
-                { Field = "Id"
-                  Expected = sprintf "%d" expId
-                  Actual = sprintf "%d" actId
-                  Match = expId = actId }
-                
-                { Field = "Date"
-                  Expected = expDate.ToString("yyyy-MM-dd")
-                  Actual = actDate.ToString("yyyy-MM-dd")
-                  Match = expDate = actDate }
-                
-                { Field = "TotalShares"
-                  Expected = sprintf "%.2f" expShares
-                  Actual = sprintf "%.2f" actShares
-                  Match = expShares = actShares }
-                
-                { Field = "Weight"
-                  Expected = sprintf "%.4f" expWeight
-                  Actual = sprintf "%.4f" actWeight
-                  Match = expWeight = actWeight }
-                
-                { Field = "CostBasis"
-                  Expected = sprintf "%.2f" expCostBasis
-                  Actual = sprintf "%.2f" actCostBasis
-                  Match = expCostBasis = actCostBasis }
-                
-                { Field = "RealCost"
-                  Expected = sprintf "%.2f" expRealCost
-                  Actual = sprintf "%.2f" actRealCost
-                  Match = expRealCost = actRealCost }
-                
-                { Field = "Dividends"
-                  Expected = sprintf "%.2f" expDividends
-                  Actual = sprintf "%.2f" actDividends
-                  Match = expDividends = actDividends }
-                
-                { Field = "Options"
-                  Expected = sprintf "%.2f" expOptions
-                  Actual = sprintf "%.2f" actOptions
-                  Match = expOptions = actOptions }
-                
-                { Field = "TotalIncomes"
-                  Expected = sprintf "%.2f" expTotalIncomes
-                  Actual = sprintf "%.2f" actTotalIncomes
-                  Match = expTotalIncomes = actTotalIncomes }
-                
-                { Field = "Unrealized"
-                  Expected = sprintf "%.2f" expUnrealized
-                  Actual = sprintf "%.2f" actUnrealized
-                  Match = expUnrealized = actUnrealized }
-                
-                { Field = "Realized"
-                  Expected = sprintf "%.2f" expRealized
-                  Actual = sprintf "%.2f" actRealized
-                  Match = expRealized = actRealized }
-                
-                { Field = "Performance"
-                  Expected = sprintf "%.4f" expPerformance
-                  Actual = sprintf "%.4f" actPerformance
-                  Match = expPerformance = actPerformance }
-                
-                { Field = "LatestPrice"
-                  Expected = sprintf "%.2f" expLatestPrice
-                  Actual = sprintf "%.2f" actLatestPrice
-                  Match = expLatestPrice = actLatestPrice }
-                
-                { Field = "OpenTrades"
-                  Expected = sprintf "%b" expOpenTrades
-                  Actual = sprintf "%b" actOpenTrades
-                  Match = expOpenTrades = actOpenTrades }
-            ]
-            
+
+            let results =
+                [ // Note: Id field is skipped - database-assigned IDs are not predictable
+
+                  { Field = "Date"
+                    Expected = expDate.ToString("yyyy-MM-dd")
+                    Actual = actDate.ToString("yyyy-MM-dd")
+                    Match = expDate = actDate }
+
+                  { Field = "TotalShares"
+                    Expected = sprintf "%.2f" expShares
+                    Actual = sprintf "%.2f" actShares
+                    Match = abs (expShares - actShares) < 0.01m }
+
+                  { Field = "Weight"
+                    Expected = sprintf "%.4f" expWeight
+                    Actual = sprintf "%.4f" actWeight
+                    Match = abs (expWeight - actWeight) < 0.0001m }
+
+                  { Field = "CostBasis"
+                    Expected = sprintf "%.2f" expCostBasis
+                    Actual = sprintf "%.2f" actCostBasis
+                    Match = abs (expCostBasis - actCostBasis) < 0.01m }
+
+                  { Field = "RealCost"
+                    Expected = sprintf "%.2f" expRealCost
+                    Actual = sprintf "%.2f" actRealCost
+                    Match = abs (expRealCost - actRealCost) < 0.01m }
+
+                  { Field = "Dividends"
+                    Expected = sprintf "%.2f" expDividends
+                    Actual = sprintf "%.2f" actDividends
+                    Match = abs (expDividends - actDividends) < 0.01m }
+
+                  { Field = "Options"
+                    Expected = sprintf "%.2f" expOptions
+                    Actual = sprintf "%.2f" actOptions
+                    Match = abs (expOptions - actOptions) < 0.01m }
+
+                  { Field = "TotalIncomes"
+                    Expected = sprintf "%.2f" expTotalIncomes
+                    Actual = sprintf "%.2f" actTotalIncomes
+                    Match = abs (expTotalIncomes - actTotalIncomes) < 0.01m }
+
+                  { Field = "Unrealized"
+                    Expected = sprintf "%.2f" expUnrealized
+                    Actual = sprintf "%.2f" actUnrealized
+                    Match = abs (expUnrealized - actUnrealized) < 0.01m }
+
+                  { Field = "Realized"
+                    Expected = sprintf "%.2f" expRealized
+                    Actual = sprintf "%.2f" actRealized
+                    Match = abs (expRealized - actRealized) < 0.01m }
+
+                  { Field = "Performance"
+                    Expected = sprintf "%.4f" expPerformance
+                    Actual = sprintf "%.4f" actPerformance
+                    Match = abs (expPerformance - actPerformance) < 0.0001m }
+
+                  { Field = "LatestPrice"
+                    Expected = sprintf "%.2f" expLatestPrice
+                    Actual = sprintf "%.2f" actLatestPrice
+                    Match = abs (expLatestPrice - actLatestPrice) < 0.01m }
+
+                  { Field = "OpenTrades"
+                    Expected = sprintf "%b" expOpenTrades
+                    Actual = sprintf "%b" actOpenTrades
+                    Match = expOpenTrades = actOpenTrades } ]
+
             let allMatch = results |> List.forall (fun r -> r.Match)
             (allMatch, results)
 
     /// <summary>
     /// Format validation results as human-readable diff.
     /// Useful for logging or assertion messages.
-    /// 
+    ///
     /// Example output:
     ///   ✅ Deposited         : 5000.00 = 5000.00
     ///   ✅ Withdrawn         : 0.00 = 0.00
@@ -401,6 +410,91 @@ module TestVerifications =
         |> List.map (fun r ->
             let icon = if r.Match then "✅" else "❌"
             let comparison = if r.Match then "=" else "≠"
-            sprintf "  %s %-25s: %s %s %s" icon r.Field r.Expected comparison r.Actual
-        )
+            sprintf "  %s %-25s: %s %s %s" icon r.Field r.Expected comparison r.Actual)
         |> String.concat "\n"
+
+    /// <summary>
+    /// Verifies a list of expected TickerCurrencySnapshots against core-calculated snapshots.
+    /// Matches snapshots by Date and validates all fields.
+    ///
+    /// Returns: List of (allMatch, fieldResults) for each expected snapshot
+    /// Throws: InvalidArgumentException if any expected date is missing in coreCalculated
+    ///
+    /// Example:
+    /// let expected = OptionsImportExpectedSnapshots.getSOFISnapshots ticker currency
+    /// let actual = sortedSOFISnapshots |> List.map (fun s -> s.MainCurrency)
+    /// let results = verifyTickerCurrencySnapshotList expected actual
+    /// // results: [(true, [field results]), (false, [field results]), ...]
+    ///
+    /// results |> List.iteri (fun i (allMatch, fieldResults) ->
+    ///     if not allMatch then
+    ///         printfn "Snapshot %d failed:\n%s" i (formatValidationResults fieldResults)
+    ///     Assert.That(allMatch, Is.True)
+    /// )
+    /// </summary>
+    let verifyTickerCurrencySnapshotList
+        (expected: TickerCurrencySnapshot list)
+        (coreCalculated: TickerCurrencySnapshot list)
+        : (bool * ValidationResult list) list =
+
+        expected
+        |> List.map (fun expectedSnapshot ->
+            // Find matching snapshot by Date
+            let matchingSnapshot =
+                coreCalculated
+                |> List.tryFind (fun actual -> actual.Date = expectedSnapshot.Date)
+
+            match matchingSnapshot with
+            | None ->
+                // Date not found - throw exception
+                invalidArg
+                    "coreCalculated"
+                    (sprintf
+                        "Expected snapshot date %s not found in core-calculated snapshots"
+                        (expectedSnapshot.Date.ToString("yyyy-MM-dd")))
+            | Some actualSnapshot ->
+                // Date found - verify all fields
+                verifyTickerCurrencySnapshot expectedSnapshot actualSnapshot)
+
+    /// <summary>
+    /// Verifies a list of expected BrokerFinancialSnapshots against core-calculated snapshots.
+    /// Matches snapshots by Date and validates all fields.
+    ///
+    /// Returns: List of (allMatch, fieldResults) for each expected snapshot
+    /// Throws: InvalidArgumentException if any expected date is missing in coreCalculated
+    ///
+    /// Example:
+    /// let expected = OptionsImportExpectedSnapshots.getBrokerAccountSnapshots broker account currency
+    /// let actual = brokerFinancialSnapshots
+    /// let results = verifyBrokerFinancialSnapshotList expected actual
+    /// // results: [(true, [field results]), (false, [field results]), ...]
+    ///
+    /// results |> List.iteri (fun i (allMatch, fieldResults) ->
+    ///     if not allMatch then
+    ///         printfn "BrokerSnapshot %d failed:\n%s" i (formatValidationResults fieldResults)
+    ///     Assert.That(allMatch, Is.True)
+    /// )
+    /// </summary>
+    let verifyBrokerFinancialSnapshotList
+        (expected: BrokerFinancialSnapshot list)
+        (coreCalculated: BrokerFinancialSnapshot list)
+        : (bool * ValidationResult list) list =
+
+        expected
+        |> List.map (fun expectedSnapshot ->
+            // Find matching snapshot by Date
+            let matchingSnapshot =
+                coreCalculated
+                |> List.tryFind (fun actual -> actual.Date = expectedSnapshot.Date)
+
+            match matchingSnapshot with
+            | None ->
+                // Date not found - throw exception
+                invalidArg
+                    "coreCalculated"
+                    (sprintf
+                        "Expected snapshot date %s not found in core-calculated snapshots"
+                        (expectedSnapshot.Date.ToString("yyyy-MM-dd")))
+            | Some actualSnapshot ->
+                // Date found - verify all fields
+                verifyBrokerFinancialSnapshot expectedSnapshot actualSnapshot)

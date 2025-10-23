@@ -144,13 +144,14 @@ type OptionsImportTests() =
             // ==================== PHASE 4: VERIFY SOFI TICKER SNAPSHOTS CHRONOLOGICALLY ====================
             TestSetup.printPhaseHeader 4 "Verify SOFI Ticker Snapshots with Complete Financial State"
 
-            // Get SOFI ticker from Collections
+            // Get SOFI ticker and USD currency from Collections
             let sofiTicker =
                 Collections.Tickers.Items |> Seq.tryFind (fun t -> t.Symbol = "SOFI")
 
             Assert.That(sofiTicker.IsSome, Is.True, "SOFI ticker should exist in Collections")
 
             let sofiTickerId = sofiTicker.Value.Id
+            let usd = Collections.Currencies.Items |> Seq.find (fun c -> c.Code = "USD")
             CoreLogger.logInfo "[Verification]" (sprintf "📊 SOFI Ticker ID: %d" sofiTickerId)
 
             // Get all SOFI snapshots using Tickers.GetSnapshots from Core
@@ -165,184 +166,65 @@ type OptionsImportTests() =
                 "Should have 4 SOFI snapshots (2024-04-25, 04-29, 04-30 + today)"
             )
 
-            // Verify Snapshot 1: 2024-04-25 (After SELL_TO_OPEN #1)
-            CoreLogger.logInfo "[Verification]" "📅 Verifying SOFI Snapshot 1: 2024-04-25 (After SELL_TO_OPEN)"
-            let sofiSnapshot1 = sortedSOFISnapshots.[0]
-            let sofiSnapshot1Currency = sofiSnapshot1.MainCurrency
+            // Get expected SOFI snapshots from OptionsImportExpectedSnapshots
+            let expectedSOFISnapshots =
+                OptionsImportExpectedSnapshots.getSOFISnapshots sofiTicker.Value usd
 
-            Assert.That(
-                sofiSnapshot1.Date,
-                Is.EqualTo(DateOnly(2024, 4, 25)),
-                "SOFI Snapshot 1 date should be 2024-04-25"
-            )
+            // Extract currency snapshots from actual snapshots
+            let actualSOFISnapshots = sortedSOFISnapshots |> List.map (fun s -> s.MainCurrency)
 
-            let expectedSOFI1: TickerCurrencySnapshot =
-                { Id = sofiSnapshot1Currency.Id
-                  Date = DateOnly(2024, 4, 25)
-                  Ticker = sofiSnapshot1Currency.Ticker
-                  Currency = sofiSnapshot1Currency.Currency
-                  TotalShares = 0m
-                  Weight = 0m
-                  CostBasis = 0m
-                  RealCost = 0m
-                  Dividends = 0m
-                  Options = 33.86m // SELL_TO_OPEN NetPremium
-                  TotalIncomes = 33.86m
-                  Unrealized = 0m
-                  Realized = 0m
-                  Performance = 0m
-                  LatestPrice = 0m
-                  OpenTrades = true }
+            // Verify all snapshots at once using the new list verification method
+            let sofiResults =
+                TestVerifications.verifyTickerCurrencySnapshotList expectedSOFISnapshots actualSOFISnapshots
 
-            let (matchSOFI1, resultsSOFI1) =
-                TestVerifications.verifyTickerCurrencySnapshot expectedSOFI1 sofiSnapshot1Currency
+            // Check each snapshot result and log details if any mismatch
+            sofiResults
+            |> List.iteri (fun i (allMatch, fieldResults) ->
+                let snapshotDate = expectedSOFISnapshots.[i].Date.ToString("yyyy-MM-dd")
 
-            Assert.That(
-                matchSOFI1,
-                Is.True,
-                sprintf
-                    "SOFI Snapshot 1 verification failed:\n%s"
-                    (resultsSOFI1
-                     |> List.filter (fun r -> not r.Match)
-                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
-                     |> String.concat "\n")
-            )
+                let snapshotName =
+                    match i with
+                    | 0 -> "After SELL_TO_OPEN"
+                    | 1 -> "After close and reopen"
+                    | 2 -> "After second SELL_TO_OPEN"
+                    | 3 -> "Current snapshot"
+                    | _ -> "Unknown"
 
-            CoreLogger.logInfo "[Verification]" "✅ SOFI Snapshot 1 verified: Options=$33.86"
+                if not allMatch then
+                    CoreLogger.logError
+                        "[Verification]"
+                        (sprintf
+                            "❌ SOFI Snapshot %d (%s - %s) failed:\n%s"
+                            (i + 1)
+                            snapshotDate
+                            snapshotName
+                            (fieldResults
+                             |> List.filter (fun r -> not r.Match)
+                             |> TestVerifications.formatValidationResults))
+                else
+                    let options = fieldResults |> List.find (fun r -> r.Field = "Options")
+                    let realized = fieldResults |> List.find (fun r -> r.Field = "Realized")
 
-            // Verify Snapshot 2: 2024-04-29 (After BUY_TO_CLOSE + SELL_TO_OPEN)
-            CoreLogger.logInfo "[Verification]" "📅 Verifying SOFI Snapshot 2: 2024-04-29 (After close and reopen)"
-            let sofiSnapshot2 = sortedSOFISnapshots.[1]
-            let sofiSnapshot2Currency = sofiSnapshot2.MainCurrency
+                    let message =
+                        if i = 0 then
+                            sprintf "✅ SOFI Snapshot %d verified: Options=$%s" (i + 1) options.Actual
+                        elif i = 3 then
+                            sprintf "✅ SOFI Snapshot %d verified: Options=$%s (current)" (i + 1) options.Actual
+                        else
+                            sprintf
+                                "✅ SOFI Snapshot %d verified: Options=$%s, Realized=$%s"
+                                (i + 1)
+                                options.Actual
+                                realized.Actual
 
-            Assert.That(
-                sofiSnapshot2.Date,
-                Is.EqualTo(DateOnly(2024, 4, 29)),
-                "SOFI Snapshot 2 date should be 2024-04-29"
-            )
+                    CoreLogger.logInfo "[Verification]" message
 
-            let expectedSOFI2: TickerCurrencySnapshot =
-                { Id = sofiSnapshot2Currency.Id
-                  Date = DateOnly(2024, 4, 29)
-                  Ticker = sofiSnapshot2Currency.Ticker
-                  Currency = sofiSnapshot2Currency.Currency
-                  TotalShares = 0m
-                  Weight = 0m
-                  CostBasis = 0m
-                  RealCost = 0m
-                  Dividends = 0m
-                  Options = 32.59m // Cumulative: 33.86 - 17.13 + 15.86
-                  TotalIncomes = 32.59m
-                  Unrealized = 0m
-                  Realized = 16.73m // First position closed: 33.86 - 17.13
-                  Performance = 0m
-                  LatestPrice = 0m
-                  OpenTrades = true }
+                Assert.That(
+                    allMatch,
+                    Is.True,
+                    sprintf "SOFI Snapshot %d (%s - %s) verification failed" (i + 1) snapshotDate snapshotName
+                ))
 
-            let (matchSOFI2, resultsSOFI2) =
-                TestVerifications.verifyTickerCurrencySnapshot expectedSOFI2 sofiSnapshot2Currency
-
-            Assert.That(
-                matchSOFI2,
-                Is.True,
-                sprintf
-                    "SOFI Snapshot 2 verification failed:\n%s"
-                    (resultsSOFI2
-                     |> List.filter (fun r -> not r.Match)
-                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
-                     |> String.concat "\n")
-            )
-
-            CoreLogger.logInfo "[Verification]" "✅ SOFI Snapshot 2 verified: Options=$32.59, Realized=$16.73"
-
-            // Verify Snapshot 3: 2024-04-30 (After SELL_TO_OPEN #4)
-            CoreLogger.logInfo "[Verification]" "📅 Verifying SOFI Snapshot 3: 2024-04-30 (After second SELL_TO_OPEN)"
-            let sofiSnapshot3 = sortedSOFISnapshots.[2]
-            let sofiSnapshot3Currency = sofiSnapshot3.MainCurrency
-
-            Assert.That(
-                sofiSnapshot3.Date,
-                Is.EqualTo(DateOnly(2024, 4, 30)),
-                "SOFI Snapshot 3 date should be 2024-04-30"
-            )
-
-            let expectedSOFI3: TickerCurrencySnapshot =
-                { Id = sofiSnapshot3Currency.Id
-                  Date = DateOnly(2024, 4, 30)
-                  Ticker = sofiSnapshot3Currency.Ticker
-                  Currency = sofiSnapshot3Currency.Currency
-                  TotalShares = 0m
-                  Weight = 0m
-                  CostBasis = 0m
-                  RealCost = 0m
-                  Dividends = 0m
-                  Options = 47.45m // Cumulative: 32.59 + 14.86
-                  TotalIncomes = 47.45m
-                  Unrealized = 0m
-                  Realized = 16.73m
-                  Performance = 0m
-                  LatestPrice = 0m
-                  OpenTrades = true }
-
-            let (matchSOFI3, resultsSOFI3) =
-                TestVerifications.verifyTickerCurrencySnapshot expectedSOFI3 sofiSnapshot3Currency
-
-            Assert.That(
-                matchSOFI3,
-                Is.True,
-                sprintf
-                    "SOFI Snapshot 3 verification failed:\n%s"
-                    (resultsSOFI3
-                     |> List.filter (fun r -> not r.Match)
-                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
-                     |> String.concat "\n")
-            )
-
-            CoreLogger.logInfo "[Verification]" "✅ SOFI Snapshot 3 verified: Options=$47.45, Realized=$16.73"
-
-            // Verify Snapshot 4: Today (Current snapshot)
-            CoreLogger.logInfo
-                "[Verification]"
-                (sprintf "📅 Verifying SOFI Snapshot 4: %s (Current snapshot)" (DateTime.Now.ToString("yyyy-MM-dd")))
-
-            let sofiSnapshot4 = sortedSOFISnapshots.[3]
-            let sofiSnapshot4Currency = sofiSnapshot4.MainCurrency
-            let today = DateOnly.FromDateTime(DateTime.Now)
-            Assert.That(sofiSnapshot4.Date, Is.EqualTo(today), "SOFI Snapshot 4 date should be today")
-
-            let expectedSOFI4: TickerCurrencySnapshot =
-                { Id = sofiSnapshot4Currency.Id
-                  Date = today
-                  Ticker = sofiSnapshot4Currency.Ticker
-                  Currency = sofiSnapshot4Currency.Currency
-                  TotalShares = 0m
-                  Weight = 0m
-                  CostBasis = 0m
-                  RealCost = 0m
-                  Dividends = 0m
-                  Options = 47.45m // Same as Snapshot 3
-                  TotalIncomes = 47.45m
-                  Unrealized = 0m
-                  Realized = 16.73m
-                  Performance = 0m
-                  LatestPrice = 0m
-                  OpenTrades = true } // Still open (no closing trades)
-
-            let (matchSOFI4, resultsSOFI4) =
-                TestVerifications.verifyTickerCurrencySnapshot expectedSOFI4 sofiSnapshot4Currency
-
-            Assert.That(
-                matchSOFI4,
-                Is.True,
-                sprintf
-                    "SOFI Snapshot 4 verification failed:\n%s"
-                    (resultsSOFI4
-                     |> List.filter (fun r -> not r.Match)
-                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
-                     |> String.concat "\n")
-            )
-
-            CoreLogger.logInfo "[Verification]" "✅ SOFI Snapshot 4 verified: Options=$47.45 (current)"
             CoreLogger.logInfo "[Verification]" "✅ All 4 SOFI ticker snapshots verified chronologically"
 
             // ==================== PHASE 5: VERIFY MPW TICKER SNAPSHOTS CHRONOLOGICALLY ====================
@@ -673,6 +555,111 @@ type OptionsImportTests() =
 
             CoreLogger.logInfo "[Verification]" "✅ PLTR Snapshot 3 verified: Options=$1.46 (current)"
             CoreLogger.logInfo "[Verification]" "✅ All 3 PLTR ticker snapshots verified chronologically"
+
+            // ==================== PHASE 7: VERIFY BROKER ACCOUNT FINANCIAL SNAPSHOTS ====================
+            TestSetup.printPhaseHeader 7 "Verify Broker Account Financial Snapshots"
+
+            // Get broker account from context
+            let brokerAccountId = actions.Context.BrokerAccountId
+            CoreLogger.logInfo "[Verification]" (sprintf "📊 BrokerAccount ID: %d" brokerAccountId)
+
+            // Get all broker account snapshots using BrokerAccounts.GetSnapshots from Core
+            let! overviewSnapshots = BrokerAccounts.GetSnapshots(brokerAccountId) |> Async.AwaitTask
+
+            // Extract BrokerFinancialSnapshot from OverviewSnapshots
+            let brokerFinancialSnapshots =
+                overviewSnapshots
+                |> List.choose (fun os -> os.BrokerAccount |> Option.map (fun bas -> (bas.Date, bas.Financial)))
+                |> List.sortBy fst
+                |> List.map snd
+
+            CoreLogger.logInfo
+                "[Verification]"
+                (sprintf "📊 Found %d BrokerAccount snapshots" brokerFinancialSnapshots.Length)
+
+            Assert.That(brokerFinancialSnapshots.Length, Is.EqualTo(9), "Should have 9 BrokerAccount snapshots")
+
+            // Get broker and currency for snapshot construction
+            let broker = Collections.Brokers.Items |> Seq.find (fun b -> b.Name = "Tastytrade")
+
+            let brokerAccount =
+                Collections.Accounts.Items
+                |> Seq.filter (fun a -> a.Type = AccountType.BrokerAccount)
+                |> Seq.pick (fun a -> a.Broker)
+
+            let usd = Collections.Currencies.Items |> Seq.find (fun c -> c.Code = "USD")
+
+            // Get expected BrokerAccount snapshots from OptionsImportExpectedSnapshots
+            let expectedBrokerSnapshots =
+                OptionsImportExpectedSnapshots.getBrokerAccountSnapshots broker brokerAccount usd
+
+            // Verify all snapshots at once using the new list verification method
+            let brokerResults =
+                TestVerifications.verifyBrokerFinancialSnapshotList expectedBrokerSnapshots brokerFinancialSnapshots
+
+            // Check each snapshot result and log details if any mismatch
+            brokerResults
+            |> List.iteri (fun i (allMatch, fieldResults) ->
+                let snapshotDate = expectedBrokerSnapshots.[i].Date.ToString("yyyy-MM-dd")
+
+                let snapshotName =
+                    match i with
+                    | 0 -> "First deposit"
+                    | 1 -> "Second deposit"
+                    | 2 -> "Third deposit"
+                    | 3 -> "SOFI trade"
+                    | 4 -> "MPW + PLTR trades"
+                    | 5 -> "Balance adjustment"
+                    | 6 -> "Closing + reopening trades"
+                    | 7 -> "Final SOFI trade"
+                    | 8 -> "Current snapshot"
+                    | _ -> "Unknown"
+
+                if not allMatch then
+                    // Log failed fields only
+                    CoreLogger.logError
+                        "[Verification]"
+                        (sprintf
+                            "❌ BrokerSnapshot %d (%s - %s) failed:\n%s"
+                            (i + 1)
+                            snapshotDate
+                            snapshotName
+                            (fieldResults
+                             |> List.filter (fun r -> not r.Match)
+                             |> TestVerifications.formatValidationResults))
+
+                    // Log ALL fields for debugging
+                    CoreLogger.logInfo
+                        "[Verification]"
+                        (sprintf
+                            "All fields for BrokerSnapshot %d (%s):\n%s"
+                            (i + 1)
+                            snapshotDate
+                            (TestVerifications.formatValidationResults fieldResults))
+                else
+                    // Log success with key metrics
+                    let deposited = fieldResults |> List.find (fun r -> r.Field = "Deposited")
+                    let optionsIncome = fieldResults |> List.find (fun r -> r.Field = "OptionsIncome")
+                    let realizedGains = fieldResults |> List.find (fun r -> r.Field = "RealizedGains")
+
+                    CoreLogger.logInfo
+                        "[Verification]"
+                        (sprintf
+                            "✅ BrokerSnapshot %d (%s - %s) verified: Deposited=$%s, Options=$%s, Realized=$%s"
+                            (i + 1)
+                            snapshotDate
+                            snapshotName
+                            deposited.Actual
+                            optionsIncome.Actual
+                            realizedGains.Actual)
+
+                Assert.That(
+                    allMatch,
+                    Is.True,
+                    sprintf "BrokerSnapshot %d (%s - %s) verification failed" (i + 1) snapshotDate snapshotName
+                ))
+
+            CoreLogger.logInfo "[Verification]" "✅ All 9 BrokerAccount snapshots verified chronologically"
 
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
