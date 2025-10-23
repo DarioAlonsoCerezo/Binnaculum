@@ -219,58 +219,21 @@ type OptionsImportTests() =
             // Extract currency snapshots from actual snapshots
             let actualMPWSnapshots = sortedMPWSnapshots |> List.map (fun s -> s.MainCurrency)
 
-            // Verify all snapshots at once using the new list verification method
-            let mpwResults =
-                TestVerifications.verifyTickerCurrencySnapshotList expectedMPWSnapshots actualMPWSnapshots
+            // Define description function for MPW snapshots
+            let getMPWDescription i =
+                let date = expectedMPWSnapshots.[i].Date.ToString("yyyy-MM-dd")
 
-            // Check each snapshot result and log details if any mismatch
-            mpwResults
-            |> List.iteri (fun i (allMatch, fieldResults) ->
-                let snapshotDate = expectedMPWSnapshots.[i].Date.ToString("yyyy-MM-dd")
-
-                let snapshotName =
+                let name =
                     match i with
                     | 0 -> "After opening vertical spread"
                     | 1 -> "After closing vertical spread"
                     | 2 -> "Current snapshot"
                     | _ -> "Unknown"
 
-                if not allMatch then
-                    CoreLogger.logError
-                        "[Verification]"
-                        (sprintf
-                            "❌ MPW Snapshot %d (%s - %s) failed:\n%s"
-                            (i + 1)
-                            snapshotDate
-                            snapshotName
-                            (fieldResults
-                             |> List.filter (fun r -> not r.Match)
-                             |> TestVerifications.formatValidationResults))
-                else
-                    let options = fieldResults |> List.find (fun r -> r.Field = "Options")
-                    let realized = fieldResults |> List.find (fun r -> r.Field = "Realized")
+                sprintf "%s - %s" date name
 
-                    let message =
-                        if i = 0 then
-                            sprintf "✅ MPW Snapshot %d verified: Options=$%s" (i + 1) options.Actual
-                        elif i = 2 then
-                            sprintf "✅ MPW Snapshot %d verified: Options=$%s (current)" (i + 1) options.Actual
-                        else
-                            sprintf
-                                "✅ MPW Snapshot %d verified: Options=$%s, Realized=$%s"
-                                (i + 1)
-                                options.Actual
-                                realized.Actual
-
-                    CoreLogger.logInfo "[Verification]" message
-
-                Assert.That(
-                    allMatch,
-                    Is.True,
-                    sprintf "MPW Snapshot %d (%s - %s) verification failed" (i + 1) snapshotDate snapshotName
-                ))
-
-            CoreLogger.logInfo "[Verification]" "✅ All 3 MPW ticker snapshots verified chronologically"
+            // Use base class method for verification
+            this.VerifyTickerSnapshots "MPW" expectedMPWSnapshots actualMPWSnapshots getMPWDescription
 
             // ==================== PHASE 6: VERIFY PLTR TICKER SNAPSHOTS CHRONOLOGICALLY ====================
             TestSetup.printPhaseHeader 6 "Verify PLTR Ticker Snapshots with Complete Financial State"
@@ -303,58 +266,21 @@ type OptionsImportTests() =
             // Extract currency snapshots from actual snapshots
             let actualPLTRSnapshots = sortedPLTRSnapshots |> List.map (fun s -> s.MainCurrency)
 
-            // Verify all snapshots at once using the new list verification method
-            let pltrResults =
-                TestVerifications.verifyTickerCurrencySnapshotList expectedPLTRSnapshots actualPLTRSnapshots
+            // Define description function for PLTR snapshots
+            let getPLTRDescription i =
+                let date = expectedPLTRSnapshots.[i].Date.ToString("yyyy-MM-dd")
 
-            // Check each snapshot result and log details if any mismatch
-            pltrResults
-            |> List.iteri (fun i (allMatch, fieldResults) ->
-                let snapshotDate = expectedPLTRSnapshots.[i].Date.ToString("yyyy-MM-dd")
-
-                let snapshotName =
+                let name =
                     match i with
                     | 0 -> "After opening vertical spread"
                     | 1 -> "After closing vertical spread"
                     | 2 -> "Current snapshot"
                     | _ -> "Unknown"
 
-                if not allMatch then
-                    CoreLogger.logError
-                        "[Verification]"
-                        (sprintf
-                            "❌ PLTR Snapshot %d (%s - %s) failed:\n%s"
-                            (i + 1)
-                            snapshotDate
-                            snapshotName
-                            (fieldResults
-                             |> List.filter (fun r -> not r.Match)
-                             |> TestVerifications.formatValidationResults))
-                else
-                    let options = fieldResults |> List.find (fun r -> r.Field = "Options")
-                    let realized = fieldResults |> List.find (fun r -> r.Field = "Realized")
+                sprintf "%s - %s" date name
 
-                    let message =
-                        if i = 0 then
-                            sprintf "✅ PLTR Snapshot %d verified: Options=$%s" (i + 1) options.Actual
-                        elif i = 2 then
-                            sprintf "✅ PLTR Snapshot %d verified: Options=$%s (current)" (i + 1) options.Actual
-                        else
-                            sprintf
-                                "✅ PLTR Snapshot %d verified: Options=$%s, Realized=$%s"
-                                (i + 1)
-                                options.Actual
-                                realized.Actual
-
-                    CoreLogger.logInfo "[Verification]" message
-
-                Assert.That(
-                    allMatch,
-                    Is.True,
-                    sprintf "PLTR Snapshot %d (%s - %s) verification failed" (i + 1) snapshotDate snapshotName
-                ))
-
-            CoreLogger.logInfo "[Verification]" "✅ All 3 PLTR ticker snapshots verified chronologically"
+            // Use base class method for verification
+            this.VerifyTickerSnapshots "PLTR" expectedPLTRSnapshots actualPLTRSnapshots getPLTRDescription
 
             // ==================== PHASE 7: VERIFY BROKER ACCOUNT FINANCIAL SNAPSHOTS ====================
             TestSetup.printPhaseHeader 7 "Verify Broker Account Financial Snapshots"
