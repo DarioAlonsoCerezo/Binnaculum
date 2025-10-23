@@ -232,7 +232,6 @@ type OptionsImportTests() =
 
             // Get MPW ticker from Collections
             let mpwTicker = Collections.Tickers.Items |> Seq.tryFind (fun t -> t.Symbol = "MPW")
-
             Assert.That(mpwTicker.IsSome, Is.True, "MPW ticker should exist in Collections")
 
             let mpwTickerId = mpwTicker.Value.Id
@@ -250,145 +249,64 @@ type OptionsImportTests() =
                 "Should have 3 MPW snapshots (2024-04-26, 04-29 + today)"
             )
 
-            // Verify Snapshot 1: 2024-04-26 (After opening vertical spread)
-            CoreLogger.logInfo
-                "[Verification]"
-                "📅 Verifying MPW Snapshot 1: 2024-04-26 (After opening vertical spread)"
+            // Get expected MPW snapshots from OptionsImportExpectedSnapshots
+            let expectedMPWSnapshots =
+                OptionsImportExpectedSnapshots.getMPWSnapshots mpwTicker.Value usd
 
-            let mpwSnapshot1 = sortedMPWSnapshots.[0]
-            let mpwSnapshot1Currency = mpwSnapshot1.MainCurrency
+            // Extract currency snapshots from actual snapshots
+            let actualMPWSnapshots = sortedMPWSnapshots |> List.map (fun s -> s.MainCurrency)
 
-            Assert.That(
-                mpwSnapshot1.Date,
-                Is.EqualTo(DateOnly(2024, 4, 26)),
-                "MPW Snapshot 1 date should be 2024-04-26"
-            )
+            // Verify all snapshots at once using the new list verification method
+            let mpwResults =
+                TestVerifications.verifyTickerCurrencySnapshotList expectedMPWSnapshots actualMPWSnapshots
 
-            let expectedMPW1: TickerCurrencySnapshot =
-                { Id = mpwSnapshot1Currency.Id
-                  Date = DateOnly(2024, 4, 26)
-                  Ticker = mpwSnapshot1Currency.Ticker
-                  Currency = mpwSnapshot1Currency.Currency
-                  TotalShares = 0m
-                  Weight = 0m
-                  CostBasis = 0m
-                  RealCost = 0m
-                  Dividends = 0m
-                  Options = 12.73m // 17.86 - 5.13 (net from opening spread)
-                  TotalIncomes = 12.73m
-                  Unrealized = 0m
-                  Realized = 0m
-                  Performance = 0m
-                  LatestPrice = 0m
-                  OpenTrades = true }
+            // Check each snapshot result and log details if any mismatch
+            mpwResults
+            |> List.iteri (fun i (allMatch, fieldResults) ->
+                let snapshotDate = expectedMPWSnapshots.[i].Date.ToString("yyyy-MM-dd")
 
-            let (matchMPW1, resultsMPW1) =
-                TestVerifications.verifyTickerCurrencySnapshot expectedMPW1 mpwSnapshot1Currency
+                let snapshotName =
+                    match i with
+                    | 0 -> "After opening vertical spread"
+                    | 1 -> "After closing vertical spread"
+                    | 2 -> "Current snapshot"
+                    | _ -> "Unknown"
 
-            Assert.That(
-                matchMPW1,
-                Is.True,
-                sprintf
-                    "MPW Snapshot 1 verification failed:\n%s"
-                    (resultsMPW1
-                     |> List.filter (fun r -> not r.Match)
-                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
-                     |> String.concat "\n")
-            )
+                if not allMatch then
+                    CoreLogger.logError
+                        "[Verification]"
+                        (sprintf
+                            "❌ MPW Snapshot %d (%s - %s) failed:\n%s"
+                            (i + 1)
+                            snapshotDate
+                            snapshotName
+                            (fieldResults
+                             |> List.filter (fun r -> not r.Match)
+                             |> TestVerifications.formatValidationResults))
+                else
+                    let options = fieldResults |> List.find (fun r -> r.Field = "Options")
+                    let realized = fieldResults |> List.find (fun r -> r.Field = "Realized")
 
-            CoreLogger.logInfo "[Verification]" "✅ MPW Snapshot 1 verified: Options=$12.73"
+                    let message =
+                        if i = 0 then
+                            sprintf "✅ MPW Snapshot %d verified: Options=$%s" (i + 1) options.Actual
+                        elif i = 2 then
+                            sprintf "✅ MPW Snapshot %d verified: Options=$%s (current)" (i + 1) options.Actual
+                        else
+                            sprintf
+                                "✅ MPW Snapshot %d verified: Options=$%s, Realized=$%s"
+                                (i + 1)
+                                options.Actual
+                                realized.Actual
 
-            // Verify Snapshot 2: 2024-04-29 (After closing vertical spread)
-            CoreLogger.logInfo
-                "[Verification]"
-                "📅 Verifying MPW Snapshot 2: 2024-04-29 (After closing vertical spread)"
+                    CoreLogger.logInfo "[Verification]" message
 
-            let mpwSnapshot2 = sortedMPWSnapshots.[1]
-            let mpwSnapshot2Currency = mpwSnapshot2.MainCurrency
+                Assert.That(
+                    allMatch,
+                    Is.True,
+                    sprintf "MPW Snapshot %d (%s - %s) verification failed" (i + 1) snapshotDate snapshotName
+                ))
 
-            Assert.That(
-                mpwSnapshot2.Date,
-                Is.EqualTo(DateOnly(2024, 4, 29)),
-                "MPW Snapshot 2 date should be 2024-04-29"
-            )
-
-            let expectedMPW2: TickerCurrencySnapshot =
-                { Id = mpwSnapshot2Currency.Id
-                  Date = DateOnly(2024, 4, 29)
-                  Ticker = mpwSnapshot2Currency.Ticker
-                  Currency = mpwSnapshot2Currency.Currency
-                  TotalShares = 0m
-                  Weight = 0m
-                  CostBasis = 0m
-                  RealCost = 0m
-                  Dividends = 0m
-                  Options = 5.46m // Cumulative: 12.73 + 0.86 - 8.13 = 5.46
-                  TotalIncomes = 5.46m
-                  Unrealized = 0m
-                  Realized = 5.46m // Positions closed
-                  Performance = 0m
-                  LatestPrice = 0m
-                  OpenTrades = false }
-
-            let (matchMPW2, resultsMPW2) =
-                TestVerifications.verifyTickerCurrencySnapshot expectedMPW2 mpwSnapshot2Currency
-
-            Assert.That(
-                matchMPW2,
-                Is.True,
-                sprintf
-                    "MPW Snapshot 2 verification failed:\n%s"
-                    (resultsMPW2
-                     |> List.filter (fun r -> not r.Match)
-                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
-                     |> String.concat "\n")
-            )
-
-            CoreLogger.logInfo "[Verification]" "✅ MPW Snapshot 2 verified: Options=$5.46, Realized=$5.46"
-
-            // Verify Snapshot 3: Today (Current snapshot)
-            CoreLogger.logInfo
-                "[Verification]"
-                (sprintf "📅 Verifying MPW Snapshot 3: %s (Current snapshot)" (DateTime.Now.ToString("yyyy-MM-dd")))
-
-            let mpwSnapshot3 = sortedMPWSnapshots.[2]
-            let mpwSnapshot3Currency = mpwSnapshot3.MainCurrency
-            let today = DateOnly.FromDateTime(DateTime.Now)
-            Assert.That(mpwSnapshot3.Date, Is.EqualTo(today), "MPW Snapshot 3 date should be today")
-
-            let expectedMPW3: TickerCurrencySnapshot =
-                { Id = mpwSnapshot3Currency.Id
-                  Date = today
-                  Ticker = mpwSnapshot3Currency.Ticker
-                  Currency = mpwSnapshot3Currency.Currency
-                  TotalShares = 0m
-                  Weight = 0m
-                  CostBasis = 0m
-                  RealCost = 0m
-                  Dividends = 0m
-                  Options = 5.46m // Same as Snapshot 2 (no new trades)
-                  TotalIncomes = 5.46m
-                  Unrealized = 0m
-                  Realized = 5.46m
-                  Performance = 0m
-                  LatestPrice = 0m
-                  OpenTrades = false }
-
-            let (matchMPW3, resultsMPW3) =
-                TestVerifications.verifyTickerCurrencySnapshot expectedMPW3 mpwSnapshot3Currency
-
-            Assert.That(
-                matchMPW3,
-                Is.True,
-                sprintf
-                    "MPW Snapshot 3 verification failed:\n%s"
-                    (resultsMPW3
-                     |> List.filter (fun r -> not r.Match)
-                     |> List.map (fun r -> sprintf "  %s: expected=%s, actual=%s" r.Field r.Expected r.Actual)
-                     |> String.concat "\n")
-            )
-
-            CoreLogger.logInfo "[Verification]" "✅ MPW Snapshot 3 verified: Options=$5.46 (current)"
             CoreLogger.logInfo "[Verification]" "✅ All 3 MPW ticker snapshots verified chronologically"
 
             // ==================== PHASE 6: VERIFY PLTR TICKER SNAPSHOTS CHRONOLOGICALLY ====================
