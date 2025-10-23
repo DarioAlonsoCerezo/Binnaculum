@@ -6,6 +6,7 @@ open System.IO
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
 open Binnaculum.Core.Logging
+open TestModels
 
 /// <summary>
 /// Options import signal-based reactive integration tests.
@@ -166,26 +167,19 @@ type OptionsImportTests() =
                 "Should have 4 SOFI snapshots (2024-04-25, 04-29, 04-30 + today)"
             )
 
-            // Get expected SOFI snapshots from OptionsImportExpectedSnapshots
-            let expectedSOFISnapshots =
+            // Get expected SOFI snapshots with descriptions from OptionsImportExpectedSnapshots
+            let expectedSOFISnapshotsWithDescriptions =
                 OptionsImportExpectedSnapshots.getSOFISnapshots sofiTicker.Value usd
 
-            // Extract currency snapshots from actual snapshots
+            // Extract data and descriptions
+            let expectedSOFISnapshots =
+                expectedSOFISnapshotsWithDescriptions |> TestModels.getData
+
             let actualSOFISnapshots = sortedSOFISnapshots |> List.map (fun s -> s.MainCurrency)
 
-            // Define description function for SOFI snapshots
+            // Description function using the pre-defined descriptions
             let getSOFIDescription i =
-                let date = expectedSOFISnapshots.[i].Date.ToString("yyyy-MM-dd")
-
-                let name =
-                    match i with
-                    | 0 -> "After SELL_TO_OPEN"
-                    | 1 -> "After close and reopen"
-                    | 2 -> "After second SELL_TO_OPEN"
-                    | 3 -> "Current snapshot"
-                    | _ -> "Unknown"
-
-                sprintf "%s - %s" date name
+                expectedSOFISnapshotsWithDescriptions.[i].Description
 
             // Use base class method for verification
             this.VerifyTickerSnapshots "SOFI" expectedSOFISnapshots actualSOFISnapshots getSOFIDescription

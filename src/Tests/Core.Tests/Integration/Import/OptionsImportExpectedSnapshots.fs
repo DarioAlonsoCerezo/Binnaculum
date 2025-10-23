@@ -2,6 +2,7 @@ namespace Core.Tests.Integration
 
 open System
 open Binnaculum.Core.Models
+open TestModels
 
 /// <summary>
 /// Expected snapshot data for Options Import integration tests.
@@ -19,7 +20,7 @@ module OptionsImportExpectedSnapshots =
     // ==================== SOFI TICKER SNAPSHOTS ====================
 
     /// <summary>
-    /// Generate expected SOFI ticker snapshots.
+    /// Generate expected SOFI ticker snapshots with descriptions.
     ///
     /// SOFI has 4 snapshots:
     /// 1. 2024-04-25: After initial SELL_TO_OPEN
@@ -27,81 +28,89 @@ module OptionsImportExpectedSnapshots =
     /// 3. 2024-04-30: After second SELL_TO_OPEN
     /// 4. Today: Current snapshot (same as 2024-04-30)
     /// </summary>
-    let getSOFISnapshots (ticker: Ticker) (currency: Currency) : TickerCurrencySnapshot list =
+    let getSOFISnapshots (ticker: Ticker) (currency: Currency) : ExpectedSnapshot<TickerCurrencySnapshot> list =
         let today = DateOnly.FromDateTime(DateTime.Now)
 
         [
           // Snapshot 1: 2024-04-25 (After SELL_TO_OPEN #1)
-          { Id = 0 // Will be assigned by database
-            Date = DateOnly(2024, 4, 25)
-            Ticker = ticker
-            Currency = currency
-            TotalShares = 0m
-            Weight = 0m
-            CostBasis = 0m
-            RealCost = 0m
-            Dividends = 0m
-            Options = 33.86m // SELL_TO_OPEN NetPremium
-            TotalIncomes = 33.86m
-            Unrealized = 0m
-            Realized = 0m
-            Performance = 0m
-            LatestPrice = 0m
-            OpenTrades = true }
+          { Data =
+              { Id = 0 // Will be assigned by database
+                Date = DateOnly(2024, 4, 25)
+                Ticker = ticker
+                Currency = currency
+                TotalShares = 0m
+                Weight = 0m
+                CostBasis = 0m
+                RealCost = 0m
+                Dividends = 0m
+                Options = 33.86m // SELL_TO_OPEN NetPremium
+                TotalIncomes = 33.86m
+                Unrealized = 0m
+                Realized = 0m
+                Performance = 0m
+                LatestPrice = 0m
+                OpenTrades = true }
+            Description = "2024-04-25 - After SELL_TO_OPEN" }
 
           // Snapshot 2: 2024-04-29 (After BUY_TO_CLOSE + SELL_TO_OPEN)
-          { Id = 0
-            Date = DateOnly(2024, 4, 29)
-            Ticker = ticker
-            Currency = currency
-            TotalShares = 0m
-            Weight = 0m
-            CostBasis = 0m
-            RealCost = 0m
-            Dividends = 0m
-            Options = 32.59m // Cumulative: 33.86 - 17.13 + 15.86
-            TotalIncomes = 32.59m
-            Unrealized = 0m
-            Realized = 16.73m // First position closed: 33.86 - 17.13
-            Performance = 0m
-            LatestPrice = 0m
-            OpenTrades = true }
+          { Data =
+              { Id = 0
+                Date = DateOnly(2024, 4, 29)
+                Ticker = ticker
+                Currency = currency
+                TotalShares = 0m
+                Weight = 0m
+                CostBasis = 0m
+                RealCost = 0m
+                Dividends = 0m
+                Options = 32.59m // Cumulative: 33.86 - 17.13 + 15.86
+                TotalIncomes = 32.59m
+                Unrealized = 0m
+                Realized = 16.73m // First position closed: 33.86 - 17.13
+                Performance = 0m
+                LatestPrice = 0m
+                OpenTrades = true }
+            Description = "2024-04-29 - After close and reopen" }
 
           // Snapshot 3: 2024-04-30 (After second SELL_TO_OPEN)
-          { Id = 0
-            Date = DateOnly(2024, 4, 30)
-            Ticker = ticker
-            Currency = currency
-            TotalShares = 0m
-            Weight = 0m
-            CostBasis = 0m
-            RealCost = 0m
-            Dividends = 0m
-            Options = 47.45m // Cumulative: 32.59 + 14.86
-            TotalIncomes = 47.45m
-            Unrealized = 0m
-            Realized = 16.73m
-            Performance = 0m
-            LatestPrice = 0m
-            OpenTrades = true }
+          { Data =
+              { Id = 0
+                Date = DateOnly(2024, 4, 30)
+                Ticker = ticker
+                Currency = currency
+                TotalShares = 0m
+                Weight = 0m
+                CostBasis = 0m
+                RealCost = 0m
+                Dividends = 0m
+                Options = 47.45m // Cumulative: 32.59 + 14.86
+                TotalIncomes = 47.45m
+                Unrealized = 0m
+                Realized = 16.73m
+                Performance = 0m
+                LatestPrice = 0m
+                OpenTrades = true }
+            Description = "2024-04-30 - After second SELL_TO_OPEN" }
 
           // Snapshot 4: Today (Current snapshot - same as 2024-04-30)
-          { Id = 0
-            Date = today
-            Ticker = ticker
-            Currency = currency
-            TotalShares = 0m
-            Weight = 0m
-            CostBasis = 0m
-            RealCost = 0m
-            Dividends = 0m
-            Options = 47.45m // Same as Snapshot 3
-            TotalIncomes = 47.45m
-            Unrealized = 0m
-            Realized = 16.73m
-            Performance = 0m
-            LatestPrice = 0m
-            OpenTrades = true } ]
+          { Data =
+              { Id = 0
+                Date = today
+                Ticker = ticker
+                Currency = currency
+                TotalShares = 0m
+                Weight = 0m
+                CostBasis = 0m
+                RealCost = 0m
+                Dividends = 0m
+                Options = 47.45m // Same as Snapshot 3
+                TotalIncomes = 47.45m
+                Unrealized = 0m
+                Realized = 16.73m
+                Performance = 0m
+                LatestPrice = 0m
+                OpenTrades = true }
+            Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
 
     // ==================== MPW TICKER SNAPSHOTS ====================
 

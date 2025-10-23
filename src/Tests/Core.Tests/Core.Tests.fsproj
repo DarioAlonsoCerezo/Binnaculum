@@ -24,6 +24,7 @@
     <!-- Integration Test Framework - MUST COME FIRST (other tests depend on these) -->
     <Compile Include="Integration/Framework/TestEnvironment.fs" />
     <Compile Include="Integration/Framework/TestContext.fs" />
+    <Compile Include="Integration/Framework/TestModels.fs" />
     <Compile Include="Integration/Framework/StreamObserver.fs" />
     <Compile Include="Integration/Framework/TestActions.fs" />
     <Compile Include="Integration/Framework/TestVerifications.fs" />
