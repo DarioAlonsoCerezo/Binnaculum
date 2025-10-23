@@ -206,25 +206,19 @@ type OptionsImportTests() =
                 "Should have 3 MPW snapshots (2024-04-26, 04-29 + today)"
             )
 
-            // Get expected MPW snapshots from OptionsImportExpectedSnapshots
-            let expectedMPWSnapshots =
+            // Get expected MPW snapshots with descriptions from OptionsImportExpectedSnapshots
+            let expectedMPWSnapshotsWithDescriptions =
                 OptionsImportExpectedSnapshots.getMPWSnapshots mpwTicker.Value usd
 
-            // Extract currency snapshots from actual snapshots
+            // Extract data and descriptions
+            let expectedMPWSnapshots =
+                expectedMPWSnapshotsWithDescriptions |> TestModels.getData
+
             let actualMPWSnapshots = sortedMPWSnapshots |> List.map (fun s -> s.MainCurrency)
 
-            // Define description function for MPW snapshots
+            // Description function using the pre-defined descriptions
             let getMPWDescription i =
-                let date = expectedMPWSnapshots.[i].Date.ToString("yyyy-MM-dd")
-
-                let name =
-                    match i with
-                    | 0 -> "After opening vertical spread"
-                    | 1 -> "After closing vertical spread"
-                    | 2 -> "Current snapshot"
-                    | _ -> "Unknown"
-
-                sprintf "%s - %s" date name
+                expectedMPWSnapshotsWithDescriptions.[i].Description
 
             // Use base class method for verification
             this.VerifyTickerSnapshots "MPW" expectedMPWSnapshots actualMPWSnapshots getMPWDescription
@@ -253,25 +247,19 @@ type OptionsImportTests() =
                 "Should have 3 PLTR snapshots (2024-04-26, 04-29 + today)"
             )
 
-            // Get expected PLTR snapshots from OptionsImportExpectedSnapshots
-            let expectedPLTRSnapshots =
+            // Get expected PLTR snapshots with descriptions from OptionsImportExpectedSnapshots
+            let expectedPLTRSnapshotsWithDescriptions =
                 OptionsImportExpectedSnapshots.getPLTRSnapshots pltrTicker.Value usd
 
-            // Extract currency snapshots from actual snapshots
+            // Extract data and descriptions
+            let expectedPLTRSnapshots =
+                expectedPLTRSnapshotsWithDescriptions |> TestModels.getData
+
             let actualPLTRSnapshots = sortedPLTRSnapshots |> List.map (fun s -> s.MainCurrency)
 
-            // Define description function for PLTR snapshots
+            // Description function using the pre-defined descriptions
             let getPLTRDescription i =
-                let date = expectedPLTRSnapshots.[i].Date.ToString("yyyy-MM-dd")
-
-                let name =
-                    match i with
-                    | 0 -> "After opening vertical spread"
-                    | 1 -> "After closing vertical spread"
-                    | 2 -> "Current snapshot"
-                    | _ -> "Unknown"
-
-                sprintf "%s - %s" date name
+                expectedPLTRSnapshotsWithDescriptions.[i].Description
 
             // Use base class method for verification
             this.VerifyTickerSnapshots "PLTR" expectedPLTRSnapshots actualPLTRSnapshots getPLTRDescription
