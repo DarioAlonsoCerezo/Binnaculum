@@ -338,6 +338,22 @@ type OptionTradeCalculations() =
         |> Money.FromAmount
 
     /// <summary>
+    /// Calculates total options premium (pure option values without commissions/fees).
+    /// This represents the actual option trading income/costs before transaction costs.
+    /// Used for BrokerAccountSnapshot OptionsIncome calculation.
+    /// </summary>
+    /// <param name="optionTrades">List of option trades to analyze</param>
+    /// <returns>Sum of Premium values (positive for sells, negative for buys)</returns>
+    [<Extension>]
+    static member calculateOptionsPremium(optionTrades: OptionTrade list) =
+        optionTrades
+        |> List.sumBy (fun trade ->
+            // Premium is pure option value WITHOUT commissions/fees
+            // Positive for sells (income), negative for buys (cost)
+            trade.Premium.Value)
+        |> Money.FromAmount
+
+    /// <summary>
     /// Calculates total options investment/costs from buying options (BuyToOpen, BuyToClose).
     /// This represents premium paid when buying options to open or close positions.
     /// Cost is calculated as net premium paid including commissions and fees.
@@ -1022,7 +1038,7 @@ type OptionTradeCalculations() =
         // Unrealized gains/losses only exist if position is open
         let hasOpenOptions = unrealizedGains.Value <> 0.0m
 
-        {| OptionsIncome = tradesUpToTarget.calculateOptionsIncome ()
+        {| OptionsIncome = tradesUpToTarget.calculateOptionsPremium ()
            OptionsInvestment = tradesUpToTarget.calculateOptionsInvestment ()
            NetOptionsIncome = tradesUpToTarget.calculateNetOptionsIncome ()
            TotalCommissions = tradesUpToTarget.calculateTotalCommissions ()

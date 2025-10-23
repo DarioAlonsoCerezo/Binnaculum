@@ -26,23 +26,26 @@ module internal BrokerFinancialCalculate =
         let totalUnrealizedGains = stockUnrealizedGains
 
         // Calculate NetCashFlow as the actual contributed capital
-        // Note: OptionsIncome is NetPremium which already includes commissions and fees
-        // (NetPremium = Premium - Commissions - Fees for each trade)
-        // Therefore, we do NOT subtract Commissions and Fees separately to avoid double-counting
+        // Note: OptionsIncome is now pure Premium (option values WITHOUT commissions/fees)
+        // Therefore, we MUST subtract Commissions and Fees to calculate actual cash flow
         let netCashFlow =
             calculatedMetrics.Deposited.Value - calculatedMetrics.Withdrawn.Value
             + calculatedMetrics.DividendsReceived.Value
             + calculatedMetrics.OptionsIncome.Value
             + calculatedMetrics.OtherIncome.Value
+            - calculatedMetrics.Commissions.Value
+            - calculatedMetrics.Fees.Value
 
         CoreLogger.logDebugf
             "BrokerFinancialCalculate"
-            "NetCashFlow calculation: Deposited=%M, Withdrawn=%M, DividendsReceived=%M, OptionsIncome=%M, OtherIncome=%M => NetCashFlow=%M"
+            "NetCashFlow calculation: Deposited=%M, Withdrawn=%M, DividendsReceived=%M, OptionsIncome=%M, OtherIncome=%M, Commissions=%M, Fees=%M => NetCashFlow=%M"
             calculatedMetrics.Deposited.Value
             calculatedMetrics.Withdrawn.Value
             calculatedMetrics.DividendsReceived.Value
             calculatedMetrics.OptionsIncome.Value
             calculatedMetrics.OtherIncome.Value
+            calculatedMetrics.Commissions.Value
+            calculatedMetrics.Fees.Value
             netCashFlow
 
         let unrealizedPercentage =
@@ -72,6 +75,7 @@ module internal BrokerFinancialCalculate =
             OptionsIncome = calculatedMetrics.OptionsIncome
             OtherIncome = calculatedMetrics.OtherIncome
             OpenTrades = calculatedMetrics.HasOpenPositions }
+    // Note: NetCashFlow is a derived field, calculated automatically in DatabaseToModels.fs
 
     /// <summary>
     /// Applies direct snapshot metrics while optionally preserving realized gains when no closing activity occurred.
