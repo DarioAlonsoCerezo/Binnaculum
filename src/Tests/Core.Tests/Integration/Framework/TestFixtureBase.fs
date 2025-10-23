@@ -232,8 +232,8 @@ type TestFixtureBase() =
                         (TestVerifications.formatValidationResults fieldResults))
             else
                 let deposited = fieldResults |> List.find (fun r -> r.Field = "Deposited")
-                let options = fieldResults |> List.find (fun r -> r.Field = "Options")
-                let realized = fieldResults |> List.find (fun r -> r.Field = "Realized")
+                let optionsIncome = fieldResults |> List.find (fun r -> r.Field = "OptionsIncome")
+                let realizedGains = fieldResults |> List.find (fun r -> r.Field = "RealizedGains")
 
                 let message =
                     sprintf
@@ -241,8 +241,8 @@ type TestFixtureBase() =
                         (i + 1)
                         description
                         deposited.Actual
-                        options.Actual
-                        realized.Actual
+                        optionsIncome.Actual
+                        realizedGains.Actual
 
                 CoreLogger.logInfo "[Verification]" message
 

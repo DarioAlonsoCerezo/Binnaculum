@@ -319,16 +319,11 @@ type OptionsImportTests() =
             let expectedBrokerSnapshots =
                 OptionsImportExpectedSnapshots.getBrokerAccountSnapshots broker brokerAccount usd
 
-            // Verify all snapshots at once using the new list verification method
-            let brokerResults =
-                TestVerifications.verifyBrokerFinancialSnapshotList expectedBrokerSnapshots brokerFinancialSnapshots
+            // Define description function for broker snapshots
+            let getBrokerDescription i =
+                let date = expectedBrokerSnapshots.[i].Date.ToString("yyyy-MM-dd")
 
-            // Check each snapshot result and log details if any mismatch
-            brokerResults
-            |> List.iteri (fun i (allMatch, fieldResults) ->
-                let snapshotDate = expectedBrokerSnapshots.[i].Date.ToString("yyyy-MM-dd")
-
-                let snapshotName =
+                let name =
                     match i with
                     | 0 -> "First deposit"
                     | 1 -> "Second deposit"
@@ -341,51 +336,10 @@ type OptionsImportTests() =
                     | 8 -> "Current snapshot"
                     | _ -> "Unknown"
 
-                if not allMatch then
-                    // Log failed fields only
-                    CoreLogger.logError
-                        "[Verification]"
-                        (sprintf
-                            "❌ BrokerSnapshot %d (%s - %s) failed:\n%s"
-                            (i + 1)
-                            snapshotDate
-                            snapshotName
-                            (fieldResults
-                             |> List.filter (fun r -> not r.Match)
-                             |> TestVerifications.formatValidationResults))
+                sprintf "%s - %s" date name
 
-                    // Log ALL fields for debugging
-                    CoreLogger.logInfo
-                        "[Verification]"
-                        (sprintf
-                            "All fields for BrokerSnapshot %d (%s):\n%s"
-                            (i + 1)
-                            snapshotDate
-                            (TestVerifications.formatValidationResults fieldResults))
-                else
-                    // Log success with key metrics
-                    let deposited = fieldResults |> List.find (fun r -> r.Field = "Deposited")
-                    let optionsIncome = fieldResults |> List.find (fun r -> r.Field = "OptionsIncome")
-                    let realizedGains = fieldResults |> List.find (fun r -> r.Field = "RealizedGains")
-
-                    CoreLogger.logInfo
-                        "[Verification]"
-                        (sprintf
-                            "✅ BrokerSnapshot %d (%s - %s) verified: Deposited=$%s, Options=$%s, Realized=$%s"
-                            (i + 1)
-                            snapshotDate
-                            snapshotName
-                            deposited.Actual
-                            optionsIncome.Actual
-                            realizedGains.Actual)
-
-                Assert.That(
-                    allMatch,
-                    Is.True,
-                    sprintf "BrokerSnapshot %d (%s - %s) verification failed" (i + 1) snapshotDate snapshotName
-                ))
-
-            CoreLogger.logInfo "[Verification]" "✅ All 9 BrokerAccount snapshots verified chronologically"
+            // Use base class method for verification
+            this.VerifyBrokerSnapshots expectedBrokerSnapshots brokerFinancialSnapshots getBrokerDescription
 
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
