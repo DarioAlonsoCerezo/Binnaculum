@@ -312,7 +312,9 @@ module TestVerifications =
              Realized = expRealized
              Performance = expPerformance
              LatestPrice = expLatestPrice
-             OpenTrades = expOpenTrades },
+             OpenTrades = expOpenTrades
+             Commissions = expCommissions
+             Fees = expFees },
            { Id = actId
              Date = actDate
              TotalShares = actShares
@@ -326,7 +328,9 @@ module TestVerifications =
              Realized = actRealized
              Performance = actPerformance
              LatestPrice = actLatestPrice
-             OpenTrades = actOpenTrades }) ->
+             OpenTrades = actOpenTrades
+             Commissions = actCommissions
+             Fees = actFees }) ->
 
             let results =
                 [ // Note: Id field is skipped - database-assigned IDs are not predictable
@@ -394,7 +398,17 @@ module TestVerifications =
                   { Field = "OpenTrades"
                     Expected = sprintf "%b" expOpenTrades
                     Actual = sprintf "%b" actOpenTrades
-                    Match = expOpenTrades = actOpenTrades } ]
+                    Match = expOpenTrades = actOpenTrades }
+
+                  { Field = "Commissions"
+                    Expected = sprintf "%.2f" expCommissions
+                    Actual = sprintf "%.2f" actCommissions
+                    Match = abs (expCommissions - actCommissions) < 0.01m }
+
+                  { Field = "Fees"
+                    Expected = sprintf "%.2f" expFees
+                    Actual = sprintf "%.2f" actFees
+                    Match = abs (expFees - actFees) < 0.01m } ]
 
             let allMatch = results |> List.forall (fun r -> r.Match)
             (allMatch, results)

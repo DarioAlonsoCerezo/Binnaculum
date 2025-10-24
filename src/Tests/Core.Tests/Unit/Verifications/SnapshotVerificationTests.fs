@@ -201,3 +201,35 @@ type SnapshotVerificationTests() =
         Assert.That(formatted, Does.Contain("UnrealizedGains"))
         Assert.That(formatted, Does.Contain("MovementCounter"))
         Assert.That(formatted, Does.Contain("NetCashFlow"))
+
+    [<Test>]
+    member _.``verifyTickerCurrencySnapshot detects Commissions mismatch``() =
+        // Arrange
+        let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
+        let actual = { createTickerSnapshot 100m 250.50m -50.25m 75.00m with Commissions = 10.50m }
+        
+        // Act
+        let (allMatch, results) = TestVerifications.verifyTickerCurrencySnapshot expected actual
+        
+        // Assert
+        Assert.That(allMatch, Is.False, "Should detect mismatch")
+        let commissionsResult = results |> List.find (fun r -> r.Field = "Commissions")
+        Assert.That(commissionsResult.Match, Is.False, "Commissions field should not match")
+        Assert.That(commissionsResult.Expected, Is.EqualTo("0.00"))
+        Assert.That(commissionsResult.Actual, Is.EqualTo("10.50"))
+
+    [<Test>]
+    member _.``verifyTickerCurrencySnapshot detects Fees mismatch``() =
+        // Arrange
+        let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
+        let actual = { createTickerSnapshot 100m 250.50m -50.25m 75.00m with Fees = 5.25m }
+        
+        // Act
+        let (allMatch, results) = TestVerifications.verifyTickerCurrencySnapshot expected actual
+        
+        // Assert
+        Assert.That(allMatch, Is.False, "Should detect mismatch")
+        let feesResult = results |> List.find (fun r -> r.Field = "Fees")
+        Assert.That(feesResult.Match, Is.False, "Fees field should not match")
+        Assert.That(feesResult.Expected, Is.EqualTo("0.00"))
+        Assert.That(feesResult.Actual, Is.EqualTo("5.25"))
