@@ -82,6 +82,8 @@
     <Compile Include="Unit/Database/DatabasePersistenceTests.fs" />
     <Compile Include="Unit/Database/EmptySnapshotManagementTests.fs" />
     <Compile Include="Unit/Database/OverviewWipingTests.fs" />
+    <Compile Include="Unit/Database/AutoImportOperationTests.fs" />
+    <Compile Include="Unit/Database/AutoImportOperationTradeTests.fs" />
     
     <!-- Performance Tests -->
     <Compile Include="Performance/BrokerFinancialSnapshotManagerIntegrationTests.fs" />
