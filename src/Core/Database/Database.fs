@@ -339,6 +339,8 @@ module internal Do =
                   BankAccountMovements
                   BankAccounts
                   Banks
+                  AutoImportOperationTrades
+                  AutoImportOperations
                   Options
                   DividendDates
                   DividendTaxes
