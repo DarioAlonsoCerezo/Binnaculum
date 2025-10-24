@@ -227,6 +227,8 @@ module Models =
           CostBasis: decimal
           RealCost: decimal
           Dividends: decimal
+          /// <summary>Cumulative dividend taxes withheld for this ticker/currency</summary>
+          DividendTaxes: decimal
           Options: decimal
           TotalIncomes: decimal
           Unrealized: decimal

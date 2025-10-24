@@ -22,6 +22,7 @@ type Do() =
               (SQLParameterName.CostBasis, snapshot.CostBasis.Value)
               (SQLParameterName.RealCost, snapshot.RealCost.Value)
               (SQLParameterName.Dividends, snapshot.Dividends.Value)
+              (SQLParameterName.DividendTaxes, snapshot.DividendTaxes.Value)
               (SQLParameterName.Options, snapshot.Options.Value)
               (SQLParameterName.TotalIncomes, snapshot.TotalIncomes.Value)
               (SQLParameterName.Unrealized, snapshot.Unrealized.Value)
@@ -48,6 +49,7 @@ type Do() =
           CostBasis = reader.getMoney FieldName.CostBasis
           RealCost = reader.getMoney FieldName.RealCost
           Dividends = reader.getMoney FieldName.Dividends
+          DividendTaxes = reader.getMoney FieldName.DividendTaxes
           Options = reader.getMoney FieldName.Options
           TotalIncomes = reader.getMoney FieldName.TotalIncomes
           Unrealized = reader.getMoney FieldName.Unrealized

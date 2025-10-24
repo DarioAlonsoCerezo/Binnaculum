@@ -113,6 +113,9 @@ module internal TickerSnapshotCalculateInMemory =
 
         let totalDividends =
             Money.FromAmount(previousSnapshot.Dividends.Value + netDividends)
+        
+        let totalDividendTaxes =
+            Money.FromAmount(previousSnapshot.DividendTaxes.Value + currentDividendTaxes)
 
         // Calculate options income
         let currentOptions =
@@ -354,6 +357,7 @@ module internal TickerSnapshotCalculateInMemory =
           CostBasis = costBasis
           RealCost = realCost
           Dividends = totalDividends
+          DividendTaxes = totalDividendTaxes
           Options = totalOptions
           TotalIncomes = totalIncomes
           Unrealized = unrealized
@@ -445,6 +449,8 @@ module internal TickerSnapshotCalculateInMemory =
 
         let netDividends = currentDividends - currentDividendTaxes
         let totalDividends = Money.FromAmount(netDividends)
+        
+        let totalDividendTaxes = Money.FromAmount(currentDividendTaxes)
 
         // Calculate options income (no previous)
         let currentOptions =
@@ -575,6 +581,7 @@ module internal TickerSnapshotCalculateInMemory =
           CostBasis = costBasis
           RealCost = realCost
           Dividends = totalDividends
+          DividendTaxes = totalDividendTaxes
           Options = totalOptions
           TotalIncomes = totalIncomes
           Unrealized = unrealized
@@ -711,6 +718,7 @@ module internal TickerSnapshotCalculateInMemory =
           CostBasis = previousSnapshot.CostBasis
           RealCost = previousSnapshot.RealCost
           Dividends = previousSnapshot.Dividends
+          DividendTaxes = previousSnapshot.DividendTaxes
           Options = previousSnapshot.Options
           TotalIncomes = previousSnapshot.TotalIncomes
           Unrealized = unrealized
