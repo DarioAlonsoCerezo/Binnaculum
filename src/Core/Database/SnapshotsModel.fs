@@ -40,6 +40,7 @@ module internal SnapshotsModel =
         DividendsReceived: Money // Total dividends received - Default currency: USD
         OptionsIncome: Money // Total options premiums received - Default currency: USD
         OtherIncome: Money // Total other income - Default currency: USD
+        NetCashFlow: Money // Actual cash flow: Deposited - Withdrawn + DividendsReceived + OptionsIncome + OtherIncome - Commissions - Fees
         OpenTrades: bool // Whether there are open trades
     } with
         interface IEntity with

@@ -175,12 +175,15 @@ module internal BrokerFinancialCalculateInMemory =
         let totalUnrealizedGains = stockUnrealizedGains
 
         // Calculate cumulative NetCashFlow as the actual contributed capital
-        // Note: OptionsIncome is NetPremium which already includes commissions and fees
+        // OptionsIncome is pure Premium (WITHOUT commissions/fees)
+        // Therefore, we MUST subtract Commissions and Fees to get actual cash flow
         let cumulativeNetCashFlow =
             cumulativeDeposited.Value - cumulativeWithdrawn.Value
             + cumulativeDividendsReceived.Value
             + cumulativeOptionsIncome.Value
             + cumulativeOtherIncome.Value
+            - cumulativeCommissions.Value
+            - cumulativeFees.Value
 
         let unrealizedGainsPercentage =
             if cumulativeNetCashFlow > 0m then
@@ -214,6 +217,7 @@ module internal BrokerFinancialCalculateInMemory =
           DividendsReceived = cumulativeDividendsReceived
           OptionsIncome = cumulativeOptionsIncome
           OtherIncome = cumulativeOtherIncome
+          NetCashFlow = Money.FromAmount(cumulativeNetCashFlow)
           OpenTrades = calculatedMetrics.HasOpenPositions }
 
     /// <summary>
@@ -328,12 +332,16 @@ module internal BrokerFinancialCalculateInMemory =
         // FIX: UnrealizedGains should ONLY include stock positions (not options)
         let totalUnrealizedGains = stockUnrealizedGains
 
-        // Calculate cumulative NetCashFlow - OptionsIncome already includes fees/commissions
+        // Calculate cumulative NetCashFlow as the actual contributed capital
+        // OptionsIncome is pure Premium (WITHOUT commissions/fees)
+        // Therefore, we MUST subtract Commissions and Fees to get actual cash flow
         let cumulativeNetCashFlow =
             cumulativeDeposited.Value - cumulativeWithdrawn.Value
             + cumulativeDividendsReceived.Value
             + cumulativeOptionsIncome.Value
             + cumulativeOtherIncome.Value
+            - cumulativeCommissions.Value
+            - cumulativeFees.Value
 
         let unrealizedGainsPercentage =
             if cumulativeNetCashFlow > 0m then
@@ -362,6 +370,7 @@ module internal BrokerFinancialCalculateInMemory =
             DividendsReceived = cumulativeDividendsReceived
             OptionsIncome = cumulativeOptionsIncome
             OtherIncome = cumulativeOtherIncome
+            NetCashFlow = Money.FromAmount(cumulativeNetCashFlow)
             OpenTrades = calculatedMetrics.HasOpenPositions }
 
     /// <summary>
@@ -388,12 +397,16 @@ module internal BrokerFinancialCalculateInMemory =
         // FIX: UnrealizedGains should ONLY include stock positions (not options)
         let totalUnrealizedGains = stockUnrealizedGains
 
-        // Calculate NetCashFlow - OptionsIncome already includes fees/commissions
+        // Calculate NetCashFlow as the actual contributed capital
+        // OptionsIncome is pure Premium (WITHOUT commissions/fees)
+        // Therefore, we MUST subtract Commissions and Fees to get actual cash flow
         let netCashFlow =
             calculatedMetrics.Deposited.Value - calculatedMetrics.Withdrawn.Value
             + calculatedMetrics.DividendsReceived.Value
             + calculatedMetrics.OptionsIncome.Value
             + calculatedMetrics.OtherIncome.Value
+            - calculatedMetrics.Commissions.Value
+            - calculatedMetrics.Fees.Value
 
         let unrealizedPercentage =
             if netCashFlow > 0m then
@@ -453,6 +466,7 @@ module internal BrokerFinancialCalculateInMemory =
             DividendsReceived = calculatedMetrics.DividendsReceived
             OptionsIncome = calculatedMetrics.OptionsIncome
             OtherIncome = calculatedMetrics.OtherIncome
+            NetCashFlow = Money.FromAmount(netCashFlow)
             OpenTrades = calculatedMetrics.HasOpenPositions }
 
     /// <summary>
@@ -479,6 +493,7 @@ module internal BrokerFinancialCalculateInMemory =
             || previousSnapshot.DividendsReceived <> existingSnapshot.DividendsReceived
             || previousSnapshot.OptionsIncome <> existingSnapshot.OptionsIncome
             || previousSnapshot.OtherIncome <> existingSnapshot.OtherIncome
+            || previousSnapshot.NetCashFlow <> existingSnapshot.NetCashFlow
             || previousSnapshot.OpenTrades <> existingSnapshot.OpenTrades
             || previousSnapshot.MovementCounter <> existingSnapshot.MovementCounter
 
@@ -498,6 +513,7 @@ module internal BrokerFinancialCalculateInMemory =
                     DividendsReceived = previousSnapshot.DividendsReceived
                     OptionsIncome = previousSnapshot.OptionsIncome
                     OtherIncome = previousSnapshot.OtherIncome
+                    NetCashFlow = previousSnapshot.NetCashFlow
                     OpenTrades = previousSnapshot.OpenTrades
                     MovementCounter = previousSnapshot.MovementCounter }
         else
@@ -523,5 +539,6 @@ module internal BrokerFinancialCalculateInMemory =
             DividendsReceived = Money.FromAmount 0m
             OptionsIncome = Money.FromAmount 0m
             OtherIncome = Money.FromAmount 0m
+            NetCashFlow = Money.FromAmount 0m
             OpenTrades = false
             MovementCounter = 0 }

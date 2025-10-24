@@ -36,6 +36,7 @@ type Do() =
               (SQLParameterName.DividendsReceived, snapshot.DividendsReceived.Value)
               (SQLParameterName.OptionsIncome, snapshot.OptionsIncome.Value)
               (SQLParameterName.OtherIncome, snapshot.OtherIncome.Value)
+              (SQLParameterName.NetCashFlow, snapshot.NetCashFlow.Value)
               (SQLParameterName.OpenTrades, snapshot.OpenTrades) ],
             snapshot
         )
@@ -64,6 +65,7 @@ type Do() =
           DividendsReceived = reader.getMoney FieldName.DividendsReceived
           OptionsIncome = reader.getMoney FieldName.OptionsIncome
           OtherIncome = reader.getMoney FieldName.OtherIncome
+          NetCashFlow = reader.getMoney FieldName.NetCashFlow
           OpenTrades = reader.getBoolean FieldName.OpenTrades }
 
     [<Extension>]

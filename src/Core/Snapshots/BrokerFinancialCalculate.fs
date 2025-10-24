@@ -74,8 +74,8 @@ module internal BrokerFinancialCalculate =
             DividendsReceived = calculatedMetrics.DividendsReceived
             OptionsIncome = calculatedMetrics.OptionsIncome
             OtherIncome = calculatedMetrics.OtherIncome
+            NetCashFlow = Money.FromAmount(netCashFlow)
             OpenTrades = calculatedMetrics.HasOpenPositions }
-    // Note: NetCashFlow is a derived field, calculated automatically in DatabaseToModels.fs
 
     /// <summary>
     /// Applies direct snapshot metrics while optionally preserving realized gains when no closing activity occurred.

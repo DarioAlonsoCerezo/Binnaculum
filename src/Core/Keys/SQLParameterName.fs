@@ -233,6 +233,9 @@ module internal SQLParameterName =
     [<Literal>]
     let OtherIncome = "@OtherIncome"
     
+    [<Literal>]
+    let NetCashFlow = "@NetCashFlow"
+    
     // Broker Snapshots
     [<Literal>]
     let PortfoliosValue = "@PortfoliosValue"

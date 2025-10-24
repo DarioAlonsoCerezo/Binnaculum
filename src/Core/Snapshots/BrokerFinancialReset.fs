@@ -26,6 +26,7 @@ module internal BrokerFinancialReset =
                     DividendsReceived = Money.FromAmount 0m
                     OptionsIncome = Money.FromAmount 0m
                     OtherIncome = Money.FromAmount 0m
+                    NetCashFlow = Money.FromAmount 0m
                     OpenTrades = false
                     MovementCounter = 0
             }
