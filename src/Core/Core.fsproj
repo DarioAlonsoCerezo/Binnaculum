@@ -93,6 +93,9 @@
 		<Compile Include="Database\AutoImportOperationTradeExtensions.fs" />
 		<Compile Include="Import\ImportModels.fs" />
 		<Compile Include="Import\ImportState.fs" />
+		<Compile Include="Import\CsvDateAnalyzer.fs" />
+		<Compile Include="Import\ChunkStrategy.fs" />
+		<Compile Include="Import\ReactiveImportManager.fs" />
 		<Compile Include="Import\FileProcessor.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRModels.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRSectionFilter.fs" />

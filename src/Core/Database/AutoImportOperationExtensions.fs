@@ -54,8 +54,7 @@ type Do() =
         Database.Do.saveEntity operation (fun o c -> o.fill c)
 
     [<Extension>]
-    static member delete(operation: AutoImportOperation) = 
-        Database.Do.deleteEntity operation
+    static member delete(operation: AutoImportOperation) = Database.Do.deleteEntity operation
 
     static member getAll() =
         Database.Do.getAllEntities Do.read AutoImportOperationQuery.getAll
@@ -72,12 +71,27 @@ type Do() =
             return operations
         }
 
+    static member getByBrokerAccount(brokerAccountId: int) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- AutoImportOperationQuery.selectByBrokerAccount
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
+            let! operations = Database.Do.readAll<AutoImportOperation> (command, Do.read)
+            return operations
+        }
+
     static member getOpenOperation(tickerId: int, brokerAccountId: int) =
         task {
             let! command = Database.Do.createCommand ()
             command.CommandText <- AutoImportOperationQuery.selectOpenOperation
             command.Parameters.AddWithValue(SQLParameterName.TickerId, tickerId) |> ignore
-            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
             let! operations = Database.Do.readAll<AutoImportOperation> (command, Do.read)
             return operations |> Seq.tryHead
         }
@@ -98,26 +112,28 @@ type Do() =
           Performance = 0m
           Audit = AuditableEntity.Default }
 
-    static member closeOperation(operation: AutoImportOperation) =
-        { operation with IsOpen = false }
+    static member closeOperation(operation: AutoImportOperation) = { operation with IsOpen = false }
 
     static member updateOperationMetrics
-        (operation: AutoImportOperation,
-         realized: Money,
-         commissions: Money,
-         fees: Money,
-         premium: Money,
-         dividends: Money,
-         dividendTaxes: Money,
-         capitalDeployed: Money) =
+        (
+            operation: AutoImportOperation,
+            realized: Money,
+            commissions: Money,
+            fees: Money,
+            premium: Money,
+            dividends: Money,
+            dividendTaxes: Money,
+            capitalDeployed: Money
+        ) =
         let totalRealized = realized.Value
         let totalCapital = capitalDeployed.Value
-        let performance = 
-            if totalCapital <> 0m then 
-                (totalRealized / totalCapital) * 100m 
-            else 
+
+        let performance =
+            if totalCapital <> 0m then
+                (totalRealized / totalCapital) * 100m
+            else
                 0m
-        
+
         { operation with
             Realized = realized
             Commissions = commissions

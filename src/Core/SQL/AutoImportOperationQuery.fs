@@ -144,6 +144,14 @@ module internal AutoImportOperationQuery =
         ORDER BY {CreatedAt} ASC
         """
 
+    let selectByBrokerAccount =
+        $"""
+        SELECT * FROM {AutoImportOperations}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+        ORDER BY {CreatedAt} ASC
+        """
+
     let selectOpenOperation =
         $"""
         SELECT * FROM {AutoImportOperations}

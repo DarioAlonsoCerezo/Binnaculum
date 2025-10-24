@@ -5,6 +5,7 @@ open System.Threading.Tasks
 open Binnaculum.Core.Database
 open BrokerAccountSnapshotExtensions
 open BrokerFinancialSnapshotExtensions
+open AutoImportOperationExtensions
 open Binnaculum.Core.Models
 open Binnaculum.Core.DatabaseToModels
 open Binnaculum.Core.Keys
@@ -92,4 +93,25 @@ module BrokerAccounts =
                     dbFinancial.brokerFinancialSnapshotToModel (brokerAccount = brokerAccount))
 
             return financialSnapshots
+        }
+
+    /// <summary>
+    /// Retrieves all AutoImportOperations for a specific BrokerAccount.
+    /// Takes a brokerAccountId, queries the database for all operations associated with that account,
+    /// and converts them to AutoImportOperation models for UI consumption.
+    /// Follows project conventions for error handling - exceptions bubble up to UI layer.
+    /// </summary>
+    /// <param name="brokerAccountId">The ID of the BrokerAccount to retrieve operations for</param>
+    /// <returns>A list of AutoImportOperation records representing all operations for the broker account</returns>
+    let GetOperations (brokerAccountId: int) =
+        task {
+            // Get all operations from database for this broker account
+            let! dbOperations =
+                AutoImportOperationExtensions.Do.getByBrokerAccount (brokerAccountId)
+                |> Async.AwaitTask
+
+            // Convert database operations to domain models
+            let operations = dbOperations.autoImportOperationsToModel ()
+
+            return operations
         }
