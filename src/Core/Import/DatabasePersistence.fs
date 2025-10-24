@@ -32,21 +32,6 @@ module DatabasePersistence =
             ImportMetadata: ImportMetadata
         }
 
-    /// <summary>
-    /// Broker-agnostic input for database persistence containing domain models
-    /// Supports session tracking for resumable imports (integrated with PR #420)
-    /// </summary>
-    type internal PersistenceInput =
-        {
-            BrokerMovements: DatabaseModel.BrokerMovement list
-            OptionTrades: DatabaseModel.OptionTrade list
-            StockTrades: DatabaseModel.Trade list
-            Dividends: DatabaseModel.Dividend list
-            DividendTaxes: DatabaseModel.DividendTax list
-            /// Optional session ID for tracking resumable imports
-            SessionId: int option
-        }
-
     let private getTransactionProcessingPriority (transaction: TastytradeTransaction) =
         match transaction.TransactionType with
         | MoneyMovement _ -> 0
@@ -572,7 +557,7 @@ module DatabasePersistence =
     /// Integrates with session tracking from PR #420 for resumable imports
     /// </summary>
     let internal persistDomainModelsToDatabase
-        (input: PersistenceInput)
+        (input: ImportDomainTypes.PersistenceInput)
         (brokerAccountId: int)
         (cancellationToken: CancellationToken)
         =

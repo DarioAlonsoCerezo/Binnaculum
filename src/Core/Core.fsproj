@@ -94,6 +94,7 @@
 		<Compile Include="Database\AutoImportOperationExtensions.fs" />
 		<Compile Include="Database\AutoImportOperationTradeExtensions.fs" />
 		<Compile Include="Import\ImportModels.fs" />
+		<Compile Include="Import\ImportDomainTypes.fs" />
 		<Compile Include="Import\ImportState.fs" />
 		<Compile Include="Import\CsvDateAnalyzer.fs" />
 		<Compile Include="Import\ChunkStrategy.fs" />
@@ -112,6 +113,7 @@
 		<Compile Include="Import\Brokers\TastytradeStatementParser.fs" />
 		<Compile Include="Import\Brokers\TastytradeStrategyDetector.fs" />
 		<Compile Include="Import\Brokers\TastytradeTransactionConverter.fs" />
+		<Compile Include="Import\Brokers\TastytradeConverter.fs" />
 		<Compile Include="Import\Brokers\TastytradeImporter.fs" />
 		<Compile Include="Import\Brokers\SpecialDividendAdjustmentDetector.fs" />
 		<Compile Include="Import\Brokers\AdjustmentValidation.fs" />
