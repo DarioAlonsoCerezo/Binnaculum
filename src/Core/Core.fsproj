@@ -54,6 +54,8 @@
 		<Compile Include="SQL\BankAccountSnapshotQuery.fs" />
 		<Compile Include="SQL\BankSnapshotQuery.fs" />
 		<Compile Include="SQL\InvestmentOverviewSnapshotQuery.fs" />
+		<Compile Include="SQL\AutoImportOperationQuery.fs" />
+		<Compile Include="SQL\AutoImportOperationTradeQuery.fs" />
 		<Compile Include="Providers\ConnectionProvider.fs" />
 		<Compile Include="Providers\PreferencesProvider.fs" />
 		<Compile Include="Providers\AppDataDirectoryProvider.fs" />
