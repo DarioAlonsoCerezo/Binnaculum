@@ -828,7 +828,7 @@ module DatabasePersistence =
                 // CoreLogger.logDebug "DatabasePersistence" "All transactions processed, finalizing"
 
                 // Apply strike adjustments from special dividends to option trades
-                CoreLogger.logDebug "DatabasePersistence" "Applying strike adjustments from special dividends..."
+                // CoreLogger.logDebug "DatabasePersistence" "Applying strike adjustments from special dividends..."
                 let adjustedOptionTrades = applyStrikeAdjustments orderedTransactions optionTrades
 
                 // Build a set of original trade IDs for comparison
@@ -848,10 +848,7 @@ module DatabasePersistence =
                         if wasModified then
                             do! OptionTradeExtensions.Do.save (adjustedTrade) |> Async.AwaitTask
 
-                            CoreLogger.logDebugf
-                                "DatabasePersistence"
-                                "Saved adjusted option trade ID=%d with strike update"
-                                adjustedTrade.Id
+                            // CoreLogger.logDebugf "DatabasePersistence" "Saved adjusted option trade ID=%d with strike update" adjustedTrade.Id
                     with ex ->
                         CoreLogger.logWarningf
                             "DatabasePersistence"
