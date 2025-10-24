@@ -70,6 +70,12 @@ module internal DatabaseModel =
         | Interest
         | Fee
 
+    type OperationTradeType =
+        | StockTrade
+        | OptionTrade
+        | Dividend
+        | DividendTax
+
     type Broker =
         { Id: int
           Name: string
@@ -350,6 +356,52 @@ module internal DatabaseModel =
             member this.InsertSQL = BankAccountMovementsQuery.insert
             member this.UpdateSQL = BankAccountMovementsQuery.update
             member this.DeleteSQL = BankAccountMovementsQuery.delete
+
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
+
+    type AutoImportOperation =
+        { Id: int
+          BrokerAccountId: int
+          TickerId: int
+          CurrencyId: int
+          IsOpen: bool
+          
+          // Financial metrics (cumulative, stored for fast aggregation)
+          Realized: Money          // Total P&L from closed trades
+          Commissions: Money       // Total commissions paid
+          Fees: Money              // Total fees paid
+          Premium: Money           // Total option premiums (positive = collected, negative = paid)
+          Dividends: Money         // Total dividends received
+          DividendTaxes: Money     // Total dividend taxes withheld
+          CapitalDeployed: Money   // Total capital tied up in operation
+          Performance: decimal     // ROI % = (Realized / CapitalDeployed) * 100
+          
+          Audit: AuditableEntity }
+          
+        interface IEntity with
+            member this.Id = this.Id
+            member this.InsertSQL = AutoImportOperationQuery.insert
+            member this.UpdateSQL = AutoImportOperationQuery.update
+            member this.DeleteSQL = AutoImportOperationQuery.delete
+
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt  // Operation open date
+            member this.UpdatedAt = this.Audit.UpdatedAt  // Operation close date (only set when IsOpen = false)
+
+    type AutoImportOperationTrade =
+        { Id: int
+          AutoOperationId: int
+          TradeType: OperationTradeType
+          ReferenceId: int
+          Audit: AuditableEntity }
+          
+        interface IEntity with
+            member this.Id = this.Id
+            member this.InsertSQL = AutoImportOperationTradeQuery.insert
+            member this.UpdateSQL = AutoImportOperationTradeQuery.update
+            member this.DeleteSQL = AutoImportOperationTradeQuery.delete
 
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt

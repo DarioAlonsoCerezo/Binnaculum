@@ -271,3 +271,14 @@ module internal SQLParameterName =
     let BrokerSnapshotId = "@BrokerSnapshotId"
     [<Literal>]
     let BrokerAccountSnapshotId = "@BrokerAccountSnapshotId"
+
+    // AutoImportOperation parameters
+    [<Literal>]
+    let CapitalDeployed = "@CapitalDeployed"
+
+    // AutoImportOperationTrade parameters
+    [<Literal>]
+    let AutoOperationId = "@AutoOperationId"
+
+    [<Literal>]
+    let ReferenceId = "@ReferenceId"

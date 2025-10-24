@@ -160,3 +160,18 @@ module internal TypeParser =
         | BankAccountMovementType.Balance -> SQLConstants.Balance
         | BankAccountMovementType.Interest -> SQLConstants.Interest
         | BankAccountMovementType.Fee -> SQLConstants.Fee
+
+    let fromOperationTradeTypeToDatabase (value: OperationTradeType) =
+        match value with
+        | OperationTradeType.StockTrade -> SQLConstants.StockTrade
+        | OperationTradeType.OptionTrade -> SQLConstants.OptionTrade
+        | OperationTradeType.Dividend -> SQLConstants.Dividend
+        | OperationTradeType.DividendTax -> SQLConstants.DividendTax
+
+    let fromDatabaseToOperationTradeType (value: string) =
+        match value with
+        | SQLConstants.StockTrade -> OperationTradeType.StockTrade
+        | SQLConstants.OptionTrade -> OperationTradeType.OptionTrade
+        | SQLConstants.Dividend -> OperationTradeType.Dividend
+        | SQLConstants.DividendTax -> OperationTradeType.DividendTax
+        | _ -> failwith $"Invalid Operation Trade Type: {value}"

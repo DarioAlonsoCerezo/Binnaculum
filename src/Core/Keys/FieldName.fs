@@ -257,3 +257,14 @@ module internal FieldName =
     let BrokerSnapshotId = "BrokerSnapshotId"
     [<Literal>]
     let BrokerAccountSnapshotId = "BrokerAccountSnapshotId"
+
+    // AutoImportOperation fields
+    [<Literal>]
+    let CapitalDeployed = "CapitalDeployed"
+
+    // AutoImportOperationTrade fields
+    [<Literal>]
+    let AutoOperationId = "AutoOperationId"
+
+    [<Literal>]
+    let ReferenceId = "ReferenceId"

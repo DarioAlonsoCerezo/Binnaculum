@@ -54,6 +54,8 @@
 		<Compile Include="SQL\BankAccountSnapshotQuery.fs" />
 		<Compile Include="SQL\BankSnapshotQuery.fs" />
 		<Compile Include="SQL\InvestmentOverviewSnapshotQuery.fs" />
+		<Compile Include="SQL\AutoImportOperationQuery.fs" />
+		<Compile Include="SQL\AutoImportOperationTradeQuery.fs" />
 		<Compile Include="Providers\ConnectionProvider.fs" />
 		<Compile Include="Providers\PreferencesProvider.fs" />
 		<Compile Include="Providers\AppDataDirectoryProvider.fs" />
@@ -87,6 +89,8 @@
 		<Compile Include="Database\BankAccountSnapshotExtensions.fs" />
 		<Compile Include="Database\BankSnapshotExtensions.fs" />
 		<Compile Include="Database\InvestmentOverviewSnapshotExtensions.fs" />
+		<Compile Include="Database\AutoImportOperationExtensions.fs" />
+		<Compile Include="Database\AutoImportOperationTradeExtensions.fs" />
 		<Compile Include="Import\ImportModels.fs" />
 		<Compile Include="Import\ImportState.fs" />
 		<Compile Include="Import\FileProcessor.fs" />
