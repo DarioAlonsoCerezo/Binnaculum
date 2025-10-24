@@ -53,6 +53,7 @@ type SnapshotVerificationTests() =
             CostBasis = 0m
             RealCost = 0m
             Dividends = 0m
+            DividendTaxes = 0m
             Options = optionsIncome
             TotalIncomes = 0m
             Unrealized = unrealized

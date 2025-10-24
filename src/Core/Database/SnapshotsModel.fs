@@ -62,6 +62,8 @@ module internal SnapshotsModel =
         CostBasis: Money // Cost basis for the ticker
         RealCost: Money // Real cost basis after adjustments
         Dividends: Money // Total dividends received for the ticker
+        /// <summary>Total dividend taxes withheld for this ticker/currency</summary>
+        DividendTaxes: Money
         Options: Money // Total options premiums received
         TotalIncomes: Money // Total income from trades, dividends, etc.
         Unrealized: Money // Unrealized gains/losses

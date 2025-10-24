@@ -167,6 +167,9 @@ module internal FieldName =
     let Dividends = "Dividends"
     
     [<Literal>]
+    let DividendTaxes = "DividendTaxes"
+    
+    [<Literal>]
     let Options = "Options"
     
     [<Literal>]

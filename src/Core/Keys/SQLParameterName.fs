@@ -182,6 +182,9 @@ module internal SQLParameterName =
     let Dividends = "@Dividends"
     
     [<Literal>]
+    let DividendTaxes = "@DividendTaxes"
+    
+    [<Literal>]
     let Options = "@Options"
     
     [<Literal>]
