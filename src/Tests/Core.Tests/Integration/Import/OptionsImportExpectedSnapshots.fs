@@ -49,7 +49,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 0m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = true }
+                OpenTrades = true
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2024-04-25 - After SELL_TO_OPEN" }
 
           // Snapshot 2: 2024-04-29 (After BUY_TO_CLOSE + SELL_TO_OPEN)
@@ -69,7 +71,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 16.73m // First position closed: 33.86 - 17.13
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = true }
+                OpenTrades = true
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2024-04-29 - After close and reopen" }
 
           // Snapshot 3: 2024-04-30 (After second SELL_TO_OPEN)
@@ -89,7 +93,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 16.73m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = true }
+                OpenTrades = true
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2024-04-30 - After second SELL_TO_OPEN" }
 
           // Snapshot 4: Today (Current snapshot - same as 2024-04-30)
@@ -109,7 +115,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 16.73m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = true }
+                OpenTrades = true
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
 
     // ==================== MPW TICKER SNAPSHOTS ====================
@@ -143,7 +151,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 0m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = true }
+                OpenTrades = true
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2024-04-26 - After opening vertical spread" }
 
           // Snapshot 2: 2024-04-29 (After closing vertical spread)
@@ -163,7 +173,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 5.46m // Positions closed
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = false }
+                OpenTrades = false
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2024-04-29 - After closing vertical spread" }
 
           // Snapshot 3: Today (Current snapshot - same as 2024-04-29)
@@ -183,7 +195,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 5.46m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = false }
+                OpenTrades = false
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
 
     // ==================== PLTR TICKER SNAPSHOTS ====================
@@ -217,7 +231,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 0m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = true }
+                OpenTrades = true
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2024-04-26 - After opening vertical spread" }
 
           // Snapshot 2: 2024-04-29 (After closing vertical spread)
@@ -237,7 +253,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 1.46m // Positions closed
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = false }
+                OpenTrades = false
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2024-04-29 - After closing vertical spread" }
 
           // Snapshot 3: Today (Current snapshot - same as 2024-04-29)
@@ -257,7 +275,9 @@ module OptionsImportExpectedSnapshots =
                 Realized = 1.46m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = false }
+                OpenTrades = false
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
 
     // ==================== BROKER ACCOUNT SNAPSHOTS ====================

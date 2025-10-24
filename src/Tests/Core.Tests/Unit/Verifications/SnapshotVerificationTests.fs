@@ -60,6 +60,8 @@ type SnapshotVerificationTests() =
             Performance = 0m
             LatestPrice = 0m
             OpenTrades = false
+            Commissions = 0m
+            Fees = 0m
         }
 
     [<Test>]

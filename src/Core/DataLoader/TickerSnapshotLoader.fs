@@ -52,7 +52,9 @@ module internal TickerSnapshotLoader =
                                           Realized = cs.Realized.Value
                                           Performance = cs.Performance
                                           LatestPrice = cs.LatestPrice.Value
-                                          OpenTrades = cs.OpenTrades }
+                                          OpenTrades = cs.OpenTrades
+                                          Commissions = cs.Commissions.Value
+                                          Fees = cs.Fees.Value }
                                     | None ->
                                         // Fallback to default if no USD currency snapshot found
                                         { Id = 0
@@ -70,7 +72,9 @@ module internal TickerSnapshotLoader =
                                           Realized = 0.0m
                                           Performance = 0.0m
                                           LatestPrice = 0.0m
-                                          OpenTrades = false }
+                                          OpenTrades = false
+                                          Commissions = 0.0m
+                                          Fees = 0.0m }
 
                                 let tickerSnapshot =
                                     { Id = dbSnapshot.Base.Id
@@ -117,7 +121,9 @@ module internal TickerSnapshotLoader =
                                               Realized = cs.Realized.Value
                                               Performance = cs.Performance
                                               LatestPrice = cs.LatestPrice.Value
-                                              OpenTrades = cs.OpenTrades }
+                                              OpenTrades = cs.OpenTrades
+                                              Commissions = cs.Commissions.Value
+                                              Fees = cs.Fees.Value }
                                         | None ->
                                             { Id = 0
                                               Date = DateOnly.FromDateTime(dbSnapshot.Base.Date.Value)
@@ -134,7 +140,9 @@ module internal TickerSnapshotLoader =
                                               Realized = 0.0m
                                               Performance = 0.0m
                                               LatestPrice = 0.0m
-                                              OpenTrades = false }
+                                              OpenTrades = false
+                                              Commissions = 0.0m
+                                              Fees = 0.0m }
 
                                     let tickerSnapshot =
                                         { Id = dbSnapshot.Base.Id

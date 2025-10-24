@@ -69,6 +69,10 @@ module internal SnapshotsModel =
         Performance: decimal // Performance percentage
         LatestPrice: Money // Latest price of the ticker
         OpenTrades: bool // Whether there are open trades
+        /// <summary>Total commissions for this ticker/currency</summary>
+        Commissions: Money
+        /// <summary>Total fees for this ticker/currency</summary>
+        Fees: Money
     } with
         interface IEntity with
             member this.Id = this.Base.Id
