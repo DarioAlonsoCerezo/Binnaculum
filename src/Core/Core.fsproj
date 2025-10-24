@@ -108,14 +108,12 @@
 		<Compile Include="Import\Brokers\IBKR\IBKRStatementParser.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRConverter.fs" />
 
-		<Compile Include="Import\Brokers\IBKRImporter.fs" />
 		<Compile Include="Import\Brokers\TastytradeModels.fs" />
 		<Compile Include="Import\Brokers\TastytradeOptionSymbolParser.fs" />
 		<Compile Include="Import\Brokers\TastytradeStatementParser.fs" />
 		<Compile Include="Import\Brokers\TastytradeStrategyDetector.fs" />
 		<Compile Include="Import\Brokers\TastytradeTransactionConverter.fs" />
 		<Compile Include="Import\Brokers\TastytradeConverter.fs" />
-		<Compile Include="Import\Brokers\TastytradeImporter.fs" />
 		<Compile Include="Import\Brokers\SpecialDividendAdjustmentDetector.fs" />
 		<Compile Include="Import\Brokers\AdjustmentValidation.fs" />
 		<Compile Include="Models\Models.fs" />
@@ -142,6 +140,8 @@
 		<!-- End ticker snapshot batch processing base modules -->
 		<Compile Include="Snapshots\TickerSnapshotManager.fs" />
 		<Compile Include="Import\DatabasePersistence.fs" />
+		<Compile Include="Import\Brokers\TastytradeImporter.fs" />
+		<Compile Include="Import\Brokers\IBKRImporter.fs" />
 		<Compile Include="Snapshots\BankSnapshotManager.fs" />
 		<Compile Include="Snapshots\BankAccountSnapshotManager.fs" />
 		<Compile Include="Snapshots\BrokerFinancialUnrealizedGains.fs" />
