@@ -124,18 +124,23 @@ module internal TickerSnapshotCalculateInMemory =
 
         let totalDividends =
             Money.FromAmount(previousSnapshot.Dividends.Value + netDividends)
-        
+
         let totalDividendTaxes =
             Money.FromAmount(previousSnapshot.DividendTaxes.Value + currentDividendTaxes)
 
-        // Calculate options income
-        let currentOptions =
-            movements.OptionTrades |> List.sumBy (fun o -> o.NetPremium.Value)
+        // Calculate options income (using Premium instead of NetPremium for granularity)
+        let currentOptions = movements.OptionTrades |> List.sumBy (fun o -> o.Premium.Value)
 
         let totalOptions = Money.FromAmount(previousSnapshot.Options.Value + currentOptions)
 
-        // Calculate total incomes
-        let totalIncomes = Money.FromAmount(totalDividends.Value + totalOptions.Value)
+        // Calculate total incomes: Options + Dividends - DividendTaxes - Commissions - Fees
+        let totalIncomes =
+            Money.FromAmount(
+                totalOptions.Value + totalDividends.Value
+                - totalDividendTaxes.Value
+                - cumulativeCommissions.Value
+                - cumulativeFees.Value
+            )
 
         // Calculate real cost (cost basis + commissions + fees + dividend taxes)
         // Only include commissions/fees if we have shares (for equity positions)
@@ -474,17 +479,22 @@ module internal TickerSnapshotCalculateInMemory =
 
         let netDividends = currentDividends - currentDividendTaxes
         let totalDividends = Money.FromAmount(netDividends)
-        
+
         let totalDividendTaxes = Money.FromAmount(currentDividendTaxes)
 
-        // Calculate options income (no previous)
-        let currentOptions =
-            movements.OptionTrades |> List.sumBy (fun o -> o.NetPremium.Value)
+        // Calculate options income (no previous) - using Premium for granularity
+        let currentOptions = movements.OptionTrades |> List.sumBy (fun o -> o.Premium.Value)
 
         let totalOptions = Money.FromAmount(currentOptions)
 
-        // Calculate total incomes
-        let totalIncomes = Money.FromAmount(totalDividends.Value + totalOptions.Value)
+        // Calculate total incomes: Options + Dividends - DividendTaxes - Commissions - Fees
+        let totalIncomes =
+            Money.FromAmount(
+                totalOptions.Value + totalDividends.Value
+                - totalDividendTaxes.Value
+                - cumulativeCommissions.Value
+                - cumulativeFees.Value
+            )
 
         // Calculate real cost (cost basis + commissions + fees + dividend taxes)
         // Only include commissions/fees if we have shares (for equity positions)

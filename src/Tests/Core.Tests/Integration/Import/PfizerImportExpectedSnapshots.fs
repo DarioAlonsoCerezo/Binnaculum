@@ -56,8 +56,8 @@ module PfizerImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = -555.12m // BUY_TO_OPEN: -$555.12
-                TotalIncomes = -555.12m
+                Options = -554.00m // BUY_TO_OPEN Premium (gross, before costs)
+                TotalIncomes = -555.12m // = Options (-554.00) - Commissions (1.00) - Fees (0.12)
                 Unrealized = 0m
                 Realized = 0m
                 Performance = 0m
@@ -79,8 +79,8 @@ module PfizerImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = -505.24m // Previous -$555.12 + SELL_TO_OPEN $49.88 = -$505.24
-                TotalIncomes = -505.24m
+                Options = -503.00m // Cumulative Premium: -554 + 51 = -503
+                TotalIncomes = -505.24m // = Options (-503.00) - Commissions (2.00) - Fees (0.24)
                 Unrealized = 0m
                 Realized = 0m
                 Performance = 0m
@@ -102,8 +102,8 @@ module PfizerImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 175.52m // All trades: -$555.12 + $49.88 - $64.12 + $744.88 = $175.52
-                TotalIncomes = 175.52m
+                Options = 178.00m // Cumulative Premium: -554 + 51 - 64 + 745 = 178
+                TotalIncomes = 175.52m // = Options (178.00) - Commissions (2.00) - Fees (0.48)
                 Unrealized = 0m
                 Realized = 175.52m // FIFO: (-$14.24) + $189.76 = $175.52
                 Performance = 0m
@@ -125,8 +125,8 @@ module PfizerImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 175.52m
-                TotalIncomes = 175.52m
+                Options = 178.00m // Same as Snapshot 3 (no new trades)
+                TotalIncomes = 175.52m // = Options (178.00) - Commissions (2.00) - Fees (0.48)
                 Unrealized = 0m
                 Realized = 175.52m
                 Performance = 0m

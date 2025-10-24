@@ -44,8 +44,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 33.86m // SELL_TO_OPEN NetPremium
-                TotalIncomes = 33.86m
+                Options = 35.00m // SELL_TO_OPEN Premium (gross, before costs)
+                TotalIncomes = 33.86m // = Options (35.00) - Commissions (1.00) - Fees (0.14)
                 Unrealized = 0m
                 Realized = 0m
                 Performance = 0m
@@ -67,8 +67,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 32.59m // Cumulative: 33.86 - 17.13 + 15.86
-                TotalIncomes = 32.59m
+                Options = 35.00m // Cumulative Premium: 35 - 17 + 17 = 35
+                TotalIncomes = 32.59m // = Options (35.00) - Commissions (2.00) - Fees (0.41)
                 Unrealized = 0m
                 Realized = 16.73m // First position closed: 33.86 - 17.13
                 Performance = 0m
@@ -90,8 +90,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 47.45m // Cumulative: 32.59 + 14.86
-                TotalIncomes = 47.45m
+                Options = 51.00m // Cumulative Premium: 35 - 17 + 17 + 16 = 51
+                TotalIncomes = 47.45m // = Options (51.00) - Commissions (3.00) - Fees (0.55)
                 Unrealized = 0m
                 Realized = 16.73m
                 Performance = 0m
@@ -113,8 +113,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 47.45m // Same as Snapshot 3
-                TotalIncomes = 47.45m
+                Options = 51.00m // Same as Snapshot 3 (no new trades)
+                TotalIncomes = 47.45m // = Options (51.00) - Commissions (3.00) - Fees (0.55)
                 Unrealized = 0m
                 Realized = 16.73m
                 Performance = 0m
@@ -150,8 +150,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 12.73m // 17.86 - 5.13 (net from opening spread)
-                TotalIncomes = 12.73m
+                Options = 15.00m // Cumulative Premium: -4 + 19 = 15 (vertical spread)
+                TotalIncomes = 12.73m // = Options (15.00) - Commissions (2.00) - Fees (0.27)
                 Unrealized = 0m
                 Realized = 0m
                 Performance = 0m
@@ -173,8 +173,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 5.46m // Cumulative: 12.73 + 0.86 - 8.13 = 5.46
-                TotalIncomes = 5.46m
+                Options = 8.00m // Cumulative Premium: 15 - 8 + 1 = 8 (after closing spread)
+                TotalIncomes = 5.46m // = Options (8.00) - Commissions (2.00) - Fees (0.54)
                 Unrealized = 0m
                 Realized = 5.46m // Positions closed
                 Performance = 0m
@@ -196,8 +196,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 5.46m // Same as Snapshot 2 (no new trades)
-                TotalIncomes = 5.46m
+                Options = 8.00m // Same as Snapshot 2 (no new trades)
+                TotalIncomes = 5.46m // = Options (8.00) - Commissions (2.00) - Fees (0.54)
                 Unrealized = 0m
                 Realized = 5.46m
                 Performance = 0m
@@ -233,8 +233,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 5.73m // 17.86 - 12.13 (net from opening spread)
-                TotalIncomes = 5.73m
+                Options = 8.00m // Cumulative Premium: -11 + 19 = 8 (vertical spread)
+                TotalIncomes = 5.73m // = Options (8.00) - Commissions (2.00) - Fees (0.27)
                 Unrealized = 0m
                 Realized = 0m
                 Performance = 0m
@@ -256,8 +256,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 1.46m // Cumulative: 5.73 + 4.86 - 9.13 = 1.46
-                TotalIncomes = 1.46m
+                Options = 4.00m // Cumulative Premium: 8 - 9 + 5 = 4 (after closing spread)
+                TotalIncomes = 1.46m // = Options (4.00) - Commissions (2.00) - Fees (0.54)
                 Unrealized = 0m
                 Realized = 1.46m // Positions closed
                 Performance = 0m
@@ -279,8 +279,8 @@ module OptionsImportExpectedSnapshots =
                 RealCost = 0m
                 Dividends = 0m
                 DividendTaxes = 0m
-                Options = 1.46m // Same as Snapshot 2 (no new trades)
-                TotalIncomes = 1.46m
+                Options = 4.00m // Same as Snapshot 2 (no new trades)
+                TotalIncomes = 1.46m // = Options (4.00) - Commissions (2.00) - Fees (0.54)
                 Unrealized = 0m
                 Realized = 1.46m
                 Performance = 0m
