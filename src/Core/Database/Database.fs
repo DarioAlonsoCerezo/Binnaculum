@@ -319,10 +319,11 @@ module internal Do =
     /// Wipes all data from all database tables for testing purposes only.
     /// This method is intended strictly for integration tests to reset the database
     /// to a clean state as if the app was freshly installed.
+    /// NOTE: Drops and recreates tables to ensure schema is up-to-date with latest changes.
     /// </summary>
     let wipeAllTablesForTesting () =
         task {
-            // List of all table names in the order they should be wiped
+            // List of all table names in the order they should be dropped
             // (reverse order of dependencies to avoid foreign key constraints)
             let tableNames =
                 [ InvestmentOverviewSnapshots
@@ -349,7 +350,17 @@ module internal Do =
                   BrokerAccounts
                   Brokers ]
 
-            // Clean all tables sequentially to avoid foreign key constraint issues
+            // Drop all tables sequentially to avoid foreign key constraint issues
+            let! command = createCommand ()
             for tableName in tableNames do
-                do! cleanTable (tableName) |> Async.AwaitTask |> Async.Ignore
+                command.CommandText <- $"DROP TABLE IF EXISTS {tableName}"
+                do! executeNonQuery command |> Async.AwaitTask |> Async.Ignore
+            command.Dispose()
+            
+            // Recreate all tables with current schema by executing all CREATE TABLE statements
+            for createTableSql in tablesSQL do
+                let! cmd = createCommand ()
+                cmd.CommandText <- createTableSql
+                do! executeNonQuery cmd |> Async.AwaitTask |> Async.Ignore
+                cmd.Dispose()
         }
