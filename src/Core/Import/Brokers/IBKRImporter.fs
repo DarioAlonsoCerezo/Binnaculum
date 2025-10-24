@@ -357,7 +357,7 @@ module IBKRImporter =
                     BrokerMovements = persistenceResult.BrokerMovementsCreated
                     Dividends = persistenceResult.DividendsCreated
                     OptionTrades = persistenceResult.OptionTradesCreated
-                    NewTickers = 0 // TODO: Track new tickers
+                    NewTickers = 0 // Future: Track new tickers created during import (requires enhancement to converter)
                 }
                 
                 stopwatch.Stop()
