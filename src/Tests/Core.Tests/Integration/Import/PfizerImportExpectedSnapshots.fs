@@ -61,7 +61,9 @@ module PfizerImportExpectedSnapshots =
                 Realized = 0m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = true }
+                OpenTrades = true
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2025-08-25 - After BUY_TO_OPEN" }
 
           // Snapshot 2: 2025-10-01 (After SELL_TO_OPEN)
@@ -81,7 +83,9 @@ module PfizerImportExpectedSnapshots =
                 Realized = 0m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = true }
+                OpenTrades = true
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2025-10-01 - After SELL_TO_OPEN" }
 
           // Snapshot 3: 2025-10-03 (After both positions closed)
@@ -101,7 +105,9 @@ module PfizerImportExpectedSnapshots =
                 Realized = 175.52m // FIFO: (-$14.24) + $189.76 = $175.52
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = false }
+                OpenTrades = false
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = "2025-10-03 - After both positions closed" }
 
           // Snapshot 4: Today (Current snapshot - same as 2025-10-03)
@@ -121,7 +127,9 @@ module PfizerImportExpectedSnapshots =
                 Realized = 175.52m
                 Performance = 0m
                 LatestPrice = 0m
-                OpenTrades = false }
+                OpenTrades = false
+                Commissions = 0.0m
+                Fees = 0.0m }
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
 
     // ==================== BROKER ACCOUNT SNAPSHOTS ====================

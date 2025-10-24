@@ -174,6 +174,8 @@ module internal DatabaseToModels =
                   Performance = 0.0m // Default value, not used in this context
                   LatestPrice = 0.0m // Default value, not used in this context
                   OpenTrades = false // Default value, not used in this context
+                  Commissions = 0.0m // Default value, not used in this context
+                  Fees = 0.0m // Default value, not used in this context
                 }
               OtherCurrencies = [] }
 
@@ -736,7 +738,9 @@ module internal DatabaseToModels =
                           Realized = 0.0m
                           Performance = 0.0m
                           LatestPrice = 0.0m
-                          OpenTrades = false }
+                          OpenTrades = false
+                          Commissions = 0.0m
+                          Fees = 0.0m }
                       OtherCurrencies = [] })
 
         /// <summary>
@@ -769,7 +773,9 @@ module internal DatabaseToModels =
                           Realized = 0.0m
                           Performance = 0.0m
                           LatestPrice = 0.0m
-                          OpenTrades = false }
+                          OpenTrades = false
+                          Commissions = 0.0m
+                          Fees = 0.0m }
                       OtherCurrencies = [] })
 
         /// <summary>
@@ -797,7 +803,9 @@ module internal DatabaseToModels =
                   Realized = 0.0m
                   Performance = 0.0m
                   LatestPrice = 0.0m
-                  OpenTrades = false }
+                  OpenTrades = false
+                  Commissions = 0.0m
+                  Fees = 0.0m }
               OtherCurrencies = [] }
 
         /// <summary>
@@ -832,7 +840,9 @@ module internal DatabaseToModels =
               Realized = dbCurrencySnapshot.Realized.Value
               Performance = dbCurrencySnapshot.Performance
               LatestPrice = dbCurrencySnapshot.LatestPrice.Value
-              OpenTrades = dbCurrencySnapshot.OpenTrades }
+              OpenTrades = dbCurrencySnapshot.OpenTrades
+              Commissions = dbCurrencySnapshot.Commissions.Value
+              Fees = dbCurrencySnapshot.Fees.Value }
 
         /// <summary>
         /// Converts a database TickerSnapshot to the domain model TickerSnapshot,
@@ -869,7 +879,9 @@ module internal DatabaseToModels =
                           Realized = 0.0m
                           Performance = 0.0m
                           LatestPrice = 0.0m
-                          OpenTrades = false }
+                          OpenTrades = false
+                          Commissions = 0.0m
+                          Fees = 0.0m }
 
                     (emptySnapshot, [])
                 else
@@ -900,7 +912,9 @@ module internal DatabaseToModels =
                               Realized = 0.0m
                               Performance = 0.0m
                               LatestPrice = 0.0m
-                              OpenTrades = false }
+                              OpenTrades = false
+                              Commissions = 0.0m
+                              Fees = 0.0m }
 
                         (emptySnapshot, [])
 

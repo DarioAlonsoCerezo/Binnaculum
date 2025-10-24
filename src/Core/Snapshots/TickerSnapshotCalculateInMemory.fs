@@ -98,6 +98,10 @@ module internal TickerSnapshotCalculateInMemory =
         let commissions = movements.Trades |> List.sumBy (fun t -> t.Commissions.Value)
         let fees = movements.Trades |> List.sumBy (fun t -> t.Fees.Value)
 
+        // Calculate cumulative commissions and fees
+        let cumulativeCommissions = Money.FromAmount(previousSnapshot.Commissions.Value + commissions)
+        let cumulativeFees = Money.FromAmount(previousSnapshot.Fees.Value + fees)
+
         // Calculate dividends (gross dividends minus taxes)
         let currentDividends =
             movements.Dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
@@ -362,7 +366,9 @@ module internal TickerSnapshotCalculateInMemory =
                 Money.FromAmount(abs (costBasis.Value / totalShares))
             else
                 Money.FromAmount(0m)
-          OpenTrades = openTradesFlag }
+          OpenTrades = openTradesFlag
+          Commissions = cumulativeCommissions
+          Fees = cumulativeFees }
 
     /// <summary>
     /// Calculate initial TickerCurrencySnapshot from movements (no previous snapshot).
@@ -425,6 +431,10 @@ module internal TickerSnapshotCalculateInMemory =
         // Calculate commissions and fees from trades
         let commissions = movements.Trades |> List.sumBy (fun t -> t.Commissions.Value)
         let fees = movements.Trades |> List.sumBy (fun t -> t.Fees.Value)
+
+        // Calculate cumulative commissions and fees (initial snapshot - no previous)
+        let cumulativeCommissions = Money.FromAmount(commissions)
+        let cumulativeFees = Money.FromAmount(fees)
 
         // Calculate dividends (gross dividends minus taxes)
         let currentDividends =
@@ -577,7 +587,9 @@ module internal TickerSnapshotCalculateInMemory =
                 Money.FromAmount(abs (costBasis.Value / totalShares))
             else
                 Money.FromAmount(0m)
-          OpenTrades = openTradesFlag }
+          OpenTrades = openTradesFlag
+          Commissions = cumulativeCommissions
+          Fees = cumulativeFees }
 
     /// <summary>
     /// Update existing TickerCurrencySnapshot with new movements.
@@ -712,7 +724,9 @@ module internal TickerSnapshotCalculateInMemory =
                 Money.FromAmount(abs (previousSnapshot.CostBasis.Value / previousSnapshot.TotalShares))
             else
                 previousSnapshot.LatestPrice
-          OpenTrades = previousSnapshot.OpenTrades }
+          OpenTrades = previousSnapshot.OpenTrades
+          Commissions = previousSnapshot.Commissions
+          Fees = previousSnapshot.Fees }
 
     /// <summary>
     /// Helper to extract movements for a specific ticker/currency/date from batch data.

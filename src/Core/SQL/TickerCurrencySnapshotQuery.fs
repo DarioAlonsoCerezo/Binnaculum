@@ -26,6 +26,8 @@ module internal TickerCurrencySnapshotQuery =
             {Performance} TEXT NOT NULL,
             {LatestPrice} TEXT NOT NULL,
             {OpenTrades} INTEGER NOT NULL,
+            {Commissions} TEXT NOT NULL,
+            {Fees} TEXT NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
             FOREIGN KEY ({TickerId}) REFERENCES {Tickers}({Id}) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -69,6 +71,8 @@ module internal TickerCurrencySnapshotQuery =
             {Performance},
             {LatestPrice},
             {OpenTrades},
+            {Commissions},
+            {Fees},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -90,6 +94,8 @@ module internal TickerCurrencySnapshotQuery =
             {SQLParameterName.Performance},
             {SQLParameterName.LatestPrice},
             {SQLParameterName.OpenTrades},
+            {SQLParameterName.Commissions},
+            {SQLParameterName.Fees},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -115,6 +121,8 @@ module internal TickerCurrencySnapshotQuery =
             {Performance} = {SQLParameterName.Performance},
             {LatestPrice} = {SQLParameterName.LatestPrice},
             {OpenTrades} = {SQLParameterName.OpenTrades},
+            {Commissions} = {SQLParameterName.Commissions},
+            {Fees} = {SQLParameterName.Fees},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE

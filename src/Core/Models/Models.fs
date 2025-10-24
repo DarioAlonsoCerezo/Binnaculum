@@ -233,7 +233,11 @@ module Models =
           Realized: decimal
           Performance: decimal
           LatestPrice: decimal
-          OpenTrades: bool }
+          OpenTrades: bool
+          /// <summary>Cumulative trading commissions for this ticker/currency</summary>
+          Commissions: decimal
+          /// <summary>Cumulative trading fees for this ticker/currency</summary>
+          Fees: decimal }
 
     // Ticker snapshot model - represents the state of a ticker at a specific point in time
     type TickerSnapshot =

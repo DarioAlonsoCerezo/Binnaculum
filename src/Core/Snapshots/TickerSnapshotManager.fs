@@ -314,7 +314,9 @@ module internal TickerSnapshotManager =
                   Realized = Money.FromAmount(calculatedValues.Realized)
                   Performance = calculatedValues.Performance
                   LatestPrice = Money.FromAmount(calculationData.LatestPrice)
-                  OpenTrades = calculatedValues.OpenTrades }
+                  OpenTrades = calculatedValues.OpenTrades
+                  Commissions = Money.FromAmount(0m)
+                  Fees = Money.FromAmount(0m) }
 
             do! snapshot.save ()
         }
@@ -346,7 +348,9 @@ module internal TickerSnapshotManager =
                   Realized = Money.FromAmount(0.0m)
                   Performance = 0.0m
                   LatestPrice = Money.FromAmount(priceByDate)
-                  OpenTrades = false }
+                  OpenTrades = false
+                  Commissions = Money.FromAmount(0.0m)
+                  Fees = Money.FromAmount(0.0m) }
 
             return snapshot
         }
