@@ -2,6 +2,7 @@ namespace Binnaculum.Core.Import
 
 open System
 open System.IO
+open System.Security.Cryptography
 open Binnaculum.Core.Database.DatabaseModel
 
 /// <summary>
@@ -13,13 +14,24 @@ type DateAnalysis =
       MaxDate: DateTime
       TotalMovements: int
       MovementsByDate: Map<DateOnly, int>
-      UniqueDates: DateOnly list }
+      UniqueDates: DateOnly list
+      FileHash: string }
 
 /// <summary>
 /// Lightweight CSV date analyzer that extracts date information without database access.
 /// Parses CSV files to understand date distribution for optimal chunking strategy.
 /// </summary>
 module CsvDateAnalyzer =
+
+    /// <summary>
+    /// Calculate MD5 hash of file for change detection.
+    /// Used to validate file hasn't been modified before resuming import.
+    /// </summary>
+    let calculateFileHash (filePath: string) : string =
+        use md5 = MD5.Create()
+        use stream = File.OpenRead(filePath)
+        let hash = md5.ComputeHash(stream)
+        BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()
 
     /// <summary>
     /// Analyze Tastytrade CSV file to extract date distribution.
@@ -78,13 +90,15 @@ module CsvDateAnalyzer =
                   MaxDate = now
                   TotalMovements = 0
                   MovementsByDate = Map.empty
-                  UniqueDates = [] }
+                  UniqueDates = []
+                  FileHash = calculateFileHash(filePath) }
             else
                 { MinDate = minDate
                   MaxDate = maxDate
                   TotalMovements = totalMovements
                   MovementsByDate = movementsByDate
-                  UniqueDates = movementsByDate |> Map.toList |> List.map fst |> List.sort }
+                  UniqueDates = movementsByDate |> Map.toList |> List.map fst |> List.sort
+                  FileHash = calculateFileHash(filePath) }
         with ex ->
             failwith $"Error analyzing Tastytrade CSV dates: {ex.Message}"
 
@@ -146,13 +160,15 @@ module CsvDateAnalyzer =
                   MaxDate = now
                   TotalMovements = 0
                   MovementsByDate = Map.empty
-                  UniqueDates = [] }
+                  UniqueDates = []
+                  FileHash = calculateFileHash(filePath) }
             else
                 { MinDate = minDate
                   MaxDate = maxDate
                   TotalMovements = totalMovements
                   MovementsByDate = movementsByDate
-                  UniqueDates = movementsByDate |> Map.toList |> List.map fst |> List.sort }
+                  UniqueDates = movementsByDate |> Map.toList |> List.map fst |> List.sort
+                  FileHash = calculateFileHash(filePath) }
         with ex ->
             failwith $"Error analyzing IBKR CSV dates: {ex.Message}"
 

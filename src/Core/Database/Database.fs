@@ -67,7 +67,13 @@ module internal Do =
           Binnaculum.Core.SQL.BankSnapshotQuery.createTable
           Binnaculum.Core.SQL.InvestmentOverviewSnapshotQuery.createTable
           Binnaculum.Core.SQL.AutoImportOperationQuery.createTable
-          Binnaculum.Core.SQL.AutoImportOperationTradeQuery.createTable ]
+          Binnaculum.Core.SQL.AutoImportOperationTradeQuery.createTable
+          Binnaculum.Core.SQL.ImportSessionQuery.createTable
+          Binnaculum.Core.SQL.ImportSessionChunkQuery.createTable ]
+
+    let private indexesSQL: string list =
+        [ yield! Binnaculum.Core.SQL.ImportSessionQuery.createIndexes
+          yield! Binnaculum.Core.SQL.ImportSessionChunkQuery.createIndexes ]
 
     let private connect () =
         task {
@@ -85,6 +91,17 @@ module internal Do =
                 let command = connection.CreateCommand()
 
                 tablesSQL
+                |> List.map (fun sqlQuery ->
+                    async {
+                        command.CommandText <- sqlQuery
+                        return! command.ExecuteNonQueryAsync() |> Async.AwaitTask |> Async.Ignore
+                    })
+                |> Async.Sequential
+                |> Async.Ignore
+                |> Async.RunSynchronously
+
+                // Create indexes
+                indexesSQL
                 |> List.map (fun sqlQuery ->
                     async {
                         command.CommandText <- sqlQuery

@@ -406,3 +406,63 @@ module internal DatabaseModel =
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
             member this.UpdatedAt = this.Audit.UpdatedAt
+
+    type ImportSession =
+        { Id: int
+          BrokerAccountId: int
+          BrokerAccountName: string
+          FileName: string
+          FilePath: string
+          FileHash: string
+          State: string
+          Phase: string
+          TotalChunks: int
+          ChunksCompleted: int
+          MovementsPersisted: int
+          BrokerSnapshotsCalculated: int
+          TickerSnapshotsCalculated: int
+          MinDate: string
+          MaxDate: string
+          TotalEstimatedMovements: int
+          StartedAt: string
+          Phase1CompletedAt: string option
+          Phase2StartedAt: string option
+          CompletedAt: string option
+          LastProgressUpdateAt: string option
+          LastError: string option
+          Audit: AuditableEntity }
+
+        interface IEntity with
+            member this.Id = this.Id
+            member this.InsertSQL = ImportSessionQuery.insert
+            member this.UpdateSQL = ""  // Custom updates via specific methods
+            member this.DeleteSQL = ""  // No direct delete - cascade via FK
+
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt
+
+    type ImportSessionChunk =
+        { Id: int
+          ImportSessionId: int
+          ChunkNumber: int
+          StartDate: string
+          EndDate: string
+          EstimatedMovements: int
+          State: string
+          ActualMovements: int
+          StartedAt: string option
+          CompletedAt: string option
+          DurationMs: int64 option
+          Error: string option
+          Audit: AuditableEntity }
+
+        interface IEntity with
+            member this.Id = this.Id
+            member this.InsertSQL = ImportSessionChunkQuery.insert
+            member this.UpdateSQL = ""  // Custom updates via specific methods
+            member this.DeleteSQL = ""  // No direct delete - cascade via FK
+
+        interface IAuditEntity with
+            member this.CreatedAt = this.Audit.CreatedAt
+            member this.UpdatedAt = this.Audit.UpdatedAt

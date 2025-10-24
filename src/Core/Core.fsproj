@@ -56,6 +56,8 @@
 		<Compile Include="SQL\InvestmentOverviewSnapshotQuery.fs" />
 		<Compile Include="SQL\AutoImportOperationQuery.fs" />
 		<Compile Include="SQL\AutoImportOperationTradeQuery.fs" />
+		<Compile Include="SQL\ImportSessionQuery.fs" />
+		<Compile Include="SQL\ImportSessionChunkQuery.fs" />
 		<Compile Include="Providers\ConnectionProvider.fs" />
 		<Compile Include="Providers\PreferencesProvider.fs" />
 		<Compile Include="Providers\AppDataDirectoryProvider.fs" />
@@ -95,6 +97,9 @@
 		<Compile Include="Import\ImportState.fs" />
 		<Compile Include="Import\CsvDateAnalyzer.fs" />
 		<Compile Include="Import\ChunkStrategy.fs" />
+		<Compile Include="Database\ImportSessionExtensions.fs" />
+		<Compile Include="Database\ImportSessionChunkExtensions.fs" />
+		<Compile Include="Import\ImportSessionManager.fs" />
 		<Compile Include="Import\ReactiveImportManager.fs" />
 		<Compile Include="Import\FileProcessor.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRModels.fs" />
