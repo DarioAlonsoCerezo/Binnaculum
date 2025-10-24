@@ -125,12 +125,7 @@ module ImportManager =
                                                         brokerAccount.Id
                                                         cancellationToken
 
-                                                CoreLogger.logInfof
-                                                    "ImportManager"
-                                                    "Tastytrade parse complete: success=%b, processedFiles=%d, processedRecords=%d"
-                                                    parseResult.Success
-                                                    parseResult.ProcessedFiles
-                                                    parseResult.ProcessedRecords
+                                                // CoreLogger.logInfof "ImportManager" "Tastytrade parse complete: success=%b, processedFiles=%d, processedRecords=%d" parseResult.Success parseResult.ProcessedFiles parseResult.ProcessedRecords
 
                                                 // If parsing was successful, persist to database
                                                 if parseResult.Success then
@@ -200,14 +195,8 @@ module ImportManager =
                                                                     )
 
                                                             if batchResult.Success then
-                                                                CoreLogger.logInfof
-                                                                    "ImportManager"
-                                                                    "Batch snapshot processing completed: %d snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)"
-                                                                    batchResult.SnapshotsSaved
-                                                                    batchResult.TotalTimeMs
-                                                                    batchResult.LoadTimeMs
-                                                                    batchResult.CalculationTimeMs
-                                                                    batchResult.PersistenceTimeMs
+                                                                // CoreLogger.logInfof "ImportManager" "Batch snapshot processing completed: %d snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)" batchResult.SnapshotsSaved batchResult.TotalTimeMs batchResult.LoadTimeMs batchResult.CalculationTimeMs batchResult.PersistenceTimeMs
+                                                                ()
                                                             else
                                                                 CoreLogger.logWarningf
                                                                     "ImportManager"
@@ -271,9 +260,7 @@ module ImportManager =
 
                                                     with
                                                     | :? OperationCanceledException ->
-                                                        CoreLogger.logInfo
-                                                            "ImportManager"
-                                                            "Database persistence canceled"
+                                                        // CoreLogger.logInfo "ImportManager" "Database persistence canceled"
 
                                                         return ImportResult.createCancelled ()
                                                     | ex ->
