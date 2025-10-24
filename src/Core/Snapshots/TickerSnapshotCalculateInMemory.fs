@@ -94,12 +94,23 @@ module internal TickerSnapshotCalculateInMemory =
 
         let costBasis = Money.FromAmount(previousSnapshot.CostBasis.Value + tradeCostBasis)
 
-        // Calculate commissions and fees from trades
-        let commissions = movements.Trades |> List.sumBy (fun t -> t.Commissions.Value)
-        let fees = movements.Trades |> List.sumBy (fun t -> t.Fees.Value)
+        // Calculate commissions and fees from both equity trades and option trades
+        let commissionsFromTrades =
+            movements.Trades |> List.sumBy (fun t -> t.Commissions.Value)
+
+        let commissionsFromOptions =
+            movements.OptionTrades |> List.sumBy (fun o -> o.Commissions.Value)
+
+        let commissions = commissionsFromTrades + commissionsFromOptions
+
+        let feesFromTrades = movements.Trades |> List.sumBy (fun t -> t.Fees.Value)
+        let feesFromOptions = movements.OptionTrades |> List.sumBy (fun o -> o.Fees.Value)
+        let fees = feesFromTrades + feesFromOptions
 
         // Calculate cumulative commissions and fees
-        let cumulativeCommissions = Money.FromAmount(previousSnapshot.Commissions.Value + commissions)
+        let cumulativeCommissions =
+            Money.FromAmount(previousSnapshot.Commissions.Value + commissions)
+
         let cumulativeFees = Money.FromAmount(previousSnapshot.Fees.Value + fees)
 
         // Calculate dividends (gross dividends minus taxes)
@@ -124,8 +135,13 @@ module internal TickerSnapshotCalculateInMemory =
         let totalIncomes = Money.FromAmount(totalDividends.Value + totalOptions.Value)
 
         // Calculate real cost (cost basis + commissions + fees + dividend taxes)
+        // Only include commissions/fees if we have shares (for equity positions)
+        // For option-only positions (TotalShares = 0), RealCost should be 0
         let realCost =
-            Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
+            if totalShares > 0m then
+                Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
+            else
+                Money.FromAmount(0m)
 
         // Calculate unrealized gains/losses from open positions only:
         // 1. Shares: (market value - cost basis)
@@ -428,9 +444,18 @@ module internal TickerSnapshotCalculateInMemory =
 
         let costBasis = Money.FromAmount(tradeCostBasis)
 
-        // Calculate commissions and fees from trades
-        let commissions = movements.Trades |> List.sumBy (fun t -> t.Commissions.Value)
-        let fees = movements.Trades |> List.sumBy (fun t -> t.Fees.Value)
+        // Calculate commissions and fees from both equity trades and option trades
+        let commissionsFromTrades =
+            movements.Trades |> List.sumBy (fun t -> t.Commissions.Value)
+
+        let commissionsFromOptions =
+            movements.OptionTrades |> List.sumBy (fun o -> o.Commissions.Value)
+
+        let commissions = commissionsFromTrades + commissionsFromOptions
+
+        let feesFromTrades = movements.Trades |> List.sumBy (fun t -> t.Fees.Value)
+        let feesFromOptions = movements.OptionTrades |> List.sumBy (fun o -> o.Fees.Value)
+        let fees = feesFromTrades + feesFromOptions
 
         // Calculate cumulative commissions and fees (initial snapshot - no previous)
         let cumulativeCommissions = Money.FromAmount(commissions)
@@ -456,8 +481,13 @@ module internal TickerSnapshotCalculateInMemory =
         let totalIncomes = Money.FromAmount(totalDividends.Value + totalOptions.Value)
 
         // Calculate real cost (cost basis + commissions + fees + dividend taxes)
+        // Only include commissions/fees if we have shares (for equity positions)
+        // For option-only positions (TotalShares = 0), RealCost should be 0
         let realCost =
-            Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
+            if totalShares > 0m then
+                Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
+            else
+                Money.FromAmount(0m)
 
         // Calculate unrealized gains/losses from open positions only:
         // 1. Shares: (market value - cost basis)

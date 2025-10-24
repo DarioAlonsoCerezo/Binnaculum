@@ -62,8 +62,8 @@ module PfizerImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = true
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 1.00m // BUY_TO_OPEN commission (positive value = cost)
+                Fees = 0.12m } // BUY_TO_OPEN fees (positive value = cost)
             Description = "2025-08-25 - After BUY_TO_OPEN" }
 
           // Snapshot 2: 2025-10-01 (After SELL_TO_OPEN)
@@ -84,8 +84,8 @@ module PfizerImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = true
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.00m // Cumulative: 1.00 (BTO) + 1.00 (STO) = 2.00
+                Fees = 0.24m } // Cumulative: 0.12 (BTO) + 0.12 (STO) = 0.24
             Description = "2025-10-01 - After SELL_TO_OPEN" }
 
           // Snapshot 3: 2025-10-03 (After both positions closed)
@@ -106,8 +106,8 @@ module PfizerImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = false
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.00m // Cumulative: no new commissions from closing trades (0+0)
+                Fees = 0.48m } // Cumulative: 0.24 (prev) + 0.12 (BTC) + 0.12 (STC) = 0.48
             Description = "2025-10-03 - After both positions closed" }
 
           // Snapshot 4: Today (Current snapshot - same as 2025-10-03)
@@ -128,8 +128,8 @@ module PfizerImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = false
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.00m // Same as Snapshot 3 (no new trades)
+                Fees = 0.48m } // Same as Snapshot 3 (no new trades)
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
 
     // ==================== BROKER ACCOUNT SNAPSHOTS ====================

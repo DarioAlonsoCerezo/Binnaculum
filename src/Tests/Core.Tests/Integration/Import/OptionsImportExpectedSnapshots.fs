@@ -50,8 +50,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = true
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 1.0m // SELL_TO_OPEN commission (positive value = cost)
+                Fees = 0.14m } // SELL_TO_OPEN fees (positive value = cost)
             Description = "2024-04-25 - After SELL_TO_OPEN" }
 
           // Snapshot 2: 2024-04-29 (After BUY_TO_CLOSE + SELL_TO_OPEN)
@@ -72,8 +72,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = true
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.0m // Cumulative: 1.00 (STO) + 0.00 (BTC) + 1.00 (STO) = 2.00
+                Fees = 0.41m } // Cumulative: 0.14 (STO) + 0.13 (BTC) + 0.14 (STO) = 0.41
             Description = "2024-04-29 - After close and reopen" }
 
           // Snapshot 3: 2024-04-30 (After second SELL_TO_OPEN)
@@ -94,8 +94,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = true
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 3.0m // Cumulative: 2.00 (previous) + 1.00 (STO) = 3.00
+                Fees = 0.55m } // Cumulative: 0.41 (previous) + 0.14 (STO) = 0.55
             Description = "2024-04-30 - After second SELL_TO_OPEN" }
 
           // Snapshot 4: Today (Current snapshot - same as 2024-04-30)
@@ -116,8 +116,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = true
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 3.0m // Same as Snapshot 3 (no new trades)
+                Fees = 0.55m } // Same as Snapshot 3 (no new trades)
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
 
     // ==================== MPW TICKER SNAPSHOTS ====================
@@ -152,8 +152,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = true
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.0m // BUY_TO_OPEN: 1.00, SELL_TO_OPEN: 1.00 (positive values = costs)
+                Fees = 0.27m } // BUY_TO_OPEN: 0.13, SELL_TO_OPEN: 0.14
             Description = "2024-04-26 - After opening vertical spread" }
 
           // Snapshot 2: 2024-04-29 (After closing vertical spread)
@@ -174,8 +174,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = false
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.0m // Cumulative: no new commissions from closing trades
+                Fees = 0.54m } // Cumulative: 0.27 (previous) + 0.13 (BTC) + 0.14 (STC) = 0.54
             Description = "2024-04-29 - After closing vertical spread" }
 
           // Snapshot 3: Today (Current snapshot - same as 2024-04-29)
@@ -196,8 +196,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = false
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.0m // Same as Snapshot 2 (no new trades)
+                Fees = 0.54m } // Same as Snapshot 2 (no new trades)
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
 
     // ==================== PLTR TICKER SNAPSHOTS ====================
@@ -232,8 +232,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = true
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.0m // BUY_TO_OPEN: 1.00, SELL_TO_OPEN: 1.00 (positive values = costs)
+                Fees = 0.27m } // BUY_TO_OPEN: 0.13, SELL_TO_OPEN: 0.14
             Description = "2024-04-26 - After opening vertical spread" }
 
           // Snapshot 2: 2024-04-29 (After closing vertical spread)
@@ -254,8 +254,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = false
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.0m // Cumulative: no new commissions from closing trades
+                Fees = 0.54m } // Cumulative: 0.27 (previous) + 0.13 (BTC) + 0.14 (STC) = 0.54
             Description = "2024-04-29 - After closing vertical spread" }
 
           // Snapshot 3: Today (Current snapshot - same as 2024-04-29)
@@ -276,8 +276,8 @@ module OptionsImportExpectedSnapshots =
                 Performance = 0m
                 LatestPrice = 0m
                 OpenTrades = false
-                Commissions = 0.0m
-                Fees = 0.0m }
+                Commissions = 2.0m // Same as Snapshot 2 (no new trades)
+                Fees = 0.54m } // Same as Snapshot 2 (no new trades)
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
 
     // ==================== BROKER ACCOUNT SNAPSHOTS ====================
@@ -390,8 +390,8 @@ module OptionsImportExpectedSnapshots =
                 UnrealizedGains = 0m
                 UnrealizedGainsPercentage = 0m
                 Invested = 0m
-                Commissions = 1.00m
-                Fees = 0.14m
+                Commissions = 1.00m // Cumulative commission from SOFI SELL_TO_OPEN (positive = cost)
+                Fees = 0.14m // Cumulative fees from SOFI SELL_TO_OPEN (positive = cost)
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
@@ -414,8 +414,8 @@ module OptionsImportExpectedSnapshots =
                 UnrealizedGains = 0m
                 UnrealizedGainsPercentage = 0m
                 Invested = 0m
-                Commissions = 5.00m
-                Fees = 0.68m
+                Commissions = 5.00m // Cumulative: 1.00 (prev) + 1.00 + 1.00 + 1.00 + 1.00 = 5.00
+                Fees = 0.68m // Cumulative: 0.14 (prev) + 0.13 + 0.14 + 0.13 + 0.14 = 0.68
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
@@ -438,8 +438,8 @@ module OptionsImportExpectedSnapshots =
                 UnrealizedGains = 0m
                 UnrealizedGainsPercentage = 0m
                 Invested = 0m
-                Commissions = 5.00m
-                Fees = 0.70m
+                Commissions = 5.00m // No new commissions from balance adjustment
+                Fees = 0.70m // Cumulative: 0.68 (previous) + 0.02 (balance adjustment fee)
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
@@ -462,8 +462,8 @@ module OptionsImportExpectedSnapshots =
                 UnrealizedGains = 0m
                 UnrealizedGainsPercentage = 0m
                 Invested = 0m
-                Commissions = 6.00m
-                Fees = 1.51m // Includes $0.02 balance adjustment fee
+                Commissions = 6.00m // Cumulative: 5.00 (prev) + 0 + 0 + 0 + 1.00 (SOFI STO) + 0 + 0 = 6.00
+                Fees = 1.51m // Cumulative: 0.70 (prev) + 0.13 + 0.14 + 0.13 + 0.14 + 0.13 + 0.14 = 1.51
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
@@ -486,8 +486,8 @@ module OptionsImportExpectedSnapshots =
                 UnrealizedGains = 0m
                 UnrealizedGainsPercentage = 0m
                 Invested = 0m
-                Commissions = 7.00m
-                Fees = 1.65m // Includes $0.02 balance adjustment fee
+                Commissions = 7.00m // Cumulative: 6.00 (prev) + 1.00 (SOFI STO) = 7.00
+                Fees = 1.65m // Cumulative: 1.51 (prev) + 0.14 (SOFI STO) = 1.65
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
@@ -510,8 +510,8 @@ module OptionsImportExpectedSnapshots =
                 UnrealizedGains = 0m
                 UnrealizedGainsPercentage = 0m
                 Invested = 0m
-                Commissions = 7.00m
-                Fees = 1.65m // Includes $0.02 balance adjustment fee
+                Commissions = 7.00m // Same as Snapshot 8 (no new trades)
+                Fees = 1.65m // Same as Snapshot 8 (no new trades)
                 Deposited = 878.79m
                 Withdrawn = 0m
                 DividendsReceived = 0m
