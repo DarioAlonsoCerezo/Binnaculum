@@ -66,18 +66,18 @@ type BrokerAccountTests() =
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
 
-            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "StreamObserver" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("TestAccount")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
-            CoreLogger.logInfo "[TestActions]" (sprintf "✅ BrokerAccount created: %s" details)
+            CoreLogger.logInfo "TestActions" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for reactive signals..."
+            CoreLogger.logInfo "TestActions" "⏳ Waiting for reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Expected signals should have been received")
-            CoreLogger.logInfo "[StreamObserver]" "✅ All signals received successfully"
+            CoreLogger.logInfo "StreamObserver" "✅ All signals received successfully"
 
             // ==================== PHASE 3: VERIFY ====================
             TestSetup.printPhaseHeader 3 "Verify Account Created"
@@ -92,7 +92,7 @@ type BrokerAccountTests() =
                 sprintf "Should have exactly 1 account, but got: %s" count
             )
 
-            CoreLogger.logInfo "[Verification]" "✅ Account count verified: 1"
+            CoreLogger.logInfo "Verification" "✅ Account count verified: 1"
 
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary

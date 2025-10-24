@@ -40,7 +40,7 @@ module TestEnvironment =
     let requiresFileSystem (test: unit -> Async<unit>) : Async<unit> =
         async {
             if isHeadlessCI then
-                CoreLogger.logInfo "[TestEnvironment]" "Skipping file system test in headless CI"
+                CoreLogger.logInfo "TestEnvironment" "Skipping file system test in headless CI"
                 return ()
             else
                 do! test ()
@@ -54,14 +54,14 @@ module TestEnvironment =
     let initializeDatabase () : Async<unit> =
         async {
             if isHeadlessCI then
-                CoreLogger.logInfo "[TestEnvironment]" "Using WorkOnMemory for headless CI"
+                CoreLogger.logInfo "TestEnvironment" "Using WorkOnMemory for headless CI"
                 Binnaculum.Core.UI.Overview.WorkOnMemory()
             else
-                CoreLogger.logInfo "[TestEnvironment]" "Using standard database initialization"
+                CoreLogger.logInfo "TestEnvironment" "Using standard database initialization"
                 Binnaculum.Core.UI.Overview.WorkOnMemory()
 
             // Set AppDataDirectoryProvider to InMemory mode to avoid platform-specific file system issues
-            CoreLogger.logInfo "[TestEnvironment]" "Setting AppDataDirectoryProvider to InMemory mode"
+            CoreLogger.logInfo "TestEnvironment" "Setting AppDataDirectoryProvider to InMemory mode"
             AppDataDirectoryProvider.setMode AppDataDirectoryMode.InMemory
 
             return ()

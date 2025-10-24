@@ -42,7 +42,7 @@ module StreamObserver =
             receivedSignals.Add(signal)
 
             CoreLogger.logDebug
-                "[StreamObserver]"
+                "StreamObserver"
                 (sprintf "Signal received: %A (Total: %d/%d)" signal receivedSignals.Count expectedSignals.Count)
 
             // Check if all expected signals have been received
@@ -59,7 +59,7 @@ module StreamObserver =
                         >= (expected |> List.filter ((=) exp) |> List.length))
 
                 if allReceived then
-                    CoreLogger.logInfo "[StreamObserver]" "✅ All expected signals received!"
+                    CoreLogger.logInfo "StreamObserver" "✅ All expected signals received!"
                     (tcs: TaskCompletionSource<bool>).SetResult(true)
             | _ -> ())
 
@@ -68,7 +68,7 @@ module StreamObserver =
     /// </summary>
     let startObserving () : unit =
         lock lockObj (fun () ->
-            CoreLogger.logInfo "[StreamObserver]" "📡 Starting observation of reactive collections..."
+            CoreLogger.logInfo "StreamObserver" "📡 Starting observation of reactive collections..."
 
             // Clear previous observations
             subscriptions |> Seq.iter (fun d -> d.Dispose())
@@ -86,7 +86,7 @@ module StreamObserver =
                             signalReceived Accounts_Updated)
 
             subscriptions.Add(accountsSub)
-            CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Accounts"
+            CoreLogger.logDebug "StreamObserver" "✓ Subscribed to Collections.Accounts"
 
             // Observe Collections.Movements stream
             let movementsSub =
@@ -97,7 +97,7 @@ module StreamObserver =
                             signalReceived Movements_Updated)
 
             subscriptions.Add(movementsSub)
-            CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Movements"
+            CoreLogger.logDebug "StreamObserver" "✓ Subscribed to Collections.Movements"
 
             // Observe Collections.Snapshots stream
             let snapshotsSub =
@@ -108,7 +108,7 @@ module StreamObserver =
                             signalReceived Snapshots_Updated)
 
             subscriptions.Add(snapshotsSub)
-            CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Snapshots"
+            CoreLogger.logDebug "StreamObserver" "✓ Subscribed to Collections.Snapshots"
 
             // Observe Collections.Tickers stream
             let tickersSub =
@@ -119,7 +119,7 @@ module StreamObserver =
                             signalReceived Tickers_Updated)
 
             subscriptions.Add(tickersSub)
-            CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Tickers"
+            CoreLogger.logDebug "StreamObserver" "✓ Subscribed to Collections.Tickers"
 
             // Observe Collections.Currencies stream
             let currenciesSub =
@@ -130,7 +130,7 @@ module StreamObserver =
                             signalReceived Currencies_Updated)
 
             subscriptions.Add(currenciesSub)
-            CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Currencies"
+            CoreLogger.logDebug "StreamObserver" "✓ Subscribed to Collections.Currencies"
 
             // Observe Collections.Brokers stream
             let brokersSub =
@@ -141,7 +141,7 @@ module StreamObserver =
                             signalReceived Brokers_Updated)
 
             subscriptions.Add(brokersSub)
-            CoreLogger.logDebug "[StreamObserver]" "✓ Subscribed to Collections.Brokers"
+            CoreLogger.logDebug "StreamObserver" "✓ Subscribed to Collections.Brokers"
 
             // Observe Collections.Banks stream
             let banksSub =

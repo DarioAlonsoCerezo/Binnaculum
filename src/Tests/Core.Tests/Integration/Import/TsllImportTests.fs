@@ -92,7 +92,7 @@ type TsllImportTests() =
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
 
-            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "StreamObserver" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("TSLL-Import-Test")
@@ -120,7 +120,7 @@ type TsllImportTests() =
                   Snapshots_Updated ] // Snapshots recalculated
             )
 
-            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Movements_Updated, Tickers_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "StreamObserver" "🎯 Expecting signals: Movements_Updated, Tickers_Updated, Snapshots_Updated"
 
             // EXECUTE: Import CSV file
             let tastytradeId = actions.Context.TastytradeId

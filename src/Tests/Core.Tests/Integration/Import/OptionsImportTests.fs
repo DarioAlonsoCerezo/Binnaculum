@@ -121,7 +121,7 @@ type OptionsImportTests() =
             )
 
             CoreLogger.logDebug
-                "[StreamObserver]"
+                "StreamObserver"
                 "🎯 Expecting signals: Movements_Updated, Tickers_Updated, Snapshots_Updated"
 
             // EXECUTE: Import CSV file

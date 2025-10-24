@@ -70,18 +70,18 @@ type BrokerAccountDepositTests() =
                   Snapshots_Updated ] // Snapshot calculated in Collections.Snapshots
             )
 
-            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "StreamObserver" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("Trading")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
-            CoreLogger.logInfo "[TestActions]" (sprintf "✅ BrokerAccount created: %s" details)
+            CoreLogger.logInfo "TestActions" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for account creation reactive signals..."
+            CoreLogger.logInfo "TestActions" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
-            CoreLogger.logInfo "[StreamObserver]" "✅ Account creation signals received successfully"
+            CoreLogger.logInfo "StreamObserver" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: CREATE DEPOSIT MOVEMENT ====================
             TestSetup.printPhaseHeader 3 "Create Deposit Movement"
@@ -92,20 +92,20 @@ type BrokerAccountDepositTests() =
                   Snapshots_Updated ] // Snapshot recalculated with deposit
             )
 
-            CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
+            CoreLogger.logDebug "StreamObserver" "🎯 Expecting signals: Movements_Updated, Snapshots_Updated"
 
             // EXECUTE: Create deposit movement (historical, -30 days)
             let! (ok, details, error) =
                 actions.createMovement (5000m, BrokerMovementType.Deposit, -30, "Reactive deposit test")
 
             Assert.That(ok, Is.True, sprintf "Deposit creation should succeed: %s - %A" details error)
-            CoreLogger.logInfo "[TestActions]" (sprintf "✅ Deposit movement created: %s" details)
+            CoreLogger.logInfo "TestActions" (sprintf "✅ Deposit movement created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for deposit creation reactive signals..."
+            CoreLogger.logInfo "TestActions" "⏳ Waiting for deposit creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Deposit creation signals should have been received")
-            CoreLogger.logInfo "[StreamObserver]" "✅ Deposit creation signals received successfully"
+            CoreLogger.logInfo "StreamObserver" "✅ Deposit creation signals received successfully"
 
             // ==================== PHASE 4: VERIFY ====================
             TestSetup.printPhaseHeader 4 "Verify Final State"
@@ -120,7 +120,7 @@ type BrokerAccountDepositTests() =
                 sprintf "Should have exactly 1 account, but got: %s" count
             )
 
-            CoreLogger.logInfo "[Verification]" "✅ Account count verified: 1"
+            CoreLogger.logInfo "Verification" "✅ Account count verified: 1"
 
             // Verify movement was created
             let! (verified, count, error) = actions.verifyMovementCount (1)
@@ -132,12 +132,12 @@ type BrokerAccountDepositTests() =
                 sprintf "Should have exactly 1 movement, but got: %s" count
             )
 
-            CoreLogger.logInfo "[Verification]" "✅ Movement count verified: 1"
+            CoreLogger.logInfo "Verification" "✅ Movement count verified: 1"
 
             // Verify snapshots were calculated
             let! (verified, count, error) = actions.verifySnapshotCount (1)
             Assert.That(verified, Is.True, sprintf "Snapshot count verification should succeed: %s - %A" count error)
-            CoreLogger.logInfo "[Verification]" (sprintf "✅ Snapshot count verified: >= 1 (%s)" count)
+            CoreLogger.logInfo "Verification" (sprintf "✅ Snapshot count verified: >= 1 (%s)" count)
 
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary

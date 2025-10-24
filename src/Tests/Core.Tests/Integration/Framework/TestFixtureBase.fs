@@ -141,7 +141,7 @@ type TestFixtureBase() =
 
             if not allMatch then
                 CoreLogger.logError
-                    "[Verification]"
+                    "Verification"
                     (sprintf
                         "❌ %s Snapshot %d (%s) failed:\n%s"
                         snapshotName
@@ -213,7 +213,7 @@ type TestFixtureBase() =
 
             if not allMatch then
                 CoreLogger.logError
-                    "[Verification]"
+                    "Verification"
                     (sprintf
                         "❌ BrokerSnapshot %d (%s) failed:\n%s"
                         (i + 1)
@@ -224,7 +224,7 @@ type TestFixtureBase() =
 
                 // Also log ALL fields for debugging
                 CoreLogger.logInfo
-                    "[Verification]"
+                    "Verification"
                     (sprintf
                         "All fields for BrokerSnapshot %d (%s):\n%s"
                         (i + 1)
