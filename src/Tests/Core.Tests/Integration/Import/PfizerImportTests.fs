@@ -248,10 +248,57 @@ type PfizerImportTests() =
             // Use base class method for verification
             this.VerifyBrokerSnapshots expectedBrokerSnapshots brokerFinancialSnapshots getBrokerDescription
 
+            // ==================== PHASE 7: VERIFY AUTO-IMPORT OPERATIONS ====================
+            TestSetup.printPhaseHeader 7 "Verify Auto-Import Operations"
+
+            // Get PFE ticker from context
+            let pfeTicker = Collections.Tickers.Items |> Seq.find (fun t -> t.Symbol = "PFE")
+            CoreLogger.logInfo "Verification" (sprintf "📊 PFE Ticker ID: %d" pfeTicker.Id)
+
+            // Retrieve all operations for PFE ticker using the new Tickers.GetOperations method
+            let! actualOperations = Tickers.GetOperations(pfeTicker.Id) |> Async.AwaitTask
+
+            CoreLogger.logInfo "Verification" (sprintf "📊 Found %d operations for PFE" actualOperations.Length)
+
+            // Get expected operations from PfizerImportExpectedSnapshots
+            let expectedOperationsWithDescriptions =
+                PfizerImportExpectedSnapshots.getPFEOperations brokerAccount pfeTicker usd
+
+            let expectedOperations =
+                expectedOperationsWithDescriptions |> TestModels.getOperationData
+
+            // Verify operation count
+            Assert.That(
+                actualOperations.Length,
+                Is.EqualTo(expectedOperations.Length),
+                sprintf "Expected %d operations for PFE but found %d" expectedOperations.Length actualOperations.Length
+            )
+
+            // Verify each operation using TestVerifications
+            let operationResults =
+                TestVerifications.verifyAutoImportOperationList expectedOperations actualOperations
+
+            operationResults
+            |> List.iteri (fun i (allMatch, fieldResults) ->
+                let description = expectedOperationsWithDescriptions.[i].Description
+
+                if not allMatch then
+                    let formatted = TestVerifications.formatValidationResults fieldResults
+
+                    CoreLogger.logError
+                        "Verification"
+                        (sprintf "❌ Operation %d (%s) verification failed:\n%s" i description formatted)
+
+                    Assert.Fail(sprintf "Operation %d (%s) verification failed" i description)
+                else
+                    CoreLogger.logInfo "Verification" (sprintf "✅ Operation %d (%s) verified" i description))
+
+            CoreLogger.logInfo "Verification" (sprintf "✅ All %d operations verified" expectedOperations.Length)
+
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
                 "Pfizer Options Import with FIFO Matching"
-                "Successfully created BrokerAccount, imported Pfizer options CSV, received all signals, verified FIFO matching ($175.52), and validated PFE ticker snapshots"
+                "Successfully created BrokerAccount, imported Pfizer options CSV, received all signals, verified FIFO matching ($175.52), validated PFE ticker snapshots, and verified auto-import operations"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
         }

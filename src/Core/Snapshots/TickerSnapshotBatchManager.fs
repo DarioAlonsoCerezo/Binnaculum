@@ -18,6 +18,8 @@ module internal TickerSnapshotBatchManager =
     /// </summary>
     type internal BatchProcessingRequest =
         {
+            /// Optional broker account ID for operation tracking during imports
+            BrokerAccountId: int option
             /// List of ticker IDs to process
             TickerIds: int list
             /// Start date for processing period (inclusive)
@@ -175,7 +177,8 @@ module internal TickerSnapshotBatchManager =
 
                 // Create calculation context
                 let context: TickerSnapshotBatchCalculator.TickerSnapshotBatchContext =
-                    { BaselineTickerSnapshots = baselineTickerSnapshots
+                    { BrokerAccountId = request.BrokerAccountId // Pass through for operation tracking
+                      BaselineTickerSnapshots = baselineTickerSnapshots
                       BaselineCurrencySnapshots = baselineCurrencySnapshots
                       MovementsByTickerCurrencyDate = tickerMovementData
                       MarketPrices = marketPrices
@@ -183,8 +186,7 @@ module internal TickerSnapshotBatchManager =
                       TickerIds = request.TickerIds }
 
                 // Calculate all snapshots in memory
-                let calculationResult =
-                    TickerSnapshotBatchCalculator.calculateBatchedTickerSnapshots context
+                let! calculationResult = TickerSnapshotBatchCalculator.calculateBatchedTickerSnapshots context
 
                 errors <- errors @ calculationResult.Errors
 
@@ -343,7 +345,8 @@ module internal TickerSnapshotBatchManager =
                     //     (endDate.ToString())
 
                     let request =
-                        { TickerIds = affectedTickers
+                        { BrokerAccountId = Some brokerAccountId // Pass broker account for operation tracking
+                          TickerIds = affectedTickers
                           StartDate = startDate
                           EndDate = endDate
                           ForceRecalculation = true // Always recalculate on import to ensure accuracy
@@ -408,7 +411,8 @@ module internal TickerSnapshotBatchManager =
             //     forceRecalculation
 
             let request =
-                { TickerIds = [ tickerId ]
+                { BrokerAccountId = None // No broker account context for single ticker processing
+                  TickerIds = [ tickerId ]
                   StartDate = startDate
                   EndDate = endDate
                   ForceRecalculation = forceRecalculation }

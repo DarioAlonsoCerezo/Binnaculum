@@ -125,6 +125,7 @@
 		<!-- Ticker snapshot batch processing optimization modules -->
 		<Compile Include="Snapshots\TickerSnapshotBatchLoader.fs" />
 		<Compile Include="Snapshots\TickerSnapshotCalculateInMemory.fs" />
+		<Compile Include="Snapshots\AutoImportOperationManager.fs" />
 		<Compile Include="Snapshots\TickerSnapshotBatchCalculator.fs" />
 		<Compile Include="Snapshots\TickerSnapshotBatchPersistence.fs" />
 		<!-- End ticker snapshot batch processing base modules -->

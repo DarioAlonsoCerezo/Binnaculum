@@ -27,6 +27,26 @@ module TestModels =
         }
 
     /// <summary>
+    /// Pairs expected operation data with a human-readable description for test verification.
+    /// This type provides a standard way to document operation expectations alongside the data.
+    ///
+    /// Example:
+    /// ```fsharp
+    /// let expectedOperations = [
+    ///     { Data = operation1; Description = "Cash-secured put opened" }
+    ///     { Data = operation2; Description = "Covered call completed" }
+    /// ]
+    /// ```
+    /// </summary>
+    type ExpectedOperation<'T> =
+        {
+            /// The expected operation data to verify against
+            Data: 'T
+            /// Human-readable description explaining what this operation represents
+            Description: string
+        }
+
+    /// <summary>
     /// Extract just the data from a list of expected snapshots.
     /// Useful when you need to pass data to verification functions.
     /// </summary>
@@ -51,3 +71,30 @@ module TestModels =
     /// </summary>
     let getDescriptionFunction (snapshots: ExpectedSnapshot<'T> list) : (int -> string) =
         fun i -> snapshots.[i].Description
+
+    /// <summary>
+    /// Extract just the data from a list of expected operations.
+    /// Useful when you need to pass data to verification functions.
+    /// </summary>
+    let getOperationData (operations: ExpectedOperation<'T> list) : 'T list =
+        operations |> List.map (fun o -> o.Data)
+
+    /// <summary>
+    /// Extract just the descriptions from a list of expected operations.
+    /// Useful when building description functions for verification.
+    /// </summary>
+    let getOperationDescriptions (operations: ExpectedOperation<'T> list) : string list =
+        operations |> List.map (fun o -> o.Description)
+
+    /// <summary>
+    /// Create a description function from a list of expected operations.
+    /// Returns a function that takes an index and returns the description at that index.
+    ///
+    /// Example:
+    /// ```fsharp
+    /// let descriptionFn = getOperationDescriptionFunction expectedOperations
+    /// descriptionFn 0 // Returns description for first operation
+    /// ```
+    /// </summary>
+    let getOperationDescriptionFunction (operations: ExpectedOperation<'T> list) : (int -> string) =
+        fun i -> operations.[i].Description

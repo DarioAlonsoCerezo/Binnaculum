@@ -515,3 +515,117 @@ module TestVerifications =
             | Some actualSnapshot ->
                 // Date found - verify all fields
                 verifyBrokerFinancialSnapshot expectedSnapshot actualSnapshot)
+
+    /// <summary>
+    /// Verifies AutoImportOperation by comparing all fields holistically.
+    /// Pure function - no I/O, no async, just comparison.
+    /// Returns: (allMatch, fieldResults)
+    ///
+    /// Example:
+    /// let expected: AutoImportOperation = { Realized = 350m; CapitalDeployed = 5000m; ... }
+    /// let actual = getOperationById(operationId)
+    /// let (allMatch, results) = verifyAutoImportOperation expected actual
+    /// Assert.That(allMatch, Is.True)
+    /// </summary>
+    let verifyAutoImportOperation
+        (expected: AutoImportOperation)
+        (actual: AutoImportOperation)
+        : (bool * ValidationResult list) =
+
+        let results =
+            [ { Field = "IsOpen"
+                Expected = sprintf "%b" expected.IsOpen
+                Actual = sprintf "%b" actual.IsOpen
+                Match = expected.IsOpen = actual.IsOpen }
+
+              { Field = "OpenDate"
+                Expected = expected.OpenDate.ToString("yyyy-MM-dd HH:mm:ss")
+                Actual = actual.OpenDate.ToString("yyyy-MM-dd HH:mm:ss")
+                Match = expected.OpenDate = actual.OpenDate }
+
+              // CloseDate is managed by database trigger (UpdatedAt), not verified in tests
+              // The database automatically sets UpdatedAt to current time on updates
+
+              { Field = "Realized"
+                Expected = sprintf "%.2f" expected.Realized
+                Actual = sprintf "%.2f" actual.Realized
+                Match = abs (expected.Realized - actual.Realized) < 0.01m }
+
+              { Field = "Commissions"
+                Expected = sprintf "%.2f" expected.Commissions
+                Actual = sprintf "%.2f" actual.Commissions
+                Match = abs (expected.Commissions - actual.Commissions) < 0.01m }
+
+              { Field = "Fees"
+                Expected = sprintf "%.2f" expected.Fees
+                Actual = sprintf "%.2f" actual.Fees
+                Match = abs (expected.Fees - actual.Fees) < 0.01m }
+
+              { Field = "Premium"
+                Expected = sprintf "%.2f" expected.Premium
+                Actual = sprintf "%.2f" actual.Premium
+                Match = abs (expected.Premium - actual.Premium) < 0.01m }
+
+              { Field = "Dividends"
+                Expected = sprintf "%.2f" expected.Dividends
+                Actual = sprintf "%.2f" actual.Dividends
+                Match = abs (expected.Dividends - actual.Dividends) < 0.01m }
+
+              { Field = "DividendTaxes"
+                Expected = sprintf "%.2f" expected.DividendTaxes
+                Actual = sprintf "%.2f" actual.DividendTaxes
+                Match = abs (expected.DividendTaxes - actual.DividendTaxes) < 0.01m }
+
+              { Field = "CapitalDeployed"
+                Expected = sprintf "%.2f" expected.CapitalDeployed
+                Actual = sprintf "%.2f" actual.CapitalDeployed
+                Match = abs (expected.CapitalDeployed - actual.CapitalDeployed) < 0.01m }
+
+              { Field = "Performance"
+                Expected = sprintf "%.4f" expected.Performance
+                Actual = sprintf "%.4f" actual.Performance
+                Match = abs (expected.Performance - actual.Performance) < 0.01m } ]
+
+        let allMatch = results |> List.forall (fun r -> r.Match)
+        (allMatch, results)
+
+    /// <summary>
+    /// Verifies a list of AutoImportOperations by comparing each expected operation with core-calculated operations.
+    /// Matches operations by TickerId and operation sequence (chronological order).
+    /// Returns: List of (allMatch, fieldResults) for each expected operation
+    /// Throws: InvalidArgumentException if expected count doesn't match actual count for a ticker
+    ///
+    /// Example:
+    /// let expected = [
+    ///     { Data = operation1; Description = "TSLL Operation #1: Cash-secured put" }
+    ///     { Data = operation2; Description = "TSLL Operation #2: Covered call" }
+    /// ]
+    /// let actual = getAllOperationsForTicker(tsllTickerId)
+    /// let results = verifyAutoImportOperationList expected actual
+    /// results |> List.iteri (fun i (allMatch, fieldResults) ->
+    ///     if not allMatch then
+    ///         printfn "Operation %d failed:\n%s" i (formatValidationResults fieldResults)
+    ///     Assert.That(allMatch, Is.True)
+    /// )
+    /// </summary>
+    let verifyAutoImportOperationList
+        (expected: AutoImportOperation list)
+        (coreCalculated: AutoImportOperation list)
+        : (bool * ValidationResult list) list =
+
+        // Verify counts match
+        if expected.Length <> coreCalculated.Length then
+            invalidArg
+                "coreCalculated"
+                (sprintf
+                    "Expected %d operations but found %d in core-calculated operations"
+                    expected.Length
+                    coreCalculated.Length)
+
+        // Sort both lists by OpenDate to ensure chronological comparison
+        let sortedExpected = expected |> List.sortBy (fun op -> op.OpenDate)
+        let sortedActual = coreCalculated |> List.sortBy (fun op -> op.OpenDate)
+
+        // Verify each operation pair
+        List.zip sortedExpected sortedActual
+        |> List.map (fun (expectedOp, actualOp) -> verifyAutoImportOperation expectedOp actualOp)

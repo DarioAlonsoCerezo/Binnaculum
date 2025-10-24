@@ -8,6 +8,7 @@ open Binnaculum.Core.ModelsToDatabase
 open Binnaculum.Core.DatabaseToModels
 open Binnaculum.Core.Keys
 open Binnaculum.Core.Patterns
+open Binnaculum.Core.Logging
 open TickerPriceExtensions
 open TickerSnapshotExtensions
 open TickerCurrencySnapshotExtensions
@@ -97,4 +98,51 @@ module Tickers =
                     dbCurrencySnapshot.tickerCurrencySnapshotToModel (ticker = ticker))
 
             return currencySnapshots
+        }
+
+    /// <summary>
+    /// Retrieves all AutoImportOperations for a specific Ticker.
+    /// Takes a tickerId, queries the database for all operations associated with that ticker,
+    /// and converts them to AutoImportOperation models for UI consumption.
+    /// Follows project conventions for error handling - exceptions bubble up to UI layer.
+    /// </summary>
+    /// <param name="tickerId">The ID of the Ticker to retrieve operations for</param>
+    /// <returns>A list of AutoImportOperation records representing all operations for the ticker</returns>
+    let GetOperations (tickerId: int) =
+        task {
+            // Get all operations from database for this ticker
+            let! dbOperations = AutoImportOperationExtensions.Do.getByTicker (tickerId) |> Async.AwaitTask
+
+            // Log what we retrieved from database
+            dbOperations
+            |> List.iter (fun op ->
+                CoreLogger.logDebugf
+                    "Tickers.GetOperations"
+                    "Retrieved operation ID=%d: CreatedAt=%s, UpdatedAt=%s, IsOpen=%b"
+                    op.Id
+                    (match op.Audit.CreatedAt with
+                     | Some dt -> dt.ToString()
+                     | None -> "None")
+                    (match op.Audit.UpdatedAt with
+                     | Some dt -> dt.ToString()
+                     | None -> "None")
+                    op.IsOpen)
+
+            // Convert database operations to domain models
+            let operations = dbOperations.autoImportOperationsToModel ()
+
+            // Log what we converted
+            operations
+            |> List.iter (fun op ->
+                CoreLogger.logDebugf
+                    "Tickers.GetOperations"
+                    "Converted operation ID=%d: OpenDate=%s, CloseDate=%s, IsOpen=%b"
+                    op.Id
+                    (op.OpenDate.ToString("yyyy-MM-dd HH:mm:ss"))
+                    (match op.CloseDate with
+                     | Some dt -> dt.ToString("yyyy-MM-dd HH:mm:ss")
+                     | None -> "None")
+                    op.IsOpen)
+
+            return operations
         }

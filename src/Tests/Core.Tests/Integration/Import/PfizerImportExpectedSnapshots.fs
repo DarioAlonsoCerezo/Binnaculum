@@ -252,3 +252,56 @@ module PfizerImportExpectedSnapshots =
                 OpenTrades = false
                 NetCashFlow = 175.52m } // Same as Snapshot 3
             Description = sprintf "%s - Current snapshot" (today.ToString("yyyy-MM-dd")) } ]
+
+    // ==================== AUTO-IMPORT OPERATIONS ====================
+
+    /// <summary>
+    /// Generate expected AutoImportOperation data for PFE ticker.
+    ///
+    /// Based on OpenTrades flag transitions in PFE snapshots:
+    /// - Operation opens: 2025-08-25 (OpenTrades: false → true)
+    /// - Operation closes: 2025-10-03 (OpenTrades: true → false)
+    ///
+    /// This represents ONE complete trading operation containing all 4 trades:
+    /// - Trade 1 (2025-08-25): BUY_TO_OPEN PFE 20.00 CALL @ -$555.12
+    /// - Trade 2 (2025-10-01): SELL_TO_OPEN PFE 27.00 CALL @ $49.88
+    /// - Trade 3 (2025-10-03): BUY_TO_CLOSE PFE 27.00 CALL @ -$64.12
+    /// - Trade 4 (2025-10-03): SELL_TO_CLOSE PFE 20.00 CALL @ $744.88
+    ///
+    /// Financial Calculation:
+    /// - Realized: $175.52 (FIFO matching: Trade 2+3 = -$14.24, Trade 1+4 = $189.76)
+    /// - Commissions: $2.00 (4 trades × $0.50, but charged only on opening trades in this case)
+    /// - Fees: $0.48 (4 trades × $0.12)
+    /// - Premium: $178.00 (sum of all option premiums: -$554 + $51 - $64 + $745)
+    /// - Dividends: $0.00 (no dividends in this test)
+    /// - DividendTaxes: $0.00 (no dividend taxes)
+    /// - CapitalDeployed: $555.12 (initial capital required: Premium $554.00 + Commissions $1.00 + Fees $0.12)
+    /// - Performance: 31.61% (Realized / CapitalDeployed × 100 = $175.52 / $555.12 × 100)
+    /// </summary>
+    let getPFEOperations
+        (brokerAccount: BrokerAccount)
+        (ticker: Ticker)
+        (currency: Currency)
+        : ExpectedOperation<AutoImportOperation> list =
+
+        [
+          // Operation 1: Complete PFE trading cycle (2025-08-25 to 2025-10-03)
+          { Data =
+              { Id = 0 // Will be assigned by database
+                BrokerAccount = brokerAccount
+                Ticker = ticker
+                Currency = currency
+                IsOpen = false // Operation is closed
+                OpenDate = DateTime(2025, 8, 25, 0, 0, 1) // Snapshot date (not exact trade time)
+                CloseDate = Some(DateTime(2025, 10, 3, 0, 0, 1)) // Snapshot date (not exact trade time)
+
+                // Financial metrics (cumulative for all 4 trades)
+                Realized = 175.52m // Total P&L after FIFO matching
+                Commissions = 2.00m // Total commissions paid
+                Fees = 0.48m // Total fees paid
+                Premium = 178.00m // Total option premium (net option value)
+                Dividends = 0m // No dividends
+                DividendTaxes = 0m // No dividend taxes
+                CapitalDeployed = 555.12m // Initial capital: Premium ($554.00) + Commissions ($1.00) + Fees ($0.12)
+                Performance = 31.61m } // ROI: (175.52 / 555.12) × 100 = 31.61%
+            Description = "PFE Operation #1: Complete options cycle (4 trades, 2025-08-25 to 2025-10-03)" } ]

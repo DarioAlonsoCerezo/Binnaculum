@@ -185,6 +185,38 @@ module internal DatabaseToModels =
             dbSnapshots |> List.map (fun s -> s.tickerSnapshotToModel ())
 
         [<Extension>]
+        static member autoImportOperationToModel
+            (dbOperation: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation)
+            =
+            { Id = dbOperation.Id
+              BrokerAccount = dbOperation.BrokerAccountId.ToFastBrokerAccountById()
+              Ticker = dbOperation.TickerId.ToFastTickerById()
+              Currency = dbOperation.CurrencyId.ToFastCurrencyById()
+              IsOpen = dbOperation.IsOpen
+              OpenDate =
+                match dbOperation.Audit.CreatedAt with
+                | Some dt -> dt.Value
+                | None -> DateTime.Now
+              CloseDate =
+                match dbOperation.Audit.UpdatedAt with
+                | Some dt when not dbOperation.IsOpen -> Some dt.Value
+                | _ -> None
+              Realized = dbOperation.Realized.Value
+              Commissions = dbOperation.Commissions.Value
+              Fees = dbOperation.Fees.Value
+              Premium = dbOperation.Premium.Value
+              Dividends = dbOperation.Dividends.Value
+              DividendTaxes = dbOperation.DividendTaxes.Value
+              CapitalDeployed = dbOperation.CapitalDeployed.Value
+              Performance = dbOperation.Performance }
+
+        [<Extension>]
+        static member autoImportOperationsToModel
+            (dbOperations: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation list)
+            =
+            dbOperations |> List.map (fun op -> op.autoImportOperationToModel ())
+
+        [<Extension>]
         static member tradeToModel(trade: Binnaculum.Core.Database.DatabaseModel.Trade) =
             let amount = trade.Price.Value * trade.Quantity
             let commissions = trade.Fees.Value + trade.Commissions.Value

@@ -72,14 +72,14 @@ module internal TickerSnapshotBatchLoader =
         : Task<Map<int, TickerSnapshot> * Map<(int * int), TickerCurrencySnapshot>> =
         task {
             if tickerIds.IsEmpty then
-                CoreLogger.logDebug "TickerSnapshotBatchLoader" "No ticker IDs provided, returning empty baselines"
+                // CoreLogger.logDebug "TickerSnapshotBatchLoader" "No ticker IDs provided, returning empty baselines"
                 return (Map.empty, Map.empty)
             else
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchLoader"
-                    "Loading baseline snapshots for %d tickers before %s"
-                    tickerIds.Length
-                    (beforeDate.ToString())
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchLoader"
+                //     "Loading baseline snapshots for %d tickers before %s"
+                //     tickerIds.Length
+                //     (beforeDate.ToString())
 
                 // Load latest TickerSnapshot before the date for each ticker
                 let! tickerSnapshots =
@@ -116,11 +116,11 @@ module internal TickerSnapshotBatchLoader =
                 let currencySnapshotMap: Map<(int * int), TickerCurrencySnapshot> =
                     currencySnapshots |> Array.collect (Array.ofList) |> Map.ofArray
 
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchLoader"
-                    "Loaded %d ticker snapshots and %d currency snapshots as baselines"
-                    tickerSnapshotMap.Count
-                    currencySnapshotMap.Count
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchLoader"
+                //     "Loaded %d ticker snapshots and %d currency snapshots as baselines"
+                //     tickerSnapshotMap.Count
+                //     currencySnapshotMap.Count
 
                 return (tickerSnapshotMap, currencySnapshotMap)
         }
@@ -140,7 +140,7 @@ module internal TickerSnapshotBatchLoader =
         : Task<TickerMovementData> =
         task {
             if tickerIds.IsEmpty then
-                CoreLogger.logDebug "TickerSnapshotBatchLoader" "No ticker IDs provided, returning empty movements"
+                // CoreLogger.logDebug "TickerSnapshotBatchLoader" "No ticker IDs provided, returning empty movements"
 
                 return
                     { Trades = Map.empty
@@ -150,12 +150,12 @@ module internal TickerSnapshotBatchLoader =
                       AllOpeningTrades = Map.empty
                       AllClosedOptionTrades = Map.empty }
             else
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchLoader"
-                    "Loading movements for %d tickers from %s to %s"
-                    tickerIds.Length
-                    (startDate.ToString())
-                    (endDate.ToString())
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchLoader"
+                //     "Loading movements for %d tickers from %s to %s"
+                //     tickerIds.Length
+                //     (startDate.ToString())
+                //     (endDate.ToString())
 
                 // Load all trades for all tickers in parallel
                 let! allTrades =
@@ -236,14 +236,14 @@ module internal TickerSnapshotBatchLoader =
                     + (allDividendTaxes |> Array.sumBy (fun (arr: DividendTax list) -> arr.Length))
                     + (allOptionTrades |> Array.sumBy (fun (arr: OptionTrade list) -> arr.Length))
 
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchLoader"
-                    "Loaded %d total movements (%d trades, %d dividends, %d taxes, %d options)"
-                    totalMovements
-                    (allTrades |> Array.sumBy (fun (arr: Trade list) -> arr.Length))
-                    (allDividends |> Array.sumBy (fun (arr: Dividend list) -> arr.Length))
-                    (allDividendTaxes |> Array.sumBy (fun (arr: DividendTax list) -> arr.Length))
-                    (allOptionTrades |> Array.sumBy (fun (arr: OptionTrade list) -> arr.Length))
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchLoader"
+                //     "Loaded %d total movements (%d trades, %d dividends, %d taxes, %d options)"
+                //     totalMovements
+                //     (allTrades |> Array.sumBy (fun (arr: Trade list) -> arr.Length))
+                //     (allDividends |> Array.sumBy (fun (arr: Dividend list) -> arr.Length))
+                //     (allDividendTaxes |> Array.sumBy (fun (arr: DividendTax list) -> arr.Length))
+                //     (allOptionTrades |> Array.sumBy (fun (arr: OptionTrade list) -> arr.Length))
 
                 // Group ALL option trades by (tickerId, currencyId) for realized gains calculation
                 // This includes both opening and closing trades. The realized gains calculation
@@ -282,15 +282,15 @@ module internal TickerSnapshotBatchLoader =
                     |> Map.toSeq
                     |> Seq.sumBy (fun (_, trades) -> trades.Length)
 
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchLoader"
-                    "Found %d closed option trades across all tickers for realized gains calculation"
-                    totalClosedOptions
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchLoader"
+                //     "Found %d closed option trades across all tickers for realized gains calculation"
+                //     totalClosedOptions
 
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchLoader"
-                    "Found %d opening option trades across all tickers for unrealized gains calculation"
-                    totalOpeningOptions
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchLoader"
+                //     "Found %d opening option trades across all tickers for unrealized gains calculation"
+                //     totalOpeningOptions
 
                 return
                     { Trades = tradesByKey
@@ -316,15 +316,15 @@ module internal TickerSnapshotBatchLoader =
         : Task<Map<(int * DateTimePattern), decimal>> =
         task {
             if tickerIds.IsEmpty then
-                CoreLogger.logDebug "TickerSnapshotBatchLoader" "No ticker IDs provided, returning empty prices"
+                // CoreLogger.logDebug "TickerSnapshotBatchLoader" "No ticker IDs provided, returning empty prices"
                 return Map.empty
             else
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchLoader"
-                    "Loading market prices for %d tickers from %s to %s"
-                    tickerIds.Length
-                    (startDate.ToString())
-                    (endDate.ToString())
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchLoader"
+                //     "Loading market prices for %d tickers from %s to %s"
+                //     tickerIds.Length
+                //     (startDate.ToString())
+                //     (endDate.ToString())
 
                 // Generate all dates in range
                 let dateRange = generateDateRange startDate endDate
@@ -358,12 +358,12 @@ module internal TickerSnapshotBatchLoader =
 
                 let pricesFound = priceMap |> Map.filter (fun _ price -> price > 0m) |> Map.count
 
-                CoreLogger.logInfof
-                    "TickerSnapshotBatchLoader"
-                    "Loaded %d/%d price entries (%d with valid prices)"
-                    priceMap.Count
-                    (tickerIds.Length * dateRange.Length)
-                    pricesFound
+                // CoreLogger.logInfof
+                //     "TickerSnapshotBatchLoader"
+                //     "Loaded %d/%d price entries (%d with valid prices)"
+                //     priceMap.Count
+                //     (tickerIds.Length * dateRange.Length)
+                //     pricesFound
 
                 return priceMap
         }
@@ -377,11 +377,11 @@ module internal TickerSnapshotBatchLoader =
     /// <returns>List of ticker IDs that have movements</returns>
     let getTickersAffectedByImport (brokerAccountId: int) (sinceDate: DateTimePattern) : Task<int list> =
         task {
-            CoreLogger.logInfof
-                "TickerSnapshotBatchLoader"
-                "Finding tickers affected by import for account %d since %s"
-                brokerAccountId
-                (sinceDate.ToString())
+            // CoreLogger.logInfof
+            //     "TickerSnapshotBatchLoader"
+            //     "Finding tickers affected by import for account %d since %s"
+            //     brokerAccountId
+            //     (sinceDate.ToString())
 
             // Get all trades, dividends, and options since date
             let! trades = TradeExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, sinceDate)
@@ -397,7 +397,7 @@ module internal TickerSnapshotBatchLoader =
                 |> List.distinct
                 |> List.sort
 
-            CoreLogger.logInfof "TickerSnapshotBatchLoader" "Found %d tickers affected by import" tickerIds.Length
+            // CoreLogger.logInfof "TickerSnapshotBatchLoader" "Found %d tickers affected by import" tickerIds.Length
 
             return tickerIds
         }

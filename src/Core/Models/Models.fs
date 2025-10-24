@@ -83,6 +83,12 @@ module Models =
         | Interest
         | Fee
 
+    type OperationTradeType =
+        | StockTrade
+        | OptionTrade
+        | Dividend
+        | DividendTax
+
     type Broker =
         { Id: int
           Name: string
@@ -217,29 +223,60 @@ module Models =
           Currency: Currency
           MovementType: BankAccountMovementType }
 
-    type TickerCurrencySnapshot =
+    type AutoImportOperation =
         { Id: int
-          Date: DateOnly
+          BrokerAccount: BrokerAccount
           Ticker: Ticker
           Currency: Currency
-          TotalShares: decimal
-          Weight: decimal
-          CostBasis: decimal
-          RealCost: decimal
-          Dividends: decimal
-          /// <summary>Cumulative dividend taxes withheld for this ticker/currency</summary>
-          DividendTaxes: decimal
-          Options: decimal
-          TotalIncomes: decimal
-          Unrealized: decimal
+          IsOpen: bool
+          OpenDate: DateTime
+          CloseDate: DateTime option
+
+          // Financial metrics (cumulative, stored for fast aggregation)
           Realized: decimal
-          Performance: decimal
-          LatestPrice: decimal
-          OpenTrades: bool
-          /// <summary>Cumulative trading commissions for this ticker/currency</summary>
           Commissions: decimal
-          /// <summary>Cumulative trading fees for this ticker/currency</summary>
-          Fees: decimal }
+          Fees: decimal
+          Premium: decimal
+          Dividends: decimal
+          DividendTaxes: decimal
+          CapitalDeployed: decimal
+          Performance: decimal }
+
+    type AutoImportOperationTrade =
+        { Id: int
+          AutoOperation: AutoImportOperation
+          TradeType: OperationTradeType
+          ReferenceId: int
+          Trade: Trade option
+          OptionTrade: OptionTrade option
+          Dividend: Dividend option
+          DividendTax: DividendTax option }
+
+    type TickerCurrencySnapshot =
+        {
+            Id: int
+            Date: DateOnly
+            Ticker: Ticker
+            Currency: Currency
+            TotalShares: decimal
+            Weight: decimal
+            CostBasis: decimal
+            RealCost: decimal
+            Dividends: decimal
+            /// <summary>Cumulative dividend taxes withheld for this ticker/currency</summary>
+            DividendTaxes: decimal
+            Options: decimal
+            TotalIncomes: decimal
+            Unrealized: decimal
+            Realized: decimal
+            Performance: decimal
+            LatestPrice: decimal
+            OpenTrades: bool
+            /// <summary>Cumulative trading commissions for this ticker/currency</summary>
+            Commissions: decimal
+            /// <summary>Cumulative trading fees for this ticker/currency</summary>
+            Fees: decimal
+        }
 
     // Ticker snapshot model - represents the state of a ticker at a specific point in time
     type TickerSnapshot =
