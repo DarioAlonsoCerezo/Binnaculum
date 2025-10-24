@@ -218,6 +218,9 @@ module internal FieldName =
     [<Literal>]
     let OtherIncome = "OtherIncome"
     
+    [<Literal>]
+    let NetCashFlow = "NetCashFlow"
+    
     // Broker Snapshots
     [<Literal>]
     let PortfoliosValue = "PortfoliosValue"

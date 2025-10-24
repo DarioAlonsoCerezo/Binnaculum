@@ -69,6 +69,7 @@ type BrokerFinancialCalculateTests() =
               DividendsReceived = Money.FromAmount 4m
               OptionsIncome = Money.FromAmount 6m
               OtherIncome = Money.FromAmount 8m
+              NetCashFlow = Money.FromAmount(123m - 2m + 4m + 6m + 8m - 7m - 3m)
               OpenTrades = true }
 
         let recalculatedMetrics =
@@ -149,6 +150,7 @@ type BrokerFinancialCalculateTests() =
               DividendsReceived = Money.FromAmount 0m
               OptionsIncome = Money.FromAmount 0m
               OtherIncome = Money.FromAmount 0m
+              NetCashFlow = Money.FromAmount(878.79m - 0m + 0m + 0m + 0m - 12m - 1m)
               OpenTrades = false }
 
         let recalculatedMetrics =

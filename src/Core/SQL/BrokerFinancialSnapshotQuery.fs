@@ -29,6 +29,7 @@ module internal BrokerFinancialSnapshotQuery =
             {DividendsReceived} TEXT NOT NULL,
             {OptionsIncome} TEXT NOT NULL,
             {OtherIncome} TEXT NOT NULL,
+            {NetCashFlow} TEXT NOT NULL,
             {OpenTrades} INTEGER NOT NULL,
             {CreatedAt} TEXT NOT NULL DEFAULT (DATETIME('now')),
             {UpdatedAt} TEXT,
@@ -100,6 +101,7 @@ module internal BrokerFinancialSnapshotQuery =
             {DividendsReceived},
             {OptionsIncome},
             {OtherIncome},
+            {NetCashFlow},
             {OpenTrades},
             {CreatedAt},
             {UpdatedAt}
@@ -125,6 +127,7 @@ module internal BrokerFinancialSnapshotQuery =
             {SQLParameterName.DividendsReceived},
             {SQLParameterName.OptionsIncome},
             {SQLParameterName.OtherIncome},
+            {SQLParameterName.NetCashFlow},
             {SQLParameterName.OpenTrades},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
@@ -154,6 +157,7 @@ module internal BrokerFinancialSnapshotQuery =
             {DividendsReceived} = {SQLParameterName.DividendsReceived},
             {OptionsIncome} = {SQLParameterName.OptionsIncome},
             {OtherIncome} = {SQLParameterName.OtherIncome},
+            {NetCashFlow} = {SQLParameterName.NetCashFlow},
             {OpenTrades} = {SQLParameterName.OpenTrades},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}

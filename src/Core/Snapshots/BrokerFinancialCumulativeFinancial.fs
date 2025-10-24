@@ -115,12 +115,16 @@ module internal BrokerFinancialCumulativeFinancial =
             // Options use OptionsIncome for tracking, not unrealized gains
             let totalUnrealizedGains = stockUnrealizedGains
 
-            // Calculate cumulative NetCashFlow - OptionsIncome already includes fees/commissions
+            // Calculate cumulative NetCashFlow as the actual contributed capital
+            // OptionsIncome is pure Premium (WITHOUT commissions/fees)
+            // Therefore, we MUST subtract Commissions and Fees to get actual cash flow
             let cumulativeNetCashFlow =
                 cumulativeDeposited.Value - cumulativeWithdrawn.Value
                 + cumulativeDividendsReceived.Value
                 + cumulativeOptionsIncome.Value
                 + cumulativeOtherIncome.Value
+                - cumulativeCommissions.Value
+                - cumulativeFees.Value
 
             let unrealizedGainsPercentage =
                 if cumulativeNetCashFlow > 0m then
@@ -164,6 +168,7 @@ module internal BrokerFinancialCumulativeFinancial =
                   DividendsReceived = cumulativeDividendsReceived
                   OptionsIncome = cumulativeOptionsIncome
                   OtherIncome = cumulativeOtherIncome
+                  NetCashFlow = Money.FromAmount(cumulativeNetCashFlow)
                   OpenTrades = calculatedMetrics.HasOpenPositions }
 
             CoreLogger.logDebug
