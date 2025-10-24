@@ -89,6 +89,8 @@
 		<Compile Include="Database\BankAccountSnapshotExtensions.fs" />
 		<Compile Include="Database\BankSnapshotExtensions.fs" />
 		<Compile Include="Database\InvestmentOverviewSnapshotExtensions.fs" />
+		<Compile Include="Database\AutoImportOperationExtensions.fs" />
+		<Compile Include="Database\AutoImportOperationTradeExtensions.fs" />
 		<Compile Include="Import\ImportModels.fs" />
 		<Compile Include="Import\ImportState.fs" />
 		<Compile Include="Import\FileProcessor.fs" />
