@@ -91,3 +91,15 @@ module internal SQLConstants =
 
     [<Literal>]
     let Excerciced = "EXCERCICED"
+
+    [<Literal>]
+    let StockTrade = "STOCK_TRADE"
+
+    [<Literal>]
+    let OptionTrade = "OPTION_TRADE"
+
+    [<Literal>]
+    let Dividend = "DIVIDEND"
+
+    [<Literal>]
+    let DividendTax = "DIVIDEND_TAX"

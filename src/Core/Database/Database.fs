@@ -65,7 +65,9 @@ module internal Do =
           Binnaculum.Core.SQL.BrokerFinancialSnapshotQuery.createTable
           Binnaculum.Core.SQL.BankAccountSnapshotQuery.createTable
           Binnaculum.Core.SQL.BankSnapshotQuery.createTable
-          Binnaculum.Core.SQL.InvestmentOverviewSnapshotQuery.createTable ]
+          Binnaculum.Core.SQL.InvestmentOverviewSnapshotQuery.createTable
+          Binnaculum.Core.SQL.AutoImportOperationQuery.createTable
+          Binnaculum.Core.SQL.AutoImportOperationTradeQuery.createTable ]
 
     let private connect () =
         task {
@@ -337,6 +339,8 @@ module internal Do =
                   BankAccountMovements
                   BankAccounts
                   Banks
+                  AutoImportOperationTrades
+                  AutoImportOperations
                   Options
                   DividendDates
                   DividendTaxes

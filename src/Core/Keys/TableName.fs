@@ -70,3 +70,9 @@ module internal TableName =
     [<Literal>]
     let BrokerFinancialSnapshots = "BrokerFinancialSnapshots"
 
+    [<Literal>]
+    let AutoImportOperations = "AutoImportOperations"
+
+    [<Literal>]
+    let AutoImportOperationTrades = "AutoImportOperationTrades"
+
