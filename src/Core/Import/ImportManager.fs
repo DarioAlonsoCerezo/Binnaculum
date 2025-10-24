@@ -25,36 +25,26 @@ module ImportManager =
     /// <param name="filePath">Path to the file to import (CSV or ZIP)</param>
     /// <returns>ImportResult with detailed feedback</returns>
     let importFile (brokerId: int) (brokerAccountId: int) (filePath: string) =
-        CoreLogger.logInfof
-            "ImportManager"
-            "importFile function called with broker %d, account %d, file=%s"
-            brokerId
-            brokerAccountId
-            filePath
+        // CoreLogger.logInfof "ImportManager" "importFile function called with broker %d, account %d, file=%s" brokerId brokerAccountId filePath
 
         task {
-            CoreLogger.logInfof
-                "ImportManager"
-                "Starting import for broker %d, account %d, file=%s"
-                brokerId
-                brokerAccountId
-                filePath
+            // CoreLogger.logInfof "ImportManager" "Starting import for broker %d, account %d, file=%s" brokerId brokerAccountId filePath
 
-            CoreLogger.logDebug "ImportManager" "About to call ImportState.startImport()"
+            // CoreLogger.logDebug "ImportManager" "About to call ImportState.startImport()"
             let cancellationToken = ImportState.startImport ()
-            CoreLogger.logDebug "ImportManager" "ImportState.startImport() completed successfully"
+            // CoreLogger.logDebug "ImportManager" "ImportState.startImport() completed successfully"
 
             try
                 // Validate inputs
                 ImportState.updateStatus (Validating filePath)
-                CoreLogger.logDebug "ImportManager" "Validating input parameters"
+                // CoreLogger.logDebug "ImportManager" "Validating input parameters"
 
                 if not (File.Exists(filePath)) then
                     CoreLogger.logErrorf "ImportManager" "File not found: %s" filePath
                     return ImportResult.createError ($"File not found: {filePath}")
                 else
                     // Look up broker information
-                    CoreLogger.logDebugf "ImportManager" "Looking up broker %d" brokerId
+                    // CoreLogger.logDebugf "ImportManager" "Looking up broker %d" brokerId
                     let! brokerOption = BrokerExtensions.Do.getById (brokerId) |> Async.AwaitTask
 
                     match brokerOption with
@@ -64,11 +54,7 @@ module ImportManager =
                     | Some broker ->
                         cancellationToken.ThrowIfCancellationRequested()
 
-                        CoreLogger.logDebugf
-                            "ImportManager"
-                            "Broker %s found, validating account %d"
-                            broker.Name
-                            brokerAccountId
+                        // CoreLogger.logDebugf "ImportManager" "Broker %s found, validating account %d" broker.Name brokerAccountId
 
                         let! brokerAccountOption =
                             BrokerAccountExtensions.Do.getById (brokerAccountId) |> Async.AwaitTask
@@ -91,14 +77,11 @@ module ImportManager =
                         | Some brokerAccount ->
                             cancellationToken.ThrowIfCancellationRequested()
 
-                            CoreLogger.logDebugf
-                                "ImportManager"
-                                "Validated account %s; proceeding to file processing"
-                                brokerAccount.AccountNumber
+                            // CoreLogger.logDebugf "ImportManager" "Validated account %s; proceeding to file processing" brokerAccount.AccountNumber
 
                             // Process file (handles both CSV and ZIP)
                             ImportState.updateStatus (ProcessingFile(Path.GetFileName(filePath), 0.0))
-                            CoreLogger.logDebugf "ImportManager" "Processing file %s" filePath
+                            // CoreLogger.logDebugf "ImportManager" "Processing file %s" filePath
 
                             let processedFile =
                                 try
@@ -122,26 +105,17 @@ module ImportManager =
                                     cancellationToken.ThrowIfCancellationRequested()
 
                                     // Route to appropriate broker importer based on SupportedBroker
-                                    CoreLogger.logDebugf
-                                        "ImportManager"
-                                        "Routing to importer for broker type %A"
-                                        broker.SupportedBroker
+                                    // CoreLogger.logDebugf "ImportManager" "Routing to importer for broker type %A" broker.SupportedBroker
 
                                     let! importResult =
                                         if broker.SupportedBroker.ToString() = "IBKR" then
                                             // IBKR importer doesn't need broker account ID but we still validate above
-                                            CoreLogger.logDebugf
-                                                "ImportManager"
-                                                "Invoking IBKR importer for %d files"
-                                                pf.CsvFiles.Length
+                                            // CoreLogger.logDebugf "ImportManager" "Invoking IBKR importer for %d files" pf.CsvFiles.Length
 
                                             IBKRImporter.importMultipleWithCancellation pf.CsvFiles cancellationToken
                                         elif broker.SupportedBroker.ToString() = "Tastytrade" then
                                             // Tastytrade importer requires a specific broker account ID
-                                            CoreLogger.logDebugf
-                                                "ImportManager"
-                                                "Invoking Tastytrade importer for account %d"
-                                                brokerAccount.Id
+                                            // CoreLogger.logDebugf "ImportManager" "Invoking Tastytrade importer for account %d" brokerAccount.Id
 
                                             task {
                                                 // First do the parsing/validation
@@ -151,20 +125,13 @@ module ImportManager =
                                                         brokerAccount.Id
                                                         cancellationToken
 
-                                                CoreLogger.logInfof
-                                                    "ImportManager"
-                                                    "Tastytrade parse complete: success=%b, processedFiles=%d, processedRecords=%d"
-                                                    parseResult.Success
-                                                    parseResult.ProcessedFiles
-                                                    parseResult.ProcessedRecords
+                                                // CoreLogger.logInfof "ImportManager" "Tastytrade parse complete: success=%b, processedFiles=%d, processedRecords=%d" parseResult.Success parseResult.ProcessedFiles parseResult.ProcessedRecords
 
                                                 // If parsing was successful, persist to database
                                                 if parseResult.Success then
                                                     cancellationToken.ThrowIfCancellationRequested()
 
-                                                    CoreLogger.logDebug
-                                                        "ImportManager"
-                                                        "Beginning database persistence for parsed transactions"
+                                                    // CoreLogger.logDebug "ImportManager" "Beginning database persistence for parsed transactions"
 
                                                     try
                                                         // Parse the transactions from files again for database persistence
@@ -186,11 +153,7 @@ module ImportManager =
                                                                     parsingResult.Errors.Length
 
                                                         // Persist transactions to database
-                                                        CoreLogger.logDebugf
-                                                            "ImportManager"
-                                                            "Persisting %d transactions to database for account %d"
-                                                            allTransactions.Length
-                                                            brokerAccount.Id
+                                                        // CoreLogger.logDebugf "ImportManager" "Persisting %d transactions to database for account %d" allTransactions.Length brokerAccount.Id
 
                                                         let! persistenceResult =
                                                             DatabasePersistence.persistTransactionsToDatabase
@@ -198,13 +161,7 @@ module ImportManager =
                                                                 brokerAccount.Id
                                                                 cancellationToken
 
-                                                        CoreLogger.logInfof
-                                                            "ImportManager"
-                                                            "Database persistence complete: brokerMovements=%d, optionTrades=%d, stockTrades=%d, errors=%d"
-                                                            persistenceResult.BrokerMovementsCreated
-                                                            persistenceResult.OptionTradesCreated
-                                                            persistenceResult.StockTradesCreated
-                                                            persistenceResult.ErrorsCount
+                                                        // CoreLogger.logInfof "ImportManager" "Database persistence complete: brokerMovements=%d, optionTrades=%d, stockTrades=%d, errors=%d" persistenceResult.BrokerMovementsCreated persistenceResult.OptionTradesCreated persistenceResult.StockTradesCreated persistenceResult.ErrorsCount
 
                                                         // Log individual errors for debugging
                                                         if persistenceResult.Errors.Length > 0 then
@@ -223,17 +180,13 @@ module ImportManager =
                                                             persistenceResult.ImportMetadata.TotalMovementsImported > 0
                                                         then
                                                             // Refresh reactive managers in dependency order
-                                                            CoreLogger.logDebug
-                                                                "ImportManager"
-                                                                "Performing targeted reactive refresh with batch snapshot processing"
+                                                            // CoreLogger.logDebug "ImportManager" "Performing targeted reactive refresh with batch snapshot processing"
 
                                                             do! ReactiveTickerManager.refreshAsync () // First: base ticker data
                                                             do! ReactiveMovementManager.refreshAsync () // Then: movements (depend on tickers)
 
                                                             // Use new batch processing for snapshots (90-95% performance improvement)
-                                                            CoreLogger.logInfo
-                                                                "ImportManager"
-                                                                "Starting batch financial snapshot processing for import"
+                                                            // CoreLogger.logInfo "ImportManager" "Starting batch financial snapshot processing for import"
 
                                                             let! batchResult =
                                                                 BrokerFinancialBatchManager
@@ -242,14 +195,8 @@ module ImportManager =
                                                                     )
 
                                                             if batchResult.Success then
-                                                                CoreLogger.logInfof
-                                                                    "ImportManager"
-                                                                    "Batch snapshot processing completed: %d snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)"
-                                                                    batchResult.SnapshotsSaved
-                                                                    batchResult.TotalTimeMs
-                                                                    batchResult.LoadTimeMs
-                                                                    batchResult.CalculationTimeMs
-                                                                    batchResult.PersistenceTimeMs
+                                                                // CoreLogger.logInfof "ImportManager" "Batch snapshot processing completed: %d snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)" batchResult.SnapshotsSaved batchResult.TotalTimeMs batchResult.LoadTimeMs batchResult.CalculationTimeMs batchResult.PersistenceTimeMs
+                                                                ()
                                                             else
                                                                 CoreLogger.logWarningf
                                                                     "ImportManager"
@@ -257,9 +204,7 @@ module ImportManager =
                                                                     (batchResult.Errors |> String.concat "; ")
 
                                                             // Process ticker snapshots in batch (NEW - Phase 2 of snapshot processing)
-                                                            CoreLogger.logInfo
-                                                                "ImportManager"
-                                                                "Starting batch ticker snapshot processing for import"
+                                                            // CoreLogger.logInfo "ImportManager" "Starting batch ticker snapshot processing for import"
 
                                                             let! tickerBatchResult =
                                                                 TickerSnapshotBatchManager.processBatchedTickersForImport
@@ -267,15 +212,8 @@ module ImportManager =
                                                                     (persistenceResult.ImportMetadata)
 
                                                             if tickerBatchResult.Success then
-                                                                CoreLogger.logInfof
-                                                                    "ImportManager"
-                                                                    "Ticker snapshot batch processing completed: %d ticker snapshots, %d currency snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)"
-                                                                    tickerBatchResult.TickerSnapshotsSaved
-                                                                    tickerBatchResult.CurrencySnapshotsSaved
-                                                                    tickerBatchResult.TotalTimeMs
-                                                                    tickerBatchResult.LoadTimeMs
-                                                                    tickerBatchResult.CalculationTimeMs
-                                                                    tickerBatchResult.PersistenceTimeMs
+                                                                // CoreLogger.logInfof "ImportManager" "Ticker snapshot batch processing completed: %d ticker snapshots, %d currency snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)" tickerBatchResult.TickerSnapshotsSaved tickerBatchResult.CurrencySnapshotsSaved tickerBatchResult.TotalTimeMs tickerBatchResult.LoadTimeMs tickerBatchResult.CalculationTimeMs tickerBatchResult.PersistenceTimeMs
+                                                                ()
                                                             else
                                                                 CoreLogger.logWarningf
                                                                     "ImportManager"
@@ -289,9 +227,8 @@ module ImportManager =
                                                             do! TickerSnapshotLoader.load ()
                                                         else
                                                             // No movements imported, just do a basic refresh
-                                                            CoreLogger.logDebug
-                                                                "ImportManager"
-                                                                "No movements imported; skipping reactive updates"
+                                                            // CoreLogger.logDebug "ImportManager" "No movements imported; skipping reactive updates"
+                                                            ()
 
                                                         // Update the ImportResult with actual database persistence results
                                                         let updatedImportedData =
@@ -323,9 +260,7 @@ module ImportManager =
 
                                                     with
                                                     | :? OperationCanceledException ->
-                                                        CoreLogger.logInfo
-                                                            "ImportManager"
-                                                            "Database persistence canceled"
+                                                        // CoreLogger.logInfo "ImportManager" "Database persistence canceled"
 
                                                         return ImportResult.createCancelled ()
                                                     | ex ->
@@ -374,22 +309,20 @@ module ImportManager =
 
                                     // Clean up temporary files
                                     FileProcessor.cleanup pf
-                                    CoreLogger.logDebug "ImportManager" "File processing cleanup complete"
+                                    // CoreLogger.logDebug "ImportManager" "File processing cleanup complete"
 
                                     // Complete import and return result
                                     ImportState.completeImport (importResult)
 
                                     // Trigger reactive updates now that import is complete
-                                    CoreLogger.logDebug "ImportManager" "Triggering post-import reactive updates"
+                                    // CoreLogger.logDebug "ImportManager" "Triggering post-import reactive updates"
 
                                     try
                                         do! ReactiveTickerManager.refreshAsync ()
                                         do! ReactiveMovementManager.refreshAsync ()
                                         do! ReactiveSnapshotManager.refreshAsync ()
 
-                                        CoreLogger.logDebug
-                                            "ImportManager"
-                                            "Post-import reactive updates completed successfully"
+                                        // CoreLogger.logDebug "ImportManager" "Post-import reactive updates completed successfully"
                                     with ex ->
                                         CoreLogger.logErrorf
                                             "ImportManager"
@@ -409,7 +342,7 @@ module ImportManager =
                                 | :? OperationCanceledException ->
                                     // Clean up temporary files on cancellation
                                     FileProcessor.cleanup pf
-                                    CoreLogger.logInfo "ImportManager" "Import canceled during processing"
+                                    // CoreLogger.logInfo "ImportManager" "Import canceled during processing"
                                     return ImportResult.createCancelled ()
                                 | ex ->
                                     // Clean up temporary files on error
@@ -419,7 +352,7 @@ module ImportManager =
 
             with
             | :? OperationCanceledException ->
-                CoreLogger.logInfo "ImportManager" "Import canceled before completion"
+                // CoreLogger.logInfo "ImportManager" "Import canceled before completion"
                 return ImportResult.createCancelled ()
             | ex ->
                 ImportState.failImport (ex.Message)

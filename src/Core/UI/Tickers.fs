@@ -114,35 +114,17 @@ module Tickers =
             let! dbOperations = AutoImportOperationExtensions.Do.getByTicker (tickerId) |> Async.AwaitTask
 
             // Log what we retrieved from database
-            dbOperations
-            |> List.iter (fun op ->
-                CoreLogger.logDebugf
-                    "Tickers.GetOperations"
-                    "Retrieved operation ID=%d: CreatedAt=%s, UpdatedAt=%s, IsOpen=%b"
-                    op.Id
-                    (match op.Audit.CreatedAt with
-                     | Some dt -> dt.ToString()
-                     | None -> "None")
-                    (match op.Audit.UpdatedAt with
-                     | Some dt -> dt.ToString()
-                     | None -> "None")
-                    op.IsOpen)
+            // dbOperations
+            // |> List.iter (fun op ->
+            //     CoreLogger.logDebugf "Tickers.GetOperations" "Retrieved operation ID=%d: CreatedAt=%s, UpdatedAt=%s, IsOpen=%b" op.Id (match op.Audit.CreatedAt with | Some dt -> dt.ToString() | None -> "None") (match op.Audit.UpdatedAt with | Some dt -> dt.ToString() | None -> "None") op.IsOpen)
 
             // Convert database operations to domain models
             let operations = dbOperations.autoImportOperationsToModel ()
 
             // Log what we converted
-            operations
-            |> List.iter (fun op ->
-                CoreLogger.logDebugf
-                    "Tickers.GetOperations"
-                    "Converted operation ID=%d: OpenDate=%s, CloseDate=%s, IsOpen=%b"
-                    op.Id
-                    (op.OpenDate.ToString("yyyy-MM-dd HH:mm:ss"))
-                    (match op.CloseDate with
-                     | Some dt -> dt.ToString("yyyy-MM-dd HH:mm:ss")
-                     | None -> "None")
-                    op.IsOpen)
+            // operations
+            // |> List.iter (fun op ->
+            //     CoreLogger.logDebugf "Tickers.GetOperations" "Converted operation ID=%d: OpenDate=%s, CloseDate=%s, IsOpen=%b" op.Id (op.OpenDate.ToString("yyyy-MM-dd HH:mm:ss")) (match op.CloseDate with | Some dt -> dt.ToString("yyyy-MM-dd HH:mm:ss") | None -> "None") op.IsOpen)
 
             return operations
         }

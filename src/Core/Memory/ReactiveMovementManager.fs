@@ -31,19 +31,17 @@ module ReactiveMovementManager =
         async {
             // Prevent reentrancy to avoid infinite loops during movement processing
             if isLoadingMovements then
-                CoreLogger.logDebug "ReactiveMovementManager" "Skipping loadMovements - already in progress"
+                // CoreLogger.logDebug "ReactiveMovementManager" "Skipping loadMovements - already in progress"
                 return ()
 
             // Defer reactive updates during import to prevent database connection conflicts
             if Binnaculum.Core.Import.ImportState.isImportInProgress () then
-                CoreLogger.logDebug
-                    "ReactiveMovementManager"
-                    "Skipping loadMovements - import in progress, will update after completion"
+                // CoreLogger.logDebug "ReactiveMovementManager" "Skipping loadMovements - import in progress, will update after completion"
 
                 return ()
 
             isLoadingMovements <- true
-            CoreLogger.logDebug "ReactiveMovementManager" "Starting loadMovements"
+            // CoreLogger.logDebug "ReactiveMovementManager" "Starting loadMovements"
 
             try
                 // Load all movement data from database
@@ -98,9 +96,8 @@ module ReactiveMovementManager =
                             with
                             | Some current -> Collections.Accounts.Replace(current, updatedAccount)
                             | None ->
-                                CoreLogger.logDebug
-                                    "ReactiveMovementManager"
-                                    $"Bank account with ID {account.Bank.Value.Id} not found in Collections.Accounts for movement update"
+                                // CoreLogger.logDebug "ReactiveMovementManager" $"Bank account with ID {account.Bank.Value.Id} not found in Collections.Accounts for movement update"
+                                ()
 
                     if account.Broker.IsSome then
                         async {
@@ -117,10 +114,10 @@ module ReactiveMovementManager =
                         }
                         |> Async.StartImmediate)
 
-                CoreLogger.logDebug "ReactiveMovementManager" "Completed loadMovements"
+                // CoreLogger.logDebug "ReactiveMovementManager" "Completed loadMovements"
                 isLoadingMovements <- false
             with ex ->
-                CoreLogger.logDebug "ReactiveMovementManager" $"loadMovements error: {ex.Message}"
+                CoreLogger.logError "ReactiveMovementManager" $"loadMovements error: {ex.Message}"
                 isLoadingMovements <- false
         }
 
