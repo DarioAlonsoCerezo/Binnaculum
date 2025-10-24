@@ -18,44 +18,40 @@ module Overview =
 
     let InitDatabase () =
         task {
-            CoreLogger.logDebug "Overview.InitDatabase" "Starting InitDatabase"
-            CoreLogger.logDebug "Overview.InitDatabase" "About to call DataLoader.loadBasicData()"
+            // CoreLogger.logDebug "Overview.InitDatabase" "Starting InitDatabase"
+            // CoreLogger.logDebug "Overview.InitDatabase" "About to call DataLoader.loadBasicData()"
             do! DataLoader.loadBasicData () |> Async.AwaitTask |> Async.Ignore
-            CoreLogger.logDebug "Overview.InitDatabase" "DataLoader.loadBasicData() completed"
+            // CoreLogger.logDebug "Overview.InitDatabase" "DataLoader.loadBasicData() completed"
 
-            CoreLogger.logDebug "Overview.InitDatabase" "About to update Data.OnNext"
+            // CoreLogger.logDebug "Overview.InitDatabase" "About to update Data.OnNext"
 
-            CoreLogger.logDebug
-                "Overview.InitDatabase"
-                $"Current Data.Value: IsDatabaseInitialized={Data.Value.IsDatabaseInitialized}, TransactionsLoaded={Data.Value.TransactionsLoaded}"
+            // CoreLogger.logDebug "Overview.InitDatabase" $"Current Data.Value: IsDatabaseInitialized={Data.Value.IsDatabaseInitialized}, TransactionsLoaded={Data.Value.TransactionsLoaded}"
 
             Data.OnNext
                 { Data.Value with
                     IsDatabaseInitialized = true }
 
-            CoreLogger.logDebug
-                "Overview.InitDatabase"
-                $"After Data.OnNext: IsDatabaseInitialized={Data.Value.IsDatabaseInitialized}, TransactionsLoaded={Data.Value.TransactionsLoaded}"
+            // CoreLogger.logDebug "Overview.InitDatabase" $"After Data.OnNext: IsDatabaseInitialized={Data.Value.IsDatabaseInitialized}, TransactionsLoaded={Data.Value.TransactionsLoaded}"
 
-            CoreLogger.logDebug "Overview.InitDatabase" "InitDatabase completed successfully"
+            // CoreLogger.logDebug "Overview.InitDatabase" "InitDatabase completed successfully"
         }
 
     let LoadData () =
         task {
-            CoreLogger.logDebug "Overview.LoadData" "Starting LoadData"
-            CoreLogger.logDebug "Overview.LoadData" "About to call DataLoader.initialization()"
+            // CoreLogger.logDebug "Overview.LoadData" "Starting LoadData"
+            // CoreLogger.logDebug "Overview.LoadData" "About to call DataLoader.initialization()"
             do! DataLoader.initialization () |> Async.AwaitTask |> Async.Ignore
-            CoreLogger.logDebug "Overview.LoadData" "DataLoader.initialization() completed"
+            // CoreLogger.logDebug "Overview.LoadData" "DataLoader.initialization() completed"
             // Use reactive movement manager instead of manual loading
-            CoreLogger.logDebug "Overview.LoadData" "About to call ReactiveMovementManager.refresh()"
+            // CoreLogger.logDebug "Overview.LoadData" "About to call ReactiveMovementManager.refresh()"
             ReactiveMovementManager.refresh ()
-            CoreLogger.logDebug "Overview.LoadData" "ReactiveMovementManager.refresh() completed"
+            // CoreLogger.logDebug "Overview.LoadData" "ReactiveMovementManager.refresh() completed"
 
             Data.OnNext
                 { Data.Value with
                     TransactionsLoaded = true }
 
-            CoreLogger.logDebug "Overview.LoadData" "LoadData completed successfully"
+            // CoreLogger.logDebug "Overview.LoadData" "LoadData completed successfully"
         }
 
     let LoadMovements () =

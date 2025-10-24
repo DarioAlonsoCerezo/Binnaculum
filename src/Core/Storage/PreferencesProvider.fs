@@ -4,6 +4,7 @@ open Microsoft.Maui.Storage
 open Microsoft.Maui.ApplicationModel
 open System.Collections.Generic
 open System.Threading.Tasks
+open Binnaculum.Core.Logging
 
 /// <summary>
 /// Represents the preferences storage mode
@@ -181,7 +182,7 @@ module PreferencesProvider =
             with
             | ex ->
                 // Graceful degradation: log error and return null
-                System.Diagnostics.Debug.WriteLine($"Failed to get secure value for key '{key}': {ex.Message}")
+                CoreLogger.logError "PreferencesProvider" $"Failed to get secure value for key '{key}': {ex.Message}"
                 Task.FromResult(null)
     
     /// <summary>
@@ -203,7 +204,7 @@ module PreferencesProvider =
             with
             | ex ->
                 // Graceful degradation: log error but don't throw
-                System.Diagnostics.Debug.WriteLine($"Failed to set secure value for key '{key}': {ex.Message}")
+                CoreLogger.logError "PreferencesProvider" $"Failed to set secure value for key '{key}': {ex.Message}"
                 Task.CompletedTask
     
     /// <summary>
@@ -223,5 +224,5 @@ module PreferencesProvider =
             with
             | ex ->
                 // Graceful degradation: log error and return false
-                System.Diagnostics.Debug.WriteLine($"Failed to remove secure value for key '{key}': {ex.Message}")
+                CoreLogger.logError "PreferencesProvider" $"Failed to remove secure value for key '{key}': {ex.Message}"
                 false

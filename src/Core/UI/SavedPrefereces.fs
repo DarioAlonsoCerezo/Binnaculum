@@ -8,6 +8,7 @@ open Binnaculum.Core.Providers
 open System.Threading.Tasks
 open System
 open Binnaculum.Core.Keys // Added for key access
+open Binnaculum.Core.Logging
 
 module SavedPrefereces =
 
@@ -71,9 +72,7 @@ module SavedPrefereces =
                         return if String.IsNullOrEmpty(key) then None else Some key
                     with ex ->
                         // Log error if needed, but don't throw - just return None as default
-                        System.Diagnostics.Debug.WriteLine(
-                            $"Failed to load Polygon API Key from SecureStorage: {ex.Message}"
-                        )
+                        CoreLogger.logError "SavedPreferences" $"Failed to load Polygon API Key from SecureStorage: {ex.Message}"
 
                         return None
                 }
@@ -144,7 +143,7 @@ module SavedPrefereces =
             taskFactory()
                 .ContinueWith(fun t ->
                     if t.IsFaulted && t.Exception <> null then
-                        System.Diagnostics.Debug.WriteLine($"Task failed: {t.Exception}"))
+                        CoreLogger.logError "SavedPreferences" $"Task failed: {t.Exception}")
             |> ignore)
         |> ignore
 
@@ -178,7 +177,7 @@ module SavedPrefereces =
                 )
             with ex ->
                 // Log error but don't throw - this maintains app stability
-                System.Diagnostics.Debug.WriteLine($"Failed to save Polygon API Key to SecureStorage: {ex.Message}")
+                CoreLogger.logError "SavedPreferences" $"Failed to save Polygon API Key to SecureStorage: {ex.Message}"
                 // Still update the in-memory preferences for consistency
                 UserPreferences.OnNext(
                     { UserPreferences.Value with

@@ -10,6 +10,7 @@ open Microsoft.Maui.Storage
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Providers
 open Binnaculum.Core.Keys
+open Binnaculum.Core.Logging
 
 module internal DatabaseToModels =
 
@@ -614,16 +615,12 @@ module internal DatabaseToModels =
                 financialSnapshots: BrokerFinancialSnapshot list,
                 brokerAccount: BrokerAccount
             ) =
-            System.Diagnostics.Debug.WriteLine(
-                $"[DatabaseToModels] Converting broker account snapshot - BrokerAccountId: {brokerAccount.Id}, FinancialSnapshots count: {financialSnapshots.Length}"
-            )
+            // CoreLogger.logDebug "DatabaseToModels" $"Converting broker account snapshot - BrokerAccountId: {brokerAccount.Id}, FinancialSnapshots count: {financialSnapshots.Length}"
 
             let (mainFinancial, otherFinancials) =
                 if financialSnapshots.IsEmpty then
                     // Create empty financial snapshot if no data available
-                    System.Diagnostics.Debug.WriteLine(
-                        "[DatabaseToModels] No financial snapshots found for BrokerAccount - creating empty financial data"
-                    )
+                    // CoreLogger.logDebug "DatabaseToModels" "No financial snapshots found for BrokerAccount - creating empty financial data"
 
                     let emptySnapshot =
                         { Id = 0
@@ -651,16 +648,12 @@ module internal DatabaseToModels =
                     (emptySnapshot, [])
                 else
                     // Convert database snapshots to model snapshots using helper
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[DatabaseToModels] Converting {financialSnapshots.Length} financial snapshots for BrokerAccount"
-                    )
+                    // CoreLogger.logDebug "DatabaseToModels" $"Converting {financialSnapshots.Length} financial snapshots for BrokerAccount"
 
                     let modelSnapshots =
                         financialSnapshots
                         |> List.map (fun dbFinancial ->
-                            System.Diagnostics.Debug.WriteLine(
-                                $"[DatabaseToModels] Financial snapshot - Deposited: {dbFinancial.Deposited.Value}, MovementCounter: {dbFinancial.MovementCounter}"
-                            )
+                            // CoreLogger.logDebug "DatabaseToModels" $"Financial snapshot - Deposited: {dbFinancial.Deposited.Value}, MovementCounter: {dbFinancial.MovementCounter}"
                             // Use the new helper function for conversion
                             dbFinancial.brokerFinancialSnapshotToModel (brokerAccount = brokerAccount))
 

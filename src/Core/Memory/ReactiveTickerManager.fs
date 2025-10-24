@@ -88,7 +88,7 @@ module ReactiveTickerManager =
     /// </summary>
     let refresh () =
         task {
-            CoreLogger.logDebug "ReactiveTickerManager" "Starting loadTickers"
+            // CoreLogger.logDebug "ReactiveTickerManager" "Starting loadTickers"
 
             try
                 // ✅ Load fresh data from DATABASE (authoritative source)
@@ -109,9 +109,9 @@ module ReactiveTickerManager =
                 // ✅ Give reactive updates time to propagate through DynamicData
                 do! Task.Delay(50) |> Async.AwaitTask
 
-                CoreLogger.logDebug "ReactiveTickerManager" "Completed loadTickers"
+                // CoreLogger.logDebug "ReactiveTickerManager" "Completed loadTickers"
             with ex ->
-                CoreLogger.logDebugf "ReactiveTickerManager" "loadTickers error: %s" ex.Message
+                CoreLogger.logErrorf "ReactiveTickerManager" "loadTickers error: %s" ex.Message
 
         // ✅ NO manual cache manipulation needed!
         // The reactive subscription automatically updates both caches efficiently

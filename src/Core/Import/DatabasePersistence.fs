@@ -469,16 +469,11 @@ module DatabasePersistence =
                 SpecialDividendAdjustmentDetector.detectAdjustments transactions
 
             if List.isEmpty adjustments then
-                CoreLogger.logDebugf
-                    "DatabasePersistence"
-                    "No strike adjustments detected - returning option trades unchanged"
+                // CoreLogger.logDebugf "DatabasePersistence" "No strike adjustments detected - returning option trades unchanged"
 
                 optionTrades
             else
-                CoreLogger.logInfof
-                    "DatabasePersistence"
-                    "Applying %d detected strike adjustments to option trades"
-                    adjustments.Length
+                // CoreLogger.logInfof "DatabasePersistence" "Applying %d detected strike adjustments to option trades" adjustments.Length
 
                 // Apply each adjustment to matching option trades
                 let mutable updatedTrades = optionTrades
@@ -534,12 +529,7 @@ module DatabasePersistence =
                                 updatedTrades
                                 |> List.map (fun t -> if t.Id = matchingTrade.Id then updatedTrade else t)
 
-                            CoreLogger.logDebugf
-                                "DatabasePersistence"
-                                "Updated option trade ID=%d: strike %.2f -> %.2f, adjustment note added"
-                                matchingTrade.Id
-                                adjustment.OriginalStrike
-                                adjustment.NewStrike
+                            // CoreLogger.logDebugf "DatabasePersistence" "Updated option trade ID=%d: strike %.2f -> %.2f, adjustment note added" matchingTrade.Id adjustment.OriginalStrike adjustment.NewStrike
                         with ex ->
                             CoreLogger.logWarningf
                                 "DatabasePersistence"

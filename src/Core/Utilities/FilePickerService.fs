@@ -43,7 +43,7 @@ module FilePickerService =
                     let! result = FilePicker.Default.PickAsync(options)
 
                     if result <> null then
-                        CoreLogger.logDebugf "FilePicker" "Image selected: %A" result.FullPath
+                        // CoreLogger.logDebugf "FilePicker" "Image selected: %A" result.FullPath
                         // Define the target path in the AppDataDirectory
                         let targetDirectory = FileSystem.AppDataDirectory
                         let targetPath = Path.Combine(targetDirectory, result.FileName)
@@ -52,7 +52,7 @@ module FilePickerService =
                         File.Copy(result.FullPath, targetPath, true)
 
                         // Return the updated file path
-                        CoreLogger.logDebugf "FilePicker" "Image copied to sandbox: %A" targetPath
+                        // CoreLogger.logDebugf "FilePicker" "Image copied to sandbox: %A" targetPath
 
                         return
                             { FileName = result.FileName
@@ -70,7 +70,7 @@ module FilePickerService =
                               Success = false }
             with ex ->
                 // Handle exceptions
-                System.Diagnostics.Debug.WriteLine($"Error picking file: {ex.Message}")
+                CoreLogger.logError "FilePicker" $"Error picking file: {ex.Message}"
 
                 return
                     { FileName = ""
@@ -110,7 +110,7 @@ module FilePickerService =
                     let! result = FilePicker.Default.PickAsync(options)
 
                     if result <> null then
-                        CoreLogger.logDebugf "FilePicker" "Data file selected: %A" result.FullPath
+                        // CoreLogger.logDebugf "FilePicker" "Data file selected: %A" result.FullPath
 
                         return
                             { FileName = result.FileName
@@ -128,7 +128,7 @@ module FilePickerService =
                               Success = false }
             with ex ->
                 // Handle exceptions
-                System.Diagnostics.Debug.WriteLine($"Error picking file: {ex.Message}")
+                CoreLogger.logError "FilePicker" $"Error picking file: {ex.Message}"
 
                 return
                     { FileName = ""

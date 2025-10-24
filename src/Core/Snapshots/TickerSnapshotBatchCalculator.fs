@@ -177,11 +177,8 @@ module internal TickerSnapshotBatchCalculator =
                                             latestCurrencySnapshots
 
                                     if relevantCurrencies.IsEmpty then
-                                        CoreLogger.logDebugf
-                                            "TickerSnapshotBatchCalculator"
-                                            "No currencies to process for ticker %d on date %s"
-                                            tickerId
-                                            (date.ToString())
+                                        // CoreLogger.logDebugf "TickerSnapshotBatchCalculator" "No currencies to process for ticker %d on date %s" tickerId (date.ToString())
+                                        ()
                                     else
                                         // CoreLogger.logDebugf
                                         //     "TickerSnapshotBatchCalculator"
@@ -316,18 +313,11 @@ module internal TickerSnapshotBatchCalculator =
                                                                 |> Async.StartAsTask
 
                                                             // Log operation events
-                                                            if operationResult.WasCreated then
-                                                                CoreLogger.logDebugf
-                                                                    "TickerSnapshotBatchCalculator"
-                                                                    "Created operation for ticker %d on %s"
-                                                                    tickerId
-                                                                    (date.ToString())
-                                                            elif operationResult.WasClosed then
-                                                                CoreLogger.logInfof
-                                                                    "TickerSnapshotBatchCalculator"
-                                                                    "Closed operation for ticker %d on %s"
-                                                                    tickerId
-                                                                    (date.ToString())
+                                                            // if operationResult.WasCreated then
+                                                            //     CoreLogger.logDebugf "TickerSnapshotBatchCalculator" "Created operation for ticker %d on %s" tickerId (date.ToString())
+                                                            // elif operationResult.WasClosed then
+                                                            //     CoreLogger.logInfof "TickerSnapshotBatchCalculator" "Closed operation for ticker %d on %s" tickerId (date.ToString())
+                                                            ()
                                                         with ex ->
                                                             let opError =
                                                                 sprintf
