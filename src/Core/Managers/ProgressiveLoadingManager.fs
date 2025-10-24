@@ -14,7 +14,7 @@ open BrokerMovementExtensions
 module internal ProgressiveLoadingManager =
     
     /// <summary>
-    /// Critical data loaded in Phase 1 (target: &lt;50ms).
+    /// Critical data loaded in Phase 1 (target: <50ms).
     /// Contains minimal data needed to show the app UI.
     /// </summary>
     type CriticalData = {
@@ -23,7 +23,7 @@ module internal ProgressiveLoadingManager =
     }
     
     /// <summary>
-    /// Secondary data loaded in Phase 2 (target: &lt;150ms).
+    /// Secondary data loaded in Phase 2 (target: <150ms).
     /// Contains additional data that enhances the UI but is not required for initial display.
     /// </summary>
     type SecondaryData = {
@@ -34,7 +34,7 @@ module internal ProgressiveLoadingManager =
     /// <summary>
     /// Load Phase 1: Critical data for fast startup.
     /// Loads only the latest snapshot and account info.
-    /// Target: &lt;50ms on typical mobile devices.
+    /// Target: <50ms on typical mobile devices.
     /// </summary>
     /// <param name="brokerAccountId">The broker account ID</param>
     /// <returns>Critical data needed for initial UI display</returns>
@@ -55,7 +55,7 @@ module internal ProgressiveLoadingManager =
     /// <summary>
     /// Load Phase 2: Secondary data for enhanced UI.
     /// Loads the first page of movements for quick access.
-    /// Target: &lt;150ms on typical mobile devices.
+    /// Target: <150ms on typical mobile devices.
     /// </summary>
     /// <param name="brokerAccountId">The broker account ID</param>
     /// <param name="pageSize">Number of movements to load (default: 50)</param>
