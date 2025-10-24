@@ -99,6 +99,7 @@
 		<Compile Include="Import\ChunkStrategy.fs" />
 		<Compile Include="Database\ImportSessionExtensions.fs" />
 		<Compile Include="Database\ImportSessionChunkExtensions.fs" />
+		<Compile Include="Import\ImportSessionManager.fs" />
 		<Compile Include="Import\ReactiveImportManager.fs" />
 		<Compile Include="Import\FileProcessor.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRModels.fs" />
