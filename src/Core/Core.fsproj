@@ -172,6 +172,8 @@
 		<!-- Coordinator for choosing between batch and per-date processing (requires both managers) -->
 		<Compile Include="Snapshots\SnapshotProcessingCoordinator.fs" />
 		<Compile Include="Snapshots\SnapshotManager.fs" />
+		<Compile Include="Managers\DataLoadingManager.fs" />
+		<Compile Include="Managers\ProgressiveLoadingManager.fs" />
 		<Compile Include="DataLoader\CurrencyLoader.fs" />
 		<Compile Include="DataLoader\BrokerLoader.fs" />
 		<Compile Include="DataLoader\BankLoader.fs" />

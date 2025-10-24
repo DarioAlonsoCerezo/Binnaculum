@@ -69,6 +69,8 @@
     <Compile Include="Unit/Managers/ReactiveBankAccountManagerTests.fs" />
     <Compile Include="Unit/Managers/ReactiveApplicationManagerTests.fs" />
     <Compile Include="Unit/Managers/ReactiveTickerIntegrationTests.fs" />
+    <Compile Include="Unit/Managers/DataLoadingManagerTests.fs" />
+    <Compile Include="Unit/Managers/ProgressiveLoadingManagerTests.fs" />
     
     <!-- Unit Tests - Import/Converters -->
     <Compile Include="Unit/Import/IBKRImportTests.fs" />

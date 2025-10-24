@@ -156,3 +156,29 @@ module internal BrokerMovementQuery =
             AND DATE({TimeStamp}) = DATE({SQLParameterName.TimeStamp})
         ORDER BY {TimeStamp}
         """
+
+    let getByBrokerAccountIdPaged =
+        $"""
+        SELECT * FROM {BrokerMovements}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+        ORDER BY {TimeStamp} DESC, {Id} DESC
+        LIMIT @PageSize OFFSET @Offset
+        """
+
+    let getCountByBrokerAccountId =
+        $"""
+        SELECT COUNT(*) FROM {BrokerMovements}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+        """
+
+    let getByBrokerAccountIdInDateRange =
+        $"""
+        SELECT * FROM {BrokerMovements}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+            AND {TimeStamp} >= {SQLParameterName.StartDate}
+            AND {TimeStamp} <= {SQLParameterName.EndDate}
+        ORDER BY {TimeStamp} DESC, {Id} DESC
+        """
