@@ -198,15 +198,15 @@ type BrokerFinancialCalculateTests() =
             (fees: decimal)
             (optionType: OptionType)
             =
-            let premium = Math.Abs(valueAmount)
+            // Premium preserves sign: positive for SELL, negative for BUY (matches CSV import behavior)
+            let premium = valueAmount
             let commissionCost = Math.Abs(commissions)
             let feeCost = Math.Abs(fees)
 
-            let netPremium =
-                match code with
-                | OptionCode.BuyToOpen
-                | OptionCode.BuyToClose -> -(premium + commissionCost + feeCost) // NEGATIVE for buys (cost)
-                | _ -> premium - commissionCost - feeCost // POSITIVE for sells (income)
+            // NetPremium: Premium - Commissions - Fees
+            // For SELL: positive premium - costs = net income
+            // For BUY: negative premium - costs = net cost (more negative)
+            let netPremium = premium - commissionCost - feeCost
 
             { Id = id
               TimeStamp = DateTimePattern.FromDateTime(timestamp)
@@ -366,8 +366,9 @@ type BrokerFinancialCalculateTests() =
             OptionTradeCalculations.calculateOptionsSummary (trades, DateTime(2024, 5, 10, 0, 0, 0, DateTimeKind.Utc))
 
         // Assert
-        // OptionsIncome = Net profit/loss = Sum of all NetPremiums (including negative for buys)
-        Assert.That(summary.OptionsIncome.Value, Is.EqualTo(54.37m).Within(0.01m))
+        // OptionsIncome = Sum of all Premium values (positive for sells, negative for buys)
+        // 16 + 5 - 9 + 17 - 17 + 1 - 8 - 11 + 19 + 19 - 4 + 35 = 63.00
+        Assert.That(summary.OptionsIncome.Value, Is.EqualTo(63.00m).Within(0.01m))
         // OptionsInvestment = Total cost of buying options = Sum of absolute NetPremiums for buys
         Assert.That(summary.OptionsInvestment.Value, Is.EqualTo(51.65m).Within(0.01m))
         // RealizedGains: Correctly calculated with FIFO matching
