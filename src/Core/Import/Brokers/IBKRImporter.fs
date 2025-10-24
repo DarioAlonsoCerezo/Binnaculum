@@ -239,6 +239,152 @@ module IBKRImporter =
         importMultipleWithEnhancedProcessing csvFilePaths cancellationToken
     
     /// <summary>
+    /// Import multiple CSV files from IBKR with full persistence to database
+    /// Converts IBKR models to domain models and saves to database
+    /// </summary>
+    /// <param name="csvFilePaths">List of CSV file paths to process</param>
+    /// <param name="brokerAccountId">ID of the broker account to import for</param>
+    /// <param name="cancellationToken">Cancellation token for operation</param>
+    /// <returns>Consolidated ImportResult with actual persisted data</returns>
+    let importMultipleWithPersistence 
+        (csvFilePaths: string list) 
+        (brokerAccountId: int) 
+        (cancellationToken: CancellationToken) = task {
+        
+        let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+        
+        let mutable totalResult = {
+            Success = true
+            ProcessedFiles = csvFilePaths.Length
+            ProcessedRecords = 0
+            SkippedRecords = 0
+            TotalRecords = 0
+            ProcessingTimeMs = 0L
+            Errors = []
+            Warnings = []
+            ImportedData = { Trades = 0; BrokerMovements = 0; Dividends = 0; OptionTrades = 0; NewTickers = 0 }
+            FileResults = []
+        }
+        
+        let mutable fileResults = []
+        let mutable allStatements = []
+        
+        // First pass: parse all files
+        for (index, csvFile) in csvFilePaths |> List.mapi (fun i file -> i, file) do
+            cancellationToken.ThrowIfCancellationRequested()
+            
+            let fileName = System.IO.Path.GetFileName(csvFile)
+            let progress = float index / float csvFilePaths.Length
+            ImportState.updateStatus(ProcessingFile(fileName, progress))
+            
+            try
+                if System.IO.File.Exists(csvFile) then
+                    let parseResult = parseCsvFile csvFile
+                    
+                    if parseResult.Success then
+                        match parseResult.Data with
+                        | Some statement ->
+                            allStatements <- statement :: allStatements
+                            
+                            let recordCount = 
+                                statement.CashMovements.Length + 
+                                statement.ForexTrades.Length + 
+                                statement.Trades.Length
+                            
+                            let fileResult = FileImportResult.createSuccess fileName recordCount
+                            fileResults <- fileResult :: fileResults
+                            
+                            totalResult <- { totalResult with 
+                                               ProcessedRecords = totalResult.ProcessedRecords + recordCount
+                                               TotalRecords = totalResult.TotalRecords + recordCount }
+                        | None ->
+                            let error = { RowNumber = None; ErrorMessage = "No data parsed from file"; ErrorType = ImportErrorType.ValidationError; RawData = None }
+                            let fileResult = FileImportResult.createFailure fileName [error]
+                            fileResults <- fileResult :: fileResults
+                            totalResult <- { totalResult with Success = false; Errors = error :: totalResult.Errors }
+                    else
+                        let errors = parseResult.Errors |> List.map (fun err ->
+                            { RowNumber = None; ErrorMessage = err; ErrorType = ImportErrorType.ValidationError; RawData = None })
+                        let fileResult = FileImportResult.createFailure fileName errors
+                        fileResults <- fileResult :: fileResults
+                        totalResult <- { totalResult with Success = false; Errors = totalResult.Errors @ errors }
+                else
+                    let error = { RowNumber = None; ErrorMessage = $"File not found: {fileName}"; ErrorType = ImportErrorType.ValidationError; RawData = None }
+                    let fileResult = FileImportResult.createFailure fileName [error]
+                    fileResults <- fileResult :: fileResults
+                    totalResult <- { totalResult with Success = false; Errors = error :: totalResult.Errors }
+            with ex ->
+                let error = { RowNumber = None; ErrorMessage = $"Error processing {fileName}: {ex.Message}"; ErrorType = ImportErrorType.ValidationError; RawData = None }
+                let fileResult = FileImportResult.createFailure fileName [error]
+                fileResults <- fileResult :: fileResults
+                totalResult <- { totalResult with Success = false; Errors = error :: totalResult.Errors }
+        
+        // Second pass: convert and persist if parsing was successful
+        if totalResult.Success && not (List.isEmpty allStatements) then
+            try
+                // Combine all statements
+                let combinedStatement = {
+                    IBKRStatementData.StatementDate = allStatements |> List.choose (fun s -> s.StatementDate) |> List.tryHead
+                    BrokerName = allStatements |> List.choose (fun s -> s.BrokerName) |> List.tryHead
+                    Trades = allStatements |> List.collect (fun s -> s.Trades)
+                    ForexTrades = allStatements |> List.collect (fun s -> s.ForexTrades)
+                    CashMovements = allStatements |> List.collect (fun s -> s.CashMovements)
+                    CashFlows = allStatements |> List.collect (fun s -> s.CashFlows)
+                    OpenPositions = allStatements |> List.collect (fun s -> s.OpenPositions)
+                    Instruments = allStatements |> List.collect (fun s -> s.Instruments)
+                    ExchangeRates = allStatements |> List.collect (fun s -> s.ExchangeRates)
+                    ForexBalances = allStatements |> List.collect (fun s -> s.ForexBalances)
+                }
+                
+                // Convert IBKR models to domain models
+                let! domainModels = 
+                    IBKRConverter.convertToDomainModels 
+                        combinedStatement 
+                        brokerAccountId 
+                        None // No session ID for now
+                        cancellationToken
+                
+                // Persist to database
+                let! persistenceResult = 
+                    DatabasePersistence.persistDomainModelsToDatabase 
+                        domainModels 
+                        brokerAccountId 
+                        cancellationToken
+                
+                // Update result with actual persisted counts
+                let importedData = {
+                    Trades = persistenceResult.StockTradesCreated
+                    BrokerMovements = persistenceResult.BrokerMovementsCreated
+                    Dividends = persistenceResult.DividendsCreated
+                    OptionTrades = persistenceResult.OptionTradesCreated
+                    NewTickers = 0 // Future: Track new tickers created during import (requires enhancement to converter)
+                }
+                
+                stopwatch.Stop()
+                
+                return { totalResult with 
+                           FileResults = List.rev fileResults
+                           ImportedData = importedData
+                           ProcessingTimeMs = stopwatch.ElapsedMilliseconds
+                           Errors = totalResult.Errors @ (persistenceResult.Errors |> List.map (fun err -> 
+                               { RowNumber = None; ErrorMessage = err; ErrorType = ImportErrorType.ValidationError; RawData = None })) }
+            with ex ->
+                CoreLogger.logErrorf "IBKRImporter" "Persistence failed: %s" ex.Message
+                let error = { RowNumber = None; ErrorMessage = $"Persistence failed: {ex.Message}"; ErrorType = ImportErrorType.ValidationError; RawData = None }
+                stopwatch.Stop()
+                return { totalResult with 
+                           Success = false
+                           Errors = error :: totalResult.Errors
+                           FileResults = List.rev fileResults
+                           ProcessingTimeMs = stopwatch.ElapsedMilliseconds }
+        else
+            stopwatch.Stop()
+            return { totalResult with 
+                       FileResults = List.rev fileResults
+                       ProcessingTimeMs = stopwatch.ElapsedMilliseconds }
+    }
+    
+    /// <summary>
     /// Import single CSV file from IBKR with enhanced processing
     /// </summary>
     /// <param name="csvFilePath">Path to CSV file</param>
