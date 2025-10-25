@@ -197,6 +197,9 @@ module internal SQLParameterName =
     let Realized = "@Realized"
     
     [<Literal>]
+    let RealizedToday = "@RealizedToday"
+    
+    [<Literal>]
     let Performance = "@Performance"
     
     [<Literal>]

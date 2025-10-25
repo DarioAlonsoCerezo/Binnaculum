@@ -233,7 +233,8 @@ module Models =
           CloseDate: DateTime option
 
           // Financial metrics (cumulative, stored for fast aggregation)
-          Realized: decimal
+          Realized: decimal              // CUMULATIVE - for TickerCurrencySnapshot
+          RealizedToday: decimal          // DELTA - for BrokerFinancialSnapshot
           Commissions: decimal
           Fees: decimal
           Premium: decimal

@@ -22,6 +22,7 @@ type Do() =
               (SQLParameterName.CurrencyId, operation.CurrencyId)
               (SQLParameterName.IsOpen, if operation.IsOpen then 1 else 0)
               (SQLParameterName.Realized, operation.Realized.Value)
+              (SQLParameterName.RealizedToday, operation.RealizedToday.Value)
               (SQLParameterName.Commissions, operation.Commissions.Value)
               (SQLParameterName.Fees, operation.Fees.Value)
               (SQLParameterName.Premium, operation.Premium.Value)
@@ -40,6 +41,7 @@ type Do() =
           CurrencyId = reader.getInt32 FieldName.CurrencyId
           IsOpen = reader.getInt32 FieldName.IsOpen = 1
           Realized = reader.getMoney FieldName.Realized
+          RealizedToday = reader.getMoney FieldName.RealizedToday
           Commissions = reader.getMoney FieldName.Commissions
           Fees = reader.getMoney FieldName.Fees
           Premium = reader.getMoney FieldName.Premium
@@ -103,6 +105,7 @@ type Do() =
           CurrencyId = currencyId
           IsOpen = true
           Realized = Money.FromAmount(0m)
+          RealizedToday = Money.FromAmount(0m)
           Commissions = Money.FromAmount(0m)
           Fees = Money.FromAmount(0m)
           Premium = Money.FromAmount(0m)
@@ -125,6 +128,9 @@ type Do() =
             dividendTaxes: Money,
             capitalDeployed: Money
         ) =
+        // Calculate delta for RealizedToday
+        let realizedDelta = realized.Value - operation.Realized.Value
+        
         let totalRealized = realized.Value
         let totalCapital = capitalDeployed.Value
 
@@ -136,6 +142,7 @@ type Do() =
 
         { operation with
             Realized = realized
+            RealizedToday = Money.FromAmount(realizedDelta)
             Commissions = commissions
             Fees = fees
             Premium = premium

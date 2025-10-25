@@ -182,6 +182,9 @@ module internal FieldName =
     let Realized = "Realized"
     
     [<Literal>]
+    let RealizedToday = "RealizedToday"
+    
+    [<Literal>]
     let Performance = "Performance"
     
     [<Literal>]
