@@ -44,6 +44,8 @@ module internal TickerSnapshotBatchCalculator =
             TickerSnapshots: TickerSnapshot list
             /// Successfully calculated currency snapshots (separate entities, will be linked via FK during persistence)
             CurrencySnapshots: TickerCurrencySnapshot list
+            /// Operations calculated during ticker snapshot processing
+            CalculatedOperations: AutoImportOperation list
             /// Processing metrics for monitoring
             ProcessingMetrics:
                 {| TickersProcessed: int
@@ -129,6 +131,7 @@ module internal TickerSnapshotBatchCalculator =
             let stopwatch = Stopwatch.StartNew()
             let mutable tickerSnapshots = []
             let mutable currencySnapshots = []
+            let mutable calculatedOperations = []
             let mutable errors = []
             let mutable movementsProcessed = 0
             let mutable snapshotsCreated = 0
@@ -312,6 +315,11 @@ module internal TickerSnapshotBatchCalculator =
                                                                     operationContext
                                                                 |> Async.StartAsTask
 
+                                                            // Collect operation for broker phase
+                                                            match operationResult.Operation with
+                                                            | Some op -> calculatedOperations <- op :: calculatedOperations
+                                                            | None -> ()
+
                                                             // Log operation events
                                                             // if operationResult.WasCreated then
                                                             //     CoreLogger.logDebugf "TickerSnapshotBatchCalculator" "Created operation for ticker %d on %s" tickerId (date.ToString())
@@ -404,6 +412,7 @@ module internal TickerSnapshotBatchCalculator =
                 return
                     { TickerSnapshots = tickerSnapshots |> List.rev // Reverse to chronological order
                       CurrencySnapshots = currencySnapshots |> List.rev // Reverse to chronological order
+                      CalculatedOperations = calculatedOperations |> List.rev // Reverse to chronological order
                       ProcessingMetrics =
                         {| TickersProcessed = context.TickerIds.Length
                            DatesProcessed = context.DateRange.Length
@@ -421,6 +430,7 @@ module internal TickerSnapshotBatchCalculator =
                 return
                     { TickerSnapshots = []
                       CurrencySnapshots = []
+                      CalculatedOperations = []
                       ProcessingMetrics =
                         {| TickersProcessed = 0
                            DatesProcessed = 0

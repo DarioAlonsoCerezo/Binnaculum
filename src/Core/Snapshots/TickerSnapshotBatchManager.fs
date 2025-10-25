@@ -3,6 +3,7 @@ namespace Binnaculum.Core.Storage
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
 open Binnaculum.Core.Import
+open Binnaculum.Core.Database.DatabaseModel
 open System.Diagnostics
 open System.Threading.Tasks
 
@@ -45,6 +46,8 @@ module internal TickerSnapshotBatchManager =
             DatesProcessed: int
             /// Number of tickers processed
             TickersProcessed: int
+            /// Operations calculated during ticker snapshot processing
+            CalculatedOperations: AutoImportOperation list
             /// Time spent loading data (ms)
             LoadTimeMs: int64
             /// Time spent calculating snapshots (ms)
@@ -230,6 +233,7 @@ module internal TickerSnapshotBatchManager =
                           CurrencySnapshotsSaved = metrics.CurrencySnapshotsSaved
                           DatesProcessed = calculationResult.ProcessingMetrics.DatesProcessed
                           TickersProcessed = calculationResult.ProcessingMetrics.TickersProcessed
+                          CalculatedOperations = calculationResult.CalculatedOperations
                           LoadTimeMs = loadStopwatch.ElapsedMilliseconds
                           CalculationTimeMs = calculationResult.ProcessingMetrics.CalculationTimeMs
                           PersistenceTimeMs = metrics.TransactionTimeMs
@@ -251,6 +255,7 @@ module internal TickerSnapshotBatchManager =
                           CurrencySnapshotsSaved = 0
                           DatesProcessed = calculationResult.ProcessingMetrics.DatesProcessed
                           TickersProcessed = calculationResult.ProcessingMetrics.TickersProcessed
+                          CalculatedOperations = calculationResult.CalculatedOperations
                           LoadTimeMs = loadStopwatch.ElapsedMilliseconds
                           CalculationTimeMs = calculationResult.ProcessingMetrics.CalculationTimeMs
                           PersistenceTimeMs = 0L
@@ -268,6 +273,7 @@ module internal TickerSnapshotBatchManager =
                       CurrencySnapshotsSaved = 0
                       DatesProcessed = 0
                       TickersProcessed = 0
+                      CalculatedOperations = []
                       LoadTimeMs = 0L
                       CalculationTimeMs = 0L
                       PersistenceTimeMs = 0L
@@ -318,6 +324,7 @@ module internal TickerSnapshotBatchManager =
                           CurrencySnapshotsSaved = 0
                           DatesProcessed = 0
                           TickersProcessed = 0
+                          CalculatedOperations = []
                           LoadTimeMs = 0L
                           CalculationTimeMs = 0L
                           PersistenceTimeMs = 0L
@@ -379,6 +386,7 @@ module internal TickerSnapshotBatchManager =
                       CurrencySnapshotsSaved = 0
                       DatesProcessed = 0
                       TickersProcessed = 0
+                      CalculatedOperations = []
                       LoadTimeMs = 0L
                       CalculationTimeMs = 0L
                       PersistenceTimeMs = 0L
