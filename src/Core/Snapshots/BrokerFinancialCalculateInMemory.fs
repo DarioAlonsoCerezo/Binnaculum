@@ -108,7 +108,7 @@ module internal BrokerFinancialCalculateInMemory =
 
         // Calculate financial metrics from movements
         let calculatedMetrics =
-            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date
+            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date []
 
         // Calculate cumulative values by adding previous snapshot values (if any) to current metrics
         let cumulativeDeposited =
@@ -290,7 +290,7 @@ module internal BrokerFinancialCalculateInMemory =
 
         // Calculate financial metrics from ALL movements for this date
         let calculatedMetrics =
-            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date
+            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date []
 
         // Calculate cumulative values using previous snapshot as baseline
         let cumulativeDeposited =
@@ -389,7 +389,7 @@ module internal BrokerFinancialCalculateInMemory =
 
         // Calculate financial metrics from new movements
         let calculatedMetrics =
-            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date
+            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date []
 
         // Calculate unrealized gains (simplified for now - will be enhanced in Phase 2)
         let stockUnrealizedGains = Money.FromAmount(0m) // TODO: Phase 2 - pre-loaded market prices

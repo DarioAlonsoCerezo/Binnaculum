@@ -28,24 +28,26 @@ module internal BrokerFinancialUpdateExisting =
         (existingSnapshot: BrokerFinancialSnapshot)
         =
         task {
-            
-            BrokerFinancialValidator.validateFinancialSnapshotsConsistency 
-                currencyId 
-                brokerAccountId 
-                targetDate 
-                previousSnapshot 
+
+            BrokerFinancialValidator.validateFinancialSnapshotsConsistency
+                currencyId
+                brokerAccountId
+                targetDate
+                previousSnapshot
                 existingSnapshot
-            
+
             // Calculate financial metrics from ALL movements for this date
             // The currencyMovements parameter should contain both existing and new movements
             // This ensures we don't miss any previously processed movements during the update
-            let calculatedMetrics = BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
-            
+            let calculatedMetrics =
+                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate []
+
             // Update the existing snapshot using the recalculated metrics
-            do! BrokerFinancialSnapshotUpdateExistingWithMetrics.update
-                    existingSnapshot 
-                    targetDate 
-                    currencyId 
-                    calculatedMetrics 
+            do!
+                BrokerFinancialSnapshotUpdateExistingWithMetrics.update
+                    existingSnapshot
+                    targetDate
+                    currencyId
+                    calculatedMetrics
                     previousSnapshot
         }

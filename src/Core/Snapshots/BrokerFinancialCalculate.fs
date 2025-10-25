@@ -150,7 +150,7 @@ module internal BrokerFinancialCalculate =
 
             // Calculate financial metrics from movements
             let calculatedMetrics =
-                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
+                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate []
 
             CoreLogger.logDebug
                 "BrokerFinancialCalculate"
@@ -188,7 +188,7 @@ module internal BrokerFinancialCalculate =
         task {
             // Calculate financial metrics from movements
             let calculatedMetrics =
-                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
+                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate []
 
             CoreLogger.logDebug
                 "BrokerFinancialCalculate"
@@ -235,7 +235,7 @@ module internal BrokerFinancialCalculate =
 
             // Calculate financial metrics from new movements
             let calculatedMetrics =
-                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate
+                BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate []
 
             CoreLogger.logDebug
                 "BrokerFinancialCalculate"

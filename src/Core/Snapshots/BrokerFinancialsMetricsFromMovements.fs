@@ -17,14 +17,14 @@ module internal BrokerFinancialsMetricsFromMovements =
     /// <param name="currencyMovements">The currency-specific movement data</param>
     /// <param name="currencyId">The currency ID for conversion impact calculations</param>
     /// <param name="targetDate">The target date for the snapshot (used for option expiration calculations)</param>
+    /// <param name="operationsForDate">List of AutoImportOperations for the target date (used for realized gains)</param>
     /// <returns>CalculatedFinancialMetrics record with all financial calculations</returns>
-    let internal calculate 
-        (currencyMovements: CurrencyMovementData) 
-        (currencyId: int) 
-        (targetDate: DateTimePattern) =
-        
-        // Default to empty operations for now - will be updated when operations are passed from ticker phase
-        let operationsForDate = []
+    let internal calculate
+        (currencyMovements: CurrencyMovementData)
+        (currencyId: int)
+        (targetDate: DateTimePattern)
+        (operationsForDate: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation list)
+        =
 
         // CoreLogger.logDebug "BrokerFinancialsMetricsFromMovements" $"Starting calculate for currency {currencyId}"
 
@@ -118,10 +118,12 @@ module internal BrokerFinancialsMetricsFromMovements =
 
         // Calculate realized gains from operations using RealizedToday (delta)
         // This is the single source of truth for realized gains - no database queries needed!
-        let realizedFromOperations = 
+        let realizedFromOperations =
             operationsForDate
-            |> List.filter (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) -> op.CurrencyId = currencyId)
-            |> List.sumBy (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) -> op.RealizedToday.Value)
+            |> List.filter (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) ->
+                op.CurrencyId = currencyId)
+            |> List.sumBy (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) ->
+                op.RealizedToday.Value)
 
         let optionUnrealized = optionsSummaryCurrent.UnrealizedGains
         let optionHasOpenPositions = optionsSummaryCurrent.HasOpenOptions
@@ -160,7 +162,7 @@ module internal BrokerFinancialsMetricsFromMovements =
               // FIX: Invested should ONLY include stock positions (not options)
               // Options are tracked via OptionsIncome, not Invested
               Invested = Money.FromAmount(tradingSummary.TotalInvested.Value)
-              RealizedGains = Money.FromAmount(realizedFromOperations)  // NEW - use operations!
+              RealizedGains = Money.FromAmount(realizedFromOperations) // NEW - use operations!
               DividendsReceived = netDividendIncome
               OptionsIncome = dailyOptionsIncome
               OtherIncome = adjustedOtherIncome
