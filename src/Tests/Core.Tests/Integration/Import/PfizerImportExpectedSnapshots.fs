@@ -304,5 +304,6 @@ module PfizerImportExpectedSnapshots =
                 Dividends = 0m // No dividends
                 DividendTaxes = 0m // No dividend taxes
                 CapitalDeployed = 555.12m // Initial capital: Premium ($554.00) + Commissions ($1.00) + Fees ($0.12)
+                CapitalDeployedToday = 0m // Not used in test expectations
                 Performance = 31.61m } // ROI: (175.52 / 555.12) × 100 = 31.61%
             Description = "PFE Operation #1: Complete options cycle (4 trades, 2025-08-25 to 2025-10-03)" } ]

@@ -377,6 +377,7 @@ module internal DatabaseModel =
           Dividends: Money         // Total dividends received
           DividendTaxes: Money     // Total dividend taxes withheld
           CapitalDeployed: Money   // Total capital tied up in operation
+          CapitalDeployedToday: Money  // DELTA - Daily capital deployment for position sizing
           Performance: decimal     // ROI % = (Realized / CapitalDeployed) * 100
           
           Audit: AuditableEntity }

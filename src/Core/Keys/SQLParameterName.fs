@@ -278,6 +278,8 @@ module internal SQLParameterName =
     // AutoImportOperation parameters
     [<Literal>]
     let CapitalDeployed = "@CapitalDeployed"
+    [<Literal>]
+    let CapitalDeployedToday = "@CapitalDeployedToday"
 
     // AutoImportOperationTrade parameters
     [<Literal>]

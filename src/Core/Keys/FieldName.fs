@@ -264,6 +264,8 @@ module internal FieldName =
     // AutoImportOperation fields
     [<Literal>]
     let CapitalDeployed = "CapitalDeployed"
+    [<Literal>]
+    let CapitalDeployedToday = "CapitalDeployedToday"
 
     // AutoImportOperationTrade fields
     [<Literal>]

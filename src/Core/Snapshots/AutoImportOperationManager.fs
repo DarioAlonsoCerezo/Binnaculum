@@ -56,6 +56,14 @@ module internal AutoImportOperationManager =
         initialPremium + initialCommissions + initialFees
 
     /// <summary>
+    /// Calculate current total capital deployed from snapshot.
+    /// Used when updating an existing operation.
+    /// </summary>
+    let calculateCurrentCapitalDeployed (snapshot: TickerCurrencySnapshot) : decimal =
+        // Capital = abs(premium) + commissions + fees (all cumulative from snapshot)
+        abs snapshot.Options.Value + snapshot.Commissions.Value + snapshot.Fees.Value
+
+    /// <summary>
     /// Create a new AutoImportOperation from a snapshot when trades open.
     /// </summary>
     let createOperation (context: OperationContext) : DatabaseModel.AutoImportOperation =
@@ -77,6 +85,7 @@ module internal AutoImportOperationManager =
           Dividends = snapshot.Dividends
           DividendTaxes = snapshot.DividendTaxes
           CapitalDeployed = Money.FromAmount(capitalDeployed)
+          CapitalDeployedToday = Money.FromAmount(capitalDeployed)  // Initial = full amount
           Performance = 0m // No performance until closed
           Audit =
             { CreatedAt = Some context.MovementDate // Use movement date as OpenDate
@@ -95,10 +104,14 @@ module internal AutoImportOperationManager =
         // Calculate realized delta for today
         let realizedDelta = snapshot.Realized.Value - operation.Realized.Value
         
+        // Calculate current capital deployed and delta
+        let currentCapital = calculateCurrentCapitalDeployed snapshot
+        let capitalDeployedDelta = currentCapital - operation.CapitalDeployed.Value
+        
         // Calculate performance if closing or if we have capital deployed
         let performance =
-            if operation.CapitalDeployed.Value <> 0m then
-                (snapshot.Realized.Value / operation.CapitalDeployed.Value) * 100m
+            if currentCapital <> 0m then
+                (snapshot.Realized.Value / currentCapital) * 100m
             else
                 0m
 
@@ -111,6 +124,8 @@ module internal AutoImportOperationManager =
             Premium = snapshot.Options
             Dividends = snapshot.Dividends
             DividendTaxes = snapshot.DividendTaxes
+            CapitalDeployed = Money.FromAmount(currentCapital)
+            CapitalDeployedToday = Money.FromAmount(capitalDeployedDelta)  // Delta
             Performance = performance
             Audit =
                 if isClosing then

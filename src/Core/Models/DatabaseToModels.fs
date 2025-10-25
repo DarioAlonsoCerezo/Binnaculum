@@ -210,6 +210,7 @@ module internal DatabaseToModels =
               Dividends = dbOperation.Dividends.Value
               DividendTaxes = dbOperation.DividendTaxes.Value
               CapitalDeployed = dbOperation.CapitalDeployed.Value
+              CapitalDeployedToday = dbOperation.CapitalDeployedToday.Value
               Performance = dbOperation.Performance }
 
         [<Extension>]

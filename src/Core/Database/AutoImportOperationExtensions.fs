@@ -29,6 +29,7 @@ type Do() =
               (SQLParameterName.Dividends, operation.Dividends.Value)
               (SQLParameterName.DividendTaxes, operation.DividendTaxes.Value)
               (SQLParameterName.CapitalDeployed, operation.CapitalDeployed.Value)
+              (SQLParameterName.CapitalDeployedToday, operation.CapitalDeployedToday.Value)
               (SQLParameterName.Performance, operation.Performance) ],
             operation
         )
@@ -48,6 +49,7 @@ type Do() =
           Dividends = reader.getMoney FieldName.Dividends
           DividendTaxes = reader.getMoney FieldName.DividendTaxes
           CapitalDeployed = reader.getMoney FieldName.CapitalDeployed
+          CapitalDeployedToday = reader.getMoney FieldName.CapitalDeployedToday
           Performance = reader.getDecimal FieldName.Performance
           Audit = reader.getAudit () }
 
@@ -112,6 +114,7 @@ type Do() =
           Dividends = Money.FromAmount(0m)
           DividendTaxes = Money.FromAmount(0m)
           CapitalDeployed = Money.FromAmount(0m)
+          CapitalDeployedToday = Money.FromAmount(0m)
           Performance = 0m
           Audit = AuditableEntity.Default }
 

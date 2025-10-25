@@ -241,6 +241,7 @@ module Models =
           Dividends: decimal
           DividendTaxes: decimal
           CapitalDeployed: decimal
+          CapitalDeployedToday: decimal   // DELTA - for position sizing tracking
           Performance: decimal }
 
     type AutoImportOperationTrade =

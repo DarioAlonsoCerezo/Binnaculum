@@ -22,6 +22,7 @@ module internal AutoImportOperationQuery =
             {Dividends} TEXT NOT NULL DEFAULT '0.0',
             {DividendTaxes} TEXT NOT NULL DEFAULT '0.0',
             {CapitalDeployed} TEXT NOT NULL DEFAULT '0.0',
+            {CapitalDeployedToday} TEXT NOT NULL DEFAULT '0.0',
             {Performance} TEXT NOT NULL DEFAULT '0.0',
             {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
             {UpdatedAt} TEXT,
@@ -73,6 +74,7 @@ module internal AutoImportOperationQuery =
             {Dividends},
             {DividendTaxes},
             {CapitalDeployed},
+            {CapitalDeployedToday},
             {Performance},
             {CreatedAt},
             {UpdatedAt}
@@ -91,6 +93,7 @@ module internal AutoImportOperationQuery =
             {SQLParameterName.Dividends},
             {SQLParameterName.DividendTaxes},
             {SQLParameterName.CapitalDeployed},
+            {SQLParameterName.CapitalDeployedToday},
             {SQLParameterName.Performance},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
@@ -113,6 +116,7 @@ module internal AutoImportOperationQuery =
             {Dividends} = {SQLParameterName.Dividends},
             {DividendTaxes} = {SQLParameterName.DividendTaxes},
             {CapitalDeployed} = {SQLParameterName.CapitalDeployed},
+            {CapitalDeployedToday} = {SQLParameterName.CapitalDeployedToday},
             {Performance} = {SQLParameterName.Performance},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
