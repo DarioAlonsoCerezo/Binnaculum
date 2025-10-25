@@ -122,6 +122,73 @@ type Do() =
             return movements
         }
 
+    /// <summary>
+    /// Load movements with pagination support.
+    /// Returns movements ordered by TimeStamp DESC (most recent first).
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID to filter by</param>
+    /// <param name="pageNumber">Zero-based page number</param>
+    /// <param name="pageSize">Number of items per page</param>
+    /// <returns>List of broker movements for the specified page</returns>
+    static member loadMovementsPaged(brokerAccountId: int, pageNumber: int, pageSize: int) =
+        task {
+            let offset = pageNumber * pageSize
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdPaged
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
+            command.Parameters.AddWithValue("@PageSize", pageSize) |> ignore
+            command.Parameters.AddWithValue("@Offset", offset) |> ignore
+
+            let! movements = Database.Do.readAll<BrokerMovement> (command, Do.read)
+            return movements
+        }
+
+    /// <summary>
+    /// Get total count of movements for pagination UI.
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID to filter by</param>
+    /// <returns>Total number of movements</returns>
+    static member getMovementCount(brokerAccountId: int) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- BrokerMovementQuery.getCountByBrokerAccountId
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
+            let! result = command.ExecuteScalarAsync()
+            return System.Convert.ToInt32(result)
+        }
+
+    /// <summary>
+    /// Load movements within a date range (for calendar views).
+    /// Returns movements ordered by TimeStamp DESC.
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID to filter by</param>
+    /// <param name="startDate">Start date (inclusive)</param>
+    /// <param name="endDate">End date (inclusive)</param>
+    /// <returns>List of broker movements within the date range</returns>
+    static member loadMovementsInDateRange(brokerAccountId: int, startDate: DateTimePattern, endDate: DateTimePattern) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- BrokerMovementQuery.getByBrokerAccountIdInDateRange
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.StartDate, startDate.ToString())
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.EndDate, endDate.ToString())
+            |> ignore
+
+            let! movements = Database.Do.readAll<BrokerMovement> (command, Do.read)
+            return movements
+        }
+
 /// <summary>
 /// Financial calculation extension methods for BrokerMovement collections.
 /// These methods provide reusable calculation logic for financial snapshot processing.
