@@ -297,6 +297,7 @@ module PfizerImportExpectedSnapshots =
 
                 // Financial metrics (cumulative for all 4 trades)
                 Realized = 175.52m // Total P&L after FIFO matching
+                RealizedToday = 0m // Not used in test expectations
                 Commissions = 2.00m // Total commissions paid
                 Fees = 0.48m // Total fees paid
                 Premium = 178.00m // Total option premium (net option value)
