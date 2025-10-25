@@ -85,7 +85,7 @@ module internal FieldName =
     // Ticker Prices
     [<Literal>]
     let TickerId = "TickerId"
-    
+
     [<Literal>]
     let PriceDate = "PriceDate"
 
@@ -111,7 +111,7 @@ module internal FieldName =
 
     [<Literal>]
     let Notes = "Notes"
-    
+
     [<Literal>]
     let Leveraged = "Leveraged"
 
@@ -136,7 +136,7 @@ module internal FieldName =
 
     [<Literal>]
     let ClosedWith = "ClosedWith"
-    
+
     [<Literal>]
     let Multiplier = "Multiplier"
 
@@ -146,108 +146,108 @@ module internal FieldName =
 
     [<Literal>]
     let Description = "Description"
-    
+
     // Ticker Snapshots
     [<Literal>]
     let Date = "Date"
-    
+
     [<Literal>]
     let TotalShares = "TotalShares"
-    
+
     [<Literal>]
     let Weight = "Weight"
-    
+
     [<Literal>]
     let CostBasis = "CostBasis"
-    
+
     [<Literal>]
     let RealCost = "RealCost"
-    
+
     [<Literal>]
     let Dividends = "Dividends"
-    
+
     [<Literal>]
     let DividendTaxes = "DividendTaxes"
-    
+
     [<Literal>]
     let Options = "Options"
-    
+
     [<Literal>]
     let TotalIncomes = "TotalIncomes"
-    
+
     [<Literal>]
     let Unrealized = "Unrealized"
-    
+
     [<Literal>]
     let Realized = "Realized"
-    
+
     [<Literal>]
     let RealizedToday = "RealizedToday"
-    
+
     [<Literal>]
     let Performance = "Performance"
-    
+
     [<Literal>]
     let LatestPrice = "LatestPrice"
-    
+
     [<Literal>]
     let OpenTrades = "OpenTrades"
-    
+
     // Broker Account Snapshots
     [<Literal>]
     let RealizedGains = "RealizedGains"
-    
+
     [<Literal>]
     let RealizedPercentage = "RealizedPercentage"
-    
+
     [<Literal>]
     let UnrealizedGains = "UnrealizedGains"
-    
+
     [<Literal>]
     let UnrealizedGainsPercentage = "UnrealizedGainsPercentage"
-    
+
     [<Literal>]
     let Invested = "Invested"
-    
+
     [<Literal>]
     let Deposited = "Deposited"
-    
+
     [<Literal>]
     let Withdrawn = "Withdrawn"
-    
+
     [<Literal>]
     let DividendsReceived = "DividendsReceived"
-    
+
     [<Literal>]
     let OptionsIncome = "OptionsIncome"
-    
+
     [<Literal>]
     let OtherIncome = "OtherIncome"
-    
+
     [<Literal>]
     let NetCashFlow = "NetCashFlow"
-    
+
     // Broker Snapshots
     [<Literal>]
     let PortfoliosValue = "PortfoliosValue"
-    
+
     [<Literal>]
     let AccountCount = "AccountCount"
-    
+
     // Bank Account Snapshots
     [<Literal>]
     let Balance = "Balance"
-    
+
     [<Literal>]
     let InterestEarned = "InterestEarned"
-    
+
     [<Literal>]
     let FeesPaid = "FeesPaid"
-    
+
     // Bank Snapshots
     [<Literal>]
     let TotalBalance = "TotalBalance"
-    
+
     // Broker Financial Snapshots
     [<Literal>]
     let MovementCounter = "MovementCounter"
@@ -258,12 +258,14 @@ module internal FieldName =
 
     [<Literal>]
     let BrokerSnapshotId = "BrokerSnapshotId"
+
     [<Literal>]
     let BrokerAccountSnapshotId = "BrokerAccountSnapshotId"
 
     // AutoImportOperation fields
     [<Literal>]
     let CapitalDeployed = "CapitalDeployed"
+
     [<Literal>]
     let CapitalDeployedToday = "CapitalDeployedToday"
 

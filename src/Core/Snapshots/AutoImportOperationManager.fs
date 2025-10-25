@@ -78,14 +78,14 @@ module internal AutoImportOperationManager =
           CurrencyId = context.CurrencyId
           IsOpen = true
           Realized = snapshot.Realized
-          RealizedToday = snapshot.Realized  // Initial creation - full amount is "today"
+          RealizedToday = snapshot.Realized // Initial creation - full amount is "today"
           Commissions = snapshot.Commissions
           Fees = snapshot.Fees
           Premium = snapshot.Options
           Dividends = snapshot.Dividends
           DividendTaxes = snapshot.DividendTaxes
           CapitalDeployed = Money.FromAmount(capitalDeployed)
-          CapitalDeployedToday = Money.FromAmount(capitalDeployed)  // Initial = full amount
+          CapitalDeployedToday = Money.FromAmount(capitalDeployed) // Initial = full amount
           Performance = 0m // No performance until closed
           Audit =
             { CreatedAt = Some context.MovementDate // Use movement date as OpenDate
@@ -100,14 +100,14 @@ module internal AutoImportOperationManager =
         (isClosing: bool)
         (movementDate: DateTimePattern)
         : DatabaseModel.AutoImportOperation =
-        
+
         // Calculate realized delta for today
         let realizedDelta = snapshot.Realized.Value - operation.Realized.Value
-        
+
         // Calculate current capital deployed and delta
         let currentCapital = calculateCurrentCapitalDeployed snapshot
         let capitalDeployedDelta = currentCapital - operation.CapitalDeployed.Value
-        
+
         // Calculate performance if closing or if we have capital deployed
         let performance =
             if currentCapital <> 0m then
@@ -118,14 +118,14 @@ module internal AutoImportOperationManager =
         { operation with
             IsOpen = not isClosing
             Realized = snapshot.Realized
-            RealizedToday = Money.FromAmount(realizedDelta)  // Delta calculation
+            RealizedToday = Money.FromAmount(realizedDelta) // Delta calculation
             Commissions = snapshot.Commissions
             Fees = snapshot.Fees
             Premium = snapshot.Options
             Dividends = snapshot.Dividends
             DividendTaxes = snapshot.DividendTaxes
             CapitalDeployed = Money.FromAmount(currentCapital)
-            CapitalDeployedToday = Money.FromAmount(capitalDeployedDelta)  // Delta
+            CapitalDeployedToday = Money.FromAmount(capitalDeployedDelta) // Delta
             Performance = performance
             Audit =
                 if isClosing then

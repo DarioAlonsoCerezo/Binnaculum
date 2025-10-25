@@ -133,7 +133,7 @@ type Do() =
         ) =
         // Calculate delta for RealizedToday
         let realizedDelta = realized.Value - operation.Realized.Value
-        
+
         let totalRealized = realized.Value
         let totalCapital = capitalDeployed.Value
 

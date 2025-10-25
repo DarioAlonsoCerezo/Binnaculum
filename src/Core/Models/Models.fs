@@ -233,15 +233,15 @@ module Models =
           CloseDate: DateTime option
 
           // Financial metrics (cumulative, stored for fast aggregation)
-          Realized: decimal              // CUMULATIVE - for TickerCurrencySnapshot
-          RealizedToday: decimal          // DELTA - for BrokerFinancialSnapshot
+          Realized: decimal // CUMULATIVE - for TickerCurrencySnapshot
+          RealizedToday: decimal // DELTA - for BrokerFinancialSnapshot
           Commissions: decimal
           Fees: decimal
           Premium: decimal
           Dividends: decimal
           DividendTaxes: decimal
           CapitalDeployed: decimal
-          CapitalDeployedToday: decimal   // DELTA - for position sizing tracking
+          CapitalDeployedToday: decimal // DELTA - for position sizing tracking
           Performance: decimal }
 
     type AutoImportOperationTrade =

@@ -367,21 +367,21 @@ module internal DatabaseModel =
           TickerId: int
           CurrencyId: int
           IsOpen: bool
-          
+
           // Financial metrics (cumulative, stored for fast aggregation)
-          Realized: Money          // CUMULATIVE - Total P&L from closed trades
-          RealizedToday: Money      // DELTA - Daily realized gains for BrokerFinancialSnapshot
-          Commissions: Money       // Total commissions paid
-          Fees: Money              // Total fees paid
-          Premium: Money           // Total option premiums (positive = collected, negative = paid)
-          Dividends: Money         // Total dividends received
-          DividendTaxes: Money     // Total dividend taxes withheld
-          CapitalDeployed: Money   // Total capital tied up in operation
-          CapitalDeployedToday: Money  // DELTA - Daily capital deployment for position sizing
-          Performance: decimal     // ROI % = (Realized / CapitalDeployed) * 100
-          
+          Realized: Money // CUMULATIVE - Total P&L from closed trades
+          RealizedToday: Money // DELTA - Daily realized gains for BrokerFinancialSnapshot
+          Commissions: Money // Total commissions paid
+          Fees: Money // Total fees paid
+          Premium: Money // Total option premiums (positive = collected, negative = paid)
+          Dividends: Money // Total dividends received
+          DividendTaxes: Money // Total dividend taxes withheld
+          CapitalDeployed: Money // Total capital tied up in operation
+          CapitalDeployedToday: Money // DELTA - Daily capital deployment for position sizing
+          Performance: decimal // ROI % = (Realized / CapitalDeployed) * 100
+
           Audit: AuditableEntity }
-          
+
         interface IEntity with
             member this.Id = this.Id
             member this.InsertSQL = AutoImportOperationQuery.insert
@@ -389,8 +389,8 @@ module internal DatabaseModel =
             member this.DeleteSQL = AutoImportOperationQuery.delete
 
         interface IAuditEntity with
-            member this.CreatedAt = this.Audit.CreatedAt  // Operation open date
-            member this.UpdatedAt = this.Audit.UpdatedAt  // Operation close date (only set when IsOpen = false)
+            member this.CreatedAt = this.Audit.CreatedAt // Operation open date
+            member this.UpdatedAt = this.Audit.UpdatedAt // Operation close date (only set when IsOpen = false)
 
     type AutoImportOperationTrade =
         { Id: int
@@ -398,7 +398,7 @@ module internal DatabaseModel =
           TradeType: OperationTradeType
           ReferenceId: int
           Audit: AuditableEntity }
-          
+
         interface IEntity with
             member this.Id = this.Id
             member this.InsertSQL = AutoImportOperationTradeQuery.insert
@@ -437,8 +437,8 @@ module internal DatabaseModel =
         interface IEntity with
             member this.Id = this.Id
             member this.InsertSQL = ImportSessionQuery.insert
-            member this.UpdateSQL = ""  // Custom updates via specific methods
-            member this.DeleteSQL = ""  // No direct delete - cascade via FK
+            member this.UpdateSQL = "" // Custom updates via specific methods
+            member this.DeleteSQL = "" // No direct delete - cascade via FK
 
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
@@ -462,8 +462,8 @@ module internal DatabaseModel =
         interface IEntity with
             member this.Id = this.Id
             member this.InsertSQL = ImportSessionChunkQuery.insert
-            member this.UpdateSQL = ""  // Custom updates via specific methods
-            member this.DeleteSQL = ""  // No direct delete - cascade via FK
+            member this.UpdateSQL = "" // Custom updates via specific methods
+            member this.DeleteSQL = "" // No direct delete - cascade via FK
 
         interface IAuditEntity with
             member this.CreatedAt = this.Audit.CreatedAt
