@@ -17,12 +17,16 @@ module internal AutoImportOperationManager =
     /// Context for operation management during snapshot processing.
     /// </summary>
     type OperationContext =
-        { BrokerAccountId: int
-          TickerId: int
-          CurrencyId: int
-          PreviousSnapshot: TickerCurrencySnapshot option
-          CurrentSnapshot: TickerCurrencySnapshot
-          MovementDate: DateTimePattern }
+        {
+            BrokerAccountId: int
+            TickerId: int
+            CurrencyId: int
+            PreviousSnapshot: TickerCurrencySnapshot option
+            CurrentSnapshot: TickerCurrencySnapshot
+            MovementDate: DateTimePattern
+            /// Option trades for this ticker/currency on this date (for capital calculation)
+            OptionTradesForDate: Binnaculum.Core.Database.DatabaseModel.OptionTrade list
+        }
 
     /// <summary>
     /// Result of operation processing.
@@ -45,23 +49,45 @@ module internal AutoImportOperationManager =
         | _ -> "NONE" // No action needed
 
     /// <summary>
-    /// Calculate CapitalDeployed from the first opening snapshot.
-    /// This should be called when creating a new operation.
+    /// Calculate capital deployed for a single option trade.
+    /// Rules:
+    /// - BuyToOpen (Call/Put): Premium + Commissions + Fees
+    /// - SellToOpen Call: $0 (assume covered)
+    /// - SellToOpen Put: (Strike × Multiplier) - Premium + Commissions + Fees
+    /// - Close trades: $0 (don't deploy new capital)
     /// </summary>
-    let calculateCapitalDeployed (snapshot: TickerCurrencySnapshot) : decimal =
-        // CapitalDeployed = absolute value of initial premium + commissions + fees
-        let initialPremium = abs snapshot.Options.Value
-        let initialCommissions = snapshot.Commissions.Value
-        let initialFees = snapshot.Fees.Value
-        initialPremium + initialCommissions + initialFees
+    let calculateTradeCapitalDeployed (trade: Binnaculum.Core.Database.DatabaseModel.OptionTrade) : decimal =
+        match trade.Code with
+        | Binnaculum.Core.Database.DatabaseModel.OptionCode.BuyToOpen ->
+            // Debit trade - deploy premium paid
+            abs (trade.Premium: Money).Value
+            + (trade.Commissions: Money).Value
+            + (trade.Fees: Money).Value
+        | Binnaculum.Core.Database.DatabaseModel.OptionCode.SellToOpen ->
+            match trade.OptionType with
+            | Binnaculum.Core.Database.DatabaseModel.OptionType.Call ->
+                // Assume covered call - no capital deployed
+                0m
+            | Binnaculum.Core.Database.DatabaseModel.OptionType.Put ->
+                // Cash-secured put - deploy strike obligation minus premium received
+                let strikeObligation = (trade.Strike: Money).Value * trade.Multiplier
+                let premiumReceived = abs (trade.Premium: Money).Value
+
+                strikeObligation - premiumReceived
+                + (trade.Commissions: Money).Value
+                + (trade.Fees: Money).Value
+        | _ ->
+            // Close trades don't deploy new capital
+            0m
 
     /// <summary>
-    /// Calculate current total capital deployed from snapshot.
-    /// Used when updating an existing operation.
+    /// Calculate CapitalDeployed from option trades on this date.
+    /// This should be called when creating or updating an operation.
     /// </summary>
-    let calculateCurrentCapitalDeployed (snapshot: TickerCurrencySnapshot) : decimal =
-        // Capital = abs(premium) + commissions + fees (all cumulative from snapshot)
-        abs snapshot.Options.Value + snapshot.Commissions.Value + snapshot.Fees.Value
+    let calculateCapitalDeployedFromTrades
+        (optionTrades: Binnaculum.Core.Database.DatabaseModel.OptionTrade list)
+        : decimal =
+        optionTrades |> List.sumBy calculateTradeCapitalDeployed
 
     /// <summary>
     /// Create a new AutoImportOperation from a snapshot when trades open.
@@ -69,8 +95,8 @@ module internal AutoImportOperationManager =
     let createOperation (context: OperationContext) : DatabaseModel.AutoImportOperation =
         let snapshot = context.CurrentSnapshot
 
-        // Calculate initial capital deployed
-        let capitalDeployed = calculateCapitalDeployed snapshot
+        // Calculate initial capital deployed from actual option trades
+        let capitalDeployed = calculateCapitalDeployedFromTrades context.OptionTradesForDate
 
         { Id = 0
           BrokerAccountId = context.BrokerAccountId
@@ -99,19 +125,22 @@ module internal AutoImportOperationManager =
         (snapshot: TickerCurrencySnapshot)
         (isClosing: bool)
         (movementDate: DateTimePattern)
+        (optionTradesForDate: Binnaculum.Core.Database.DatabaseModel.OptionTrade list)
         : DatabaseModel.AutoImportOperation =
 
         // Calculate realized delta for today
         let realizedDelta = snapshot.Realized.Value - operation.Realized.Value
 
-        // Calculate current capital deployed and delta
-        let currentCapital = calculateCurrentCapitalDeployed snapshot
-        let capitalDeployedDelta = currentCapital - operation.CapitalDeployed.Value
+        // Calculate capital deployed today from actual option trades
+        let capitalDeployedToday = calculateCapitalDeployedFromTrades optionTradesForDate
+
+        // Cumulative capital = previous capital + today's capital
+        let cumulativeCapital = operation.CapitalDeployed.Value + capitalDeployedToday
 
         // Calculate performance if closing or if we have capital deployed
         let performance =
-            if currentCapital <> 0m then
-                (snapshot.Realized.Value / currentCapital) * 100m
+            if cumulativeCapital <> 0m then
+                (snapshot.Realized.Value / cumulativeCapital) * 100m
             else
                 0m
 
@@ -124,8 +153,8 @@ module internal AutoImportOperationManager =
             Premium = snapshot.Options
             Dividends = snapshot.Dividends
             DividendTaxes = snapshot.DividendTaxes
-            CapitalDeployed = Money.FromAmount(currentCapital)
-            CapitalDeployedToday = Money.FromAmount(capitalDeployedDelta) // Delta
+            CapitalDeployed = Money.FromAmount(cumulativeCapital) // CUMULATIVE
+            CapitalDeployedToday = Money.FromAmount(capitalDeployedToday) // DELTA
             Performance = performance
             Audit =
                 if isClosing then
@@ -187,7 +216,12 @@ module internal AutoImportOperationManager =
                 match existingOp with
                 | Some(op: DatabaseModel.AutoImportOperation) ->
                     let updatedOp =
-                        updateOperation op context.CurrentSnapshot false context.MovementDate
+                        updateOperation
+                            op
+                            context.CurrentSnapshot
+                            false
+                            context.MovementDate
+                            context.OptionTradesForDate
 
                     do! AutoImportOperationExtensions.Do.save (updatedOp) |> Async.AwaitTask
 
@@ -238,7 +272,8 @@ module internal AutoImportOperationManager =
 
                 match existingOp with
                 | Some(op: DatabaseModel.AutoImportOperation) ->
-                    let closedOp = updateOperation op context.CurrentSnapshot true context.MovementDate
+                    let closedOp =
+                        updateOperation op context.CurrentSnapshot true context.MovementDate context.OptionTradesForDate
 
                     // Log before save
                     // CoreLogger.logDebugf

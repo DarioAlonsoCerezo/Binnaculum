@@ -301,6 +301,14 @@ module internal TickerSnapshotBatchCalculator =
                                                             let previousSnap =
                                                                 latestCurrencySnapshots.TryFind((tickerId, currencyId))
 
+                                                            // Get option trades for this ticker/currency/date
+                                                            let optionTradesForDate =
+                                                                context
+                                                                    .MovementsByTickerCurrencyDate
+                                                                    .OptionTrades
+                                                                    .TryFind((tickerId, currencyId, date))
+                                                                |> Option.defaultValue []
+
                                                             let operationContext
                                                                 : AutoImportOperationManager.OperationContext =
                                                                 { BrokerAccountId = brokerAccountId
@@ -308,7 +316,8 @@ module internal TickerSnapshotBatchCalculator =
                                                                   CurrencyId = currencyId
                                                                   PreviousSnapshot = previousSnap
                                                                   CurrentSnapshot = snapshot
-                                                                  MovementDate = date }
+                                                                  MovementDate = date
+                                                                  OptionTradesForDate = optionTradesForDate }
 
                                                             let! operationResult =
                                                                 AutoImportOperationManager.processOperation
