@@ -147,7 +147,9 @@ module internal Do =
                 resultList <- item :: resultList
 
             command.Dispose()
-            return resultList
+            // Reverse the list to maintain the order from the SQL query
+            // (items were prepended with :: which reverses the order)
+            return List.rev resultList
         }
 
     let executeNonQuery (command: SqliteCommand) =
@@ -373,11 +375,13 @@ module internal Do =
 
             // Drop all tables sequentially to avoid foreign key constraint issues
             let! command = createCommand ()
+
             for tableName in tableNames do
                 command.CommandText <- $"DROP TABLE IF EXISTS {tableName}"
                 do! executeNonQuery command |> Async.AwaitTask |> Async.Ignore
+
             command.Dispose()
-            
+
             // Recreate all tables with current schema by executing all CREATE TABLE statements
             for createTableSql in tablesSQL do
                 let! cmd = createCommand ()

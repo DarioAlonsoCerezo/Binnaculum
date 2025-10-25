@@ -37,7 +37,7 @@ type OverviewTests() =
     [<Category("Integration")>]
     member this.``Overview reactive validation``() =
         async {
-            CoreLogger.logInfo "[Test]" "=== TEST: Overview Reactive Validation ==="
+            CoreLogger.logInfo "Test" "=== TEST: Overview Reactive Validation ==="
 
             let actions = this.Actions
 
@@ -54,10 +54,7 @@ type OverviewTests() =
 
             // Initialize database with signal verification
             let! signalsReceived =
-                TestSetup.initializeDatabaseAndVerifySignals
-                    actions
-                    expectedSignals
-                    (TimeSpan.FromSeconds(10.0))
+                TestSetup.initializeDatabaseAndVerifySignals actions expectedSignals (TimeSpan.FromSeconds(10.0))
 
             Assert.That(
                 signalsReceived,
@@ -95,10 +92,9 @@ type OverviewTests() =
             // ==================== SUMMARY ====================
             TestSetup.printPhaseHeader 3 "Test Summary"
 
-            let (stateSuccess, stateSummary) =
-                TestVerifications.verifyCollectionsState ()
+            let (stateSuccess, stateSummary) = TestVerifications.verifyCollectionsState ()
 
-            CoreLogger.logInfo "[Test]" stateSummary
+            CoreLogger.logInfo "Test" stateSummary
 
             TestSetup.printTestCompletionSummary
                 "Overview Reactive Validation"

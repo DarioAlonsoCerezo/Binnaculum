@@ -66,7 +66,7 @@ type TsllImportTests() =
     [<Category("Integration")>]
     member this.``TSLL multi-asset import CSV workflow with signal validation``() =
         async {
-            CoreLogger.logInfo "[Test]" "=== TEST: TSLL Multi-Asset Import CSV Workflow with Signal Validation ==="
+            CoreLogger.logInfo "Test" "=== TEST: TSLL Multi-Asset Import CSV Workflow with Signal Validation ==="
 
             let actions = this.Actions
 
@@ -120,12 +120,17 @@ type TsllImportTests() =
                   Snapshots_Updated ] // Snapshots recalculated
             )
 
-            CoreLogger.logDebug "StreamObserver" "🎯 Expecting signals: Movements_Updated, Tickers_Updated, Snapshots_Updated"
+            CoreLogger.logDebug
+                "StreamObserver"
+                "🎯 Expecting signals: Movements_Updated, Tickers_Updated, Snapshots_Updated"
 
             // EXECUTE: Import CSV file
             let tastytradeId = actions.Context.TastytradeId
             let accountId = actions.Context.BrokerAccountId
-            CoreLogger.logDebug "[TestSetup]" (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
+
+            CoreLogger.logDebug
+                "[TestSetup]"
+                (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
             Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
@@ -184,5 +189,5 @@ type TsllImportTests() =
                 "TSLL Multi-Asset Import with Signal Validation"
                 "Successfully created BrokerAccount, imported TSLL multi-asset CSV, received all signals, verified 71 snapshots, and validated 4 specific date-based snapshots"
 
-            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
         }

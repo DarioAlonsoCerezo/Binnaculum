@@ -40,7 +40,7 @@ type BrokerAccountTests() =
     [<Category("Integration")>]
     member this.``BrokerAccount creation updates collections``() =
         async {
-            CoreLogger.logInfo "[Test]" "=== TEST: BrokerAccount Creation Updates Collections ==="
+            CoreLogger.logInfo "Test" "=== TEST: BrokerAccount Creation Updates Collections ==="
 
             let actions = this.Actions
 
@@ -99,5 +99,5 @@ type BrokerAccountTests() =
                 "BrokerAccount Creation"
                 "Successfully created BrokerAccount, received all signals, and verified account in Collections"
 
-            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
         }

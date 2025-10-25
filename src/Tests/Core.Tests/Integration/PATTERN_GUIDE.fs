@@ -302,22 +302,22 @@
 /// Example Usage:
 /// -------------
 ///     // Test start/end
-///     CoreLogger.logInfo "[Test]" "=== TEST: BrokerAccount Creation ==="
-///     
+///     CoreLogger.logInfo "Test" "=== TEST: BrokerAccount Creation ==="
+///
 ///     // Setup operations
-///     CoreLogger.logInfo "[TestSetup]" "✅ Data wiped successfully"
-///     
+///     CoreLogger.logInfo "TestSetup" "✅ Data wiped successfully"
+///
 ///     // Signal expectations (verbose, use debug)
-///     CoreLogger.logDebug "[StreamObserver]" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
-///     
+///     CoreLogger.logDebug "StreamObserver" "🎯 Expecting signals: Accounts_Updated, Snapshots_Updated"
+///
 ///     // Test operations
-///     CoreLogger.logInfo "[TestActions]" "⏳ Waiting for reactive signals..."
-///     
+///     CoreLogger.logInfo "TestActions" "⏳ Waiting for reactive signals..."
+///
 ///     // Verification results
-///     CoreLogger.logInfo "[Verification]" (sprintf "✅ Account count verified: %d" count)
-///     
+///     CoreLogger.logInfo "Verification" (sprintf "✅ Account count verified: %d" count)
+///
 ///     // Errors
-///     CoreLogger.logError "[TestActions]" (sprintf "❌ Import failed: %s" error)
+///     CoreLogger.logError "TestActions" (sprintf "❌ Import failed: %s" error)
 ///
 /// Why CoreLogger over printfn:
 /// ---------------------------

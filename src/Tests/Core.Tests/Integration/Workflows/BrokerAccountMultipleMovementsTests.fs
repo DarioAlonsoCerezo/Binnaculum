@@ -65,7 +65,7 @@ type BrokerAccountMultipleMovementsTests() =
     [<Category("Integration")>]
     member this.``BrokerAccount with multiple movements updates collections``() =
         async {
-            CoreLogger.logInfo "[Test]" "=== TEST: BrokerAccount with Multiple Movements Updates Collections ==="
+            CoreLogger.logInfo "Test" "=== TEST: BrokerAccount with Multiple Movements Updates Collections ==="
 
             let actions = this.Actions
 
@@ -237,5 +237,5 @@ type BrokerAccountMultipleMovementsTests() =
                 "BrokerAccount + Multiple Movements Creation"
                 "Successfully created BrokerAccount, added 4 movements (2 deposits + 2 withdrawals), received all signals, and verified state in Collections. Net cash flow: +$1200"
 
-            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
         }

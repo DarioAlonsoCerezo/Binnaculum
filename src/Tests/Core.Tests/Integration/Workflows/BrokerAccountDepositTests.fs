@@ -44,7 +44,7 @@ type BrokerAccountDepositTests() =
     [<Category("Integration")>]
     member this.``BrokerAccount creation with deposit updates collections``() =
         async {
-            CoreLogger.logInfo "[Test]" "=== TEST: BrokerAccount Creation with Deposit Updates Collections ==="
+            CoreLogger.logInfo "Test" "=== TEST: BrokerAccount Creation with Deposit Updates Collections ==="
 
             let actions = this.Actions
 
@@ -144,5 +144,5 @@ type BrokerAccountDepositTests() =
                 "BrokerAccount + Deposit Creation"
                 "Successfully created BrokerAccount, added deposit movement, received all signals, and verified state in Collections"
 
-            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
         }

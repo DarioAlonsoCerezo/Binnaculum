@@ -67,7 +67,7 @@ type DepositsWithdrawalsTests() =
     [<Category("Integration")>]
     member this.``Money movements import CSV workflow updates snapshots``() =
         async {
-            CoreLogger.logInfo "[Test]" "=== TEST: Money Movements Import CSV Workflow Updates Snapshots ==="
+            CoreLogger.logInfo "Test" "=== TEST: Money Movements Import CSV Workflow Updates Snapshots ==="
 
             let actions = this.Actions
 
@@ -125,7 +125,10 @@ type DepositsWithdrawalsTests() =
             // EXECUTE: Import CSV file
             let tastytradeId = actions.Context.TastytradeId
             let accountId = actions.Context.BrokerAccountId
-            CoreLogger.logDebug "[TestSetup]" (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
+
+            CoreLogger.logDebug
+                "[TestSetup]"
+                (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
             Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
@@ -160,9 +163,11 @@ type DepositsWithdrawalsTests() =
                 sprintf "Snapshot count verification should succeed: %s - %A" snapshotCount error
             )
 
-            CoreLogger.logInfo "[Verification]"
-                (sprintf "✅ Collections.Snapshots verified: >= 1 (%s) [Collections only contains latest snapshot]"
-                snapshotCount)
+            CoreLogger.logInfo
+                "[Verification]"
+                (sprintf
+                    "✅ Collections.Snapshots verified: >= 1 (%s) [Collections only contains latest snapshot]"
+                    snapshotCount)
 
             // ==================== PHASE 5: VERIFY FINANCIAL CALCULATIONS ====================
             TestSetup.printPhaseHeader 5 "Verify Financial Calculations"
@@ -213,5 +218,5 @@ type DepositsWithdrawalsTests() =
                 "Money Movements Import from CSV"
                 "Successfully created BrokerAccount, imported deposits/withdrawals CSV, received all signals, verified financial data and snapshot counts"
 
-            CoreLogger.logInfo "[Test]" "=== TEST COMPLETED SUCCESSFULLY ==="
+            CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
         }
