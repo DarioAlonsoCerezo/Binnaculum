@@ -369,7 +369,8 @@ module internal DatabaseModel =
           IsOpen: bool
           
           // Financial metrics (cumulative, stored for fast aggregation)
-          Realized: Money          // Total P&L from closed trades
+          Realized: Money          // CUMULATIVE - Total P&L from closed trades
+          RealizedToday: Money      // DELTA - Daily realized gains for BrokerFinancialSnapshot
           Commissions: Money       // Total commissions paid
           Fees: Money              // Total fees paid
           Premium: Money           // Total option premiums (positive = collected, negative = paid)

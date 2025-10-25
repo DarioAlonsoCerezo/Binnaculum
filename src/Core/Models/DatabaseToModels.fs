@@ -203,6 +203,7 @@ module internal DatabaseToModels =
                 | Some dt when not dbOperation.IsOpen -> Some dt.Value
                 | _ -> None
               Realized = dbOperation.Realized.Value
+              RealizedToday = dbOperation.RealizedToday.Value
               Commissions = dbOperation.Commissions.Value
               Fees = dbOperation.Fees.Value
               Premium = dbOperation.Premium.Value
