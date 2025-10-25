@@ -95,6 +95,7 @@ module internal BrokerFinancialCalculateInMemory =
     /// <param name="brokerAccountId">The broker account ID</param>
     /// <param name="brokerAccountSnapshotId">The broker account snapshot ID</param>
     /// <param name="marketPrices">Pre-loaded map of (tickerId, currencyId, date) to market price</param>
+    /// <param name="operationsForDate">List of AutoImportOperations closed on this date for realized gains</param>
     /// <returns>BrokerFinancialSnapshot created in memory (not persisted)</returns>
     let calculateSnapshot
         (currencyMovements: CurrencyMovementData)
@@ -104,11 +105,12 @@ module internal BrokerFinancialCalculateInMemory =
         (brokerAccountId: int)
         (brokerAccountSnapshotId: int)
         (marketPrices: Map<(int * int * DateTimePattern), decimal>)
+        (operationsForDate: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation list)
         : BrokerFinancialSnapshot =
 
         // Calculate financial metrics from movements
         let calculatedMetrics =
-            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date []
+            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date operationsForDate
 
         // Calculate cumulative values by adding previous snapshot values (if any) to current metrics
         let cumulativeDeposited =
@@ -231,9 +233,18 @@ module internal BrokerFinancialCalculateInMemory =
         (brokerAccountId: int)
         (brokerAccountSnapshotId: int)
         (marketPrices: Map<(int * int * DateTimePattern), decimal>)
+        (operationsForDate: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation list)
         : BrokerFinancialSnapshot =
 
-        calculateSnapshot currencyMovements None date currencyId brokerAccountId brokerAccountSnapshotId marketPrices
+        calculateSnapshot
+            currencyMovements
+            None
+            date
+            currencyId
+            brokerAccountId
+            brokerAccountSnapshotId
+            marketPrices
+            operationsForDate
 
     /// <summary>
     /// Calculate snapshot when both movements and previous snapshot exist.
@@ -247,6 +258,7 @@ module internal BrokerFinancialCalculateInMemory =
         (brokerAccountId: int)
         (brokerAccountSnapshotId: int)
         (marketPrices: Map<(int * int * DateTimePattern), decimal>)
+        (operationsForDate: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation list)
         : BrokerFinancialSnapshot =
 
         calculateSnapshot
@@ -257,6 +269,7 @@ module internal BrokerFinancialCalculateInMemory =
             brokerAccountId
             brokerAccountSnapshotId
             marketPrices
+            operationsForDate
 
     /// <summary>
     /// Carry forward a previous snapshot when no movements exist for a date.
@@ -286,11 +299,12 @@ module internal BrokerFinancialCalculateInMemory =
         (currencyId: int)
         (brokerAccountId: int)
         (brokerAccountSnapshotId: int)
+        (operationsForDate: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation list)
         : BrokerFinancialSnapshot =
 
         // Calculate financial metrics from ALL movements for this date
         let calculatedMetrics =
-            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date []
+            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date operationsForDate
 
         // Calculate cumulative values using previous snapshot as baseline
         let cumulativeDeposited =
@@ -385,11 +399,12 @@ module internal BrokerFinancialCalculateInMemory =
         (currencyId: int)
         (brokerAccountId: int)
         (brokerAccountSnapshotId: int)
+        (operationsForDate: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation list)
         : BrokerFinancialSnapshot =
 
         // Calculate financial metrics from new movements
         let calculatedMetrics =
-            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date []
+            BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId date operationsForDate
 
         // Calculate unrealized gains (simplified for now - will be enhanced in Phase 2)
         let stockUnrealizedGains = Money.FromAmount(0m) // TODO: Phase 2 - pre-loaded market prices

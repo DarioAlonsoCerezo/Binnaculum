@@ -78,8 +78,8 @@ module internal SnapshotProcessingCoordinator =
                           BrokerFinancialBatchManager.BatchProcessingRequest.EndDate = endDate
                           BrokerFinancialBatchManager.BatchProcessingRequest.ForceRecalculation = false }
 
-                    // Execute batch processing
-                    let! batchResult = BrokerFinancialBatchManager.processBatchedFinancials batchRequest
+                    // Execute batch processing (no operations needed in non-import context)
+                    let! batchResult = BrokerFinancialBatchManager.processBatchedFinancials batchRequest []
 
                     if batchResult.Success then
                         CoreLogger.logInfof

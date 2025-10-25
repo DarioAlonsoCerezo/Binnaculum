@@ -46,8 +46,8 @@ module internal TickerSnapshotBatchManager =
             DatesProcessed: int
             /// Number of tickers processed
             TickersProcessed: int
-            /// Operations calculated during ticker snapshot processing
-            CalculatedOperations: AutoImportOperation list
+            /// Operations calculated during ticker snapshot processing with their associated date
+            CalculatedOperations: (DateTimePattern * AutoImportOperation) list
             /// Time spent loading data (ms)
             LoadTimeMs: int64
             /// Time spent calculating snapshots (ms)

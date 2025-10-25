@@ -38,9 +38,11 @@ module internal BrokerFinancialBatchManager =
     /// This replaces the per-date processing with efficient batch operations.
     /// </summary>
     /// <param name="request">The batch processing request</param>
+    /// <param name="calculatedOperations">List of AutoImportOperations for realized gains calculation</param>
     /// <returns>Task containing BatchProcessingResult with all metrics</returns>
     let processBatchedFinancials
         (request: BatchProcessingRequest)
+        (calculatedOperations: (DateTimePattern * Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) list)
         : System.Threading.Tasks.Task<BatchProcessingResult> =
         task {
             let totalStopwatch = Stopwatch.StartNew()
@@ -153,12 +155,16 @@ module internal BrokerFinancialBatchManager =
                 let! marketPrices =
                     BrokerFinancialSnapshotBatchLoader.loadMarketPricesForRange tickerIds currencyIds dateRange
 
+                // Pass ALL calculated operations - let the snapshot calculator filter by currency only
+                // Operations are already scoped to the processing date range
+
                 // Create calculation context
                 let context: BrokerFinancialBatchCalculator.BatchCalculationContext =
                     { BaselineSnapshots = baselineSnapshots
                       MovementsByDate = movementsByDate
                       ExistingSnapshots = existingSnapshots
                       MarketPrices = marketPrices
+                      AllOperations = calculatedOperations
                       DateRange = dateRange
                       BrokerAccountId = request.BrokerAccountId
                       BrokerAccountSnapshotId = 0 // Will be set appropriately for each snapshot
@@ -265,8 +271,12 @@ module internal BrokerFinancialBatchManager =
     /// Creates broker account snapshot after processing completes.
     /// </summary>
     /// <param name="brokerAccountId">The broker account ID</param>
+    /// <param name="calculatedOperations">List of (Date, AutoImportOperation) tuples from ticker snapshot processing</param>
     /// <returns>Task containing BatchProcessingResult</returns>
-    let processBatchedFinancialsForImport (brokerAccountId: int) =
+    let processBatchedFinancialsForImport
+        (brokerAccountId: int)
+        (calculatedOperations: (DateTimePattern * Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) list)
+        =
         task {
             try
                 CoreLogger.logInfof
@@ -315,7 +325,7 @@ module internal BrokerFinancialBatchManager =
                       ForceRecalculation = true // Always recalculate on import
                     }
 
-                let! result = processBatchedFinancials request
+                let! result = processBatchedFinancials request calculatedOperations
 
                 // After batch processing, create BrokerAccountSnapshot for each unique date that has movements
                 // This ensures BrokerAccounts.GetSnapshots() returns all snapshots (one per movement date)

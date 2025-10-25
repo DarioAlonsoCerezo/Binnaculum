@@ -44,8 +44,8 @@ module internal TickerSnapshotBatchCalculator =
             TickerSnapshots: TickerSnapshot list
             /// Successfully calculated currency snapshots (separate entities, will be linked via FK during persistence)
             CurrencySnapshots: TickerCurrencySnapshot list
-            /// Operations calculated during ticker snapshot processing
-            CalculatedOperations: AutoImportOperation list
+            /// Operations calculated with their associated date (DateTimePattern, AutoImportOperation)
+            CalculatedOperations: (DateTimePattern * AutoImportOperation) list
             /// Processing metrics for monitoring
             ProcessingMetrics:
                 {| TickersProcessed: int
@@ -131,7 +131,7 @@ module internal TickerSnapshotBatchCalculator =
             let stopwatch = Stopwatch.StartNew()
             let mutable tickerSnapshots = []
             let mutable currencySnapshots = []
-            let mutable calculatedOperations = []
+            let mutable calculatedOperations: (DateTimePattern * AutoImportOperation) list = []
             let mutable errors = []
             let mutable movementsProcessed = 0
             let mutable snapshotsCreated = 0
@@ -315,9 +315,11 @@ module internal TickerSnapshotBatchCalculator =
                                                                     operationContext
                                                                 |> Async.StartAsTask
 
-                                                            // Collect operation for broker phase
+                                                            // Collect operation for broker phase WITH the date it belongs to
                                                             match operationResult.Operation with
-                                                            | Some op -> calculatedOperations <- op :: calculatedOperations
+                                                            | Some op ->
+                                                                calculatedOperations <-
+                                                                    (date, op) :: calculatedOperations
                                                             | None -> ()
 
                                                             // Log operation events

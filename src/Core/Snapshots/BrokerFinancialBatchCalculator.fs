@@ -24,6 +24,8 @@ module internal BrokerFinancialBatchCalculator =
             ExistingSnapshots: Map<(DateTimePattern * int), BrokerFinancialSnapshot>
             /// Map of (tickerId, currencyId, date) to market price for unrealized gains calculation
             MarketPrices: Map<(int * int * DateTimePattern), decimal>
+            /// All AutoImportOperations with their associated date (Date, Operation) tuples
+            AllOperations: (DateTimePattern * Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) list
             /// List of dates to process in chronological order
             DateRange: DateTimePattern list
             /// The broker account ID being processed
@@ -122,6 +124,13 @@ module internal BrokerFinancialBatchCalculator =
                             // Get existing snapshot for this date and currency (if reprocessing)
                             let existingSnapshot = context.ExistingSnapshots.TryFind((date, currencyId))
 
+                            // Get operations for this date and currency from ALL operations
+                            // Filter by matching date and currency, then extract just the operation
+                            let operationsForDate =
+                                context.AllOperations
+                                |> List.filter (fun (opDate, op) -> opDate = date && op.CurrencyId = currencyId)
+                                |> List.map snd // Extract just the operation from the tuple
+
                             // SCENARIO DECISION TREE - All 8 scenarios handled
                             let snapshotResult =
                                 match currencyMovementData, previousSnapshot, existingSnapshot with
@@ -143,6 +152,7 @@ module internal BrokerFinancialBatchCalculator =
                                             context.BrokerAccountId
                                             context.BrokerAccountSnapshotId
                                             context.MarketPrices
+                                            operationsForDate
                                     )
 
                                 // SCENARIO B: New movements, no previous snapshot, no existing snapshot
@@ -161,6 +171,7 @@ module internal BrokerFinancialBatchCalculator =
                                             context.BrokerAccountId
                                             context.BrokerAccountSnapshotId
                                             context.MarketPrices
+                                            operationsForDate
                                     )
 
                                 // SCENARIO C: New movements, has previous snapshot, has existing snapshot
@@ -180,6 +191,7 @@ module internal BrokerFinancialBatchCalculator =
                                             currencyId
                                             context.BrokerAccountId
                                             context.BrokerAccountSnapshotId
+                                            operationsForDate
                                     )
 
                                 // SCENARIO D: New movements, no previous snapshot, has existing snapshot
@@ -198,6 +210,7 @@ module internal BrokerFinancialBatchCalculator =
                                             currencyId
                                             context.BrokerAccountId
                                             context.BrokerAccountSnapshotId
+                                            operationsForDate
                                     )
 
                                 // SCENARIO E: No movements, has previous snapshot, no existing snapshot

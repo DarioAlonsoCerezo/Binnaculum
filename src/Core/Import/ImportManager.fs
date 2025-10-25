@@ -185,25 +185,7 @@ module ImportManager =
                                                             do! ReactiveTickerManager.refreshAsync () // First: base ticker data
                                                             do! ReactiveMovementManager.refreshAsync () // Then: movements (depend on tickers)
 
-                                                            // Use new batch processing for snapshots (90-95% performance improvement)
-                                                            // CoreLogger.logInfo "ImportManager" "Starting batch financial snapshot processing for import"
-
-                                                            let! batchResult =
-                                                                BrokerFinancialBatchManager
-                                                                    .processBatchedFinancialsForImport (
-                                                                        brokerAccount.Id
-                                                                    )
-
-                                                            if batchResult.Success then
-                                                                // CoreLogger.logInfof "ImportManager" "Batch snapshot processing completed: %d snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)" batchResult.SnapshotsSaved batchResult.TotalTimeMs batchResult.LoadTimeMs batchResult.CalculationTimeMs batchResult.PersistenceTimeMs
-                                                                ()
-                                                            else
-                                                                CoreLogger.logWarningf
-                                                                    "ImportManager"
-                                                                    "Batch snapshot processing had errors: %s"
-                                                                    (batchResult.Errors |> String.concat "; ")
-
-                                                            // Process ticker snapshots in batch (NEW - Phase 2 of snapshot processing)
+                                                            // PHASE 1: Process ticker snapshots FIRST (calculates AutoImportOperations)
                                                             // CoreLogger.logInfo "ImportManager" "Starting batch ticker snapshot processing for import"
 
                                                             let! tickerBatchResult =
@@ -219,6 +201,23 @@ module ImportManager =
                                                                     "ImportManager"
                                                                     "Ticker snapshot batch processing had errors: %s"
                                                                     (tickerBatchResult.Errors |> String.concat "; ")
+
+                                                            // PHASE 2: Process financial snapshots SECOND (uses AutoImportOperations from Phase 1)
+                                                            // CoreLogger.logInfo "ImportManager" "Starting batch financial snapshot processing for import"
+
+                                                            let! batchResult =
+                                                                BrokerFinancialBatchManager.processBatchedFinancialsForImport
+                                                                    brokerAccount.Id
+                                                                    tickerBatchResult.CalculatedOperations
+
+                                                            if batchResult.Success then
+                                                                // CoreLogger.logInfof "ImportManager" "Batch snapshot processing completed: %d snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)" batchResult.SnapshotsSaved batchResult.TotalTimeMs batchResult.LoadTimeMs batchResult.CalculationTimeMs batchResult.PersistenceTimeMs
+                                                                ()
+                                                            else
+                                                                CoreLogger.logWarningf
+                                                                    "ImportManager"
+                                                                    "Batch snapshot processing had errors: %s"
+                                                                    (batchResult.Errors |> String.concat "; ")
 
                                                             // Refresh reactive snapshot manager to pick up new snapshots
                                                             do! ReactiveSnapshotManager.refreshAsync ()
@@ -322,7 +321,7 @@ module ImportManager =
                                         do! ReactiveMovementManager.refreshAsync ()
                                         do! ReactiveSnapshotManager.refreshAsync ()
 
-                                        // CoreLogger.logDebug "ImportManager" "Post-import reactive updates completed successfully"
+                                    // CoreLogger.logDebug "ImportManager" "Post-import reactive updates completed successfully"
                                     with ex ->
                                         CoreLogger.logErrorf
                                             "ImportManager"
