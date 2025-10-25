@@ -18,7 +18,13 @@ module internal BrokerFinancialsMetricsFromMovements =
     /// <param name="currencyId">The currency ID for conversion impact calculations</param>
     /// <param name="targetDate">The target date for the snapshot (used for option expiration calculations)</param>
     /// <returns>CalculatedFinancialMetrics record with all financial calculations</returns>
-    let internal calculate (currencyMovements: CurrencyMovementData) (currencyId: int) (targetDate: DateTimePattern) =
+    let internal calculate 
+        (currencyMovements: CurrencyMovementData) 
+        (currencyId: int) 
+        (targetDate: DateTimePattern) =
+        
+        // Default to empty operations for now - will be updated when operations are passed from ticker phase
+        let operationsForDate = []
 
         // CoreLogger.logDebug "BrokerFinancialsMetricsFromMovements" $"Starting calculate for currency {currencyId}"
 
@@ -73,10 +79,6 @@ module internal BrokerFinancialsMetricsFromMovements =
         // Process options using extension methods with target date for expiration calculations
         let targetDateValue = targetDate.Value
 
-        // NOTE: Behavior changed in batch processor - need to understand data flow
-        // The delta approach assumes calculateOptionsSummary filters based on date
-        // Let me keep the original delta calculation but may need to adjust how data is passed
-
         let optionsSummaryCurrent =
             OptionTradeCalculations.calculateOptionsSummary (currencyMovements.OptionTrades, targetDateValue)
 
@@ -114,11 +116,12 @@ module internal BrokerFinancialsMetricsFromMovements =
         let dailyOptionFees =
             Money.FromAmount(optionsSummaryCurrent.TotalFees.Value - optionsSummaryPrevious.TotalFees.Value)
 
-        let dailyOptionRealized =
-            Money.FromAmount(
-                optionsSummaryCurrent.RealizedGains.Value
-                - optionsSummaryPrevious.RealizedGains.Value
-            )
+        // Calculate realized gains from operations using RealizedToday (delta)
+        // This is the single source of truth for realized gains - no database queries needed!
+        let realizedFromOperations = 
+            operationsForDate
+            |> List.filter (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) -> op.CurrencyId = currencyId)
+            |> List.sumBy (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) -> op.RealizedToday.Value)
 
         let optionUnrealized = optionsSummaryCurrent.UnrealizedGains
         let optionHasOpenPositions = optionsSummaryCurrent.HasOpenOptions
@@ -157,7 +160,7 @@ module internal BrokerFinancialsMetricsFromMovements =
               // FIX: Invested should ONLY include stock positions (not options)
               // Options are tracked via OptionsIncome, not Invested
               Invested = Money.FromAmount(tradingSummary.TotalInvested.Value)
-              RealizedGains = Money.FromAmount(tradingSummary.RealizedGains.Value + dailyOptionRealized.Value)
+              RealizedGains = Money.FromAmount(realizedFromOperations)  // NEW - use operations!
               DividendsReceived = netDividendIncome
               OptionsIncome = dailyOptionsIncome
               OtherIncome = adjustedOtherIncome
