@@ -126,14 +126,12 @@ module internal BrokerFinancialsMetricsFromMovements =
                 op.RealizedToday.Value)
 
         // Calculate Invested from open operations (CRITICAL CHANGE)
-        // Sum the Invested field from all open operations for this currency
-        // This replaces the previous calculation from tradingSummary.TotalInvested
+        // For now, use the cost basis from current stock positions
+        // This represents the total invested in stock positions for this currency
         let investedFromOperations =
-            operationsForDate
-            |> List.filter (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) ->
-                op.CurrencyId = currencyId && op.IsOpen)
-            |> List.sumBy (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) ->
-                op.Invested.Value)
+            tradingSummary.CostBasis
+            |> Map.toList
+            |> List.sumBy (fun (tickerId, costBasis) -> costBasis)
 
         let optionUnrealized = optionsSummaryCurrent.UnrealizedGains
         let optionHasOpenPositions = optionsSummaryCurrent.HasOpenOptions
