@@ -125,13 +125,15 @@ module internal BrokerFinancialsMetricsFromMovements =
             |> List.sumBy (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) ->
                 op.RealizedToday.Value)
 
-        // Calculate Invested from open operations (CRITICAL CHANGE)
-        // For now, use the cost basis from current stock positions
-        // This represents the total invested in stock positions for this currency
+        // Calculate Invested from trading summary positions
+        // CostBasis map contains per-share cost basis, need to multiply by quantity
         let investedFromOperations =
-            tradingSummary.CostBasis
+            tradingSummary.CurrentPositions
             |> Map.toList
-            |> List.sumBy (fun (tickerId, costBasis) -> costBasis)
+            |> List.sumBy (fun (tickerId, shares) ->
+                match tradingSummary.CostBasis.TryFind(tickerId) with
+                | Some costBasisPerShare -> shares * costBasisPerShare
+                | None -> 0m)
 
         let optionUnrealized = optionsSummaryCurrent.UnrealizedGains
         let optionHasOpenPositions = optionsSummaryCurrent.HasOpenOptions
