@@ -195,7 +195,7 @@ module TsllImportExpectedSnapshots =
                 Premium = 15.00m // SELL_TO_OPEN premium received
                 Dividends = 0m
                 DividendTaxes = 0m
-                CapitalDeployed = 1.14m // Commission $1.00 + Fee $0.14 (costs paid upfront)
+                CapitalDeployed = 686.14m // Strike $6.85 × 100 shares + Commission $1.00 + Fee $0.14 = $686.14
                 CapitalDeployedToday = 0m // Not used in test expectations
-                Performance = 1215.79m } // ($13.86 / $1.14) × 100 = 1215.79%
+                Performance = 2.02m } // ($13.86 / $686.14) × 100 = 2.02%
             Description = "TSLL Operation #1: SELL_TO_OPEN PUT → Expiration (2024-05-30 to 2024-06-07)" } ]

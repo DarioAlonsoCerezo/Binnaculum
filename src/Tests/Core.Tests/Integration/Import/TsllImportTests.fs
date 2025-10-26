@@ -196,12 +196,66 @@ type TsllImportTests() =
             // Use base class method for verification (only validates the snapshots we defined)
             this.VerifyTickerSnapshots "TSLL" expectedTSLLSnapshots actualTSLLSnapshotsFiltered getTSLLDescription
 
+            // ==================== SHARED: GET BROKER AND ACCOUNT ====================
+            // Get broker and broker account for operations and broker snapshot validation
+            let broker = Collections.Brokers.Items |> Seq.find (fun b -> b.Name = "Tastytrade")
+
+            let brokerAccount =
+                Collections.Accounts.Items
+                |> Seq.filter (fun a -> a.Type = AccountType.BrokerAccount)
+                |> Seq.pick (fun a -> a.Broker)
+
             // ==================== PHASE 5: VERIFY AUTO-IMPORT OPERATIONS ====================
-            // TODO: Add operations validation once all 4 expected operations are defined
-            // Currently skipped - only ticker snapshots are validated
-            // See PfizerImportTests.fs and OptionsImportTests.fs for operation validation examples
-            TestSetup.printPhaseHeader 5 "Verify Auto-Import Operations (SKIPPED)"
-            CoreLogger.logInfo "Verification" "⏭️  Operations validation skipped - not yet implemented"
+            TestSetup.printPhaseHeader 5 "Verify Auto-Import Operations"
+
+            // Get all operations for TSLL ticker
+            let! tsllOperations = Tickers.GetOperations(tsllTickerId) |> Async.AwaitTask
+
+            CoreLogger.logInfo "Verification" (sprintf "📊 Found %d TSLL operations in database" tsllOperations.Length)
+
+            // Get expected operations with descriptions
+            let expectedOperationsWithDescriptions =
+                TsllImportExpectedSnapshots.getTSLLOperations brokerAccount tsllTicker.Value usd
+
+            let expectedOperations =
+                expectedOperationsWithDescriptions |> TestModels.getOperationData
+
+            CoreLogger.logInfo "Verification" (sprintf "📊 Validating %d expected operations" expectedOperations.Length)
+
+            // Filter actual operations to only include the ones we're validating
+            let expectedOpenDates =
+                expectedOperations |> List.map (fun op -> op.OpenDate) |> Set.ofList
+
+            let actualOperationsFiltered =
+                tsllOperations
+                |> List.filter (fun op -> expectedOpenDates.Contains(op.OpenDate))
+
+            CoreLogger.logInfo
+                "Verification"
+                (sprintf "📊 Found %d matching operations to validate" actualOperationsFiltered.Length)
+
+            // Verify each TSLL operation
+            let operationResults =
+                TestVerifications.verifyAutoImportOperationList expectedOperations actualOperationsFiltered
+
+            operationResults
+            |> List.iteri (fun i (allMatch, fieldResults) ->
+                let description = expectedOperationsWithDescriptions.[i].Description
+
+                if not allMatch then
+                    let formatted = TestVerifications.formatValidationResults fieldResults
+
+                    CoreLogger.logError
+                        "Verification"
+                        (sprintf "❌ Operation %d (%s) failed:\n%s" i description formatted)
+
+                    Assert.Fail(sprintf "TSLL Operation %d (%s) verification failed" i description)
+                else
+                    CoreLogger.logInfo "Verification" (sprintf "✅ Operation %d (%s) verified" i description))
+
+            CoreLogger.logInfo
+                "Verification"
+                (sprintf "✅ All %d TSLL operations verified" actualOperationsFiltered.Length)
 
             // ==================== PHASE 6: VERIFY BROKER ACCOUNT FINANCIAL SNAPSHOTS ====================
             TestSetup.printPhaseHeader 6 "Verify Broker Account Financial Snapshots"
@@ -225,15 +279,7 @@ type TsllImportTests() =
                 "Verification"
                 (sprintf "📊 Found %d BrokerAccount snapshots" brokerFinancialSnapshots.Length)
 
-            // Get broker and broker account for snapshot construction
-            let broker = Collections.Brokers.Items |> Seq.find (fun b -> b.Name = "Tastytrade")
-
-            let brokerAccount =
-                Collections.Accounts.Items
-                |> Seq.filter (fun a -> a.Type = AccountType.BrokerAccount)
-                |> Seq.pick (fun a -> a.Broker)
-
-            // Get expected broker account snapshots
+            // Get expected broker account snapshots (broker and brokerAccount already defined above)
             let expectedBrokerSnapshotsWithDescriptions =
                 TsllImportExpectedSnapshots.getBrokerAccountSnapshots broker brokerAccount usd
 
