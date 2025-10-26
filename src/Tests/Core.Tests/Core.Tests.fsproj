@@ -43,6 +43,7 @@
     <Compile Include="Integration/Import/OptionsImportTests.fs" />
     <Compile Include="Integration/Import/PfizerImportExpectedSnapshots.fs" />
     <Compile Include="Integration/Import/PfizerImportTests.fs" />
+    <Compile Include="Integration/Import/TsllImportExpectedSnapshots.fs" />
     <Compile Include="Integration/Import/TsllImportTests.fs" />
     
     <!-- Unit Tests - Financial Calculations -->
