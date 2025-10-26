@@ -17,7 +17,7 @@ module internal BrokerFinancialsMetricsFromMovements =
     /// <param name="currencyMovements">The currency-specific movement data</param>
     /// <param name="currencyId">The currency ID for conversion impact calculations</param>
     /// <param name="targetDate">The target date for the snapshot (used for option expiration calculations)</param>
-    /// <param name="operationsForDate">List of AutoImportOperations for the target date (used for realized gains)</param>
+    /// <param name="operationsForDate">List of AutoImportOperations for the target date (used for realized gains and invested calculation)</param>
     /// <returns>CalculatedFinancialMetrics record with all financial calculations</returns>
     let internal calculate
         (currencyMovements: CurrencyMovementData)
@@ -125,6 +125,16 @@ module internal BrokerFinancialsMetricsFromMovements =
             |> List.sumBy (fun (op: Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) ->
                 op.RealizedToday.Value)
 
+        // Calculate Invested from trading summary positions
+        // CostBasis map contains per-share cost basis, need to multiply by quantity
+        let investedFromOperations =
+            tradingSummary.CurrentPositions
+            |> Map.toList
+            |> List.sumBy (fun (tickerId, shares) ->
+                match tradingSummary.CostBasis.TryFind(tickerId) with
+                | Some costBasisPerShare -> shares * costBasisPerShare
+                | None -> 0m)
+
         let optionUnrealized = optionsSummaryCurrent.UnrealizedGains
         let optionHasOpenPositions = optionsSummaryCurrent.HasOpenOptions
         let optionOpenPositions = optionsSummaryCurrent.OpenPositions
@@ -159,10 +169,10 @@ module internal BrokerFinancialsMetricsFromMovements =
         let result =
             { Deposited = Money.FromAmount adjustedDeposited
               Withdrawn = Money.FromAmount adjustedWithdrawn
-              // FIX: Invested should ONLY include stock positions (not options)
-              // Options are tracked via OptionsIncome, not Invested
-              Invested = Money.FromAmount(tradingSummary.TotalInvested.Value)
-              RealizedGains = Money.FromAmount(realizedFromOperations) // NEW - use operations!
+              // NEW: Get Invested from operations instead of trades
+              // This provides operation-based calculation that automatically zeros when all positions close
+              Invested = Money.FromAmount(investedFromOperations)
+              RealizedGains = Money.FromAmount(realizedFromOperations) // Use operations for realized gains
               DividendsReceived = netDividendIncome
               OptionsIncome = dailyOptionsIncome
               OtherIncome = adjustedOtherIncome

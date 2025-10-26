@@ -62,10 +62,9 @@ module internal BrokerFinancialCumulativeFinancial =
                 | Some prev -> Money.FromAmount(prev.Withdrawn.Value + calculatedMetrics.Withdrawn.Value)
                 | None -> calculatedMetrics.Withdrawn
 
-            let cumulativeInvested =
-                match previousSnapshot with
-                | Some prev -> Money.FromAmount(prev.Invested.Value + calculatedMetrics.Invested.Value)
-                | None -> calculatedMetrics.Invested
+            // NEW: Invested is now calculated directly from operations in BrokerFinancialsMetricsFromMovements
+            // No need for cumulative calculation - it's already the absolute value from open operations
+            let currentInvested = calculatedMetrics.Invested
 
             let cumulativeRealizedGains =
                 match previousSnapshot with
@@ -160,7 +159,7 @@ module internal BrokerFinancialCumulativeFinancial =
                   RealizedPercentage = realizedPercentage
                   UnrealizedGains = totalUnrealizedGains
                   UnrealizedGainsPercentage = unrealizedGainsPercentage
-                  Invested = cumulativeInvested
+                  Invested = currentInvested
                   Commissions = cumulativeCommissions
                   Fees = cumulativeFees
                   Deposited = cumulativeDeposited

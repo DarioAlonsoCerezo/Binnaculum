@@ -98,6 +98,10 @@ module internal AutoImportOperationManager =
         // Calculate initial capital deployed from actual option trades
         let capitalDeployed = calculateCapitalDeployedFromTrades context.OptionTradesForDate
 
+        // Calculate Invested from stock positions: CostBasis (already the total)
+        // For options-only operations (TotalShares = 0), Invested = 0
+        let invested = snapshot.CostBasis.Value
+
         { Id = 0
           BrokerAccountId = context.BrokerAccountId
           TickerId = context.TickerId
@@ -113,6 +117,7 @@ module internal AutoImportOperationManager =
           CapitalDeployed = Money.FromAmount(capitalDeployed)
           CapitalDeployedToday = Money.FromAmount(capitalDeployed) // Initial = full amount
           Performance = 0m // No performance until closed
+          Invested = Money.FromAmount(invested)
           Audit =
             { CreatedAt = Some context.MovementDate // Use movement date as OpenDate
               UpdatedAt = None } }
@@ -137,6 +142,10 @@ module internal AutoImportOperationManager =
         // Cumulative capital = previous capital + today's capital
         let cumulativeCapital = operation.CapitalDeployed.Value + capitalDeployedToday
 
+        // Calculate Invested from stock positions: CostBasis (already the total)
+        // When closing (TotalShares = 0), CostBasis should automatically become 0
+        let invested = snapshot.CostBasis.Value
+
         // Calculate performance if closing or if we have capital deployed
         let performance =
             if cumulativeCapital <> 0m then
@@ -156,6 +165,7 @@ module internal AutoImportOperationManager =
             CapitalDeployed = Money.FromAmount(cumulativeCapital) // CUMULATIVE
             CapitalDeployedToday = Money.FromAmount(capitalDeployedToday) // DELTA
             Performance = performance
+            Invested = Money.FromAmount(invested)
             Audit =
                 if isClosing then
                     // Set UpdatedAt to movement date when closing

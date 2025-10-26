@@ -30,7 +30,8 @@ type Do() =
               (SQLParameterName.DividendTaxes, operation.DividendTaxes.Value)
               (SQLParameterName.CapitalDeployed, operation.CapitalDeployed.Value)
               (SQLParameterName.CapitalDeployedToday, operation.CapitalDeployedToday.Value)
-              (SQLParameterName.Performance, operation.Performance) ],
+              (SQLParameterName.Performance, operation.Performance)
+              (SQLParameterName.Invested, operation.Invested.Value) ],
             operation
         )
 
@@ -51,6 +52,7 @@ type Do() =
           CapitalDeployed = reader.getMoney FieldName.CapitalDeployed
           CapitalDeployedToday = reader.getMoney FieldName.CapitalDeployedToday
           Performance = reader.getDecimal FieldName.Performance
+          Invested = reader.getMoney FieldName.Invested
           Audit = reader.getAudit () }
 
     [<Extension>]
@@ -100,6 +102,21 @@ type Do() =
             return operations |> Seq.tryHead
         }
 
+    static member getOpenOperationsByCurrency(brokerAccountId: int, currencyId: int) =
+        task {
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- AutoImportOperationQuery.selectOpenOperationsByCurrency
+
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId)
+            |> ignore
+
+            command.Parameters.AddWithValue(SQLParameterName.CurrencyId, currencyId)
+            |> ignore
+
+            let! operations = Database.Do.readAll<AutoImportOperation> (command, Do.read)
+            return operations
+        }
+
     static member createOperation(brokerAccountId: int, tickerId: int, currencyId: int) =
         { Id = 0
           BrokerAccountId = brokerAccountId
@@ -116,6 +133,7 @@ type Do() =
           CapitalDeployed = Money.FromAmount(0m)
           CapitalDeployedToday = Money.FromAmount(0m)
           Performance = 0m
+          Invested = Money.FromAmount(0m)
           Audit = AuditableEntity.Default }
 
     static member closeOperation(operation: AutoImportOperation) = { operation with IsOpen = false }
