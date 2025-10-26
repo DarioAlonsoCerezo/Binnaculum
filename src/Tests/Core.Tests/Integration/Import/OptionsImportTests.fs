@@ -264,8 +264,145 @@ type OptionsImportTests() =
             // Use base class method for verification
             this.VerifyTickerSnapshots "PLTR" expectedPLTRSnapshots actualPLTRSnapshots getPLTRDescription
 
-            // ==================== PHASE 7: VERIFY BROKER ACCOUNT FINANCIAL SNAPSHOTS ====================
-            TestSetup.printPhaseHeader 7 "Verify Broker Account Financial Snapshots"
+            // ==================== PHASE 7: VERIFY AUTO-IMPORT OPERATIONS ====================
+            TestSetup.printPhaseHeader 7 "Verify Auto-Import Operations"
+
+            // Get broker and broker account (needed for operation expectations)
+            let broker = Collections.Brokers.Items |> Seq.find (fun b -> b.Name = "Tastytrade")
+
+            let brokerAccount =
+                Collections.Accounts.Items
+                |> Seq.filter (fun a -> a.Type = AccountType.BrokerAccount)
+                |> Seq.pick (fun a -> a.Broker)
+
+            // --- SOFI Operations ---
+            CoreLogger.logInfo "Verification" (sprintf "📊 SOFI Ticker ID: %d" sofiTickerId)
+
+            // Get all SOFI operations from database
+            let! sofiOperations = Tickers.GetOperations(sofiTickerId) |> Async.AwaitTask
+            CoreLogger.logInfo "Verification" (sprintf "📊 Found %d operations for SOFI" sofiOperations.Length)
+
+            // Get expected SOFI operations from OptionsImportExpectedSnapshots
+            let expectedSOFIOperationsWithDescriptions =
+                OptionsImportExpectedSnapshots.getSOFIOperations brokerAccount sofiTicker.Value usd
+
+            let expectedSOFIOperations =
+                expectedSOFIOperationsWithDescriptions |> TestModels.getOperationData
+
+            // Verify SOFI operation count
+            Assert.That(
+                sofiOperations.Length,
+                Is.EqualTo(expectedSOFIOperations.Length),
+                sprintf "Expected %d SOFI operations but found %d" expectedSOFIOperations.Length sofiOperations.Length
+            )
+
+            // Verify each SOFI operation
+            let sofiOperationResults =
+                TestVerifications.verifyAutoImportOperationList expectedSOFIOperations sofiOperations
+
+            sofiOperationResults
+            |> List.iteri (fun i (allMatch, fieldResults) ->
+                let description = expectedSOFIOperationsWithDescriptions.[i].Description
+
+                if not allMatch then
+                    let formatted = TestVerifications.formatValidationResults fieldResults
+
+                    CoreLogger.logError
+                        "Verification"
+                        (sprintf "❌ Operation %d (%s) failed:\n%s" i description formatted)
+
+                    Assert.Fail(sprintf "SOFI Operation %d (%s) verification failed" i description)
+                else
+                    CoreLogger.logInfo "Verification" (sprintf "✅ Operation %d (%s) verified" i description))
+
+            CoreLogger.logInfo "Verification" (sprintf "✅ All %d operations verified" sofiOperations.Length)
+
+            // --- MPW Operations ---
+            CoreLogger.logInfo "Verification" (sprintf "📊 MPW Ticker ID: %d" mpwTickerId)
+
+            // Get all MPW operations from database
+            let! mpwOperations = Tickers.GetOperations(mpwTickerId) |> Async.AwaitTask
+            CoreLogger.logInfo "Verification" (sprintf "📊 Found %d operations for MPW" mpwOperations.Length)
+
+            // Get expected MPW operations from OptionsImportExpectedSnapshots
+            let expectedMPWOperationsWithDescriptions =
+                OptionsImportExpectedSnapshots.getMPWOperations brokerAccount mpwTicker.Value usd
+
+            let expectedMPWOperations =
+                expectedMPWOperationsWithDescriptions |> TestModels.getOperationData
+
+            // Verify MPW operation count
+            Assert.That(
+                mpwOperations.Length,
+                Is.EqualTo(expectedMPWOperations.Length),
+                sprintf "Expected %d MPW operations but found %d" expectedMPWOperations.Length mpwOperations.Length
+            )
+
+            // Verify each MPW operation
+            let mpwOperationResults =
+                TestVerifications.verifyAutoImportOperationList expectedMPWOperations mpwOperations
+
+            mpwOperationResults
+            |> List.iteri (fun i (allMatch, fieldResults) ->
+                let description = expectedMPWOperationsWithDescriptions.[i].Description
+
+                if not allMatch then
+                    let formatted = TestVerifications.formatValidationResults fieldResults
+
+                    CoreLogger.logError
+                        "Verification"
+                        (sprintf "❌ Operation %d (%s) failed:\n%s" i description formatted)
+
+                    Assert.Fail(sprintf "MPW Operation %d (%s) verification failed" i description)
+                else
+                    CoreLogger.logInfo "Verification" (sprintf "✅ Operation %d (%s) verified" i description))
+
+            CoreLogger.logInfo "Verification" (sprintf "✅ All %d operations verified" mpwOperations.Length)
+
+            // --- PLTR Operations ---
+            CoreLogger.logInfo "Verification" (sprintf "📊 PLTR Ticker ID: %d" pltrTickerId)
+
+            // Get all PLTR operations from database
+            let! pltrOperations = Tickers.GetOperations(pltrTickerId) |> Async.AwaitTask
+            CoreLogger.logInfo "Verification" (sprintf "📊 Found %d operations for PLTR" pltrOperations.Length)
+
+            // Get expected PLTR operations from OptionsImportExpectedSnapshots
+            let expectedPLTROperationsWithDescriptions =
+                OptionsImportExpectedSnapshots.getPLTROperations brokerAccount pltrTicker.Value usd
+
+            let expectedPLTROperations =
+                expectedPLTROperationsWithDescriptions |> TestModels.getOperationData
+
+            // Verify PLTR operation count
+            Assert.That(
+                pltrOperations.Length,
+                Is.EqualTo(expectedPLTROperations.Length),
+                sprintf "Expected %d PLTR operations but found %d" expectedPLTROperations.Length pltrOperations.Length
+            )
+
+            // Verify each PLTR operation
+            let pltrOperationResults =
+                TestVerifications.verifyAutoImportOperationList expectedPLTROperations pltrOperations
+
+            pltrOperationResults
+            |> List.iteri (fun i (allMatch, fieldResults) ->
+                let description = expectedPLTROperationsWithDescriptions.[i].Description
+
+                if not allMatch then
+                    let formatted = TestVerifications.formatValidationResults fieldResults
+
+                    CoreLogger.logError
+                        "Verification"
+                        (sprintf "❌ Operation %d (%s) failed:\n%s" i description formatted)
+
+                    Assert.Fail(sprintf "PLTR Operation %d (%s) verification failed" i description)
+                else
+                    CoreLogger.logInfo "Verification" (sprintf "✅ Operation %d (%s) verified" i description))
+
+            CoreLogger.logInfo "Verification" (sprintf "✅ All %d operations verified" pltrOperations.Length)
+
+            // ==================== PHASE 8: VERIFY BROKER ACCOUNT FINANCIAL SNAPSHOTS ====================
+            TestSetup.printPhaseHeader 8 "Verify Broker Account Financial Snapshots"
 
             // Get broker account from context
             let brokerAccountId = actions.Context.BrokerAccountId
