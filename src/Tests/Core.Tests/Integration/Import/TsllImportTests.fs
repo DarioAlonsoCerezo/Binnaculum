@@ -45,23 +45,25 @@ type TsllImportTests() =
     /// 2. BrokerAccount creation triggers Accounts_Updated and Snapshots_Updated signals
     /// 3. CSV import triggers Movements_Updated, Tickers_Updated, and Snapshots_Updated signals
     /// 4. Multiple TSLL option movements are imported
-    /// 5. TSLL ticker has exactly 71 snapshots
-    /// 6. 4 specific snapshot validations pass (2024-05-30, 2024-06-07, 2024-10-15, 2024-10-18)
-    /// 7. Financial calculations are correct with complex multi-asset data
+    /// 5. TSLL ticker has exactly 72 snapshots
+    /// 6. All 72 TSLL ticker snapshots verified
+    /// 7. All 4 TSLL operations verified
+    /// 8. All 72 broker account snapshots verified
+    /// 9. Financial calculations are correct with complex multi-asset data
     ///
     /// The test uses signal-based verification instead of timing-based assertions,
     /// making it robust and portable across platforms.
     ///
     /// CSV Data: TsllImportTest.csv
-    /// - Multiple option trades (options only, no equity shares held)
-    /// - Date range: 2024-05-30 through 2024-10-18
+    /// - Multiple option trades (options only, no equity shares held initially)
+    /// - Date range: 2024-05-30 through 2025-10-26
     /// - Complex FIFO matching scenarios
     ///
     /// Expected Results:
     /// - Multiple movements (varies by CSV)
     /// - Multiple tickers (TSLL + SPY default)
-    /// - TSLL snapshots: exactly 71
-    /// - 4 specific date validations pass
+    /// - TSLL snapshots: exactly 72
+    /// - All 148 expected items validated (72 ticker + 4 operations + 72 broker)
     /// </summary>
     [<Test>]
     [<Category("Integration")>]
@@ -313,7 +315,7 @@ type TsllImportTests() =
             // ==================== SUMMARY ====================
             TestSetup.printTestCompletionSummary
                 "TSLL Multi-Asset Import with Complete Financial Verification"
-                "Successfully created BrokerAccount, imported TSLL CSV, verified 2 ticker snapshots, 1 operation, and 2 broker snapshots"
+                "Successfully created BrokerAccount, imported TSLL CSV, verified all 72 ticker snapshots, all 4 operations, and all 72 broker snapshots (148 items total)"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
         }
