@@ -98,9 +98,9 @@ module internal AutoImportOperationManager =
         // Calculate initial capital deployed from actual option trades
         let capitalDeployed = calculateCapitalDeployedFromTrades context.OptionTradesForDate
 
-        // Calculate Invested from stock positions: TotalShares × CostBasis
-        // For options-only operations, Invested = 0
-        let invested = snapshot.TotalShares * snapshot.CostBasis.Value
+        // Calculate Invested from stock positions: CostBasis (already the total)
+        // For options-only operations (TotalShares = 0), Invested = 0
+        let invested = snapshot.CostBasis.Value
 
         { Id = 0
           BrokerAccountId = context.BrokerAccountId
@@ -142,9 +142,9 @@ module internal AutoImportOperationManager =
         // Cumulative capital = previous capital + today's capital
         let cumulativeCapital = operation.CapitalDeployed.Value + capitalDeployedToday
 
-        // Calculate Invested from stock positions: TotalShares × CostBasis
-        // When closing (TotalShares = 0), Invested should automatically become 0
-        let invested = snapshot.TotalShares * snapshot.CostBasis.Value
+        // Calculate Invested from stock positions: CostBasis (already the total)
+        // When closing (TotalShares = 0), CostBasis should automatically become 0
+        let invested = snapshot.CostBasis.Value
 
         // Calculate performance if closing or if we have capital deployed
         let performance =
