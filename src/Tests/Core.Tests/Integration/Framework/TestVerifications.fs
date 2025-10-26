@@ -209,12 +209,10 @@ module TestVerifications =
                 Actual = sprintf "%.2f" actual.RealizedGains
                 Match = abs (expected.RealizedGains - actual.RealizedGains) < 0.01m }
 
-              // NOTE: Percentage validations temporarily disabled until core calculations are finalized
-              // TODO: Re-enable and design proper percentage formulas after all base metrics are correct
-              // { Field = "RealizedPercentage"
-              //   Expected = sprintf "%.4f" expected.RealizedPercentage
-              //   Actual = sprintf "%.4f" actual.RealizedPercentage
-              //   Match = abs (expected.RealizedPercentage - actual.RealizedPercentage) < 0.0001m }
+              { Field = "RealizedPercentage"
+                Expected = sprintf "%.4f" expected.RealizedPercentage
+                Actual = sprintf "%.4f" actual.RealizedPercentage
+                Match = abs (expected.RealizedPercentage - actual.RealizedPercentage) < 0.0001m }
 
               { Field = "UnrealizedGains"
                 Expected = sprintf "%.2f" expected.UnrealizedGains
