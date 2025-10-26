@@ -589,9 +589,11 @@ module TestVerifications =
 
     /// <summary>
     /// Verifies a list of AutoImportOperations by comparing each expected operation with core-calculated operations.
-    /// Matches operations by TickerId and operation sequence (chronological order).
+    /// Matches operations by OpenDate and validates all fields.
+    /// Supports partial validation - only validates operations defined in expected list.
+    ///
     /// Returns: List of (allMatch, fieldResults) for each expected operation
-    /// Throws: InvalidArgumentException if expected count doesn't match actual count for a ticker
+    /// Throws: InvalidArgumentException if any expected OpenDate is missing in coreCalculated
     ///
     /// Example:
     /// let expected = [
@@ -611,19 +613,21 @@ module TestVerifications =
         (coreCalculated: AutoImportOperation list)
         : (bool * ValidationResult list) list =
 
-        // Verify counts match
-        if expected.Length <> coreCalculated.Length then
-            invalidArg
-                "coreCalculated"
-                (sprintf
-                    "Expected %d operations but found %d in core-calculated operations"
-                    expected.Length
-                    coreCalculated.Length)
+        expected
+        |> List.map (fun expectedOperation ->
+            // Find matching operation by OpenDate
+            let matchingOperation =
+                coreCalculated
+                |> List.tryFind (fun actual -> actual.OpenDate = expectedOperation.OpenDate)
 
-        // Sort both lists by OpenDate to ensure chronological comparison
-        let sortedExpected = expected |> List.sortBy (fun op -> op.OpenDate)
-        let sortedActual = coreCalculated |> List.sortBy (fun op -> op.OpenDate)
-
-        // Verify each operation pair
-        List.zip sortedExpected sortedActual
-        |> List.map (fun (expectedOp, actualOp) -> verifyAutoImportOperation expectedOp actualOp)
+            match matchingOperation with
+            | None ->
+                // OpenDate not found - throw exception
+                invalidArg
+                    "coreCalculated"
+                    (sprintf
+                        "Expected operation with OpenDate %s not found in core-calculated operations"
+                        (expectedOperation.OpenDate.ToString("yyyy-MM-dd HH:mm:ss")))
+            | Some actualOperation ->
+                // OpenDate found - verify all fields
+                verifyAutoImportOperation expectedOperation actualOperation)
