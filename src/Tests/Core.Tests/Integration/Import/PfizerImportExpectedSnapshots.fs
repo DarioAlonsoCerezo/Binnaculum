@@ -214,7 +214,7 @@ module PfizerImportExpectedSnapshots =
                 Currency = currency
                 MovementCounter = 4
                 RealizedGains = 175.52m // FIFO: -$14.24 + $189.76
-                RealizedPercentage = 0m // Percentage calculation depends on invested amount
+                RealizedPercentage = 100.00m // (175.52 / 175.52) × 100 = 100% (NetCashFlow is positive)
                 UnrealizedGains = 0m // All positions closed
                 UnrealizedGainsPercentage = 0m
                 Invested = 0m
@@ -238,7 +238,7 @@ module PfizerImportExpectedSnapshots =
                 Currency = currency
                 MovementCounter = 4
                 RealizedGains = 175.52m
-                RealizedPercentage = 0m
+                RealizedPercentage = 100.00m // (175.52 / 175.52) × 100 = 100% (NetCashFlow is positive)
                 UnrealizedGains = 0m
                 UnrealizedGainsPercentage = 0m
                 Invested = 0m
