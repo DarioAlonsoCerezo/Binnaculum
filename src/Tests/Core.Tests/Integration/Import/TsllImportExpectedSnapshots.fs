@@ -22,8 +22,8 @@ module TsllImportExpectedSnapshots =
     /// <summary>
     /// Generate expected TSLL ticker snapshots with descriptions.
     ///
-    /// Includes all 72 snapshots from the TSLL import test CSV file.
-    /// Snapshots span from 2024-05-30 through 2025-10-26.
+    /// Includes all 71 snapshots from the TSLL import test CSV file.
+    /// Snapshots span from 2024-05-30 (first trade) through 2025-10-23 (last movement).
     /// </summary>
     let getTSLLSnapshots (ticker: Ticker) (currency: Currency) : ExpectedSnapshot<TickerCurrencySnapshot> list =
         [
@@ -1589,39 +1589,16 @@ module TsllImportExpectedSnapshots =
                 Commissions = 235.00m
                 Fees = 79.77m }
             Description = "TODO: Add description for 2025-10-23" }
-          // Snapshot 72: 2025-10-26
-          { Data =
-              { Id = 0
-                Date = DateOnly(2025, 10, 26)
-                Ticker = ticker
-                Currency = currency
-                TotalShares = 0.00m
-                Weight = 0.0000m
-                CostBasis = -172323.26m
-                RealCost = 0.00m
-                Dividends = 121.86m
-                DividendTaxes = 21.50m
-                Options = 3870.00m
-                TotalIncomes = 3655.59m
-                Unrealized = 172323.26m
-                Realized = 3566.90m
-                Performance = -100.0000m
-                LatestPrice = 0.00m
-                OpenTrades = true
-                Commissions = 235.00m
-                Fees = 79.77m }
-            Description = "TODO: Add description for 2025-10-26" }
 
-
-        ]
+          ]
 
     // ==================== BROKER ACCOUNT SNAPSHOTS ====================
 
     /// <summary>
     /// Generate expected BrokerAccount financial snapshots with descriptions.
     ///
-    /// Includes all 72 snapshots from the TSLL import test.
-    /// Snapshots span from 2024-05-30 through 2025-10-26.
+    /// Includes all 71 snapshots from the TSLL import test.
+    /// Snapshots span from 2024-05-30 (first trade) through 2025-10-23 (last movement).
     /// </summary>
     let getBrokerAccountSnapshots
         (broker: Broker)
@@ -1895,7 +1872,7 @@ module TsllImportExpectedSnapshots =
                 RealizedPercentage = 78.3665m
                 UnrealizedGains = 18199.12m
                 UnrealizedGainsPercentage = 433.2206m
-                Invested = -18200.00m
+                Invested = -18199.12m
                 Commissions = 52.00m
                 Fees = 15.11m
                 Deposited = 0.00m
@@ -1918,7 +1895,7 @@ module TsllImportExpectedSnapshots =
                 RealizedPercentage = 100.5176m
                 UnrealizedGains = 0.00m
                 UnrealizedGainsPercentage = 0.0000m
-                Invested = -18200.00m
+                Invested = -18199.12m
                 Commissions = 52.00m
                 Fees = 18.08m
                 Deposited = 0.00m
@@ -3263,32 +3240,8 @@ module TsllImportExpectedSnapshots =
                 OpenTrades = true
                 NetCashFlow = 3677.09m }
             Description = "TODO: Add description for 2025-10-23" }
-          // Snapshot 72: 2025-10-26
-          { Data =
-              { Id = 0
-                Date = DateOnly(2025, 10, 26)
-                Broker = Some broker
-                BrokerAccount = Some brokerAccount
-                Currency = currency
-                MovementCounter = 566
-                RealizedGains = 8011.50m
-                RealizedPercentage = 217.8761m
-                UnrealizedGains = 0.00m
-                UnrealizedGainsPercentage = 0.0000m
-                Invested = -83426.91m
-                Commissions = 235.00m
-                Fees = 79.77m
-                Deposited = 0.00m
-                Withdrawn = 0.00m
-                DividendsReceived = 121.86m
-                OptionsIncome = 3870.00m
-                OtherIncome = 0.00m
-                OpenTrades = true
-                NetCashFlow = 3677.09m }
-            Description = "TODO: Add description for 2025-10-26" }
 
-
-        ]
+          ]
 
     // ==================== AUTO-IMPORT OPERATIONS ====================
 
@@ -3387,4 +3340,4 @@ module TsllImportExpectedSnapshots =
             Description = "TODO: Add description for operation 4" }
 
 
-        ]
+          ]
