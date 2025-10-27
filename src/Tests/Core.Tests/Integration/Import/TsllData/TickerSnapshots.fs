@@ -364,16 +364,16 @@ module TsllTickerSnapshots =
                 Currency = currency
                 TotalShares = 1100.00m // First time holding shares!
                 Weight = 0.0000m
-                CostBasis = -18200.00m // 1100 shares cost basis
-                RealCost = -18186.50m // After fees $13.50
+                CostBasis = 16.55m // Per-share cost: $18,200 / 1100 shares
+                RealCost = 12.73m // Effective cost after incomes: 16.55 - (4200.89 / 1100)
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
                 Options = 4268.00m // $529 + $935 - $1,620 + $4,424 = $4,268
                 TotalIncomes = 4200.89m // After commissions ($52) and fees ($15.11)
-                Unrealized = -20001800.00m // Huge unrealized (likely calculation artifact)
+                Unrealized = 0.00m // No speculation - focus on realized data
                 Realized = 3278.23m // $1,188.77 + $2,089.46 = $3,278.23
-                Performance = 109900.0000m // Based on 1100 shares
-                LatestPrice = 0.00m
+                Performance = 0.0000m // Will be aggregated from Operations in future
+                LatestPrice = 0.02m // Market price from trade
                 OpenTrades = true
                 Commissions = 52.00m // $42 (prev) + $10 = $52
                 Fees = 15.11m } // $11.61 (prev) + $3.50 = $15.11

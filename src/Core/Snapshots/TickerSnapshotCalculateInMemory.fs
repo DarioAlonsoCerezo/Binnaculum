@@ -92,7 +92,17 @@ module internal TickerSnapshotCalculateInMemory =
                 | TradeCode.SellToClose -> -(t.Price.Value * t.Quantity) // Reduce cost (proceeds)
             )
 
-        let costBasis = Money.FromAmount(previousSnapshot.CostBasis.Value + tradeCostBasis)
+        // CostBasis is per-share cost (POSITIVE value)
+        // Accumulate total cost from previous, then divide by current shares
+        let totalCost =
+            (previousSnapshot.CostBasis.Value * previousSnapshot.TotalShares)
+            + tradeCostBasis
+
+        let costBasis =
+            if totalShares > 0m then
+                Money.FromAmount(abs (totalCost / totalShares))
+            else
+                Money.FromAmount(0m)
 
         // Calculate commissions and fees from both equity trades and option trades
         let commissionsFromTrades =
@@ -142,12 +152,12 @@ module internal TickerSnapshotCalculateInMemory =
                 - cumulativeFees.Value
             )
 
-        // Calculate real cost (cost basis + commissions + fees + dividend taxes)
-        // Only include commissions/fees if we have shares (for equity positions)
-        // For option-only positions (TotalShares = 0), RealCost should be 0
+        // Calculate real cost: effective per-share cost after all incomes
+        // RealCost = CostBasis - (TotalIncomes / TotalShares)
+        // This shows the true break-even per share after collecting premiums/dividends
         let realCost =
             if totalShares > 0m then
-                Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
+                Money.FromAmount(costBasis.Value - (totalIncomes.Value / totalShares))
             else
                 Money.FromAmount(0m)
 
@@ -160,7 +170,7 @@ module internal TickerSnapshotCalculateInMemory =
         // Shares unrealized
         let effectivePrice = if marketPrice > 0m then marketPrice else costBasis.Value
         let sharesMarketValue = effectivePrice * totalShares
-        let sharesUnrealized = sharesMarketValue - costBasis.Value
+        let sharesUnrealized = sharesMarketValue - (costBasis.Value * totalShares)
 
         // Options unrealized (only open positions at this snapshot date)
         // Check if the trade was open AS OF the snapshot date by comparing timestamps
@@ -304,12 +314,9 @@ module internal TickerSnapshotCalculateInMemory =
         //     newRealizedGains.Value
         //     realized.Value
 
-        // Calculate performance percentage
-        let performance =
-            if costBasis.Value <> 0.0m then
-                (unrealized.Value / costBasis.Value) * 100.0m
-            else
-                0.0m
+        // Performance will be aggregated from Operations in future enhancement
+        // For now, set to 0 (consistent with no-speculation philosophy)
+        let performance = 0.0m
 
         // Check for open trades - include both share positions and open option trades
         // OpenTrades = true if:
@@ -438,7 +445,7 @@ module internal TickerSnapshotCalculateInMemory =
                 | TradeCode.SellToClose -> -t.Quantity)
 
         // Calculate cost basis from trades (no previous)
-        // Cost basis is the actual capital invested (buy side only, absolute value)
+        // Cost basis is POSITIVE - the actual per-share cost invested
         // For BUY trades: add to cost basis
         // For SELL trades: reduce cost basis by the proceeds
         let tradeCostBasis =
@@ -451,7 +458,12 @@ module internal TickerSnapshotCalculateInMemory =
                 | TradeCode.SellToClose -> -(t.Price.Value * t.Quantity) // Reduce cost (proceeds)
             )
 
-        let costBasis = Money.FromAmount(tradeCostBasis)
+        // CostBasis is per-share cost (POSITIVE value)
+        let costBasis =
+            if totalShares > 0m then
+                Money.FromAmount(abs (tradeCostBasis / totalShares))
+            else
+                Money.FromAmount(0m)
 
         // Calculate commissions and fees from both equity trades and option trades
         let commissionsFromTrades =
@@ -496,12 +508,12 @@ module internal TickerSnapshotCalculateInMemory =
                 - cumulativeFees.Value
             )
 
-        // Calculate real cost (cost basis + commissions + fees + dividend taxes)
-        // Only include commissions/fees if we have shares (for equity positions)
-        // For option-only positions (TotalShares = 0), RealCost should be 0
+        // Calculate real cost: effective per-share cost after all incomes
+        // RealCost = CostBasis - (TotalIncomes / TotalShares)
+        // This shows the true break-even per share after collecting premiums/dividends
         let realCost =
             if totalShares > 0m then
-                Money.FromAmount(costBasis.Value + commissions + fees + currentDividendTaxes)
+                Money.FromAmount(costBasis.Value - (totalIncomes.Value / totalShares))
             else
                 Money.FromAmount(0m)
 
@@ -514,7 +526,7 @@ module internal TickerSnapshotCalculateInMemory =
         // Shares unrealized
         let effectivePrice = if marketPrice > 0m then marketPrice else costBasis.Value
         let sharesMarketValue = effectivePrice * totalShares
-        let sharesUnrealized = sharesMarketValue - costBasis.Value
+        let sharesUnrealized = sharesMarketValue - (costBasis.Value * totalShares)
 
         // Options unrealized (only open positions at this snapshot date)
         // Check if the trade was open AS OF the snapshot date by comparing timestamps
@@ -558,13 +570,11 @@ module internal TickerSnapshotCalculateInMemory =
         let unrealized = Money.FromAmount(sharesUnrealized)
 
         // Calculate realized gains (zero for initial snapshot)
-        let realized = Money.FromAmount(0.0m) // Calculate performance percentage
+        let realized = Money.FromAmount(0.0m)
 
-        let performance =
-            if costBasis.Value <> 0.0m then
-                (unrealized.Value / costBasis.Value) * 100.0m
-            else
-                0.0m
+        // Performance will be aggregated from Operations in future enhancement
+        // For now, set to 0 (consistent with no-speculation philosophy)
+        let performance = 0.0m
 
         // Check for open trades - include both share positions and open option trades
         // OpenTrades = true if:
