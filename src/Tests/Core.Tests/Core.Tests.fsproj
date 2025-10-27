@@ -43,6 +43,9 @@
     <Compile Include="Integration/Import/OptionsImportTests.fs" />
     <Compile Include="Integration/Import/PfizerImportExpectedSnapshots.fs" />
     <Compile Include="Integration/Import/PfizerImportTests.fs" />
+    <Compile Include="Integration/Import/TsllData/TickerSnapshots.fs" />
+    <Compile Include="Integration/Import/TsllData/BrokerSnapshots.fs" />
+    <Compile Include="Integration/Import/TsllData/Operations.fs" />
     <Compile Include="Integration/Import/TsllImportExpectedSnapshots.fs" />
     <Compile Include="Integration/Import/TsllImportTests.fs" />
     
