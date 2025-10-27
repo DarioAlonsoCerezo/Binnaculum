@@ -24,7 +24,6 @@ module internal AutoImportOperationQuery =
             {CapitalDeployed} TEXT NOT NULL DEFAULT '0.0',
             {CapitalDeployedToday} TEXT NOT NULL DEFAULT '0.0',
             {Performance} TEXT NOT NULL DEFAULT '0.0',
-            {Invested} TEXT NOT NULL DEFAULT '0.0',
             {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
             {UpdatedAt} TEXT,
             -- Foreign key to ensure BrokerAccountId references a valid BrokerAccount
@@ -77,7 +76,6 @@ module internal AutoImportOperationQuery =
             {CapitalDeployed},
             {CapitalDeployedToday},
             {Performance},
-            {Invested},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -97,7 +95,6 @@ module internal AutoImportOperationQuery =
             {SQLParameterName.CapitalDeployed},
             {SQLParameterName.CapitalDeployedToday},
             {SQLParameterName.Performance},
-            {SQLParameterName.Invested},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -121,7 +118,6 @@ module internal AutoImportOperationQuery =
             {CapitalDeployed} = {SQLParameterName.CapitalDeployed},
             {CapitalDeployedToday} = {SQLParameterName.CapitalDeployedToday},
             {Performance} = {SQLParameterName.Performance},
-            {Invested} = {SQLParameterName.Invested},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
