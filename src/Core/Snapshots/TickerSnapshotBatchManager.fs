@@ -2,6 +2,7 @@ namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
+open Binnaculum.Core.Models
 open Binnaculum.Core.Import
 open Binnaculum.Core.Database.DatabaseModel
 open System.Diagnostics
@@ -48,6 +49,9 @@ module internal TickerSnapshotBatchManager =
             TickersProcessed: int
             /// Operations calculated during ticker snapshot processing with their associated date
             CalculatedOperations: (DateTimePattern * AutoImportOperation) list
+            /// Ticker snapshots calculated with their associated date for broker performance aggregation
+            CalculatedTickerSnapshots:
+                (DateTimePattern * Binnaculum.Core.Database.SnapshotsModel.TickerCurrencySnapshot) list
             /// Time spent loading data (ms)
             LoadTimeMs: int64
             /// Time spent calculating snapshots (ms)
@@ -234,6 +238,7 @@ module internal TickerSnapshotBatchManager =
                           DatesProcessed = calculationResult.ProcessingMetrics.DatesProcessed
                           TickersProcessed = calculationResult.ProcessingMetrics.TickersProcessed
                           CalculatedOperations = calculationResult.CalculatedOperations
+                          CalculatedTickerSnapshots = calculationResult.CalculatedTickerSnapshots
                           LoadTimeMs = loadStopwatch.ElapsedMilliseconds
                           CalculationTimeMs = calculationResult.ProcessingMetrics.CalculationTimeMs
                           PersistenceTimeMs = metrics.TransactionTimeMs
@@ -256,6 +261,7 @@ module internal TickerSnapshotBatchManager =
                           DatesProcessed = calculationResult.ProcessingMetrics.DatesProcessed
                           TickersProcessed = calculationResult.ProcessingMetrics.TickersProcessed
                           CalculatedOperations = calculationResult.CalculatedOperations
+                          CalculatedTickerSnapshots = calculationResult.CalculatedTickerSnapshots
                           LoadTimeMs = loadStopwatch.ElapsedMilliseconds
                           CalculationTimeMs = calculationResult.ProcessingMetrics.CalculationTimeMs
                           PersistenceTimeMs = 0L
@@ -274,6 +280,7 @@ module internal TickerSnapshotBatchManager =
                       DatesProcessed = 0
                       TickersProcessed = 0
                       CalculatedOperations = []
+                      CalculatedTickerSnapshots = []
                       LoadTimeMs = 0L
                       CalculationTimeMs = 0L
                       PersistenceTimeMs = 0L
@@ -325,6 +332,7 @@ module internal TickerSnapshotBatchManager =
                           DatesProcessed = 0
                           TickersProcessed = 0
                           CalculatedOperations = []
+                          CalculatedTickerSnapshots = []
                           LoadTimeMs = 0L
                           CalculationTimeMs = 0L
                           PersistenceTimeMs = 0L
@@ -387,6 +395,7 @@ module internal TickerSnapshotBatchManager =
                       DatesProcessed = 0
                       TickersProcessed = 0
                       CalculatedOperations = []
+                      CalculatedTickerSnapshots = []
                       LoadTimeMs = 0L
                       CalculationTimeMs = 0L
                       PersistenceTimeMs = 0L

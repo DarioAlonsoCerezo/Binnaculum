@@ -46,6 +46,9 @@ module internal TickerSnapshotBatchCalculator =
             CurrencySnapshots: TickerCurrencySnapshot list
             /// Operations calculated with their associated date (DateTimePattern, AutoImportOperation)
             CalculatedOperations: (DateTimePattern * AutoImportOperation) list
+            /// Ticker snapshots calculated with their associated date for broker performance aggregation
+            CalculatedTickerSnapshots:
+                (DateTimePattern * Binnaculum.Core.Database.SnapshotsModel.TickerCurrencySnapshot) list
             /// Processing metrics for monitoring
             ProcessingMetrics:
                 {| TickersProcessed: int
@@ -132,6 +135,11 @@ module internal TickerSnapshotBatchCalculator =
             let mutable tickerSnapshots = []
             let mutable currencySnapshots = []
             let mutable calculatedOperations: (DateTimePattern * AutoImportOperation) list = []
+
+            let mutable calculatedTickerSnapshots
+                : (DateTimePattern * Binnaculum.Core.Database.SnapshotsModel.TickerCurrencySnapshot) list =
+                []
+
             let mutable errors = []
             let mutable movementsProcessed = 0
             let mutable snapshotsCreated = 0
@@ -359,6 +367,10 @@ module internal TickerSnapshotBatchCalculator =
                                                     currencySnapshots <- snapshot :: currencySnapshots
                                                     tickerCurrencySnapshots <- snapshot :: tickerCurrencySnapshots
 
+                                                    // Add to calculatedTickerSnapshots for broker performance aggregation
+                                                    calculatedTickerSnapshots <-
+                                                        (date, snapshot) :: calculatedTickerSnapshots
+
                                                     // Update latest snapshot for this ticker/currency
                                                     latestCurrencySnapshots <-
                                                         latestCurrencySnapshots.Add((tickerId, currencyId), snapshot)
@@ -424,6 +436,7 @@ module internal TickerSnapshotBatchCalculator =
                     { TickerSnapshots = tickerSnapshots |> List.rev // Reverse to chronological order
                       CurrencySnapshots = currencySnapshots |> List.rev // Reverse to chronological order
                       CalculatedOperations = calculatedOperations |> List.rev // Reverse to chronological order
+                      CalculatedTickerSnapshots = calculatedTickerSnapshots |> List.rev // Reverse to chronological order
                       ProcessingMetrics =
                         {| TickersProcessed = context.TickerIds.Length
                            DatesProcessed = context.DateRange.Length
@@ -442,6 +455,7 @@ module internal TickerSnapshotBatchCalculator =
                     { TickerSnapshots = []
                       CurrencySnapshots = []
                       CalculatedOperations = []
+                      CalculatedTickerSnapshots = []
                       ProcessingMetrics =
                         {| TickersProcessed = 0
                            DatesProcessed = 0

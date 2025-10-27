@@ -209,6 +209,7 @@ module ImportManager =
                                                                 BrokerFinancialBatchManager.processBatchedFinancialsForImport
                                                                     brokerAccount.Id
                                                                     tickerBatchResult.CalculatedOperations
+                                                                    tickerBatchResult.CalculatedTickerSnapshots
 
                                                             if batchResult.Success then
                                                                 // CoreLogger.logInfof "ImportManager" "Batch snapshot processing completed: %d snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)" batchResult.SnapshotsSaved batchResult.TotalTimeMs batchResult.LoadTimeMs batchResult.CalculationTimeMs batchResult.PersistenceTimeMs
