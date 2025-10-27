@@ -379,7 +379,6 @@ module internal DatabaseModel =
           CapitalDeployed: Money // Total capital tied up in operation
           CapitalDeployedToday: Money // DELTA - Daily capital deployment for position sizing
           Performance: decimal // ROI % = (Realized / CapitalDeployed) * 100
-          Invested: Money // Current invested amount (TotalShares × CostBasis for stocks, 0 for options-only)
 
           Audit: AuditableEntity }
 
