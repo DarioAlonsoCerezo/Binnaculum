@@ -7,15 +7,15 @@ open TestModels
 /// <summary>
 /// TSLL Broker Account Financial Snapshot data.
 ///
-/// Contains all 71 expected broker account snapshots spanning from 2024-05-30 through 2025-10-23.
+/// Contains all 72 expected broker account snapshots spanning from 2024-05-30 through today.
 /// </summary>
 module TsllBrokerSnapshots =
 
     /// <summary>
     /// Generate expected BrokerAccount financial snapshots with descriptions.
     ///
-    /// Includes all 71 snapshots from the TSLL import test.
-    /// Snapshots span from 2024-05-30 (first trade) through 2025-10-23 (last movement).
+    /// Includes all 72 snapshots from the TSLL import test.
+    /// Snapshots span from 2024-05-30 (first trade) through today (final snapshot).
     /// </summary>
     let getBrokerAccountSnapshots
         (broker: Broker)
@@ -1656,5 +1656,29 @@ module TsllBrokerSnapshots =
                 OpenTrades = true
                 NetCashFlow = 3677.09m }
             Description = "TODO: Add description for 2025-10-23" }
+
+          // Snapshot 72: Today (calculated)
+          { Data =
+              { Id = 0
+                Date = DateOnly(DateTime.Now.Date.Year, DateTime.Now.Date.Month, DateTime.Now.Date.Day)
+                Broker = Some broker
+                BrokerAccount = Some brokerAccount
+                Currency = currency
+                MovementCounter = 566 // Same as previous
+                RealizedGains = 8011.50m // Same as previous
+                RealizedPercentage = 217.8761m // Same as previous
+                UnrealizedGains = 0.00m // Same as previous
+                UnrealizedGainsPercentage = 0.0000m
+                Invested = -83426.91m // Same as previous
+                Commissions = 235.00m // Same as previous
+                Fees = 79.77m // Same as previous
+                Deposited = 0.00m
+                Withdrawn = 0.00m
+                DividendsReceived = 121.86m // Same as previous
+                OptionsIncome = 3870.00m // Same as previous
+                OtherIncome = 0.00m
+                OpenTrades = true
+                NetCashFlow = 3677.09m } // Same as previous
+            Description = "Final snapshot - All trading complete" }
 
           ]
