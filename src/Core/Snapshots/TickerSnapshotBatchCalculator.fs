@@ -121,6 +121,146 @@ module internal TickerSnapshotBatchCalculator =
         |> List.sort
 
     /// <summary>
+    /// Process a single currency for a ticker on a specific date.
+    /// Returns the new snapshot (if created), movement count, and any operation generated.
+    /// </summary>
+    type CurrencyProcessingResult =
+        { Snapshot: TickerCurrencySnapshot option
+          MovementsProcessed: int
+          Operation: (DateTimePattern * AutoImportOperation) option
+          Error: string option }
+
+    let private processCurrencyForTickerDate
+        (tickerId: int)
+        (currencyId: int)
+        (date: DateTimePattern)
+        (context: TickerSnapshotBatchContext)
+        (latestCurrencySnapshots: Map<(int * int), TickerCurrencySnapshot>)
+        : System.Threading.Tasks.Task<CurrencyProcessingResult> =
+        task {
+            try
+                // Get movements for this ticker/currency/date
+                let movements =
+                    TickerSnapshotCalculateInMemory.getMovementsForTickerCurrencyDate
+                        tickerId
+                        currencyId
+                        date
+                        context.MovementsByTickerCurrencyDate
+
+                // Get previous snapshot for this ticker/currency
+                let previousSnapshot = latestCurrencySnapshots.TryFind((tickerId, currencyId))
+
+                // Get market price for this ticker/date
+                let marketPrice =
+                    context.MarketPrices.TryFind((tickerId, date)) |> Option.defaultValue 0m
+
+                // Count movements
+                let movementCount =
+                    match movements with
+                    | Some mvts ->
+                        mvts.Trades.Length
+                        + mvts.Dividends.Length
+                        + mvts.DividendTaxes.Length
+                        + mvts.OptionTrades.Length
+                    | None -> 0
+
+                // SCENARIO DECISION TREE
+                let newSnapshot =
+                    match movements, previousSnapshot with
+                    // SCENARIO A: New movements + previous snapshot → Calculate cumulative
+                    | Some mvts, Some prev ->
+                        Some(
+                            TickerSnapshotCalculateInMemory.calculateNewSnapshot
+                                mvts
+                                prev
+                                marketPrice
+                                date
+                                tickerId
+                                currencyId
+                        )
+
+                    // SCENARIO B: New movements + no previous → Calculate from zero
+                    | Some mvts, None ->
+                        Some(
+                            TickerSnapshotCalculateInMemory.calculateInitialSnapshot
+                                mvts
+                                marketPrice
+                                date
+                                tickerId
+                                currencyId
+                        )
+
+                    // SCENARIO D: No movements + previous → Carry forward
+                    | None, Some prev ->
+                        Some(TickerSnapshotCalculateInMemory.carryForwardSnapshot prev date marketPrice)
+
+                    // No snapshot needed: no movements and no previous
+                    | None, None -> None
+
+                // OPERATION TRACKING: Process operation lifecycle if broker account context is provided
+                let! operation =
+                    task {
+                        match newSnapshot, context.BrokerAccountId with
+                        | Some snapshot, Some brokerAccountId ->
+                            try
+                                // Get option trades for this ticker/currency/date
+                                let optionTradesForDate =
+                                    context.MovementsByTickerCurrencyDate.OptionTrades.TryFind(
+                                        (tickerId, currencyId, date)
+                                    )
+                                    |> Option.defaultValue []
+
+                                let operationContext: AutoImportOperationManager.OperationContext =
+                                    { BrokerAccountId = brokerAccountId
+                                      TickerId = tickerId
+                                      CurrencyId = currencyId
+                                      PreviousSnapshot = previousSnapshot
+                                      CurrentSnapshot = snapshot
+                                      MovementDate = date
+                                      OptionTradesForDate = optionTradesForDate }
+
+                                let! operationResult =
+                                    AutoImportOperationManager.processOperation operationContext
+                                    |> Async.StartAsTask
+
+                                return operationResult.Operation |> Option.map (fun op -> (date, op))
+                            with ex ->
+                                CoreLogger.logWarning
+                                    "TickerSnapshotBatchCalculator"
+                                    (sprintf
+                                        "Error processing operation for ticker %d currency %d on date %s: %s"
+                                        tickerId
+                                        currencyId
+                                        (date.ToString())
+                                        ex.Message)
+
+                                return None
+                        | _ -> return None
+                    }
+
+                return
+                    { Snapshot = newSnapshot
+                      MovementsProcessed = movementCount
+                      Operation = operation
+                      Error = None }
+
+            with ex ->
+                let errorMsg =
+                    sprintf
+                        "Error processing ticker %d currency %d on date %s: %s"
+                        tickerId
+                        currencyId
+                        (date.ToString())
+                        ex.Message
+
+                return
+                    { Snapshot = None
+                      MovementsProcessed = 0
+                      Operation = None
+                      Error = Some errorMsg }
+        }
+
+    /// <summary>
     /// Calculate all ticker snapshots for date range in memory with operation tracking.
     /// This is where the optimization happens - all calculations without database I/O.
     /// When a broker account ID is provided, operations are created/updated/closed as snapshots are calculated.
@@ -202,202 +342,53 @@ module internal TickerSnapshotBatchCalculator =
 
                                         // Process each currency for this ticker
                                         for currencyId in relevantCurrencies do
-                                            try
-                                                // Get movements for this ticker/currency/date
-                                                let movements =
-                                                    TickerSnapshotCalculateInMemory.getMovementsForTickerCurrencyDate
-                                                        tickerId
-                                                        currencyId
-                                                        date
-                                                        context.MovementsByTickerCurrencyDate
+                                            let! currencyResult =
+                                                processCurrencyForTickerDate
+                                                    tickerId
+                                                    currencyId
+                                                    date
+                                                    context
+                                                    latestCurrencySnapshots
 
-                                                // Get previous snapshot for this ticker/currency
-                                                let previousSnapshot =
-                                                    latestCurrencySnapshots.TryFind((tickerId, currencyId))
+                                            // Handle errors
+                                            match currencyResult.Error with
+                                            | Some error -> errors <- error :: errors
+                                            | None -> ()
 
-                                                // Get market price for this ticker/date
-                                                let marketPrice =
-                                                    context.MarketPrices.TryFind((tickerId, date))
-                                                    |> Option.defaultValue 0m
+                                            // Update metrics
+                                            movementsProcessed <- movementsProcessed + currencyResult.MovementsProcessed
 
-                                                // Count movements
-                                                match movements with
-                                                | Some mvts ->
-                                                    movementsProcessed <-
-                                                        movementsProcessed
-                                                        + mvts.Trades.Length
-                                                        + mvts.Dividends.Length
-                                                        + mvts.DividendTaxes.Length
-                                                        + mvts.OptionTrades.Length
-                                                | None -> ()
+                                            // Collect operation if created
+                                            match currencyResult.Operation with
+                                            | Some op -> calculatedOperations <- op :: calculatedOperations
+                                            | None -> ()
 
-                                                // SCENARIO DECISION TREE
-                                                let newSnapshot =
-                                                    match movements, previousSnapshot with
-                                                    // SCENARIO A: New movements + previous snapshot → Calculate cumulative
-                                                    | Some mvts, Some prev ->
-                                                        // CoreLogger.logDebugf
-                                                        //     "TickerSnapshotBatchCalculator"
-                                                        //     "SCENARIO A: ticker %d currency %d date %s (with movements)"
-                                                        //     tickerId
-                                                        //     currencyId
-                                                        //     (date.ToString())
+                                            // Add snapshot to results and update tracking
+                                            match currencyResult.Snapshot with
+                                            | Some snapshot ->
+                                                // Add to currencySnapshots list
+                                                currencySnapshots <- snapshot :: currencySnapshots
+                                                tickerCurrencySnapshots <- snapshot :: tickerCurrencySnapshots
 
-                                                        Some(
-                                                            TickerSnapshotCalculateInMemory.calculateNewSnapshot
-                                                                mvts
-                                                                prev
-                                                                marketPrice
-                                                                date
-                                                                tickerId
-                                                                currencyId
-                                                        )
+                                                // Add to calculatedTickerSnapshots for broker performance aggregation
+                                                calculatedTickerSnapshots <-
+                                                    (date, snapshot) :: calculatedTickerSnapshots
 
-                                                    // SCENARIO B: New movements + no previous → Calculate from zero
-                                                    | Some mvts, None ->
-                                                        // CoreLogger.logDebugf
-                                                        //     "TickerSnapshotBatchCalculator"
-                                                        //     "SCENARIO B: ticker %d currency %d date %s (first snapshot)"
-                                                        //     tickerId
-                                                        //     currencyId
-                                                        //     (date.ToString())
+                                                // Update latest snapshot for this ticker/currency
+                                                latestCurrencySnapshots <-
+                                                    latestCurrencySnapshots.Add((tickerId, currencyId), snapshot)
 
-                                                        Some(
-                                                            TickerSnapshotCalculateInMemory.calculateInitialSnapshot
-                                                                mvts
-                                                                marketPrice
-                                                                date
-                                                                tickerId
-                                                                currencyId
-                                                        )
+                                                currencySnapshotsCreated <- currencySnapshotsCreated + 1
+                                            | None -> ()
 
-                                                    // SCENARIO D: No movements + previous → Carry forward
-                                                    | None, Some prev ->
-                                                        // CoreLogger.logDebugf
-                                                        //     "TickerSnapshotBatchCalculator"
-                                                        //     "SCENARIO D: ticker %d currency %d date %s (carry forward)"
-                                                        //     tickerId
-                                                        //     currencyId
-                                                        //     (date.ToString())
+                                        // If we created currency snapshots for this ticker, create TickerSnapshot
+                                        if not tickerCurrencySnapshots.IsEmpty then
+                                            let tickerSnapshot =
+                                                { Base = SnapshotManagerUtils.createBaseSnapshot date
+                                                  TickerId = tickerId }
 
-                                                        Some(
-                                                            TickerSnapshotCalculateInMemory.carryForwardSnapshot
-                                                                prev
-                                                                date
-                                                                marketPrice
-                                                        )
-
-                                                    // No snapshot needed: no movements and no previous
-                                                    | None, None ->
-                                                        // CoreLogger.logDebugf
-                                                        //     "TickerSnapshotBatchCalculator"
-                                                        //     "SCENARIO SKIP: ticker %d currency %d date %s (no data)"
-                                                        //     tickerId
-                                                        //     currencyId
-                                                        //     (date.ToString())
-
-                                                        None
-
-                                                // Add snapshot to results and update tracking
-                                                match newSnapshot with
-                                                | Some snapshot ->
-                                                    // OPERATION TRACKING: Process operation lifecycle if broker account context is provided
-                                                    match context.BrokerAccountId with
-                                                    | Some brokerAccountId ->
-                                                        try
-                                                            // Get previous snapshot for operation transition detection
-                                                            let previousSnap =
-                                                                latestCurrencySnapshots.TryFind((tickerId, currencyId))
-
-                                                            // Get option trades for this ticker/currency/date
-                                                            let optionTradesForDate =
-                                                                context
-                                                                    .MovementsByTickerCurrencyDate
-                                                                    .OptionTrades
-                                                                    .TryFind((tickerId, currencyId, date))
-                                                                |> Option.defaultValue []
-
-                                                            let operationContext
-                                                                : AutoImportOperationManager.OperationContext =
-                                                                { BrokerAccountId = brokerAccountId
-                                                                  TickerId = tickerId
-                                                                  CurrencyId = currencyId
-                                                                  PreviousSnapshot = previousSnap
-                                                                  CurrentSnapshot = snapshot
-                                                                  MovementDate = date
-                                                                  OptionTradesForDate = optionTradesForDate }
-
-                                                            let! operationResult =
-                                                                AutoImportOperationManager.processOperation
-                                                                    operationContext
-                                                                |> Async.StartAsTask
-
-                                                            // Collect operation for broker phase WITH the date it belongs to
-                                                            match operationResult.Operation with
-                                                            | Some op ->
-                                                                calculatedOperations <-
-                                                                    (date, op) :: calculatedOperations
-                                                            | None -> ()
-
-                                                            // Log operation events
-                                                            // if operationResult.WasCreated then
-                                                            //     CoreLogger.logDebugf "TickerSnapshotBatchCalculator" "Created operation for ticker %d on %s" tickerId (date.ToString())
-                                                            // elif operationResult.WasClosed then
-                                                            //     CoreLogger.logInfof "TickerSnapshotBatchCalculator" "Closed operation for ticker %d on %s" tickerId (date.ToString())
-                                                            ()
-                                                        with ex ->
-                                                            let opError =
-                                                                sprintf
-                                                                    "Error processing operation for ticker %d currency %d on date %s: %s"
-                                                                    tickerId
-                                                                    currencyId
-                                                                    (date.ToString())
-                                                                    ex.Message
-
-                                                            CoreLogger.logWarning
-                                                                "TickerSnapshotBatchCalculator"
-                                                                opError
-
-                                                            errors <- opError :: errors
-                                                    | None ->
-                                                        // No broker account context - skip operation tracking
-                                                        ()
-
-                                                    // Add to currencySnapshots list
-                                                    currencySnapshots <- snapshot :: currencySnapshots
-                                                    tickerCurrencySnapshots <- snapshot :: tickerCurrencySnapshots
-
-                                                    // Add to calculatedTickerSnapshots for broker performance aggregation
-                                                    calculatedTickerSnapshots <-
-                                                        (date, snapshot) :: calculatedTickerSnapshots
-
-                                                    // Update latest snapshot for this ticker/currency
-                                                    latestCurrencySnapshots <-
-                                                        latestCurrencySnapshots.Add((tickerId, currencyId), snapshot)
-
-                                                    currencySnapshotsCreated <- currencySnapshotsCreated + 1
-                                                | None -> ()
-
-                                            with ex ->
-                                                let errorMsg =
-                                                    sprintf
-                                                        "Error processing ticker %d currency %d on date %s: %s"
-                                                        tickerId
-                                                        currencyId
-                                                        (date.ToString())
-                                                        ex.Message
-
-                                                // CoreLogger.logError "TickerSnapshotBatchCalculator" errorMsg
-                                                errors <- errorMsg :: errors
-
-                                            // If we created currency snapshots for this ticker, create TickerSnapshot
-                                            if not tickerCurrencySnapshots.IsEmpty then
-                                                let tickerSnapshot =
-                                                    { Base = SnapshotManagerUtils.createBaseSnapshot date
-                                                      TickerId = tickerId }
-
-                                                tickerSnapshots <- tickerSnapshot :: tickerSnapshots
-                                                snapshotsCreated <- snapshotsCreated + 1
+                                            tickerSnapshots <- tickerSnapshot :: tickerSnapshots
+                                            snapshotsCreated <- snapshotsCreated + 1
 
                             // CoreLogger.logDebugf
                             //     "TickerSnapshotBatchCalculator"
