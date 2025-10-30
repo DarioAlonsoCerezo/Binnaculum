@@ -18,20 +18,20 @@ module ImportState =
     /// Start new import operation and return cancellation token
     let startImport () =
         // Cancel any existing operation
-        match !_cancellationSource with
+        match _cancellationSource.Value with
         | Some existing ->
             existing.Cancel()
             existing.Dispose()
         | None -> ()
 
         let newSource = new CancellationTokenSource()
-        _cancellationSource := Some newSource
+        _cancellationSource.Value <- Some newSource
         ImportStatus.OnNext(NotStarted)
         newSource.Token
 
     /// Cancel current import operation with reason
     let cancelImport (reason: string) =
-        match !_cancellationSource with
+        match _cancellationSource.Value with
         | Some source ->
             source.Cancel()
             ImportStatus.OnNext(Cancelled reason)
@@ -42,11 +42,11 @@ module ImportState =
 
     /// Clean up cancellation resources
     let private cleanupCancellation () =
-        match !_cancellationSource with
+        match _cancellationSource.Value with
         | Some source -> source.Dispose()
         | None -> ()
 
-        _cancellationSource := None
+        _cancellationSource.Value <- None
 
     /// Complete import and clean up
     let completeImport (result: ImportResult) =
@@ -70,7 +70,7 @@ module ImportState =
 
     /// Get current cancellation token if available
     let getCurrentCancellationToken () =
-        match !_cancellationSource with
+        match _cancellationSource.Value with
         | Some source -> Some source.Token
         | None -> None
 

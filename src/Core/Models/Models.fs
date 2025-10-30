@@ -269,10 +269,10 @@ module Models =
             DividendTaxes: decimal
             Options: decimal
             TotalIncomes: decimal
-            Unrealized: decimal
+            /// <summary>Cumulative capital deployed (stocks + options) for performance calculation</summary>
+            CapitalDeployed: decimal
             Realized: decimal
             Performance: decimal
-            LatestPrice: decimal
             OpenTrades: bool
             /// <summary>Cumulative trading commissions for this ticker/currency</summary>
             Commissions: decimal

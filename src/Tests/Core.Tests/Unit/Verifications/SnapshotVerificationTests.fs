@@ -16,63 +16,71 @@ type SnapshotVerificationTests() =
     /// Helper to create a minimal BrokerFinancialSnapshot for testing
     /// </summary>
     let createBrokerSnapshot deposited withdrawn optionsIncome realizedGains unrealizedGains movementCounter =
-        {
-            Id = 1
-            Date = DateOnly(2023, 1, 1)
-            Broker = None
-            BrokerAccount = None
-            Currency = { Id = 1; Title = "US Dollar"; Code = "USD"; Symbol = "$" }
-            MovementCounter = movementCounter
-            RealizedGains = realizedGains
-            RealizedPercentage = 0m
-            UnrealizedGains = unrealizedGains
-            UnrealizedGainsPercentage = 0m
-            Invested = 0m
-            Commissions = 0m
-            Fees = 0m
-            Deposited = deposited
-            Withdrawn = withdrawn
-            DividendsReceived = 0m
-            OptionsIncome = optionsIncome
-            OtherIncome = 0m
-            OpenTrades = false
-            NetCashFlow = deposited - withdrawn
-        }
+        { Id = 1
+          Date = DateOnly(2023, 1, 1)
+          Broker = None
+          BrokerAccount = None
+          Currency =
+            { Id = 1
+              Title = "US Dollar"
+              Code = "USD"
+              Symbol = "$" }
+          MovementCounter = movementCounter
+          RealizedGains = realizedGains
+          RealizedPercentage = 0m
+          UnrealizedGains = unrealizedGains
+          UnrealizedGainsPercentage = 0m
+          Invested = 0m
+          Commissions = 0m
+          Fees = 0m
+          Deposited = deposited
+          Withdrawn = withdrawn
+          DividendsReceived = 0m
+          OptionsIncome = optionsIncome
+          OtherIncome = 0m
+          OpenTrades = false
+          NetCashFlow = deposited - withdrawn }
 
     /// <summary>
     /// Helper to create a minimal TickerCurrencySnapshot for testing
     /// </summary>
     let createTickerSnapshot totalShares unrealized realized optionsIncome =
-        {
-            Id = 1
-            Date = DateOnly(2023, 1, 1)
-            Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple Inc." }
-            Currency = { Id = 1; Title = "US Dollar"; Code = "USD"; Symbol = "$" }
-            TotalShares = totalShares
-            Weight = 0m
-            CostBasis = 0m
-            RealCost = 0m
-            Dividends = 0m
-            DividendTaxes = 0m
-            Options = optionsIncome
-            TotalIncomes = 0m
-            Unrealized = unrealized
-            Realized = realized
-            Performance = 0m
-            LatestPrice = 0m
-            OpenTrades = false
-            Commissions = 0m
-            Fees = 0m
-        }
+        { Id = 1
+          Date = DateOnly(2023, 1, 1)
+          Ticker =
+            { Id = 1
+              Symbol = "AAPL"
+              Image = None
+              Name = Some "Apple Inc." }
+          Currency =
+            { Id = 1
+              Title = "US Dollar"
+              Code = "USD"
+              Symbol = "$" }
+          TotalShares = totalShares
+          Weight = 0m
+          CostBasis = 0m
+          RealCost = 0m
+          Dividends = 0m
+          DividendTaxes = 0m
+          Options = optionsIncome
+          TotalIncomes = 0m
+          CapitalDeployed = 0m
+          Realized = realized
+          Performance = 0m
+          OpenTrades = false
+          Commissions = 0m
+          Fees = 0m }
 
     [<Test>]
     member _.``verifyBrokerFinancialSnapshot returns true when all fields match``() =
         // Arrange
         let snapshot = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
-        
+
         // Act
-        let (allMatch, results) = TestVerifications.verifyBrokerFinancialSnapshot snapshot snapshot
-        
+        let (allMatch, results) =
+            TestVerifications.verifyBrokerFinancialSnapshot snapshot snapshot
+
         // Assert
         Assert.That(allMatch, Is.True, "All fields should match when comparing identical snapshots")
         Assert.That(results.Length, Is.GreaterThan(0), "Should have validation results")
@@ -83,10 +91,11 @@ type SnapshotVerificationTests() =
         // Arrange
         let expected = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
         let actual = createBrokerSnapshot 4999m 0m 54.37m -28.67m 83.04m 16
-        
+
         // Act
-        let (allMatch, results) = TestVerifications.verifyBrokerFinancialSnapshot expected actual
-        
+        let (allMatch, results) =
+            TestVerifications.verifyBrokerFinancialSnapshot expected actual
+
         // Assert
         Assert.That(allMatch, Is.False, "Should detect mismatch")
         let depositedResult = results |> List.find (fun r -> r.Field = "Deposited")
@@ -99,10 +108,11 @@ type SnapshotVerificationTests() =
         // Arrange
         let expected = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
         let actual = createBrokerSnapshot 5000m 0m 50.00m -28.67m 83.04m 16
-        
+
         // Act
-        let (allMatch, results) = TestVerifications.verifyBrokerFinancialSnapshot expected actual
-        
+        let (allMatch, results) =
+            TestVerifications.verifyBrokerFinancialSnapshot expected actual
+
         // Assert
         Assert.That(allMatch, Is.False, "Should detect mismatch")
         let optionsResult = results |> List.find (fun r -> r.Field = "OptionsIncome")
@@ -113,10 +123,11 @@ type SnapshotVerificationTests() =
         // Arrange
         let expected = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
         let actual = createBrokerSnapshot 4999m 100m 50.00m -30.00m 80.00m 15
-        
+
         // Act
-        let (allMatch, results) = TestVerifications.verifyBrokerFinancialSnapshot expected actual
-        
+        let (allMatch, results) =
+            TestVerifications.verifyBrokerFinancialSnapshot expected actual
+
         // Assert
         Assert.That(allMatch, Is.False, "Should detect mismatches")
         let mismatches = results |> List.filter (fun r -> not r.Match)
@@ -127,10 +138,11 @@ type SnapshotVerificationTests() =
     member _.``verifyTickerCurrencySnapshot returns true when all fields match``() =
         // Arrange
         let snapshot = createTickerSnapshot 100m 250.50m -50.25m 75.00m
-        
+
         // Act
-        let (allMatch, results) = TestVerifications.verifyTickerCurrencySnapshot snapshot snapshot
-        
+        let (allMatch, results) =
+            TestVerifications.verifyTickerCurrencySnapshot snapshot snapshot
+
         // Assert
         Assert.That(allMatch, Is.True, "All fields should match when comparing identical snapshots")
         Assert.That(results.Length, Is.GreaterThan(0), "Should have validation results")
@@ -141,10 +153,11 @@ type SnapshotVerificationTests() =
         // Arrange
         let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
         let actual = createTickerSnapshot 99m 250.50m -50.25m 75.00m
-        
+
         // Act
-        let (allMatch, results) = TestVerifications.verifyTickerCurrencySnapshot expected actual
-        
+        let (allMatch, results) =
+            TestVerifications.verifyTickerCurrencySnapshot expected actual
+
         // Assert
         Assert.That(allMatch, Is.False, "Should detect mismatch")
         let sharesResult = results |> List.find (fun r -> r.Field = "TotalShares")
@@ -157,10 +170,11 @@ type SnapshotVerificationTests() =
         // Arrange
         let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
         let actual = createTickerSnapshot 100m 200.00m -50.25m 75.00m
-        
+
         // Act
-        let (allMatch, results) = TestVerifications.verifyTickerCurrencySnapshot expected actual
-        
+        let (allMatch, results) =
+            TestVerifications.verifyTickerCurrencySnapshot expected actual
+
         // Assert
         Assert.That(allMatch, Is.False, "Should detect mismatch")
         let unrealizedResult = results |> List.find (fun r -> r.Field = "Unrealized")
@@ -172,10 +186,10 @@ type SnapshotVerificationTests() =
         let expected = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
         let actual = createBrokerSnapshot 4999m 100m 54.37m -28.67m 83.04m 16
         let (_, results) = TestVerifications.verifyBrokerFinancialSnapshot expected actual
-        
+
         // Act
         let formatted = TestVerifications.formatValidationResults results
-        
+
         // Assert
         Assert.That(formatted, Is.Not.Null)
         Assert.That(formatted, Is.Not.Empty)
@@ -190,10 +204,10 @@ type SnapshotVerificationTests() =
         // Arrange
         let snapshot = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
         let (_, results) = TestVerifications.verifyBrokerFinancialSnapshot snapshot snapshot
-        
+
         // Act
         let formatted = TestVerifications.formatValidationResults results
-        
+
         // Assert - Check that key field names are present
         Assert.That(formatted, Does.Contain("Deposited"))
         Assert.That(formatted, Does.Contain("Withdrawn"))
@@ -207,11 +221,15 @@ type SnapshotVerificationTests() =
     member _.``verifyTickerCurrencySnapshot detects Commissions mismatch``() =
         // Arrange
         let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
-        let actual = { createTickerSnapshot 100m 250.50m -50.25m 75.00m with Commissions = 10.50m }
-        
+
+        let actual =
+            { createTickerSnapshot 100m 250.50m -50.25m 75.00m with
+                Commissions = 10.50m }
+
         // Act
-        let (allMatch, results) = TestVerifications.verifyTickerCurrencySnapshot expected actual
-        
+        let (allMatch, results) =
+            TestVerifications.verifyTickerCurrencySnapshot expected actual
+
         // Assert
         Assert.That(allMatch, Is.False, "Should detect mismatch")
         let commissionsResult = results |> List.find (fun r -> r.Field = "Commissions")
@@ -223,11 +241,15 @@ type SnapshotVerificationTests() =
     member _.``verifyTickerCurrencySnapshot detects Fees mismatch``() =
         // Arrange
         let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
-        let actual = { createTickerSnapshot 100m 250.50m -50.25m 75.00m with Fees = 5.25m }
-        
+
+        let actual =
+            { createTickerSnapshot 100m 250.50m -50.25m 75.00m with
+                Fees = 5.25m }
+
         // Act
-        let (allMatch, results) = TestVerifications.verifyTickerCurrencySnapshot expected actual
-        
+        let (allMatch, results) =
+            TestVerifications.verifyTickerCurrencySnapshot expected actual
+
         // Assert
         Assert.That(allMatch, Is.False, "Should detect mismatch")
         let feesResult = results |> List.find (fun r -> r.Field = "Fees")

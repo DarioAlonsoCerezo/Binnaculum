@@ -176,9 +176,6 @@ module internal FieldName =
     let TotalIncomes = "TotalIncomes"
 
     [<Literal>]
-    let Unrealized = "Unrealized"
-
-    [<Literal>]
     let Realized = "Realized"
 
     [<Literal>]
@@ -186,9 +183,6 @@ module internal FieldName =
 
     [<Literal>]
     let Performance = "Performance"
-
-    [<Literal>]
-    let LatestPrice = "LatestPrice"
 
     [<Literal>]
     let OpenTrades = "OpenTrades"

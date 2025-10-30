@@ -191,9 +191,6 @@ module internal SQLParameterName =
     let TotalIncomes = "@TotalIncomes"
 
     [<Literal>]
-    let Unrealized = "@Unrealized"
-
-    [<Literal>]
     let Realized = "@Realized"
 
     [<Literal>]
@@ -201,9 +198,6 @@ module internal SQLParameterName =
 
     [<Literal>]
     let Performance = "@Performance"
-
-    [<Literal>]
-    let LatestPrice = "@LatestPrice"
 
     [<Literal>]
     let OpenTrades = "@OpenTrades"

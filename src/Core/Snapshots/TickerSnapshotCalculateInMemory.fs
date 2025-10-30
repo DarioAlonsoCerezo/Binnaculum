@@ -161,91 +161,22 @@ module internal TickerSnapshotCalculateInMemory =
             else
                 Money.FromAmount(0m)
 
-        // Calculate unrealized gains/losses from open positions only:
-        // 1. Shares: (market value - cost basis)
-        // 2. Open options: net premium of positions still open
-        //
-        // Dividends and Realized are tracked separately in their own fields
+        // Calculate capital deployed (stocks + options) for performance calculation
+        // This tracks total capital that ever "touched" the position
+        let stockCapitalDelta =
+            movements.Trades |> List.sumBy (fun t -> abs (t.Price.Value * t.Quantity))
 
-        // Shares unrealized
-        let effectivePrice = if marketPrice > 0m then marketPrice else costBasis.Value
-        let sharesMarketValue = effectivePrice * totalShares
-        let sharesUnrealized = sharesMarketValue - (costBasis.Value * totalShares)
+        let optionCapitalDelta =
+            movements.OptionTrades
+            |> List.sumBy (fun (opt: OptionTrade) -> abs (opt.NetPremium.Value))
 
-        // Options unrealized (only open positions at this snapshot date)
-        // Check if the trade was open AS OF the snapshot date by comparing timestamps
-        // Use AllOpeningTrades which contains ALL opening trades (BuyToOpen/SellToOpen)
-        // regardless of their final IsOpen status, allowing temporal evaluation
-        let normalizedSnapshotDate = SnapshotManagerUtils.normalizeToStartOfDay date
+        let capitalDeployedDelta = stockCapitalDelta + optionCapitalDelta
 
-        let openOptionsUnrealized =
-            let openTrades =
-                movements.AllOpeningTrades
-                |> List.filter (fun opt ->
-                    // First check: Trade must have occurred ON OR BEFORE snapshot date
-                    let normalizedTradeDate = SnapshotManagerUtils.normalizeToStartOfDay opt.TimeStamp
-
-                    if normalizedTradeDate.Value > normalizedSnapshotDate.Value then
-                        false // Trade hasn't happened yet at this snapshot date
-                    else
-                        // Second check: Was it still open at snapshot date?
-                        match opt.ClosedWith with
-                        | Some closingTradeId ->
-                            // Find the closing trade in all option trades
-                            let closingTrade =
-                                movements.AllClosedOptionTrades |> List.tryFind (fun t -> t.Id = closingTradeId)
-
-                            match closingTrade with
-                            | Some ct ->
-                                let normalizedClosingDate = SnapshotManagerUtils.normalizeToStartOfDay ct.TimeStamp
-                                // BUG FIX: Trade was open if closing happened AFTER snapshot date
-                                // If closing happened ON OR BEFORE snapshot date, the trade is CLOSED
-                                // and should NOT be included in unrealized
-                                normalizedClosingDate.Value > normalizedSnapshotDate.Value
-                            | None ->
-                                // Closing trade not found in our dataset - consider it open
-                                true
-                        | None ->
-                            // Not closed yet - definitely open
-                            true)
-
-            // DEBUG: Log each open trade included for this snapshot
-            // CoreLogger.logDebugf
-            //     "TickerSnapshotCalculateInMemory"
-            //     "[Date:%s] Open trades count: %d out of %d total opening trades"
-            //     (date.ToString())
-            //     openTrades.Length
-            //     movements.AllOpeningTrades.Length
-
-            openTrades
-            |> List.iter (fun opt -> ()
-            // CoreLogger.logDebugf
-            //     "TickerSnapshotCalculateInMemory"
-            //     "[Date:%s] Open trade included: Id:%d Code:%A NetPremium:%M ClosedWith:%A"
-            //     (date.ToString())
-            //     opt.Id
-            //     opt.Code
-            //     opt.NetPremium.Value
-            //     opt.ClosedWith
+        let totalCapitalDeployed =
+            Money.FromAmount(
+                (previousSnapshot: TickerCurrencySnapshot).CapitalDeployed.Value
+                + capitalDeployedDelta
             )
-            |> ignore
-
-            openTrades |> List.sumBy (fun opt -> opt.NetPremium.Value)
-
-        // Total unrealized = ONLY shares unrealized (positions still in market)
-        // NOTE: Unrealized is ONLY calculated for stock positions (when totalShares ≠ 0)
-        // For options-only tickers (totalShares = 0), unrealized should be 0
-        // Option P&L is reflected in Realized gains when positions are closed
-        let unrealized = Money.FromAmount(sharesUnrealized)
-
-        // DEBUG: Log unrealized calculation details
-        // CoreLogger.logDebugf
-        //     "TickerSnapshotCalculateInMemory"
-        //     "[Date:%s] Unrealized calculation - SharesUnrealized:%M (Options-only ignored) = %M"
-        //     (date.ToString())
-        //     sharesUnrealized
-        //     unrealized.Value
-        //     previousSnapshot.Unrealized.Value
 
         // Calculate realized gains from closed option positions using proper FIFO pair matching
         // This uses OptionTradeCalculations.calculateRealizedGains which properly
@@ -314,9 +245,12 @@ module internal TickerSnapshotCalculateInMemory =
         //     newRealizedGains.Value
         //     realized.Value
 
-        // Performance will be aggregated from Operations in future enhancement
-        // For now, set to 0 (consistent with no-speculation philosophy)
-        let performance = 0.0m
+        // Performance calculation: Realized / CapitalDeployed * 100
+        let performance =
+            if totalCapitalDeployed.Value = 0m then
+                0m
+            else
+                (realized.Value / totalCapitalDeployed.Value) * 100m
 
         // Check for open trades - include both share positions and open option trades
         // OpenTrades = true if:
@@ -350,32 +284,6 @@ module internal TickerSnapshotCalculateInMemory =
         // Weight is not calculated here - it's calculated at TickerSnapshot level
         let weight = 0.0m
 
-        // DEBUG: Log complete snapshot calculation summary
-        // CoreLogger.logDebugf
-        //     "TickerSnapshotCalculateInMemory"
-        //     "[Date:%s] SNAPSHOT_FINAL - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptionsUnrealized:%M TotalUnrealized:%M Dividends:%M Options:%M Realized:%M OpenTrades:%b"
-        //     (date.ToString())
-        //     totalShares
-        //     costBasis.Value
-        //     sharesUnrealized
-        //     openOptionsUnrealized
-        //     unrealized.Value
-        //     totalDividends.Value
-        //     totalOptions.Value
-        //     realized.Value
-        //     openTrades
-        //     totalShares
-        //     costBasis.Value
-        //     sharesUnrealized
-        //     openOptionsUnrealized
-        //     unrealized.Value
-        //     totalDividends.Value
-        //     totalOptions.Value
-        //     realized.Value
-        //     openTrades
-        //     hasOpenShares
-        //     hasOpenOptions
-
         { Base = SnapshotManagerUtils.createBaseSnapshot date
           TickerId = tickerId
           CurrencyId = currencyId
@@ -388,16 +296,9 @@ module internal TickerSnapshotCalculateInMemory =
           DividendTaxes = totalDividendTaxes
           Options = totalOptions
           TotalIncomes = totalIncomes
-          Unrealized = unrealized
+          CapitalDeployed = totalCapitalDeployed
           Realized = realized
           Performance = performance
-          LatestPrice =
-            if marketPrice > 0m then
-                Money.FromAmount(marketPrice)
-            else if totalShares > 0m && costBasis.Value > 0m then
-                Money.FromAmount(abs (costBasis.Value / totalShares))
-            else
-                Money.FromAmount(0m)
           OpenTrades = openTradesFlag
           Commissions = cumulativeCommissions
           Fees = cumulativeFees }
@@ -567,14 +468,28 @@ module internal TickerSnapshotCalculateInMemory =
         // NOTE: Unrealized is ONLY calculated for stock positions (when totalShares ≠ 0)
         // For options-only tickers (totalShares = 0), unrealized should be 0
         // Option P&L is reflected in Realized gains when positions are closed
-        let unrealized = Money.FromAmount(sharesUnrealized)
+        // (Removed: unrealized calculation - no longer stored in snapshot)
+
+        // Calculate capital deployed (stocks + options) for performance calculation
+        // This tracks total capital that ever "touched" the position
+        let stockCapitalDelta =
+            movements.Trades |> List.sumBy (fun t -> abs (t.Price.Value * t.Quantity))
+
+        let optionCapitalDelta =
+            movements.OptionTrades
+            |> List.sumBy (fun (opt: OptionTrade) -> abs (opt.NetPremium.Value))
+
+        let totalCapitalDeployed = Money.FromAmount(stockCapitalDelta + optionCapitalDelta)
 
         // Calculate realized gains (zero for initial snapshot)
         let realized = Money.FromAmount(0.0m)
 
-        // Performance will be aggregated from Operations in future enhancement
-        // For now, set to 0 (consistent with no-speculation philosophy)
-        let performance = 0.0m
+        // Performance calculation: Realized / CapitalDeployed * 100
+        let performance =
+            if totalCapitalDeployed.Value = 0m then
+                0m
+            else
+                (realized.Value / totalCapitalDeployed.Value) * 100m
 
         // Check for open trades - include both share positions and open option trades
         // OpenTrades = true if:
@@ -608,20 +523,6 @@ module internal TickerSnapshotCalculateInMemory =
         // Weight is not calculated here - it's calculated at TickerSnapshot level
         let weight = 0.0m
 
-        // CoreLogger.logDebugf
-        //     "TickerSnapshotCalculateInMemory"
-        //     "Calculated INITIAL snapshot - Shares:%M CostBasis:%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Dividends:%M Options:%M OpenTrades:%b (Shares:%b Options:%b)"
-        //     totalShares
-        //     costBasis.Value
-        //     sharesUnrealized
-        //     openOptionsUnrealized
-        //     unrealized.Value
-        //     totalDividends.Value
-        //     totalOptions.Value
-        //     openTrades
-        //     hasOpenShares
-        //     hasOpenOptions
-
         { Base = SnapshotManagerUtils.createBaseSnapshot date
           TickerId = tickerId
           CurrencyId = currencyId
@@ -634,16 +535,9 @@ module internal TickerSnapshotCalculateInMemory =
           DividendTaxes = totalDividendTaxes
           Options = totalOptions
           TotalIncomes = totalIncomes
-          Unrealized = unrealized
+          CapitalDeployed = totalCapitalDeployed
           Realized = realized
           Performance = performance
-          LatestPrice =
-            if marketPrice > 0m then
-                Money.FromAmount(marketPrice)
-            else if totalShares > 0m && costBasis.Value > 0m then
-                Money.FromAmount(abs (costBasis.Value / totalShares))
-            else
-                Money.FromAmount(0m)
           OpenTrades = openTradesFlag
           Commissions = cumulativeCommissions
           Fees = cumulativeFees }
@@ -714,51 +608,11 @@ module internal TickerSnapshotCalculateInMemory =
         //     (previousSnapshot.Base.Date.Value.ToString())
         //     (newDate.ToString())
 
-        // Recalculate unrealized gains with new market price
-        // Following "Open Positions Only" approach:
-        // Unrealized = ONLY shares unrealized (positions still in market)
+        // No movements on this date - carry forward all values unchanged
+        // Capital deployed remains the same (no new trades)
+        // Performance remains the same (no new realized gains)
 
-        // 1. Shares unrealized (recalculate with new market price)
-        let effectivePrice =
-            if marketPrice > 0m then
-                marketPrice
-            else if previousSnapshot.TotalShares > 0m && previousSnapshot.CostBasis.Value > 0m then
-                // For equity positions, derive average buy price from cost basis
-                abs (previousSnapshot.CostBasis.Value / previousSnapshot.TotalShares)
-            else
-                previousSnapshot.LatestPrice.Value // Carry forward last known price
-
-        let sharesMarketValue = effectivePrice * previousSnapshot.TotalShares
-        let sharesUnrealized = sharesMarketValue - previousSnapshot.CostBasis.Value
-
-        // 2. Open options unrealized (carry forward - no new trades)
-        // Options-only tickers have unrealized = 0, so this is not included
-        // Only stock positions have unrealized
-        let openOptionsUnrealized = 0m // Options don't contribute to unrealized
-
-        // 3. Total unrealized = shares + open options (positions still in market)
-        let unrealized = Money.FromAmount(sharesUnrealized + openOptionsUnrealized)
-
-        // Recalculate performance percentage
-        let performance =
-            if previousSnapshot.CostBasis.Value <> 0.0m then
-                (unrealized.Value / previousSnapshot.CostBasis.Value) * 100.0m
-            else
-                0.0m
-
-        // CoreLogger.logDebugf
-        //     "TickerSnapshotCalculateInMemory"
-        //     "Carried forward - Shares:%M Price:%M->%M SharesUnrealized:%M OpenOptions:%M TotalUnrealized:%M Dividends:%M Realized:%M"
-        //     previousSnapshot.TotalShares
-        //     previousSnapshot.LatestPrice.Value
-        //     marketPrice
-        //     sharesUnrealized
-        //     openOptionsUnrealized
-        //     unrealized.Value
-        //     previousSnapshot.Dividends.Value
-        //     previousSnapshot.Realized.Value
-
-        // Create new snapshot with same cumulative values but updated price/unrealized
+        // Create new snapshot with same cumulative values
         { Base = SnapshotManagerUtils.createBaseSnapshot newDate
           TickerId = previousSnapshot.TickerId
           CurrencyId = previousSnapshot.CurrencyId
@@ -771,17 +625,9 @@ module internal TickerSnapshotCalculateInMemory =
           DividendTaxes = previousSnapshot.DividendTaxes
           Options = previousSnapshot.Options
           TotalIncomes = previousSnapshot.TotalIncomes
-          Unrealized = unrealized
+          CapitalDeployed = previousSnapshot.CapitalDeployed
           Realized = previousSnapshot.Realized
-          Performance = performance
-          LatestPrice =
-            if marketPrice > 0m then
-                Money.FromAmount(marketPrice)
-            else if previousSnapshot.TotalShares > 0m && previousSnapshot.CostBasis.Value > 0m then
-                // For equity positions, derive average buy price from cost basis
-                Money.FromAmount(abs (previousSnapshot.CostBasis.Value / previousSnapshot.TotalShares))
-            else
-                previousSnapshot.LatestPrice
+          Performance = previousSnapshot.Performance
           OpenTrades = previousSnapshot.OpenTrades
           Commissions = previousSnapshot.Commissions
           Fees = previousSnapshot.Fees }

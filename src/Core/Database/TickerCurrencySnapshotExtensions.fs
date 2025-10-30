@@ -25,10 +25,9 @@ type Do() =
               (SQLParameterName.DividendTaxes, snapshot.DividendTaxes.Value)
               (SQLParameterName.Options, snapshot.Options.Value)
               (SQLParameterName.TotalIncomes, snapshot.TotalIncomes.Value)
-              (SQLParameterName.Unrealized, snapshot.Unrealized.Value)
+              (SQLParameterName.CapitalDeployed, snapshot.CapitalDeployed.Value)
               (SQLParameterName.Realized, snapshot.Realized.Value)
               (SQLParameterName.Performance, snapshot.Performance)
-              (SQLParameterName.LatestPrice, snapshot.LatestPrice.Value)
               (SQLParameterName.OpenTrades, if snapshot.OpenTrades then 1 else 0)
               (SQLParameterName.Commissions, snapshot.Commissions.Value)
               (SQLParameterName.Fees, snapshot.Fees.Value) ],
@@ -52,10 +51,9 @@ type Do() =
           DividendTaxes = reader.getMoney FieldName.DividendTaxes
           Options = reader.getMoney FieldName.Options
           TotalIncomes = reader.getMoney FieldName.TotalIncomes
-          Unrealized = reader.getMoney FieldName.Unrealized
+          CapitalDeployed = reader.getMoney FieldName.CapitalDeployed
           Realized = reader.getMoney FieldName.Realized
           Performance = reader.getDecimal FieldName.Performance
-          LatestPrice = reader.getMoney FieldName.LatestPrice
           OpenTrades = reader.getInt32 FieldName.OpenTrades <> 0
           Commissions = reader.getMoney FieldName.Commissions
           Fees = reader.getMoney FieldName.Fees }

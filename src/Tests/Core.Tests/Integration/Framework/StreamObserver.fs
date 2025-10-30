@@ -166,7 +166,7 @@ module StreamObserver =
             subscriptions.Clear()
             expectedSignals.Clear()
             receivedSignals.Clear()
-            completionSourceRef := None
+            completionSourceRef.Value <- None
             CoreLogger.logInfo "StreamObserver" "✅ Observation stopped")
 
     /// <summary>
@@ -177,7 +177,7 @@ module StreamObserver =
             expectedSignals.Clear()
             receivedSignals.Clear()
             signals |> List.iter expectedSignals.Add
-            completionSourceRef := Some(new TaskCompletionSource<bool>())
+            completionSourceRef.Value <- Some(new TaskCompletionSource<bool>())
             CoreLogger.logDebug "StreamObserver" (sprintf "🎯 Expecting %d signals: %A" signals.Length signals))
 
     /// <summary>

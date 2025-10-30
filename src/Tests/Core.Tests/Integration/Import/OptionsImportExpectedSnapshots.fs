@@ -46,10 +46,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 35.00m // SELL_TO_OPEN Premium (gross, before costs)
                 TotalIncomes = 33.86m // = Options (35.00) - Commissions (1.00) - Fees (0.14)
-                Unrealized = 0m
+                CapitalDeployed = 33.86m // Capital from selling the option
                 Realized = 0m
                 Performance = 0m
-                LatestPrice = 0m
                 OpenTrades = true
                 Commissions = 1.0m // SELL_TO_OPEN commission (positive value = cost)
                 Fees = 0.14m } // SELL_TO_OPEN fees (positive value = cost)
@@ -69,10 +68,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 35.00m // Cumulative Premium: 35 - 17 + 17 = 35
                 TotalIncomes = 32.59m // = Options (35.00) - Commissions (2.00) - Fees (0.41)
-                Unrealized = 0m
+                CapitalDeployed = 66.85m // Cumulative: 33.86 (first open) + 17.13 (close) + 15.86 (second open)
                 Realized = 16.73m // First position closed: 33.86 - 17.13
-                Performance = 0m
-                LatestPrice = 0m
+                Performance = 25.0262m // (16.73 / 66.85) * 100
                 OpenTrades = true
                 Commissions = 2.0m // Cumulative: 1.00 (STO) + 0.00 (BTC) + 1.00 (STO) = 2.00
                 Fees = 0.41m } // Cumulative: 0.14 (STO) + 0.13 (BTC) + 0.14 (STO) = 0.41
@@ -92,10 +90,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 51.00m // Cumulative Premium: 35 - 17 + 17 + 16 = 51
                 TotalIncomes = 47.45m // = Options (51.00) - Commissions (3.00) - Fees (0.55)
-                Unrealized = 0m
+                CapitalDeployed = 81.71m // Cumulative: all deployed capital from options
                 Realized = 16.73m
-                Performance = 0m
-                LatestPrice = 0m
+                Performance = 20.4749m // (16.73 / 81.71) * 100
                 OpenTrades = true
                 Commissions = 3.0m // Cumulative: 2.00 (previous) + 1.00 (STO) = 3.00
                 Fees = 0.55m } // Cumulative: 0.41 (previous) + 0.14 (STO) = 0.55
@@ -115,10 +112,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 51.00m // Same as Snapshot 3 (no new trades)
                 TotalIncomes = 47.45m // = Options (51.00) - Commissions (3.00) - Fees (0.55)
-                Unrealized = 0m
+                CapitalDeployed = 81.71m // Same as Snapshot 3 (no new trades)
                 Realized = 16.73m
-                Performance = 0m
-                LatestPrice = 0m
+                Performance = 20.4749m // (16.73 / 81.71) * 100
                 OpenTrades = true
                 Commissions = 3.0m // Same as Snapshot 3 (no new trades)
                 Fees = 0.55m } // Same as Snapshot 3 (no new trades)
@@ -206,10 +202,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 15.00m // Cumulative Premium: -4 + 19 = 15 (vertical spread)
                 TotalIncomes = 12.73m // = Options (15.00) - Commissions (2.00) - Fees (0.27)
-                Unrealized = 0m
+                CapitalDeployed = 22.99m // Capital from opening vertical spread
                 Realized = 0m
                 Performance = 0m
-                LatestPrice = 0m
                 OpenTrades = true
                 Commissions = 2.0m // BUY_TO_OPEN: 1.00, SELL_TO_OPEN: 1.00 (positive values = costs)
                 Fees = 0.27m } // BUY_TO_OPEN: 0.13, SELL_TO_OPEN: 0.14
@@ -229,10 +224,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 8.00m // Cumulative Premium: 15 - 8 + 1 = 8 (after closing spread)
                 TotalIncomes = 5.46m // = Options (8.00) - Commissions (2.00) - Fees (0.54)
-                Unrealized = 0m
+                CapitalDeployed = 31.98m // Cumulative: all capital from all trades
                 Realized = 5.46m // Positions closed
-                Performance = 0m
-                LatestPrice = 0m
+                Performance = 17.0732m // (5.46 / 31.98) * 100
                 OpenTrades = false
                 Commissions = 2.0m // Cumulative: no new commissions from closing trades
                 Fees = 0.54m } // Cumulative: 0.27 (previous) + 0.13 (BTC) + 0.14 (STC) = 0.54
@@ -252,10 +246,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 8.00m // Same as Snapshot 2 (no new trades)
                 TotalIncomes = 5.46m // = Options (8.00) - Commissions (2.00) - Fees (0.54)
-                Unrealized = 0m
+                CapitalDeployed = 31.98m // Same as Snapshot 2 (no new trades)
                 Realized = 5.46m
-                Performance = 0m
-                LatestPrice = 0m
+                Performance = 17.0732m // (5.46 / 31.98) * 100
                 OpenTrades = false
                 Commissions = 2.0m // Same as Snapshot 2 (no new trades)
                 Fees = 0.54m } // Same as Snapshot 2 (no new trades)
@@ -332,10 +325,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 8.00m // Cumulative Premium: -11 + 19 = 8 (vertical spread)
                 TotalIncomes = 5.73m // = Options (8.00) - Commissions (2.00) - Fees (0.27)
-                Unrealized = 0m
+                CapitalDeployed = 29.99m // Capital from opening vertical spread
                 Realized = 0m
                 Performance = 0m
-                LatestPrice = 0m
                 OpenTrades = true
                 Commissions = 2.0m // BUY_TO_OPEN: 1.00, SELL_TO_OPEN: 1.00 (positive values = costs)
                 Fees = 0.27m } // BUY_TO_OPEN: 0.13, SELL_TO_OPEN: 0.14
@@ -355,10 +347,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 4.00m // Cumulative Premium: 8 - 9 + 5 = 4 (after closing spread)
                 TotalIncomes = 1.46m // = Options (4.00) - Commissions (2.00) - Fees (0.54)
-                Unrealized = 0m
+                CapitalDeployed = 43.98m // Cumulative: all capital from all trades
                 Realized = 1.46m // Positions closed
-                Performance = 0m
-                LatestPrice = 0m
+                Performance = 3.3197m // (1.46 / 43.98) * 100
                 OpenTrades = false
                 Commissions = 2.0m // Cumulative: no new commissions from closing trades
                 Fees = 0.54m } // Cumulative: 0.27 (previous) + 0.13 (BTC) + 0.14 (STC) = 0.54
@@ -378,10 +369,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 4.00m // Same as Snapshot 2 (no new trades)
                 TotalIncomes = 1.46m // = Options (4.00) - Commissions (2.00) - Fees (0.54)
-                Unrealized = 0m
+                CapitalDeployed = 43.98m // Same as Snapshot 2 (no new trades)
                 Realized = 1.46m
-                Performance = 0m
-                LatestPrice = 0m
+                Performance = 3.3197m // (1.46 / 43.98) * 100
                 OpenTrades = false
                 Commissions = 2.0m // Same as Snapshot 2 (no new trades)
                 Fees = 0.54m } // Same as Snapshot 2 (no new trades)

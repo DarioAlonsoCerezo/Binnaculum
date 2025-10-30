@@ -35,10 +35,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 15.00m // $15 premium received
                 TotalIncomes = 13.86m // $15 - $1 - $0.14 = $13.86
-                Unrealized = 0.00m // Position still open
+                CapitalDeployed = 0.00m // Position still open
                 Realized = 0.00m // Nothing closed yet
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true // Position is open
                 Commissions = 1.00m // From CSV
                 Fees = 0.14m } // From CSV
@@ -60,10 +59,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 15.00m
                 TotalIncomes = 13.86m
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 13.86m
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = false // All positions closed
                 Commissions = 1.00m // Same as before (no new costs at expiration)
                 Fees = 0.14m } // Same as before
@@ -90,10 +88,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -471.00m // $15 + $29 - $515 = -$471
                 TotalIncomes = -474.41m // After commissions ($3) and fees ($0.41): -$471 - $3.41 = -$474.41
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 13.86m // Still the same from previous closed position
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true // New positions opened
                 Commissions = 3.00m // $1 (prev) + $1 + $1 = $3
                 Fees = 0.41m } // $0.14 (prev) + $0.14 + $0.13 = $0.41
@@ -120,10 +117,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -6906.00m // -$471 + $195 - $6,630 = -$6,906
                 TotalIncomes = -6932.80m // After commissions ($23) and fees ($3.80)
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 13.86m // Same as before
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true // Positions still open
                 Commissions = 23.00m // $3 (prev) + $10 + $10 = $23
                 Fees = 3.80m } // $0.41 (prev) + $1.72 + $1.67 = $3.80
@@ -148,10 +144,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -7032.00m // -$6,906 - $126 = -$7,032
                 TotalIncomes = -7060.59m // After fees
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 97.21m // $13.86 (prev) + $83.35 (new) = $97.21
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 23.00m // Same as before (no commission this trade)
                 Fees = 5.59m } // $3.80 (prev) + $1.79 = $5.59
@@ -175,10 +170,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -7487.00m // -$7,032 - $455 = -$7,487
                 TotalIncomes = -7516.72m // After commission ($1) and fee ($0.13)
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 97.21m // Same as before
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 24.00m // $23 (prev) + $1 = $24
                 Fees = 5.72m } // $5.59 (prev) + $0.13 = $5.72
@@ -206,10 +200,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 271.00m // -$7,487 + $48 + $7,710 = $271
                 TotalIncomes = 235.07m // After commissions ($28) and fees ($7.93)
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 2180.45m // Major realized gain from closing positions
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true // Still has open positions
                 Commissions = 28.00m // $24 (prev) + $4 = $28
                 Fees = 7.93m } // $5.72 (prev) + $2.21 = $7.93
@@ -236,10 +229,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 283.00m
                 TotalIncomes = 244.80m
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 2180.45m
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 30.00m
                 Fees = 8.20m }
@@ -268,10 +260,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 463.00m // $283 + $184 - $4 = $463
                 TotalIncomes = 419.76m // After commissions ($34) and fees ($9.24)
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 2219.38m // $2,180.45 (prev) + $38.93 (new) = $2,219.38
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 34.00m // $30 (prev) + $4 = $34
                 Fees = 9.24m } // $8.20 (prev) + $1.04 = $9.24
@@ -299,10 +290,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 675.00m // $463 + $252 - $40 = $675
                 TotalIncomes = 626.73m // After commissions ($38) and fees ($10.27)
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 2358.35m // $2,219.38 + $138.97 = $2,358.35
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 38.00m // $34 (prev) + $4 = $38
                 Fees = 10.27m } // $9.24 (prev) + $1.03 = $10.27
@@ -332,10 +322,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 529.00m
                 TotalIncomes = 475.39m
-                Unrealized = 0.00m
+                CapitalDeployed = 0.00m
                 Realized = 1188.77m
                 Performance = 0.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 42.00m // $38 (prev) + $4 = $42
                 Fees = 11.61m } // $10.27 (prev) + $1.34 = $11.61
@@ -370,10 +359,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 4268.00m // $529 + $935 - $1,620 + $4,424 = $4,268
                 TotalIncomes = 4200.89m // After commissions ($52) and fees ($15.11)
-                Unrealized = 0.00m // No speculation - focus on realized data
+                CapitalDeployed = 0.00m // No speculation - focus on realized data
                 Realized = 3278.23m // $1,188.77 + $2,089.46 = $3,278.23
                 Performance = 0.0000m // Will be aggregated from Operations in future
-                LatestPrice = 0.02m // Market price from trade
                 OpenTrades = true
                 Commissions = 52.00m // $42 (prev) + $10 = $52
                 Fees = 15.11m } // $11.61 (prev) + $3.50 = $15.11
@@ -403,10 +391,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 3223.00m // $4,268 - $1,045 = $3,223
                 TotalIncomes = 3152.92m // After commissions ($52) and fees ($18.08)
-                Unrealized = 36680.00m // Historical unrealized
+                CapitalDeployed = 36680.00m // Historical CapitalDeployed
                 Realized = 3155.38m // $3,278.23 - $122.85 = $3,155.38
                 Performance = -100.0000m // All positions closed
-                LatestPrice = 0.00m
                 OpenTrades = false // 🎯 All positions closed!
                 Commissions = 52.00m // Same (no new commissions)
                 Fees = 18.08m } // $15.11 (prev) + $2.97 = $18.08
@@ -436,10 +423,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 4449.00m
                 TotalIncomes = 4367.96m
-                Unrealized = -51901836.50m
+                CapitalDeployed = -51901836.50m
                 Realized = 3155.38m
                 Performance = 92900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 61.00m
                 Fees = 20.04m }
@@ -467,10 +453,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 4449.00m // Same as before (no option trades)
                 TotalIncomes = 4367.91m // Slightly adjusted
-                Unrealized = -50803748.60m // Updated unrealized
+                CapitalDeployed = -50803748.60m // Updated CapitalDeployed
                 Realized = 3155.38m // Same
                 Performance = 89900.0000m // Based on 900 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 61.00m // Same (no new commissions)
                 Fees = 20.09m } // $20.04 (prev) + $0.05 = $20.09
@@ -500,10 +485,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 8675.00m // $4,449 + $122 + $6,192 - $2,088 = $8,675
                 TotalIncomes = 8580.15m // After commissions ($72) and fees ($22.85)
-                Unrealized = -50803748.60m // Same
+                CapitalDeployed = -50803748.60m // Same
                 Realized = 2282.02m // $3,155.38 - $873.36 = $2,282.02
                 Performance = 89900.0000m // Based on 900 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 72.00m // $61 (prev) + $11 = $72
                 Fees = 22.85m } // $20.09 (prev) + $2.76 = $22.85
@@ -534,10 +518,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 4026.00m
                 TotalIncomes = 3919.53m
-                Unrealized = -53876251.80m
+                CapitalDeployed = -53876251.80m
                 Realized = 3124.01m
                 Performance = 93900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 81.00m // $72 (prev) + $9 = $81
                 Fees = 25.47m } // $22.85 (prev) + $2.62 = $25.47
@@ -571,10 +554,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 8506.00m // $4,026 + $4,480 = $8,506
                 TotalIncomes = 8385.63m // After commissions ($92) and fees ($28.37)
-                Unrealized = -71113792.00m // Large unrealized
+                CapitalDeployed = -71113792.00m // Large CapitalDeployed
                 Realized = 3384.67m // $3,124.01 + $260.66 = $3,384.67
                 Performance = 115000.0000m // Based on 1,151 shares (peak!)
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 92.00m // $81 (prev) + $11 = $92
                 Fees = 28.37m } // $25.47 (prev) + $2.90 = $28.37
@@ -598,10 +580,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 8506.00m // Same as before (no option trades)
                 TotalIncomes = 8385.63m // Same
-                Unrealized = -71198155.15m // Updated unrealized
+                CapitalDeployed = -71198155.15m // Updated CapitalDeployed
                 Realized = 3384.67m // Same
                 Performance = 115100.0000m // Based on 1,152 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 92.00m // Same (no commission this trade!)
                 Fees = 28.37m } // Same (no fees!)
@@ -634,10 +615,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 3373.00m
                 TotalIncomes = 3238.38m
-                Unrealized = -60319960.27m
+                CapitalDeployed = -60319960.27m
                 Realized = 4012.68m
                 Performance = 89900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 103.00m
                 Fees = 31.62m } // $28.37 (prev) + $3.25 = $31.62
@@ -669,10 +649,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 3805.00m // $3,373 + $2,151 - $1,719 = $3,805
                 TotalIncomes = 3659.13m // After commissions ($112) and fees ($33.87)
-                Unrealized = -60319960.27m // Same
+                CapitalDeployed = -60319960.27m // Same
                 Realized = 3146.41m // $4,012.68 - $866.27 = $3,146.41 (realized loss on roll)
                 Performance = 89900.0000m // Based on 900 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 112.00m // $103 (prev) + $9 = $112
                 Fees = 33.87m } // $31.62 (prev) + $2.25 = $33.87
@@ -705,10 +684,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 5750.00m
                 TotalIncomes = 5602.62m
-                Unrealized = -70242429.60m
+                CapitalDeployed = -70242429.60m
                 Realized = 3273.85m
                 Performance = 101000.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 113.00m
                 Fees = 34.38m }
@@ -738,10 +716,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1420.00m // $5,750 - $4,330 = $1,420
                 TotalIncomes = 1269.74m // After commissions and fees
-                Unrealized = 94866.68m // Historical
+                CapitalDeployed = 94866.68m // Historical
                 Realized = 1275.36m // Net realized after all closing
                 Performance = -100.0000m // All positions closed
-                LatestPrice = 0.00m
                 OpenTrades = false // 🎯 ALL POSITIONS CLOSED!
                 Commissions = 113.00m // Same (no new commissions)
                 Fees = 37.26m } // $34.38 (prev) + $2.88 = $37.26
@@ -769,10 +746,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1420.00m
                 TotalIncomes = 1269.74m
-                Unrealized = 94866.68m
+                CapitalDeployed = 94866.68m
                 Realized = 1275.36m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = false
                 Commissions = 113.00m
                 Fees = 37.26m }
@@ -791,10 +767,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -764.00m // $1,420 + $96 - $2,280 = -$764 (net debit!)
                 TotalIncomes = -916.51m // Negative due to long call purchase
-                Unrealized = 94866.68m // Historical
+                CapitalDeployed = 94866.68m // Historical
                 Realized = 1275.36m // Same as before
                 Performance = -100.0000m // No shares
-                LatestPrice = 0.00m
                 OpenTrades = true // Options only strategy
                 Commissions = 115.00m // $113 (prev) + $2 = $115
                 Fees = 37.51m } // $37.26 (prev) + $0.25 = $37.51
@@ -823,10 +798,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -394.00m // -$764 + $370 = -$394
                 TotalIncomes = -547.78m // Still negative
-                Unrealized = 94866.68m // Historical
+                CapitalDeployed = 94866.68m // Historical
                 Realized = 910.11m // $1,275.36 - $365.25 = $910.11
                 Performance = -100.0000m // No shares
-                LatestPrice = 0.00m
                 OpenTrades = true // Still options only
                 Commissions = 116.00m // $115 (prev) + $1 = $116
                 Fees = 37.78m } // $37.51 (prev) + $0.27 = $37.78
@@ -856,10 +830,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -394.00m
                 TotalIncomes = -547.78m
-                Unrealized = 94866.68m
+                CapitalDeployed = 94866.68m
                 Realized = 910.11m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 116.00m
                 Fees = 37.78m } // $37.51 (prev) + $0.27 = $37.78
@@ -889,10 +862,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1196.00m // -$394 + $1,590 = $1,196
                 TotalIncomes = 1041.93m // Back to positive!
-                Unrealized = 94866.68m // Historical
+                CapitalDeployed = 94866.68m // Historical
                 Realized = 1047.55m // $910.11 + $137.44 = $1,047.55
                 Performance = -100.0000m // No shares
-                LatestPrice = 0.00m
                 OpenTrades = true // Still options only
                 Commissions = 116.00m // Same (no new commissions)
                 Fees = 38.07m } // $37.78 (prev) + $0.29 = $38.07
@@ -919,10 +891,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1214.00m
                 TotalIncomes = 1057.66m
-                Unrealized = 94866.68m
+                CapitalDeployed = 94866.68m
                 Realized = 1047.55m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 118.00m // $116 (prev) + $2 = $118
                 Fees = 38.34m } // $38.07 (prev) + $0.27 = $38.34
@@ -950,10 +921,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1236.00m // $1,214 + $22 = $1,236
                 TotalIncomes = 1077.39m // After commissions and fees
-                Unrealized = 94866.68m // Historical
+                CapitalDeployed = 94866.68m // Historical
                 Realized = 1047.55m // Same as before
                 Performance = -100.0000m // No shares
-                LatestPrice = 0.00m
                 OpenTrades = true // Double put spread now
                 Commissions = 120.00m // $118 (prev) + $2 = $120
                 Fees = 38.61m } // $38.34 (prev) + $0.27 = $38.61
@@ -977,10 +947,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1255.00m // $1,236 + $19 = $1,255
                 TotalIncomes = 1095.25m // After commissions and fees
-                Unrealized = 94866.68m // Historical
+                CapitalDeployed = 94866.68m // Historical
                 Realized = 1047.55m // Same as before
                 Performance = -100.0000m // No shares
-                LatestPrice = 0.00m
                 OpenTrades = true // More options
                 Commissions = 121.00m // $120 (prev) + $1 = $121
                 Fees = 38.75m } // $38.61 (prev) + $0.14 = $38.75
@@ -1008,10 +977,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1237.00m
                 TotalIncomes = 1076.58m
-                Unrealized = 94866.68m
+                CapitalDeployed = 94866.68m
                 Realized = 1082.20m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 121.00m // Same (no new commissions)
                 Fees = 39.42m } // $38.75 (prev) + $0.67 = $39.42
@@ -1039,10 +1007,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1387.00m // $1,237 + $150 = $1,387
                 TotalIncomes = 1224.14m // After commissions and fees
-                Unrealized = -19257763.32m // New unrealized with shares
+                CapitalDeployed = -19257763.32m // New capital deployed with shares
                 Realized = 1082.20m // Same as before
                 Performance = 19900.0000m // Based on 200 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 123.00m // $121 (prev) + $2 = $123
                 Fees = 39.86m } // $39.42 (prev) + $0.44 = $39.86
@@ -1069,10 +1036,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2407.00m // $1,387 + $1,020 = $2,407
                 TotalIncomes = 2231.98m // After commissions ($133) and fees ($42.02)
-                Unrealized = -128679893.32m // Large unrealized on 1,200 shares
+                CapitalDeployed = -128679893.32m // Large capital deployed on 1,200 shares
                 Realized = 1082.20m // Same as before
                 Performance = 119900.0000m // Based on 1,200 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 133.00m // $123 (prev) + $10 = $133
                 Fees = 42.02m } // $39.86 (prev) + $2.16 = $42.02
@@ -1097,10 +1063,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2503.00m // $2,407 + $96 = $2,503
                 TotalIncomes = 2323.42m // After commissions and fees
-                Unrealized = -128679893.32m // Same
+                CapitalDeployed = -128679893.32m // Same
                 Realized = 1082.20m // Same as before
                 Performance = 119900.0000m // Based on 1,200 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 135.00m // $133 (prev) + $2 = $135
                 Fees = 42.30m } // $42.02 (prev) + $0.28 = $42.30
@@ -1125,10 +1090,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2503.00m
                 TotalIncomes = 2325.69m
-                Unrealized = -130465824.22m
+                CapitalDeployed = -130465824.22m
                 Realized = 1082.20m
                 Performance = 121400.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 135.00m
                 Fees = 42.31m }
@@ -1147,10 +1111,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2503.00m
                 TotalIncomes = 2325.67m
-                Unrealized = -129039593.32m
+                CapitalDeployed = -129039593.32m
                 Realized = 1082.20m
                 Performance = 119900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 135.00m
                 Fees = 42.33m }
@@ -1180,10 +1143,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 797.00m
                 TotalIncomes = 616.31m
-                Unrealized = 121302.68m
+                CapitalDeployed = 121302.68m
                 Realized = 624.47m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true // Still has options open
                 Commissions = 135.00m // Same (no new commissions)
                 Fees = 45.69m } // $42.33 (prev) + $3.36 = $45.69
@@ -1210,10 +1172,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1171.00m // $797 + $374 = $1,171
                 TotalIncomes = 977.92m // After commissions ($145) and fees ($48.08)
-                Unrealized = -156422194.32m // Large unrealized
+                CapitalDeployed = -156422194.32m // Large capital deployed
                 Realized = 624.47m // Same as before
                 Performance = 114900.0000m // Based on 1,150 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 145.00m // $135 (prev) + $10 = $145
                 Fees = 48.08m } // $45.69 (prev) + $2.39 = $48.08
@@ -1241,10 +1202,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1414.00m // $1,171 + $1,122 - $880 = $1,413
                 TotalIncomes = 1207.03m // After commissions and fees
-                Unrealized = -156422194.32m // Same
+                CapitalDeployed = -156422194.32m // Same
                 Realized = 102.57m // $624.47 - $521.90 = $102.57 (realized loss on roll)
                 Performance = 114900.0000m // Based on 1,150 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 156.00m // $145 (prev) + $11 = $156
                 Fees = 50.97m } // $48.08 (prev) + $2.89 = $50.97
@@ -1269,10 +1229,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1171.00m
                 TotalIncomes = 977.92m
-                Unrealized = -156422194.32m
+                CapitalDeployed = -156422194.32m
                 Realized = 624.47m
                 Performance = 114900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 145.00m
                 Fees = 48.08m }
@@ -1291,10 +1250,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1414.00m
                 TotalIncomes = 1207.03m
-                Unrealized = -156422194.32m
+                CapitalDeployed = -156422194.32m
                 Realized = 102.57m
                 Performance = 114900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 156.00m
                 Fees = 50.97m }
@@ -1321,10 +1279,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1414.00m // Same as before (no option trades)
                 TotalIncomes = 1206.98m // Slightly adjusted
-                Unrealized = -150461540.32m // Updated unrealized
+                CapitalDeployed = -150461540.32m // Updated capital deployed
                 Realized = 102.57m // Same as before
                 Performance = 109900.0000m // Based on 1,100 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 156.00m // Same (no new commissions)
                 Fees = 51.02m } // $50.97 (prev) + $0.05 = $51.02
@@ -1353,10 +1310,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1767.00m // $1,414 + $353 net = $1,767
                 TotalIncomes = 1545.95m // After commissions and fees
-                Unrealized = -150461540.32m // Same
+                CapitalDeployed = -150461540.32m // Same
                 Realized = 279.68m // $102.57 + $177.11 = $279.68 (gain from roll!)
                 Performance = 109900.0000m // Based on 1,100 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 167.00m // $156 (prev) + $11 = $167
                 Fees = 54.05m } // $51.02 (prev) + $3.03 = $54.05
@@ -1386,10 +1342,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1874.00m // $1,767 + $114 - $7 = $1,874
                 TotalIncomes = 1651.61m // After commissions and fees
-                Unrealized = -165966395.32m // Updated unrealized
+                CapitalDeployed = -165966395.32m // Updated capital deployed
                 Realized = 294.42m // $279.68 + $14.74 = $294.42
                 Performance = 119900.0000m // Based on 1,200 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 168.00m // $167 (prev) + $1 = $168
                 Fees = 54.39m } // $54.05 (prev) + $0.34 = $54.39
@@ -1413,10 +1368,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1767.00m
                 TotalIncomes = 1545.95m
-                Unrealized = -150461540.32m
+                CapitalDeployed = -150461540.32m
                 Realized = 279.68m
                 Performance = 109900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 167.00m
                 Fees = 54.05m }
@@ -1435,10 +1389,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1874.00m
                 TotalIncomes = 1651.61m
-                Unrealized = -165966395.32m
+                CapitalDeployed = -165966395.32m
                 Realized = 294.42m
                 Performance = 119900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 168.00m
                 Fees = 54.39m }
@@ -1458,10 +1411,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1899.00m // $1,874 + $25 = $1,899
                 TotalIncomes = 1675.48m // After commissions and fees
-                Unrealized = -165966395.32m // Same
+                CapitalDeployed = -165966395.32m // Same
                 Realized = 294.42m // Same as before
                 Performance = 119900.0000m // Based on 1,200 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 169.00m // $168 (prev) + $1 = $169
                 Fees = 54.52m } // $54.39 (prev) + $0.13 = $54.52
@@ -1494,10 +1446,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1945.00m // $1,899 + $46 = $1,945
                 TotalIncomes = 1718.88m // After commissions and fees
-                Unrealized = -181902451.32m // Updated unrealized
+                CapitalDeployed = -181902451.32m // Updated capital deployed
                 Realized = 279.90m // $294.42 - $14.52 = $279.90
                 Performance = 129900.0000m // Based on 1,300 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 171.00m // $169 (prev) + $2 = $171
                 Fees = 55.12m } // $54.52 (prev) + $0.60 = $55.12
@@ -1526,10 +1477,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2197.00m // $1,945 + $252 = $2,197
                 TotalIncomes = 1957.75m // After commissions and fees
-                Unrealized = -181902451.32m // Same
+                CapitalDeployed = -181902451.32m // Same
                 Realized = -353.25m // $279.90 - $633.15 = -$353.25 (expensive roll!)
                 Performance = 129900.0000m // Based on 1,300 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 181.00m // $171 (prev) + $10 = $181
                 Fees = 58.25m } // $55.12 (prev) + $3.13 = $58.25
@@ -1556,10 +1506,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 1945.00m
                 TotalIncomes = 1718.88m
-                Unrealized = -181902451.32m
+                CapitalDeployed = -181902451.32m
                 Realized = 279.90m
                 Performance = 129900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 171.00m
                 Fees = 55.12m } // $54.52 (prev) + $0.60 = $55.12
@@ -1579,10 +1528,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2197.00m
                 TotalIncomes = 1957.75m
-                Unrealized = -181902451.32m
+                CapitalDeployed = -181902451.32m
                 Realized = -353.25m
                 Performance = 129900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 181.00m // $171 (prev) + $10 = $181
                 Fees = 58.25m } // $55.12 (prev) + $3.13 = $58.25
@@ -1607,10 +1555,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2251.00m
                 TotalIncomes = 2009.23m
-                Unrealized = -181902451.32m
+                CapitalDeployed = -181902451.32m
                 Realized = -308.77m
                 Performance = 129900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 183.00m // $181 (prev) + $2 = $183 (note: data shows 183)
                 Fees = 58.77m } // $58.25 (prev) + $0.52 = $58.77
@@ -1634,10 +1581,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2297.00m // $2,251 + $46 = $2,297
                 TotalIncomes = 2054.10m // After commissions and fees
-                Unrealized = -181902451.32m // Same
+                CapitalDeployed = -181902451.32m // Same
                 Realized = -308.77m // Same as before
                 Performance = 129900.0000m // Based on 1,300 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 184.00m // $183 (prev) + $1 = $184
                 Fees = 58.90m } // $58.77 (prev) + $0.13 = $58.90
@@ -1666,10 +1612,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2291.00m // $2,297 - $6 = $2,291
                 TotalIncomes = 2046.71m // After commissions and fees
-                Unrealized = -181902451.32m // Same
+                CapitalDeployed = -181902451.32m // Same
                 Realized = -333.29m // -$308.77 - $24.52 = -$333.29
                 Performance = 129900.0000m // Based on 1,300 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 185.00m // $184 (prev) + $1 = $185
                 Fees = 59.29m } // $58.90 (prev) + $0.39 = $59.29
@@ -1693,10 +1638,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2297.00m
                 TotalIncomes = 2054.10m
-                Unrealized = -181902451.32m
+                CapitalDeployed = -181902451.32m
                 Realized = -308.77m
                 Performance = 129900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 184.00m
                 Fees = 58.90m } // $58.77 (prev) + $0.13 = $58.90
@@ -1716,10 +1660,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2291.00m
                 TotalIncomes = 2046.71m
-                Unrealized = -181902451.32m
+                CapitalDeployed = -181902451.32m
                 Realized = -333.29m
                 Performance = 129900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 185.00m // $184 (prev) + $1 = $185
                 Fees = 59.29m } // $58.90 (prev) + $0.39 = $59.29
@@ -1739,10 +1682,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2291.00m
                 TotalIncomes = 2046.63m
-                Unrealized = -197584519.32m
+                CapitalDeployed = -197584519.32m
                 Realized = -333.29m
                 Performance = 139900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 185.00m // Same (no new commissions)
                 Fees = 59.37m } // $59.29 (prev) + $0.08 = $59.37
@@ -1769,10 +1711,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2278.00m // $2,291 - $13 = $2,278
                 TotalIncomes = 2031.95m // After commissions and fees
-                Unrealized = -197584519.32m // Same
+                CapitalDeployed = -197584519.32m // Same
                 Realized = 2041.32m // -$333.29 + $2,374.61 = $2,041.32 (MASSIVE WIN!)
                 Performance = 139900.0000m // Based on 1,400 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 185.00m // Same (no new commissions)
                 Fees = 61.05m } // $59.37 (prev) + $1.68 = $61.05
@@ -1800,10 +1741,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 3001.00m // $2,278 + $723 = $3,001
                 TotalIncomes = 2741.98m // After commissions and fees
-                Unrealized = -197584519.32m // Same
+                CapitalDeployed = -197584519.32m // Same
                 Realized = 2041.32m // Same as before
                 Performance = 139900.0000m // Based on 1,400 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 196.00m // $185 (prev) + $11 = $196
                 Fees = 63.02m } // $61.05 (prev) + $1.97 = $63.02
@@ -1829,10 +1769,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2861.00m // $3,001 - $140 = $2,861
                 TotalIncomes = 2600.16m // After commissions and fees
-                Unrealized = -197584519.32m // Same
+                CapitalDeployed = -197584519.32m // Same
                 Realized = 2587.66m // $2,041.32 + $546.34 = $2,587.66 (another win!)
                 Performance = 139900.0000m // Based on 1,400 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 196.00m // Same (no new commissions)
                 Fees = 64.84m } // $63.02 (prev) + $1.82 = $64.84
@@ -1851,10 +1790,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2278.00m
                 TotalIncomes = 2031.95m
-                Unrealized = -197584519.32m
+                CapitalDeployed = -197584519.32m
                 Realized = 2041.32m
                 Performance = 139900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 185.00m
                 Fees = 61.05m }
@@ -1873,10 +1811,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 3001.00m
                 TotalIncomes = 2741.98m
-                Unrealized = -197584519.32m
+                CapitalDeployed = -197584519.32m
                 Realized = 2041.32m
                 Performance = 139900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 196.00m
                 Fees = 63.02m }
@@ -1895,10 +1832,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 2861.00m
                 TotalIncomes = 2600.16m
-                Unrealized = -197584519.32m
+                CapitalDeployed = -197584519.32m
                 Realized = 2587.66m
                 Performance = 139900.0000m // Based on 1,400 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 196.00m // Same (no new commissions)
                 Fees = 64.84m } // $63.02 (prev) + $1.82 = $64.84
@@ -1920,10 +1856,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 3674.00m // $2,861 + $813 = $3,674
                 TotalIncomes = 3400.97m // After commissions and fees
-                Unrealized = -213580038.32m // Updated unrealized
+                CapitalDeployed = -213580038.32m // Updated CapitalDeployed
                 Realized = 2597.40m // $2,587.66 + $9.74 = $2,597.40
                 Performance = 149900.0000m // Based on 1,500 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 206.00m // $196 (prev) + $10 = $206
                 Fees = 67.03m } // $64.84 (prev) + $2.19 = $67.03
@@ -1945,10 +1880,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 3674.00m // Same as before (no option trades)
                 TotalIncomes = 3400.94m // Slightly adjusted
-                Unrealized = -218583480.60m // Updated unrealized
+                CapitalDeployed = -218583480.60m // Updated CapitalDeployed
                 Realized = 2597.40m // Same as before
                 Performance = 153000.0000m // Based on 1,531 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 206.00m // Same (no new commissions)
                 Fees = 67.06m } // $67.03 (prev) + $0.03 = $67.06
@@ -1974,10 +1908,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 3674.00m // Same as before (no option trades)
                 TotalIncomes = 3400.91m // Slightly adjusted
-                Unrealized = -214807089.74m // Updated unrealized
+                CapitalDeployed = -214807089.74m // Updated CapitalDeployed
                 Realized = 2597.40m // Same as before
                 Performance = 149900.0000m // Based on 1,500 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 206.00m // Same (no new commissions)
                 Fees = 67.09m } // $67.06 (prev) + $0.03 = $67.09
@@ -2007,10 +1940,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 6277.00m // $3,674 + $2,603 = $6,277 (big jump!)
                 TotalIncomes = 5987.54m // After commissions and fees
-                Unrealized = -247667069.74m // Large unrealized
+                CapitalDeployed = -247667069.74m // Large CapitalDeployed
                 Realized = 2673.47m // $2,597.40 + $76.07 = $2,673.47
                 Performance = 169900.0000m // Based on 1,700 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 218.00m // $206 (prev) + $12 = $218
                 Fees = 71.46m } // $67.09 (prev) + $4.37 = $71.46
@@ -2039,10 +1971,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 4220.00m // $6,277 - $2,057 = $4,220
                 TotalIncomes = 3926.70m // After commissions and fees
-                Unrealized = 166682.26m // Historical
+                CapitalDeployed = 166682.26m // Historical
                 Realized = 3938.01m // $2,673.47 + $1,264.54 = $3,938.01 (BIG WIN!)
                 Performance = -100.0000m // All positions closed
-                LatestPrice = 0.00m
                 OpenTrades = true // Still has options
                 Commissions = 218.00m // Same (no new commissions)
                 Fees = 75.30m } // $71.46 (prev) + $3.84 = $75.30
@@ -2065,10 +1996,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m // Taxes paid
                 Options = 4220.00m // Same as before
                 TotalIncomes = 4020.81m // After all income
-                Unrealized = 166682.26m // Historical
+                CapitalDeployed = 166682.26m // Historical
                 Realized = 3938.01m // Same as before
                 Performance = -100.0000m // All positions closed
-                LatestPrice = 0.00m
                 OpenTrades = true // Still has options
                 Commissions = 218.00m // Same
                 Fees = 75.30m } // Same
@@ -2087,10 +2017,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 6277.00m
                 TotalIncomes = 5987.54m
-                Unrealized = -247667069.74m
+                CapitalDeployed = -247667069.74m
                 Realized = 2673.47m
                 Performance = 169900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 218.00m
                 Fees = 71.46m }
@@ -2109,10 +2038,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 4220.00m
                 TotalIncomes = 3926.70m
-                Unrealized = 166682.26m
+                CapitalDeployed = 166682.26m
                 Realized = 3938.01m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 218.00m // Same (no new commissions)
                 Fees = 75.30m } // $71.46 (prev) + $3.84 = $75.30
@@ -2132,10 +2060,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4220.00m
                 TotalIncomes = 4020.81m
-                Unrealized = 166682.26m
+                CapitalDeployed = 166682.26m
                 Realized = 3938.01m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true // Still has options
                 Commissions = 218.00m // Same
                 Fees = 75.30m } // Same
@@ -2163,10 +2090,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m // Same
                 Options = 4261.00m // $4,220 + $41 = $4,261
                 TotalIncomes = 4060.60m // After commissions and fees
-                Unrealized = -16605295.74m // Updated unrealized
+                CapitalDeployed = -16605295.74m // Updated CapitalDeployed
                 Realized = 3938.01m // Same as before
                 Performance = 9900.0000m // Based on 100 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 219.00m // $218 (prev) + $1 = $219
                 Fees = 75.51m } // $75.30 (prev) + $0.21 = $75.51
@@ -2192,10 +2118,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m // Same
                 Options = 4365.00m // $4,261 + $104 = $4,365
                 TotalIncomes = 4163.34m // After commissions and fees
-                Unrealized = -16605295.74m // Same
+                CapitalDeployed = -16605295.74m // Same
                 Realized = 3924.75m // $3,938.01 - $13.26 = $3,924.75
                 Performance = 9900.0000m // Based on 100 shares
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 220.00m // $219 (prev) + $1 = $220
                 Fees = 75.77m } // $75.51 (prev) + $0.26 = $75.77
@@ -2226,10 +2151,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4261.00m
                 TotalIncomes = 4060.60m
-                Unrealized = -16605295.74m
+                CapitalDeployed = -16605295.74m
                 Realized = 3938.01m
                 Performance = 9900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 219.00m
                 Fees = 75.51m }
@@ -2248,10 +2172,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4365.00m
                 TotalIncomes = 4163.34m
-                Unrealized = -16605295.74m
+                CapitalDeployed = -16605295.74m
                 Realized = 3924.75m
                 Performance = 9900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 220.00m
                 Fees = 75.77m }
@@ -2271,10 +2194,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m // Same
                 Options = 4085.00m // $4,365 - $280 = $4,085
                 TotalIncomes = 3883.11m // After commissions and fees
-                Unrealized = 169000.26m // Historical
+                CapitalDeployed = 169000.26m // Historical
                 Realized = 3800.49m // $3,924.75 - $124.26 = $3,800.49
                 Performance = -100.0000m // All positions closed
-                LatestPrice = 0.00m
                 OpenTrades = true // Still has options
                 Commissions = 220.00m // Same (no new commissions)
                 Fees = 76.00m } // $75.77 (prev) + $0.23 = $76.00
@@ -2299,10 +2221,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m // Same
                 Options = 4400.00m // $4,085 + $315 = $4,400
                 TotalIncomes = 4186.83m // After commissions and fees
-                Unrealized = 169000.26m // Historical
+                CapitalDeployed = 169000.26m // Historical
                 Realized = 3800.49m // Same
                 Performance = -100.0000m // No shares
-                LatestPrice = 0.00m
                 OpenTrades = true // Still has options
                 Commissions = 230.00m // $220 (prev) + $10 = $230
                 Fees = 77.28m } // $76.00 (prev) + $1.28 = $77.28
@@ -2326,10 +2247,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4400.00m
                 TotalIncomes = 4186.83m
-                Unrealized = 169000.26m
+                CapitalDeployed = 169000.26m
                 Realized = 3800.49m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 230.00m
                 Fees = 77.28m }
@@ -2348,10 +2268,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4240.00m
                 TotalIncomes = 4025.60m
-                Unrealized = 169000.26m
+                CapitalDeployed = 169000.26m
                 Realized = 3942.98m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 230.00m
                 Fees = 78.51m } // Fees accumulating
@@ -2370,10 +2289,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4310.00m
                 TotalIncomes = 4094.48m
-                Unrealized = 169000.26m
+                CapitalDeployed = 169000.26m
                 Realized = 3942.98m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 231.00m
                 Fees = 78.63m } // Fees accumulating
@@ -2392,10 +2310,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4259.00m
                 TotalIncomes = 4043.36m
-                Unrealized = 169000.26m
+                CapitalDeployed = 169000.26m
                 Realized = 3960.74m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 231.00m
                 Fees = 78.75m } // Fees accumulating
@@ -2414,10 +2331,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4295.00m
                 TotalIncomes = 4078.16m
-                Unrealized = -16862992.74m
+                CapitalDeployed = -16862992.74m
                 Realized = 3960.74m
                 Performance = 9900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 232.00m
                 Fees = 78.95m } // Fees accumulating
@@ -2436,10 +2352,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4317.00m
                 TotalIncomes = 4099.04m
-                Unrealized = -16862992.74m
+                CapitalDeployed = -16862992.74m
                 Realized = 3960.74m
                 Performance = 9900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 233.00m
                 Fees = 79.07m } // Fees accumulating
@@ -2458,10 +2373,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4358.00m
                 TotalIncomes = 4138.80m
-                Unrealized = -16862992.74m
+                CapitalDeployed = -16862992.74m
                 Realized = 3943.50m
                 Performance = 9900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 234.00m
                 Fees = 79.31m } // Fees accumulating
@@ -2480,10 +2394,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4358.00m
                 TotalIncomes = 4138.80m
-                Unrealized = -16862992.74m
+                CapitalDeployed = -16862992.74m
                 Realized = 3964.38m
                 Performance = 9900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 234.00m
                 Fees = 79.31m } // Fees same
@@ -2502,10 +2415,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 20.16m
                 Options = 4363.00m
                 TotalIncomes = 4142.56m
-                Unrealized = -16862992.74m
+                CapitalDeployed = -16862992.74m
                 Realized = 3624.14m
                 Performance = 9900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 235.00m
                 Fees = 79.55m } // Fees accumulating
@@ -2524,10 +2436,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 21.50m
                 Options = 4363.00m
                 TotalIncomes = 4148.81m
-                Unrealized = -16862992.74m
+                CapitalDeployed = -16862992.74m
                 Realized = 3624.14m
                 Performance = 9900.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 235.00m
                 Fees = 79.55m } // Fees same
@@ -2546,10 +2457,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 21.50m
                 Options = 3870.00m
                 TotalIncomes = 3655.59m
-                Unrealized = 172323.26m
+                CapitalDeployed = 172323.26m
                 Realized = 3566.90m
                 Performance = -100.0000m
-                LatestPrice = 0.00m
                 OpenTrades = true
                 Commissions = 235.00m
                 Fees = 79.77m } // Fees accumulating
@@ -2571,10 +2481,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 21.50m // Total taxes
                 Options = 3870.00m // Remaining options value
                 TotalIncomes = 3655.59m // Final total incomes
-                Unrealized = 172323.26m // Historical
+                CapitalDeployed = 172323.26m // Historical
                 Realized = 3566.90m // Final realized gains
                 Performance = -100.0000m // All positions closed
-                LatestPrice = 0.00m
                 OpenTrades = true // Still has open options
                 Commissions = 235.00m // Total commissions
                 Fees = 79.77m } // Total fees

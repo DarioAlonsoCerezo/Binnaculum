@@ -58,10 +58,9 @@ module PfizerImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = -554.00m // BUY_TO_OPEN Premium (gross, before costs)
                 TotalIncomes = -555.12m // = Options (-554.00) - Commissions (1.00) - Fees (0.12)
-                Unrealized = 0m
+                CapitalDeployed = 0m
                 Realized = 0m
                 Performance = 0m
-                LatestPrice = 0m
                 OpenTrades = true
                 Commissions = 1.00m // BUY_TO_OPEN commission (positive value = cost)
                 Fees = 0.12m } // BUY_TO_OPEN fees (positive value = cost)
@@ -81,10 +80,9 @@ module PfizerImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = -503.00m // Cumulative Premium: -554 + 51 = -503
                 TotalIncomes = -505.24m // = Options (-503.00) - Commissions (2.00) - Fees (0.24)
-                Unrealized = 0m
+                CapitalDeployed = 0m
                 Realized = 0m
                 Performance = 0m
-                LatestPrice = 0m
                 OpenTrades = true
                 Commissions = 2.00m // Cumulative: 1.00 (BTO) + 1.00 (STO) = 2.00
                 Fees = 0.24m } // Cumulative: 0.12 (BTO) + 0.12 (STO) = 0.24
@@ -104,10 +102,9 @@ module PfizerImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 178.00m // Cumulative Premium: -554 + 51 - 64 + 745 = 178
                 TotalIncomes = 175.52m // = Options (178.00) - Commissions (2.00) - Fees (0.48)
-                Unrealized = 0m
+                CapitalDeployed = 0m
                 Realized = 175.52m // FIFO: (-$14.24) + $189.76 = $175.52
                 Performance = 0m
-                LatestPrice = 0m
                 OpenTrades = false
                 Commissions = 2.00m // Cumulative: no new commissions from closing trades (0+0)
                 Fees = 0.48m } // Cumulative: 0.24 (prev) + 0.12 (BTC) + 0.12 (STC) = 0.48
@@ -127,10 +124,9 @@ module PfizerImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 178.00m // Same as Snapshot 3 (no new trades)
                 TotalIncomes = 175.52m // = Options (178.00) - Commissions (2.00) - Fees (0.48)
-                Unrealized = 0m
+                CapitalDeployed = 0m
                 Realized = 175.52m
                 Performance = 0m
-                LatestPrice = 0m
                 OpenTrades = false
                 Commissions = 2.00m // Same as Snapshot 3 (no new trades)
                 Fees = 0.48m } // Same as Snapshot 3 (no new trades)

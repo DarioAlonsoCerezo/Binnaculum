@@ -247,8 +247,8 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             let tasks = [1..20] |> List.map (fun _ ->
                 async {
                     for i in 1..100 do
-                        let oldValue = !sharedResource
-                        sharedResource := oldValue + 1
+                        let oldValue = sharedResource.Value
+                        sharedResource.Value <- oldValue + 1
                         
                         // Simulate some processing
                         let _ = [1..10] |> List.sum
