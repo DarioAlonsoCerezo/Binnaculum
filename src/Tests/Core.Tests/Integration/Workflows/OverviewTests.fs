@@ -71,7 +71,7 @@ type OverviewTests() =
             // Assert all verifications passed
             for (success, message) in verifications do
                 Assert.That(success, Is.True, message)
-                CoreLogger.logInfo "[Verification]" (sprintf "✅ %s" message)
+                CoreLogger.logInfo "Verification" (sprintf "✅ %s" message)
 
             // Additional detailed verifications
             let (brokerSuccess, brokerMsg) = TestVerifications.verifyBrokers 2

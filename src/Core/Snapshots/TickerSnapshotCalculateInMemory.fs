@@ -4,6 +4,7 @@ open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
+open Binnaculum.Core.Snapshots.CapitalDeployedCalculator
 
 /// <summary>
 /// In-memory ticker snapshot calculation engine for batch processing.
@@ -162,13 +163,11 @@ module internal TickerSnapshotCalculateInMemory =
                 Money.FromAmount(0m)
 
         // Calculate capital deployed (stocks + options) for performance calculation
-        // This tracks total capital that ever "touched" the position
-        let stockCapitalDelta =
-            movements.Trades |> List.sumBy (fun t -> abs (t.Price.Value * t.Quantity))
+        // Uses shared CapitalDeployedCalculator to ensure consistency with operations
+        // Only opening trades deploy capital; closing trades (including expirations) return 0
+        let stockCapitalDelta = calculateTotalStockCapitalDeployed movements.Trades
 
-        let optionCapitalDelta =
-            movements.OptionTrades
-            |> List.sumBy (fun (opt: OptionTrade) -> abs (opt.NetPremium.Value))
+        let optionCapitalDelta = calculateTotalOptionCapitalDeployed movements.OptionTrades
 
         let capitalDeployedDelta = stockCapitalDelta + optionCapitalDelta
 
@@ -471,13 +470,11 @@ module internal TickerSnapshotCalculateInMemory =
         // (Removed: unrealized calculation - no longer stored in snapshot)
 
         // Calculate capital deployed (stocks + options) for performance calculation
-        // This tracks total capital that ever "touched" the position
-        let stockCapitalDelta =
-            movements.Trades |> List.sumBy (fun t -> abs (t.Price.Value * t.Quantity))
+        // Uses shared CapitalDeployedCalculator to ensure consistency with operations
+        // Only opening trades deploy capital; closing trades (including expirations) return 0
+        let stockCapitalDelta = calculateTotalStockCapitalDeployed movements.Trades
 
-        let optionCapitalDelta =
-            movements.OptionTrades
-            |> List.sumBy (fun (opt: OptionTrade) -> abs (opt.NetPremium.Value))
+        let optionCapitalDelta = calculateTotalOptionCapitalDeployed movements.OptionTrades
 
         let totalCapitalDeployed = Money.FromAmount(stockCapitalDelta + optionCapitalDelta)
 

@@ -129,7 +129,7 @@ type OptionsImportTests() =
             let accountId = actions.Context.BrokerAccountId
 
             CoreLogger.logDebug
-                "[TestSetup]"
+                "TestSetup"
                 (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)

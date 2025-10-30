@@ -54,12 +54,12 @@ type BrokerAccountDepositTests() =
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
             Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
-            CoreLogger.logInfo "[TestSetup]" "✅ Data wiped successfully"
+            CoreLogger.logInfo "TestSetup" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
             Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
-            CoreLogger.logInfo "[TestSetup]" "✅ Database initialized successfully"
+            CoreLogger.logInfo "TestSetup" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
             TestSetup.printPhaseHeader 2 "Create BrokerAccount"

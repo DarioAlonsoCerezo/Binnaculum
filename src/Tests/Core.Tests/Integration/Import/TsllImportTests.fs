@@ -79,12 +79,12 @@ type TsllImportTests() =
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
             Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
-            CoreLogger.logInfo "[Verification]" "✅ Data wiped successfully"
+            CoreLogger.logInfo "Verification" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
             Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
-            CoreLogger.logInfo "[Verification]" "✅ Database initialized successfully"
+            CoreLogger.logInfo "Verification" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
             TestSetup.printPhaseHeader 2 "Create BrokerAccount for TSLL Import"
@@ -100,20 +100,20 @@ type TsllImportTests() =
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("TSLL-Import-Test")
             Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
-            CoreLogger.logInfo "[Verification]" (sprintf "✅ BrokerAccount created: %s" details)
+            CoreLogger.logInfo "Verification" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
-            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for account creation reactive signals..."
+            CoreLogger.logInfo "TestActions" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
             Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
-            CoreLogger.logInfo "[Verification]" "✅ Account creation signals received successfully"
+            CoreLogger.logInfo "Verification" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: IMPORT TSLL OPTIONS CSV ====================
             TestSetup.printPhaseHeader 3 "Import TSLL Multi-Asset CSV File"
 
             // Get CSV path
             let csvPath = this.getCsvPath ("TsllImportTest.csv")
-            CoreLogger.logDebug "[Import]" (sprintf "📄 CSV file path: %s" csvPath)
+            CoreLogger.logDebug "Import" (sprintf "📄 CSV file path: %s" csvPath)
             Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
@@ -132,18 +132,18 @@ type TsllImportTests() =
             let accountId = actions.Context.BrokerAccountId
 
             CoreLogger.logDebug
-                "[TestSetup]"
+                "TestSetup"
                 (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
             Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
-            CoreLogger.logInfo "[Verification]" (sprintf "✅ CSV import completed: %s" importDetails)
+            CoreLogger.logInfo "Verification" (sprintf "✅ CSV import completed: %s" importDetails)
 
             // WAIT: Wait for import signals (longer timeout for import processing)
-            CoreLogger.logInfo "[TestActions]" "⏳ Waiting for import reactive signals..."
+            CoreLogger.logInfo "TestActions" "⏳ Waiting for import reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
             Assert.That(signalsReceived, Is.True, "Import signals should have been received")
-            CoreLogger.logInfo "[Verification]" "✅ Import signals received successfully"
+            CoreLogger.logInfo "Verification" "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY TSLL TICKER SNAPSHOTS ====================
             TestSetup.printPhaseHeader 4 "Verify TSLL Ticker Snapshots with Complete Financial State"

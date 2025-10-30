@@ -132,6 +132,7 @@
 		<Compile Include="Memory\ReactiveMovementManager.fs" />
 		<Compile Include="Snapshots\SnapshotManagerUtils.fs" />
 		<!-- Ticker snapshot batch processing optimization modules -->
+		<Compile Include="Snapshots\CapitalDeployedCalculator.fs" />
 		<Compile Include="Snapshots\TickerSnapshotBatchLoader.fs" />
 		<Compile Include="Snapshots\TickerSnapshotCalculateInMemory.fs" />
 		<Compile Include="Snapshots\AutoImportOperationManager.fs" />

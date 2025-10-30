@@ -6,6 +6,7 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Database
 open Binnaculum.Core.Logging
+open Binnaculum.Core.Snapshots.CapitalDeployedCalculator
 
 /// <summary>
 /// Manages AutoImportOperation lifecycle during ticker snapshot batch processing.
@@ -49,45 +50,14 @@ module internal AutoImportOperationManager =
         | _ -> "NONE" // No action needed
 
     /// <summary>
-    /// Calculate capital deployed for a single option trade.
-    /// Rules:
-    /// - BuyToOpen (Call/Put): Premium + Commissions + Fees
-    /// - SellToOpen Call: $0 (assume covered)
-    /// - SellToOpen Put: (Strike × Multiplier) - Premium + Commissions + Fees
-    /// - Close trades: $0 (don't deploy new capital)
-    /// </summary>
-    let calculateTradeCapitalDeployed (trade: Binnaculum.Core.Database.DatabaseModel.OptionTrade) : decimal =
-        match trade.Code with
-        | Binnaculum.Core.Database.DatabaseModel.OptionCode.BuyToOpen ->
-            // Debit trade - deploy premium paid
-            abs (trade.Premium: Money).Value
-            + (trade.Commissions: Money).Value
-            + (trade.Fees: Money).Value
-        | Binnaculum.Core.Database.DatabaseModel.OptionCode.SellToOpen ->
-            match trade.OptionType with
-            | Binnaculum.Core.Database.DatabaseModel.OptionType.Call ->
-                // Assume covered call - no capital deployed
-                0m
-            | Binnaculum.Core.Database.DatabaseModel.OptionType.Put ->
-                // Cash-secured put - deploy strike obligation minus premium received
-                let strikeObligation = (trade.Strike: Money).Value * trade.Multiplier
-                let premiumReceived = abs (trade.Premium: Money).Value
-
-                strikeObligation - premiumReceived
-                + (trade.Commissions: Money).Value
-                + (trade.Fees: Money).Value
-        | _ ->
-            // Close trades don't deploy new capital
-            0m
-
-    /// <summary>
     /// Calculate CapitalDeployed from option trades on this date.
-    /// This should be called when creating or updating an operation.
+    /// Uses shared CapitalDeployedCalculator for consistency with ticker snapshots.
+    /// Only opening trades deploy capital; closing trades return 0.
     /// </summary>
     let calculateCapitalDeployedFromTrades
         (optionTrades: Binnaculum.Core.Database.DatabaseModel.OptionTrade list)
         : decimal =
-        optionTrades |> List.sumBy calculateTradeCapitalDeployed
+        calculateTotalOptionCapitalDeployed optionTrades
 
     /// <summary>
     /// Create a new AutoImportOperation from a snapshot when trades open.

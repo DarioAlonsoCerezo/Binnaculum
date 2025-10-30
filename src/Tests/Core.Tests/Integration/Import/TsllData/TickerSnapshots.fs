@@ -22,6 +22,7 @@ module TsllTickerSnapshots =
           // ========== Snapshot 1: 2024-05-30 ==========
           // CSV Line 213: 2024-05-30T14:38:32+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  240607P00007000,Equity Option,Sold 1 TSLL 06/07/24 Put 7.00 @ 0.15,15.00,1,15.00,-1.00,-0.14,100,TSLL,TSLL,6/07/24,7,PUT,324800434,13.86,USD
           // Calculation: Sold put for $15, paid $1 commission + $0.14 fees = $13.86 net income
+          // CapitalDeployed: Strike $7.00 × Multiplier 100 = $700 (obligation if assigned)
           { Data =
               { Id = 0
                 Date = DateOnly(2024, 5, 30)
@@ -35,7 +36,7 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 15.00m // $15 premium received
                 TotalIncomes = 13.86m // $15 - $1 - $0.14 = $13.86
-                CapitalDeployed = 0.00m // Position still open
+                CapitalDeployed = 700.00m // Strike $7 × 100 shares = $700 obligation
                 Realized = 0.00m // Nothing closed yet
                 Performance = 0.0000m
                 OpenTrades = true // Position is open
@@ -46,6 +47,8 @@ module TsllTickerSnapshots =
           // ========== Snapshot 2: 2024-06-07 ==========
           // CSV Line 212: 2024-06-07T21:00:00+0100,Receive Deliver,Expiration,BUY_TO_CLOSE,TSLL  240607P00007000,Equity Option,Removal of 1.0 TSLL 06/07/24 Put 7.00 due to expiration.,0.00,1,0.00,--,0.00,100,TSLL,TSLL,6/07/24,7,PUT,,0.00,USD
           // Calculation: Option expired worthless (value = $0), realized the full $13.86 gain
+          // CapitalDeployed: Expiration is a closing trade - NO new capital deployed = $700 (same as before)
+          // Performance: ($13.86 / $700) × 100 = 1.98%
           { Data =
               { Id = 0
                 Date = DateOnly(2024, 6, 7)
@@ -59,9 +62,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = 15.00m
                 TotalIncomes = 13.86m
-                CapitalDeployed = 0.00m
+                CapitalDeployed = 700.00m // No change - expiration doesn't deploy capital
                 Realized = 13.86m
-                Performance = 0.0000m
+                Performance = 1.9800m // ($13.86 / $700) × 100
                 OpenTrades = false // All positions closed
                 Commissions = 1.00m // Same as before (no new costs at expiration)
                 Fees = 0.14m } // Same as before
@@ -75,6 +78,12 @@ module TsllTickerSnapshots =
           //   Bought call: -$515 - $1 - $0.13 = -$516.13
           //   Net new trades: $27.86 - $516.13 = -$488.27
           //   Total options income: $15 (previous) + $29 (new sold) - $515 (new bought) = -$471
+          // CapitalDeployed:
+          //   Previous: $700
+          //   Sold Call 11.50: $0 (assume covered)
+          //   Bought Call 6.73: $6.73 × 100 = $673
+          //   Total: $700 + $673 = $1,373
+          // Performance: ($13.86 / $1,373) × 100 = 1.0094%
           { Data =
               { Id = 0
                 Date = DateOnly(2024, 10, 15)
@@ -88,9 +97,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -471.00m // $15 + $29 - $515 = -$471
                 TotalIncomes = -474.41m // After commissions ($3) and fees ($0.41): -$471 - $3.41 = -$474.41
-                CapitalDeployed = 0.00m
+                CapitalDeployed = 1373.00m // $700 + $673 (only BuyToOpen Call counts)
                 Realized = 13.86m // Still the same from previous closed position
-                Performance = 0.0000m
+                Performance = 1.0094m // ($13.86 / $1,373) × 100
                 OpenTrades = true // New positions opened
                 Commissions = 3.00m // $1 (prev) + $1 + $1 = $3
                 Fees = 0.41m } // $0.14 (prev) + $0.14 + $0.13 = $0.41
@@ -104,6 +113,12 @@ module TsllTickerSnapshots =
           //   Bought 13 calls: -$6,630 - $10 - $1.67 = -$6,641.67
           //   Net new trades: $183.28 - $6,641.67 = -$6,458.39
           //   Total options: -$471 (prev) + $195 - $6,630 = -$6,906
+          // CapitalDeployed:
+          //   Previous: $1,373
+          //   Sold 13 Calls 11.50: $0 (assume covered)
+          //   Bought 13 Calls 6.73: 13 × ($6.73 × 100) = $8,749
+          //   Total: $1,373 + $8,749 = $10,122
+          // Performance: ($13.86 / $10,122) × 100 = 0.1369%
           { Data =
               { Id = 0
                 Date = DateOnly(2024, 10, 18)
@@ -117,9 +132,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -6906.00m // -$471 + $195 - $6,630 = -$6,906
                 TotalIncomes = -6932.80m // After commissions ($23) and fees ($3.80)
-                CapitalDeployed = 0.00m
+                CapitalDeployed = 10122.00m // $1,373 + $8,749 (only BuyToOpen Calls count)
                 Realized = 13.86m // Same as before
-                Performance = 0.0000m
+                Performance = 0.1369m // ($13.86 / $10,122) × 100
                 OpenTrades = true // Positions still open
                 Commissions = 23.00m // $3 (prev) + $10 + $10 = $23
                 Fees = 3.80m } // $0.41 (prev) + $1.72 + $1.67 = $3.80
@@ -131,6 +146,11 @@ module TsllTickerSnapshots =
           //   Closed 14 calls: -$126 - $0 - $1.79 = -$127.79
           //   Realized gain: Sold 14 for ($29 + $195 = $224) - Closed for $126 = $98 - fees = $83.35 realized
           //   Total options: -$6,906 (prev) - $126 = -$7,032
+          // CapitalDeployed:
+          //   Previous: $10,122
+          //   BuyToClose (closing trade): $0
+          //   Total: $10,122 (no change)
+          // Performance: ($97.21 / $10,122) × 100 = 0.9604%
           { Data =
               { Id = 0
                 Date = DateOnly(2024, 10, 21)
@@ -144,9 +164,9 @@ module TsllTickerSnapshots =
                 DividendTaxes = 0.00m
                 Options = -7032.00m // -$6,906 - $126 = -$7,032
                 TotalIncomes = -7060.59m // After fees
-                CapitalDeployed = 0.00m
+                CapitalDeployed = 10122.00m // No change - closing trade adds $0
                 Realized = 97.21m // $13.86 (prev) + $83.35 (new) = $97.21
-                Performance = 0.0000m
+                Performance = 0.9604m // ($97.21 / $10,122) × 100
                 OpenTrades = true
                 Commissions = 23.00m // Same as before (no commission this trade)
                 Fees = 5.59m } // $3.80 (prev) + $1.79 = $5.59
