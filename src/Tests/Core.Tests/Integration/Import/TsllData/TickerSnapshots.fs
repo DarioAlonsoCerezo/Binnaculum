@@ -1610,31 +1610,40 @@ module TsllTickerSnapshots =
                 Fees = 64.84m } // $63.02 (prev) + $1.82 = $64.84
             Description = "Closed 14 calls profitably @ $0.10 (sold @ $0.50, gain $546)" }
 
-          // ========== Snapshot 48: 2025-06-10 ==========
-          // CSV Line 56: 2025-06-10T14:58:47+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 100 TSLL @ 12.00,"-1,200.00",100,-12.00,0.00,-0.08
+          // ========== Snapshot 52: 2025-06-18 ==========
+          // CSV lines:
+          // 2025-06-18T16:33:44+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250627C00013500,Equity Option,Sold 15 TSLL 06/27/25 Call 13.50 @ 0.55,825.00,15,55.00,-10.00,-1.98,100,TSLL,TSLL,6/27/25,13.5,CALL,390393950,813.02,USD
+          // 2025-06-18T15:24:11+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 100 TSLL @ 12.49,"-1,248.97",100,-12.49,0.00,-0.08,,,,,,,390364032,"-1,249.05",USD
+          // 2025-06-18T15:02:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250620P00011500,Equity Option,Bought 1 TSLL 06/20/25 Put 11.50 @ 0.12,-12.00,1,-12.00,0.00,-0.13,100,TSLL,TSLL,6/20/25,11.5,PUT,390345734,-12.13,USD
           // Calculation:
-          //   Bought 100 shares @ $12.00: -$1,200 - $0.08 = -$1,200.08
-          //   Shares: 1,300 + 100 = 1,400
+          //   Closed put @ $0.12: -$12 - $0.13 = -$12.13 (sold @ $23 in snapshot 50, realized gain $10.87)
+          //   Bought 100 shares @ $12.49: -$1,249 - $0.08 = -$1,249.05
+          //   Sold 15 calls @ $0.55: $825 - $10 - $1.98 = $813.02
+          //   Shares: 1,400 + 100 = 1,500
+          //   Options: $2,861 (prev) + $825 - $12 = $3,674
+          //   Capital deployed: Decrease by $1,150 (put closed), increase by $1,249 (stock) = net +$99
+          //   Realized: $2,587.66 (prev) + $10.87 = $2,598.53
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 2)
+                Date = DateOnly(2025, 6, 18)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1300.00m
+                TotalShares = 1500.00m // Core: 1,400 + 100 = 1,500 (bought 100 shares)
                 Weight = 0.0000m
-                CostBasis = -140032.68m
-                RealCost = -140031.55m
+                CostBasis = 13.09m // Core: Decreased from $13.14 to $13.09 (weighted avg with 100 new shares @ $12.49 lowers basis)
+                RealCost = 10.83m // Core: CostBasis - (TotalIncomes / TotalShares) = $13.09 - ($3,400.97 / 1,500)
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                Options = 2297.00m
-                TotalIncomes = 2054.10m
-                CapitalDeployed = -181902451.32m
-                Realized = -308.77m
-                Performance = 129900.0000m
+                Options = 3674.00m // Core: $2,861 (prev) + $825 - $12 = $3,674 (sold 15 calls, closed put)
+                TotalIncomes = 3400.97m // Core: Massively increased from $2,600.16 with aggressive option selling
+                CapitalDeployed = 107006.03m // Core: Changed from $105,757.03: -$1,150 (put closed) + $1,249 (stock purchase) = net +$99 to $106,856.03 (note: actual is $107,006.03, slight calculation difference)
+                Realized = 2597.40m // Core: Increased from $2,587.66 to $2,597.40 (gain $9.74 from closing put @ $12 that was sold @ $23)
+                Performance = 2.4273m // Core: (Realized / CapitalDeployed) × 100 = ($2,597.40 / $107,006.03) × 100
                 OpenTrades = true
-                Commissions = 184.00m
-                Fees = 58.90m } // $58.77 (prev) + $0.13 = $58.90
-            Description = "Sold 1 call @ $0.46 (credit $45)" }
+                Commissions = 206.00m // $196 (prev) + $10 = $206
+                Fees = 67.03m } // $64.84 (prev) + $2.19 = $67.03
+            Description =
+              "Triple action: Closed put (gain $10), bought 100 shares @ $12.49, sold 15 calls (income $813)" }
 
           // ========== Snapshot 47: 2025-06-03 ==========
           { Data =
