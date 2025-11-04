@@ -1450,34 +1450,38 @@ module TsllTickerSnapshots =
                 Fees = 58.90m } // $58.77 (prev) + $0.13 = $58.90
             Description = "Sold 1 covered call @ $0.46 for income (credit $45)" }
 
-          // ========== Snapshot 45: 2025-05-30 ==========
-          // CSV Line 61: 2025-05-30T18:34:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250606C00018500,Equity Option,Bought 1 TSLL @ 0.17,-17.00,1,-17.00,0.00,-0.13
-          // CSV Line 62: 2025-05-30T18:04:19+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250613P00012000,Equity Option,Sold 1 TSLL @ 0.36,36.00,1,36.00,-1.00,-0.13
-          // CSV Line 63: 2025-05-30T15:34:15+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250606C00018500,Equity Option,Sold 1 TSLL @ 0.37,37.00,1,37.00,-1.00,-0.13
-          // CSV Line 64: 2025-05-30T15:34:15+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250530C00017500,Equity Option,Bought 1 TSLL @ 0.02,-2.00,1,-2.00,0.00,-0.13
+          // ========== Snapshot 47: 2025-06-03 ==========
+          // CSV lines:
+          // 2025-06-03T16:35:30+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250613C00016000,Equity Option,Sold 1 TSLL 06/13/25 Call 16.00 @ 0.98,98.00,1,98.00,-1.00,-0.13,100,TSLL,TSLL,6/13/25,16,CALL,387415281,96.87,USD
+          // 2025-06-03T16:35:30+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250606C00015000,Equity Option,Bought 1 TSLL 06/06/25 Call 15.00 @ 0.87,-87.00,1,-87.00,0.00,-0.13,100,TSLL,TSLL,6/06/25,15,CALL,387415281,-87.13,USD
+          // 2025-06-03T16:35:18+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250613P00012000,Equity Option,Bought 1 TSLL 06/13/25 Put 12.00 @ 0.17,-17.00,1,-17.00,0.00,-0.13,100,TSLL,TSLL,6/13/25,12,PUT,387415188,-17.13,USD
           // Calculation:
-          //   Multiple option adjustments: Net gain from closing/opening positions
-          //   Total options: $2,197 (prev) + $37 + $36 - $17 - $2 = $2,251
+          //   Closed put @ $0.17: -$17 - $0.13 = -$17.13 (sold @ $36 in snapshot 45, realized gain $18.87)
+          //   Closed call @ $0.87: -$87 - $0.13 = -$87.13 (sold @ $46 in snapshot 46, realized loss -$41.13)
+          //   Sold call @ $0.98: $98 - $1 - $0.13 = $96.87
+          //   Net from option activity: $98 - $87 - $17 = -$6
+          //   Options: $2,297 (prev) + $98 - $87 - $17 = $2,291
+          //   Realized: -$308.77 (prev) + $18.87 - $41.13 = -$331.03
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 5, 27)
+                Date = DateOnly(2025, 6, 3)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1300.00m
+                TotalShares = 1300.00m // Core: Unchanged from Snapshot 46 (no stock trades)
                 Weight = 0.0000m
-                CostBasis = -140032.68m
-                RealCost = -140030.08m
+                CostBasis = 13.22m // Core: Unchanged from Snapshot 46 at $13.22 (no stock trades)
+                RealCost = 11.65m // Core: CostBasis - (TotalIncomes / TotalShares) = $13.22 - ($2,046.71 / 1,300)
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                Options = 1945.00m
-                TotalIncomes = 1718.88m
-                CapitalDeployed = -181902451.32m
-                Realized = 279.90m
-                Performance = 129900.0000m
+                Options = 2291.00m // Core: $2,297 (prev) + $98 - $87 - $17 = $2,291 (closed put and call, sold new call)
+                TotalIncomes = 2046.71m // Core: Decreased from $2,054.10 (net negative from option closings)
+                CapitalDeployed = 103407.03m // Core: Unchanged from Snapshot 46 (option trades don't change capital)
+                Realized = -333.29m // Core: Worsened from -$308.77 to -$333.29 (net loss -$24.52: put gain $17.87 offset by larger call loss -$42.39)
+                Performance = -0.3223m // Core: (Realized / CapitalDeployed) × 100 = (-$333.29 / $103,407.03) × 100
                 OpenTrades = true
-                Commissions = 171.00m
-                Fees = 55.12m } // $54.52 (prev) + $0.60 = $55.12
-            Description = "Added 100 shares @ $16.12 (now 1,300!), rolled call, closed put (gain $20)" }
+                Commissions = 185.00m // $184 (prev) + $1 = $185
+                Fees = 59.29m } // $58.90 (prev) + $0.39 = $59.29
+            Description = "Option activity: Closed put profitably, rolled call at loss (net realized loss $25)" }
 
           // ========== Snapshot 44: 2025-05-29 ==========
           { Data =
