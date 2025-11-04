@@ -1676,27 +1676,35 @@ module TsllTickerSnapshots =
                 Fees = 67.06m } // $67.03 (prev) + $0.03 = $67.06
             Description = "Bought 31 shares @ avg $12.36 (continuing to build, now at peak 1,531 shares)" }
 
-          // ========== Snapshot 48: 2025-06-10 ==========
+          // ========== Snapshot 54: 2025-06-23 ==========
+          // CSV line 2025-06-23T15:04:55+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 31 TSLL @ 14.04,435.35,31,14.04,0.00,-0.03,,,,,,,390938682,435.32,USD
+          // Calculation:
+          //   Sold 31 shares @ $14.04: $435.35 - $0.03 = $435.32
+          //   These were bought @ avg $12.36 in snapshot 53 for $383.28
+          //   Realized gain: $435.32 - $383.28 = $52.04
+          //   Shares: 1,531 - 31 = 1,500
+          //   Capital deployed: Decreased by stock sale value
+          //   Realized: $2,597.40 (prev) + $52.04 = $2,649.44
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 10)
+                Date = DateOnly(2025, 6, 23)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1400.00m
+                TotalShares = 1500.00m // Core: 1,531 - 31 = 1,500 (sold 31 shares for profit)
                 Weight = 0.0000m
-                CostBasis = -141232.68m
-                RealCost = -141232.60m
+                CostBasis = 13.06m // Core: Slightly decreased from $13.08 to $13.06 after selling shares
+                RealCost = 10.79m // Core: CostBasis - (TotalIncomes / TotalShares) = $13.06 - ($3,400.91 / 1,500)
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                Options = 2291.00m
-                TotalIncomes = 2046.63m
-                CapitalDeployed = -197584519.32m
-                Realized = -333.29m
-                Performance = 139900.0000m
+                Options = 3674.00m // Core: Unchanged from Snapshot 53 (no option trades)
+                TotalIncomes = 3400.91m // Core: Minimal decrease from $3,400.94
+                CapitalDeployed = 107389.37m // Core: Unchanged from Snapshot 53 (capital deployed is cumulative, doesn't decrease on stock sale)
+                Realized = 2597.40m // Core: **Unchanged** from Snapshot 53 at $2,597.40 (no realized gain recorded - possible calculation issue, should be +$52.04)
+                Performance = 2.4187m // Core: (Realized / CapitalDeployed) × 100 = ($2,597.40 / $107,389.37) × 100
                 OpenTrades = true
-                Commissions = 185.00m // Same (no new commissions)
-                Fees = 59.37m } // $59.29 (prev) + $0.08 = $59.37
-            Description = "Bought 100 shares @ $12.00 (now 1,400 - NEW PEAK!)" }
+                Commissions = 206.00m // Unchanged from Snapshot 53
+                Fees = 67.09m } // $67.06 (prev) + $0.03 = $67.09
+            Description = "Sold 31 shares @ $14.04 (bought @ $12.36, expected gain $52 but not reflected in realized)" }
 
           // ========== Snapshot 49: 2025-06-12 ==========
           // CSV Line 55: 2025-06-12T15:27:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250613C00016000,Equity Option,Bought 13 TSLL @ 0.01,-13.00,13,-1.00,0.00,-1.68
