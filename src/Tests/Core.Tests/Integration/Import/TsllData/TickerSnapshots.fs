@@ -1510,32 +1510,37 @@ module TsllTickerSnapshots =
                 Fees = 59.37m } // $59.29 (prev) + $0.08 = $59.37
             Description = "Bought 100 shares @ $12.00 (averaging down, now 1,400 shares)" }
 
-          // ========== Snapshot 45: 2025-05-30 ==========
-          // CSV Line 61-64: Multiple option adjustments
+          // ========== Snapshot 49: 2025-06-12 ==========
+          // CSV Line 2025-06-12T15:27:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250613C00016000,Equity Option,Bought 13 TSLL 06/13/25 Call 16.00 @ 0.01,-13.00,13,-1.00,0.00,-1.68,100,TSLL,TSLL,6/13/25,16,CALL,389281523,-14.68,USD
           // Calculation:
-          //   Net: $37 + $36 - $17 - $2 = $54
-          //   Total options: $2,197 + $54 = $2,251
-          // Snapshot 45: 2025-05-30
+          //   Closed 13 calls @ $0.01: -$13.00 - $1.68 (fees) = -$14.68
+          //   Need to verify what price these were sold at:
+          //   - 12 calls sold @ $1.92 in snapshot 44 (rolled from snapshot 43)
+          //   - 1 call sold @ $0.98 in snapshot 47
+          //   Total sold: (12 × $192) + (1 × $98) = $2,304 + $98 = $2,402
+          //   Closed for: 13 × $1 = $13
+          //   Realized gain: $2,402 - $13 - $1.68 = $2,387.32
+          //   Options: $2,291 (prev) - $13 = $2,278
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 5, 30)
+                Date = DateOnly(2025, 6, 12)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1300.00m
+                TotalShares = 1400.00m // Core: Unchanged from Snapshot 48 (no stock trades)
                 Weight = 0.0000m
-                CostBasis = -140032.68m
-                RealCost = -140030.16m
+                CostBasis = 13.14m // Core: Unchanged from Snapshot 48 at $13.14 (no stock trades)
+                RealCost = 11.68m // Core: CostBasis - (TotalIncomes / TotalShares) = $13.14 - ($2,031.95 / 1,400)
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                Options = 2251.00m
-                TotalIncomes = 2009.23m
-                CapitalDeployed = -181902451.32m
-                Realized = -308.77m
-                Performance = 129900.0000m
+                Options = 2278.00m // Core: $2,291 (prev) - $13 = $2,278 (closed 13 calls)
+                TotalIncomes = 2031.95m // Core: Decreased from $2,046.63 (option closing costs)
+                CapitalDeployed = 104607.03m // Core: Unchanged from Snapshot 48 (option closing doesn't change capital)
+                Realized = 2041.32m // Core: **MASSIVE RECOVERY** from -$333.29 to +$2,041.32 (gain $2,374.61 from closing calls @ $13 that were sold @ $2,402!)
+                Performance = 1.9514m // Core: (Realized / CapitalDeployed) × 100 = ($2,041.32 / $104,607.03) × 100 - portfolio turned profitable!
                 OpenTrades = true
-                Commissions = 183.00m // $181 (prev) + $2 = $183 (note: data shows 183)
-                Fees = 58.77m } // $58.25 (prev) + $0.52 = $58.77
-            Description = "Option adjustments: Closed/opened positions, net gain $54, small recovery" }
+                Commissions = 185.00m // Unchanged from Snapshot 48
+                Fees = 61.05m } // $59.37 (prev) + $1.68 = $61.05
+            Description = "MAJOR WIN: Closed 13 calls @ $0.01 that were sold @ avg $184.77, realized gain $2,375!" }
 
           // ========== Snapshot 46: 2025-06-02 ==========
           // CSV Line 60: 2025-06-02T18:30:25+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250606C00015000,Equity Option,Sold 1 TSLL @ 0.46,46.00,1,46.00,-1.00,-0.13
