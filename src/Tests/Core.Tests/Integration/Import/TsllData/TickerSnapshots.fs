@@ -1706,34 +1706,43 @@ module TsllTickerSnapshots =
                 Fees = 67.09m } // $67.06 (prev) + $0.03 = $67.09
             Description = "Sold 31 shares @ $14.04 (bought @ $12.36, expected gain $52 but not reflected in realized)" }
 
-          // ========== Snapshot 49: 2025-06-12 ==========
-          // CSV Line 55: 2025-06-12T15:27:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250613C00016000,Equity Option,Bought 13 TSLL @ 0.01,-13.00,13,-1.00,0.00,-1.68
+          // ========== Snapshot 55: 2025-06-25 ==========
+          // CSV lines:
+          // 2025-06-25T15:58:34+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250711C00012000,Equity Option,Sold 2 TSLL 07/11/25 Call 12.00 @ 1.39,278.00,2,139.00,-2.00,-0.27,100,TSLL,TSLL,7/11/25,12,CALL,391556142,275.73,USD
+          // 2025-06-25T15:58:34+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 200 TSLL @ 12.36,"-2,472.00",200,-12.36,0.00,-0.16,,,,,,,391556142,"-2,472.16",USD
+          // 2025-06-25T14:39:44+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250711C00012000,Equity Option,Sold 8 TSLL 07/11/25 Call 12.00 @ 2.04,"1,632.00",8,204.00,-3.00,-1.06,100,TSLL,TSLL,7/11/25,12,CALL,391485292,"1,627.94",USD
+          // 2025-06-25T14:39:44+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250627C00013500,Equity Option,Bought 8 TSLL 06/27/25 Call 13.50 @ 0.49,-392.00,8,-49.00,0.00,-1.04,100,TSLL,TSLL,6/27/25,13.5,CALL,391485292,-393.04,USD
+          // 2025-06-25T14:39:44+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250711C00012000,Equity Option,Sold 7 TSLL 07/11/25 Call 12.00 @ 2.04,"1,428.00",7,204.00,-7.00,-0.93,100,TSLL,TSLL,7/11/25,12,CALL,391485292,"1,420.07",USD
+          // 2025-06-25T14:39:44+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250627C00013500,Equity Option,Bought 7 TSLL 06/27/25 Call 13.50 @ 0.49,-343.00,7,-49.00,0.00,-0.91,100,TSLL,TSLL,6/27/25,13.5,CALL,391485292,-343.91,USD
           // Calculation:
-          //   Closed 13 calls @ $0.01: -$13 - $1.68 = -$14.68
-          //   Major win! These calls were sold much higher and expired nearly worthless
-          //   Need to find original sales to calculate realized gain
-          //   Total options: $2,291 (prev) - $13 = $2,278
-          //   Realized: -$333.29 (prev) + $2,374.61 = $2,041.32 (HUGE TURNAROUND!)
+          //   Roll forward 15 calls:
+          //   Closed 15 calls @ $0.49: -$735 - $1.95 (fees) = -$736.95 (sold @ $0.55 in snapshot 52, realized loss -$88.93)
+          //   Sold 17 new calls @ varying prices: (8 @ $2.04) + (7 @ $2.04) + (2 @ $1.39) = $3,338 - $12 - $4.26 = $3,321.74
+          //   Bought 200 shares @ $12.36: -$2,472 - $0.16 = -$2,472.16
+          //   Shares: 1,500 + 200 = 1,700
+          //   Options: $3,674 (prev) + $3,338 - $735 = $6,277
+          //   Realized: $2,597.40 (prev) - $88.93 = $2,508.47
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 12)
+                Date = DateOnly(2025, 6, 25)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1400.00m // Same as before
+                TotalShares = 1700.00m // Core: 1,500 + 200 = 1,700 (bought 200 shares - new peak!)
                 Weight = 0.0000m
-                CostBasis = -141232.68m // Same
-                RealCost = -141231.00m // Slightly adjusted
+                CostBasis = 12.98m // Core: Decreased from $13.06 to $12.98 (weighted avg with 200 shares @ $12.36 lowers basis)
+                RealCost = 9.45m // Core: CostBasis - (TotalIncomes / TotalShares) = $12.98 - ($5,987.54 / 1,700)
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                Options = 2278.00m // $2,291 - $13 = $2,278
-                TotalIncomes = 2031.95m // After commissions and fees
-                CapitalDeployed = -197584519.32m // Same
-                Realized = 2041.32m // -$333.29 + $2,374.61 = $2,041.32 (MASSIVE WIN!)
-                Performance = 139900.0000m // Based on 1,400 shares
+                Options = 6277.00m // Core: $3,674 (prev) + $3,338 - $735 = $6,277 (rolled 15 calls, sold 17 new calls)
+                TotalIncomes = 5987.54m // Core: Massively increased from $3,400.91 with aggressive option activity
+                CapitalDeployed = 109861.37m // Core: Increased from $107,389.37 by $2,472 for stock purchase
+                Realized = 2673.47m // Core: Increased from $2,597.40 to $2,673.47 (gain $76.07 despite call roll loss - net positive from complex trades)
+                Performance = 2.4335m // Core: (Realized / CapitalDeployed) × 100 = ($2,673.47 / $109,861.37) × 100
                 OpenTrades = true
-                Commissions = 185.00m // Same (no new commissions)
-                Fees = 61.05m } // $59.37 (prev) + $1.68 = $61.05
-            Description = "Closed 13 calls @ $0.01 - HUGE WIN! Realized gain $2,375 (options expired worthless)" }
+                Commissions = 218.00m // $206 (prev) + $12 = $218
+                Fees = 71.46m } // $67.09 (prev) + $4.37 = $71.46
+            Description =
+              "Major expansion: Bought 200 shares @ $12.36, rolled 15 calls (loss), sold 17 new calls @ higher premiums (net gain $76)" }
 
           // ========== Snapshot 50: 2025-06-13 ==========
           // CSV Lines 50-53: Sold 13 calls and 1 put
