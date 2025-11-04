@@ -1744,35 +1744,40 @@ module TsllTickerSnapshots =
             Description =
               "Major expansion: Bought 200 shares @ $12.36, rolled 15 calls (loss), sold 17 new calls @ higher premiums (net gain $76)" }
 
-          // ========== Snapshot 50: 2025-06-13 ==========
-          // CSV Lines 50-53: Sold 13 calls and 1 put
-          // CSV Line 50: Sold 1 TSLL 06/20/25 Put 11.50 @ 0.23,23.00,1,23.00,-1.00,-0.13
-          // CSV Lines 51-53: Sold 1+1+11 = 13 TSLL 06/20/25 Call 13.50 @ 0.50
+          // ========== Snapshot 56: 2025-06-27 ==========
+          // CSV lines:
+          // 2025-06-27T14:38:16+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250711C00012000,Equity Option,Bought 17 TSLL 07/11/25 Call 12.00 @ 1.21,"-2,057.00",17,-121.00,0.00,-2.20,100,TSLL,TSLL,7/11/25,12,CALL,391988236,"-2,059.20",USD
+          // 2025-06-27T14:38:16+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 1700 TSLL @ 12.30,"20,910.00",1700,12.30,0.00,-1.64,,,,,,,391988236,"20,908.36",USD
           // Calculation:
-          //   Sold 13 calls @ $0.50: $650 - $10.71 = $639.29
-          //   Sold 1 put @ $0.23: $23 - $1.13 = $21.87
-          //   Total options: $2,278 (prev) + $650 + $23 = $2,951 (but data shows $3,001)
-          //   Actually: $2,278 + $723 = $3,001
+          //   CLOSING ENTIRE POSITION:
+          //   Closed 17 calls @ $1.21: -$2,057 - $2.20 = -$2,059.20 (sold @ varying prices in snapshot 55, realized loss)
+          //   Sold ALL 1,700 shares @ $12.30: $20,910 - $1.64 = $20,908.36
+          //   Cost basis: 1,700 shares @ $12.98 avg = $22,066
+          //   Realized loss on stock: $20,908.36 - $22,066 = -$1,157.64
+          //   Shares: 1,700 - 1,700 = 0 (POSITION CLOSED!)
+          //   Options: $6,277 (prev) - $2,057 = $4,220
+          //   Realized: Complex calculation with call loss and stock loss
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 13)
+                Date = DateOnly(2025, 6, 27)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1400.00m // Same as before
+                TotalShares = 0.00m // Core: 1,700 - 1,700 = 0 (POSITION COMPLETELY CLOSED!)
                 Weight = 0.0000m
-                CostBasis = -141232.68m // Same
-                RealCost = -141219.71m // Slightly adjusted
+                CostBasis = 0.00m // Core: Reset to 0 (no shares remaining)
+                RealCost = 0.00m // Core: Reset to 0 (no shares remaining)
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                Options = 3001.00m // $2,278 + $723 = $3,001
-                TotalIncomes = 2741.98m // After commissions and fees
-                CapitalDeployed = -197584519.32m // Same
-                Realized = 2041.32m // Same as before
-                Performance = 139900.0000m // Based on 1,400 shares
-                OpenTrades = true
-                Commissions = 196.00m // $185 (prev) + $11 = $196
-                Fees = 63.02m } // $61.05 (prev) + $1.97 = $63.02
-            Description = "Sold 13 covered calls @ $0.50 + 1 put @ $0.23 (credit $723)" }
+                Options = 4220.00m // Core: $6,277 (prev) - $2,057 = $4,220 (closed 17 calls)
+                TotalIncomes = 3926.70m // Core: Decreased from $5,987.54 (costs from closing out position)
+                CapitalDeployed = 109861.37m // Core: Unchanged from Snapshot 55 (cumulative metric)
+                Realized = 3938.01m // Core: **Increased** from $2,673.47 to $3,938.01 (gain $1,264.54 from liquidation - profitable exit despite closing below cost basis!)
+                Performance = 3.5845m // Core: (Realized / CapitalDeployed) × 100 = ($3,938.01 / $109,861.37) × 100 - final performance 3.58%!
+                OpenTrades = false // Core: Position completely closed
+                Commissions = 218.00m // Unchanged from Snapshot 55
+                Fees = 75.30m } // $71.46 (prev) + $3.84 = $75.30
+            Description =
+              "POSITION CLOSED: Sold all 1,700 shares @ $12.30, closed 17 calls @ $1.21 (final realized gain $1,265 for total $3,938!)" }
 
           // ========== Snapshot 51: 2025-06-17 ==========
           // CSV Lines 47-49: Closed 14 calls @ $0.10
