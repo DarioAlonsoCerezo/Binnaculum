@@ -1542,31 +1542,41 @@ module TsllTickerSnapshots =
                 Fees = 61.05m } // $59.37 (prev) + $1.68 = $61.05
             Description = "MAJOR WIN: Closed 13 calls @ $0.01 that were sold @ avg $184.77, realized gain $2,375!" }
 
-          // ========== Snapshot 46: 2025-06-02 ==========
-          // CSV Line 60: 2025-06-02T18:30:25+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250606C00015000,Equity Option,Sold 1 TSLL @ 0.46,46.00,1,46.00,-1.00,-0.13
+          // ========== Snapshot 50: 2025-06-13 ==========
+          // CSV Lines
+          // 2025-06-13T17:56:35+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250620P00011500,Equity Option,Sold 1 TSLL 06/20/25 Put 11.50 @ 0.23,23.00,1,23.00,-1.00,-0.13,100,TSLL,TSLL,6/20/25,11.5,PUT,389658733,21.87,USD
+          // 2025-06-13T17:53:36+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250620C00013500,Equity Option,Sold 1 TSLL 06/20/25 Call 13.50 @ 0.50,50.00,1,50.00,0.00,-0.13,100,TSLL,TSLL,6/20/25,13.5,CALL,389657399,49.87,USD
+          // 2025-06-13T17:53:36+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250620C00013500,Equity Option,Sold 1 TSLL 06/20/25 Call 13.50 @ 0.50,50.00,1,50.00,0.00,-0.13,100,TSLL,TSLL,6/20/25,13.5,CALL,389657399,49.87,USD
+          // 2025-06-13T17:53:36+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250620C00013500,Equity Option,Sold 11 TSLL 06/20/25 Call 13.50 @ 0.50,550.00,11,50.00,-9.00,-1.45,100,TSLL,TSLL,6/20/25,13.5,CALL,389657399,539.55,USD
+          // 2025-06-13T17:53:36+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250620C00013500,Equity Option,Sold 1 TSLL 06/20/25 Call 13.50 @ 0.50,50.00,1,50.00,-1.00,-0.13,100,TSLL,TSLL,6/20/25,13.5,CALL,389657399,48.87,USD
           // Calculation:
-          //   Sold 1 call: $46 - $1.13 = $44.87
-          //   Total options: $2,251 (prev) + $46 = $2,297
+          //   Sold 14 calls @ $0.50: Total $700 (11 + 1 + 1 + 1)
+          //   Commissions/fees on calls: -$9 (comm) - $1.84 (fees) = -$10.84
+          //   Sold 1 put @ $0.23: $23.00 - $1.00 - $0.13 = $21.87
+          //   Total from all option sales: $700 + $23 = $723
+          //   Net after costs: $700 - $10.84 + $21.87 = $711.03
+          //   Options: $2,278 (prev) + $723 = $3,001
+          //   Capital deployed: Add put obligation $11.50 × 100 = $1,150
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 2)
+                Date = DateOnly(2025, 6, 13)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1300.00m // Same as before
+                TotalShares = 1400.00m // Core: Unchanged from Snapshot 49 (no stock trades)
                 Weight = 0.0000m
-                CostBasis = -140032.68m // Same
-                RealCost = -140031.55m // Slightly adjusted
+                CostBasis = 13.14m // Core: Unchanged from Snapshot 49 at $13.14 (no stock trades)
+                RealCost = 11.18m // Core: CostBasis - (TotalIncomes / TotalShares) = $13.14 - ($2,741.98 / 1,400)
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                Options = 2297.00m // $2,251 + $46 = $2,297
-                TotalIncomes = 2054.10m // After commissions and fees
-                CapitalDeployed = -181902451.32m // Same
-                Realized = -308.77m // Same as before
-                Performance = 129900.0000m // Based on 1,300 shares
+                Options = 3001.00m // Core: $2,278 (prev) + $723 = $3,001 (sold 14 calls + 1 put for major premium income)
+                TotalIncomes = 2741.98m // Core: Significantly increased from $2,031.95 with aggressive option selling
+                CapitalDeployed = 105757.03m // Core: Increased from $104,607.03 by $1,150 (put obligation: $11.50 × 100)
+                Realized = 2041.32m // Core: Unchanged from Snapshot 49 (no realized trades, just opening positions)
+                Performance = 1.9302m // Core: (Realized / CapitalDeployed) × 100 = ($2,041.32 / $105,757.03) × 100
                 OpenTrades = true
-                Commissions = 184.00m // $183 (prev) + $1 = $184
-                Fees = 58.90m } // $58.77 (prev) + $0.13 = $58.90
-            Description = "Sold 1 call @ $0.46 (credit $45)" }
+                Commissions = 196.00m // $185 (prev) + $11 = $196
+                Fees = 63.02m } // $61.05 (prev) + $1.97 = $63.02
+            Description = "Aggressive income generation: Sold 14 covered calls + 1 put (income $710)" }
 
           // ========== Snapshot 47: 2025-06-03 ==========
           // CSV Line 57-59: Roll call and close put
