@@ -36,10 +36,20 @@ module CapitalDeployedCalculator =
 
     /// <summary>
     /// Calculate capital deployed for a single stock trade.
-    /// Capital deployed = absolute value of (Price × Quantity)
+    /// Rules:
+    /// - BuyToOpen/SellToOpen: Deploy capital (absolute value of Price × Quantity)
+    /// - BuyToClose/SellToClose: $0 (closing trades don't deploy new capital)
     /// </summary>
     let internal calculateStockTradeCapitalDeployed (trade: Trade) : decimal =
-        abs (trade.Price.Value * trade.Quantity)
+        match trade.TradeCode with
+        | TradeCode.BuyToOpen
+        | TradeCode.SellToOpen ->
+            // Opening trades deploy capital
+            abs (trade.Price.Value * trade.Quantity)
+        | TradeCode.BuyToClose
+        | TradeCode.SellToClose ->
+            // Closing trades return capital - deploy nothing
+            0m
 
     /// <summary>
     /// Calculate total capital deployed from a list of option trades.

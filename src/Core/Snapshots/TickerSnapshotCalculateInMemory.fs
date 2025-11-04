@@ -86,18 +86,46 @@ module internal TickerSnapshotCalculateInMemory =
         let tradeCostBasis =
             movements.Trades
             |> List.sumBy (fun t ->
-                match t.TradeCode with
-                | TradeCode.BuyToOpen
-                | TradeCode.BuyToClose -> t.Price.Value * t.Quantity // Add to cost
-                | TradeCode.SellToOpen
-                | TradeCode.SellToClose -> -(t.Price.Value * t.Quantity) // Reduce cost (proceeds)
-            )
+                let delta =
+                    match t.TradeCode with
+                    | TradeCode.BuyToOpen
+                    | TradeCode.BuyToClose -> t.Price.Value * t.Quantity // Add to cost
+                    | TradeCode.SellToOpen
+                    | TradeCode.SellToClose -> -(t.Price.Value * t.Quantity) // Reduce cost (proceeds)
+
+                // DEBUG: Log each trade's contribution
+                CoreLogger.logDebugf
+                    "CostBasisTrade"
+                    "Date=%s Code=%A Price=%M Qty=%M Delta=%M"
+                    (date.ToString())
+                    t.TradeCode
+                    t.Price.Value
+                    t.Quantity
+                    delta
+
+                delta)
 
         // CostBasis is per-share cost (POSITIVE value)
         // Accumulate total cost from previous, then divide by current shares
         let totalCost =
             (previousSnapshot.CostBasis.Value * previousSnapshot.TotalShares)
             + tradeCostBasis
+
+        // DEBUG: Log the full calculation
+        CoreLogger.logDebugf
+            "CostBasisCalc"
+            "Date=%s PrevCost=%M PrevShares=%M PrevTotal=%M TradeDelta=%M NewTotal=%M NewShares=%M Result=%M"
+            (date.ToString())
+            previousSnapshot.CostBasis.Value
+            previousSnapshot.TotalShares
+            (previousSnapshot.CostBasis.Value * previousSnapshot.TotalShares)
+            tradeCostBasis
+            totalCost
+            totalShares
+            (if totalShares > 0m then
+                 abs (totalCost / totalShares)
+             else
+                 0m)
 
         let costBasis =
             if totalShares > 0m then

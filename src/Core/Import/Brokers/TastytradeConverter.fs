@@ -235,6 +235,7 @@ module internal TastytradeConverter =
 
             let price =
                 transaction.AveragePrice
+                |> Option.map Math.Abs // Ensure price is always positive
                 |> Option.defaultValue (Math.Abs(transaction.Value / transaction.Quantity))
 
             Some
@@ -358,8 +359,7 @@ module internal TastytradeConverter =
                     match transaction.TransactionType with
                     | MoneyMovement(_) ->
                         match createBrokerMovementFromTransaction transaction brokerAccountId currencyId with
-                        | Some brokerMovement ->
-                            brokerMovements <- brokerMovement :: brokerMovements
+                        | Some brokerMovement -> brokerMovements <- brokerMovement :: brokerMovements
                         | None ->
                             // Dividend transactions return None from createBrokerMovementFromTransaction
                             // Process them as ticker-level Dividend/DividendTax records
