@@ -1389,40 +1389,39 @@ module TsllTickerSnapshots =
                 Fees = 58.25m } // $55.12 (prev) + $3.13 = $58.25
             Description = "Roll forward: Closed 12 calls @ $1.71, sold 12 new @ $1.92 (major realized loss)" }
 
-          // ========== Snapshot 43: 2025-05-27 ==========
-          // CSV Line 70: 2025-05-27T20:07:23+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 100 TSLL @ 16.12,"-1,612.00",100,-16.12,0.00,-0.08
-          // CSV Line 69: 2025-05-27T20:07:36+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250530C00017500,Equity Option,Sold 1 TSLL @ 0.29,29.00,1,29.00,-1.00,-0.13
-          // CSV Line 68: 2025-05-27T20:21:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250530C00015000,Equity Option,Bought 1 TSLL @ 1.46,-146.00,1,-146.00,0.00,-0.13
-          // CSV Line 67: 2025-05-27T20:21:43+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250606C00015500,Equity Option,Sold 1 TSLL @ 1.68,168.00,1,168.00,-1.00,-0.13
-          // CSV Line 71: 2025-05-27T17:55:08+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250530P00013000,Equity Option,Bought 1 TSLL @ 0.05,-5.00,1,-5.00,0.00,-0.13
+          // ========== Snapshot 45: 2025-05-30 ==========
+          // CSV lines:
+          // 2025-05-30T18:34:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250606C00018500,Equity Option,Bought 1 TSLL 06/06/25 Call 18.50 @ 0.17,-17.00,1,-17.00,0.00,-0.13,100,TSLL,TSLL,6/06/25,18.5,CALL,386917688,-17.13,USD
+          // 2025-05-30T18:04:19+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250613P00012000,Equity Option,Sold 1 TSLL 06/13/25 Put 12.00 @ 0.36,36.00,1,36.00,-1.00,-0.13,100,TSLL,TSLL,6/13/25,12,PUT,386903391,34.87,USD
+          // 2025-05-30T15:34:15+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250606C00018500,Equity Option,Sold 1 TSLL 06/06/25 Call 18.50 @ 0.37,37.00,1,37.00,-1.00,-0.13,100,TSLL,TSLL,6/06/25,18.5,CALL,386813176,35.87,USD
+          // 2025-05-30T15:34:15+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250530C00017500,Equity Option,Bought 1 TSLL 05/30/25 Call 17.50 @ 0.02,-2.00,1,-2.00,0.00,-0.13,100,TSLL,TSLL,5/30/25,17.5,CALL,386813176,-2.13,USD
           // Calculation:
-          //   Bought 100 shares @ $16.12: -$1,612 - $0.08 = -$1,612.08
-          //   Sold 1 call: $29 - $1.13 = $27.87
-          //   Roll call: Closed @ $1.46, Sold new @ $1.68 = $22 net, but loss on original
-          //   Closed put @ $0.05: Sold @ $25 (snapshot 42), closed @ $5 = $20 gain
-          //   Shares: 1,200 + 100 = 1,300
-          //   Total options: $1,899 (prev) + $29 + $168 - $146 - $5 = $1,945
-          //   Realized: $294.42 (prev) - $14.52 = $279.90
+          //   Closed call @ $0.02: -$2 - $0.13 = -$2.13 (sold @ $29 in snapshot 43, realized gain $26.87)
+          //   Sold call @ $0.37: $37 - $1 - $0.13 = $35.87
+          //   Sold put @ $0.36: $36 - $1 - $0.13 = $34.87
+          //   Closed call @ $0.17: -$17 - $0.13 = -$17.13 (sold @ $37 same day, realized gain $19.87)
+          //   Options: $2,197 (prev) + $37 - $2 + $36 - $17 = $2,251
+          //   Realized: -$353.25 (prev) + $26.87 + $19.87 = -$306.51
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 5, 27)
+                Date = DateOnly(2025, 5, 30)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1300.00m // 1,200 + 100 = 1,300 🎯 Peak approaching!
+                TotalShares = 1300.00m // Core: Unchanged from Snapshot 44 (no stock trades)
                 Weight = 0.0000m
-                CostBasis = -140032.68m // Updated cost basis
-                RealCost = -140030.08m // Updated real cost
+                CostBasis = 13.22m // Core: Unchanged from Snapshot 44 at $13.22 (no stock trades)
+                RealCost = 11.68m // Core: CostBasis - (TotalIncomes / TotalShares) = $13.22 - ($2,009.23 / 1,300)
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                Options = 1945.00m // $1,899 + $46 = $1,945
-                TotalIncomes = 1718.88m // After commissions and fees
-                CapitalDeployed = -181902451.32m // Updated capital deployed
-                Realized = 279.90m // $294.42 - $14.52 = $279.90
-                Performance = 129900.0000m // Based on 1,300 shares
+                Options = 2251.00m // Core: $2,197 (prev) + $37 - $2 + $36 - $17 = $2,251 (option trades with profitable closings)
+                TotalIncomes = 2009.23m // Core: Increased from $1,957.75 with option income from trades
+                CapitalDeployed = 103407.03m // Core: Increased from $102,207.03 by $1,200 (put obligation: $12.00 × 100)
+                Realized = -308.77m // Core: Recovered from -$353.25 to -$308.77 (gain $44.48 from closing calls profitably)
+                Performance = -0.2986m // Core: (Realized / CapitalDeployed) × 100 = (-$308.77 / $103,407.03) × 100
                 OpenTrades = true
-                Commissions = 171.00m // $169 (prev) + $2 = $171
-                Fees = 55.12m } // $54.52 (prev) + $0.60 = $55.12
-            Description = "Added 100 shares @ $16.12 (now 1,300!), rolled call, closed put (gain $20)" }
+                Commissions = 183.00m // $181 (prev) + $2 = $183
+                Fees = 58.77m } // $58.25 (prev) + $0.52 = $58.77
+            Description = "Multiple option trades: Closed calls profitably, sold new call and put (partial recovery)" }
 
           // ========== Snapshot 44: 2025-05-29 ==========
           // CSV Line 65-66: Roll 12 calls forward
