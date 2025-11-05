@@ -2006,36 +2006,33 @@ module TsllTickerSnapshots =
                 Fees = 78.75m } // $78.63 + $0.12 = $78.75
             Description = "Closed put: Sold @ $0.70 (Snap 63), bought back @ $0.51 (realized gain $17.76)" }
 
-          // ========== Snapshot 56: 2025-06-27 ==========
-          // CSV Line 34: 2025-06-27T14:38:16+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 1700 TSLL @ 12.30,"20,910.00",1700,12.30,0.00,-1.64
-          // CSV Line 33: 2025-06-27T14:38:16+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250711C00012000,Equity Option,Bought 17 TSLL @ 1.21,"-2,057.00",17,-121.00,0.00,-2.20
+          // ========== Snapshot 65: 2025-09-05 ==========
+          // CSV Lines
+          // 2025-09-05T16:34:56+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250912C00014000,Equity Option,Sold 1 TSLL 09/12/25 Call 14.00 @ 0.36,36.00,1,36.00,-1.00,-0.12,100,TSLL,TSLL,9/12/25,14,CALL,405479171,34.88,USD
+          // 2025-09-05T16:34:18+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 100 TSLL @ 13.34,"-1,333.50",100,-13.33,0.00,-0.08,,,,,,,405478770,"-1,333.58",USD
           // Calculation:
-          //   Sold ALL 1,700 shares @ $12.30: $20,910 - $1.64 = $20,908.36
-          //   Closed 17 calls @ $1.21: -$2,057 - $2.20 = -$2,059.20
-          //   This is a COMPLETE EXIT of all shares!
-          //   Shares: 1,700 → 0
-          //   Total options: $6,277 (prev) - $2,057 = $4,220
-          //   Realized: $2,673.47 (prev) + $1,264.54 = $3,938.01 (major realized gain!)
+          // Bought 100 shares @ $13.33, sold 1 covered call @ strike $14.00 @ $0.36 (classic covered call strategy)
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 27)
+                Date = DateOnly(2025, 9, 5)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 0.00m // 1,700 → 0 🎯 COMPLETE EXIT!
+                TotalShares = 100.00m // 0 (prev) + 100 = 100 shares
                 Weight = 0.0000m
-                CostBasis = -166682.26m // Historical cost basis
-                RealCost = 0.00m // No current positions
-                Dividends = 0.00m
-                DividendTaxes = 0.00m
-                Options = 4220.00m // $6,277 - $2,057 = $4,220
-                TotalIncomes = 3926.70m // After commissions and fees
-                CapitalDeployed = 166682.26m // Historical
-                Realized = 3938.01m // $2,673.47 + $1,264.54 = $3,938.01 (BIG WIN!)
-                Performance = -100.0000m // All positions closed
-                OpenTrades = true // Still has options
-                Commissions = 218.00m // Same (no new commissions)
-                Fees = 75.30m } // $71.46 (prev) + $3.84 = $75.30
-            Description = "COMPLETE EXIT: Sold ALL 1,700 shares @ $12.30, closed 17 calls, realized gain $1,265!" }
+                CostBasis = 13.33m // Cost per share: 100 shares @ $13.33
+                RealCost = -27.65m // $13.33 - ($4,098.32 / 100) = $13.33 - $40.98 = -$27.65 (better than free!)
+                Dividends = 134.43m // Unchanged from Snapshot 64
+                DividendTaxes = 20.16m // Unchanged from Snapshot 64
+                Options = 4295.00m // $4,259.00 + $36.00 = $4,295.00
+                TotalIncomes = 4098.32m // $4,063.52 + $36.00 - $1.00 - $0.20 = $4,098.32
+                CapitalDeployed = 123992.37m // $122,659.37 + $1,333.00 = $123,992.37 (cumulative, stock purchase added)
+                Realized = 3960.74m // Unchanged from Snapshot 64 (no closing trades)
+                Performance = 3.1943m // ($3,960.74 / $123,992.37) × 100 = 3.1943%
+                OpenTrades = true // Has open stock position (100 shares) and open call option
+                Commissions = 232.00m // $231.00 + $1.00 = $232.00
+                Fees = 78.95m } // $78.75 + $0.08 + $0.12 = $78.95
+            Description =
+              "Re-entered: Bought 100 shares @ $13.33, sold 1 covered call 09/12/25 strike $14.00 @ $0.36 ($34.88 net)" }
 
           // ========== Snapshot 57: 2025-07-01 ==========
           // Dividend payment (no CSV trade line)
