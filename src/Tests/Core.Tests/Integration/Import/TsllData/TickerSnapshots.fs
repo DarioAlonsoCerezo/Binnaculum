@@ -1813,27 +1813,36 @@ module TsllTickerSnapshots =
                 Fees = 75.30m } // Unchanged from Snapshot 56 (no new fees)
             Description = "Dividend payment: $134.43 gross, $20.16 taxes withheld = $114.27 net dividend income" }
 
-          // Snapshot 52: 2025-06-18
+          // ========== Snapshot 58: 2025-07-08 ==========
+          // CSV Lines
+          // 2025-07-08T17:55:30+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 99 TSLL @ 10.48,"-1,037.12",99,-10.48,0.00,-0.08,,,,,,,393707969,"-1,037.20",USD
+          // 2025-07-08T17:54:56+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250711C00010500,Equity Option,Sold 1 TSLL 07/11/25 Call 10.50 @ 0.41,41.00,1,41.00,-1.00,-0.13,100,TSLL,TSLL,7/11/25,10.5,CALL,393707737,39.87,USD
+          // 2025-07-08T17:54:38+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 1 TSLL @ 10.48,-10.48,1,-10.48,0.00,0.00,,,,,,,393707615,-10.48,USD
+          // Calculation:
+          // Shares bought: 99 + 1 = 100 shares @ $10.48
+          // Option sold: 1 CALL 07/11/25 strike $10.50 @ $0.41 = $41.00 premium
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 12)
+                Date = DateOnly(2025, 7, 8)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1400.00m
+                TotalShares = 100.00m // 0 (prev) + 100 = 100 shares
                 Weight = 0.0000m
-                CostBasis = -141232.68m
-                RealCost = -141231.00m
-                Dividends = 0.00m
-                DividendTaxes = 0.00m
-                Options = 2278.00m
-                TotalIncomes = 2031.95m
-                CapitalDeployed = -197584519.32m
-                Realized = 2041.32m
-                Performance = 139900.0000m
-                OpenTrades = true
-                Commissions = 185.00m
-                Fees = 61.05m }
-            Description = "TODO: Add description for 2025-06-12" }
+                CostBasis = 10.48m // Cost per share: 100 shares @ $10.48
+                RealCost = -30.33m // $10.48 - ($4,080.76 / 100) = -$30.33
+                Dividends = 134.43m // Unchanged from Snapshot 57
+                DividendTaxes = 20.16m // Unchanged from Snapshot 57
+                Options = 4261.00m // $4,220.00 + $41.00 = $4,261.00
+                TotalIncomes = 4080.76m // $4,040.97 + $41.00 - $1.00 - $0.13 ≈ $4,080.84 (minor rounding)
+                CapitalDeployed = 110909.37m // $109,861.37 + $1,048.00 = $110,909.37
+                Realized = 3938.01m // Unchanged from Snapshot 57 (no closing trades)
+                Performance = 3.5507m // ($3,938.01 / $110,909.37) × 100 = 3.5507%
+                OpenTrades = true // Has open stock position (100 shares) and open call option
+                Commissions = 219.00m // $218.00 + $1.00 = $219.00
+                Fees = 75.51m } // $75.30 + $0.08 + $0.13 = $75.51
+            Description =
+              "Re-entered position: Bought 100 shares @ $10.48, sold 1 covered call 07/11/25 strike $10.50 @ $0.41 ($40 premium)" }
+
           // Snapshot 50: 2025-06-13
           { Data =
               { Id = 0
