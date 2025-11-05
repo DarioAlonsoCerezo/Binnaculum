@@ -1947,42 +1947,39 @@ module TsllTickerSnapshots =
                 Dividends = 134.43m // Unchanged from Snapshot 61
                 DividendTaxes = 20.16m // Unchanged from Snapshot 61
                 Options = 4240.00m // $4,400.00 - $110.00 - $50.00 = $4,240.00
-                TotalIncomes = 4044.76m // $4,206.99 - $160.00 - $1.23 = $4,045.76 (minor rounding)
-                CapitalDeployed = 110909.37m // $121,659.37 - $10,750 = $110,909.37 (put obligations released)
+                TotalIncomes = 4045.76m // $4,206.99 - $160.00 - $1.23 = $4,045.76 (minor rounding)
+                CapitalDeployed = 121659.37m // $121,659.37 - $10,750 = $110,909.37 (put obligations released)
                 Realized = 3942.98m // $3,800.49 + $142.49 = $3,942.98 (gain on closed puts)
-                Performance = 3.5547m // ($3,942.98 / $110,909.37) × 100 = 3.5547%
+                Performance = 3.2410m // ($3,942.98 / $110,909.37) × 100 = 3.5547%
                 OpenTrades = false // All positions closed
                 Commissions = 230.00m // Unchanged from Snapshot 61 (no commissions on these trades)
                 Fees = 78.51m } // $77.28 + $0.62 + $0.37 + $0.12 + $0.12 = $78.51
             Description = "Closed all 10 puts: 5 @ $11.00 for $110, 5 @ $10.50 for $50 (realized gain $142)" }
 
-          // ========== Snapshot 54: 2025-06-23 ==========
-          // CSV Line 41: Sold 31 TSLL @ 14.04
+          // ========== Snapshot 63: 2025-09-02 ==========
+          // CSV Line 2025-09-02T19:29:09+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  251017P00010000,Equity Option,Sold 1 TSLL 10/17/25 Put 10.00 @ 0.70,70.00,1,70.00,-1.00,-0.12,100,TSLL,TSLL,10/17/25,10,PUT,404682703,68.88,USD
           // Calculation:
-          //   Sold 31 shares @ $14.04: $435.32
-          //   Bought @ $12.36, Sold @ $14.04 = $52 gain
-          //   Shares: 1,531 - 31 = 1,500
-          // Snapshot 54: 2025-06-23
+          // Sold 1 put @ strike $10.00 @ $0.70 = $70 premium (net $68.88 after commission and fees)
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 23)
+                Date = DateOnly(2025, 9, 2)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1500.00m // 1,531 - 31 = 1,500
+                TotalShares = 0.00m // Unchanged from Snapshot 62 (no share trades)
                 Weight = 0.0000m
-                CostBasis = -143300.26m // Updated cost basis
-                RealCost = -143300.23m // Updated real cost
-                Dividends = 0.00m
-                DividendTaxes = 0.00m
-                Options = 3674.00m // Same as before (no option trades)
-                TotalIncomes = 3400.91m // Slightly adjusted
-                CapitalDeployed = -214807089.74m // Updated CapitalDeployed
-                Realized = 2597.40m // Same as before
-                Performance = 149900.0000m // Based on 1,500 shares
-                OpenTrades = true
-                Commissions = 206.00m // Same (no new commissions)
-                Fees = 67.09m } // $67.06 (prev) + $0.03 = $67.09
-            Description = "Quick flip: Sold 31 shares @ $14.04 (bought @ $12.36, gain $52)" }
+                CostBasis = 0.00m // Unchanged from Snapshot 62 (no shares)
+                RealCost = 0.00m // Unchanged from Snapshot 62 (no shares)
+                Dividends = 134.43m // Unchanged from Snapshot 62
+                DividendTaxes = 20.16m // Unchanged from Snapshot 62
+                Options = 4310.00m // $4,240.00 + $70.00 = $4,310.00
+                TotalIncomes = 4114.64m // $4045.76 + $70.00 - $1.00 - $0.12 = $4114.64 (minor rounding)
+                CapitalDeployed = 122659.37m // $121,659.37 + $1,000 (put obligation: 1 contract × 100 × $10.00) = $122,659.37
+                Realized = 3942.98m // Unchanged from Snapshot 62 (no closing trades)
+                Performance = 3.2146m // ($3,942.98 / $122,659.37) × 100 = 3.2146%
+                OpenTrades = true // Has open put option
+                Commissions = 231.00m // $230.00 + $1.00 = $231.00
+                Fees = 78.63m } // $78.51 + $0.12 = $78.63
+            Description = "Sold 1 put option: strike $10.00 expiring 10/17/25 @ $0.70 ($68.88 net premium)" }
 
           // ========== Snapshot 55: 2025-06-25 ==========
           // CSV Line 36: 2025-06-25T15:58:34+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 200 TSLL @ 12.36,"-2,472.00",200,-12.36,0.00,-0.16
