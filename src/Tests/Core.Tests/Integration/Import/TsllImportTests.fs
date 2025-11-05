@@ -292,6 +292,43 @@ type TsllImportTests() =
                 "Verification"
                 (sprintf "📊 Validating %d expected broker snapshots" expectedBrokerSnapshots.Length)
 
+            // ============================================================
+            // TEMPORARY: Dump all actual snapshots for fixing BrokerSnapshots.fs
+            // ============================================================
+            CoreLogger.logInfo "SNAPSHOT_DUMP" "========================================"
+            CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "ALL %d ACTUAL SNAPSHOTS FROM CORE" brokerFinancialSnapshots.Length)
+            CoreLogger.logInfo "SNAPSHOT_DUMP" "========================================"
+            brokerFinancialSnapshots |> List.iteri (fun idx snapshot ->
+                CoreLogger.logInfo "SNAPSHOT_DUMP" ""
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "          // Snapshot %d: %s" (idx + 1) (snapshot.Date.ToString("yyyy-MM-dd")))
+                CoreLogger.logInfo "SNAPSHOT_DUMP" "          { Data ="
+                CoreLogger.logInfo "SNAPSHOT_DUMP" "              { Id = 0"
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                Date = DateOnly(%d, %d, %d)" snapshot.Date.Year snapshot.Date.Month snapshot.Date.Day)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" "                Broker = Some broker"
+                CoreLogger.logInfo "SNAPSHOT_DUMP" "                BrokerAccount = Some brokerAccount"
+                CoreLogger.logInfo "SNAPSHOT_DUMP" "                Currency = currency"
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                MovementCounter = %d" snapshot.MovementCounter)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                RealizedGains = %Mm" snapshot.RealizedGains)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                RealizedPercentage = %Mm" snapshot.RealizedPercentage)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                UnrealizedGains = %Mm" snapshot.UnrealizedGains)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                UnrealizedGainsPercentage = %Mm" snapshot.UnrealizedGainsPercentage)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                Invested = %Mm" snapshot.Invested)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                Commissions = %Mm" snapshot.Commissions)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                Fees = %Mm" snapshot.Fees)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                Deposited = %Mm" snapshot.Deposited)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                Withdrawn = %Mm" snapshot.Withdrawn)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                DividendsReceived = %Mm" snapshot.DividendsReceived)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                OptionsIncome = %Mm" snapshot.OptionsIncome)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                OtherIncome = %Mm" snapshot.OtherIncome)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                OpenTrades = %b" snapshot.OpenTrades)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "                NetCashFlow = %Mm }" snapshot.NetCashFlow)
+                CoreLogger.logInfo "SNAPSHOT_DUMP" (sprintf "            Description = \"Snapshot %d: %s\" }" (idx + 1) (snapshot.Date.ToString("yyyy-MM-dd"))))
+            CoreLogger.logInfo "SNAPSHOT_DUMP" ""
+            CoreLogger.logInfo "SNAPSHOT_DUMP" "========================================"
+            CoreLogger.logInfo "SNAPSHOT_DUMP" "END OF DUMP - Copy from logs above"
+            CoreLogger.logInfo "SNAPSHOT_DUMP" "========================================"
+            // ============================================================
+
             // Filter actual snapshots to only include the ones we're validating
             // Match by date (date only, ignoring time component)
             let expectedSnapshotDates =
