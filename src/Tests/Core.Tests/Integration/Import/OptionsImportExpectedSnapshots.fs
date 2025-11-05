@@ -46,9 +46,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 35.00m // SELL_TO_OPEN Premium (gross, before costs)
                 TotalIncomes = 33.86m // = Options (35.00) - Commissions (1.00) - Fees (0.14)
-                CapitalDeployed = 33.86m // Capital from selling the option
+                CapitalDeployed = 700.00m // Strike $7.00 × Multiplier 100 = $700
                 Realized = 0m
-                Performance = 0m
+                Performance = 0m // No realized gains yet (position still open)
                 OpenTrades = true
                 Commissions = 1.0m // SELL_TO_OPEN commission (positive value = cost)
                 Fees = 0.14m } // SELL_TO_OPEN fees (positive value = cost)
@@ -68,9 +68,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 35.00m // Cumulative Premium: 35 - 17 + 17 = 35
                 TotalIncomes = 32.59m // = Options (35.00) - Commissions (2.00) - Fees (0.41)
-                CapitalDeployed = 66.85m // Cumulative: 33.86 (first open) + 17.13 (close) + 15.86 (second open)
+                CapitalDeployed = 1400.00m // Cumulative: 33.86 (first open) + 17.13 (close) + 15.86 (second open)
                 Realized = 16.73m // First position closed: 33.86 - 17.13
-                Performance = 25.0262m // (16.73 / 66.85) * 100
+                Performance = 1.1950m // (16.73 / 1400.00) * 100
                 OpenTrades = true
                 Commissions = 2.0m // Cumulative: 1.00 (STO) + 0.00 (BTC) + 1.00 (STO) = 2.00
                 Fees = 0.41m } // Cumulative: 0.14 (STO) + 0.13 (BTC) + 0.14 (STO) = 0.41
@@ -90,9 +90,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 51.00m // Cumulative Premium: 35 - 17 + 17 + 16 = 51
                 TotalIncomes = 47.45m // = Options (51.00) - Commissions (3.00) - Fees (0.55)
-                CapitalDeployed = 81.71m // Cumulative: all deployed capital from options
+                CapitalDeployed = 2050.00m // Cumulative: all deployed capital from options
                 Realized = 16.73m
-                Performance = 20.4749m // (16.73 / 81.71) * 100
+                Performance = 0.8161m // (16.73 / 2050.00) * 100
                 OpenTrades = true
                 Commissions = 3.0m // Cumulative: 2.00 (previous) + 1.00 (STO) = 3.00
                 Fees = 0.55m } // Cumulative: 0.41 (previous) + 0.14 (STO) = 0.55
@@ -112,9 +112,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 51.00m // Same as Snapshot 3 (no new trades)
                 TotalIncomes = 47.45m // = Options (51.00) - Commissions (3.00) - Fees (0.55)
-                CapitalDeployed = 81.71m // Same as Snapshot 3 (no new trades)
+                CapitalDeployed = 2050.00m // Same as Snapshot 3 (no new trades)
                 Realized = 16.73m
-                Performance = 20.4749m // (16.73 / 81.71) * 100
+                Performance = 0.8161m // (16.73 / 2050.00) * 100
                 OpenTrades = true
                 Commissions = 3.0m // Same as Snapshot 3 (no new trades)
                 Fees = 0.55m } // Same as Snapshot 3 (no new trades)
@@ -169,9 +169,9 @@ module OptionsImportExpectedSnapshots =
                 Premium = 51.00m // All trades: $35 - $17 + $17 + $16
                 Dividends = 0m
                 DividendTaxes = 0m
-                CapitalDeployed = 1985.42m // Total capital required (calculated by core)
+                CapitalDeployed = 2050.00m // Total capital required (calculated by core)
                 CapitalDeployedToday = 0m // Not used in test expectations
-                Performance = 0.8426m } // (16.73 / 1985.42) × 100
+                Performance = 0.8161m } // (16.73 / 2050.00) × 100
             Description = "SOFI Operation #1: All SOFI trades (2024-04-25 onwards) - OPEN" } ]
 
     // ==================== MPW TICKER SNAPSHOTS ====================
@@ -202,7 +202,7 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 15.00m // Cumulative Premium: -4 + 19 = 15 (vertical spread)
                 TotalIncomes = 12.73m // = Options (15.00) - Commissions (2.00) - Fees (0.27)
-                CapitalDeployed = 22.99m // Capital from opening vertical spread
+                CapitalDeployed = 850.00m // Capital from opening vertical spread
                 Realized = 0m
                 Performance = 0m
                 OpenTrades = true
@@ -224,9 +224,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 8.00m // Cumulative Premium: 15 - 8 + 1 = 8 (after closing spread)
                 TotalIncomes = 5.46m // = Options (8.00) - Commissions (2.00) - Fees (0.54)
-                CapitalDeployed = 31.98m // Cumulative: all capital from all trades
+                CapitalDeployed = 850.00m // Cumulative: all capital from all trades
                 Realized = 5.46m // Positions closed
-                Performance = 17.0732m // (5.46 / 31.98) * 100
+                Performance = 0.6424m // (5.46 / 850.00) * 100
                 OpenTrades = false
                 Commissions = 2.0m // Cumulative: no new commissions from closing trades
                 Fees = 0.54m } // Cumulative: 0.27 (previous) + 0.13 (BTC) + 0.14 (STC) = 0.54
@@ -246,9 +246,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 8.00m // Same as Snapshot 2 (no new trades)
                 TotalIncomes = 5.46m // = Options (8.00) - Commissions (2.00) - Fees (0.54)
-                CapitalDeployed = 31.98m // Same as Snapshot 2 (no new trades)
+                CapitalDeployed = 850.00m // Same as Snapshot 2 (no new trades)
                 Realized = 5.46m
-                Performance = 17.0732m // (5.46 / 31.98) * 100
+                Performance = 0.6424m // (5.46 / 850.00) * 100
                 OpenTrades = false
                 Commissions = 2.0m // Same as Snapshot 2 (no new trades)
                 Fees = 0.54m } // Same as Snapshot 2 (no new trades)
@@ -292,9 +292,9 @@ module OptionsImportExpectedSnapshots =
                 Premium = 8.00m // Net premium: -$4.00 + $19.00 - $8.00 + $1.00
                 Dividends = 0m
                 DividendTaxes = 0m
-                CapitalDeployed = 437.27m // Total capital required (calculated by core)
+                CapitalDeployed = 850.00m // Total capital required (calculated by core)
                 CapitalDeployedToday = 0m // Not used in test expectations
-                Performance = 1.2487m } // ($5.46 / $437.27) × 100
+                Performance = 0.6424m } // ($5.46 / $850.00) × 100
             Description = "MPW Operation #1: Vertical spread (2024-04-26 to 2024-04-29) - CLOSED" } ]
 
     // ==================== PLTR TICKER SNAPSHOTS ====================
@@ -325,7 +325,7 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 8.00m // Cumulative Premium: -11 + 19 = 8 (vertical spread)
                 TotalIncomes = 5.73m // = Options (8.00) - Commissions (2.00) - Fees (0.27)
-                CapitalDeployed = 29.99m // Capital from opening vertical spread
+                CapitalDeployed = 4250.00m // Cumulative: all capital from all trades
                 Realized = 0m
                 Performance = 0m
                 OpenTrades = true
@@ -347,9 +347,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 4.00m // Cumulative Premium: 8 - 9 + 5 = 4 (after closing spread)
                 TotalIncomes = 1.46m // = Options (4.00) - Commissions (2.00) - Fees (0.54)
-                CapitalDeployed = 43.98m // Cumulative: all capital from all trades
+                CapitalDeployed = 4250.00m // Cumulative: all capital from all trades
                 Realized = 1.46m // Positions closed
-                Performance = 3.3197m // (1.46 / 43.98) * 100
+                Performance = 0.0344m // (1.46 / 4250.00) * 100
                 OpenTrades = false
                 Commissions = 2.0m // Cumulative: no new commissions from closing trades
                 Fees = 0.54m } // Cumulative: 0.27 (previous) + 0.13 (BTC) + 0.14 (STC) = 0.54
@@ -369,9 +369,9 @@ module OptionsImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 4.00m // Same as Snapshot 2 (no new trades)
                 TotalIncomes = 1.46m // = Options (4.00) - Commissions (2.00) - Fees (0.54)
-                CapitalDeployed = 43.98m // Same as Snapshot 2 (no new trades)
+                CapitalDeployed = 4250.00m // Same as Snapshot 2 (no new trades)
                 Realized = 1.46m
-                Performance = 3.3197m // (1.46 / 43.98) * 100
+                Performance = 0.0344m // (1.46 / 4250.00) * 100
                 OpenTrades = false
                 Commissions = 2.0m // Same as Snapshot 2 (no new trades)
                 Fees = 0.54m } // Same as Snapshot 2 (no new trades)
@@ -415,9 +415,9 @@ module OptionsImportExpectedSnapshots =
                 Premium = 4.00m // Net premium: -$11.00 + $19.00 + $5.00 - $9.00
                 Dividends = 0m
                 DividendTaxes = 0m
-                CapitalDeployed = 2144.27m // Total capital required (calculated by core)
+                CapitalDeployed = 4250.00m // Total capital required (calculated by core)
                 CapitalDeployedToday = 0m // Not used in test expectations
-                Performance = 0.0681m } // ($1.46 / $2144.27) × 100
+                Performance = 0.0344m } // ($1.46 / $4250.00) × 100
             Description = "PLTR Operation #1: Vertical spread (2024-04-26 to 2024-04-29) - CLOSED" } ]
 
     // ==================== BROKER ACCOUNT SNAPSHOTS ====================

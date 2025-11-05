@@ -58,7 +58,7 @@ module PfizerImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = -554.00m // BUY_TO_OPEN Premium (gross, before costs)
                 TotalIncomes = -555.12m // = Options (-554.00) - Commissions (1.00) - Fees (0.12)
-                CapitalDeployed = 0m
+                CapitalDeployed = 2000.00m // Strike $20 × Multiplier 100 × Quantity 1 = $2,000
                 Realized = 0m
                 Performance = 0m
                 OpenTrades = true
@@ -80,7 +80,7 @@ module PfizerImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = -503.00m // Cumulative Premium: -554 + 51 = -503
                 TotalIncomes = -505.24m // = Options (-503.00) - Commissions (2.00) - Fees (0.24)
-                CapitalDeployed = 0m
+                CapitalDeployed = 2000.00m // Only BTO position: $20 × 100 = $2,000 (SELL_TO_OPEN doesn't deploy capital)
                 Realized = 0m
                 Performance = 0m
                 OpenTrades = true
@@ -102,9 +102,9 @@ module PfizerImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 178.00m // Cumulative Premium: -554 + 51 - 64 + 745 = 178
                 TotalIncomes = 175.52m // = Options (178.00) - Commissions (2.00) - Fees (0.48)
-                CapitalDeployed = 0m
+                CapitalDeployed = 2000.00m // Remains from first BTO (strike $20 × 100) - not released until expiration
                 Realized = 175.52m // FIFO: (-$14.24) + $189.76 = $175.52
-                Performance = 0m
+                Performance = 8.776m // (TotalIncomes / CapitalDeployed) × 100 = (175.52 / 2000) × 100 = 8.776%
                 OpenTrades = false
                 Commissions = 2.00m // Cumulative: no new commissions from closing trades (0+0)
                 Fees = 0.48m } // Cumulative: 0.24 (prev) + 0.12 (BTC) + 0.12 (STC) = 0.48
@@ -124,9 +124,9 @@ module PfizerImportExpectedSnapshots =
                 DividendTaxes = 0m
                 Options = 178.00m // Same as Snapshot 3 (no new trades)
                 TotalIncomes = 175.52m // = Options (178.00) - Commissions (2.00) - Fees (0.48)
-                CapitalDeployed = 0m
+                CapitalDeployed = 2000.00m // Remains from first BTO (strike $20 × 100) - not released until expiration
                 Realized = 175.52m
-                Performance = 0m
+                Performance = 8.776m // (TotalIncomes / CapitalDeployed) × 100 = (175.52 / 2000) × 100 = 8.776%
                 OpenTrades = false
                 Commissions = 2.00m // Same as Snapshot 3 (no new trades)
                 Fees = 0.48m } // Same as Snapshot 3 (no new trades)
@@ -299,7 +299,7 @@ module PfizerImportExpectedSnapshots =
                 Premium = 178.00m // Total option premium (net option value)
                 Dividends = 0m // No dividends
                 DividendTaxes = 0m // No dividend taxes
-                CapitalDeployed = 555.12m // Initial capital: Premium ($554.00) + Commissions ($1.00) + Fees ($0.12)
+                CapitalDeployed = 2000.00m // Strike value: $20 × 100 multiplier = $2,000
                 CapitalDeployedToday = 0m // Not used in test expectations
-                Performance = 31.61m } // ROI: (175.52 / 555.12) × 100 = 31.61%
+                Performance = 8.776m } // ROI: (TotalIncomes / CapitalDeployed) × 100 = (175.52 / 2000) × 100 = 8.776%
             Description = "PFE Operation #1: Complete options cycle (4 trades, 2025-08-25 to 2025-10-03)" } ]
