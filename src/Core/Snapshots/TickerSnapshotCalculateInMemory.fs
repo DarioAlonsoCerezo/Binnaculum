@@ -152,17 +152,18 @@ module internal TickerSnapshotCalculateInMemory =
 
         let cumulativeFees = Money.FromAmount(previousSnapshot.Fees.Value + fees)
 
-        // Calculate dividends (gross dividends minus taxes)
+        // Calculate dividends and dividend taxes separately
+        // Dividends field stores GROSS dividends (before tax withholding)
+        // DividendTaxes field stores cumulative taxes withheld
         let currentDividends =
             movements.Dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
 
         let currentDividendTaxes =
             movements.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
 
-        let netDividends = currentDividends - currentDividendTaxes
-
+        // Store GROSS dividends (not net) - taxes are tracked separately in DividendTaxes field
         let totalDividends =
-            Money.FromAmount(previousSnapshot.Dividends.Value + netDividends)
+            Money.FromAmount(previousSnapshot.Dividends.Value + currentDividends)
 
         let totalDividendTaxes =
             Money.FromAmount(previousSnapshot.DividendTaxes.Value + currentDividendTaxes)
@@ -172,7 +173,8 @@ module internal TickerSnapshotCalculateInMemory =
 
         let totalOptions = Money.FromAmount(previousSnapshot.Options.Value + currentOptions)
 
-        // Calculate total incomes: Options + Dividends - DividendTaxes - Commissions - Fees
+        // Calculate total incomes: Options + Dividends(GROSS) - DividendTaxes - Commissions - Fees
+        // This represents net income after all costs
         let totalIncomes =
             Money.FromAmount(
                 totalOptions.Value + totalDividends.Value
@@ -410,15 +412,17 @@ module internal TickerSnapshotCalculateInMemory =
         let cumulativeCommissions = Money.FromAmount(commissions)
         let cumulativeFees = Money.FromAmount(fees)
 
-        // Calculate dividends (gross dividends minus taxes)
+        // Calculate dividends and dividend taxes separately
+        // Dividends field stores GROSS dividends (before tax withholding)
+        // DividendTaxes field stores cumulative taxes withheld
         let currentDividends =
             movements.Dividends |> List.sumBy (fun d -> d.DividendAmount.Value)
 
         let currentDividendTaxes =
             movements.DividendTaxes |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
 
-        let netDividends = currentDividends - currentDividendTaxes
-        let totalDividends = Money.FromAmount(netDividends)
+        // Store GROSS dividends (not net) - taxes are tracked separately in DividendTaxes field
+        let totalDividends = Money.FromAmount(currentDividends)
 
         let totalDividendTaxes = Money.FromAmount(currentDividendTaxes)
 
@@ -427,7 +431,8 @@ module internal TickerSnapshotCalculateInMemory =
 
         let totalOptions = Money.FromAmount(currentOptions)
 
-        // Calculate total incomes: Options + Dividends - DividendTaxes - Commissions - Fees
+        // Calculate total incomes: Options + Dividends(GROSS) - DividendTaxes - Commissions - Fees
+        // This represents net income after all costs
         let totalIncomes =
             Money.FromAmount(
                 totalOptions.Value + totalDividends.Value

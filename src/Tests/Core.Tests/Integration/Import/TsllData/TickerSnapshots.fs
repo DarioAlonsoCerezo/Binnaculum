@@ -850,7 +850,7 @@ module TsllTickerSnapshots =
                 CapitalDeployed = 63845.98m // Core: Unchanged from Snapshot 25 (no stock trades)
                 Realized = 1047.55m // Core: $910.11 + $137.44 = $1,047.55 (loss $522 on long call, gain $662 on short call)
                 Performance = 1.6407m // Core: (Realized / CapitalDeployed) × 100 = ($1,047.55 / $63,845.98) × 100
-                OpenTrades = true // Still options only
+                OpenTrades = false // All positions closed again
                 Commissions = 116.00m // Same (no new commissions)
                 Fees = 38.07m } // $37.78 (prev) + $0.29 = $38.07
             Description = "Closed positions: Sold long call @ $17.58 (loss $522), closed short call @ $1.68 (gain $662)" }
@@ -965,7 +965,7 @@ module TsllTickerSnapshots =
                 CapitalDeployed = 67045.98m // Core: Increased from $67,045.98 (closing some spreads but capital obligations adjust)
                 Realized = 1082.20m // Core: Increased from $1,047.55 by $34.65 (gain from closing put @ $13 and spread adjustments)
                 Performance = 1.6141m // Core: (Realized / CapitalDeployed) × 100 = ($1,082.20 / $67,045.98) × 100
-                OpenTrades = true
+                OpenTrades = false // Some positions closed
                 Commissions = 121.00m // Same (no new commissions)
                 Fees = 39.42m } // $38.75 (prev) + $0.67 = $39.42
             Description = "Closed positions: Bought put @ $0.06, closed 2 put spreads, realized $35" }
@@ -1137,7 +1137,7 @@ module TsllTickerSnapshots =
                 CapitalDeployed = 81647.03m // Core: Unchanged (cumulative metric)
                 Realized = 624.47m // Core: Decreased from $1,082.20 (major loss on closing calls that were sold at lower premiums)
                 Performance = 0.7648m // Core: (Realized / CapitalDeployed) × 100 = ($624.47 / $81,647.03) × 100
-                OpenTrades = true // Still has options open
+                OpenTrades = false // All positions closed again
                 Commissions = 135.00m // Same (no new commissions)
                 Fees = 45.69m } // $42.33 (prev) + $3.36 = $45.69
             Description = "COMPLETE EXIT: Sold all 1,200 shares @ $11.40, closed 12 calls, closed 2 puts, realized gain" }
@@ -1780,33 +1780,39 @@ module TsllTickerSnapshots =
             Description =
               "POSITION CLOSED: Sold all 1,700 shares @ $12.30, closed 17 calls @ $1.21 (final realized gain $1,265 for total $3,938!)" }
 
-          // ========== Snapshot 51: 2025-06-17 ==========
-          // CSV Lines 47-49: Closed 14 calls @ $0.10
+          // ========== Snapshot 57: 2025-07-01 ==========
+          // CSV Lines
+          // 2025-07-01T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,125.47,0,,--,0.00,,,,,,,,125.47,USD
+          // 2025-07-01T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,-18.82,0,,--,0.00,,,,,,,,-18.82,USD
+          // 2025-07-01T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,8.96,0,,--,0.00,,,,,,,,8.96,USD
+          // 2025-07-01T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,-1.34,0,,--,0.00,,,,,,,,-1.34,USD
           // Calculation:
-          //   Closed 14 calls: 5+8+1 @ $0.10 = -$140 - $1.82 = -$141.82
-          //   Realized gain: Sold @ $650 (snapshot 50), closed @ $140 = $510 gain
-          //   Total options: $3,001 (prev) - $140 = $2,861
-          //   Realized: $2,041.32 (prev) + $546.34 = $2,587.66
+          // Dividends (GROSS): +$125.47 + $8.96 = $134.43 (cumulative: $0.00 + $134.43 = $134.43)
+          // Dividend Taxes: $18.82 + $1.34 = $20.16 (cumulative: $0.00 + $20.16 = $20.16)
+          // Net Dividend Income: $134.43 - $20.16 = $114.27
+          // No trades in this snapshot - dividend-only event
+          // TotalIncomes: $3,926.70 (prev) + $114.27 (net dividends) = $4,040.97
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 17)
+                Date = DateOnly(2025, 7, 1)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1400.00m // Same as before
+                TotalShares = 0.00m // Unchanged from Snapshot 56 (no share trades)
                 Weight = 0.0000m
-                CostBasis = -141232.68m // Same
-                RealCost = -141230.86m // Slightly adjusted
-                Dividends = 0.00m
-                DividendTaxes = 0.00m
-                Options = 2861.00m // $3,001 - $140 = $2,861
-                TotalIncomes = 2600.16m // After commissions and fees
-                CapitalDeployed = -197584519.32m // Same
-                Realized = 2587.66m // $2,041.32 + $546.34 = $2,587.66 (another win!)
-                Performance = 139900.0000m // Based on 1,400 shares
-                OpenTrades = true
-                Commissions = 196.00m // Same (no new commissions)
-                Fees = 64.84m } // $63.02 (prev) + $1.82 = $64.84
-            Description = "Closed 14 calls @ $0.10 (sold @ $0.50, gain $546)" }
+                CostBasis = 0.00m // Unchanged from Snapshot 56 (no shares)
+                RealCost = 0.00m // Unchanged from Snapshot 56 (no shares)
+                Dividends = 134.43m // $0.00 (prev) + $134.43 (gross) = $134.43
+                DividendTaxes = 20.16m // $0.00 (prev) + $20.16 = $20.16
+                Options = 4220.00m // Unchanged from Snapshot 56 (no option trades)
+                TotalIncomes = 4040.97m // $3,926.70 (prev) + $134.43 (gross div) - $20.16 (taxes) = $4,040.97
+                CapitalDeployed = 109861.37m // Unchanged from Snapshot 56 (cumulative metric)
+                Realized = 3938.01m // Unchanged from Snapshot 56 (no closing trades)
+                Performance = 3.5845m // Unchanged from Snapshot 56: ($3,938.01 / $109,861.37) × 100 = 3.58%
+                OpenTrades = false // Unchanged from Snapshot 56 (position still closed)
+                Commissions = 218.00m // Unchanged from Snapshot 56 (no new commissions)
+                Fees = 75.30m } // Unchanged from Snapshot 56 (no new fees)
+            Description = "Dividend payment: $134.43 gross, $20.16 taxes withheld = $114.27 net dividend income" }
+
           // Snapshot 52: 2025-06-18
           { Data =
               { Id = 0

@@ -553,6 +553,55 @@ module DatabasePersistence =
             optionTrades
 
     /// <summary>
+    /// Apply strike adjustment to a single option trade if a matching adjustment exists.
+    /// This is called per-trade BEFORE saving to ensure strikes are correct before FIFO matching.
+    /// </summary>
+    let private applyAdjustmentToSingleTrade
+        (trade: DatabaseModel.OptionTrade)
+        (adjustments: SpecialDividendAdjustmentDetector.DetectedAdjustment list)
+        : DatabaseModel.OptionTrade =
+
+        let matchingAdjustment =
+            adjustments
+            |> List.tryFind (fun adj ->
+                // Match by expiration date
+                let sameExpiration =
+                    match adj.ClosingTransaction.ExpirationDate with
+                    | Some expDate -> trade.ExpirationDate = DateTimePattern.FromDateTime(expDate)
+                    | None -> false
+
+                // Match by original strike (what we're adjusting FROM)
+                let sameStrike = trade.Strike.Value = adj.OriginalStrike
+
+                // Match by option type
+                let sameType =
+                    match adj.OptionType with
+                    | "CALL" -> trade.OptionType = OptionType.Call
+                    | "PUT" -> trade.OptionType = OptionType.Put
+                    | _ -> false
+
+                sameExpiration && sameStrike && sameType)
+
+        match matchingAdjustment with
+        | Some adj ->
+            // Apply the adjustment
+            let adjustmentNote =
+                SpecialDividendAdjustmentDetector.formatAdjustmentNote
+                    adj.OriginalStrike
+                    adj.NewStrike
+                    adj.DividendAmount
+
+            { trade with
+                Strike = Money.FromAmount(adj.NewStrike)
+                Notes = Some adjustmentNote
+                Audit =
+                    { trade.Audit with
+                        UpdatedAt = Some(DateTimePattern.FromDateTime(DateTime.UtcNow)) } }
+        | None ->
+            // No adjustment needed - return unchanged
+            trade
+
+    /// <summary>
     /// Persist domain models to database (broker-agnostic)
     /// Supports all brokers by accepting pre-converted domain models
     /// Integrates with session tracking from PR #420 for resumable imports
@@ -786,6 +835,12 @@ module DatabasePersistence =
                 let orderedTransactions = orderTransactionsForPersistence transactions
                 let totalTransactions = orderedTransactions.Length
 
+                // Detect all strike adjustments BEFORE processing transactions
+                // This allows us to apply adjustments to option trades as they're created,
+                // ensuring strikes are correct BEFORE linkClosingTrade attempts FIFO matching
+                let detectedAdjustments =
+                    SpecialDividendAdjustmentDetector.detectAdjustments orderedTransactions
+
                 // CoreLogger.logDebugf
                 //     "DatabasePersistence"
                 //     "Transactions ordered successfully; total=%d"
@@ -916,10 +971,15 @@ module DatabasePersistence =
                             else
                                 // Process each expanded option trade (normally will be Quantity=1 per trade)
                                 for optionTrade in expandedOptionTrades do
-                                    let! persistedTrade = OptionTradeExtensions.Do.saveAndReturn (optionTrade)
+                                    // Apply strike adjustment BEFORE saving (if applicable)
+                                    // This ensures strikes are correct BEFORE linkClosingTrade attempts FIFO matching
+                                    let adjustedTrade = applyAdjustmentToSingleTrade optionTrade detectedAdjustments
+
+                                    let! persistedTrade = OptionTradeExtensions.Do.saveAndReturn (adjustedTrade)
                                     optionTrades <- persistedTrade :: optionTrades
 
                                     if isClosingCode persistedTrade.Code then
+                                        // Now linkClosingTrade works with the CORRECT adjusted strike
                                         let! linkResult = OptionTradeExtensions.Do.linkClosingTrade (persistedTrade)
 
                                         match linkResult with
@@ -1024,34 +1084,9 @@ module DatabasePersistence =
 
                 // CoreLogger.logDebug "DatabasePersistence" "All transactions processed, finalizing"
 
-                // Apply strike adjustments from special dividends to option trades
-                // CoreLogger.logDebug "DatabasePersistence" "Applying strike adjustments from special dividends..."
-                let adjustedOptionTrades = applyStrikeAdjustments orderedTransactions optionTrades
-
-                // Build a set of original trade IDs for comparison
-                let originalTradeIds = optionTrades |> List.map (fun t -> t.Id) |> Set.ofList
-
-                // Save adjusted trades back to database if they were modified
-                for adjustedTrade in adjustedOptionTrades do
-                    try
-                        // Check if this trade was modified by finding original and comparing strike
-                        let originalTrade = optionTrades |> List.tryFind (fun t -> t.Id = adjustedTrade.Id)
-
-                        let wasModified =
-                            match originalTrade with
-                            | Some orig -> orig.Strike <> adjustedTrade.Strike || orig.Notes <> adjustedTrade.Notes
-                            | None -> true // New trades should always be saved
-
-                        if wasModified then
-                            do! OptionTradeExtensions.Do.save (adjustedTrade) |> Async.AwaitTask
-
-                    // CoreLogger.logDebugf "DatabasePersistence" "Saved adjusted option trade ID=%d with strike update" adjustedTrade.Id
-                    with ex ->
-                        CoreLogger.logWarningf
-                            "DatabasePersistence"
-                            "Failed to save adjusted option trade ID=%d: %s"
-                            adjustedTrade.Id
-                            ex.Message
+                // Strike adjustments are already applied during trade creation (per-trade before save/link)
+                // No post-processing needed - all trades in optionTrades already have adjusted strikes
+                let adjustedOptionTrades = optionTrades
 
                 // Final progress update
                 ImportState.updateStatus (SavingToDatabase("Database save completed", 1.0))

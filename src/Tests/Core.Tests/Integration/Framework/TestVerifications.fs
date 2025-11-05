@@ -304,6 +304,7 @@ module TestVerifications =
              CostBasis = expCostBasis
              RealCost = expRealCost
              Dividends = expDividends
+             DividendTaxes = expDividendTaxes
              Options = expOptions
              TotalIncomes = expTotalIncomes
              CapitalDeployed = expCapitalDeployed
@@ -319,6 +320,7 @@ module TestVerifications =
              CostBasis = actCostBasis
              RealCost = actRealCost
              Dividends = actDividends
+             DividendTaxes = actDividendTaxes
              Options = actOptions
              TotalIncomes = actTotalIncomes
              CapitalDeployed = actCapitalDeployed
@@ -360,6 +362,11 @@ module TestVerifications =
                     Expected = sprintf "%.2f" expDividends
                     Actual = sprintf "%.2f" actDividends
                     Match = abs (expDividends - actDividends) < 0.01m }
+
+                  { Field = "DividendTaxes"
+                    Expected = sprintf "%.2f" expDividendTaxes
+                    Actual = sprintf "%.2f" actDividendTaxes
+                    Match = abs (expDividendTaxes - actDividendTaxes) < 0.01m }
 
                   { Field = "Options"
                     Expected = sprintf "%.2f" expOptions

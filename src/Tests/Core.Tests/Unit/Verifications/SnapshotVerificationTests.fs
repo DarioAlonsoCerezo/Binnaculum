@@ -166,10 +166,10 @@ type SnapshotVerificationTests() =
         Assert.That(sharesResult.Actual, Is.EqualTo("99.00"))
 
     [<Test>]
-    member _.``verifyTickerCurrencySnapshot detects Unrealized mismatch``() =
+    member _.``verifyTickerCurrencySnapshot detects Options mismatch``() =
         // Arrange
         let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
-        let actual = createTickerSnapshot 100m 200.00m -50.25m 75.00m
+        let actual = createTickerSnapshot 100m 250.50m -50.25m 80.00m // Different options
 
         // Act
         let (allMatch, results) =
@@ -177,8 +177,8 @@ type SnapshotVerificationTests() =
 
         // Assert
         Assert.That(allMatch, Is.False, "Should detect mismatch")
-        let unrealizedResult = results |> List.find (fun r -> r.Field = "Unrealized")
-        Assert.That(unrealizedResult.Match, Is.False, "Unrealized field should not match")
+        let optionsResult = results |> List.find (fun r -> r.Field = "Options")
+        Assert.That(optionsResult.Match, Is.False, "Options field should not match")
 
     [<Test>]
     member _.``formatValidationResults produces readable output``() =
