@@ -222,13 +222,13 @@ module SpecialDividendAdjustmentDetector =
             let specialDividendTxns = transactions |> List.filter isSpecialDividendTransaction
 
             if List.isEmpty specialDividendTxns then
-                CoreLogger.logDebugf "SpecialDividendAdjustmentDetector" "No special dividend transactions found"
+                // CoreLogger.logDebugf "SpecialDividendAdjustmentDetector" "No special dividend transactions found"
                 []
             else
-                CoreLogger.logInfof
-                    "SpecialDividendAdjustmentDetector"
-                    "Detected %d special dividend transactions for adjustment detection"
-                    specialDividendTxns.Length
+                // CoreLogger.logInfof
+                //     "SpecialDividendAdjustmentDetector"
+                //     "Detected %d special dividend transactions for adjustment detection"
+                //     specialDividendTxns.Length
 
                 let grouped = groupByTimeAndTicker specialDividendTxns
 
