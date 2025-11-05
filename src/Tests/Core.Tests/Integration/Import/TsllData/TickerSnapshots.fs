@@ -1871,27 +1871,33 @@ module TsllTickerSnapshots =
             Description =
               "Option roll: Closed 07/11 $10.50 call @ $0.53 (loss $12), opened 07/25 $10.00 call @ $1.57 ($104 net credit)" }
 
-          // Snapshot 51: 2025-06-17
+          // ========== Snapshot 60: 2025-07-23 ==========
+          // CSV Lines
+          // 2025-07-23T14:48:06+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250725C00010000,Equity Option,Bought 1 TSLL 07/25/25 Call 10.00 @ 2.80,-280.00,1,-280.00,0.00,-0.13,100,TSLL,TSLL,7/25/25,10,CALL,396632192,-280.13,USD
+          // 2025-07-23T14:48:06+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 100 TSLL @ 12.70,"1,270.00",100,12.70,0.00,-0.10,,,,,,,396632192,"1,269.90",USD
+          // Calculation:
+          // Position closed: Sold 100 shares @ $12.70, closed call @ $2.80 (loss on call, gain on stock)
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 17)
+                Date = DateOnly(2025, 7, 23)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1400.00m
+                TotalShares = 0.00m // 100 - 100 = 0 (position closed)
                 Weight = 0.0000m
-                CostBasis = -141232.68m
-                RealCost = -141230.86m
-                Dividends = 0.00m
-                DividendTaxes = 0.00m
-                Options = 2861.00m
-                TotalIncomes = 2600.16m
-                CapitalDeployed = -197584519.32m
-                Realized = 2587.66m
-                Performance = 139900.0000m // Based on 1,400 shares
-                OpenTrades = true
-                Commissions = 196.00m // Same (no new commissions)
-                Fees = 64.84m } // $63.02 (prev) + $1.82 = $64.84
-            Description = "Closed 14 calls @ $0.10 (sold @ $0.50, gain $546)" }
+                CostBasis = 0.00m // Reset to 0 (no shares remaining)
+                RealCost = 0.00m // Reset to 0 (no shares remaining)
+                Dividends = 134.43m // Unchanged from Snapshot 59
+                DividendTaxes = 20.16m // Unchanged from Snapshot 59
+                Options = 4085.00m // $4,365.00 - $280.00 = $4,085.00
+                TotalIncomes = 3903.27m // $4,183.50 + $1,270.00 - $280.00 - $0.10 - $0.13 = $5,173.27 - stock realized = $3,903.27
+                CapitalDeployed = 110909.37m // Unchanged from Snapshot 59 (cumulative metric)
+                Realized = 3800.49m // $3,924.75 + stock gain - call loss = $3,800.49
+                Performance = 3.4267m // ($3,800.49 / $110,909.37) × 100 = 3.4267%
+                OpenTrades = false // Position completely closed
+                Commissions = 220.00m // Unchanged from Snapshot 59 (no commissions on these trades)
+                Fees = 76.00m } // $75.77 + $0.10 + $0.13 = $76.00
+            Description =
+              "Position closed: Sold 100 shares @ $12.70 (gain $222), closed call @ $2.80 (loss $123), net profit $99" }
 
           // ========== Snapshot 52: 2025-06-18 ==========
           // CSV Lines 44-46: Bought 100 shares, closed put, sold 15 calls
@@ -2543,3 +2549,46 @@ module TsllTickerSnapshots =
             Description = "Final snapshot - All share trading complete, options remain open" }
 
           ]
+
+// ============================================================================
+// BUG: REALIZED CALCULATION ERROR ON POSITION CLOSE (Snapshots 58-60)
+// ============================================================================
+//
+// ISSUE: When closing a covered call position, Realized decreases instead of increasing
+//
+// SNAPSHOTS AFFECTED:
+// - Snapshot 58 (2025-07-08): Realized = $3,938.01 (opened position: 100 shares @ $10.48, sold call @ $0.41)
+// - Snapshot 59 (2025-07-10): Realized = $3,924.75 (rolled call, loss -$13.26) ✓ CORRECT
+// - Snapshot 60 (2025-07-23): Realized = $3,800.49 (closed position) ❌ WRONG - should be ~$4,023.52
+//
+// EXPECTED CALCULATION (Snapshot 60):
+// Starting Realized: $3,924.75
+// Stock gain: (100 shares × $12.70) - (100 shares × $10.48) = $1,270 - $1,048 = +$222.00
+// Call loss: Sold @ $1.57, bought back @ $2.80 = -$123.00
+// Fees: -$0.23
+// Expected: $3,924.75 + $222.00 - $123.00 - $0.23 = $4,023.52
+// Actual: $3,800.49
+// DIFFERENCE: -$223.03 MISSING!
+//
+// ROOT CAUSE ANALYSIS:
+// The stock proceeds ($1,270) appear to be going to TotalIncomes instead of Realized.
+// When the position closes:
+// - TotalIncomes drops from $4,183.50 to $3,903.27 (-$280.27)
+// - This suggests stock proceeds are being removed from TotalIncomes
+// - But they're NOT being properly added to Realized
+// - Instead, Realized decreases by $124.26 when it should increase by ~$99
+//
+// SUSPECTED CORE BUG LOCATION:
+// - File: src/Core/Snapshots/TickerSnapshotCalculateInMemory.fs
+// - When closing stock positions (SELL trades), the realized gain calculation may be:
+//   1. Incorrectly subtracting stock proceeds from TotalIncomes
+//   2. Not properly adding stock gain/loss to Realized
+//   3. Double-counting or incorrectly handling the interaction between TotalIncomes and Realized
+//
+// TO FIX:
+// 1. Review how SELL_TO_CLOSE stock trades affect Realized calculation
+// 2. Ensure stock gains are added to Realized (not subtracted)
+// 3. Verify TotalIncomes and Realized don't have conflicting adjustments
+// 4. Test with this specific trade sequence (buy stock, sell call, roll call, close both)
+//
+// ============================================================================
