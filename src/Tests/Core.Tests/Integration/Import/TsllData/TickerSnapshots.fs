@@ -823,8 +823,9 @@ module TsllTickerSnapshots =
             Description = "Roll forward: Sold call @ $8.30, closed call @ $4.60, realized loss $365" }
 
           // ========== Snapshot 26: 2025-01-07 ==========
-          // CSV Line 122: Sold 1 TSLL 01/16/26 Call 10.43 @ 17.58,"1,758.00",1,"1,758.00",0.00,-0.17
-          // CSV Line 123: Bought 1 TSLL 03/21/25 Call 49.00 @ 1.68,-168.00,1,-168.00,0.00,-0.12
+          // CSV Lines
+          // 2025-01-07T18:57:16+0000,Trade,Sell to Close,SELL_TO_CLOSE,TSLL  260116C00010430,Equity Option,Sold 1 TSLL 01/16/26 Call 10.43 @ 17.58,"1,758.00",1,"1,758.00",0.00,-0.17,100,TSLL,TSLL,1/16/26,10.43,CALL,359944332,"1,757.83",USD
+          // 2025-01-07T18:57:16+0000,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250321C00049000,Equity Option,Bought 1 TSLL 03/21/25 Call 49.00 @ 1.68,-168.00,1,-168.00,0.00,-0.12,100,TSLL,TSLL,3/21/25,49,CALL,359944332,-168.12,USD
           // Calculation:
           //   Sold long call: $1,758 - $0.17 = $1,757.83
           //   Bought @ -$2,280 (snapshot 24), Sold @ $1,758 = -$522 loss
