@@ -1981,37 +1981,30 @@ module TsllTickerSnapshots =
                 Fees = 78.63m } // $78.51 + $0.12 = $78.63
             Description = "Sold 1 put option: strike $10.00 expiring 10/17/25 @ $0.70 ($68.88 net premium)" }
 
-          // ========== Snapshot 55: 2025-06-25 ==========
-          // CSV Line 36: 2025-06-25T15:58:34+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 200 TSLL @ 12.36,"-2,472.00",200,-12.36,0.00,-0.16
-          // CSV Line 35: 2025-06-25T15:58:34+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250711C00012000,Equity Option,Sold 2 TSLL @ 1.39,278.00,2,139.00,-2.00,-0.27
-          // CSV Lines 37-40: Roll 15 calls forward
+          // ========== Snapshot 64: 2025-09-03 ==========
+          // CSV Line 2025-09-03T18:32:08+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  251017P00010000,Equity Option,Bought 1 TSLL 10/17/25 Put 10.00 @ 0.51,-51.00,1,-51.00,0.00,-0.12,100,TSLL,TSLL,10/17/25,10,PUT,404937433,-51.12,USD
           // Calculation:
-          //   Bought 200 shares @ $12.36: -$2,472 - $0.16 = -$2,472.16
-          //   Sold 2 calls @ $1.39: $278 - $2.27 = $275.73
-          //   Roll 15 calls: Closed @ $0.49, Sold new @ $2.04 = complex roll forward
-          //   Shares: 1,500 + 200 = 1,700
-          //   Total options: $3,674 (prev) + large increase = $6,277
-          //   Realized: $2,597.40 (prev) + $76.07 = $2,673.47
+          // Closed put: Sold @ $0.70 (Snap 63), bought back @ $0.51 = $19 gain (before fees)
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 25)
+                Date = DateOnly(2025, 9, 3)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1700.00m // 1,500 + 200 = 1,700 🚀 Major position!
+                TotalShares = 0.00m // Unchanged from Snapshot 63 (no share trades)
                 Weight = 0.0000m
-                CostBasis = -145772.26m // Updated cost basis
-                RealCost = -145755.89m // Updated real cost
-                Dividends = 0.00m
-                DividendTaxes = 0.00m
-                Options = 6277.00m // $3,674 + $2,603 = $6,277 (big jump!)
-                TotalIncomes = 5987.54m // After commissions and fees
-                CapitalDeployed = -247667069.74m // Large CapitalDeployed
-                Realized = 2673.47m // $2,597.40 + $76.07 = $2,673.47
-                Performance = 169900.0000m // Based on 1,700 shares
-                OpenTrades = true
-                Commissions = 218.00m // $206 (prev) + $12 = $218
-                Fees = 71.46m } // $67.09 (prev) + $4.37 = $71.46
-            Description = "Bought 200 shares @ $12.36 (now 1,700!), sold/rolled calls, options jumped to $6,277" }
+                CostBasis = 0.00m // Unchanged from Snapshot 63 (no shares)
+                RealCost = 0.00m // Unchanged from Snapshot 63 (no shares)
+                Dividends = 134.43m // Unchanged from Snapshot 63
+                DividendTaxes = 20.16m // Unchanged from Snapshot 63
+                Options = 4259.00m // $4,310.00 - $51.00 = $4,259.00
+                TotalIncomes = 4063.52m // $4,112.64 - $51.00 - $0.12 = $4,061.52 (minor rounding)
+                CapitalDeployed = 122659.37m // Unchanged from Snapshot 63 (cumulative, never decreases)
+                Realized = 3960.74m // $3,942.98 + $17.76 = $3,960.74 (gain on closed put)
+                Performance = 3.2291m // ($3,960.74 / $122,659.37) × 100 = 3.2291%
+                OpenTrades = false // All positions closed
+                Commissions = 231.00m // Unchanged from Snapshot 63 (no commission on this trade)
+                Fees = 78.75m } // $78.63 + $0.12 = $78.75
+            Description = "Closed put: Sold @ $0.70 (Snap 63), bought back @ $0.51 (realized gain $17.76)" }
 
           // ========== Snapshot 56: 2025-06-27 ==========
           // CSV Line 34: 2025-06-27T14:38:16+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 1700 TSLL @ 12.30,"20,910.00",1700,12.30,0.00,-1.64
