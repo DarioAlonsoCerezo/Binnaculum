@@ -1926,29 +1926,35 @@ module TsllTickerSnapshots =
                 Fees = 77.28m } // $76.00 + $0.64 + $0.64 = $77.28
             Description = "Sold 10 put options: 5 @ strike $10.50, 5 @ strike $11.00 ($315 premium, $303.72 net)" }
 
-          // ========== Snapshot 53: 2025-06-20 ==========
-          // CSV Lines 42-43: Bought 31 shares (11+20)
-          // Snapshot 53: 2025-06-20
+          // ========== Snapshot 62: 2025-08-06 ==========
+          // CSV Lines
+          // 2025-08-06T15:44:41+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250808P00011000,Equity Option,Bought 5 TSLL 08/08/25 Put 11.00 @ 0.22,-110.00,5,-22.00,0.00,-0.62,100,TSLL,TSLL,8/08/25,11,PUT,399581714,-110.62,USD
+          // 2025-08-06T15:44:23+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250808P00010500,Equity Option,Bought 1 TSLL 08/08/25 Put 10.50 @ 0.10,-10.00,1,-10.00,0.00,-0.12,100,TSLL,TSLL,8/08/25,10.5,PUT,399581515,-10.12,USD
+          // 2025-08-06T15:44:23+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250808P00010500,Equity Option,Bought 3 TSLL 08/08/25 Put 10.50 @ 0.10,-30.00,3,-10.00,0.00,-0.37,100,TSLL,TSLL,8/08/25,10.5,PUT,399581515,-30.37,USD
+          // 2025-08-06T15:44:23+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250808P00010500,Equity Option,Bought 1 TSLL 08/08/25 Put 10.50 @ 0.10,-10.00,1,-10.00,0.00,-0.12,100,TSLL,TSLL,8/08/25,10.5,PUT,399581515,-10.12,USD
+          // Calculation:
+          // Closed all puts: 5 @ $11.00 for $110 + 5 @ $10.50 for $50 = $160 cost (total $161.23 with fees)
+          // Realized gain on puts: Sold for $315 (Snap 61), bought back for $160 = $155 gain
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 20)
+                Date = DateOnly(2025, 8, 6)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1531.00m // 1,500 + 31 = 1,531 🎯 HIGHEST EVER!
+                TotalShares = 0.00m // Unchanged from Snapshot 61 (no share trades)
                 Weight = 0.0000m
-                CostBasis = -142865.02m // Updated cost basis
-                RealCost = -142864.99m // Updated real cost
-                Dividends = 0.00m
-                DividendTaxes = 0.00m
-                Options = 3674.00m // Same as before (no option trades)
-                TotalIncomes = 3400.94m // Slightly adjusted
-                CapitalDeployed = -218583480.60m // Updated CapitalDeployed
-                Realized = 2597.40m // Same as before
-                Performance = 153000.0000m // Based on 1,531 shares
-                OpenTrades = true
-                Commissions = 206.00m // Same (no new commissions)
-                Fees = 67.06m } // $67.03 (prev) + $0.03 = $67.06
-            Description = "Bought 31 shares @ avg $12.36 (now 1,531 - HIGHEST EVER!)" }
+                CostBasis = 0.00m // Unchanged from Snapshot 61 (no shares)
+                RealCost = 0.00m // Unchanged from Snapshot 61 (no shares)
+                Dividends = 134.43m // Unchanged from Snapshot 61
+                DividendTaxes = 20.16m // Unchanged from Snapshot 61
+                Options = 4240.00m // $4,400.00 - $110.00 - $50.00 = $4,240.00
+                TotalIncomes = 4044.76m // $4,206.99 - $160.00 - $1.23 = $4,045.76 (minor rounding)
+                CapitalDeployed = 110909.37m // $121,659.37 - $10,750 = $110,909.37 (put obligations released)
+                Realized = 3942.98m // $3,800.49 + $142.49 = $3,942.98 (gain on closed puts)
+                Performance = 3.5547m // ($3,942.98 / $110,909.37) × 100 = 3.5547%
+                OpenTrades = false // All positions closed
+                Commissions = 230.00m // Unchanged from Snapshot 61 (no commissions on these trades)
+                Fees = 78.51m } // $77.28 + $0.62 + $0.37 + $0.12 + $0.12 = $78.51
+            Description = "Closed all 10 puts: 5 @ $11.00 for $110, 5 @ $10.50 for $50 (realized gain $142)" }
 
           // ========== Snapshot 54: 2025-06-23 ==========
           // CSV Line 41: Sold 31 TSLL @ 14.04
