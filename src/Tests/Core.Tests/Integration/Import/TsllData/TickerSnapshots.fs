@@ -2141,27 +2141,32 @@ module TsllTickerSnapshots =
             Description =
               "Call roll: Closed 09/19 $14 call @ $4.32 (loss $340.24), opened 10/24 $15 call @ $4.37 (net $3.76 credit)" }
 
-          // ========== Snapshot 57: 2025-07-01 ==========
+          // ========== Snapshot 70: 2025-09-30 ==========
+          // CSV lines
+          // 2025-09-30T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,-1.34,0,,--,0.00,,,,,,,,-1.34,USD
+          // 2025-09-30T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,8.93,0,,--,0.00,,,,,,,,8.93,USD
+          // Calculation:
+          // Dividend payment: $8.93 gross, $1.34 taxes = $7.59 net dividend income
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 7, 1)
+                Date = DateOnly(2025, 9, 30)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 0.00m
+                TotalShares = 100.00m // Unchanged from Snapshot 69 (no share trades)
                 Weight = 0.0000m
-                CostBasis = -166682.26m
-                RealCost = 0.00m
-                Dividends = 114.27m
-                DividendTaxes = 20.16m
-                Options = 4220.00m
-                TotalIncomes = 4020.81m
-                CapitalDeployed = 166682.26m
-                Realized = 3938.01m
-                Performance = -100.0000m
-                OpenTrades = true // Still has options
-                Commissions = 218.00m // Same
-                Fees = 75.30m } // Same
-            Description = "Dividend payment: $114.27 gross ($94 net after tax)" }
+                CostBasis = 13.33m // Unchanged from Snapshot 69
+                RealCost = -28.37m // $13.33 - ($4,170.31 / 100) = $13.33 - $41.70 = -$28.37
+                Dividends = 143.36m // $134.43 + $8.93 = $143.36
+                DividendTaxes = 21.50m // $20.16 + $1.34 = $21.50
+                Options = 4363.00m // Unchanged from Snapshot 69 (no option trades)
+                TotalIncomes = 4170.31m // $4,162.72 + $8.93 - $1.34 = $4,170.31 (net dividend added)
+                CapitalDeployed = 125242.37m // Unchanged from Snapshot 69 (cumulative)
+                Realized = 3624.14m // Unchanged from Snapshot 69 (no closing trades)
+                Performance = 2.8937m // ($3,624.14 / $125,242.37) × 100 = 2.8937%
+                OpenTrades = true // Has open stock (100 shares) and call option
+                Commissions = 235.00m // Unchanged from Snapshot 69 (no trades)
+                Fees = 79.55m } // Unchanged from Snapshot 69 (no trades)
+            Description = "Dividend payment: $8.93 gross, $1.34 taxes withheld = $7.59 net dividend income" }
 
           // ========== Snapshot 58: 2025-07-08 ==========
           // CSV Line 28: 2025-07-08T17:54:38+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 1 TSLL @ 10.48,-10.48,1,-10.48,0.00,0.00
