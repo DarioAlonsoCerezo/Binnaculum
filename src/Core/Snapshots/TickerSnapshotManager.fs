@@ -12,6 +12,7 @@ open Binnaculum.Core.Providers
 open Binnaculum.Core.Keys
 open TickerSnapshotExtensions
 open TickerCurrencySnapshotExtensions
+open TradeExtensions
 
 type private SnapshotCalculationData =
     { Trades: Trade list
@@ -104,14 +105,14 @@ module internal TickerSnapshotManager =
         let marketValue = latestPrice * totalShares
         let unrealized = marketValue - costBasis
 
-        // Calculate realized gains (TODO: This would need to track closed positions)
+        // Calculate realized gains (pass-through from previous snapshot)
         let realized =
             let prevRealized =
                 prevSnapshot
                 |> Option.map (fun s -> s.Realized.Value)
-                |> Option.defaultValue 0.0M
+                |> Option.defaultValue 0.0m
 
-            prevRealized // For now, keep previous realized gains
+            prevRealized
 
         // Calculate performance percentage
         let performance =

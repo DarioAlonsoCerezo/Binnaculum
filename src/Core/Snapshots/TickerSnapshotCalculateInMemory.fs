@@ -207,7 +207,46 @@ module internal TickerSnapshotCalculateInMemory =
                 + capitalDeployedDelta
             )
 
-        // Calculate realized gains from closed option positions using proper FIFO pair matching
+        // ========== CALCULATE REALIZED GAINS (STOCKS + OPTIONS) ==========
+
+        // Helper function: Calculate incremental realized gains from stock sales
+        // Uses previous snapshot's CostBasis to determine cost of shares being sold
+        let calculateStockRealizedGains
+            (currentMovements: Trade list)
+            (previousSnapshot: TickerCurrencySnapshot)
+            : Money =
+
+            // Get previous position state
+            // Note: prevCostBasis is ALREADY the cost per share (calculated by CostBasisCalc)
+            let prevCostBasisPerShare = previousSnapshot.CostBasis.Value
+
+            // Process only sells in current snapshot
+            let sells =
+                currentMovements |> List.filter (fun t -> t.TradeCode = TradeCode.SellToClose)
+
+            // Calculate realized gain from each sell
+            let stockRealizedGains =
+                sells
+                |> List.sumBy (fun sell ->
+                    // Sell quantity is negative, so use abs
+                    let sellQuantity = abs sell.Quantity
+
+                    // Cost of shares being sold (cost basis is already per-share)
+                    let costOfSoldShares = prevCostBasisPerShare * sellQuantity
+
+                    // Proceeds from sale
+                    let proceeds = sell.Price.Value * sellQuantity
+
+                    // Realized gain = proceeds - cost - fees - commissions
+                    proceeds - costOfSoldShares - sell.Fees.Value - sell.Commissions.Value)
+
+            Money.FromAmount(stockRealizedGains)
+
+        // 1. Calculate incremental stock realized gains using previous snapshot's cost basis
+        let stockRealizedGains =
+            calculateStockRealizedGains movements.Trades previousSnapshot
+
+        // 2. Calculate realized gains from closed option positions using proper FIFO pair matching
         // This uses OptionTradeCalculations.calculateRealizedGains which properly
         // matches opening trades with their corresponding closing trades.
         // For example:
@@ -255,24 +294,27 @@ module internal TickerSnapshotCalculateInMemory =
                     previousSnapshot.Base.Date.Value.AddDays(-1.0)
                 )
 
-        // New realized gains are the difference between total and what we already had
-        let newRealizedGains =
+        // New option realized gains are the difference between total and what we already had
+        let newOptionRealizedGains =
             Money.FromAmount(totalRealizedUpToSnapshot.Value - realizedUpToPreviousDate.Value)
 
-        // Cumulative realized gains = previous cumulative + new gains from this period
+        // 3. Combine stock + option realized gains
+        let totalNewRealizedGains =
+            Money.FromAmount(stockRealizedGains.Value + newOptionRealizedGains.Value)
+
+        // 4. Cumulative realized gains = previous cumulative + new gains from this period
         let realized =
-            Money.FromAmount(previousSnapshot.Realized.Value + newRealizedGains.Value)
+            Money.FromAmount(previousSnapshot.Realized.Value + totalNewRealizedGains.Value)
 
         // DEBUG: Log realized gains calculation details
-        // CoreLogger.logDebugf
-        //     "TickerSnapshotCalculateInMemory"
-        //     "[Date:%s] Realized gains - Closed trades: %d | Total up to snapshot: %M | Total up to previous: %M | New gains: %M | Cumulative: %M"
-        //     (date.ToString())
-        //     tradesUpToSnapshot.Length
-        //     totalRealizedUpToSnapshot.Value
-        //     realizedUpToPreviousDate.Value
-        //     newRealizedGains.Value
-        //     realized.Value
+        CoreLogger.logDebugf
+            "TickerSnapshotCalculateInMemory"
+            "[Date:%s] Realized gains - Stock: %M | Option (new): %M | Total (new): %M | Cumulative: %M"
+            (date.ToString())
+            stockRealizedGains.Value
+            newOptionRealizedGains.Value
+            totalNewRealizedGains.Value
+            realized.Value
 
         // Performance calculation: Realized / CapitalDeployed * 100
         let performance =
