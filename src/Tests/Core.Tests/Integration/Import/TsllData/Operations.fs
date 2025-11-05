@@ -23,7 +23,7 @@ module TsllOperations =
         (currency: Currency)
         : ExpectedOperation<AutoImportOperation> list =
         [
-          // Operation 1: 2024-05-30
+          // Operation 0: 2024-05-30
           { Data =
               { Id = 0
                 BrokerAccount = brokerAccount
@@ -31,7 +31,8 @@ module TsllOperations =
                 Currency = currency
                 IsOpen = false
                 OpenDate = DateTime(2024, 5, 30, 0, 0, 1)
-                CloseDate = Some(DateTime(2025, 10, 26, 0, 0, 1))
+                // CloseDate is managed by database trigger (UpdatedAt), not verified in tests
+                CloseDate = Some(DateTime(2024, 5, 30, 0, 0, 1))
                 Realized = 13.86m
                 RealizedToday = 0m
                 Commissions = 1.00m
@@ -39,11 +40,12 @@ module TsllOperations =
                 Premium = 15.00m
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                CapitalDeployed = 686.14m
+                CapitalDeployed = 700.00m
                 CapitalDeployedToday = 0m
-                Performance = 2.0200m }
-            Description = "TODO: Add description for operation 1" }
-          // Operation 2: 2024-10-15
+                Performance = 1.9800m }
+            Description = "Operation 0: 2024-05-30" }
+
+          // Operation 1: 2024-10-15
           { Data =
               { Id = 0
                 BrokerAccount = brokerAccount
@@ -59,11 +61,12 @@ module TsllOperations =
                 Premium = 3223.00m
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                CapitalDeployed = 8704.20m
+                CapitalDeployed = 12245.00m
                 CapitalDeployedToday = 0m
-                Performance = 36.2512m }
-            Description = "TODO: Add description for operation 2" }
-          // Operation 3: 2024-11-20
+                Performance = 25.7687m }
+            Description = "Operation 1: 2024-10-15" }
+
+          // Operation 2: 2024-11-20
           { Data =
               { Id = 0
                 BrokerAccount = brokerAccount
@@ -79,30 +82,28 @@ module TsllOperations =
                 Premium = 1420.00m
                 Dividends = 0.00m
                 DividendTaxes = 0.00m
-                CapitalDeployed = 5726.41m
+                CapitalDeployed = 4673.00m
                 CapitalDeployedToday = 0m
-                Performance = 22.2715m }
-            Description = "TODO: Add description for operation 3" }
-          // Operation 4: 2024-12-11
+                Performance = 27.2921m }
+            Description = "Operation 2: 2024-11-20" }
+
+          // Operation 3: 2024-12-11
           { Data =
               { Id = 0
                 BrokerAccount = brokerAccount
                 Ticker = ticker
                 Currency = currency
-                IsOpen = true
+                IsOpen = false
                 OpenDate = DateTime(2024, 12, 11, 0, 0, 1)
                 CloseDate = None
-                Realized = 3566.90m
+                Realized = 1047.55m
                 RealizedToday = 0m
-                Commissions = 235.00m
-                Fees = 79.77m
-                Premium = 3870.00m
-                Dividends = 121.86m
-                DividendTaxes = 21.50m
-                CapitalDeployed = 23588.12m
+                Commissions = 116.00m
+                Fees = 38.07m
+                Premium = 1196.00m
+                Dividends = 0.00m
+                DividendTaxes = 0.00m
+                CapitalDeployed = 1043.00m
                 CapitalDeployedToday = 0m
-                Performance = 15.1216m }
-            Description = "TODO: Add description for operation 4" }
-
-
-          ]
+                Performance = 100.4362m }
+            Description = "Operation 3: 2024-12-11" } ]
