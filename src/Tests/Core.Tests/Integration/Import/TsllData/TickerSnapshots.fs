@@ -2088,27 +2088,31 @@ module TsllTickerSnapshots =
             Description =
               "Call roll: Closed 09/12 call @ $0.52 (loss $17.24), opened 09/19 call @ $0.93 (net $39.76 credit)" }
 
-          // Snapshot 58: 2025-07-02
+          // ========== Snapshot 68: 2025-09-12 ==========
+          // CSV line 2025-09-12T21:00:00+0100,Receive Deliver,Expiration,BUY_TO_CLOSE,TSLL  250912P00012500,Equity Option,Removal of 1.0 TSLL 09/12/25 Put 12.50 due to expiration.,0.00,1,0.00,--,0.00,100,TSLL,TSLL,9/12/25,12.5,PUT,,0.00,USD
+          // Calculation:
+          // Put expired worthless @ $12.50 (sold @ $0.22 in Snap 66, kept full premium)
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 25)
+                Date = DateOnly(2025, 9, 12)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1700.00m
+                TotalShares = 100.00m // Unchanged from Snapshot 67 (no share trades)
                 Weight = 0.0000m
-                CostBasis = -145772.26m
-                RealCost = -145755.89m
-                Dividends = 0.00m
-                DividendTaxes = 0.00m
-                Options = 6277.00m
-                TotalIncomes = 5987.54m
-                CapitalDeployed = -247667069.74m
-                Realized = 2673.47m
-                Performance = 169900.0000m
-                OpenTrades = true
-                Commissions = 218.00m
-                Fees = 71.46m }
-            Description = "TODO: Add description for 2025-06-25" }
+                CostBasis = 13.33m // Unchanged from Snapshot 67
+                RealCost = -28.26m // Unchanged from Snapshot 67 (no change in TotalIncomes)
+                Dividends = 134.43m // Unchanged from Snapshot 67
+                DividendTaxes = 20.16m // Unchanged from Snapshot 67
+                Options = 4358.00m // Unchanged from Snapshot 67 (put removed, no financial impact)
+                TotalIncomes = 4158.96m // Unchanged from Snapshot 67 (expiration has no cost/income)
+                CapitalDeployed = 125242.37m // Unchanged from Snapshot 67 (cumulative, never decreases)
+                Realized = 3964.38m // $3,943.50 + $20.88 = $3,964.38 (full premium from expired put realized)
+                Performance = 3.1654m // ($3,964.38 / $125,242.37) × 100 = 3.1654%
+                OpenTrades = true // Has open stock (100 shares) and call option (put now expired)
+                Commissions = 234.00m // Unchanged from Snapshot 67 (no commission on expiration)
+                Fees = 79.31m } // Unchanged from Snapshot 67 (no fees on expiration)
+            Description = "Put expired worthless @ $12.50 (sold @ $0.22 in Snap 66, realized full $20.88 premium)" }
+
           // Snapshot 56: 2025-06-27
           { Data =
               { Id = 0
