@@ -1899,29 +1899,32 @@ module TsllTickerSnapshots =
             Description =
               "Position closed: Sold 100 shares @ $12.70 (gain $222), closed call @ $2.80 (loss $123), net profit $99" }
 
-          // ========== Snapshot 52: 2025-06-18 ==========
-          // CSV Lines 44-46: Bought 100 shares, closed put, sold 15 calls
-          // Snapshot 52: 2025-06-18
+          // ========== Snapshot 61: 2025-07-29 ==========
+          // CSV Lines
+          // 2025-07-29T18:53:49+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250808P00010500,Equity Option,Sold 5 TSLL 08/08/25 Put 10.50 @ 0.24,120.00,5,24.00,-5.00,-0.64,100,TSLL,TSLL,8/08/25,10.5,PUT,397917142,114.36,USD
+          // 2025-07-29T18:53:49+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250808P00011000,Equity Option,Sold 5 TSLL 08/08/25 Put 11.00 @ 0.39,195.00,5,39.00,-5.00,-0.64,100,TSLL,TSLL,8/08/25,11,PUT,397917142,189.36,USD
+          // Calculation:
+          // Sold 5 puts @ $0.24 strike $10.50 + 5 puts @ $0.39 strike $11.00 = $315 premium (net $303.72 after costs)
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 6, 18)
+                Date = DateOnly(2025, 7, 29)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 1500.00m // 1,400 + 100 = 1,500 🚀 NEW PEAK!
+                TotalShares = 0.00m // Unchanged from Snapshot 60 (no share trades)
                 Weight = 0.0000m
-                CostBasis = -142481.68m // Updated cost basis
-                RealCost = -142469.49m // Updated real cost
-                Dividends = 0.00m
-                DividendTaxes = 0.00m
-                Options = 3674.00m // $2,861 + $813 = $3,674
-                TotalIncomes = 3400.97m // After commissions and fees
-                CapitalDeployed = -213580038.32m // Updated CapitalDeployed
-                Realized = 2597.40m // $2,587.66 + $9.74 = $2,597.40
-                Performance = 149900.0000m // Based on 1,500 shares
-                OpenTrades = true
-                Commissions = 206.00m // $196 (prev) + $10 = $206
-                Fees = 67.03m } // $64.84 (prev) + $2.19 = $67.03
-            Description = "Bought 100 shares @ $12.49 (now 1,500!), closed put, sold 15 calls" }
+                CostBasis = 0.00m // Unchanged from Snapshot 60 (no shares)
+                RealCost = 0.00m // Unchanged from Snapshot 60 (no shares)
+                Dividends = 134.43m // Unchanged from Snapshot 60
+                DividendTaxes = 20.16m // Unchanged from Snapshot 60
+                Options = 4400.00m // $4,085.00 + $120.00 + $195.00 = $4,400.00
+                TotalIncomes = 4206.99m // $3,903.27 + $315.00 - $10.00 - $1.28 = $4,206.99
+                CapitalDeployed = 121659.37m // $110,909.37 + $10,750 (put obligations: 10 contracts × 100 × avg $10.75) = $121,659.37
+                Realized = 3800.49m // Unchanged from Snapshot 60 (no closing trades)
+                Performance = 3.1239m // ($3,800.49 / $121,659.37) × 100 = 3.1239%
+                OpenTrades = true // Has open put options
+                Commissions = 230.00m // $220.00 + $10.00 = $230.00
+                Fees = 77.28m } // $76.00 + $0.64 + $0.64 = $77.28
+            Description = "Sold 10 put options: 5 @ strike $10.50, 5 @ strike $11.00 ($315 premium, $303.72 net)" }
 
           // ========== Snapshot 53: 2025-06-20 ==========
           // CSV Lines 42-43: Bought 31 shares (11+20)
