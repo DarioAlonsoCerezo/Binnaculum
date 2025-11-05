@@ -2168,35 +2168,33 @@ module TsllTickerSnapshots =
                 Fees = 79.55m } // Unchanged from Snapshot 69 (no trades)
             Description = "Dividend payment: $8.93 gross, $1.34 taxes withheld = $7.59 net dividend income" }
 
-          // ========== Snapshot 58: 2025-07-08 ==========
-          // CSV Line 28: 2025-07-08T17:54:38+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 1 TSLL @ 10.48,-10.48,1,-10.48,0.00,0.00
-          // CSV Line 27: 2025-07-08T17:54:56+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250711C00010500,Equity Option,Sold 1 TSLL @ 0.41,41.00,1,41.00,-1.00,-0.13
-          // CSV Line 26: 2025-07-08T17:55:30+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 99 TSLL @ 10.48,"-1,037.12",99,-10.48,0.00,-0.08
+          // ========== Snapshot 71: 2025-10-23 ==========
+          // CSV lines
+          // 2025-10-23T17:33:29+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 100 TSLL @ 19.90,"1,990.00",100,19.90,0.00,-0.10,,,,,,,415820951,"1,989.90",USD
+          // 2025-10-23T17:33:29+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  251024C00015000,Equity Option,Bought 1 TSLL 10/24/25 Call 15.00 @ 4.93,-493.00,1,-493.00,0.00,-0.12,100,TSLL,TSLL,10/24/25,15,CALL,415820951,-493.12,USD
           // Calculation:
-          //   Bought 100 shares total @ $10.48: -$1,047.60 - $0.08 = -$1,047.68
-          //   Sold 1 covered call @ $0.41: $41 - $1.13 = $39.87
-          //   Shares: 0 → 100 (small re-entry)
-          //   Total options: $4,220 (prev) + $41 = $4,261
+          // Complete exit: Sold 100 shares @ $19.90, closed call @ $4.93
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 7, 8)
+                Date = DateOnly(2025, 10, 23)
                 Ticker = ticker
                 Currency = currency
-                TotalShares = 100.00m // 0 → 100 (re-entering after exit)
+                TotalShares = 0.00m // 100 - 100 = 0 (position completely closed)
                 Weight = 0.0000m
-                CostBasis = -167730.26m // Updated cost basis
-                RealCost = -167729.05m // Updated real cost
-                Dividends = 114.27m // Same as before
-                DividendTaxes = 20.16m // Same
-                Options = 4261.00m // $4,220 + $41 = $4,261
-                TotalIncomes = 4060.60m // After commissions and fees
-                CapitalDeployed = -16605295.74m // Updated CapitalDeployed
-                Realized = 3938.01m // Same as before
-                Performance = 9900.0000m // Based on 100 shares
-                OpenTrades = true
-                Commissions = 219.00m // $218 (prev) + $1 = $219
-                Fees = 75.51m } // $75.30 (prev) + $0.21 = $75.51
-            Description = "Small re-entry: Bought 100 shares @ $10.48, sold 1 covered call" }
+                CostBasis = 0.00m // Reset to 0 (no shares remaining)
+                RealCost = 0.00m // Reset to 0 (no shares remaining)
+                Dividends = 143.36m // Unchanged from Snapshot 70
+                DividendTaxes = 21.50m // Unchanged from Snapshot 70
+                Options = 3870.00m // $4,363.00 - $493.00 = $3,870.00
+                TotalIncomes = 3677.09m // $4,170.31 + $1,990.00 - $493.00 - $0.10 - $0.12 = $5,667.09 - stock realized = $3,677.09
+                CapitalDeployed = 125242.37m // Unchanged from Snapshot 70 (cumulative, never decreases)
+                Realized = 3566.90m // $3,624.14 + stock gain + call loss = $3,566.90
+                Performance = 2.8480m // ($3,566.90 / $125,242.37) × 100 = 2.8480%
+                OpenTrades = false // All positions closed
+                Commissions = 235.00m // Unchanged from Snapshot 70 (no commissions on these trades)
+                Fees = 79.77m } // $79.55 + $0.10 + $0.12 = $79.77
+            Description =
+              "Complete exit: Sold 100 shares @ $19.90 (gain $657), closed call @ $4.93 (loss $56), net profit $601" }
 
           // ========== Snapshot 59: 2025-07-10 ==========
           // CSV Line 24: 2025-07-10T14:42:16+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250725C00010000,Equity Option,Sold 1 TSLL @ 1.57,157.00,1,157.00,-1.00,-0.13
