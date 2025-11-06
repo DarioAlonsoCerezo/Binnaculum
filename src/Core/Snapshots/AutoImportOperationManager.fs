@@ -96,8 +96,9 @@ module internal AutoImportOperationManager =
           Commissions = Money.FromAmount commissions
           Fees = Money.FromAmount fees
           Premium = snapshot.Options
-          Dividends = snapshot.Dividends
-          DividendTaxes = snapshot.DividendTaxes
+          Dividends = Money.FromAmount(context.DividendForDate |> List.sumBy (fun d -> d.DividendAmount.Value))
+          DividendTaxes =
+            Money.FromAmount(context.DividendTaxForDate |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value))
           CapitalDeployed = Money.FromAmount(capitalDeployed)
           CapitalDeployedToday = Money.FromAmount(capitalDeployed) // Initial = full amount
           Performance = 0m // No performance until closed
@@ -122,6 +123,16 @@ module internal AutoImportOperationManager =
         let todayCommissions = calculateCommissions context
         let commissions = operation.Commissions.Value + todayCommissions
 
+        let dividendToday =
+            context.DividendForDate |> List.sumBy (fun d -> d.DividendAmount.Value)
+
+        let dividends = operation.Dividends.Value + dividendToday
+
+        let dividendTaxToday =
+            context.DividendTaxForDate |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value)
+
+        let dividendTaxes = operation.DividendTaxes.Value + dividendTaxToday
+
         // Calculate realized delta for today
         let realizedDelta = snapshot.Realized.Value - operation.Realized.Value
 
@@ -145,8 +156,8 @@ module internal AutoImportOperationManager =
             Commissions = Money.FromAmount commissions
             Fees = Money.FromAmount fees
             Premium = snapshot.Options
-            Dividends = snapshot.Dividends
-            DividendTaxes = snapshot.DividendTaxes
+            Dividends = Money.FromAmount dividends
+            DividendTaxes = Money.FromAmount dividendTaxes
             CapitalDeployed = Money.FromAmount(cumulativeCapital) // CUMULATIVE
             CapitalDeployedToday = Money.FromAmount(capitalDeployedToday) // DELTA
             Performance = performance
