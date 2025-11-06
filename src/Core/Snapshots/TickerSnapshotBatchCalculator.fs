@@ -234,12 +234,13 @@ module internal TickerSnapshotBatchCalculator =
                                       TickerId = tickerId
                                       CurrencyId = currencyId
                                       PreviousSnapshot = previousSnapshot
-                                      CurrentSnapshot = snapshot
+                                      CurrentSnapshot = snapshot.Snapshot
                                       MovementDate = date
                                       OptionTradesForDate = optionTradesForDate
                                       TradesForDate = tradesForDate
                                       DividendForDate = dividendsForDate
-                                      DividendTaxForDate = dividendTaxesForDate }
+                                      DividendTaxForDate = dividendTaxesForDate
+                                      OperationDeltas = snapshot.OperationDeltas }
 
                                 let! operationResult =
                                     AutoImportOperationManager.processOperation operationContext
@@ -261,7 +262,10 @@ module internal TickerSnapshotBatchCalculator =
                     }
 
                 return
-                    { Snapshot = newSnapshot
+                    { Snapshot =
+                        match newSnapshot with
+                        | Some snap -> Some snap.Snapshot
+                        | None -> None
                       MovementsProcessed = movementCount
                       Operation = operation
                       Error = None }

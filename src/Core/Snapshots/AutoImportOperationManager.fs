@@ -30,6 +30,7 @@ module internal AutoImportOperationManager =
             TradesForDate: DatabaseModel.Trade list
             DividendForDate: DatabaseModel.Dividend list
             DividendTaxForDate: DatabaseModel.DividendTax list
+            OperationDeltas: OperationDeltas
         }
 
     /// <summary>
@@ -83,24 +84,21 @@ module internal AutoImportOperationManager =
         let fees = calculateFees context
         let commissions = calculateCommissions context
 
-        // Calculate initial capital deployed from actual option trades
-        let capitalDeployed = calculateCapitalDeployedFromTrades context.OptionTradesForDate
-
         { Id = 0
           BrokerAccountId = context.BrokerAccountId
           TickerId = context.TickerId
           CurrencyId = context.CurrencyId
           IsOpen = true
-          Realized = snapshot.Realized
-          RealizedToday = snapshot.Realized // Initial creation - full amount is "today"
+          Realized = context.OperationDeltas.RealizedDelta |> Money.FromAmount
+          RealizedToday = context.OperationDeltas.RealizedDelta |> Money.FromAmount
           Commissions = Money.FromAmount commissions
           Fees = Money.FromAmount fees
-          Premium = snapshot.Options
+          Premium = context.OperationDeltas.PremiumDelta |> Money.FromAmount
           Dividends = Money.FromAmount(context.DividendForDate |> List.sumBy (fun d -> d.DividendAmount.Value))
           DividendTaxes =
             Money.FromAmount(context.DividendTaxForDate |> List.sumBy (fun dt -> dt.DividendTaxAmount.Value))
-          CapitalDeployed = Money.FromAmount(capitalDeployed)
-          CapitalDeployedToday = Money.FromAmount(capitalDeployed) // Initial = full amount
+          CapitalDeployed = context.OperationDeltas.CapitalDeployedDelta |> Money.FromAmount
+          CapitalDeployedToday = context.OperationDeltas.CapitalDeployedDelta |> Money.FromAmount
           Performance = 0m // No performance until closed
           Audit =
             { CreatedAt = Some context.MovementDate // Use movement date as OpenDate
@@ -134,10 +132,14 @@ module internal AutoImportOperationManager =
         let dividendTaxes = operation.DividendTaxes.Value + dividendTaxToday
 
         // Calculate realized delta for today
-        let realizedDelta = snapshot.Realized.Value - operation.Realized.Value
+        let realizedDelta = context.OperationDeltas.RealizedDelta
+        let realized = operation.Realized.Value + realizedDelta
+
 
         // Calculate capital deployed today from actual option trades
-        let capitalDeployedToday = calculateCapitalDeployedFromTrades optionTradesForDate
+        let capitalDeployedToday = context.OperationDeltas.CapitalDeployedDelta
+
+        let premium = context.OperationDeltas.PremiumDelta + operation.Premium.Value
 
         // Cumulative capital = previous capital + today's capital
         let cumulativeCapital = operation.CapitalDeployed.Value + capitalDeployedToday
@@ -145,21 +147,21 @@ module internal AutoImportOperationManager =
         // Calculate performance if closing or if we have capital deployed
         let performance =
             if cumulativeCapital <> 0m then
-                (snapshot.Realized.Value / cumulativeCapital) * 100m
+                realized / cumulativeCapital * 100m
             else
                 0m
 
         { operation with
             IsOpen = not isClosing
-            Realized = snapshot.Realized
-            RealizedToday = Money.FromAmount(realizedDelta) // Delta calculation
+            Realized = Money.FromAmount realized
+            RealizedToday = Money.FromAmount realizedDelta // Delta calculation
             Commissions = Money.FromAmount commissions
             Fees = Money.FromAmount fees
-            Premium = snapshot.Options
+            Premium = Money.FromAmount premium
             Dividends = Money.FromAmount dividends
             DividendTaxes = Money.FromAmount dividendTaxes
-            CapitalDeployed = Money.FromAmount(cumulativeCapital) // CUMULATIVE
-            CapitalDeployedToday = Money.FromAmount(capitalDeployedToday) // DELTA
+            CapitalDeployed = Money.FromAmount cumulativeCapital // CUMULATIVE
+            CapitalDeployedToday = Money.FromAmount capitalDeployedToday // DELTA
             Performance = performance
             Audit =
                 if isClosing then

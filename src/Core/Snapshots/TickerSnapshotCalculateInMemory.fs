@@ -51,7 +51,7 @@ module internal TickerSnapshotCalculateInMemory =
         (date: DateTimePattern)
         (tickerId: int)
         (currencyId: int)
-        : TickerCurrencySnapshot =
+        : SnapshotCalculation =
 
         // CoreLogger.logDebugf
         //     "TickerSnapshotCalculateInMemory"
@@ -355,24 +355,35 @@ module internal TickerSnapshotCalculateInMemory =
         // Weight is not calculated here - it's calculated at TickerSnapshot level
         let weight = 0.0m
 
-        { Base = SnapshotManagerUtils.createBaseSnapshot date
-          TickerId = tickerId
-          CurrencyId = currencyId
-          TickerSnapshotId = 0 // Will be set during persistence phase
-          TotalShares = totalShares
-          Weight = weight
-          CostBasis = costBasis
-          RealCost = realCost
-          Dividends = totalDividends
-          DividendTaxes = totalDividendTaxes
-          Options = totalOptions
-          TotalIncomes = totalIncomes
-          CapitalDeployed = totalCapitalDeployed
-          Realized = realized
-          Performance = performance
-          OpenTrades = openTradesFlag
-          Commissions = cumulativeCommissions
-          Fees = cumulativeFees }
+        // Create OperationDeltas for new snapshot with movements
+        // These are the daily incremental changes from today's movements
+        let operationDeltas: OperationDeltas =
+            { RealizedDelta = totalNewRealizedGains.Value // Daily realized gains from stock sales and closed options
+              CapitalDeployedDelta = capitalDeployedDelta // Daily capital deployment from new trades
+              PremiumDelta = currentOptions } // Daily premium collected/paid from option trades
+
+        let snapshot =
+            { Base = SnapshotManagerUtils.createBaseSnapshot date
+              TickerId = tickerId
+              CurrencyId = currencyId
+              TickerSnapshotId = 0 // Will be set during persistence phase
+              TotalShares = totalShares
+              Weight = weight
+              CostBasis = costBasis
+              RealCost = realCost
+              Dividends = totalDividends
+              DividendTaxes = totalDividendTaxes
+              Options = totalOptions
+              TotalIncomes = totalIncomes
+              CapitalDeployed = totalCapitalDeployed
+              Realized = realized
+              Performance = performance
+              OpenTrades = openTradesFlag
+              Commissions = cumulativeCommissions
+              Fees = cumulativeFees }
+
+        { Snapshot = snapshot
+          OperationDeltas = operationDeltas }
 
     /// <summary>
     /// Calculate initial TickerCurrencySnapshot from movements (no previous snapshot).
@@ -391,7 +402,7 @@ module internal TickerSnapshotCalculateInMemory =
         (date: DateTimePattern)
         (tickerId: int)
         (currencyId: int)
-        : TickerCurrencySnapshot =
+        : SnapshotCalculation =
 
         // CoreLogger.logDebugf
         //     "TickerSnapshotCalculateInMemory"
@@ -595,24 +606,35 @@ module internal TickerSnapshotCalculateInMemory =
         // Weight is not calculated here - it's calculated at TickerSnapshot level
         let weight = 0.0m
 
-        { Base = SnapshotManagerUtils.createBaseSnapshot date
-          TickerId = tickerId
-          CurrencyId = currencyId
-          TickerSnapshotId = 0 // Will be set during persistence phase
-          TotalShares = totalShares
-          Weight = weight
-          CostBasis = costBasis
-          RealCost = realCost
-          Dividends = totalDividends
-          DividendTaxes = totalDividendTaxes
-          Options = totalOptions
-          TotalIncomes = totalIncomes
-          CapitalDeployed = totalCapitalDeployed
-          Realized = realized
-          Performance = performance
-          OpenTrades = openTradesFlag
-          Commissions = cumulativeCommissions
-          Fees = cumulativeFees }
+        // Create OperationDeltas for initial snapshot
+        // For first snapshot: all values are considered "today's deltas" since there's no previous
+        let operationDeltas: OperationDeltas =
+            { RealizedDelta = 0.0m // No realized gains in initial snapshot
+              CapitalDeployedDelta = stockCapitalDelta + optionCapitalDelta // All capital is deployed "today"
+              PremiumDelta = currentOptions } // All premium collected is "today"
+
+        let snapshot =
+            { Base = SnapshotManagerUtils.createBaseSnapshot date
+              TickerId = tickerId
+              CurrencyId = currencyId
+              TickerSnapshotId = 0 // Will be set during persistence phase
+              TotalShares = totalShares
+              Weight = weight
+              CostBasis = costBasis
+              RealCost = realCost
+              Dividends = totalDividends
+              DividendTaxes = totalDividendTaxes
+              Options = totalOptions
+              TotalIncomes = totalIncomes
+              CapitalDeployed = totalCapitalDeployed
+              Realized = realized
+              Performance = performance
+              OpenTrades = openTradesFlag
+              Commissions = cumulativeCommissions
+              Fees = cumulativeFees }
+
+        { Snapshot = snapshot
+          OperationDeltas = operationDeltas }
 
     /// <summary>
     /// Update existing TickerCurrencySnapshot with new movements.
@@ -629,7 +651,7 @@ module internal TickerSnapshotCalculateInMemory =
         (previousSnapshot: TickerCurrencySnapshot)
         (existingSnapshot: TickerCurrencySnapshot)
         (marketPrice: decimal)
-        : TickerCurrencySnapshot =
+        : SnapshotCalculation =
 
         // CoreLogger.logDebugf
         //     "TickerSnapshotCalculateInMemory"
@@ -652,9 +674,14 @@ module internal TickerSnapshotCalculateInMemory =
                 existingSnapshot.CurrencyId
 
         // Preserve the existing ID
+        // { recalculated with
+        //     Base =
+        //         { recalculated.Base with
+        //             Id = existingSnapshot.Base.Id } }
+
         { recalculated with
-            Base =
-                { recalculated.Base with
+            Snapshot.Base =
+                { recalculated.Snapshot.Base with
                     Id = existingSnapshot.Base.Id } }
 
     /// <summary>
@@ -670,7 +697,7 @@ module internal TickerSnapshotCalculateInMemory =
         (previousSnapshot: TickerCurrencySnapshot)
         (newDate: DateTimePattern)
         (marketPrice: decimal)
-        : TickerCurrencySnapshot =
+        : SnapshotCalculation =
 
         // CoreLogger.logDebugf
         //     "TickerSnapshotCalculateInMemory"
@@ -685,24 +712,31 @@ module internal TickerSnapshotCalculateInMemory =
         // Performance remains the same (no new realized gains)
 
         // Create new snapshot with same cumulative values
-        { Base = SnapshotManagerUtils.createBaseSnapshot newDate
-          TickerId = previousSnapshot.TickerId
-          CurrencyId = previousSnapshot.CurrencyId
-          TickerSnapshotId = 0 // Will be set during persistence phase
-          TotalShares = previousSnapshot.TotalShares
-          Weight = 0.0m // Will be recalculated at TickerSnapshot level
-          CostBasis = previousSnapshot.CostBasis
-          RealCost = previousSnapshot.RealCost
-          Dividends = previousSnapshot.Dividends
-          DividendTaxes = previousSnapshot.DividendTaxes
-          Options = previousSnapshot.Options
-          TotalIncomes = previousSnapshot.TotalIncomes
-          CapitalDeployed = previousSnapshot.CapitalDeployed
-          Realized = previousSnapshot.Realized
-          Performance = previousSnapshot.Performance
-          OpenTrades = previousSnapshot.OpenTrades
-          Commissions = previousSnapshot.Commissions
-          Fees = previousSnapshot.Fees }
+        let snapshot =
+            { Base = SnapshotManagerUtils.createBaseSnapshot newDate
+              TickerId = previousSnapshot.TickerId
+              CurrencyId = previousSnapshot.CurrencyId
+              TickerSnapshotId = 0 // Will be set during persistence phase
+              TotalShares = previousSnapshot.TotalShares
+              Weight = 0.0m // Will be recalculated at TickerSnapshot level
+              CostBasis = previousSnapshot.CostBasis
+              RealCost = previousSnapshot.RealCost
+              Dividends = previousSnapshot.Dividends
+              DividendTaxes = previousSnapshot.DividendTaxes
+              Options = previousSnapshot.Options
+              TotalIncomes = previousSnapshot.TotalIncomes
+              CapitalDeployed = previousSnapshot.CapitalDeployed
+              Realized = previousSnapshot.Realized
+              Performance = previousSnapshot.Performance
+              OpenTrades = previousSnapshot.OpenTrades
+              Commissions = previousSnapshot.Commissions
+              Fees = previousSnapshot.Fees }
+
+        { Snapshot = snapshot
+          OperationDeltas =
+            { RealizedDelta = 0.0m
+              CapitalDeployedDelta = 0.0m
+              PremiumDelta = 0.0m } }
 
     /// <summary>
     /// Helper to extract movements for a specific ticker/currency/date from batch data.

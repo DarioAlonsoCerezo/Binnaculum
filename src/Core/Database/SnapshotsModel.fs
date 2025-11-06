@@ -186,3 +186,18 @@ module internal SnapshotsModel =
         interface IAuditEntity with
             member this.CreatedAt = this.Base.Audit.CreatedAt
             member this.UpdatedAt = this.Base.Audit.UpdatedAt
+
+    /// <summary>
+    /// Container for delta values calculated during TickerCurrencySnapshot calculation.
+    /// Used to pass incremental daily changes (Realized, CapitalDeployed, Premium) from
+    /// snapshot calculation to AutoImportOperation processing, ensuring consistency between
+    /// snapshot metrics and operation tracking without recalculating deltas.
+    /// </summary>
+    type OperationDeltas =
+        { RealizedDelta: decimal
+          CapitalDeployedDelta: decimal
+          PremiumDelta: decimal }
+
+    type SnapshotCalculation =
+        { Snapshot: TickerCurrencySnapshot
+          OperationDeltas: OperationDeltas }
