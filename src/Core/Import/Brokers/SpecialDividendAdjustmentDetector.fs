@@ -184,11 +184,11 @@ module SpecialDividendAdjustmentDetector =
         let openingLikeTransactions =
             specialDividendTransactions |> List.filter (fun t -> t.Value > 0m)
 
-        CoreLogger.logDebugf
-            "SpecialDividendAdjustmentDetector"
-            "findValidPairs: Closing-like transactions=%d, Opening-like transactions=%d"
-            closingLikeTransactions.Length
-            openingLikeTransactions.Length
+        // CoreLogger.logDebugf
+        //     "SpecialDividendAdjustmentDetector"
+        //     "findValidPairs: Closing-like transactions=%d, Opening-like transactions=%d"
+        //     closingLikeTransactions.Length
+        //     openingLikeTransactions.Length
 
         for closing in closingLikeTransactions do
             if not (Set.contains closing.LineNumber used) then
@@ -197,13 +197,13 @@ module SpecialDividendAdjustmentDetector =
                         not (Set.contains opening.LineNumber used)
                         && validateAdjustmentPair closing opening
                     then
-                        CoreLogger.logDebugf
-                            "SpecialDividendAdjustmentDetector"
-                            "Found valid pair: Line %d (Closing: %.2f) matched with Line %d (Opening: %.2f)"
-                            closing.LineNumber
-                            closing.Value
-                            opening.LineNumber
-                            opening.Value
+                        // CoreLogger.logDebugf
+                        //     "SpecialDividendAdjustmentDetector"
+                        //     "Found valid pair: Line %d (Closing: %.2f) matched with Line %d (Opening: %.2f)"
+                        //     closing.LineNumber
+                        //     closing.Value
+                        //     opening.LineNumber
+                        //     opening.Value
 
                         pairs <- (closing, opening) :: pairs
                         used <- Set.add closing.LineNumber used
@@ -235,10 +235,10 @@ module SpecialDividendAdjustmentDetector =
                 let allAdjustments =
                     grouped |> Map.values |> Seq.map findValidPairs |> Seq.concat |> Seq.toList
 
-                CoreLogger.logInfof
-                    "SpecialDividendAdjustmentDetector"
-                    "Found %d valid adjustment pairs"
-                    allAdjustments.Length
+                // CoreLogger.logInfof
+                //     "SpecialDividendAdjustmentDetector"
+                //     "Found %d valid adjustment pairs"
+                //     allAdjustments.Length
 
                 // Extract adjustment data from pairs
                 let adjustments =
@@ -246,18 +246,18 @@ module SpecialDividendAdjustmentDetector =
                     |> List.choose (fun (closing, opening) -> extractAdjustmentData closing opening)
 
                 // Log each detected adjustment
-                adjustments
-                |> List.iter (fun adj ->
-                    CoreLogger.logDebugf
-                        "SpecialDividendAdjustmentDetector"
-                        "Adjustment detected: %s %s exp=%O original=%.2f new=%.2f delta=%.2f dividend=%.2f"
-                        adj.TickerSymbol
-                        adj.OptionType
-                        adj.ExpirationDate
-                        adj.OriginalStrike
-                        adj.NewStrike
-                        adj.StrikeDelta
-                        adj.DividendAmount)
+                // adjustments
+                // |> List.iter (fun adj ->
+                //     CoreLogger.logDebugf
+                //         "SpecialDividendAdjustmentDetector"
+                //         "Adjustment detected: %s %s exp=%O original=%.2f new=%.2f delta=%.2f dividend=%.2f"
+                //         adj.TickerSymbol
+                //         adj.OptionType
+                //         adj.ExpirationDate
+                //         adj.OriginalStrike
+                //         adj.NewStrike
+                //         adj.StrikeDelta
+                //         adj.DividendAmount)
 
                 adjustments
         with ex ->
