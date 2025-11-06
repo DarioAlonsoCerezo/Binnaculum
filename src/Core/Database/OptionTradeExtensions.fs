@@ -199,14 +199,14 @@ type Do() =
     static member linkClosingTrade(closingTrade: OptionTrade) =
         task {
             // DEBUG: Log closing trade details
-            CoreLogger.logDebugf
-                "LinkClosingTrade"
-                "LinkClosingTrade called for TradeId:%d TickerId:%d Strike:%M Expiration:%s Code:%A"
-                closingTrade.Id
-                closingTrade.TickerId
-                closingTrade.Strike.Value
-                (closingTrade.ExpirationDate.Value.ToString("yyyy-MM-dd"))
-                closingTrade.Code
+            // CoreLogger.logDebugf
+            //     "LinkClosingTrade"
+            //     "LinkClosingTrade called for TradeId:%d TickerId:%d Strike:%M Expiration:%s Code:%A"
+            //     closingTrade.Id
+            //     closingTrade.TickerId
+            //     closingTrade.Strike.Value
+            //     (closingTrade.ExpirationDate.Value.ToString("yyyy-MM-dd"))
+            //     closingTrade.Code
 
             if closingTrade.Id = 0 then
                 return Error "Cannot link closing trade without a valid identifier."
@@ -214,20 +214,20 @@ type Do() =
                 let! openTradeOption = Do.tryFindOpenTradeForClosing (closingTrade)
 
                 // DEBUG: Log the result of finding open trade
-                match openTradeOption with
-                | Some openTrade ->
-                    CoreLogger.logDebugf
-                        "LinkClosingTrade"
-                        "Found open trade to close: OpenTradeId:%d OpenDate:%s Strike:%M Expiration:%s"
-                        openTrade.Id
-                        (openTrade.TimeStamp.Value.ToString("yyyy-MM-dd"))
-                        openTrade.Strike.Value
-                        (openTrade.ExpirationDate.Value.ToString("yyyy-MM-dd"))
-                | None ->
-                    CoreLogger.logDebugf
-                        "LinkClosingTrade"
-                        "No open trade found to close for TradeId:%d"
-                        closingTrade.Id
+                // match openTradeOption with
+                // | Some openTrade ->
+                //     CoreLogger.logDebugf
+                //         "LinkClosingTrade"
+                //         "Found open trade to close: OpenTradeId:%d OpenDate:%s Strike:%M Expiration:%s"
+                //         openTrade.Id
+                //         (openTrade.TimeStamp.Value.ToString("yyyy-MM-dd"))
+                //         openTrade.Strike.Value
+                //         (openTrade.ExpirationDate.Value.ToString("yyyy-MM-dd"))
+                // | None ->
+                //     CoreLogger.logDebugf
+                //         "LinkClosingTrade"
+                //         "No open trade found to close for TradeId:%d"
+                //         closingTrade.Id
 
                 match openTradeOption with
                 | Some openTrade ->
