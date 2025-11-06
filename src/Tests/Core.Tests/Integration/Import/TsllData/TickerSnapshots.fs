@@ -593,7 +593,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 8385.63m // After commissions ($92) and fees ($28.37)
                 CapitalDeployed = 59860.18m // Core: Added $4,461.88 for stock purchases (211 shares) to previous capital
                 Realized = 3686.96m // $3,426.30 + $260.66 = $3,686.96
-                Performance = 6.1594m // ($3,686.96 / $59,860.18) × 100
+                Performance = 6.1593m // ($3,686.96 / $59,860.18) × 100 = 6.1593
                 OpenTrades = true
                 Commissions = 92.00m // $81 (prev) + $11 = $92
                 Fees = 28.37m } // $25.47 (prev) + $2.90 = $28.37
@@ -654,7 +654,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 3238.38m
                 CapitalDeployed = 60352.75m // Core: Selling reduces shares but capital deployed stays cumulative (may add option obligations)
                 Realized = 4327.30m // $3,457.67 + $869.63 (includes stock gains from selling 252 shares)
-                Performance = 7.1691m // ($4,327.30 / $60,352.75) × 100
+                Performance = 7.1700m // ($4,327.30 / $60,352.75) × 100 = 7.1700
                 OpenTrades = true
                 Commissions = 103.00m
                 Fees = 31.62m } // $28.37 (prev) + $3.25 = $31.62
@@ -688,7 +688,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 3659.13m // After commissions ($112) and fees ($33.87)
                 CapitalDeployed = 60352.75m // Core: No stock trades, capital deployed unchanged
                 Realized = 3461.03m // $4,327.30 (prev) - $866.27 = $3,461.03
-                Performance = 5.7348m // ($3,461.03 / $60,352.75) × 100
+                Performance = 5.7347m // ($3,461.03 / $60,352.75) × 100 = 5.7347
                 OpenTrades = true
                 Commissions = 112.00m // $103 (prev) + $9 = $112
                 Fees = 33.87m } // $31.62 (prev) + $2.25 = $33.87
@@ -723,7 +723,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 5602.62m
                 CapitalDeployed = 62802.98m // Core: Added $2,450.23 for 111 share purchases
                 Realized = 3588.47m // $3,461.03 + $127.44 = $3,588.47
-                Performance = 5.7136m // ($3,588.47 / $62,802.98) × 100
+                Performance = 5.7139m // ($3,588.47 / $62,802.98) × 100 = 5.7139
                 OpenTrades = true
                 Commissions = 113.00m
                 Fees = 34.38m }
@@ -755,7 +755,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 1269.74m // After commissions and fees
                 CapitalDeployed = 62802.98m // Core: Historical cumulative capital (doesn't reset on exit)
                 Realized = 5805.01m // Includes stock gains from selling 1,011 shares
-                Performance = 9.2413m // ($5,805.01 / $62,802.98) × 100
+                Performance = 9.2432m // ($5,805.01 / $62,802.98) × 100 = 9.2432
                 OpenTrades = false // 🎯 ALL POSITIONS CLOSED!
                 Commissions = 113.00m // Same (no new commissions)
                 Fees = 37.26m } // $34.38 (prev) + $2.88 = $37.26
@@ -785,7 +785,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = -916.51m // Core: Negative due to long call purchase outweighing short call sale
                 CapitalDeployed = 63845.98m // Core: Historical cumulative (unchanged with no stock trades)
                 Realized = 5805.01m // Same as Snapshot 23 (no realized trades, just opening new positions)
-                Performance = 9.0915m // ($5,805.01 / $63,845.98) × 100
+                Performance = 9.0922m // ($5,805.01 / $63,845.98) × 100 = 9.0922
                 OpenTrades = true // Options only strategy
                 Commissions = 115.00m // $113 (prev) + $2 = $115
                 Fees = 37.51m } // $37.26 (prev) + $0.25 = $37.51
@@ -816,7 +816,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = -547.78m // Still negative
                 CapitalDeployed = 63845.98m // Historical
                 Realized = 5439.76m // $5,805.01 - $365.25 = $5,439.76
-                Performance = 8.5186m // ($5,439.76 / $63,845.98) × 100
+                Performance = 8.5201m // ($5,439.76 / $63,845.98) × 100 = 8.5201
                 OpenTrades = true // Still options only
                 Commissions = 116.00m // $115 (prev) + $1 = $116
                 Fees = 37.78m } // $37.51 (prev) + $0.27 = $37.78
