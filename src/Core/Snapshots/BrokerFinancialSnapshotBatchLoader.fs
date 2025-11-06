@@ -21,11 +21,11 @@ module internal BrokerFinancialSnapshotBatchLoader =
     /// <returns>Task containing map of currency ID to list of snapshots</returns>
     let loadBaselineSnapshots (brokerAccountId: int) (startDate: DateTimePattern) =
         task {
-            CoreLogger.logDebugf
-                "BrokerFinancialSnapshotBatchLoader"
-                "Loading baseline snapshots for account %d before %s"
-                brokerAccountId
-                (startDate.ToString())
+            // CoreLogger.logDebugf
+            //     "BrokerFinancialSnapshotBatchLoader"
+            //     "Loading baseline snapshots for account %d before %s"
+            //     brokerAccountId
+            //     (startDate.ToString())
 
             // Get all snapshots for this account
             let! allSnapshots = BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountId (brokerAccountId)
@@ -34,11 +34,11 @@ module internal BrokerFinancialSnapshotBatchLoader =
             let baselineSnapshots =
                 allSnapshots |> List.filter (fun s -> s.Base.Date.Value < startDate.Value)
 
-            CoreLogger.logDebugf
-                "BrokerFinancialSnapshotBatchLoader"
-                "Found %d baseline snapshots (from %d total snapshots)"
-                baselineSnapshots.Length
-                allSnapshots.Length
+            // CoreLogger.logDebugf
+            //     "BrokerFinancialSnapshotBatchLoader"
+            //     "Found %d baseline snapshots (from %d total snapshots)"
+            //     baselineSnapshots.Length
+            //     allSnapshots.Length
 
             // Group by currency and take the latest snapshot for each
             let snapshotsByCurrency =
@@ -51,10 +51,10 @@ module internal BrokerFinancialSnapshotBatchLoader =
                     (currencyId, latestSnapshot))
                 |> Map.ofList
 
-            CoreLogger.logDebugf
-                "BrokerFinancialSnapshotBatchLoader"
-                "Grouped baseline snapshots into %d currencies"
-                snapshotsByCurrency.Count
+            // CoreLogger.logDebugf
+            //     "BrokerFinancialSnapshotBatchLoader"
+            //     "Grouped baseline snapshots into %d currencies"
+            //     snapshotsByCurrency.Count
 
             return snapshotsByCurrency
         }
@@ -69,12 +69,12 @@ module internal BrokerFinancialSnapshotBatchLoader =
     /// <returns>Task containing map of (date, currency) to snapshot</returns>
     let loadExistingSnapshotsInRange (brokerAccountId: int) (startDate: DateTimePattern) (endDate: DateTimePattern) =
         task {
-            CoreLogger.logDebugf
-                "BrokerFinancialSnapshotBatchLoader"
-                "Loading existing snapshots for account %d from %s to %s"
-                brokerAccountId
-                (startDate.ToString())
-                (endDate.ToString())
+            // CoreLogger.logDebugf
+            //     "BrokerFinancialSnapshotBatchLoader"
+            //     "Loading existing snapshots for account %d from %s to %s"
+            //     brokerAccountId
+            //     (startDate.ToString())
+            //     (endDate.ToString())
 
             // Get all snapshots for this account
             let! allSnapshots = BrokerFinancialSnapshotExtensions.Do.getByBrokerAccountId (brokerAccountId)
@@ -84,10 +84,10 @@ module internal BrokerFinancialSnapshotBatchLoader =
                 allSnapshots
                 |> List.filter (fun s -> s.Base.Date.Value >= startDate.Value && s.Base.Date.Value <= endDate.Value)
 
-            CoreLogger.logDebugf
-                "BrokerFinancialSnapshotBatchLoader"
-                "Found %d existing snapshots in range"
-                rangeSnapshots.Length
+            // CoreLogger.logDebugf
+            //     "BrokerFinancialSnapshotBatchLoader"
+            //     "Found %d existing snapshots in range"
+            //     rangeSnapshots.Length
 
             // Create lookup by (date, currency)
             let snapshotLookup =
@@ -110,18 +110,18 @@ module internal BrokerFinancialSnapshotBatchLoader =
     let loadMarketPricesForRange (tickerIds: Set<int>) (currencyIds: Set<int>) (dates: DateTimePattern list) =
         task {
             if tickerIds.IsEmpty || currencyIds.IsEmpty || dates.IsEmpty then
-                CoreLogger.logDebug
-                    "BrokerFinancialSnapshotBatchLoader"
-                    "No tickers, currencies or dates - returning empty price map"
+                // CoreLogger.logDebug
+                //     "BrokerFinancialSnapshotBatchLoader"
+                //     "No tickers, currencies or dates - returning empty price map"
 
                 return Map.empty
             else
-                CoreLogger.logDebugf
-                    "BrokerFinancialSnapshotBatchLoader"
-                    "Loading market prices for %d tickers, %d currencies across %d dates"
-                    tickerIds.Count
-                    currencyIds.Count
-                    dates.Length
+                // CoreLogger.logDebugf
+                //     "BrokerFinancialSnapshotBatchLoader"
+                //     "Loading market prices for %d tickers, %d currencies across %d dates"
+                //     tickerIds.Count
+                //     currencyIds.Count
+                //     dates.Length
 
                 // For each (ticker, currency, date) combination, get the price
                 let! pricesWithKeys =
@@ -149,11 +149,11 @@ module internal BrokerFinancialSnapshotBatchLoader =
                 let priceMap =
                     pricesWithKeys |> Array.filter (fun (_, price) -> price <> 0m) |> Map.ofArray
 
-                CoreLogger.logDebugf
-                    "BrokerFinancialSnapshotBatchLoader"
-                    "Loaded %d market prices (from %d possible combinations)"
-                    priceMap.Count
-                    (tickerIds.Count * currencyIds.Count * dates.Length)
+                // CoreLogger.logDebugf
+                //     "BrokerFinancialSnapshotBatchLoader"
+                //     "Loaded %d market prices (from %d possible combinations)"
+                //     priceMap.Count
+                //     (tickerIds.Count * currencyIds.Count * dates.Length)
 
                 return priceMap
         }

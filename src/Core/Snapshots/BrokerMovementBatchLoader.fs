@@ -25,12 +25,12 @@ module internal BrokerMovementBatchLoader =
     /// <returns>Task containing all movements within the date range</returns>
     let loadMovementsForDateRange (brokerAccountId: int) (startDate: DateTimePattern) (endDate: DateTimePattern) =
         task {
-            CoreLogger.logDebugf
-                "BrokerMovementBatchLoader"
-                "Loading movements for account %d from %s to %s"
-                brokerAccountId
-                (startDate.ToString())
-                (endDate.ToString())
+            // CoreLogger.logDebugf
+            //     "BrokerMovementBatchLoader"
+            //     "Loading movements for account %d from %s to %s"
+            //     brokerAccountId
+            //     (startDate.ToString())
+            //     (endDate.ToString())
 
             // Use existing extension methods with date filtering
             let! brokerMovements = BrokerMovementExtensions.Do.getByBrokerAccountIdFromDate (brokerAccountId, startDate)
@@ -55,14 +55,14 @@ module internal BrokerMovementBatchLoader =
             let filteredOptionTrades =
                 optionTrades |> List.filter (fun ot -> ot.TimeStamp.Value <= endDate.Value)
 
-            CoreLogger.logDebugf
-                "BrokerMovementBatchLoader"
-                "Loaded %d broker movements, %d trades, %d dividends, %d dividend taxes, %d option trades"
-                filteredBrokerMovements.Length
-                filteredTrades.Length
-                filteredDividends.Length
-                filteredDividendTaxes.Length
-                filteredOptionTrades.Length
+            // CoreLogger.logDebugf
+            //     "BrokerMovementBatchLoader"
+            //     "Loaded %d broker movements, %d trades, %d dividends, %d dividend taxes, %d option trades"
+            //     filteredBrokerMovements.Length
+            //     filteredTrades.Length
+            //     filteredDividends.Length
+            //     filteredDividendTaxes.Length
+            //     filteredOptionTrades.Length
 
             return
                 {| BrokerMovements = filteredBrokerMovements
@@ -105,10 +105,10 @@ module internal BrokerMovementBatchLoader =
             |> List.distinct
             |> List.sort
 
-        CoreLogger.logDebugf
-            "BrokerMovementBatchLoader"
-            "Grouping movements by date - found %d unique dates"
-            allDates.Length
+        // CoreLogger.logDebugf
+        //     "BrokerMovementBatchLoader"
+        //     "Grouping movements by date - found %d unique dates"
+        //     allDates.Length
 
         // Group each movement type by date (normalized to start of day)
         let brokerMovementsByDate =
