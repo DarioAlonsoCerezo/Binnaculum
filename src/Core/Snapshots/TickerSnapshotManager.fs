@@ -361,9 +361,9 @@ module internal TickerSnapshotManager =
         task {
             let dateStr = date.Value.ToString("yyyy-MM-dd")
 
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                $"[createTickerSnapshot] START - TickerId: {tickerId}, Date: {dateStr}"
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     $"[createTickerSnapshot] START - TickerId: {tickerId}, Date: {dateStr}"
 
             let snapshotDate = getDateOnly date
 
@@ -371,64 +371,64 @@ module internal TickerSnapshotManager =
                 { Base = createBaseSnapshot snapshotDate
                   TickerId = tickerId }
 
-            CoreLogger.logInfo "TickerSnapshotManager" "[createTickerSnapshot] Saving TickerSnapshot to database..."
+            // CoreLogger.logInfo "TickerSnapshotManager" "[createTickerSnapshot] Saving TickerSnapshot to database..."
             do! newSnapshot.save ()
-            CoreLogger.logInfo "TickerSnapshotManager" "[createTickerSnapshot] TickerSnapshot saved successfully"
+            // CoreLogger.logInfo "TickerSnapshotManager" "[createTickerSnapshot] TickerSnapshot saved successfully"
 
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                "[createTickerSnapshot] Retrieving created snapshot from database..."
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     "[createTickerSnapshot] Retrieving created snapshot from database..."
 
             let! createdSnapshot = TickerSnapshotExtensions.Do.getByTickerIdAndDate (tickerId, snapshotDate)
 
             match createdSnapshot with
             | None ->
-                CoreLogger.logError
-                    "TickerSnapshotManager"
-                    "[createTickerSnapshot] FAILED - Could not retrieve created TickerSnapshot from database"
+                // CoreLogger.logError
+                //     "TickerSnapshotManager"
+                //     "[createTickerSnapshot] FAILED - Could not retrieve created TickerSnapshot from database"
 
                 failwith "Failed to create ticker snapshot"
             | Some snapshot ->
-                CoreLogger.logInfo
-                    "TickerSnapshotManager"
-                    $"[createTickerSnapshot] TickerSnapshot retrieved. ID: {snapshot.Base.Id}"
+                // CoreLogger.logInfo
+                //     "TickerSnapshotManager"
+                //     $"[createTickerSnapshot] TickerSnapshot retrieved. ID: {snapshot.Base.Id}"
 
                 let preferenceCurrency = PreferencesProvider.getString CurrencyKey DefaultCurrency
 
-                CoreLogger.logInfo
-                    "TickerSnapshotManager"
-                    $"[createTickerSnapshot] Getting currency: {preferenceCurrency}"
+                // CoreLogger.logInfo
+                //     "TickerSnapshotManager"
+                //     $"[createTickerSnapshot] Getting currency: {preferenceCurrency}"
 
                 let! currency = CurrencyExtensions.Do.getByCode (preferenceCurrency)
 
                 match currency with
                 | None ->
-                    CoreLogger.logError
-                        "TickerSnapshotManager"
-                        $"[createTickerSnapshot] FAILED - Currency '{preferenceCurrency}' not found in database"
+                    // CoreLogger.logError
+                    //     "TickerSnapshotManager"
+                    //     $"[createTickerSnapshot] FAILED - Currency '{preferenceCurrency}' not found in database"
 
                     failwithf "Currency %s not found" preferenceCurrency
                 | Some currency ->
-                    CoreLogger.logInfo
-                        "TickerSnapshotManager"
-                        $"[createTickerSnapshot] Currency found. ID: {currency.Id}, Code: {currency.Code}"
+                    // CoreLogger.logInfo
+                    //     "TickerSnapshotManager"
+                    //     $"[createTickerSnapshot] Currency found. ID: {currency.Id}, Code: {currency.Code}"
 
-                    CoreLogger.logInfo
-                        "TickerSnapshotManager"
-                        "[createTickerSnapshot] Creating default TickerCurrencySnapshot..."
+                    // CoreLogger.logInfo
+                    //     "TickerSnapshotManager"
+                    //     "[createTickerSnapshot] Creating default TickerCurrencySnapshot..."
 
                     let! currencySnapshot =
                         createDefaultTickerCurrencySnapshot date tickerId currency.Id snapshot.Base.Id
 
-                    CoreLogger.logInfo
-                        "TickerSnapshotManager"
-                        "[createTickerSnapshot] Saving TickerCurrencySnapshot to database..."
+                    // CoreLogger.logInfo
+                    //     "TickerSnapshotManager"
+                    //     "[createTickerSnapshot] Saving TickerCurrencySnapshot to database..."
 
                     do! currencySnapshot.save ()
 
-                    CoreLogger.logInfo
-                        "TickerSnapshotManager"
-                        $"[createTickerSnapshot] SUCCESS - TickerCurrencySnapshot saved for TickerId: {tickerId}, CurrencyId: {currency.Id}"
+        // CoreLogger.logInfo
+        //     "TickerSnapshotManager"
+        //     $"[createTickerSnapshot] SUCCESS - TickerCurrencySnapshot saved for TickerId: {tickerId}, CurrencyId: {currency.Id}"
         }
 
     /// Create or update a snapshot for a ticker and date with improved error handling that throws exceptions to the UI
@@ -436,62 +436,62 @@ module internal TickerSnapshotManager =
         task {
             let dateStr = date.Value.ToString("yyyy-MM-dd")
 
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                $"[updateTickerSnapshot] START - TickerId: {tickerId}, Date: {dateStr}"
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     $"[updateTickerSnapshot] START - TickerId: {tickerId}, Date: {dateStr}"
 
             // Step 1: Get or create the TickerSnapshot for the date
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                "[updateTickerSnapshot] Step 1: Getting or creating TickerSnapshot..."
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     "[updateTickerSnapshot] Step 1: Getting or creating TickerSnapshot..."
 
             let! tickerSnapshot = getOrCreateTickerSnapshot tickerId date
 
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                $"[updateTickerSnapshot] TickerSnapshot obtained. ID: {tickerSnapshot.Base.Id}"
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     $"[updateTickerSnapshot] TickerSnapshot obtained. ID: {tickerSnapshot.Base.Id}"
 
             // Step 2: Get all relevant currencies for this ticker and date
-            CoreLogger.logInfo "TickerSnapshotManager" "[updateTickerSnapshot] Step 2: Getting relevant currencies..."
+            // CoreLogger.logInfo "TickerSnapshotManager" "[updateTickerSnapshot] Step 2: Getting relevant currencies..."
             let! currencies = getRelevantCurrencies tickerId date
             let currenciesStr = String.Join(", ", currencies)
 
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                $"[updateTickerSnapshot] Found {currencies.Length} currencies: [{currenciesStr}]"
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     $"[updateTickerSnapshot] Found {currencies.Length} currencies: [{currenciesStr}]"
 
             if currencies.IsEmpty then
-                CoreLogger.logError
-                    "TickerSnapshotManager"
-                    $"[updateTickerSnapshot] FAILED - No currencies found for ticker {tickerId} on date {dateStr}"
+                // CoreLogger.logError
+                //     "TickerSnapshotManager"
+                //     $"[updateTickerSnapshot] FAILED - No currencies found for ticker {tickerId} on date {dateStr}"
 
                 failwithf "No currencies found for ticker %d on date %s" tickerId (date.Value.ToString())
 
             // Step 3: Update/create TickerCurrencySnapshot for each currency
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                "[updateTickerSnapshot] Step 3: Creating/updating TickerCurrencySnapshots..."
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     "[updateTickerSnapshot] Step 3: Creating/updating TickerCurrencySnapshots..."
 
             let updateTasks =
                 currencies
                 |> List.map (fun currencyId ->
                     task {
-                        CoreLogger.logInfo
-                            "TickerSnapshotManager"
-                            $"[updateTickerSnapshot] Processing currency ID: {currencyId}"
+                        // CoreLogger.logInfo
+                        //     "TickerSnapshotManager"
+                        //     $"[updateTickerSnapshot] Processing currency ID: {currencyId}"
 
                         do! updateTickerCurrencySnapshot tickerId currencyId date tickerSnapshot.Base.Id
 
-                        CoreLogger.logInfo
-                            "TickerSnapshotManager"
-                            $"[updateTickerSnapshot] Currency ID {currencyId} processed successfully"
+                    // CoreLogger.logInfo
+                    //     "TickerSnapshotManager"
+                    //     $"[updateTickerSnapshot] Currency ID {currencyId} processed successfully"
                     })
 
             let! _ = Task.WhenAll(updateTasks)
 
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                "[updateTickerSnapshot] SUCCESS - All TickerCurrencySnapshots created/updated"
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     "[updateTickerSnapshot] SUCCESS - All TickerCurrencySnapshots created/updated"
 
             return ()
         }
@@ -533,13 +533,13 @@ module internal TickerSnapshotManager =
     /// For new tickers without any trading history, this provides the foundation for future calculations.
     /// </remarks>
     let handleNewTicker (ticker: Ticker) =
-        CoreLogger.logInfo
-            "TickerSnapshotManager"
-            $"[handleNewTicker] CALLED - Ticker: {ticker.Symbol} (ID: {ticker.Id})"
+        // CoreLogger.logInfo
+        //     "TickerSnapshotManager"
+        //     $"[handleNewTicker] CALLED - Ticker: {ticker.Symbol} (ID: {ticker.Id})"
 
         let today = DateTimePattern.FromDateTime(DateTime.Today)
         let dateStr = today.Value.ToString("yyyy-MM-dd")
-        CoreLogger.logInfo "TickerSnapshotManager" $"[handleNewTicker] Creating snapshot for date: {dateStr}"
+        // CoreLogger.logInfo "TickerSnapshotManager" $"[handleNewTicker] Creating snapshot for date: {dateStr}"
         createTickerSnapshot ticker.Id today
 
     /// <summary>
@@ -566,31 +566,31 @@ module internal TickerSnapshotManager =
         task {
             let dateStr = date.Value.ToString("yyyy-MM-dd")
 
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                $"[handleTickerChange] CALLED - TickerId: {tickerId}, Date: {dateStr}"
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     $"[handleTickerChange] CALLED - TickerId: {tickerId}, Date: {dateStr}"
 
             // Check if there are any snapshots after this date
             let! subsequentSnapshots = TickerSnapshotExtensions.Do.getTickerSnapshotsAfterDate (tickerId, date)
 
-            CoreLogger.logInfo
-                "TickerSnapshotManager"
-                $"[handleTickerChange] Found {subsequentSnapshots.Length} subsequent snapshots"
+            // CoreLogger.logInfo
+            //     "TickerSnapshotManager"
+            //     $"[handleTickerChange] Found {subsequentSnapshots.Length} subsequent snapshots"
 
             if subsequentSnapshots.IsEmpty then
                 // No future snapshots, just update this date
-                CoreLogger.logInfo
-                    "TickerSnapshotManager"
-                    "[handleTickerChange] No future snapshots, updating single date"
+                // CoreLogger.logInfo
+                //     "TickerSnapshotManager"
+                //     "[handleTickerChange] No future snapshots, updating single date"
 
                 do! updateTickerSnapshot tickerId date
             else
                 // Future snapshots exist, use cascade update
-                CoreLogger.logInfo
-                    "TickerSnapshotManager"
-                    "[handleTickerChange] Future snapshots exist, using cascade update"
+                // CoreLogger.logInfo
+                //     "TickerSnapshotManager"
+                //     "[handleTickerChange] Future snapshots exist, using cascade update"
 
                 do! updateTickerSnapshotWithCascade tickerId subsequentSnapshots date
 
-            CoreLogger.logInfo "TickerSnapshotManager" $"[handleTickerChange] COMPLETED for TickerId: {tickerId}"
+        // CoreLogger.logInfo "TickerSnapshotManager" $"[handleTickerChange] COMPLETED for TickerId: {tickerId}"
         }

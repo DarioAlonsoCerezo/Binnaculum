@@ -94,14 +94,14 @@ module internal TickerSnapshotCalculateInMemory =
                     | TradeCode.SellToClose -> -(t.Price.Value * t.Quantity) // Reduce cost (proceeds)
 
                 // DEBUG: Log each trade's contribution
-                CoreLogger.logDebugf
-                    "CostBasisTrade"
-                    "Date=%s Code=%A Price=%M Qty=%M Delta=%M"
-                    (date.ToString())
-                    t.TradeCode
-                    t.Price.Value
-                    t.Quantity
-                    delta
+                // CoreLogger.logDebugf
+                //     "CostBasisTrade"
+                //     "Date=%s Code=%A Price=%M Qty=%M Delta=%M"
+                //     (date.ToString())
+                //     t.TradeCode
+                //     t.Price.Value
+                //     t.Quantity
+                //     delta
 
                 delta)
 
@@ -112,20 +112,20 @@ module internal TickerSnapshotCalculateInMemory =
             + tradeCostBasis
 
         // DEBUG: Log the full calculation
-        CoreLogger.logDebugf
-            "CostBasisCalc"
-            "Date=%s PrevCost=%M PrevShares=%M PrevTotal=%M TradeDelta=%M NewTotal=%M NewShares=%M Result=%M"
-            (date.ToString())
-            previousSnapshot.CostBasis.Value
-            previousSnapshot.TotalShares
-            (previousSnapshot.CostBasis.Value * previousSnapshot.TotalShares)
-            tradeCostBasis
-            totalCost
-            totalShares
-            (if totalShares > 0m then
-                 abs (totalCost / totalShares)
-             else
-                 0m)
+        // CoreLogger.logDebugf
+        //     "CostBasisCalc"
+        //     "Date=%s PrevCost=%M PrevShares=%M PrevTotal=%M TradeDelta=%M NewTotal=%M NewShares=%M Result=%M"
+        //     (date.ToString())
+        //     previousSnapshot.CostBasis.Value
+        //     previousSnapshot.TotalShares
+        //     (previousSnapshot.CostBasis.Value * previousSnapshot.TotalShares)
+        //     tradeCostBasis
+        //     totalCost
+        //     totalShares
+        //     (if totalShares > 0m then
+        //          abs (totalCost / totalShares)
+        //      else
+        //          0m)
 
         let costBasis =
             if totalShares > 0m then
@@ -307,14 +307,14 @@ module internal TickerSnapshotCalculateInMemory =
             Money.FromAmount(previousSnapshot.Realized.Value + totalNewRealizedGains.Value)
 
         // DEBUG: Log realized gains calculation details
-        CoreLogger.logDebugf
-            "TickerSnapshotCalculateInMemory"
-            "[Date:%s] Realized gains - Stock: %M | Option (new): %M | Total (new): %M | Cumulative: %M"
-            (date.ToString())
-            stockRealizedGains.Value
-            newOptionRealizedGains.Value
-            totalNewRealizedGains.Value
-            realized.Value
+        // CoreLogger.logDebugf
+        //     "TickerSnapshotCalculateInMemory"
+        //     "[Date:%s] Realized gains - Stock: %M | Option (new): %M | Total (new): %M | Cumulative: %M"
+        //     (date.ToString())
+        //     stockRealizedGains.Value
+        //     newOptionRealizedGains.Value
+        //     totalNewRealizedGains.Value
+        //     realized.Value
 
         // Performance calculation: Realized / CapitalDeployed * 100
         let performance =
