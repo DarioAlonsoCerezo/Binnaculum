@@ -19,7 +19,7 @@ module TsllTickerSnapshots =
     /// </summary>
     let getTSLLSnapshots (ticker: Ticker) (currency: Currency) : ExpectedSnapshot<TickerCurrencySnapshot> list =
         [
-          // ========== Snapshot 1: 2024-05-30 ==========
+          // ========== Snapshot 0: 2024-05-30 ==========
           // CSV Line 213: 2024-05-30T14:38:32+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  240607P00007000,Equity Option,Sold 1 TSLL 06/07/24 Put 7.00 @ 0.15,15.00,1,15.00,-1.00,-0.14,100,TSLL,TSLL,6/07/24,7,PUT,324800434,13.86,USD
           // Calculation: Sold put for $15, paid $1 commission + $0.14 fees = $13.86 net income
           // CapitalDeployed: Strike $7.00 × Multiplier 100 = $700 (obligation if assigned)
@@ -44,7 +44,7 @@ module TsllTickerSnapshots =
                 Fees = 0.14m } // From CSV
             Description = "Opening position: Sold TSLL 06/07/24 Put 7.00 @ $0.15" }
 
-          // ========== Snapshot 2: 2024-06-07 ==========
+          // ========== Snapshot 1: 2024-06-07 ==========
           // CSV Line 212: 2024-06-07T21:00:00+0100,Receive Deliver,Expiration,BUY_TO_CLOSE,TSLL  240607P00007000,Equity Option,Removal of 1.0 TSLL 06/07/24 Put 7.00 due to expiration.,0.00,1,0.00,--,0.00,100,TSLL,TSLL,6/07/24,7,PUT,,0.00,USD
           // Calculation: Option expired worthless (value = $0), realized the full $13.86 gain
           // CapitalDeployed: Expiration is a closing trade - NO new capital deployed = $700 (same as before)
@@ -70,7 +70,7 @@ module TsllTickerSnapshots =
                 Fees = 0.14m } // Same as before
             Description = "Position closed: TSLL 06/07/24 Put expired worthless - Realized $13.86 profit" }
 
-          // ========== Snapshot 3: 2024-10-15 ==========
+          // ========== Snapshot 2: 2024-10-15 ==========
           // CSV Line 210: 2024-10-15T14:31:55+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  241025C00011500,Equity Option,Sold 1 TSLL 10/25/24 Call 11.50 @ 0.29,29.00,1,29.00,-1.00,-0.14,100,TSLL,TSLL,10/25/24,11.5,CALL,346302535,27.86,USD
           // CSV Line 211: 2024-10-15T14:30:56+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL  260116C00006730,Equity Option,Bought 1 TSLL 01/16/26 Call 6.73 @ 5.15,-515.00,1,-515.00,-1.00,-0.13,100,TSLL,TSLL,1/16/26,6.73,CALL,346301377,-516.13,USD
           // Calculation:
@@ -105,7 +105,7 @@ module TsllTickerSnapshots =
                 Fees = 0.41m } // $0.14 (prev) + $0.14 + $0.13 = $0.41
             Description = "New positions: Sold TSLL Call 11.50, Bought TSLL Call 6.73" }
 
-          // ========== Snapshot 4: 2024-10-18 ==========
+          // ========== Snapshot 3: 2024-10-18 ==========
           // CSV Line 208: 2024-10-18T14:45:06+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  241025C00011500,Equity Option,Sold 13 TSLL 10/25/24 Call 11.50 @ 0.15,195.00,13,15.00,-10.00,-1.72,100,TSLL,TSLL,10/25/24,11.5,CALL,346990518,183.28,USD
           // CSV Line 209: 2024-10-18T14:44:13+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL  260116C00006730,Equity Option,Bought 13 TSLL 01/16/26 Call 6.73 @ 5.10,"-6,630.00",13,-510.00,-10.00,-1.67,100,TSLL,TSLL,1/16/26,6.73,CALL,346989548,"-6,641.67",USD
           // Calculation:
@@ -140,7 +140,7 @@ module TsllTickerSnapshots =
                 Fees = 3.80m } // $0.41 (prev) + $1.72 + $1.67 = $3.80
             Description = "High volume: Sold 13 TSLL Calls 11.50, Bought 13 TSLL Calls 6.73" }
 
-          // ========== Snapshot 5: 2024-10-21 ==========
+          // ========== Snapshot 4: 2024-10-21 ==========
           // CSV Line 207: 2024-10-21T14:42:03+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  241025C00011500,Equity Option,Bought 14 TSLL 10/25/24 Call 11.50 @ 0.09,-126.00,14,-9.00,0.00,-1.79,100,TSLL,TSLL,10/25/24,11.5,CALL,347215037,-127.79,USD
           // Calculation:
           //   Closed 14 calls: -$126 - $0 - $1.79 = -$127.79
@@ -172,7 +172,7 @@ module TsllTickerSnapshots =
                 Fees = 5.59m } // $3.80 (prev) + $1.79 = $5.59
             Description = "Closing positions: Bought to close 14 TSLL Calls 11.50, realized $83.35" }
 
-          // ========== Snapshot 6: 2024-10-23 ==========
+          // ========== Snapshot 5: 2024-10-23 ==========
           // CSV Line 206: 2024-10-23T19:27:18+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL  260116C00006730,Equity Option,Bought 1 TSLL 01/16/26 Call 6.73 @ 4.55,-455.00,1,-455.00,-1.00,-0.13,100,TSLL,TSLL,1/16/26,6.73,CALL,347788134,-456.13,USD
           // Calculation:
           //   Bought 1 call: -$455 - $1 - $0.13 = -$456.13
@@ -203,7 +203,7 @@ module TsllTickerSnapshots =
                 Fees = 5.72m } // $5.59 (prev) + $0.13 = $5.72
             Description = "Bought 1 TSLL Call 6.73" }
 
-          // ========== Snapshot 7: 2024-10-24 ==========
+          // ========== Snapshot 6: 2024-10-24 ==========
           // CSV Line 200-201: 2024-10-24T18:59:32+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  241101C00016000,Equity Option,Sold 2 TSLL 11/01/24 Call 16.00 @ 0.12,24.00,2,12.00,-2.00,-0.28 (x2 = $48 total)
           // CSV Line 202: 2024-10-24T14:46:07+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL  260116C00006730,Equity Option,Sold 1 TSLL 01/16/26 Call 6.73 @ 7.10,710.00,1,710.00,0.00,-0.15
           // CSV Line 203-205: 2024-10-24T14:38:37+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL  260116C00006730,Equity Option,Sold 10 TSLL calls (5+4+1) @ 7.00 = $7,000
@@ -239,7 +239,7 @@ module TsllTickerSnapshots =
                 Fees = 7.93m } // $5.72 (prev) + $2.21 = $7.93
             Description = "Major closing: Sold to close 11 TSLL Calls 6.73 @ $7 avg, opened 4 new calls" }
 
-          // ========== Snapshot 8: 2024-10-29 ==========
+          // ========== Snapshot 7: 2024-10-29 ==========
           // CSV Line 198: 2024-10-29T14:22:31+0000,Trade,Sell to Open,SELL_TO_OPEN,TSLL  241115P00011000,Equity Option,Sold 1 TSLL 11/15/24 Put 11.00 @ 0.44,44.00,1,44.00,-1.00,-0.14
           // CSV Line 199: 2024-10-29T14:22:31+0000,Trade,Buy to Open,BUY_TO_OPEN,TSLL  241115P00010500,Equity Option,Bought 1 TSLL 11/15/24 Put 10.50 @ 0.32,-32.00,1,-32.00,-1.00,-0.13
           // Calculation:
@@ -274,7 +274,7 @@ module TsllTickerSnapshots =
                 Fees = 8.20m }
             Description = "Put spread: Sold TSLL Put 11.00, Bought TSLL Put 10.50" }
 
-          // ========== Snapshot 9: 2024-10-30 ==========
+          // ========== Snapshot 8: 2024-10-30 ==========
           // CSV Line 196: 2024-10-30T17:20:54+0000,Trade,Sell to Open,SELL_TO_OPEN,TSLL  241108C00014500,Equity Option,Sold 4 TSLL 11/08/24 Call 14.50 @ 0.46,184.00,4,46.00,-4.00,-0.53
           // CSV Line 197: 2024-10-30T17:20:54+0000,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  241101C00016000,Equity Option,Bought 4 TSLL 11/01/24 Call 16.00 @ 0.01,-4.00,4,-1.00,0.00,-0.51
           // Calculation:
@@ -305,7 +305,7 @@ module TsllTickerSnapshots =
                 Fees = 9.24m } // $8.20 (prev) + $1.04 = $9.24
             Description = "Roll forward: Closed 4 TSLL Calls 16.00, Sold 4 new TSLL Calls 14.50" }
 
-          // ========== Snapshot 10: 2024-11-01 ==========
+          // ========== Snapshot 9: 2024-11-01 ==========
           // CSV Line 193: 2024-11-01T19:49:36+0000,Trade,Sell to Open,SELL_TO_OPEN,TSLL  241108C00012000,Equity Option,Sold 4 TSLL 11/08/24 Call 12.00 @ 0.63,252.00,4,63.00,-4.00,-0.53
           // CSV Line 194-195: 2024-11-01T16:41:35+0000,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  241108C00014500,Equity Option,Bought 4 TSLL (2+2) @ 0.10,-40.00 total
           // Calculation:
@@ -335,7 +335,7 @@ module TsllTickerSnapshots =
                 Fees = 10.27m } // $9.24 (prev) + $1.03 = $10.27
             Description = "Roll forward: Sold 4 TSLL Calls 12.00, Closed 4 TSLL Calls 14.50, realized $139" }
 
-          // ========== Snapshot 11: 2024-11-06 ==========
+          // ========== Snapshot 10: 2024-11-06 ==========
           // CSV Line 189: 2024-11-06T20:43:14+0000,Trade,Sell to Open,SELL_TO_OPEN,TSLL  241115C00012500,Equity Option,Sold 4 TSLL 11/15/24 Call 12.50 @ 3.20,"1,280.00",4,320.00,-4.00,-0.56
           // CSV Line 190: 2024-11-06T20:43:14+0000,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  241108C00012000,Equity Option,Bought 4 TSLL 11/08/24 Call 12.00 @ 3.56,"-1,424.00",4,-356.00,0.00,-0.51
           // CSV Line 191: 2024-11-06T14:35:29+0000,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  241115P00011000,Equity Option,Bought 1 TSLL 11/15/24 Put 11.00 @ 0.05,-5.00,1,-5.00,0.00,-0.13
@@ -367,7 +367,7 @@ module TsllTickerSnapshots =
                 Fees = 11.61m } // $10.27 (prev) + $1.34 = $11.61
             Description = "Roll + close put spread: Sold 4 Calls 12.50, Closed 4 Calls 12.00 (loss), Closed put spread" }
 
-          // ========== Snapshot 12: 2024-11-07 ==========
+          // ========== Snapshot 11: 2024-11-07 ==========
           // CSV Line 183: 2024-11-07T20:46:13+0000,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 500 TSLL @ 16.54,"-8,269.95",500,-16.54,0.00,-0.40
           // CSV Line 184: 2024-11-07T20:46:13+0000,Trade,Sell to Open,SELL_TO_OPEN,TSLL  241115C00017000,Equity Option,Sold 5 TSLL 11/15/24 Call 17.00 @ 0.85,425.00,5,85.00,-4.00,-0.66
           // CSV Line 185: 2024-11-07T20:46:13+0000,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 600 TSLL @ 16.55,"-9,929.82",600,-16.55,0.00,-0.48
@@ -404,7 +404,7 @@ module TsllTickerSnapshots =
                 Fees = 15.11m } // $11.61 (prev) + $3.50 = $15.11
             Description = "Major move: Bought 1100 TSLL shares, sold 11 covered calls, closed positions for gains" }
 
-          // ========== Snapshot 13: 2024-11-08 ==========
+          // ========== Snapshot 12: 2024-11-08 ==========
           // CSV Line 181: 2024-11-08T14:34:28+0000,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  241115C00017000,Equity Option,Bought 11 TSLL 11/15/24 Call 17.00 @ 0.95,"-1,045.00",11,-95.00,0.00,-1.39
           // CSV Line 182: 2024-11-08T14:34:28+0000,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 1100 TSLL @ 16.80,"18,480.00",1100,16.80,0.00,-1.58
           // Calculation:
@@ -436,7 +436,7 @@ module TsllTickerSnapshots =
                 Fees = 18.08m } // $15.11 (prev) + $2.97 = $18.08
             Description = "CLOSED ALL: Sold 1100 shares @ $16.80, closed 11 covered calls" }
 
-          // ========== Snapshot 14: 2024-11-20 ==========
+          // ========== Snapshot 13: 2024-11-20 ==========
           // CSV Line 175: 2024-11-20T17:41:54+0000,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 30 TSLL @ 20.66,-619.65,30,-20.65,0.00,-0.02
           // CSV Line 176: 2024-11-20T17:31:05+0000,Trade,Sell to Open,SELL_TO_OPEN,TSLL  241129C00021000,Equity Option,Sold 1 TSLL 11/29/24 Call 21.00 @ 1.38,138.00,1,138.00,-1.00,-0.14
           // CSV Line 177: 2024-11-20T17:30:39+0000,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 100 TSLL @ 20.66,"-2,065.50",100,-20.65,0.00,-0.08
@@ -468,7 +468,7 @@ module TsllTickerSnapshots =
                 Fees = 20.04m }
             Description = "Re-entered: Bought 930 shares, sold 9 covered calls" }
 
-          // ========== Snapshot 15: 2024-11-21 ==========
+          // ========== Snapshot 14: 2024-11-21 ==========
           // CSV Line 174: 2024-11-21T14:30:50+0000,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 30 TSLL @ 21.43,642.90,30,21.43,0.00,-0.05
           // Calculation:
           //   Sold 30 shares @ $21.43: $642.90 - $0.05 = $642.85
@@ -498,7 +498,7 @@ module TsllTickerSnapshots =
                 Fees = 20.09m } // $20.04 (prev) + $0.05 = $20.09
             Description = "Partial exit: Sold 30 shares @ $21.43, kept 900 shares" }
 
-          // ========== Snapshot 16: 2024-11-22 ==========
+          // ========== Snapshot 15: 2024-11-22 ==========
           // CSV Line 170-171: Sold 2 TSLL 11/29/24 Put 21.00 @ 0.61 (x2)
           // CSV Line 172: Sold 9 TSLL 03/21/25 Call 21.00 @ 6.88,"6,192.00",9,688.00,-9.00,-1.34
           // CSV Line 173: Bought 9 TSLL 11/29/24 Call 21.00 @ 2.32,"-2,088.00",9,-232.00,0.00,-1.14
@@ -530,7 +530,7 @@ module TsllTickerSnapshots =
                 Fees = 22.85m } // $20.09 (prev) + $2.76 = $22.85
             Description = "Complex roll: Closed 9 short calls @ loss, sold 9 new 03/21/25 calls, sold 2 puts" }
 
-          // ========== Snapshot 17: 2024-11-25 ==========
+          // ========== Snapshot 16: 2024-11-25 ==========
           // CSV Line 164: 2024-11-25T20:28:35+0000,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 40 TSLL @ 21.62,-864.80,40,-21.62,0.00,-0.03
           // CSV Line 165-168: Roll forward options: Closed 9 calls 03/21/25, Sold 9 new calls 12/06/24
           // CSV Line 169: 2024-11-25T20:25:01+0000,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  241129P00021000,Equity Option,Bought 2 TSLL @ 0.61,-122.00,2,-61.00,0.00,-0.25
@@ -563,7 +563,7 @@ module TsllTickerSnapshots =
                 Fees = 25.47m } // $22.85 (prev) + $2.62 = $25.47
             Description = "Bought 40 shares, rolled options forward, closed put spread, realized $842" }
 
-          // ========== Snapshot 18: 2024-11-26 ==========
+          // ========== Snapshot 17: 2024-11-26 ==========
           // CSV Line 152-153: Bought 7 TSLL shares (6+1) @ $21.04
           // CSV Line 154: Sold 2 TSLL 11/29/24 Call 21.00 @ 0.80,160.00,2,80.00,-2.00,-0.27
           // CSV Line 155: Bought 204 TSLL @ 21.15,"-4,314.56",204,-21.15,0.00,-0.16
@@ -599,7 +599,7 @@ module TsllTickerSnapshots =
                 Fees = 28.37m } // $25.47 (prev) + $2.90 = $28.37
             Description = "Peak position: Bought 211 shares (now 1,151!), rolled options, realized $261" }
 
-          // ========== Snapshot 19: 2024-11-27 ==========
+          // ========== Snapshot 18: 2024-11-27 ==========
           // CSV Line 151: 2024-11-27T16:10:57+0000,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 1 TSLL @ 19.57,-19.57,1,-19.57,0.00,0.00
           // Calculation:
           //   Bought 1 share @ $19.57: -$19.57 (no fees!)
@@ -625,7 +625,7 @@ module TsllTickerSnapshots =
                 Fees = 28.37m } // Same (no fees!)
             Description = "New peak: Bought 1 share @ $19.57 (now 1,152 shares!)" }
 
-          // ========== Snapshot 20: 2024-11-29 ==========
+          // ========== Snapshot 19: 2024-11-29 ==========
           // CSV Line 144: Sold 1 TSLL 12/06/24 Call 24.00 @ 0.23,23.00,1,23.00,-1.00,-0.14
           // CSV Line 145: Bought 1 TSLL 01/16/26 Call 4.73 @ 16.45,"-1,645.00",1,"-1,645.00",-1.00,-0.13
           // CSV Line 146-147: Roll: Sold 9 12/06/24 Calls, Closed 9 03/21/25 Calls
@@ -660,7 +660,7 @@ module TsllTickerSnapshots =
                 Fees = 31.62m } // $28.37 (prev) + $3.25 = $31.62
             Description = "Major exit: Sold 252 shares @ $20.79, rolled options, bought long call, realized $628" }
 
-          // ========== Snapshot 21: 2024-12-02 ==========
+          // ========== Snapshot 20: 2024-12-02 ==========
           // CSV Line 140: Sold 5 TSLL 12/13/24 Call 21.00 @ 2.39,"1,195.00",5,239.00,-5.00,-0.65
           // CSV Line 141: Bought 5 TSLL 12/06/24 Call 21.00 @ 1.91,-955.00,5,-191.00,0.00,-0.60
           // CSV Line 142: Sold 4 TSLL 12/13/24 Call 21.00 @ 2.39,956.00,4,239.00,-4.00,-0.52
@@ -694,7 +694,7 @@ module TsllTickerSnapshots =
                 Fees = 33.87m } // $31.62 (prev) + $2.25 = $33.87
             Description = "Roll forward: Closed 9 calls @ $1.91, Sold 9 calls @ $2.39, realized loss $866" }
 
-          // ========== Snapshot 22: 2024-12-04 ==========
+          // ========== Snapshot 21: 2024-12-04 ==========
           // CSV Line 135: Bought 11 TSLL @ 21.93,-241.23,11,-21.93,0.00,-0.01
           // CSV Line 136-137: Bought 100 TSLL @ 22.09, Sold 1 call @ 1.93
           // CSV Line 138: Sold 1 TSLL 01/16/26 Call 4.73 @ 17.74,"1,774.00",1,"1,774.00",0.00,-0.17
@@ -729,7 +729,7 @@ module TsllTickerSnapshots =
                 Fees = 34.38m }
             Description = "Bought 111 shares, sold 1 call, closed long call for profit, realized $127" }
 
-          // ========== Snapshot 23: 2024-12-05 ==========
+          // ========== Snapshot 22: 2024-12-05 ==========
           // CSV Line 132: Sold 11 TSLL @ 24.52,269.77,11,24.52,0.00,-0.02
           // CSV Line 133: Bought 10 TSLL 12/13/24 Call 21.00 @ 4.33,"-4,330.00",10,-433.00,0.00,-1.19
           // CSV Line 134: Sold 1000 TSLL @ 25.05,"25,050.00",1000,25.05,0.00,-1.67
@@ -761,7 +761,7 @@ module TsllTickerSnapshots =
                 Fees = 37.26m } // $34.38 (prev) + $2.88 = $37.26
             Description = "COMPLETE EXIT: Sold all 1,011 shares @ avg $24.96, closed 10 calls" }
 
-          // ========== Snapshot 24: 2024-12-11 ==========
+          // ========== Snapshot 23: 2024-12-11 ==========
           // CSV Line 130: Sold 1 TSLL 12/20/24 Call 36.00 @ 0.96,96.00,1,96.00,-1.00,-0.13
           // CSV Line 131: Bought 1 TSLL 01/16/26 Call 10.73 @ 22.80,"-2,280.00",1,"-2,280.00",-1.00,-0.12
           // Calculation:
@@ -791,7 +791,7 @@ module TsllTickerSnapshots =
                 Fees = 37.51m } // $37.26 (prev) + $0.25 = $37.51
             Description = "Options only: Sold short call, bought long call (net debit $2,184)" }
 
-          // ========== Snapshot 25: 2024-12-17 ==========
+          // ========== Snapshot 24: 2024-12-17 ==========
           // CSV Line 124: Sold 1 TSLL 03/21/25 Call 49.00 @ 8.30,830.00,1,830.00,-1.00,-0.15
           // CSV Line 125: Bought 1 TSLL 12/20/24 Call 35.70 @ 4.60,-460.00,1,-460.00,0.00,-0.12
           // Calculation:
@@ -822,7 +822,7 @@ module TsllTickerSnapshots =
                 Fees = 37.78m } // $37.51 (prev) + $0.27 = $37.78
             Description = "Roll forward: Sold call @ $8.30, closed call @ $4.60, realized loss $365" }
 
-          // ========== Snapshot 26: 2025-01-07 ==========
+          // ========== Snapshot 25: 2025-01-07 ==========
           // CSV Lines
           // 2025-01-07T18:57:16+0000,Trade,Sell to Close,SELL_TO_CLOSE,TSLL  260116C00010430,Equity Option,Sold 1 TSLL 01/16/26 Call 10.43 @ 17.58,"1,758.00",1,"1,758.00",0.00,-0.17,100,TSLL,TSLL,1/16/26,10.43,CALL,359944332,"1,757.83",USD
           // 2025-01-07T18:57:16+0000,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250321C00049000,Equity Option,Bought 1 TSLL 03/21/25 Call 49.00 @ 1.68,-168.00,1,-168.00,0.00,-0.12,100,TSLL,TSLL,3/21/25,49,CALL,359944332,-168.12,USD
@@ -855,7 +855,7 @@ module TsllTickerSnapshots =
                 Fees = 38.07m } // $37.78 (prev) + $0.29 = $38.07
             Description = "Closed positions: Sold long call @ $17.58 (loss $522), closed short call @ $1.68 (gain $662)" }
 
-          // ========== Snapshot 27: 2025-04-07 ==========
+          // ========== Snapshot 26: 2025-04-07 ==========
           // CSV Line 120: Sold 1 TSLL 05/23/25 Put 6.50 @ 1.21,121.00,1,121.00,-1.00,-0.14
           // CSV Line 121: Bought 1 TSLL 05/23/25 Put 6.00 @ 1.03,-103.00,1,-103.00,-1.00,-0.13
           // Calculation:
@@ -884,7 +884,7 @@ module TsllTickerSnapshots =
                 Fees = 38.34m } // $38.07 (prev) + $0.27 = $38.34
             Description = "Put spread: Sold Put 6.50 @ $1.21, Bought Put 6.00 @ $1.03 (credit $18)" }
 
-          // ========== Snapshot 28: 2025-04-09 ==========
+          // ========== Snapshot 27: 2025-04-09 ==========
           // CSV Line 118: Sold 1 TSLL 05/23/25 Put 6.50 @ 1.31,131.00,1,131.00,-1.00,-0.14
           // CSV Line 119: Bought 1 TSLL 05/23/25 Put 6.00 @ 1.09,-109.00,1,-109.00,-1.00,-0.13
           // Calculation:
@@ -914,7 +914,7 @@ module TsllTickerSnapshots =
                 Fees = 38.61m } // $38.34 (prev) + $0.27 = $38.61
             Description = "Another put spread: Sold Put 6.50 @ $1.31, Bought Put 6.00 @ $1.09 (credit $22)" }
 
-          // ========== Snapshot 29: 2025-04-24 ==========
+          // ========== Snapshot 28: 2025-04-24 ==========
           // CSV Line 116: Sold 1 TSLL 05/02/25 Put 7.00 @ 0.19,19.00,1,19.00,-1.00,-0.14
           // Calculation:
           //   Sold 1 put: $19 - $1.14 = $17.86
@@ -934,13 +934,13 @@ module TsllTickerSnapshots =
                 TotalIncomes = 1095.25m // After commissions and fees
                 CapitalDeployed = 67045.98m // Historical
                 Realized = 5577.20m // Same as Snapshot 28
-                Performance = 8.3172m // ($5,577.20 / $67,045.98) × 100
+                Performance = 8.3185m // ($5,577.20 / $67,045.98) × 100 = 8.3185%
                 OpenTrades = true // More options
                 Commissions = 121.00m // $120 (prev) + $1 = $121
                 Fees = 38.75m } // $38.61 (prev) + $0.14 = $38.75
             Description = "Sold Put 7.00 @ $0.19 (credit $19)" }
 
-          // ========== Snapshot 30: 2025-04-25 ==========
+          // ========== Snapshot 29: 2025-04-25 ==========
           // CSV Line 114: Bought 1 TSLL 05/02/25 Put 7.00 @ 0.06,-6.00,1,-6.00,0.00,-0.13
           // CSV Line 115: Bought 2 TSLL 05/23/25 Put 6.50 @ 0.20,-40.00,2,-20.00,0.00,-0.26
           // CSV Line 115: Sold 2 TSLL 05/23/25 Put 6.00 @ 0.14,28.00,2,14.00,0.00,-0.28
@@ -970,7 +970,7 @@ module TsllTickerSnapshots =
                 Fees = 39.42m } // $38.75 (prev) + $0.67 = $39.42
             Description = "Closed positions: Bought put @ $0.06, closed 2 put spreads, realized $35" }
 
-          // ========== Snapshot 31: 2025-04-30 ==========
+          // ========== Snapshot 30: 2025-04-30 ==========
           // CSV Line 113: 2025-04-30T15:03:24+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 200 TSLL @ 9.54,"-1,907.00",200,-9.53,0.00,-0.16
           // CSV Line 112: 2025-04-30T15:05:47+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250509C00010000,Equity Option,Sold 1 TSLL @ 0.74,74.00,1,74.00,-1.00,-0.14
           // CSV Line 111: 2025-04-30T15:06:44+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250509C00010000,Equity Option,Sold 1 TSLL @ 0.76,76.00,1,76.00,-1.00,-0.14
@@ -1000,7 +1000,7 @@ module TsllTickerSnapshots =
                 Fees = 39.86m } // $39.42 (prev) + $0.44 = $39.86
             Description = "Back to shares! Bought 200 TSLL @ $9.54, sold 2 covered calls" }
 
-          // ========== Snapshot 32: 2025-05-02 ==========
+          // ========== Snapshot 31: 2025-05-02 ==========
           // CSV Line 110: Bought 500 TSLL @ 10.56, Sold 5 calls @ 1.03
           // CSV Line 109: Bought 500 TSLL @ 10.54, Sold 5 calls @ 1.01
           // Calculation:
@@ -1029,7 +1029,7 @@ module TsllTickerSnapshots =
                 Fees = 42.02m } // $39.86 (prev) + $2.16 = $42.02
             Description = "Major position: Bought 1,000 shares @ avg $10.55, sold 10 covered calls" }
 
-          // ========== Snapshot 33: 2025-05-05 ==========
+          // ========== Snapshot 32: 2025-05-05 ==========
           // CSV Line 108: 2025-05-05T20:25:56+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250509P00010000,Equity Option,Sold 2 TSLL @ 0.48,96.00,2,48.00,-2.00,-0.28
           // Calculation:
           //   Sold 2 puts: $96 - $2.28 = $93.72
@@ -1056,7 +1056,7 @@ module TsllTickerSnapshots =
                 Fees = 42.30m } // $42.02 (prev) + $0.28 = $42.30
             Description = "Sold 2 puts @ $0.48 (credit $94)" }
 
-          // ========== Snapshot 34: 2025-05-06 ==========
+          // ========== Snapshot 33: 2025-05-06 ==========
           // CSV Line 107: 2025-05-06T19:26:25+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 15 TSLL @ 9.67,-145.00,15,-9.67,0.00,-0.01
           // Calculation:
           //   Bought 15 shares @ $9.67: -$145 - $0.01 = -$145.01
@@ -1083,7 +1083,7 @@ module TsllTickerSnapshots =
                 Fees = 42.31m } // $42.30 (prev) + $0.01 = $42.31
             Description = "Small addition: Bought 15 shares @ $9.67" }
 
-          // ========== Snapshot 35: 2025-05-08 ==========
+          // ========== Snapshot 34: 2025-05-08 ==========
           // CSV Line 104: 2025-05-08T14:36:06+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 15 TSLL @ 10.33,154.97,15,10.33,0.00,-0.02
           // Calculation:
           //   Sold 15 shares @ $10.33: $154.97 - $0.02 = $154.95
@@ -1110,7 +1110,7 @@ module TsllTickerSnapshots =
                 Fees = 42.33m } // $42.31 (prev) + $0.02 = $42.33
             Description = "Quick trade: Sold 15 shares @ $10.33 (bought @ $9.67, gain ~$10)" }
 
-          // ========== Snapshot 36: 2025-05-09 ==========
+          // ========== Snapshot 35: 2025-05-09 ==========
           // CSV Line 104-105: Closed 12 covered calls @ $1.42, Sold 1200 shares @ $11.40
           // CSV Line 103: Closed 2 puts @ $0.01
           // Calculation:
@@ -1142,7 +1142,7 @@ module TsllTickerSnapshots =
                 Fees = 45.69m } // $42.33 (prev) + $3.36 = $45.69
             Description = "COMPLETE EXIT: Sold all 1,200 shares @ $11.40, closed 12 calls, closed 2 puts, realized gain" }
 
-          // ========== Snapshot 37: 2025-05-12 ==========
+          // ========== Snapshot 36: 2025-05-12 ==========
           // CSV Line 100: 2025-05-12T18:19:03+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 1150 TSLL @ 12.90,"-14,832.35",1150,-12.90,0.00,-0.92
           // CSV Line 99: 2025-05-12T18:19:57+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250516C00014000,Equity Option,Sold 11 TSLL @ 0.34,374.00,11,34.00,-10.00,-1.47
           // Calculation:
@@ -1171,7 +1171,7 @@ module TsllTickerSnapshots =
                 Fees = 48.08m } // $45.69 (prev) + $2.39 = $48.08
             Description = "Major re-entry: Bought 1,150 shares @ $12.90, sold 11 covered calls" }
 
-          // ========== Snapshot 38: 2025-05-13 ==========
+          // ========== Snapshot 37: 2025-05-13 ==========
           // CSV Lines 88-99: Roll forward 11 calls (closed @ avg $0.80, sold @ avg $1.02)
           // Calculation:
           //   Closed 11 calls: 1+2+3+4+1 = 11 @ avg $0.80 = -$880
@@ -1201,7 +1201,7 @@ module TsllTickerSnapshots =
                 Fees = 50.97m } // $48.08 (prev) + $2.89 = $50.97
             Description = "Roll forward: Closed 11 calls @ avg $0.80, sold 11 new @ avg $1.02, realized loss $522" }
 
-          // ========== Snapshot 39: 2025-05-16 ==========
+          // ========== Snapshot 38: 2025-05-16 ==========
           // CSV Line 87: 2025-05-16T14:34:31+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 50 TSLL @ 15.40,770.00,50,15.40,0.00,-0.05
           // Calculation:
           //   Sold 50 shares @ $15.40: $770 - $0.05 = $769.95
@@ -1230,7 +1230,7 @@ module TsllTickerSnapshots =
                 Fees = 51.02m } // $50.97 (prev) + $0.05 = $51.02
             Description = "Profit taking: Sold 50 shares @ $15.40 (bought @ $12.90, gain $125)" }
 
-          // ========== Snapshot 40: 2025-05-19 ==========
+          // ========== Snapshot 39: 2025-05-19 ==========
           // CSV Lines 77-86: Roll forward 10 calls (closed @ avg $0.85, sold @ avg $1.15)
           // Calculation:
           //   Roll 10 calls: Multiple transactions closing old calls and selling new ones
@@ -1261,7 +1261,7 @@ module TsllTickerSnapshots =
                 Fees = 54.05m } // $51.02 (prev) + $3.03 = $54.05
             Description = "Roll forward: Closed 10 calls, sold 10 new, realized gain $177" }
 
-          // ========== Snapshot 41: 2025-05-21 ==========
+          // ========== Snapshot 40: 2025-05-21 ==========
           // CSV Line 74: 2025-05-21T18:07:52+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 100 TSLL @ 15.13,"-1,512.99",100,-15.13,0.00,-0.08
           // CSV Line 73: 2025-05-21T18:08:25+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250530C00015000,Equity Option,Sold 1 TSLL @ 1.14,114.00,1,114.00,-1.00,-0.13
           // CSV Line 75: 2025-05-21T18:07:22+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250523P00013000,Equity Option,Bought 1 TSLL @ 0.07,-7.00,1,-7.00,0.00,-0.13
@@ -1293,7 +1293,7 @@ module TsllTickerSnapshots =
                 Fees = 54.39m } // $54.05 (prev) + $0.34 = $54.39
             Description = "Added position: Bought 100 shares @ $15.13, sold call, closed put (gain $15)" }
 
-          // ========== Snapshot 42: 2025-05-22 ==========
+          // ========== Snapshot 41: 2025-05-22 ==========
           // CSV Line 72: 2025-05-22T19:25:47+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250530P00013000,Equity Option,Sold 1 TSLL 05/30/25 Put 13.00 @ 0.25,25.00,1,25.00,-1.00,-0.13,100,TSLL,TSLL,5/30/25,13,PUT,385622491,23.87,USD
           // Calculation:
           //   Sold 1 put @ $0.25: $25.00 - $1.00 (commission) - $0.13 (fees) = $23.87 net income
@@ -1320,7 +1320,7 @@ module TsllTickerSnapshots =
                 Fees = 54.52m } // $54.39 (prev) + $0.13 = $54.52
             Description = "Sold Put 13.00 @ $0.25 (credit $24)" }
 
-          // ========== Snapshot 43: 2025-05-27 ==========
+          // ========== Snapshot 42: 2025-05-27 ==========
           // CSV Lines 67-71:
           // 2025-05-27T20:21:43+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250606C00015500,Equity Option,Sold 1 TSLL 06/06/25 Call 15.50 @ 1.68,168.00,1,168.00,-1.00,-0.13,100,TSLL,TSLL,6/06/25,15.5,CALL,386187599,166.87,USD
           // 2025-05-27T20:21:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250530C00015000,Equity Option,Bought 1 TSLL 05/30/25 Call 15.00 @ 1.46,-146.00,1,-146.00,0.00,-0.13,100,TSLL,TSLL,5/30/25,15,CALL,386187599,-146.13,USD
@@ -1357,7 +1357,7 @@ module TsllTickerSnapshots =
                 Fees = 55.12m } // $54.52 (prev) + $0.60 = $55.12
             Description = "Complex activity: Bought 100 shares, closed put (gain), rolled call (loss), sold new call" }
 
-          // ========== Snapshot 44: 2025-05-29 ==========
+          // ========== Snapshot 43: 2025-05-29 ==========
           // CSV lines 65,66:
           // 2025-05-29T15:06:04+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250613C00016000,Equity Option,Sold 12 TSLL 06/13/25 Call 16.00 @ 1.92,"2,304.00",12,192.00,-10.00,-1.58,100,TSLL,TSLL,6/13/25,16,CALL,386500080,"2,292.42",USD
           // 2025-05-29T15:06:04+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250606C00015500,Equity Option,Bought 12 TSLL 06/06/25 Call 15.50 @ 1.71,"-2,052.00",12,-171.00,0.00,-1.55,100,TSLL,TSLL,6/06/25,15.5,CALL,386500080,"-2,053.55",USD
@@ -1390,7 +1390,7 @@ module TsllTickerSnapshots =
                 Fees = 58.25m } // $55.12 (prev) + $3.13 = $58.25
             Description = "Roll forward: Closed 12 calls @ $1.71, sold 12 new @ $1.92 (major realized loss)" }
 
-          // ========== Snapshot 45: 2025-05-30 ==========
+          // ========== Snapshot 44: 2025-05-30 ==========
           // CSV lines:
           // 2025-05-30T18:34:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250606C00018500,Equity Option,Bought 1 TSLL 06/06/25 Call 18.50 @ 0.17,-17.00,1,-17.00,0.00,-0.13,100,TSLL,TSLL,6/06/25,18.5,CALL,386917688,-17.13,USD
           // 2025-05-30T18:04:19+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250613P00012000,Equity Option,Sold 1 TSLL 06/13/25 Put 12.00 @ 0.36,36.00,1,36.00,-1.00,-0.13,100,TSLL,TSLL,6/13/25,12,PUT,386903391,34.87,USD
@@ -1424,7 +1424,7 @@ module TsllTickerSnapshots =
                 Fees = 58.77m } // $58.25 (prev) + $0.52 = $58.77
             Description = "Multiple option trades: Closed calls profitably, sold new call and put (partial recovery)" }
 
-          // ========== Snapshot 46: 2025-06-02 ==========
+          // ========== Snapshot 45: 2025-06-02 ==========
           // CSV Line 2025-06-02T18:30:25+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250606C00015000,Equity Option,Sold 1 TSLL 06/06/25 Call 15.00 @ 0.46,46.00,1,46.00,-1.00,-0.13,100,TSLL,TSLL,6/06/25,15,CALL,387212103,44.87,USD
           // Calculation:
           //   Sold 1 call @ $0.46: $46.00 - $1.00 (commission) - $0.13 (fees) = $44.87 net income
@@ -1451,7 +1451,7 @@ module TsllTickerSnapshots =
                 Fees = 58.90m } // $58.77 (prev) + $0.13 = $58.90
             Description = "Sold 1 covered call @ $0.46 for income (credit $45)" }
 
-          // ========== Snapshot 47: 2025-06-03 ==========
+          // ========== Snapshot 46: 2025-06-03 ==========
           // CSV lines:
           // 2025-06-03T16:35:30+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250613C00016000,Equity Option,Sold 1 TSLL 06/13/25 Call 16.00 @ 0.98,98.00,1,98.00,-1.00,-0.13,100,TSLL,TSLL,6/13/25,16,CALL,387415281,96.87,USD
           // 2025-06-03T16:35:30+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250606C00015000,Equity Option,Bought 1 TSLL 06/06/25 Call 15.00 @ 0.87,-87.00,1,-87.00,0.00,-0.13,100,TSLL,TSLL,6/06/25,15,CALL,387415281,-87.13,USD
@@ -1484,7 +1484,7 @@ module TsllTickerSnapshots =
                 Fees = 59.29m } // $58.90 (prev) + $0.39 = $59.29
             Description = "Option activity: Closed put profitably, rolled call at loss (net realized loss $25)" }
 
-          // ========== Snapshot 48: 2025-06-10 ==========
+          // ========== Snapshot 47: 2025-06-10 ==========
           // CSV line 2025-06-10T14:58:47+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 100 TSLL @ 12.00,"-1,200.00",100,-12.00,0.00,-0.08,,,,,,,388698998,"-1,200.08",USD
           // Calculation:
           //   Bought 100 shares @ $12.00: -$1,200.00 - $0.08 (fees) = -$1,200.08
@@ -1511,7 +1511,7 @@ module TsllTickerSnapshots =
                 Fees = 59.37m } // $59.29 (prev) + $0.08 = $59.37
             Description = "Bought 100 shares @ $12.00 (averaging down, now 1,400 shares)" }
 
-          // ========== Snapshot 49: 2025-06-12 ==========
+          // ========== Snapshot 48: 2025-06-12 ==========
           // CSV Line 2025-06-12T15:27:43+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250613C00016000,Equity Option,Bought 13 TSLL 06/13/25 Call 16.00 @ 0.01,-13.00,13,-1.00,0.00,-1.68,100,TSLL,TSLL,6/13/25,16,CALL,389281523,-14.68,USD
           // Calculation:
           //   Closed 13 calls @ $0.01: -$13.00 - $1.68 (fees) = -$14.68
@@ -1543,7 +1543,7 @@ module TsllTickerSnapshots =
                 Fees = 61.05m } // $59.37 (prev) + $1.68 = $61.05
             Description = "MAJOR WIN: Closed 13 calls @ $0.01 that were sold @ avg $184.77, realized gain $2,375!" }
 
-          // ========== Snapshot 50: 2025-06-13 ==========
+          // ========== Snapshot 49: 2025-06-13 ==========
           // CSV Lines
           // 2025-06-13T17:56:35+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250620P00011500,Equity Option,Sold 1 TSLL 06/20/25 Put 11.50 @ 0.23,23.00,1,23.00,-1.00,-0.13,100,TSLL,TSLL,6/20/25,11.5,PUT,389658733,21.87,USD
           // 2025-06-13T17:53:36+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250620C00013500,Equity Option,Sold 1 TSLL 06/20/25 Call 13.50 @ 0.50,50.00,1,50.00,0.00,-0.13,100,TSLL,TSLL,6/20/25,13.5,CALL,389657399,49.87,USD
@@ -1579,7 +1579,7 @@ module TsllTickerSnapshots =
                 Fees = 63.02m } // $61.05 (prev) + $1.97 = $63.02
             Description = "Aggressive income generation: Sold 14 covered calls + 1 put (income $710)" }
 
-          // ========== Snapshot 51: 2025-06-17 ==========
+          // ========== Snapshot 50: 2025-06-17 ==========
           // CSV lines:
           // 2025-06-17T20:18:12+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250620C00013500,Equity Option,Bought 5 TSLL 06/20/25 Call 13.50 @ 0.10,-50.00,5,-10.00,0.00,-0.65,100,TSLL,TSLL,6/20/25,13.5,CALL,390261670,-50.65,USD
           // 2025-06-17T20:18:12+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250620C00013500,Equity Option,Bought 8 TSLL 06/20/25 Call 13.50 @ 0.10,-80.00,8,-10.00,0.00,-1.04,100,TSLL,TSLL,6/20/25,13.5,CALL,390261670,-81.04,USD
@@ -1611,7 +1611,7 @@ module TsllTickerSnapshots =
                 Fees = 64.84m } // $63.02 (prev) + $1.82 = $64.84
             Description = "Closed 14 calls profitably @ $0.10 (sold @ $0.50, gain $546)" }
 
-          // ========== Snapshot 52: 2025-06-18 ==========
+          // ========== Snapshot 51: 2025-06-18 ==========
           // CSV lines:
           // 2025-06-18T16:33:44+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250627C00013500,Equity Option,Sold 15 TSLL 06/27/25 Call 13.50 @ 0.55,825.00,15,55.00,-10.00,-1.98,100,TSLL,TSLL,6/27/25,13.5,CALL,390393950,813.02,USD
           // 2025-06-18T15:24:11+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 100 TSLL @ 12.49,"-1,248.97",100,-12.49,0.00,-0.08,,,,,,,390364032,"-1,249.05",USD
@@ -1646,7 +1646,7 @@ module TsllTickerSnapshots =
             Description =
               "Triple action: Closed put (gain $10), bought 100 shares @ $12.49, sold 15 calls (income $813)" }
 
-          // ========== Snapshot 53: 2025-06-20 ==========
+          // ========== Snapshot 52: 2025-06-20 ==========
           // CSV lines:
           // 2025-06-20T20:58:29+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 11 TSLL @ 12.34,-135.74,11,-12.34,0.00,-0.01,,,,,,,390847333,-135.75,USD
           // 2025-06-20T20:55:52+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 20 TSLL @ 12.38,-247.52,20,-12.38,0.00,-0.02,,,,,,,390844830,-247.53,USD
@@ -1677,7 +1677,7 @@ module TsllTickerSnapshots =
                 Fees = 67.06m } // $67.03 (prev) + $0.03 = $67.06
             Description = "Bought 31 shares @ avg $12.36 (continuing to build, now at peak 1,531 shares)" }
 
-          // ========== Snapshot 54: 2025-06-23 ==========
+          // ========== Snapshot 53: 2025-06-23 ==========
           // CSV line 2025-06-23T15:04:55+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 31 TSLL @ 14.04,435.35,31,14.04,0.00,-0.03,,,,,,,390938682,435.32,USD
           // Calculation:
           //   Sold 31 shares @ $14.04: $435.35 - $0.03 = $435.32
@@ -1707,7 +1707,7 @@ module TsllTickerSnapshots =
                 Fees = 67.09m } // $67.06 (prev) + $0.03 = $67.09
             Description = "Sold 31 shares @ $14.04 (bought @ $12.36, expected gain $52 but not reflected in realized)" }
 
-          // ========== Snapshot 55: 2025-06-25 ==========
+          // ========== Snapshot 54: 2025-06-25 ==========
           // CSV lines:
           // 2025-06-25T15:58:34+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250711C00012000,Equity Option,Sold 2 TSLL 07/11/25 Call 12.00 @ 1.39,278.00,2,139.00,-2.00,-0.27,100,TSLL,TSLL,7/11/25,12,CALL,391556142,275.73,USD
           // 2025-06-25T15:58:34+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 200 TSLL @ 12.36,"-2,472.00",200,-12.36,0.00,-0.16,,,,,,,391556142,"-2,472.16",USD
@@ -1745,7 +1745,7 @@ module TsllTickerSnapshots =
             Description =
               "Major expansion: Bought 200 shares @ $12.36, rolled 15 calls (loss), sold 17 new calls @ higher premiums (net gain $76)" }
 
-          // ========== Snapshot 56: 2025-06-27 ==========
+          // ========== Snapshot 55: 2025-06-27 ==========
           // CSV lines:
           // 2025-06-27T14:38:16+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250711C00012000,Equity Option,Bought 17 TSLL 07/11/25 Call 12.00 @ 1.21,"-2,057.00",17,-121.00,0.00,-2.20,100,TSLL,TSLL,7/11/25,12,CALL,391988236,"-2,059.20",USD
           // 2025-06-27T14:38:16+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 1700 TSLL @ 12.30,"20,910.00",1700,12.30,0.00,-1.64,,,,,,,391988236,"20,908.36",USD
@@ -1780,7 +1780,7 @@ module TsllTickerSnapshots =
             Description =
               "POSITION CLOSED: Sold all 1,700 shares @ $12.30, closed 17 calls @ $1.21 (final realized gain $1,265 for total $3,938!)" }
 
-          // ========== Snapshot 57: 2025-07-01 ==========
+          // ========== Snapshot 56: 2025-07-01 ==========
           // CSV Lines
           // 2025-07-01T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,125.47,0,,--,0.00,,,,,,,,125.47,USD
           // 2025-07-01T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,-18.82,0,,--,0.00,,,,,,,,-18.82,USD
@@ -1813,7 +1813,7 @@ module TsllTickerSnapshots =
                 Fees = 75.30m } // Unchanged from Snapshot 56 (no new fees)
             Description = "Dividend payment: $134.43 gross, $20.16 taxes withheld = $114.27 net dividend income" }
 
-          // ========== Snapshot 58: 2025-07-08 ==========
+          // ========== Snapshot 57: 2025-07-08 ==========
           // CSV Lines
           // 2025-07-08T17:55:30+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 99 TSLL @ 10.48,"-1,037.12",99,-10.48,0.00,-0.08,,,,,,,393707969,"-1,037.20",USD
           // 2025-07-08T17:54:56+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250711C00010500,Equity Option,Sold 1 TSLL 07/11/25 Call 10.50 @ 0.41,41.00,1,41.00,-1.00,-0.13,100,TSLL,TSLL,7/11/25,10.5,CALL,393707737,39.87,USD
@@ -1843,7 +1843,7 @@ module TsllTickerSnapshots =
             Description =
               "Re-entered position: Bought 100 shares @ $10.48, sold 1 covered call 07/11/25 strike $10.50 @ $0.41 ($40 premium)" }
 
-          // ========== Snapshot 59: 2025-07-10 ==========
+          // ========== Snapshot 58: 2025-07-10 ==========
           // CSV Lines
           // 2025-07-10T14:42:16+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250725C00010000,Equity Option,Sold 1 TSLL 07/25/25 Call 10.00 @ 1.57,157.00,1,157.00,-1.00,-0.13,100,TSLL,TSLL,7/25/25,10,CALL,394081730,155.87,USD
           // 2025-07-10T14:42:16+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250711C00010500,Equity Option,Bought 1 TSLL 07/11/25 Call 10.50 @ 0.53,-53.00,1,-53.00,0.00,-0.13,100,TSLL,TSLL,7/11/25,10.5,CALL,394081730,-53.13,USD
@@ -1871,7 +1871,7 @@ module TsllTickerSnapshots =
             Description =
               "Option roll: Closed 07/11 $10.50 call @ $0.53 (loss $12), opened 07/25 $10.00 call @ $1.57 ($104 net credit)" }
 
-          // ========== Snapshot 60: 2025-07-23 ==========
+          // ========== Snapshot 59: 2025-07-23 ==========
           // CSV Lines
           // 2025-07-23T14:48:06+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250725C00010000,Equity Option,Bought 1 TSLL 07/25/25 Call 10.00 @ 2.80,-280.00,1,-280.00,0.00,-0.13,100,TSLL,TSLL,7/25/25,10,CALL,396632192,-280.13,USD
           // 2025-07-23T14:48:06+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 100 TSLL @ 12.70,"1,270.00",100,12.70,0.00,-0.10,,,,,,,396632192,"1,269.90",USD
@@ -1899,7 +1899,7 @@ module TsllTickerSnapshots =
             Description =
               "Position closed: Sold 100 shares @ $12.70 (gain $222), closed call @ $2.80 (loss $123), net profit $99" }
 
-          // ========== Snapshot 61: 2025-07-29 ==========
+          // ========== Snapshot 60: 2025-07-29 ==========
           // CSV Lines
           // 2025-07-29T18:53:49+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250808P00010500,Equity Option,Sold 5 TSLL 08/08/25 Put 10.50 @ 0.24,120.00,5,24.00,-5.00,-0.64,100,TSLL,TSLL,8/08/25,10.5,PUT,397917142,114.36,USD
           // 2025-07-29T18:53:49+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250808P00011000,Equity Option,Sold 5 TSLL 08/08/25 Put 11.00 @ 0.39,195.00,5,39.00,-5.00,-0.64,100,TSLL,TSLL,8/08/25,11,PUT,397917142,189.36,USD
@@ -1926,7 +1926,7 @@ module TsllTickerSnapshots =
                 Fees = 77.28m } // $76.00 + $0.64 + $0.64 = $77.28
             Description = "Sold 10 put options: 5 @ strike $10.50, 5 @ strike $11.00 ($315 premium, $303.72 net)" }
 
-          // ========== Snapshot 62: 2025-08-06 ==========
+          // ========== Snapshot 61: 2025-08-06 ==========
           // CSV Lines
           // 2025-08-06T15:44:41+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250808P00011000,Equity Option,Bought 5 TSLL 08/08/25 Put 11.00 @ 0.22,-110.00,5,-22.00,0.00,-0.62,100,TSLL,TSLL,8/08/25,11,PUT,399581714,-110.62,USD
           // 2025-08-06T15:44:23+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250808P00010500,Equity Option,Bought 1 TSLL 08/08/25 Put 10.50 @ 0.10,-10.00,1,-10.00,0.00,-0.12,100,TSLL,TSLL,8/08/25,10.5,PUT,399581515,-10.12,USD
@@ -1956,7 +1956,7 @@ module TsllTickerSnapshots =
                 Fees = 78.51m } // $77.28 + $0.62 + $0.37 + $0.12 + $0.12 = $78.51
             Description = "Closed all 10 puts: 5 @ $11.00 for $110, 5 @ $10.50 for $50 (realized gain $142)" }
 
-          // ========== Snapshot 63: 2025-09-02 ==========
+          // ========== Snapshot 62: 2025-09-02 ==========
           // CSV Line 2025-09-02T19:29:09+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  251017P00010000,Equity Option,Sold 1 TSLL 10/17/25 Put 10.00 @ 0.70,70.00,1,70.00,-1.00,-0.12,100,TSLL,TSLL,10/17/25,10,PUT,404682703,68.88,USD
           // Calculation:
           // Sold 1 put @ strike $10.00 @ $0.70 = $70 premium (net $68.88 after commission and fees)
@@ -1981,7 +1981,7 @@ module TsllTickerSnapshots =
                 Fees = 78.63m } // $78.51 + $0.12 = $78.63
             Description = "Sold 1 put option: strike $10.00 expiring 10/17/25 @ $0.70 ($68.88 net premium)" }
 
-          // ========== Snapshot 64: 2025-09-03 ==========
+          // ========== Snapshot 63: 2025-09-03 ==========
           // CSV Line 2025-09-03T18:32:08+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  251017P00010000,Equity Option,Bought 1 TSLL 10/17/25 Put 10.00 @ 0.51,-51.00,1,-51.00,0.00,-0.12,100,TSLL,TSLL,10/17/25,10,PUT,404937433,-51.12,USD
           // Calculation:
           // Closed put: Sold @ $0.70 (Snap 63), bought back @ $0.51 = $19 gain (before fees)
@@ -2006,7 +2006,7 @@ module TsllTickerSnapshots =
                 Fees = 78.75m } // $78.63 + $0.12 = $78.75
             Description = "Closed put: Sold @ $0.70 (Snap 63), bought back @ $0.51 (realized gain $17.76)" }
 
-          // ========== Snapshot 65: 2025-09-05 ==========
+          // ========== Snapshot 64: 2025-09-05 ==========
           // CSV Lines
           // 2025-09-05T16:34:56+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250912C00014000,Equity Option,Sold 1 TSLL 09/12/25 Call 14.00 @ 0.36,36.00,1,36.00,-1.00,-0.12,100,TSLL,TSLL,9/12/25,14,CALL,405479171,34.88,USD
           // 2025-09-05T16:34:18+0100,Trade,Buy to Open,BUY_TO_OPEN,TSLL,Equity,Bought 100 TSLL @ 13.34,"-1,333.50",100,-13.33,0.00,-0.08,,,,,,,405478770,"-1,333.58",USD
@@ -2034,7 +2034,7 @@ module TsllTickerSnapshots =
             Description =
               "Re-entered: Bought 100 shares @ $13.33, sold 1 covered call 09/12/25 strike $14.00 @ $0.36 ($34.88 net)" }
 
-          // ========== Snapshot 66: 2025-09-08 ==========
+          // ========== Snapshot 65: 2025-09-08 ==========
           // CSV Line 2025-09-08T18:22:57+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250912P00012500,Equity Option,Sold 1 TSLL 09/12/25 Put 12.50 @ 0.22,22.00,1,22.00,-1.00,-0.12,100,TSLL,TSLL,9/12/25,12.5,PUT,405818301,20.88,USD
           // Calculation:
           // Sold 1 put @ strike $12.50 @ $0.22 = $22 premium (net $20.88, while holding 100 shares + call from prev snapshot)
@@ -2060,7 +2060,7 @@ module TsllTickerSnapshots =
             Description =
               "Sold put @ $12.50 @ $0.22 ($20.88 net), creating strangle with existing covered call position" }
 
-          // ========== Snapshot 67: 2025-09-11 ==========
+          // ========== Snapshot 66: 2025-09-11 ==========
           // CVS Lines
           // 2025-09-11T17:12:31+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250912C00014000,Equity Option,Bought 1 TSLL 09/12/25 Call 14.00 @ 0.52,-52.00,1,-52.00,0.00,-0.12,100,TSLL,TSLL,9/12/25,14,CALL,406574118,-52.12,USD
           // 2025-09-11T17:12:31+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  250919C00014000,Equity Option,Sold 1 TSLL 09/19/25 Call 14.00 @ 0.93,93.00,1,93.00,-1.00,-0.12,100,TSLL,TSLL,9/19/25,14,CALL,406574118,91.88,USD
@@ -2088,7 +2088,7 @@ module TsllTickerSnapshots =
             Description =
               "Call roll: Closed 09/12 call @ $0.52 (loss $17.24), opened 09/19 call @ $0.93 (net $39.76 credit)" }
 
-          // ========== Snapshot 68: 2025-09-12 ==========
+          // ========== Snapshot 67: 2025-09-12 ==========
           // CSV line 2025-09-12T21:00:00+0100,Receive Deliver,Expiration,BUY_TO_CLOSE,TSLL  250912P00012500,Equity Option,Removal of 1.0 TSLL 09/12/25 Put 12.50 due to expiration.,0.00,1,0.00,--,0.00,100,TSLL,TSLL,9/12/25,12.5,PUT,,0.00,USD
           // Calculation:
           // Put expired worthless @ $12.50 (sold @ $0.22 in Snap 66, kept full premium)
@@ -2113,7 +2113,7 @@ module TsllTickerSnapshots =
                 Fees = 79.31m } // Unchanged from Snapshot 67 (no fees on expiration)
             Description = "Put expired worthless @ $12.50 (sold @ $0.22 in Snap 66, realized full $20.88 premium)" }
 
-          // ========== Snapshot 69: 2025-09-17 ==========
+          // ========== Snapshot 68: 2025-09-17 ==========
           // CSV lines
           // 2025-09-17T14:40:51+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  250919C00014000,Equity Option,Bought 1 TSLL 09/19/25 Call 14.00 @ 4.32,-432.00,1,-432.00,0.00,-0.12,100,TSLL,TSLL,9/19/25,14,CALL,407522709,-432.12,USD
           // 2025-09-17T14:40:51+0100,Trade,Sell to Open,SELL_TO_OPEN,TSLL  251024C00015000,Equity Option,Sold 1 TSLL 10/24/25 Call 15.00 @ 4.37,437.00,1,437.00,-1.00,-0.12,100,TSLL,TSLL,10/24/25,15,CALL,407522709,435.88,USD
@@ -2141,7 +2141,7 @@ module TsllTickerSnapshots =
             Description =
               "Call roll: Closed 09/19 $14 call @ $4.32 (loss $340.24), opened 10/24 $15 call @ $4.37 (net $3.76 credit)" }
 
-          // ========== Snapshot 70: 2025-09-30 ==========
+          // ========== Snapshot 69: 2025-09-30 ==========
           // CSV lines
           // 2025-09-30T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,-1.34,0,,--,0.00,,,,,,,,-1.34,USD
           // 2025-09-30T22:00:00+0100,Money Movement,Dividend,,TSLL,Equity,DIREXION SHS ETF TR,8.93,0,,--,0.00,,,,,,,,8.93,USD
@@ -2168,7 +2168,7 @@ module TsllTickerSnapshots =
                 Fees = 79.55m } // Unchanged from Snapshot 69 (no trades)
             Description = "Dividend payment: $8.93 gross, $1.34 taxes withheld = $7.59 net dividend income" }
 
-          // ========== Snapshot 71: 2025-10-23 ==========
+          // ========== Snapshot 70: 2025-10-23 ==========
           // CSV lines
           // 2025-10-23T17:33:29+0100,Trade,Sell to Close,SELL_TO_CLOSE,TSLL,Equity,Sold 100 TSLL @ 19.90,"1,990.00",100,19.90,0.00,-0.10,,,,,,,415820951,"1,989.90",USD
           // 2025-10-23T17:33:29+0100,Trade,Buy to Close,BUY_TO_CLOSE,TSLL  251024C00015000,Equity Option,Bought 1 TSLL 10/24/25 Call 15.00 @ 4.93,-493.00,1,-493.00,0.00,-0.12,100,TSLL,TSLL,10/24/25,15,CALL,415820951,-493.12,USD
@@ -2196,7 +2196,7 @@ module TsllTickerSnapshots =
             Description =
               "Complete exit: Sold 100 shares @ $19.90 (gain $657), closed call @ $4.93 (loss $56), net profit $601" }
 
-          // ========== Snapshot 72 ==========
+          // ========== Snapshot 71: Today ==========
           // Final wrap-up snapshot after all trading complete
           { Data =
               { Id = 0

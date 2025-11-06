@@ -191,6 +191,33 @@ type TsllImportTests() =
                 "Verification"
                 (sprintf "📊 Found %d matching snapshots to validate" actualTSLLSnapshotsFiltered.Length)
 
+            // Log detailed export for manual validation
+            let logCurrencySnapshotDetails (label: string) (snapshots: TickerCurrencySnapshot list) =
+                CoreLogger.logInfo "Export" (sprintf "=== %s ===" label)
+
+                snapshots
+                |> List.iteri (fun idx s ->
+                    CoreLogger.logInfo
+                        "Snapshot"
+                        (sprintf
+                            "[%d] Date:%s | Realized:%M | CapitalDeployed:%M | Performance:%.2f%% | OpenTrades:%b | TotalShares:%M | Commissions:%M | Fees:%M | Options:%M | Dividends:%M | DividendTaxes:%M"
+                            idx
+                            (s.Date.ToString("yyyy-MM-dd"))
+                            s.Realized
+                            s.CapitalDeployed
+                            s.Performance
+                            s.OpenTrades
+                            s.TotalShares
+                            s.Commissions
+                            s.Fees
+                            s.Options
+                            s.Dividends
+                            s.DividendTaxes))
+
+            CoreLogger.logInfo "Export" "📋 === EXPORTING ALL DATA FOR VALIDATION ==="
+            logCurrencySnapshotDetails "ACTUAL SNAPSHOTS FROM DB" actualTSLLSnapshotsFiltered
+            logCurrencySnapshotDetails "EXPECTED SNAPSHOTS" expectedTSLLSnapshots
+
             // Description function using the pre-defined descriptions
             let getTSLLDescription i =
                 expectedTSLLSnapshotsWithDescriptions.[i].Description
