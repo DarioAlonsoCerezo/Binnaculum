@@ -26,10 +26,10 @@ module internal AutoImportOperationManager =
             CurrentSnapshot: TickerCurrencySnapshot
             MovementDate: DateTimePattern
             /// Option trades for this ticker/currency on this date (for capital calculation)
-            OptionTradesForDate: Binnaculum.Core.Database.DatabaseModel.OptionTrade list
-            TradesForDate: Binnaculum.Core.Database.DatabaseModel.Trade list
-            DividendForDate: Binnaculum.Core.Database.DatabaseModel.Dividend list
-            DividendTaxForDate: Binnaculum.Core.Database.DatabaseModel.DividendTax list
+            OptionTradesForDate: DatabaseModel.OptionTrade list
+            TradesForDate: DatabaseModel.Trade list
+            DividendForDate: DatabaseModel.Dividend list
+            DividendTaxForDate: DatabaseModel.DividendTax list
         }
 
     /// <summary>
@@ -93,8 +93,8 @@ module internal AutoImportOperationManager =
           IsOpen = true
           Realized = snapshot.Realized
           RealizedToday = snapshot.Realized // Initial creation - full amount is "today"
-          Commissions = snapshot.Commissions
-          Fees = snapshot.Fees
+          Commissions = Money.FromAmount commissions
+          Fees = Money.FromAmount fees
           Premium = snapshot.Options
           Dividends = snapshot.Dividends
           DividendTaxes = snapshot.DividendTaxes
@@ -142,8 +142,8 @@ module internal AutoImportOperationManager =
             IsOpen = not isClosing
             Realized = snapshot.Realized
             RealizedToday = Money.FromAmount(realizedDelta) // Delta calculation
-            Commissions = snapshot.Commissions
-            Fees = snapshot.Fees
+            Commissions = Money.FromAmount commissions
+            Fees = Money.FromAmount fees
             Premium = snapshot.Options
             Dividends = snapshot.Dividends
             DividendTaxes = snapshot.DividendTaxes
