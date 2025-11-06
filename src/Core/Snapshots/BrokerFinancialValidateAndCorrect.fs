@@ -12,19 +12,19 @@ module internal BrokerFinancialValidateAndCorrect =
     /// </summary>
     let internal snapshotConsistency (previous: BrokerFinancialSnapshot) (existing: BrokerFinancialSnapshot) =
         task {
-            CoreLogger.logDebug "BrokerFinancialValidateAndCorrect" "Starting snapshotConsistency check"
+            // CoreLogger.logDebug "BrokerFinancialValidateAndCorrect" "Starting snapshotConsistency check"
 
-            CoreLogger.logDebugf
-                "BrokerFinancialValidateAndCorrect"
-                "Previous: Deposited=%A, MovementCounter=%A"
-                previous.Deposited.Value
-                previous.MovementCounter
+            // CoreLogger.logDebugf
+            //     "BrokerFinancialValidateAndCorrect"
+            //     "Previous: Deposited=%A, MovementCounter=%A"
+            //     previous.Deposited.Value
+            //     previous.MovementCounter
 
-            CoreLogger.logDebugf
-                "BrokerFinancialValidateAndCorrect"
-                "Existing: Deposited=%A, MovementCounter=%A"
-                existing.Deposited.Value
-                existing.MovementCounter
+            // CoreLogger.logDebugf
+            //     "BrokerFinancialValidateAndCorrect"
+            //     "Existing: Deposited=%A, MovementCounter=%A"
+            //     existing.Deposited.Value
+            //     existing.MovementCounter
 
             let snapshotsDiffer =
                 previous.RealizedGains <> existing.RealizedGains
@@ -44,7 +44,7 @@ module internal BrokerFinancialValidateAndCorrect =
                 || previous.NetCashFlow <> existing.NetCashFlow
 
             if snapshotsDiffer then
-                CoreLogger.logDebug "BrokerFinancialValidateAndCorrect" "Snapshots differ - applying correction"
+                // CoreLogger.logDebug "BrokerFinancialValidateAndCorrect" "Snapshots differ - applying correction"
 
                 let correctedSnapshot =
                     { existing with
@@ -66,14 +66,15 @@ module internal BrokerFinancialValidateAndCorrect =
 
                 do! correctedSnapshot.save ()
 
-                CoreLogger.logDebugf
-                    "BrokerFinancialValidateAndCorrect"
-                    "Corrected snapshot saved - Deposited: %A, MovementCounter: %A"
-                    correctedSnapshot.Deposited.Value
-                    correctedSnapshot.MovementCounter
+            // CoreLogger.logDebugf
+            //     "BrokerFinancialValidateAndCorrect"
+            //     "Corrected snapshot saved - Deposited: %A, MovementCounter: %A"
+            //     correctedSnapshot.Deposited.Value
+            //     correctedSnapshot.MovementCounter
             else
-                CoreLogger.logDebug
-                    "BrokerFinancialValidateAndCorrect"
-                    "Snapshots are consistent - no correction needed"
+                ()
+        // CoreLogger.logDebug
+        //     "BrokerFinancialValidateAndCorrect"
+        //     "Snapshots are consistent - no correction needed"
         // If no difference, do nothing
         }
