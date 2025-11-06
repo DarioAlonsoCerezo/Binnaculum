@@ -54,7 +54,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2024, 10, 15, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 3155.38m
+                Realized = 3433.80m
                 RealizedToday = 0m
                 Commissions = 52.00m
                 Fees = 18.08m
@@ -63,7 +63,7 @@ module TsllOperations =
                 DividendTaxes = 0.00m
                 CapitalDeployed = 12245.00m
                 CapitalDeployedToday = 0m
-                Performance = 25.7687m }
+                Performance = 28.0425m }
             Description = "Operation 1: 2024-10-15" }
 
           // Operation 2: 2024-11-20
@@ -75,7 +75,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2024, 11, 20, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 1275.36m
+                Realized = 5805.01m
                 RealizedToday = 0m
                 Commissions = 113.00m
                 Fees = 37.26m
@@ -84,7 +84,7 @@ module TsllOperations =
                 DividendTaxes = 0.00m
                 CapitalDeployed = 4673.00m
                 CapitalDeployedToday = 0m
-                Performance = 27.2921m }
+                Performance = 124.2246m }
             Description = "Operation 2: 2024-11-20" }
 
           // Operation 3: 2024-12-11
@@ -96,7 +96,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2024, 12, 11, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 1047.55m
+                Realized = 5577.20m
                 RealizedToday = 0m
                 Commissions = 116.00m
                 Fees = 38.07m
@@ -105,7 +105,7 @@ module TsllOperations =
                 DividendTaxes = 0.00m
                 CapitalDeployed = 1043.00m
                 CapitalDeployedToday = 0m
-                Performance = 100.4362m }
+                Performance = 534.7271m }
             Description = "Operation 3: 2024-12-11" }
 
           // Operation 4: 2025-04-07
@@ -117,7 +117,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2025, 4, 7, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 1082.20m
+                Realized = 5611.85m
                 RealizedToday = 0m
                 Commissions = 121.00m
                 Fees = 39.42m
@@ -126,7 +126,7 @@ module TsllOperations =
                 DividendTaxes = 0.00m
                 CapitalDeployed = 3200.00m
                 CapitalDeployedToday = 0m
-                Performance = 33.8188m }
+                Performance = 175.3704m }
             Description = "Operation 4: 2025-04-07" }
 
           // Operation 5: 2025-04-30
@@ -138,7 +138,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2025, 4, 30, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 624.47m
+                Realized = 6385.84m
                 RealizedToday = 0m
                 Commissions = 135.00m
                 Fees = 45.69m
@@ -147,7 +147,7 @@ module TsllOperations =
                 DividendTaxes = 0.00m
                 CapitalDeployed = 2000.00m
                 CapitalDeployedToday = 0m
-                Performance = 31.2235m }
+                Performance = 319.2918m }
             Description = "Operation 5: 2025-04-30" }
 
           // Operation 6: 2025-05-12
@@ -159,7 +159,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2025, 5, 12, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 3938.01m
+                Realized = 8703.38m
                 RealizedToday = 0m
                 Commissions = 218.00m
                 Fees = 75.30m
@@ -168,7 +168,7 @@ module TsllOperations =
                 DividendTaxes = 0.00m
                 CapitalDeployed = 4950.00m
                 CapitalDeployedToday = 0m
-                Performance = 79.5558m }
+                Performance = 175.8258m }
             Description = "Operation 6: 2025-05-12" }
 
           // Operation 7: 2025-07-08
@@ -180,7 +180,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2025, 7, 8, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 3800.49m
+                Realized = 8787.76m
                 RealizedToday = 0m
                 Commissions = 220.00m
                 Fees = 76.00m
@@ -201,7 +201,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2025, 7, 29, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 3942.98m
+                Realized = 8930.25m
                 RealizedToday = 0m
                 Commissions = 230.00m
                 Fees = 78.51m
@@ -210,7 +210,7 @@ module TsllOperations =
                 DividendTaxes = 20.16m
                 CapitalDeployed = 10750.00m
                 CapitalDeployedToday = 0m
-                Performance = 36.6789m }
+                Performance = 83.0721m }
             Description = "Operation 8: 2025-07-29" }
 
           // Operation 9: 2025-09-02
@@ -222,7 +222,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2025, 9, 2, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 3960.74m
+                Realized = 8948.01m
                 RealizedToday = 0m
                 Commissions = 231.00m
                 Fees = 78.75m
@@ -231,7 +231,7 @@ module TsllOperations =
                 DividendTaxes = 20.16m
                 CapitalDeployed = 1000.00m
                 CapitalDeployedToday = 0m
-                Performance = 396.0740m }
+                Performance = 894.8009m }
             Description = "Operation 9: 2025-09-02" }
 
           // Operation 10: 2025-09-05
@@ -243,7 +243,7 @@ module TsllOperations =
                 IsOpen = false
                 OpenDate = DateTime(2025, 9, 5, 0, 0, 1)
                 CloseDate = Some(DateTime(2025, 11, 5, 0, 0, 1))
-                Realized = 3566.90m
+                Realized = 9211.07m
                 RealizedToday = 0m
                 Commissions = 235.00m
                 Fees = 79.77m
@@ -252,7 +252,7 @@ module TsllOperations =
                 DividendTaxes = 21.50m
                 CapitalDeployed = 1250.00m
                 CapitalDeployedToday = 0m
-                Performance = 285.3520m }
+                Performance = 736.8855m }
             Description = "Operation 10: 2025-09-05" }
 
           ]
