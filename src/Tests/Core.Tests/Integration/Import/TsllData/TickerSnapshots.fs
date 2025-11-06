@@ -994,7 +994,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 1224.14m // Core: Increased from $1,076.58 with new covered call income
                 CapitalDeployed = 68951.98m // Core: Increased from $67,045.98 by $1,906 for stock purchase
                 Realized = 5611.85m // Same as Snapshot 30 (no realized trades, just opening positions)
-                Performance = 8.1391m // ($5,611.85 / $68,951.98) × 100
+                Performance = 8.1388m // ($5,611.85 / $68,951.98) × 100
                 OpenTrades = true
                 Commissions = 123.00m // $121 (prev) + $2 = $123
                 Fees = 39.86m } // $39.42 (prev) + $0.44 = $39.86
@@ -1023,7 +1023,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 2231.98m // Core: Increased from $1,224.14 with substantial covered call income
                 CapitalDeployed = 79501.98m // Core: Increased from $68,951.98 by $10,550 for 1,000 share purchase
                 Realized = 5611.85m // Same as Snapshot 31 (no realized trades, just opening positions)
-                Performance = 7.0589m // ($5,611.85 / $79,501.98) × 100
+                Performance = 7.0588m // ($5,611.85 / $79,501.98) × 100
                 OpenTrades = true
                 Commissions = 133.00m // $123 (prev) + $10 = $133
                 Fees = 42.02m } // $39.86 (prev) + $2.16 = $42.02
@@ -1050,7 +1050,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 2325.70m // Core: Increased from $2,231.98 with put premium income
                 CapitalDeployed = 81501.98m // Core: Increased from $79,501.98 by $2,000 (2 puts × $1,000 strike obligation)
                 Realized = 5611.85m // Same as Snapshot 32 (no realized trades, just opening positions)
-                Performance = 6.8857m // ($5,611.85 / $81,501.98) × 100
+                Performance = 6.8855m // ($5,611.85 / $81,501.98) × 100
                 OpenTrades = true
                 Commissions = 135.00m // $133 (prev) + $2 = $135
                 Fees = 42.30m } // $42.02 (prev) + $0.28 = $42.30
