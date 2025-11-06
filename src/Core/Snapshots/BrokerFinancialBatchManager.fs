@@ -53,17 +53,17 @@ module internal BrokerFinancialBatchManager =
             let mutable errors = []
 
             try
-                CoreLogger.logInfof
-                    "BrokerFinancialBatchManager"
-                    "Starting batch processing for account %d from %s to %s"
-                    request.BrokerAccountId
-                    (request.StartDate.ToString())
-                    (request.EndDate.ToString())
+                // CoreLogger.logInfof
+                //     "BrokerFinancialBatchManager"
+                //     "Starting batch processing for account %d from %s to %s"
+                //     request.BrokerAccountId
+                //     (request.StartDate.ToString())
+                //     (request.EndDate.ToString())
 
                 // ========== PHASE 1: LOAD ALL REQUIRED DATA ==========
                 let loadStopwatch = Stopwatch.StartNew()
 
-                CoreLogger.logDebug "BrokerFinancialBatchManager" "Phase 1: Loading data..."
+                // CoreLogger.logDebug "BrokerFinancialBatchManager" "Phase 1: Loading data..."
 
                 // Load all movements in the date range
                 let! movementsData =
@@ -78,17 +78,17 @@ module internal BrokerFinancialBatchManager =
 
                 loadStopwatch.Stop()
 
-                CoreLogger.logInfof
-                    "BrokerFinancialBatchManager"
-                    "Data loading completed: %d broker movements, %d trades, %d dividends, %d baseline currencies in %dms"
-                    movementsData.BrokerMovements.Length
-                    movementsData.Trades.Length
-                    movementsData.Dividends.Length
-                    baselineSnapshots.Count
-                    loadStopwatch.ElapsedMilliseconds
+                // CoreLogger.logInfof
+                //     "BrokerFinancialBatchManager"
+                //     "Data loading completed: %d broker movements, %d trades, %d dividends, %d baseline currencies in %dms"
+                //     movementsData.BrokerMovements.Length
+                //     movementsData.Trades.Length
+                //     movementsData.Dividends.Length
+                //     baselineSnapshots.Count
+                //     loadStopwatch.ElapsedMilliseconds
 
                 // ========== PHASE 2: CALCULATE ALL SNAPSHOTS IN MEMORY ==========
-                CoreLogger.logDebug "BrokerFinancialBatchManager" "Phase 2: Calculating snapshots..."
+                // CoreLogger.logDebug "BrokerFinancialBatchManager" "Phase 2: Calculating snapshots..."
 
                 // SMART DATE FILTERING: Only process dates that actually need attention
                 // Extract dates from movements (normalized to start of day to match groupMovementsByDate)
@@ -128,13 +128,13 @@ module internal BrokerFinancialBatchManager =
                 let relevantDates =
                     Set.union movementDates existingSnapshotDates |> Set.toList |> List.sort
 
-                CoreLogger.logInfof
-                    "BrokerFinancialBatchManager"
-                    "Smart date filtering: %d movement dates + %d existing snapshot dates = %d total dates to process (vs %d days in full range)"
-                    movementDates.Count
-                    existingSnapshotDates.Count
-                    relevantDates.Length
-                    ((request.EndDate.Value - request.StartDate.Value).Days + 1)
+                // CoreLogger.logInfof
+                //     "BrokerFinancialBatchManager"
+                //     "Smart date filtering: %d movement dates + %d existing snapshot dates = %d total dates to process (vs %d days in full range)"
+                //     movementDates.Count
+                //     existingSnapshotDates.Count
+                //     relevantDates.Length
+                //     ((request.EndDate.Value - request.StartDate.Value).Days + 1)
 
                 // Use the filtered date list instead of generating every day
                 let dateRange = relevantDates
@@ -149,11 +149,11 @@ module internal BrokerFinancialBatchManager =
                 let currencyIds =
                     movementsData.Trades |> List.map (fun t -> t.CurrencyId) |> Set.ofList
 
-                CoreLogger.logDebugf
-                    "BrokerFinancialBatchManager"
-                    "Loading market prices for %d unique tickers and %d currencies"
-                    tickerIds.Count
-                    currencyIds.Count
+                // CoreLogger.logDebugf
+                //     "BrokerFinancialBatchManager"
+                //     "Loading market prices for %d unique tickers and %d currencies"
+                //     tickerIds.Count
+                //     currencyIds.Count
 
                 // Load all market prices for the filtered date range
                 let! marketPrices =
@@ -180,15 +180,15 @@ module internal BrokerFinancialBatchManager =
 
                 errors <- errors @ calculationResult.Errors
 
-                CoreLogger.logInfof
-                    "BrokerFinancialBatchManager"
-                    "Batch calculations completed: %d snapshots calculated from %d movements in %dms"
-                    calculationResult.CalculatedSnapshots.Length
-                    calculationResult.ProcessingMetrics.MovementsProcessed
-                    calculationResult.ProcessingMetrics.CalculationTimeMs
+                // CoreLogger.logInfof
+                //     "BrokerFinancialBatchManager"
+                //     "Batch calculations completed: %d snapshots calculated from %d movements in %dms"
+                //     calculationResult.CalculatedSnapshots.Length
+                //     calculationResult.ProcessingMetrics.MovementsProcessed
+                //     calculationResult.ProcessingMetrics.CalculationTimeMs
 
                 // ========== PHASE 3: PERSIST ALL RESULTS ==========
-                CoreLogger.logDebug "BrokerFinancialBatchManager" "Phase 3: Persisting snapshots..."
+                // CoreLogger.logDebug "BrokerFinancialBatchManager" "Phase 3: Persisting snapshots..."
 
                 let! persistenceResult =
                     if request.ForceRecalculation then
@@ -206,20 +206,20 @@ module internal BrokerFinancialBatchManager =
                 | Ok metrics ->
                     totalStopwatch.Stop()
 
-                    CoreLogger.logInfof
-                        "BrokerFinancialBatchManager"
-                        "Batch processing completed successfully: %d snapshots saved in %dms (total: %dms)"
-                        metrics.SnapshotsSaved
-                        metrics.TransactionTimeMs
-                        totalStopwatch.ElapsedMilliseconds
+                    // CoreLogger.logInfof
+                    //     "BrokerFinancialBatchManager"
+                    //     "Batch processing completed successfully: %d snapshots saved in %dms (total: %dms)"
+                    //     metrics.SnapshotsSaved
+                    //     metrics.TransactionTimeMs
+                    //     totalStopwatch.ElapsedMilliseconds
 
-                    CoreLogger.logInfof
-                        "BrokerFinancialBatchManager"
-                        "Performance breakdown: Load=%dms, Calculate=%dms, Persist=%dms, Total=%dms"
-                        loadStopwatch.ElapsedMilliseconds
-                        calculationResult.ProcessingMetrics.CalculationTimeMs
-                        metrics.TransactionTimeMs
-                        totalStopwatch.ElapsedMilliseconds
+                    // CoreLogger.logInfof
+                    //     "BrokerFinancialBatchManager"
+                    //     "Performance breakdown: Load=%dms, Calculate=%dms, Persist=%dms, Total=%dms"
+                    //     loadStopwatch.ElapsedMilliseconds
+                    //     calculationResult.ProcessingMetrics.CalculationTimeMs
+                    //     metrics.TransactionTimeMs
+                    //     totalStopwatch.ElapsedMilliseconds
 
                     return
                         { Success = errors.IsEmpty
@@ -286,10 +286,10 @@ module internal BrokerFinancialBatchManager =
         =
         task {
             try
-                CoreLogger.logInfof
-                    "BrokerFinancialBatchManager"
-                    "Starting batch processing for recent imports on account %d"
-                    brokerAccountId
+                // CoreLogger.logInfof
+                //     "BrokerFinancialBatchManager"
+                //     "Starting batch processing for recent imports on account %d"
+                //     brokerAccountId
 
                 // First, load all movements to determine the actual date range
                 let! allMovements =
@@ -311,7 +311,7 @@ module internal BrokerFinancialBatchManager =
                     if allDates.IsEmpty then
                         // No movements found - use current date as both start and end
                         let now = DateTimePattern.FromDateTime(System.DateTime.Now)
-                        CoreLogger.logWarning "BrokerFinancialBatchManager" "No movements found for batch processing"
+                        // CoreLogger.logWarning "BrokerFinancialBatchManager" "No movements found for batch processing"
                         (now, now)
                     else
                         // Use actual min/max movement dates
@@ -319,11 +319,11 @@ module internal BrokerFinancialBatchManager =
                         let maxDate = allDates |> List.max
                         (minDate, maxDate)
 
-                CoreLogger.logInfof
-                    "BrokerFinancialBatchManager"
-                    "Processing movements from %s to %s (actual movement date range)"
-                    (startDate.ToString())
-                    (endDate.ToString())
+                // CoreLogger.logInfof
+                //     "BrokerFinancialBatchManager"
+                //     "Processing movements from %s to %s (actual movement date range)"
+                //     (startDate.ToString())
+                //     (endDate.ToString())
 
                 let request =
                     { BrokerAccountId = brokerAccountId
@@ -337,17 +337,17 @@ module internal BrokerFinancialBatchManager =
                 // After batch processing, create BrokerAccountSnapshot for each unique date that has movements
                 // This ensures BrokerAccounts.GetSnapshots() returns all snapshots (one per movement date)
                 if result.Success && result.SnapshotsSaved > 0 then
-                    CoreLogger.logDebug
-                        "BrokerFinancialBatchManager"
-                        "Creating broker account snapshots for all movement dates (OPTIMIZED - no cascade)"
+                    // CoreLogger.logDebug
+                    //     "BrokerFinancialBatchManager"
+                    //     "Creating broker account snapshots for all movement dates (OPTIMIZED - no cascade)"
 
                     // Get unique dates from movements
                     let uniqueMovementDates = allDates |> List.distinct |> List.sort
 
-                    CoreLogger.logDebugf
-                        "BrokerFinancialBatchManager"
-                        "Creating %d broker account snapshots using OPTIMIZED batch processing"
-                        uniqueMovementDates.Length
+                    // CoreLogger.logDebugf
+                    //     "BrokerFinancialBatchManager"
+                    //     "Creating %d broker account snapshots using OPTIMIZED batch processing"
+                    //     uniqueMovementDates.Length
 
                     // PERFORMANCE OPTIMIZATION: Use optimized batch processing without cascade updates
                     // This processes dates chronologically without redundant cascade operations
@@ -358,10 +358,10 @@ module internal BrokerFinancialBatchManager =
                             uniqueMovementDates
                         )
 
-                    CoreLogger.logDebugf
-                        "BrokerFinancialBatchManager"
-                        "Created %d broker account snapshots successfully"
-                        uniqueMovementDates.Length
+                    // CoreLogger.logDebugf
+                    //     "BrokerFinancialBatchManager"
+                    //     "Created %d broker account snapshots successfully"
+                    //     uniqueMovementDates.Length
 
                     // After processing all movement dates, ensure current date snapshot is updated
                     // This is needed when current date is after the last movement date
@@ -369,17 +369,17 @@ module internal BrokerFinancialBatchManager =
                     let currentDate = DateTimePattern.FromDateTime(System.DateTime.Now)
 
                     if currentDate.Value.Date > lastMovementDate.Value.Date then
-                        CoreLogger.logDebugf
-                            "BrokerFinancialBatchManager"
-                            "Current date %s is after last movement date %s - updating current snapshot"
-                            (currentDate.ToString())
-                            (lastMovementDate.ToString())
+                        // CoreLogger.logDebugf
+                        //     "BrokerFinancialBatchManager"
+                        //     "Current date %s is after last movement date %s - updating current snapshot"
+                        //     (currentDate.ToString())
+                        //     (lastMovementDate.ToString())
 
                         // Create/update snapshot for current date with no new movements
                         // This will copy forward the latest financial state
                         do! BrokerAccountSnapshotManager.handleBrokerAccountChange (brokerAccountId, currentDate)
 
-                        CoreLogger.logDebug "BrokerFinancialBatchManager" "Current date snapshot updated successfully"
+                // CoreLogger.logDebug "BrokerFinancialBatchManager" "Current date snapshot updated successfully"
 
                 return result
 
