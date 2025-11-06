@@ -40,7 +40,7 @@ module internal TickerSnapshotBatchPersistence =
     let persistBatchedSnapshots (batchResult: TickerSnapshotBatchCalculator.TickerSnapshotBatchResult) =
         task {
             if batchResult.TickerSnapshots.IsEmpty && batchResult.CurrencySnapshots.IsEmpty then
-                CoreLogger.logDebug "TickerSnapshotBatchPersistence" "No snapshots to persist"
+                // CoreLogger.logDebug "TickerSnapshotBatchPersistence" "No snapshots to persist"
 
                 return
                     Ok
@@ -52,11 +52,11 @@ module internal TickerSnapshotBatchPersistence =
                 let stopwatch = Stopwatch.StartNew()
 
                 try
-                    CoreLogger.logInfof
-                        "TickerSnapshotBatchPersistence"
-                        "Starting batch persistence of %d ticker snapshots and %d currency snapshots with deduplication"
-                        batchResult.TickerSnapshots.Length
-                        batchResult.CurrencySnapshots.Length
+                    // CoreLogger.logInfof
+                    //     "TickerSnapshotBatchPersistence"
+                    //     "Starting batch persistence of %d ticker snapshots and %d currency snapshots with deduplication"
+                    //     batchResult.TickerSnapshots.Length
+                    //     batchResult.CurrencySnapshots.Length
 
                     let mutable tickerSnapshotsSaved = 0
                     let mutable currencySnapshotsSaved = 0
@@ -78,12 +78,12 @@ module internal TickerSnapshotBatchPersistence =
                             let tickerSnapshotToSave =
                                 match existingTickerSnapshot with
                                 | Some existing ->
-                                    CoreLogger.logDebugf
-                                        "TickerSnapshotBatchPersistence"
-                                        "Updating existing TickerSnapshot ID %d for Ticker=%d, Date=%s"
-                                        existing.Base.Id
-                                        tickerSnapshot.TickerId
-                                        (tickerSnapshot.Base.Date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "TickerSnapshotBatchPersistence"
+                                    //     "Updating existing TickerSnapshot ID %d for Ticker=%d, Date=%s"
+                                    //     existing.Base.Id
+                                    //     tickerSnapshot.TickerId
+                                    //     (tickerSnapshot.Base.Date.ToString())
 
                                     updatedCount <- updatedCount + 1
 
@@ -94,11 +94,11 @@ module internal TickerSnapshotBatchPersistence =
                                                 Id = existing.Base.Id } }
 
                                 | None ->
-                                    CoreLogger.logDebugf
-                                        "TickerSnapshotBatchPersistence"
-                                        "Creating new TickerSnapshot for Ticker=%d, Date=%s"
-                                        tickerSnapshot.TickerId
-                                        (tickerSnapshot.Base.Date.ToString())
+                                    // CoreLogger.logDebugf
+                                    //     "TickerSnapshotBatchPersistence"
+                                    //     "Creating new TickerSnapshot for Ticker=%d, Date=%s"
+                                    //     tickerSnapshot.TickerId
+                                    //     (tickerSnapshot.Base.Date.ToString())
 
                                     tickerSnapshot
 
@@ -118,12 +118,12 @@ module internal TickerSnapshotBatchPersistence =
                                 let key = (tickerSnapshot.TickerId, tickerSnapshot.Base.Date)
                                 tickerSnapshotIdLookup <- tickerSnapshotIdLookup.Add(key, ts.Base.Id)
 
-                                CoreLogger.logDebugf
-                                    "TickerSnapshotBatchPersistence"
-                                    "Saved TickerSnapshot ID %d for Ticker=%d, Date=%s"
-                                    ts.Base.Id
-                                    tickerSnapshot.TickerId
-                                    (tickerSnapshot.Base.Date.ToString())
+                            // CoreLogger.logDebugf
+                            //     "TickerSnapshotBatchPersistence"
+                            //     "Saved TickerSnapshot ID %d for Ticker=%d, Date=%s"
+                            //     ts.Base.Id
+                            //     tickerSnapshot.TickerId
+                            //     (tickerSnapshot.Base.Date.ToString())
 
                             | None ->
                                 failwithf
@@ -165,13 +165,13 @@ module internal TickerSnapshotBatchPersistence =
                                 let currencySnapshotToSave =
                                     match existingCurrencySnapshot with
                                     | Some existing ->
-                                        CoreLogger.logDebugf
-                                            "TickerSnapshotBatchPersistence"
-                                            "Updating existing TickerCurrencySnapshot ID %d for Ticker=%d, Currency=%d, Date=%s"
-                                            existing.Base.Id
-                                            currencySnapshot.TickerId
-                                            currencySnapshot.CurrencyId
-                                            (currencySnapshot.Base.Date.ToString())
+                                        // CoreLogger.logDebugf
+                                        //     "TickerSnapshotBatchPersistence"
+                                        //     "Updating existing TickerCurrencySnapshot ID %d for Ticker=%d, Currency=%d, Date=%s"
+                                        //     existing.Base.Id
+                                        //     currencySnapshot.TickerId
+                                        //     currencySnapshot.CurrencyId
+                                        //     (currencySnapshot.Base.Date.ToString())
 
                                         // Preserve existing ID, update TickerSnapshotId reference
                                         { currencySnapshot with
@@ -181,12 +181,12 @@ module internal TickerSnapshotBatchPersistence =
                                             TickerSnapshotId = tickerSnapshotId }
 
                                     | None ->
-                                        CoreLogger.logDebugf
-                                            "TickerSnapshotBatchPersistence"
-                                            "Creating new TickerCurrencySnapshot for Ticker=%d, Currency=%d, Date=%s"
-                                            currencySnapshot.TickerId
-                                            currencySnapshot.CurrencyId
-                                            (currencySnapshot.Base.Date.ToString())
+                                        // CoreLogger.logDebugf
+                                        //     "TickerSnapshotBatchPersistence"
+                                        //     "Creating new TickerCurrencySnapshot for Ticker=%d, Currency=%d, Date=%s"
+                                        //     currencySnapshot.TickerId
+                                        //     currencySnapshot.CurrencyId
+                                        //     (currencySnapshot.Base.Date.ToString())
 
                                         // Set TickerSnapshotId reference
                                         { currencySnapshot with
@@ -195,12 +195,12 @@ module internal TickerSnapshotBatchPersistence =
                                 do! currencySnapshotToSave.save ()
                                 currencySnapshotsSaved <- currencySnapshotsSaved + 1
 
-                            | None ->
-                                CoreLogger.logWarningf
-                                    "TickerSnapshotBatchPersistence"
-                                    "Skipping TickerCurrencySnapshot - no parent TickerSnapshot found for Ticker=%d, Date=%s"
-                                    currencySnapshot.TickerId
-                                    (currencySnapshot.Base.Date.ToString())
+                            | None -> ()
+                        // CoreLogger.logWarningf
+                        //     "TickerSnapshotBatchPersistence"
+                        //     "Skipping TickerCurrencySnapshot - no parent TickerSnapshot found for Ticker=%d, Date=%s"
+                        //     currencySnapshot.TickerId
+                        //     (currencySnapshot.Base.Date.ToString())
 
                         with ex ->
                             let errorMsg =
@@ -216,13 +216,13 @@ module internal TickerSnapshotBatchPersistence =
 
                     stopwatch.Stop()
 
-                    CoreLogger.logInfof
-                        "TickerSnapshotBatchPersistence"
-                        "Successfully persisted %d ticker snapshots, %d currency snapshots (%d updated) in %dms"
-                        tickerSnapshotsSaved
-                        currencySnapshotsSaved
-                        updatedCount
-                        stopwatch.ElapsedMilliseconds
+                    // CoreLogger.logInfof
+                    //     "TickerSnapshotBatchPersistence"
+                    //     "Successfully persisted %d ticker snapshots, %d currency snapshots (%d updated) in %dms"
+                    //     tickerSnapshotsSaved
+                    //     currencySnapshotsSaved
+                    //     updatedCount
+                    //     stopwatch.ElapsedMilliseconds
 
                     return
                         Ok
