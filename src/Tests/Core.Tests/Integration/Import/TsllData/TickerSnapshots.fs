@@ -878,7 +878,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 1057.66m // Core: Increased from $1,041.93 with new put spread income
                 CapitalDeployed = 65095.98m // Core: Increased from $63,845.98 by $1,250 (put spread obligation: $650 + $600)
                 Realized = 5577.20m // Same as Snapshot 26 (no realized trades, just opening new positions)
-                Performance = 8.5670m // ($5,577.20 / $65,095.98) × 100
+                Performance = 8.5677m // ($5,577.20 / $65,095.98) × 100
                 OpenTrades = true
                 Commissions = 118.00m // $116 (prev) + $2 = $118
                 Fees = 38.34m } // $38.07 (prev) + $0.27 = $38.34
@@ -908,7 +908,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 1077.39m // Core: Increased from $1,057.66 with second put spread income
                 CapitalDeployed = 66345.98m // Core: Increased from $65,095.98 by $1,250 (another put spread obligation)
                 Realized = 5577.20m // Same as Snapshot 27 (just opening positions, no closings)
-                Performance = 8.4074m // ($5,577.20 / $66,345.98) × 100
+                Performance = 8.4062m // ($5,577.20 / $66,345.98) × 100
                 OpenTrades = true // Double put spread now
                 Commissions = 120.00m // $118 (prev) + $2 = $120
                 Fees = 38.61m } // $38.34 (prev) + $0.27 = $38.61
@@ -964,7 +964,7 @@ module TsllTickerSnapshots =
                 TotalIncomes = 1076.58m // Core: Decreased slightly from $1,094.53 after closing trades
                 CapitalDeployed = 67045.98m // Core: Increased from $67,045.98 (closing some spreads but capital obligations adjust)
                 Realized = 5611.85m // $5,577.20 + $34.65 = $5,611.85
-                Performance = 8.3689m // ($5,611.85 / $67,045.98) × 100
+                Performance = 8.3702m // ($5,611.85 / $67,045.98) × 100
                 OpenTrades = false // Some positions closed
                 Commissions = 121.00m // Same (no new commissions)
                 Fees = 39.42m } // $38.75 (prev) + $0.67 = $39.42
