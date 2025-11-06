@@ -36,17 +36,17 @@ module internal BrokerFinancialCalculate =
             - calculatedMetrics.Commissions.Value
             - calculatedMetrics.Fees.Value
 
-        CoreLogger.logDebugf
-            "BrokerFinancialCalculate"
-            "NetCashFlow calculation: Deposited=%M, Withdrawn=%M, DividendsReceived=%M, OptionsIncome=%M, OtherIncome=%M, Commissions=%M, Fees=%M => NetCashFlow=%M"
-            calculatedMetrics.Deposited.Value
-            calculatedMetrics.Withdrawn.Value
-            calculatedMetrics.DividendsReceived.Value
-            calculatedMetrics.OptionsIncome.Value
-            calculatedMetrics.OtherIncome.Value
-            calculatedMetrics.Commissions.Value
-            calculatedMetrics.Fees.Value
-            netCashFlow
+        // CoreLogger.logDebugf
+        //     "BrokerFinancialCalculate"
+        //     "NetCashFlow calculation: Deposited=%M, Withdrawn=%M, DividendsReceived=%M, OptionsIncome=%M, OtherIncome=%M, Commissions=%M, Fees=%M => NetCashFlow=%M"
+        //     calculatedMetrics.Deposited.Value
+        //     calculatedMetrics.Withdrawn.Value
+        //     calculatedMetrics.DividendsReceived.Value
+        //     calculatedMetrics.OptionsIncome.Value
+        //     calculatedMetrics.OtherIncome.Value
+        //     calculatedMetrics.Commissions.Value
+        //     calculatedMetrics.Fees.Value
+        //     netCashFlow
 
         let unrealizedPercentage =
             if netCashFlow > 0m then
@@ -115,9 +115,9 @@ module internal BrokerFinancialCalculate =
             && calculatedMetrics.RealizedGains.Value = 0m
 
         if shouldPreserveRealized then
-            CoreLogger.logDebug
-                "BrokerFinancialCalculate"
-                "Preserving existing realized gains during direct snapshot update because recalculated value is zero and no realized-closing activity was detected."
+            // CoreLogger.logDebug
+            //     "BrokerFinancialCalculate"
+            //     "Preserving existing realized gains during direct snapshot update because recalculated value is zero and no realized-closing activity was detected."
 
             { updatedSnapshot with
                 RealizedGains = existingSnapshot.RealizedGains
@@ -152,9 +152,9 @@ module internal BrokerFinancialCalculate =
             let calculatedMetrics =
                 BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate []
 
-            CoreLogger.logDebug
-                "BrokerFinancialCalculate"
-                $"Scenario A metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
+            // CoreLogger.logDebug
+            //     "BrokerFinancialCalculate"
+            //     $"Scenario A metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
 
             // Create new snapshot with previous snapshot as baseline
             do!
@@ -190,9 +190,9 @@ module internal BrokerFinancialCalculate =
             let calculatedMetrics =
                 BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate []
 
-            CoreLogger.logDebug
-                "BrokerFinancialCalculate"
-                $"Scenario B metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
+            // CoreLogger.logDebug
+            //     "BrokerFinancialCalculate"
+            //     $"Scenario B metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
 
             // Create initial snapshot without previous baseline (pass None for previousSnapshot)
             do!
@@ -237,9 +237,9 @@ module internal BrokerFinancialCalculate =
             let calculatedMetrics =
                 BrokerFinancialsMetricsFromMovements.calculate currencyMovements currencyId targetDate []
 
-            CoreLogger.logDebug
-                "BrokerFinancialCalculate"
-                $"Scenario D metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
+            // CoreLogger.logDebug
+            //     "BrokerFinancialCalculate"
+            //     $"Scenario D metrics - Currency:{currencyId} Date:{targetDate.Value} Realized:{calculatedMetrics.RealizedGains.Value} OptionsIncome:{calculatedMetrics.OptionsIncome.Value} Invested:{calculatedMetrics.Invested.Value} Movements:{calculatedMetrics.MovementCounter}"
 
             // Since there's no previous snapshot, the existing snapshot represents the same date we're recalculating.
             // Reprocessing should replace the stored values with the newly calculated metrics rather than accumulate again.

@@ -24,9 +24,8 @@ module internal SnapshotProcessingCoordinator =
     /// This allows gradual rollout and easy rollback if issues are discovered.
     /// </summary>
     /// <param name="enabled">Whether to enable batch mode</param>
-    let enableBatchMode (enabled: bool) =
-        useBatchMode <- enabled
-        CoreLogger.logInfof "SnapshotProcessingCoordinator" "Batch mode %s" (if enabled then "ENABLED" else "DISABLED")
+    let enableBatchMode (enabled: bool) = useBatchMode <- enabled
+    // CoreLogger.logInfof "SnapshotProcessingCoordinator" "Batch mode %s" (if enabled then "ENABLED" else "DISABLED")
 
     /// <summary>
     /// Check if batch mode is currently enabled.
@@ -47,17 +46,17 @@ module internal SnapshotProcessingCoordinator =
     /// <returns>Task that completes when processing finishes</returns>
     let handleBrokerAccountChange (brokerAccountId: int, date: DateTimePattern) =
         task {
-            CoreLogger.logDebugf
-                "SnapshotProcessingCoordinator"
-                "handleBrokerAccountChange - AccountId: %d, Date: %s, BatchMode: %b"
-                brokerAccountId
-                (date.ToString())
-                useBatchMode
+            // CoreLogger.logDebugf
+            //     "SnapshotProcessingCoordinator"
+            //     "handleBrokerAccountChange - AccountId: %d, Date: %s, BatchMode: %b"
+            //     brokerAccountId
+            //     (date.ToString())
+            //     useBatchMode
 
             // ========== BATCH MODE PATH ==========
             if useBatchMode then
                 try
-                    CoreLogger.logDebug "SnapshotProcessingCoordinator" "Attempting batch processing mode..."
+                    // CoreLogger.logDebug "SnapshotProcessingCoordinator" "Attempting batch processing mode..."
 
                     // Determine date range for batch processing
                     // Strategy: Process from this date through today to catch all historical snapshots
@@ -65,11 +64,11 @@ module internal SnapshotProcessingCoordinator =
                     let startDate = date
                     let endDate = DateTimePattern.FromDateTime(System.DateTime.Now) // Only process up to today
 
-                    CoreLogger.logInfof
-                        "SnapshotProcessingCoordinator"
-                        "Batch mode: Processing date range %s to %s"
-                        (startDate.ToString())
-                        (endDate.ToString())
+                    // CoreLogger.logInfof
+                    //     "SnapshotProcessingCoordinator"
+                    //     "Batch mode: Processing date range %s to %s"
+                    //     (startDate.ToString())
+                    //     (endDate.ToString())
 
                     // Create batch request
                     let batchRequest =
@@ -82,20 +81,20 @@ module internal SnapshotProcessingCoordinator =
                     let! batchResult = BrokerFinancialBatchManager.processBatchedFinancials batchRequest [] []
 
                     if batchResult.Success then
-                        CoreLogger.logInfof
-                            "SnapshotProcessingCoordinator"
-                            "Batch mode SUCCESS: %d snapshots saved, %d dates processed in %dms (Load: %dms, Calc: %dms, Persist: %dms)"
-                            batchResult.SnapshotsSaved
-                            batchResult.DatesProcessed
-                            batchResult.TotalTimeMs
-                            batchResult.LoadTimeMs
-                            batchResult.CalculationTimeMs
-                            batchResult.PersistenceTimeMs
+                        // CoreLogger.logInfof
+                        //     "SnapshotProcessingCoordinator"
+                        //     "Batch mode SUCCESS: %d snapshots saved, %d dates processed in %dms (Load: %dms, Calc: %dms, Persist: %dms)"
+                        //     batchResult.SnapshotsSaved
+                        //     batchResult.DatesProcessed
+                        //     batchResult.TotalTimeMs
+                        //     batchResult.LoadTimeMs
+                        //     batchResult.CalculationTimeMs
+                        //     batchResult.PersistenceTimeMs
 
                         return () // Success - exit early
                     else
                         // Batch mode failed - fall through to per-date processing
-                        CoreLogger.logWarningf
+                        CoreLogger.logErrorf
                             "SnapshotProcessingCoordinator"
                             "Batch mode FAILED: %s - Falling back to per-date processing"
                             (String.concat "; " batchResult.Errors)
@@ -108,10 +107,10 @@ module internal SnapshotProcessingCoordinator =
                         ex.Message
 
             // ========== PER-DATE MODE PATH (FALLBACK) ==========
-            CoreLogger.logDebug "SnapshotProcessingCoordinator" "Using per-date processing mode..."
+            // CoreLogger.logDebug "SnapshotProcessingCoordinator" "Using per-date processing mode..."
 
             // Delegate to existing per-date logic
             do! BrokerAccountSnapshotManager.handleBrokerAccountChange (brokerAccountId, date)
 
-            CoreLogger.logDebug "SnapshotProcessingCoordinator" "Per-date processing completed successfully"
+        // CoreLogger.logDebug "SnapshotProcessingCoordinator" "Per-date processing completed successfully"
         }

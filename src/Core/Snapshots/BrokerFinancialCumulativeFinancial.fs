@@ -28,15 +28,15 @@ module internal BrokerFinancialCumulativeFinancial =
         (previousSnapshot: BrokerFinancialSnapshot option)
         =
         task {
-            CoreLogger.logDebug
-                "BrokerFinancialCumulativeFinancial"
-                $"Starting create for currency {currencyId}, date {targetDate}"
+            // CoreLogger.logDebug
+            //     "BrokerFinancialCumulativeFinancial"
+            //     $"Starting create for currency {currencyId}, date {targetDate}"
 
-            CoreLogger.logDebug
-                "BrokerFinancialCumulativeFinancial"
-                $"Calculated metrics - Deposited: {calculatedMetrics.Deposited.Value}, MovementCounter: {calculatedMetrics.MovementCounter}"
+            // CoreLogger.logDebug
+            //     "BrokerFinancialCumulativeFinancial"
+            //     $"Calculated metrics - Deposited: {calculatedMetrics.Deposited.Value}, MovementCounter: {calculatedMetrics.MovementCounter}"
 
-            CoreLogger.logDebug "BrokerFinancialCumulativeFinancial" $"Has previous snapshot: {previousSnapshot.IsSome}"
+            // CoreLogger.logDebug "BrokerFinancialCumulativeFinancial" $"Has previous snapshot: {previousSnapshot.IsSome}"
 
             // Calculate cumulative values by adding previous snapshot values (if any) to current metrics
             let cumulativeDeposited =
@@ -45,15 +45,15 @@ module internal BrokerFinancialCumulativeFinancial =
                     let result =
                         Money.FromAmount(prev.Deposited.Value + calculatedMetrics.Deposited.Value)
 
-                    CoreLogger.logDebug
-                        "BrokerFinancialCumulativeFinancial"
-                        $"Cumulative Deposited: previous {prev.Deposited.Value} + current {calculatedMetrics.Deposited.Value} = {result.Value}"
+                    // CoreLogger.logDebug
+                    //     "BrokerFinancialCumulativeFinancial"
+                    //     $"Cumulative Deposited: previous {prev.Deposited.Value} + current {calculatedMetrics.Deposited.Value} = {result.Value}"
 
                     result
                 | None ->
-                    CoreLogger.logDebug
-                        "BrokerFinancialCumulativeFinancial"
-                        $"No previous snapshot, using calculated Deposited: {calculatedMetrics.Deposited.Value}"
+                    // CoreLogger.logDebug
+                    //     "BrokerFinancialCumulativeFinancial"
+                    //     $"No previous snapshot, using calculated Deposited: {calculatedMetrics.Deposited.Value}"
 
                     calculatedMetrics.Deposited
 
@@ -131,13 +131,13 @@ module internal BrokerFinancialCumulativeFinancial =
                 else
                     0m
 
-            CoreLogger.logDebugf
-                "BrokerFinancialCumulativeFinancial"
-                "Unrealized breakdown - Stock:%M (%%:%M) Options:%M Total:%M"
-                stockUnrealizedGains.Value
-                stockUnrealizedGainsPercentage
-                calculatedMetrics.OptionUnrealizedGains.Value
-                totalUnrealizedGains.Value
+            // CoreLogger.logDebugf
+            //     "BrokerFinancialCumulativeFinancial"
+            //     "Unrealized breakdown - Stock:%M (%%:%M) Options:%M Total:%M"
+            //     stockUnrealizedGains.Value
+            //     stockUnrealizedGainsPercentage
+            //     calculatedMetrics.OptionUnrealizedGains.Value
+            //     totalUnrealizedGains.Value
 
             // Calculate realized percentage return
             let realizedPercentage =
@@ -170,14 +170,14 @@ module internal BrokerFinancialCumulativeFinancial =
                   NetCashFlow = Money.FromAmount(cumulativeNetCashFlow)
                   OpenTrades = calculatedMetrics.HasOpenPositions }
 
-            CoreLogger.logDebug
-                "BrokerFinancialCumulativeFinancial"
-                $"Created snapshot to save - Deposited: {newSnapshot.Deposited.Value}, MovementCounter: {newSnapshot.MovementCounter}"
+            // CoreLogger.logDebug
+            //     "BrokerFinancialCumulativeFinancial"
+            //     $"Created snapshot to save - Deposited: {newSnapshot.Deposited.Value}, MovementCounter: {newSnapshot.MovementCounter}"
 
             // Save the snapshot to database
             do! newSnapshot.save ()
 
-            CoreLogger.logDebug
-                "BrokerFinancialCumulativeFinancial"
-                $"Snapshot saved successfully with ID: {newSnapshot.Base.Id}"
+        // CoreLogger.logDebug
+        //     "BrokerFinancialCumulativeFinancial"
+        //     $"Snapshot saved successfully with ID: {newSnapshot.Base.Id}"
         }
