@@ -210,6 +210,25 @@ module internal TickerSnapshotBatchCalculator =
                                     )
                                     |> Option.defaultValue []
 
+                                // Get trades for this ticker/currency/date
+                                let tradesForDate =
+                                    context.MovementsByTickerCurrencyDate.Trades.TryFind((tickerId, currencyId, date))
+                                    |> Option.defaultValue []
+
+                                // Get dividends for this ticker/currency/date
+                                let dividendsForDate =
+                                    context.MovementsByTickerCurrencyDate.Dividends.TryFind(
+                                        (tickerId, currencyId, date)
+                                    )
+                                    |> Option.defaultValue []
+
+                                // Get dividend taxes for this ticker/currency/date
+                                let dividendTaxesForDate =
+                                    context.MovementsByTickerCurrencyDate.DividendTaxes.TryFind(
+                                        (tickerId, currencyId, date)
+                                    )
+                                    |> Option.defaultValue []
+
                                 let operationContext: AutoImportOperationManager.OperationContext =
                                     { BrokerAccountId = brokerAccountId
                                       TickerId = tickerId
@@ -217,7 +236,10 @@ module internal TickerSnapshotBatchCalculator =
                                       PreviousSnapshot = previousSnapshot
                                       CurrentSnapshot = snapshot
                                       MovementDate = date
-                                      OptionTradesForDate = optionTradesForDate }
+                                      OptionTradesForDate = optionTradesForDate
+                                      TradesForDate = tradesForDate
+                                      DividendForDate = dividendsForDate
+                                      DividendTaxForDate = dividendTaxesForDate }
 
                                 let! operationResult =
                                     AutoImportOperationManager.processOperation operationContext

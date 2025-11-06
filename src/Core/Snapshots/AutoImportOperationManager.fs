@@ -27,6 +27,9 @@ module internal AutoImportOperationManager =
             MovementDate: DateTimePattern
             /// Option trades for this ticker/currency on this date (for capital calculation)
             OptionTradesForDate: Binnaculum.Core.Database.DatabaseModel.OptionTrade list
+            TradesForDate: Binnaculum.Core.Database.DatabaseModel.Trade list
+            DividendForDate: Binnaculum.Core.Database.DatabaseModel.Dividend list
+            DividendTaxForDate: Binnaculum.Core.Database.DatabaseModel.DividendTax list
         }
 
     /// <summary>
@@ -59,11 +62,26 @@ module internal AutoImportOperationManager =
         : decimal =
         calculateTotalOptionCapitalDeployed optionTrades
 
+    let calculateFees (context: OperationContext) =
+        [ context.TradesForDate |> List.map (fun t -> t.Fees.Value)
+          context.OptionTradesForDate |> List.map (fun ot -> ot.Fees.Value) ]
+        |> List.concat
+        |> List.sum
+
+    let calculateCommissions (context: OperationContext) =
+        [ context.TradesForDate |> List.map (fun t -> t.Commissions.Value)
+          context.OptionTradesForDate |> List.map (fun ot -> ot.Commissions.Value) ]
+        |> List.concat
+        |> List.sum
+
     /// <summary>
     /// Create a new AutoImportOperation from a snapshot when trades open.
     /// </summary>
     let createOperation (context: OperationContext) : DatabaseModel.AutoImportOperation =
         let snapshot = context.CurrentSnapshot
+
+        let fees = calculateFees context
+        let commissions = calculateCommissions context
 
         // Calculate initial capital deployed from actual option trades
         let capitalDeployed = calculateCapitalDeployedFromTrades context.OptionTradesForDate
@@ -96,7 +114,11 @@ module internal AutoImportOperationManager =
         (isClosing: bool)
         (movementDate: DateTimePattern)
         (optionTradesForDate: Binnaculum.Core.Database.DatabaseModel.OptionTrade list)
+        (context: OperationContext)
         : DatabaseModel.AutoImportOperation =
+
+        let fees = calculateFees context
+        let commissions = calculateCommissions context
 
         // Calculate realized delta for today
         let realizedDelta = snapshot.Realized.Value - operation.Realized.Value
@@ -192,6 +214,7 @@ module internal AutoImportOperationManager =
                             false
                             context.MovementDate
                             context.OptionTradesForDate
+                            context
 
                     do! AutoImportOperationExtensions.Do.save (updatedOp) |> Async.AwaitTask
 
@@ -243,7 +266,13 @@ module internal AutoImportOperationManager =
                 match existingOp with
                 | Some(op: DatabaseModel.AutoImportOperation) ->
                     let closedOp =
-                        updateOperation op context.CurrentSnapshot true context.MovementDate context.OptionTradesForDate
+                        updateOperation
+                            op
+                            context.CurrentSnapshot
+                            true
+                            context.MovementDate
+                            context.OptionTradesForDate
+                            context
 
                     // Log before save
                     // CoreLogger.logDebugf
