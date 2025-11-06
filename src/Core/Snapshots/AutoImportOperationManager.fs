@@ -117,8 +117,10 @@ module internal AutoImportOperationManager =
         (context: OperationContext)
         : DatabaseModel.AutoImportOperation =
 
-        let fees = calculateFees context
-        let commissions = calculateCommissions context
+        let todayFees = calculateFees context
+        let fees = operation.Fees.Value + todayFees
+        let todayCommissions = calculateCommissions context
+        let commissions = operation.Commissions.Value + todayCommissions
 
         // Calculate realized delta for today
         let realizedDelta = snapshot.Realized.Value - operation.Realized.Value
