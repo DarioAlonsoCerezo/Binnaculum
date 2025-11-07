@@ -165,25 +165,6 @@ type MpwImportTests() =
                 "Verification"
                 (sprintf "📊 Found %d MPW snapshots in database" sortedMPWSnapshots.Length)
 
-            // TEMPORARY: Log actual snapshots for data population
-            CoreLogger.logInfo "DataExtraction" "=== MPW TICKER SNAPSHOTS (F# format) ==="
-            sortedMPWSnapshots
-            |> List.iteri (fun i snapshot ->
-                let s = snapshot.MainCurrency
-                CoreLogger.logInfo "DataExtraction" (sprintf "// Snapshot %d: %s" i (snapshot.Date.ToString("yyyy-MM-dd")))
-                CoreLogger.logInfo "DataExtraction" "{ Data ="
-                CoreLogger.logInfo "DataExtraction" (sprintf "    { Id = 0; Date = DateOnly(%d, %d, %d)" snapshot.Date.Year snapshot.Date.Month snapshot.Date.Day)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Ticker = ticker; Currency = currency")
-                CoreLogger.logInfo "DataExtraction" (sprintf "      TotalShares = %.2fm; Weight = %.4fm" s.TotalShares s.Weight)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      CostBasis = %.2fm; RealCost = %.2fm" s.CostBasis s.RealCost)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Dividends = %.2fm; DividendTaxes = %.2fm" s.Dividends s.DividendTaxes)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Options = %.2fm; TotalIncomes = %.2fm" s.Options s.TotalIncomes)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      CapitalDeployed = %.2fm; Realized = %.2fm" s.CapitalDeployed s.Realized)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Performance = %.4fm; OpenTrades = %b" s.Performance s.OpenTrades)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Commissions = %.2fm; Fees = %.2fm }" s.Commissions s.Fees)
-                CoreLogger.logInfo "DataExtraction" (sprintf "  Description = \"Snapshot %d: %s\" }" i (snapshot.Date.ToString("yyyy-MM-dd")))
-            )
-
             // Get expected MPW snapshots with descriptions from MpwImportExpectedSnapshots
             let expectedMPWSnapshotsWithDescriptions =
                 MpwImportExpectedSnapshots.getMPWSnapshots mpwTicker.Value usd
@@ -232,25 +213,6 @@ type MpwImportTests() =
             let! mpwOperations = Tickers.GetOperations(mpwTickerId) |> Async.AwaitTask
 
             CoreLogger.logInfo "Verification" (sprintf "📊 Found %d MPW operations in database" mpwOperations.Length)
-
-            // TEMPORARY: Log actual operations for data population
-            CoreLogger.logInfo "DataExtraction" "=== MPW OPERATIONS (F# format) ==="
-            mpwOperations
-            |> List.iteri (fun i op ->
-                CoreLogger.logInfo "DataExtraction" (sprintf "// Operation %d: %s" i (op.OpenDate.ToString("yyyy-MM-dd")))
-                CoreLogger.logInfo "DataExtraction" "{ Data ="
-                CoreLogger.logInfo "DataExtraction" (sprintf "    { Id = 0; BrokerAccount = brokerAccount; Ticker = ticker; Currency = currency")
-                CoreLogger.logInfo "DataExtraction" (sprintf "      IsOpen = %b" op.IsOpen)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      OpenDate = DateTime(%d, %d, %d, 0, 0, 1)" op.OpenDate.Year op.OpenDate.Month op.OpenDate.Day)
-                let closeStr = match op.CloseDate with | Some d -> sprintf "Some(DateTime(%d, %d, %d, 0, 0, 1))" d.Year d.Month d.Day | None -> "None"
-                CoreLogger.logInfo "DataExtraction" (sprintf "      CloseDate = %s" closeStr)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Realized = %.2fm; RealizedToday = %.2fm" op.Realized op.RealizedToday)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Commissions = %.2fm; Fees = %.2fm" op.Commissions op.Fees)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Premium = %.2fm; Dividends = %.2fm; DividendTaxes = %.2fm" op.Premium op.Dividends op.DividendTaxes)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      CapitalDeployed = %.2fm; CapitalDeployedToday = %.2fm" op.CapitalDeployed op.CapitalDeployedToday)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Performance = %.4fm }" op.Performance)
-                CoreLogger.logInfo "DataExtraction" (sprintf "  Description = \"Operation %d: %s\" }" i (op.OpenDate.ToString("yyyy-MM-dd")))
-            )
 
             // Get expected operations with descriptions
             let expectedOperationsWithDescriptions =
@@ -317,24 +279,6 @@ type MpwImportTests() =
             CoreLogger.logInfo
                 "Verification"
                 (sprintf "📊 Found %d BrokerAccount snapshots" brokerFinancialSnapshots.Length)
-
-            // TEMPORARY: Log actual broker snapshots for data population
-            CoreLogger.logInfo "DataExtraction" "=== BROKER ACCOUNT SNAPSHOTS (F# format) ==="
-            brokerFinancialSnapshots
-            |> List.iteri (fun i bs ->
-                CoreLogger.logInfo "DataExtraction" (sprintf "// BrokerSnapshot %d: %s" i (bs.Date.ToString("yyyy-MM-dd")))
-                CoreLogger.logInfo "DataExtraction" "{ Data ="
-                CoreLogger.logInfo "DataExtraction" (sprintf "    { Id = 0; Date = DateOnly(%d, %d, %d)" bs.Date.Year bs.Date.Month bs.Date.Day)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Broker = broker; BrokerAccount = brokerAccount; Currency = currency")
-                CoreLogger.logInfo "DataExtraction" (sprintf "      MovementCounter = %d" bs.MovementCounter)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      RealizedGains = %.2fm; RealizedPercentage = %.4fm" bs.RealizedGains bs.RealizedPercentage)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      UnrealizedGains = %.2fm; UnrealizedGainsPercentage = %.4fm" bs.UnrealizedGains bs.UnrealizedGainsPercentage)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Invested = %.2fm; Commissions = %.2fm; Fees = %.2fm" bs.Invested bs.Commissions bs.Fees)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      Deposited = %.2fm; Withdrawn = %.2fm" bs.Deposited bs.Withdrawn)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      DividendsReceived = %.2fm; OptionsIncome = %.2fm; OtherIncome = %.2fm" bs.DividendsReceived bs.OptionsIncome bs.OtherIncome)
-                CoreLogger.logInfo "DataExtraction" (sprintf "      OpenTrades = %b; NetCashFlow = %.2fm }" bs.OpenTrades bs.NetCashFlow)
-                CoreLogger.logInfo "DataExtraction" (sprintf "  Description = \"BrokerSnapshot %d: %s\" }" i (bs.Date.ToString("yyyy-MM-dd")))
-            )
 
             // Get expected broker account snapshots (broker and brokerAccount already defined above)
             let expectedBrokerSnapshotsWithDescriptions =
