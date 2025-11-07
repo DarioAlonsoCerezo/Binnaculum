@@ -48,6 +48,11 @@
     <Compile Include="Integration/Import/TsllData/Operations.fs" />
     <Compile Include="Integration/Import/TsllImportExpectedSnapshots.fs" />
     <Compile Include="Integration/Import/TsllImportTests.fs" />
+    <Compile Include="Integration/Import/MpwData/TickerSnapshots.fs" />
+    <Compile Include="Integration/Import/MpwData/BrokerSnapshots.fs" />
+    <Compile Include="Integration/Import/MpwData/Operations.fs" />
+    <Compile Include="Integration/Import/MpwImportExpectedSnapshots.fs" />
+    <Compile Include="Integration/Import/MpwImportTests.fs" />
     
     <!-- Unit Tests - Financial Calculations -->
     <Compile Include="Unit/Financial/BrokerAccountSnapshotTests.fs" />
