@@ -54,33 +54,27 @@ public partial class BrokerAccountTemplate
 
         Percentage.Percentage = _snapshot!.BrokerAccount.Value.Financial.RealizedPercentage;
 
-        System.Console.WriteLine($"[App on simulator] Total Value: {_snapshot.BrokerAccount.Value.Financial.RealizedGains}");
-        System.Console.WriteLine($"[App on simulator] Realized Percentage: {_snapshot.BrokerAccount.Value.Financial.RealizedPercentage}");
-        System.Console.WriteLine($"[App on simulator] Unrealized Percentage: {_snapshot.BrokerAccount.Value.Financial.UnrealizedGains}");
-        System.Console.WriteLine($"[App on simulator] Total Percentage: {_snapshot.BrokerAccount.Value.Financial.UnrealizedGainsPercentage}");
-        System.Console.WriteLine($"[App on simulator] Movement Counter: {_snapshot.BrokerAccount.Value.Financial.MovementCounter}");
-        System.Console.WriteLine($"[App on simulator] Options Income: {_snapshot.BrokerAccount.Value.Financial.OptionsIncome}");
-
         Observable
             .Merge(
                 Add.Events().AddClicked.Select(_ => Unit.Default),
                 AddMovementContainerGesture.Events().Tapped.Select(_ => Unit.Default),
                 AddMovementTextGesture.Events().Tapped.Select(_ => Unit.Default))
             .Where(_ => _brokerAccount != null)
-            .Select(async _ =>
+            .SelectMany(async _ =>
             {
                 await Navigation.PushModalAsync(new BrokerMovementCreatorPage(_brokerAccount!));
+                return Unit.Default;
             })
             .Subscribe()
             .DisposeWith(Disposables);
 
         //TODO: Enable when I have a clear path about the info to show and how.
-        //BrokerAccountGesture.Events().Tapped
-        //    .Select(async _ =>
-        //    {
-        //        await Navigation.PushModalAsync(new BrokerAcccountPage(_snapshot));
-        //    })
-        //    .Subscribe()
-        //    .DisposeWith(Disposables);
+        // BrokerAccountGesture.Events().Tapped
+        //     .Select(async _ =>
+        //     {
+        //         await Navigation.PushModalAsync(new BrokerAcccountPage(_snapshot));
+        //     })
+        //     .Subscribe()
+        //     .DisposeWith(Disposables);
     }
 }

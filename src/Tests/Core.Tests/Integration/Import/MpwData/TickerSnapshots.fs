@@ -1406,4 +1406,4 @@ module MpwTickerSnapshots =
                 OpenTrades = true
                 Commissions = 217.00m
                 Fees = 60.52m }
-            Description = "Snapshot 65: Today" } ]
+            Description = $"Snapshot 65: {DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}" } ]

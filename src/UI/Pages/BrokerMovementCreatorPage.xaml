@@ -81,11 +81,7 @@
                                 x:Name="ImportStatusLabel"
                                 Padding="0"
                                 Style="{StaticResource LabelSettingsGroup}" />
-                            <Label
-                                x:Name="ImportDetailsLabel"
-                                Style="{StaticResource Caption1}"
-                                TextColor="{AppThemeBinding Dark={StaticResource Gray200},
-                                                            Light={StaticResource Gray600}}" />
+                            <Label x:Name="ImportDetailsLabel" />
                         </StackLayout>
                     </VerticalStackLayout>
                 </Border>
