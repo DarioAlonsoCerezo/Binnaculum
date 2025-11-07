@@ -23,7 +23,7 @@ module MpwImportExpectedSnapshots =
     /// Generate expected MPW ticker snapshots with descriptions.
     ///
     /// Includes snapshots from the MPW import test CSV file.
-    /// Snapshots span from 2024-09-17 (first trade) through 2025-10-17 (last movement).
+    /// Snapshots span from 2024-04-26 (first trade) through 2025-11-07 (today).
     /// Includes both equity shares and option contracts (calls and puts).
     /// </summary>
     let getMPWSnapshots (ticker: Ticker) (currency: Currency) : ExpectedSnapshot<TickerCurrencySnapshot> list =
@@ -35,7 +35,7 @@ module MpwImportExpectedSnapshots =
     /// Generate expected BrokerAccount financial snapshots with descriptions.
     ///
     /// Includes snapshots from the MPW import test.
-    /// Snapshots span from 2024-09-17 (first trade) through 2025-10-17 (last movement).
+    /// Snapshots span from 2024-04-26 (first trade) through 2025-11-07 (today).
     /// Includes cash deposits, dividends, option premiums, and realized gains/losses.
     /// </summary>
     let getBrokerAccountSnapshots

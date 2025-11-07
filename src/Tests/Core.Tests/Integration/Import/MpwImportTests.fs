@@ -56,7 +56,7 @@ type MpwImportTests() =
     /// - Multiple equity share trades (buy/sell 1000 MPW shares)
     /// - Multiple option trades (calls and puts with various strikes/expirations)
     /// - Dividends and deposits
-    /// - Date range: 2024-09-17 through 2025-10-17
+    /// - Date range: 2024-04-26 through 2025-11-07
     /// - Complex FIFO matching scenarios across asset types
     ///
     /// Expected Results:
