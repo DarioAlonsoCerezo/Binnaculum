@@ -82,12 +82,19 @@ jobs:
           fi
           echo "✅ KEY_ALIAS is set"
           
-          # Check KEYSTORE_PASSWORD
-          if [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ]; then
-            echo "❌ ERROR: KEYSTORE_PASSWORD secret is not set!"
+          # Check KEY_PASSWORD_B64
+          if [ -z "${{ secrets.KEY_PASSWORD_B64 }}" ]; then
+            echo "❌ ERROR: KEY_PASSWORD_B64 secret is not set!"
             exit 1
           fi
-          echo "✅ KEYSTORE_PASSWORD is set"
+          echo "✅ KEY_PASSWORD_B64 is set"
+          
+          # Check KEYSTORE_PASSWORD_B64
+          if [ -z "${{ secrets.KEYSTORE_PASSWORD_B64 }}" ]; then
+            echo "❌ ERROR: KEYSTORE_PASSWORD_B64 secret is not set!"
+            exit 1
+          fi
+          echo "✅ KEYSTORE_PASSWORD_B64 is set"
           
           # Check KEYSTORE_BASE64
           if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ]; then
@@ -127,12 +134,11 @@ jobs:
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
 
       - name: Build and Sign APK
-        env:
-          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/release.keystore
-          ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          ANDROID_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
+          # Decode base64-encoded passwords to handle special characters
+          KEY_PASS=$(echo "${{ secrets.KEY_PASSWORD_B64 }}" | base64 -d)
+          STORE_PASS=$(echo "${{ secrets.KEYSTORE_PASSWORD_B64 }}" | base64 -d)
+          
           dotnet publish src/UI/Binnaculum.csproj \
             -f net9.0-android \
             -c Release \
@@ -140,10 +146,10 @@ jobs:
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:AndroidPackageFormat=apk \
             -p:AndroidKeyStore=true \
-            -p:AndroidSigningKeyStore="${ANDROID_KEYSTORE_PATH}" \
-            -p:AndroidSigningKeyAlias="${ANDROID_KEY_ALIAS}" \
-            -p:AndroidSigningKeyPass="${ANDROID_KEY_PASSWORD}" \
-            -p:AndroidSigningStorePass="${ANDROID_STORE_PASSWORD}" \
+            -p:AndroidSigningKeyStore="${{ github.workspace }}/release.keystore" \
+            -p:AndroidSigningKeyAlias="${{ secrets.KEY_ALIAS }}" \
+            -p:AndroidSigningKeyPass="${KEY_PASS}" \
+            -p:AndroidSigningStorePass="${STORE_PASS}" \
             -o ${{ github.workspace }}/output
 
       - name: Find and Rename APK
