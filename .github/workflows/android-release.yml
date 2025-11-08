@@ -42,7 +42,7 @@ jobs:
       - name: Validation Summary
         run: |
           echo "✅ All core tests passed - ready for release build"
-          echo "Version: ${{ env.APP_VERSION }}"
+          echo "Version: ${{ vars.APP_VERSION }}"
           echo "Build Number: ${{ github.run_number }}"
 
   # Build and sign APK
@@ -69,11 +69,11 @@ jobs:
           echo "Validating required secrets and environment variables..."
           
           # Check APP_VERSION
-          if [ -z "${{ env.APP_VERSION }}" ]; then
+          if [ -z "${{ vars.APP_VERSION }}" ]; then
             echo "❌ ERROR: APP_VERSION environment variable is not set!"
             exit 1
           fi
-          echo "✅ APP_VERSION is set: ${{ env.APP_VERSION }}"
+          echo "✅ APP_VERSION is set: ${{ vars.APP_VERSION }}"
           
           # Check KEY_ALIAS
           if [ -z "${{ secrets.KEY_ALIAS }}" ]; then
@@ -138,7 +138,7 @@ jobs:
           dotnet publish src/UI/Binnaculum.csproj \
             -f net9.0-android \
             -c Release \
-            -p:ApplicationDisplayVersion="${{ env.APP_VERSION }}" \
+            -p:ApplicationDisplayVersion="${{ vars.APP_VERSION }}" \
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:AndroidPackageFormat=apk \
             -p:AndroidKeyStore=true \
@@ -162,7 +162,7 @@ jobs:
           echo "Found APK: $APK_PATH"
           
           # Create friendly filename
-          APK_NAME="Binnaculum-v${{ env.APP_VERSION }}-build.${{ github.run_number }}.apk"
+          APK_NAME="Binnaculum-v${{ vars.APP_VERSION }}-build.${{ github.run_number }}.apk"
           mv "$APK_PATH" "${{ github.workspace }}/$APK_NAME"
           
           echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
@@ -182,7 +182,7 @@ jobs:
         run: |
           echo "## 📦 APK Build Successful" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** ${{ env.APP_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ vars.APP_VERSION }}" >> $GITHUB_STEP_SUMMARY
           echo "**Build Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "**APK Name:** ${{ steps.apk_path.outputs.apk_name }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -211,7 +211,7 @@ jobs:
         id: release_notes
         run: |
           cat << EOF > release_notes.md
-          ## Binnaculum v${{ env.APP_VERSION }}
+          ## Binnaculum v${{ vars.APP_VERSION }}
           
           **Build Number:** ${{ github.run_number }}
           **Release Date:** $(date +"%Y-%m-%d")
@@ -243,8 +243,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ env.APP_VERSION }}
-          name: Binnaculum v${{ env.APP_VERSION }} (Build ${{ github.run_number }})
+          tag_name: v${{ vars.APP_VERSION }}
+          name: Binnaculum v${{ vars.APP_VERSION }} (Build ${{ github.run_number }})
           body_path: release_notes.md
           prerelease: true
           files: |
@@ -257,10 +257,10 @@ jobs:
         run: |
           echo "## 🚀 Release Published" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Release:** v${{ env.APP_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release:** v${{ vars.APP_VERSION }}" >> $GITHUB_STEP_SUMMARY
           echo "**Build:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "**Type:** Pre-release" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ APK is now available for download from GitHub Releases" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ env.APP_VERSION }})" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ vars.APP_VERSION }})" >> $GITHUB_STEP_SUMMARY
