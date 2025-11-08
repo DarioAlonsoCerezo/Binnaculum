@@ -2,16 +2,13 @@ namespace Binnaculum.Controls;
 
 public partial class MoneyControl
 {
+    private bool _updateScheduled = false;
+    private Color _redColor = (Color)Application.Current!.Resources["RedState"];
+    private Color _greenColor = (Color)Application.Current!.Resources["GreenState"];
+
     public static readonly BindableProperty MoneyProperty =
         BindableProperty.Create(nameof(Money), typeof(Core.Models.Currency), typeof(MoneyControl), default(Core.Models.Currency),
-            propertyChanged: (bindable, oldValue, newValue) =>
-            {
-                if (bindable is MoneyControl control && newValue is Core.Models.Currency currency)
-                {
-                    // Update UI when currency changes
-                    control.UpdateControl();
-                }
-            });
+            propertyChanged: OnPropertyChanged);
 
     public Core.Models.Currency Money
     {
@@ -21,14 +18,7 @@ public partial class MoneyControl
 
     public static readonly BindableProperty HideProperty =
         BindableProperty.Create(nameof(Hide), typeof(bool), typeof(MoneyControl), false,
-            propertyChanged: (bindable, oldValue, newValue) =>
-            {
-                if (bindable is MoneyControl control && newValue is bool hideSymbol)
-                {
-                    // Update the UI based on whether to hide the currency symbol
-                    control.UpdateControl();
-                }
-            });
+            propertyChanged: OnPropertyChanged);
 
     public bool Hide
     {
@@ -38,14 +28,7 @@ public partial class MoneyControl
 
     public static readonly BindableProperty AmountProperty =
         BindableProperty.Create(nameof(Amount), typeof(decimal), typeof(MoneyControl), 0m,
-            propertyChanged: (bindable, oldValue, newValue) =>
-            {
-                if (bindable is MoneyControl control && newValue is decimal amount)
-                {
-                    // Update display with formatted amount
-                    control.UpdateControl();
-                }
-            });
+            propertyChanged: OnPropertyChanged);
 
     public decimal Amount
     {
@@ -55,14 +38,7 @@ public partial class MoneyControl
 
     public static readonly BindableProperty IsNegativeProperty =
         BindableProperty.Create(nameof(IsNegative), typeof(bool), typeof(MoneyControl), false,
-            propertyChanged: (bindable, oldValue, newValue) =>
-            {
-                if (bindable is MoneyControl control && newValue is bool isNegative)
-                {
-                    // Update display with formatted amount
-                    control.UpdateControl();
-                }
-            });
+            propertyChanged: OnPropertyChanged);
 
     public bool IsNegative
     {
@@ -72,19 +48,33 @@ public partial class MoneyControl
 
     public static readonly BindableProperty ChangeColorProperty =
         BindableProperty.Create(nameof(ChangeColor), typeof(bool), typeof(MoneyControl), false,
-            propertyChanged: (bindable, oldValue, newValue) =>
-            {
-                if (bindable is MoneyControl control && newValue is bool changeColor)
-                {
-                    // Update the color of the amount based on the changeColor property
-                    control.UpdateControl();
-                }
-            });
+            propertyChanged: OnPropertyChanged);
 
     public bool ChangeColor
     {
         get => (bool)GetValue(ChangeColorProperty);
         set => SetValue(ChangeColorProperty, value);
+    }
+
+    private static void OnPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        if (bindable is MoneyControl control)
+        {
+            control.ScheduleUpdate();
+        }
+    }
+
+    private void ScheduleUpdate()
+    {
+        if (_updateScheduled) return;
+
+        _updateScheduled = true;
+
+        Dispatcher.Dispatch(() =>
+        {
+            _updateScheduled = false;
+            UpdateControl();
+        });
     }
 
     public MoneyControl()
@@ -116,7 +106,7 @@ public partial class MoneyControl
         CurrencySymbol.TextColor =
             AmountValue.TextColor =
             AmountDecimals.TextColor = IsNegative
-            ? (Color)Application.Current!.Resources["RedState"]
-            : (Color)Application.Current!.Resources["GreenState"];
+            ? _redColor
+            : _greenColor;
     }
 }
