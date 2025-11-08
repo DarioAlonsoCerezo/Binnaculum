@@ -8,10 +8,6 @@
         <Label.FormattedText>
             <FormattedString>
                 <Span
-                    x:Name="NegativeStart"
-                    FontSize="Caption"
-                    FontFamily="OpenSansSemibold" />
-                <Span
                     x:Name="CurrencySymbol"
                     FontSize="Caption"
                     FontFamily="OpenSansSemibold" />
@@ -21,10 +17,6 @@
                     FontFamily="OpenSansBold" />
                 <Span
                     x:Name="AmountDecimals"
-                    FontSize="Caption"
-                    FontFamily="OpenSansSemibold" />
-                <Span
-                    x:Name="NegativeEnd"
                     FontSize="Caption"
                     FontFamily="OpenSansSemibold" />
             </FormattedString>

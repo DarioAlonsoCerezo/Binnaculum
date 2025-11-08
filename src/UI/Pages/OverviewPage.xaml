@@ -111,9 +111,7 @@
                             <CollectionView.ItemsLayout>
                                 <LinearItemsLayout
                                     Orientation="Vertical"
-                                    ItemSpacing="4"
-                                    SnapPointsType="Mandatory"
-                                    SnapPointsAlignment="Start" />
+                                    ItemSpacing="4" />
                             </CollectionView.ItemsLayout>
                             <CollectionView.EmptyView>
                                 <Grid

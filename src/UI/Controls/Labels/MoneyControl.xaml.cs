@@ -88,53 +88,35 @@ public partial class MoneyControl
     }
 
     public MoneyControl()
-	{
-		InitializeComponent();
-	}
+    {
+        InitializeComponent();
+    }
 
     protected override void StartLoad()
     {
-        
+
     }
 
     private void UpdateControl()
     {
-        // Update the currency symbol visibility based on the Hide property
-        if (Money != null && !Hide)
-        {
-            CurrencySymbol.Text = Money.Code + " ";
-        }
-        else
-        {
-            CurrencySymbol.Text = string.Empty;
-        }
+        CurrencySymbol.Text = Money != null && !Hide ? Money.Code + " " : string.Empty;
 
         // Format the amount to always have exactly two decimal places
         string formattedAmount = Amount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-        
+
         // Split the formatted amount into whole number and decimal parts
         string[] parts = formattedAmount.Split('.');
-        
+
         // Set the whole number part
         AmountValue.Text = parts[0];
-        
+
         // Set the decimal part with the decimal point
         AmountDecimals.Text = "." + parts[1];
 
-        if (IsNegative)
-        {
-            NegativeStart.Text = "(";
-            NegativeEnd.Text = ")";
-        }
-
-        if (ChangeColor)
-        {
-            AmountValue.TextColor = IsNegative 
-                ? (Color)Application.Current!.Resources["RedState"] 
-                : (Color)Application.Current!.Resources["GreenState"];
-            AmountDecimals.TextColor = IsNegative 
-                ? (Color)Application.Current!.Resources["RedState"] 
-                : (Color)Application.Current!.Resources["GreenState"];
-        }
+        CurrencySymbol.TextColor =
+            AmountValue.TextColor =
+            AmountDecimals.TextColor = IsNegative
+            ? (Color)Application.Current!.Resources["RedState"]
+            : (Color)Application.Current!.Resources["GreenState"];
     }
 }

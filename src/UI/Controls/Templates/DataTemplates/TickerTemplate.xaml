@@ -10,7 +10,9 @@
         <Border
             Padding="12"
             Style="{StaticResource Settings}">
-            <Grid ColumnDefinitions="70,*,90">
+            <Grid
+                ColumnDefinitions="70,*,Auto"
+                ColumnSpacing="8">
                 <controls:IconControl
                     x:Name="Icon"
                     Margin="12,4,0,0"
@@ -24,6 +26,7 @@
                     VerticalTextAlignment="Start"
                     VerticalOptions="Center"
                     FontSize="Body"
+                    LineBreakMode="TailTruncation"
                     Style="{StaticResource SelectableItem}" />
                 <controls:PercentageControl
                     x:Name="Realized"
