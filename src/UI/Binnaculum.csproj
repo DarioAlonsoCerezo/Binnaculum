@@ -83,6 +83,7 @@
 		<PackageReference Include="CommunityToolkit.Maui" />
 		<PackageReference Include="Plugin.Maui.Calendar" />
 		<PackageReference Include="Indiko.Maui.Controls.Markdown" />
+		<PackageReference Include="Sentry.Maui" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -13,6 +13,11 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
             .UseMarkdownView()
+            .UseSentry(options =>
+            {
+                options.Dsn = Environment.GetEnvironmentVariable("SENTRY_DSN") ?? "";
+                options.Debug = true;
+            })
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Bold.ttf", "OpenSansBold");
@@ -24,7 +29,7 @@ public static class MauiProgram
             {
                 handlers.AddHandler<BorderlessDatePicker, BorderlessDatePickerHandler>();
                 handlers.AddHandler<BorderlessEditor, BorderlessEditorHandler>();
-                handlers.AddHandler<BorderlessEntry, BorderlessEntryHandler>();                
+                handlers.AddHandler<BorderlessEntry, BorderlessEntryHandler>();
                 handlers.AddHandler<BorderlessPicker, BorderlessPickerHandler>();
                 handlers.AddHandler<BorderlessTimePicker, BorderlessTimePickerHandler>();
             });
