@@ -127,6 +127,11 @@ jobs:
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
 
       - name: Build and Sign APK
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/release.keystore
+          ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
           dotnet publish src/UI/Binnaculum.csproj \
             -f net9.0-android \
@@ -135,10 +140,10 @@ jobs:
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:AndroidPackageFormat=apk \
             -p:AndroidKeyStore=true \
-            -p:AndroidSigningKeyStore="${{ github.workspace }}/release.keystore" \
-            -p:AndroidSigningKeyAlias='${{ secrets.KEY_ALIAS }}' \
-            -p:AndroidSigningKeyPass='${{ secrets.KEY_PASSWORD }}' \
-            -p:AndroidSigningStorePass='${{ secrets.KEYSTORE_PASSWORD }}' \
+            -p:AndroidSigningKeyStore="${ANDROID_KEYSTORE_PATH}" \
+            -p:AndroidSigningKeyAlias="${ANDROID_KEY_ALIAS}" \
+            -p:AndroidSigningKeyPass="${ANDROID_KEY_PASSWORD}" \
+            -p:AndroidSigningStorePass="${ANDROID_STORE_PASSWORD}" \
             -o ${{ github.workspace }}/output
 
       - name: Find and Rename APK
