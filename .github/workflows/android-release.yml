@@ -234,11 +234,26 @@ jobs:
       - name: Generate Release Notes
         id: release_notes
         run: |
-          cat << EOF > release_notes.md
-          ## Binnaculum v${{ vars.APP_VERSION }}
+          # Determine if this is a beta or production release
+          VERSION="${{ vars.APP_VERSION }}"
+          if [[ "$VERSION" == *"beta"* ]] || [[ "$VERSION" == *"alpha"* ]] || [[ "$VERSION" == *"rc"* ]]; then
+            RELEASE_TYPE="Beta Release"
+            RELEASE_NOTICE="⚠️ **This is a beta version**
+
+          This release may contain bugs and is intended for testing purposes. Please report any issues you encounter."
+          else
+            RELEASE_TYPE="Production Release"
+            RELEASE_NOTICE="✅ **Production Ready**
+
+          This APK is signed with a production certificate and ready for distribution."
+          fi
           
-          **Build Number:** ${{ github.run_number }}
-          **Release Date:** $(date +"%Y-%m-%d")
+          cat << 'EOF' > release_notes.md
+          ## Binnaculum v$VERSION
+          
+          **Build Number:** $BUILD_NUMBER
+          **Release Date:** $RELEASE_DATE
+          **Type:** $RELEASE_TYPE
           
           ### 📱 Installation
           
@@ -246,9 +261,7 @@ jobs:
           2. Enable "Install from Unknown Sources" on your Android device
           3. Install the APK
           
-          ### ✅ Production Release
-          
-          This APK is signed with a production certificate and ready for distribution.
+          ### $RELEASE_NOTICE_PLACEHOLDER
           
           ### 🔧 What's Included
           
@@ -261,6 +274,13 @@ jobs:
           **Built with:** .NET 9 + .NET MAUI
           **Platforms:** Android
           EOF
+          
+          # Replace placeholders
+          sed -i "s|\$VERSION|${{ vars.APP_VERSION }}|g" release_notes.md
+          sed -i "s|\$BUILD_NUMBER|${{ github.run_number }}|g" release_notes.md
+          sed -i "s|\$RELEASE_DATE|$(date +"%Y-%m-%d")|g" release_notes.md
+          sed -i "s|\$RELEASE_TYPE|$RELEASE_TYPE|g" release_notes.md
+          sed -i "s|\$RELEASE_NOTICE_PLACEHOLDER|$RELEASE_NOTICE|g" release_notes.md
           
           cat release_notes.md
 
