@@ -103,6 +103,13 @@ jobs:
           fi
           echo "✅ KEYSTORE_BASE64 is set"
           
+          # Check SENTRY_DSN
+          if [ -z "${{ secrets.SENTRY_DSN }}" ]; then
+            echo "❌ ERROR: SENTRY_DSN secret is not set!"
+            exit 1
+          fi
+          echo "✅ SENTRY_DSN is set"
+          
           echo ""
           echo "✅ All required secrets and variables are configured correctly"
 
@@ -134,6 +141,8 @@ jobs:
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
 
       - name: Build Unsigned APK
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
           dotnet publish src/UI/Binnaculum.csproj \
             -f net9.0-android \
@@ -236,24 +245,18 @@ jobs:
         run: |
           # Determine if this is a beta or production release
           VERSION="${{ vars.APP_VERSION }}"
+          BUILD_NUMBER="${{ github.run_number }}"
+          RELEASE_DATE="$(date +"%Y-%m-%d")"
+          
           if [[ "$VERSION" == *"beta"* ]] || [[ "$VERSION" == *"alpha"* ]] || [[ "$VERSION" == *"rc"* ]]; then
             RELEASE_TYPE="Beta Release"
-            RELEASE_NOTICE="⚠️ **This is a beta version**
-
-          This release may contain bugs and is intended for testing purposes. Please report any issues you encounter."
-          else
-            RELEASE_TYPE="Production Release"
-            RELEASE_NOTICE="✅ **Production Ready**
-
-          This APK is signed with a production certificate and ready for distribution."
-          fi
+            
+            cat > release_notes.md << EOF
+          ## Binnaculum v${VERSION}
           
-          cat << 'EOF' > release_notes.md
-          ## Binnaculum v$VERSION
-          
-          **Build Number:** $BUILD_NUMBER
-          **Release Date:** $RELEASE_DATE
-          **Type:** $RELEASE_TYPE
+          **Build Number:** ${BUILD_NUMBER}
+          **Release Date:** ${RELEASE_DATE}
+          **Type:** ${RELEASE_TYPE}
           
           ### 📱 Installation
           
@@ -261,7 +264,9 @@ jobs:
           2. Enable "Install from Unknown Sources" on your Android device
           3. Install the APK
           
-          ### $RELEASE_NOTICE_PLACEHOLDER
+          ### ⚠️ **This is a beta version**
+          
+          This release may contain bugs and is intended for testing purposes. Please report any issues you encounter.
           
           ### 🔧 What's Included
           
@@ -274,13 +279,36 @@ jobs:
           **Built with:** .NET 9 + .NET MAUI
           **Platforms:** Android
           EOF
+          else
+            cat > release_notes.md << EOF
+          ## Binnaculum v${VERSION}
           
-          # Replace placeholders
-          sed -i "s|\$VERSION|${{ vars.APP_VERSION }}|g" release_notes.md
-          sed -i "s|\$BUILD_NUMBER|${{ github.run_number }}|g" release_notes.md
-          sed -i "s|\$RELEASE_DATE|$(date +"%Y-%m-%d")|g" release_notes.md
-          sed -i "s|\$RELEASE_TYPE|$RELEASE_TYPE|g" release_notes.md
-          sed -i "s|\$RELEASE_NOTICE_PLACEHOLDER|$RELEASE_NOTICE|g" release_notes.md
+          **Build Number:** ${BUILD_NUMBER}
+          **Release Date:** ${RELEASE_DATE}
+          **Type:** Production Release
+          
+          ### 📱 Installation
+          
+          1. Download the APK below
+          2. Enable "Install from Unknown Sources" on your Android device
+          3. Install the APK
+          
+          ### ✅ **Production Ready**
+          
+          This APK is signed with a production certificate and ready for distribution.
+          
+          ### 🔧 What's Included
+          
+          - Core business logic validated with full test suite
+          - Android build for API 21+
+          - Cross-platform .NET MAUI UI
+          
+          ---
+          
+          **Built with:** .NET 9 + .NET MAUI
+          **Platforms:** Android
+          EOF
+          fi
           
           cat release_notes.md
 
