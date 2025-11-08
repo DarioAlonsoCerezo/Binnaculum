@@ -133,41 +133,61 @@ jobs:
           dotnet restore src/Core/Core.fsproj
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
 
-      - name: Build and Sign APK
+      - name: Build Unsigned APK
         run: |
-          # Decode base64-encoded passwords to handle special characters
-          KEY_PASS=$(echo "${{ secrets.KEY_PASSWORD_B64 }}" | base64 -d)
-          STORE_PASS=$(echo "${{ secrets.KEYSTORE_PASSWORD_B64 }}" | base64 -d)
-          
           dotnet publish src/UI/Binnaculum.csproj \
             -f net9.0-android \
             -c Release \
             -p:ApplicationDisplayVersion="${{ vars.APP_VERSION }}" \
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:AndroidPackageFormat=apk \
-            -p:AndroidKeyStore=true \
-            -p:AndroidSigningKeyStore="${{ github.workspace }}/release.keystore" \
-            -p:AndroidSigningKeyAlias="${{ secrets.KEY_ALIAS }}" \
-            -p:AndroidSigningKeyPass="${KEY_PASS}" \
-            -p:AndroidSigningStorePass="${STORE_PASS}" \
             -o ${{ github.workspace }}/output
+
+      - name: Sign APK with jarsigner
+        run: |
+          # Decode passwords from base64
+          KEY_PASS=$(echo "${{ secrets.KEY_PASSWORD_B64 }}" | base64 -d)
+          STORE_PASS=$(echo "${{ secrets.KEYSTORE_PASSWORD_B64 }}" | base64 -d)
+          
+          # Find the unsigned APK
+          UNSIGNED_APK=$(find ${{ github.workspace }}/output -name "*.apk" | head -n 1)
+          
+          if [ -z "$UNSIGNED_APK" ]; then
+            echo "❌ APK not found!"
+            exit 1
+          fi
+          
+          echo "Found unsigned APK: $UNSIGNED_APK"
+          
+          # Sign the APK
+          jarsigner -verbose \
+            -keystore ${{ github.workspace }}/release.keystore \
+            -storepass "$STORE_PASS" \
+            -keypass "$KEY_PASS" \
+            "$UNSIGNED_APK" \
+            "${{ secrets.KEY_ALIAS }}"
+          
+          echo "✅ APK signed successfully"
+          
+          # Verify signature
+          jarsigner -verify -verbose -certs "$UNSIGNED_APK"
 
       - name: Find and Rename APK
         id: apk_path
         run: |
           # Find the signed APK
-          APK_PATH=$(find ${{ github.workspace }}/output -name "*-Signed.apk" | head -n 1)
+          SIGNED_APK=$(find ${{ github.workspace }}/output -name "*.apk" | head -n 1)
           
-          if [ -z "$APK_PATH" ]; then
+          if [ -z "$SIGNED_APK" ]; then
             echo "❌ Signed APK not found!"
             exit 1
           fi
           
-          echo "Found APK: $APK_PATH"
+          echo "Found signed APK: $SIGNED_APK"
           
           # Create friendly filename
           APK_NAME="Binnaculum-v${{ vars.APP_VERSION }}-build.${{ github.run_number }}.apk"
-          mv "$APK_PATH" "${{ github.workspace }}/$APK_NAME"
+          mv "$SIGNED_APK" "${{ github.workspace }}/$APK_NAME"
           
           echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
           echo "apk_path=${{ github.workspace }}/$APK_NAME" >> $GITHUB_OUTPUT
