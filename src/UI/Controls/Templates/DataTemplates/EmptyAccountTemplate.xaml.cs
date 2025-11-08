@@ -12,10 +12,13 @@ public partial class EmptyAccountTemplate
     protected override void StartLoad()
     {
         AddTap.Events().Tapped
-            .Subscribe(_ =>
+            .ObserveOn(UiThread)
+            .SelectMany(async _ =>
             {
-                Navigation.PushModalAsync(new AccountCreatorPage());
+                await Navigation.PushModalAsync(new AccountCreatorPage());
+                return Unit.Default;
             })
+            .Subscribe()
             .DisposeWith(Disposables);
     }
 }

@@ -394,3 +394,45 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
         Assert.That(result.Errors, Is.Empty)
         Assert.That(result.Transactions.Length, Is.EqualTo(1))
         Assert.That(result.Transactions.[0].Value, Is.EqualTo(1234.56m))
+
+    [<Test>]
+    member this.``TastytradeStatementParser should parse legacy format lending rebate file``() =
+        let filePath = Path.Combine(testDataPath, "LendingRebate.csv")
+        let result = parseTransactionHistoryFromFile filePath
+
+        let errorMessages =
+            String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))
+
+        Assert.That(result.Errors, Is.Empty, sprintf "Parsing errors: %s" errorMessages)
+
+        Assert.That(
+            result.Transactions.Length,
+            Is.EqualTo(2),
+            "Should parse 2 transactions (debit interest + lending rebate)"
+        )
+
+        Assert.That(result.ProcessedLines, Is.EqualTo(2))
+
+        // Transactions are in CSV file order (not sorted by date)
+        // First transaction in CSV: June 17 - Debit Interest
+        let debitInterestTransaction = result.Transactions.[0]
+        Assert.That(debitInterestTransaction.Description, Is.EqualTo("FROM 05/16 THRU 06/15 @11    %"))
+        Assert.That(debitInterestTransaction.Value, Is.EqualTo(-0.01m))
+        Assert.That(debitInterestTransaction.Date, Is.EqualTo(DateTime(2024, 6, 17, 22, 0, 0)))
+
+        // Verify it's a Money Movement with DebitInterest subtype
+        match debitInterestTransaction.TransactionType with
+        | MoneyMovement(subType) ->
+            Assert.That((subType = DebitInterest), Is.True, "Should be identified as DebitInterest subtype")
+        | _ -> Assert.Fail("Transaction should be a Money Movement")
+
+        // Second transaction in CSV: June 14 - Lending Rebate
+        let lendingTransaction = result.Transactions.[1]
+        Assert.That(lendingTransaction.Description, Is.EqualTo("FULLYPAID LENDING REBATE"))
+        Assert.That(lendingTransaction.Value, Is.EqualTo(0.30m))
+        Assert.That(lendingTransaction.Date, Is.EqualTo(DateTime(2024, 6, 14, 22, 0, 0)))
+
+        // Verify it's a Money Movement with Lending subtype
+        match lendingTransaction.TransactionType with
+        | MoneyMovement(subType) -> Assert.That((subType = Lending), Is.True, "Should be identified as Lending subtype")
+        | _ -> Assert.Fail("Transaction should be a Money Movement")

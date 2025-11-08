@@ -88,7 +88,9 @@ module internal TastytradeConverter =
                     | Withdrawal -> BrokerMovementType.Withdrawal
                     | BalanceAdjustment -> BrokerMovementType.Fee // Regulatory fees map to Fee type
                     | CreditInterest -> BrokerMovementType.InterestsGained
+                    | DebitInterest -> BrokerMovementType.InterestsPaid
                     | Transfer -> BrokerMovementType.Deposit // Default transfers to deposits
+                    | Lending -> BrokerMovementType.Lending
                     | Dividend -> failwith "Dividend should not create BrokerMovement"
 
                 let timeStamp = DateTimePattern.FromDateTime(transaction.Date)

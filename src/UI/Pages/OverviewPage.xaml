@@ -70,7 +70,7 @@
                 x:Name="HistoryBackground"
                 BackgroundColor="{AppThemeBinding Light={StaticResource Black},
                                                   Dark={StaticResource White}}"
-                Opacity="0.6"
+                Opacity="0.2"
                 IsVisible="False" />
             <Border
                 x:Name="History"

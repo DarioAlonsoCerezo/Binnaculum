@@ -40,9 +40,11 @@ module TastytradeModels =
         | Deposit
         | BalanceAdjustment
         | CreditInterest
+        | DebitInterest
         | Transfer
         | Withdrawal
         | Dividend
+        | Lending
 
     /// <summary>
     /// Parsed option symbol components from complex Tastytrade format
@@ -147,9 +149,11 @@ module TastytradeModels =
             | "Money Movement", "Deposit" -> MoneyMovement(Deposit)
             | "Money Movement", "Balance Adjustment" -> MoneyMovement(BalanceAdjustment)
             | "Money Movement", "Credit Interest" -> MoneyMovement(CreditInterest)
+            | "Money Movement", "Debit Interest" -> MoneyMovement(DebitInterest)
             | "Money Movement", "Transfer" -> MoneyMovement(Transfer)
             | "Money Movement", "Withdrawal" -> MoneyMovement(Withdrawal)
             | "Money Movement", "Dividend" -> MoneyMovement(Dividend)
+            | "Money Movement", "Fully Paid Stock Lending Income" -> MoneyMovement(Lending)
             | "Receive Deliver", "Expiration" -> Trade(BuyToClose, BUY_TO_CLOSE)
             | "Receive Deliver", subType -> ReceiveDeliver(subType)
             | _ -> failwith $"Unsupported transaction type: {typeCol} / {subTypeCol}"

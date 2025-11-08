@@ -109,12 +109,14 @@ module DatabasePersistence =
                         //     "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.InterestsGained"
 
                         BrokerMovementType.InterestsGained
+                    | DebitInterest -> BrokerMovementType.InterestsPaid
                     | Transfer ->
                         // CoreLogger.logDebug
                         //     "DatabasePersistence"
                         //     "createBrokerMovementFromTransaction: Mapping to BrokerMovementType.Deposit"
 
                         BrokerMovementType.Deposit // Default transfers to deposits
+                    | Lending -> BrokerMovementType.Lending
                     | Dividend ->
                         // This should never be reached due to early return above
                         failwith "Dividend should not create BrokerMovement"
