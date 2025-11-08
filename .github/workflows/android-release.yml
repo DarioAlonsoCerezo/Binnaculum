@@ -136,9 +136,9 @@ jobs:
             -p:AndroidPackageFormat=apk \
             -p:AndroidKeyStore=true \
             -p:AndroidSigningKeyStore="${{ github.workspace }}/release.keystore" \
-            -p:AndroidSigningKeyAlias="${{ secrets.KEY_ALIAS }}" \
-            -p:AndroidSigningKeyPass="${{ secrets.KEYSTORE_PASSWORD }}" \
-            -p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}" \
+            -p:AndroidSigningKeyAlias='${{ secrets.KEY_ALIAS }}' \
+            -p:AndroidSigningKeyPass='${{ secrets.KEY_PASSWORD }}' \
+            -p:AndroidSigningStorePass='${{ secrets.KEYSTORE_PASSWORD }}' \
             -o ${{ github.workspace }}/output
 
       - name: Find and Rename APK
