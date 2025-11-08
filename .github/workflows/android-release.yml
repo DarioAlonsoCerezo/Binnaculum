@@ -89,13 +89,6 @@ jobs:
           fi
           echo "✅ KEYSTORE_PASSWORD is set"
           
-          # Check KEY_PASSWORD (also needed for signing)
-          if [ -z "${{ secrets.KEY_PASSWORD }}" ]; then
-            echo "❌ ERROR: KEY_PASSWORD secret is not set!"
-            exit 1
-          fi
-          echo "✅ KEY_PASSWORD is set"
-          
           # Check KEYSTORE_BASE64
           if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ]; then
             echo "❌ ERROR: KEYSTORE_BASE64 secret is not set!"
