@@ -6,6 +6,15 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        SentrySdk.CaptureMessage("Hello Sentry");
+        try
+        {
+            ForcedException();
+        }
+        catch (Exception ex)
+        {
+            SentrySdk.CaptureException(ex);
+        }
     }
+
+    private void ForcedException() => throw new Exception("This is a forced exception to check the integration is working");
 }
