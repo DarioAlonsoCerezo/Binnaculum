@@ -152,7 +152,10 @@ jobs:
             -p:AndroidPackageFormat=apk \
             -o ${{ github.workspace }}/output
 
-      - name: Sign APK with jarsigner
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Sign and Align APK
         run: |
           # Decode passwords from base64
           KEY_PASS=$(echo "${{ secrets.KEY_PASSWORD_B64 }}" | base64 -d)
@@ -168,26 +171,50 @@ jobs:
           
           echo "Found unsigned APK: $UNSIGNED_APK"
           
-          # Sign the APK
-          jarsigner -verbose \
-            -keystore ${{ github.workspace }}/release.keystore \
-            -storepass "$STORE_PASS" \
-            -keypass "$KEY_PASS" \
-            "$UNSIGNED_APK" \
-            "${{ secrets.KEY_ALIAS }}"
+          # Create output directory for signed APK
+          mkdir -p ${{ github.workspace }}/signed
+          SIGNED_APK="${{ github.workspace }}/signed/app-signed-aligned.apk"
           
-          echo "✅ APK signed successfully"
+          # Find zipalign and apksigner from Android SDK
+          ZIPALIGN="${ANDROID_HOME}/build-tools/$(ls ${ANDROID_HOME}/build-tools | sort -V | tail -n 1)/zipalign"
+          APKSIGNER="${ANDROID_HOME}/build-tools/$(ls ${ANDROID_HOME}/build-tools | sort -V | tail -n 1)/apksigner"
           
-          # Verify signature
-          jarsigner -verify -verbose -certs "$UNSIGNED_APK"
+          echo "Using zipalign: $ZIPALIGN"
+          echo "Using apksigner: $APKSIGNER"
+          
+          # Step 1: Align the APK first
+          echo "Aligning APK..."
+          $ZIPALIGN -v -p 4 "$UNSIGNED_APK" "$SIGNED_APK"
+          
+          # Step 2: Sign the aligned APK with apksigner (recommended for modern Android)
+          echo "Signing APK with apksigner..."
+          $APKSIGNER sign \
+            --ks ${{ github.workspace }}/release.keystore \
+            --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
+            --ks-pass "pass:$STORE_PASS" \
+            --key-pass "pass:$KEY_PASS" \
+            --v1-signing-enabled true \
+            --v2-signing-enabled true \
+            --v3-signing-enabled true \
+            --v4-signing-enabled false \
+            "$SIGNED_APK"
+          
+          echo "✅ APK signed and aligned successfully"
+          
+          # Verify signature and alignment
+          echo "Verifying APK..."
+          $APKSIGNER verify --verbose "$SIGNED_APK"
+          
+          # Show file info
+          ls -lh "$SIGNED_APK"
 
       - name: Find and Rename APK
         id: apk_path
         run: |
-          # Find the signed APK
-          SIGNED_APK=$(find ${{ github.workspace }}/output -name "*.apk" | head -n 1)
+          # Find the signed and aligned APK
+          SIGNED_APK="${{ github.workspace }}/signed/app-signed-aligned.apk"
           
-          if [ -z "$SIGNED_APK" ]; then
+          if [ ! -f "$SIGNED_APK" ]; then
             echo "❌ Signed APK not found!"
             exit 1
           fi
@@ -196,7 +223,7 @@ jobs:
           
           # Create friendly filename with build number in parentheses
           APK_NAME="Binnaculum-v${{ vars.APP_VERSION }}(${{ github.run_number }}).apk"
-          mv "$SIGNED_APK" "${{ github.workspace }}/$APK_NAME"
+          cp "$SIGNED_APK" "${{ github.workspace }}/$APK_NAME"
           
           echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
           echo "apk_path=${{ github.workspace }}/$APK_NAME" >> $GITHUB_OUTPUT
