@@ -11,6 +11,8 @@ public partial class SettingsPage : ContentPage
 	{
 		InitializeComponent();
 
+        AppVersion.Text = $"v{AppInfo.VersionString}({AppInfo.BuildString})";
+
         SetupEvents();
     }
 

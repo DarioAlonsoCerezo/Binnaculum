@@ -162,6 +162,13 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!--  VERSION  -->
+
+            <Label
+                x:Name="AppVersion"
+                Style="{StaticResource LabelSettingsGroup}"
+                HorizontalTextAlignment="Center" />
+
             <!--  ISSUE  -->
             <markdown:MarkdownView
                 x:Name="IssueMarkdownView"
