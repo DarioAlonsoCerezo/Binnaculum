@@ -2,7 +2,6 @@
 
 using Binnaculum.Popups;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 public static class RxExtensions
@@ -30,7 +29,7 @@ public static class RxExtensions
         {
             await task.Invoke();
             return Unit.Default;
-            
+
         });
     }
 
@@ -39,7 +38,7 @@ public static class RxExtensions
     /// </summary>
     public static IObservable<T> CatchCoreError<T>(this IObservable<T> source, Func<Task> task, bool informUser = false)
     {
-        return source.Do(_ => 
+        return source.Do(_ =>
         {
             Task.Run(async () =>
             {
@@ -87,7 +86,7 @@ public static class RxExtensions
     /// </summary>
     public static IObservable<T> CatchCoreError<T>(this IObservable<T> source, Func<T, Task> task, bool informUser = false)
     {
-        return source.Do(value => 
+        return source.Do(value =>
         {
             Task.Run(async () =>
             {
@@ -108,8 +107,9 @@ public static class RxExtensions
                     if (informUser)
                     {
                         await ShowErrorPopup(innerException);
-                    }
+                    }                    
 #endif
+                    SentrySdk.CaptureException(innerException);
                 }
                 catch (Exception ex)
                 {
@@ -125,6 +125,7 @@ public static class RxExtensions
                         await ShowErrorPopup(ex);
                     }
 #endif
+                    SentrySdk.CaptureException(ex);
                 }
             });
         });
@@ -136,7 +137,7 @@ public static class RxExtensions
     /// </summary>
     public static IObservable<TResult> CatchCoreError<T, TResult>(this IObservable<T> source, Func<T, Task<TResult>> task, bool informUser = false)
     {
-        return source.SelectMany(value => 
+        return source.SelectMany(value =>
             Observable.FromAsync(async () =>
             {
                 try
@@ -158,6 +159,7 @@ public static class RxExtensions
                         await ShowErrorPopup(innerException);
                     }
 #endif
+                    SentrySdk.CaptureException(innerException);
                     throw; // Re-throw to maintain error handling in the observable chain
                 }
                 catch (Exception ex)
@@ -174,6 +176,7 @@ public static class RxExtensions
                         await ShowErrorPopup(ex);
                     }
 #endif
+                    SentrySdk.CaptureException(ex);
                     throw; // Re-throw to maintain error handling in the observable chain
                 }
             })
