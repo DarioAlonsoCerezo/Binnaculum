@@ -141,8 +141,6 @@ jobs:
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
 
       - name: Build Unsigned APK
-        env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
           dotnet publish src/UI/Binnaculum.csproj \
             -f net9.0-android \
@@ -150,6 +148,7 @@ jobs:
             -p:ApplicationDisplayVersion="${{ vars.APP_VERSION }}" \
             -p:ApplicationVersion=${{ github.run_number }} \
             -p:AndroidPackageFormat=apk \
+            -p:SentryDsn="${{ secrets.SENTRY_DSN }}" \
             -o ${{ github.workspace }}/output
 
       - name: Setup Android SDK
