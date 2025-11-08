@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-	<NoWarn>CS1572,CS1587,FS3511,IL2040,CA1416,CS8618,XC0022</NoWarn>
+	<!-- NU1608: AndroidX Lifecycle transitive dependency version mismatch (safe to ignore for net9.0-android) -->
+	<NoWarn>CS1572,CS1587,FS3511,IL2040,CA1416,CS8618,XC0022,NU1608</NoWarn>
   </PropertyGroup>
 </Project>
