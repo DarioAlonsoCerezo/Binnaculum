@@ -2,11 +2,6 @@ name: Android Release
 
 on:
   workflow_dispatch:
-    inputs:
-      prerelease:
-        description: 'Mark as pre-release'
-        type: boolean
-        default: true
 
 env:
   DOTNET_NOLOGO: true
