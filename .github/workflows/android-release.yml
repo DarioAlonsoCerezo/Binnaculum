@@ -1,0 +1,233 @@
+name: Android Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g., 1.0.0-beta.1 or 1.0.0)'
+        required: true
+        default: '1.0.0-beta.1'
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        default: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  BUILD_NUMBER: ${{ github.run_number }}
+
+jobs:
+  # Run tests first to ensure quality
+  validate:
+    name: Validate Before Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          cache: true
+          cache-dependency-path: '**/Directory.Packages.props'
+
+      - name: Restore and Build Core
+        run: |
+          dotnet restore src/Core/Core.fsproj
+          dotnet build src/Core/Core.fsproj --configuration Release --no-restore
+
+      - name: Run Core Tests
+        run: |
+          dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
+          dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
+          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+            --configuration Release --no-build --verbosity normal
+
+      - name: Validation Summary
+        run: |
+          echo "✅ All core tests passed - ready for release build"
+          echo "Version: ${{ inputs.version }}"
+          echo "Build Number: ${{ env.BUILD_NUMBER }}"
+
+  # Build and sign APK
+  build-apk:
+    name: Build Signed APK
+    runs-on: ubuntu-latest
+    needs: [validate]
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          cache: true
+          cache-dependency-path: '**/Directory.Packages.props'
+
+      - name: Cache MAUI Workloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.dotnet/sdk-manifests
+            ~/.dotnet/metadata
+            ~/.dotnet/packs
+            ~/.dotnet/workloadsets
+          key: ${{ runner.os }}-maui-android-${{ hashFiles('Directory.Build.props') }}
+          restore-keys: |
+            ${{ runner.os }}-maui-android-
+
+      - name: Install MAUI Android Workload
+        run: dotnet workload install maui-android
+        timeout-minutes: 5
+
+      - name: Decode Production Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ${{ github.workspace }}/release.keystore
+          echo "✅ Keystore decoded successfully"
+          ls -lh ${{ github.workspace }}/release.keystore
+
+      - name: Build Core Project
+        run: |
+          dotnet restore src/Core/Core.fsproj
+          dotnet build src/Core/Core.fsproj --configuration Release --no-restore
+
+      - name: Build and Sign APK
+        run: |
+          dotnet publish src/UI/Binnaculum.csproj \
+            -f net9.0-android \
+            -c Release \
+            -p:ApplicationDisplayVersion=${{ inputs.version }} \
+            -p:ApplicationVersion=${{ env.BUILD_NUMBER }} \
+            -p:AndroidPackageFormat=apk \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore=${{ github.workspace }}/release.keystore \
+            -p:AndroidSigningKeyAlias=${{ secrets.KEY_ALIAS }} \
+            -p:AndroidSigningKeyPass=${{ secrets.KEY_PASSWORD }} \
+            -p:AndroidSigningStorePass=${{ secrets.KEYSTORE_PASSWORD }} \
+            -o ${{ github.workspace }}/output
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Find and Rename APK
+        id: apk_path
+        run: |
+          # Find the signed APK
+          APK_PATH=$(find ${{ github.workspace }}/output -name "*-Signed.apk" | head -n 1)
+          
+          if [ -z "$APK_PATH" ]; then
+            echo "❌ Signed APK not found!"
+            exit 1
+          fi
+          
+          echo "Found APK: $APK_PATH"
+          
+          # Create friendly filename
+          APK_NAME="Binnaculum-v${{ inputs.version }}-build.${{ env.BUILD_NUMBER }}.apk"
+          mv "$APK_PATH" "${{ github.workspace }}/$APK_NAME"
+          
+          echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
+          echo "apk_path=${{ github.workspace }}/$APK_NAME" >> $GITHUB_OUTPUT
+          
+          # Show APK info
+          ls -lh "${{ github.workspace }}/$APK_NAME"
+
+      - name: Upload APK as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Binnaculum-APK
+          path: ${{ steps.apk_path.outputs.apk_path }}
+          retention-days: 90
+
+      - name: Build Summary
+        run: |
+          echo "## 📦 APK Build Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Number:** ${{ env.BUILD_NUMBER }}" >> $GITHUB_STEP_SUMMARY
+          echo "**APK Name:** ${{ steps.apk_path.outputs.apk_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "APK has been uploaded as a workflow artifact and will be attached to the GitHub Release." >> $GITHUB_STEP_SUMMARY
+
+  # Create GitHub Release with APK
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-apk]
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Binnaculum-APK
+          path: ./release
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          cat << EOF > release_notes.md
+          ## Binnaculum v${{ inputs.version }}
+          
+          **Build Number:** ${{ env.BUILD_NUMBER }}
+          **Release Date:** $(date +"%Y-%m-%d")
+          
+          ### 📱 Installation
+          
+          1. Download the APK below
+          2. Enable "Install from Unknown Sources" on your Android device
+          3. Install the APK
+          
+          ### ✅ Production Release
+          
+          This APK is signed with a production certificate and ready for distribution.
+          
+          ### 🔧 What's Included
+          
+          - Core business logic validated with full test suite
+          - Android build for API 21+
+          - Cross-platform .NET MAUI UI
+          
+          ---
+          
+          **Built with:** .NET 9 + .NET MAUI
+          **Platforms:** Android
+          EOF
+          
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ inputs.version }}
+          name: Binnaculum v${{ inputs.version }} (Build ${{ env.BUILD_NUMBER }})
+          body_path: release_notes.md
+          prerelease: ${{ inputs.prerelease }}
+          files: |
+            ./release/*.apk
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release Summary
+        run: |
+          echo "## 🚀 Release Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Release:** v${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build:** ${{ env.BUILD_NUMBER }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Type:** ${{ inputs.prerelease && 'Pre-release' || 'Stable Release' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ APK is now available for download from GitHub Releases" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ inputs.version }})" >> $GITHUB_STEP_SUMMARY
