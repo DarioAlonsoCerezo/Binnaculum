@@ -117,6 +117,7 @@
 		<Compile Include="Import\Brokers\SpecialDividendAdjustmentDetector.fs" />
 		<Compile Include="Import\Brokers\AdjustmentValidation.fs" />
 		<Compile Include="Models\Models.fs" />
+		<Compile Include="Models\MovementDisplay.fs" />
 		<Compile Include="Memory\Collections.fs" />
 		<Compile Include="Memory\ReactiveCurrencyManager.fs" />
 		<Compile Include="Memory\ReactiveTickerManager.fs" />

@@ -406,7 +406,20 @@ module Models =
           OptionTrade: OptionTrade option
           BrokerMovement: BrokerMovement option
           BankAccountMovement: BankAccountMovement option
-          TickerSplit: TickerSplit option }
+          TickerSplit: TickerSplit option
+          
+          // Pre-computed display properties for UI performance
+          FormattedTitle: string              // Localized title resource key
+          FormattedSubtitle: string option    // Localized subtitle resource key (if applicable)
+          FormattedDate: string               // Formatted date string
+          FormattedQuantity: string option    // Formatted quantity (e.g., "x1,234")
+          
+          // Visibility flags (pre-computed boolean conditions)
+          ShowQuantity: bool
+          ShowSubtitle: bool
+          ShowOptionSubtitle: bool
+          ShowACAT: bool
+          ShowAmount: bool }
 
     type OverviewUI =
         { IsDatabaseInitialized: bool
@@ -422,4 +435,13 @@ module Models =
           OptionTrade = None
           BrokerMovement = None
           BankAccountMovement = None
-          TickerSplit = None }
+          TickerSplit = None
+          FormattedTitle = ""
+          FormattedSubtitle = None
+          FormattedDate = ""
+          FormattedQuantity = None
+          ShowQuantity = false
+          ShowSubtitle = false
+          ShowOptionSubtitle = false
+          ShowACAT = false
+          ShowAmount = false }

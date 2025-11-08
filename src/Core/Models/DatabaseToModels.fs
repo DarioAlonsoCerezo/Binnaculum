@@ -11,6 +11,7 @@ open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Providers
 open Binnaculum.Core.Keys
 open Binnaculum.Core.Logging
+open Binnaculum.Core.MovementDisplay
 
 module internal DatabaseToModels =
 
@@ -64,16 +65,28 @@ module internal DatabaseToModels =
                   BankAccount = movement.BankAccountId.ToFastBankAccountById()
                   MovementType = movement.MovementType.bankMovementTypeToModel () }
 
-            { Type = AccountMovementType.BankAccountMovement
-              TimeStamp = bankMovement.TimeStamp
-              Trade = None
-              Dividend = None
-              DividendTax = None
-              DividendDate = None
-              OptionTrade = None
-              BrokerMovement = None
-              BankAccountMovement = Some bankMovement
-              TickerSplit = None }
+            let rawMovement =
+                { Type = AccountMovementType.BankAccountMovement
+                  TimeStamp = bankMovement.TimeStamp
+                  Trade = None
+                  Dividend = None
+                  DividendTax = None
+                  DividendDate = None
+                  OptionTrade = None
+                  BrokerMovement = None
+                  BankAccountMovement = Some bankMovement
+                  TickerSplit = None
+                  FormattedTitle = ""
+                  FormattedSubtitle = None
+                  FormattedDate = ""
+                  FormattedQuantity = None
+                  ShowQuantity = false
+                  ShowSubtitle = false
+                  ShowOptionSubtitle = false
+                  ShowACAT = false
+                  ShowAmount = false }
+            
+            createMovementWithDisplayProperties rawMovement
 
         [<Extension>]
         static member bankAccountMovementsToMovements
@@ -127,16 +140,28 @@ module internal DatabaseToModels =
                   Ticker = ticker
                   Quantity = movement.Quantity }
 
-            { Type = AccountMovementType.BrokerMovement
-              TimeStamp = brokerMovement.TimeStamp
-              Trade = None
-              Dividend = None
-              DividendTax = None
-              DividendDate = None
-              OptionTrade = None
-              BrokerMovement = Some brokerMovement
-              BankAccountMovement = None
-              TickerSplit = None }
+            let rawMovement =
+                { Type = AccountMovementType.BrokerMovement
+                  TimeStamp = brokerMovement.TimeStamp
+                  Trade = None
+                  Dividend = None
+                  DividendTax = None
+                  DividendDate = None
+                  OptionTrade = None
+                  BrokerMovement = Some brokerMovement
+                  BankAccountMovement = None
+                  TickerSplit = None
+                  FormattedTitle = ""
+                  FormattedSubtitle = None
+                  FormattedDate = ""
+                  FormattedQuantity = None
+                  ShowQuantity = false
+                  ShowSubtitle = false
+                  ShowOptionSubtitle = false
+                  ShowACAT = false
+                  ShowAmount = false }
+            
+            createMovementWithDisplayProperties rawMovement
 
         [<Extension>]
         static member brokerMovementsToModel(movements: Binnaculum.Core.Database.DatabaseModel.BrokerMovement list) =
@@ -247,16 +272,28 @@ module internal DatabaseToModels =
         static member tradeToMovement(trade: Binnaculum.Core.Database.DatabaseModel.Trade) =
             let tradeMovement = trade.tradeToModel ()
 
-            { Type = AccountMovementType.Trade
-              TimeStamp = tradeMovement.TimeStamp
-              Trade = Some tradeMovement
-              Dividend = None
-              DividendTax = None
-              DividendDate = None
-              OptionTrade = None
-              BrokerMovement = None
-              BankAccountMovement = None
-              TickerSplit = None }
+            let rawMovement =
+                { Type = AccountMovementType.Trade
+                  TimeStamp = tradeMovement.TimeStamp
+                  Trade = Some tradeMovement
+                  Dividend = None
+                  DividendTax = None
+                  DividendDate = None
+                  OptionTrade = None
+                  BrokerMovement = None
+                  BankAccountMovement = None
+                  TickerSplit = None
+                  FormattedTitle = ""
+                  FormattedSubtitle = None
+                  FormattedDate = ""
+                  FormattedQuantity = None
+                  ShowQuantity = false
+                  ShowSubtitle = false
+                  ShowOptionSubtitle = false
+                  ShowACAT = false
+                  ShowAmount = false }
+            
+            createMovementWithDisplayProperties rawMovement
 
         [<Extension>]
         static member tradesToMovements(trades: Binnaculum.Core.Database.DatabaseModel.Trade list) =
@@ -279,16 +316,28 @@ module internal DatabaseToModels =
         static member dividendReceivedToMovement(dividend: Binnaculum.Core.Database.DatabaseModel.Dividend) =
             let model = dividend.dividendReceivedToModel ()
 
-            { Type = AccountMovementType.Dividend
-              TimeStamp = model.TimeStamp
-              Trade = None
-              Dividend = Some model
-              DividendTax = None
-              DividendDate = None
-              OptionTrade = None
-              BrokerMovement = None
-              BankAccountMovement = None
-              TickerSplit = None }
+            let rawMovement =
+                { Type = AccountMovementType.Dividend
+                  TimeStamp = model.TimeStamp
+                  Trade = None
+                  Dividend = Some model
+                  DividendTax = None
+                  DividendDate = None
+                  OptionTrade = None
+                  BrokerMovement = None
+                  BankAccountMovement = None
+                  TickerSplit = None
+                  FormattedTitle = ""
+                  FormattedSubtitle = None
+                  FormattedDate = ""
+                  FormattedQuantity = None
+                  ShowQuantity = false
+                  ShowSubtitle = false
+                  ShowOptionSubtitle = false
+                  ShowACAT = false
+                  ShowAmount = false }
+            
+            createMovementWithDisplayProperties rawMovement
 
         [<Extension>]
         static member dividendsReceivedToMovements(dividends: Binnaculum.Core.Database.DatabaseModel.Dividend list) =
@@ -311,16 +360,28 @@ module internal DatabaseToModels =
         static member dividendTaxToMovement(dividend: Binnaculum.Core.Database.DatabaseModel.DividendTax) =
             let model = dividend.dividendTaxToModel ()
 
-            { Type = AccountMovementType.DividendTax
-              TimeStamp = model.TimeStamp
-              Trade = None
-              Dividend = None
-              DividendTax = Some model
-              DividendDate = None
-              OptionTrade = None
-              BrokerMovement = None
-              BankAccountMovement = None
-              TickerSplit = None }
+            let rawMovement =
+                { Type = AccountMovementType.DividendTax
+                  TimeStamp = model.TimeStamp
+                  Trade = None
+                  Dividend = None
+                  DividendTax = Some model
+                  DividendDate = None
+                  OptionTrade = None
+                  BrokerMovement = None
+                  BankAccountMovement = None
+                  TickerSplit = None
+                  FormattedTitle = ""
+                  FormattedSubtitle = None
+                  FormattedDate = ""
+                  FormattedQuantity = None
+                  ShowQuantity = false
+                  ShowSubtitle = false
+                  ShowOptionSubtitle = false
+                  ShowACAT = false
+                  ShowAmount = false }
+            
+            createMovementWithDisplayProperties rawMovement
 
         [<Extension>]
         static member dividendTaxesToMovements(dividends: Binnaculum.Core.Database.DatabaseModel.DividendTax list) =
@@ -344,16 +405,28 @@ module internal DatabaseToModels =
         static member dividendDateToMovement(dividend: Binnaculum.Core.Database.DatabaseModel.DividendDate) =
             let model = dividend.dividendDateToModel ()
 
-            { Type = AccountMovementType.DividendDate
-              TimeStamp = model.TimeStamp
-              Trade = None
-              Dividend = None
-              DividendTax = None
-              DividendDate = Some model
-              OptionTrade = None
-              BrokerMovement = None
-              BankAccountMovement = None
-              TickerSplit = None }
+            let rawMovement =
+                { Type = AccountMovementType.DividendDate
+                  TimeStamp = model.TimeStamp
+                  Trade = None
+                  Dividend = None
+                  DividendTax = None
+                  DividendDate = Some model
+                  OptionTrade = None
+                  BrokerMovement = None
+                  BankAccountMovement = None
+                  TickerSplit = None
+                  FormattedTitle = ""
+                  FormattedSubtitle = None
+                  FormattedDate = ""
+                  FormattedQuantity = None
+                  ShowQuantity = false
+                  ShowSubtitle = false
+                  ShowOptionSubtitle = false
+                  ShowACAT = false
+                  ShowAmount = false }
+            
+            createMovementWithDisplayProperties rawMovement
 
         [<Extension>]
         static member dividendDatesToMovements(dividends: Binnaculum.Core.Database.DatabaseModel.DividendDate list) =
@@ -425,32 +498,56 @@ module internal DatabaseToModels =
                                 Quantity = totalQuantity }
 
                         // Create movement for the combined trade
-                        { Type = AccountMovementType.OptionTrade
-                          TimeStamp = combinedTrade.TimeStamp
-                          Trade = None
-                          Dividend = None
-                          DividendTax = None
-                          DividendDate = None
-                          OptionTrade = Some combinedTrade
-                          BrokerMovement = None
-                          BankAccountMovement = None
-                          TickerSplit = None })
+                        let rawMovement =
+                            { Type = AccountMovementType.OptionTrade
+                              TimeStamp = combinedTrade.TimeStamp
+                              Trade = None
+                              Dividend = None
+                              DividendTax = None
+                              DividendDate = None
+                              OptionTrade = Some combinedTrade
+                              BrokerMovement = None
+                              BankAccountMovement = None
+                              TickerSplit = None
+                              FormattedTitle = ""
+                              FormattedSubtitle = None
+                              FormattedDate = ""
+                              FormattedQuantity = None
+                              ShowQuantity = false
+                              ShowSubtitle = false
+                              ShowOptionSubtitle = false
+                              ShowACAT = false
+                              ShowAmount = false }
+                        
+                        createMovementWithDisplayProperties rawMovement)
 
                 groupedTrades
 
             else
                 optionTradeModels
                 |> List.map (fun optionTrade ->
-                    { Type = AccountMovementType.OptionTrade
-                      TimeStamp = optionTrade.TimeStamp
-                      Trade = None
-                      Dividend = None
-                      DividendTax = None
-                      DividendDate = None
-                      OptionTrade = Some optionTrade
-                      BrokerMovement = None
-                      BankAccountMovement = None
-                      TickerSplit = None })
+                    let rawMovement =
+                        { Type = AccountMovementType.OptionTrade
+                          TimeStamp = optionTrade.TimeStamp
+                          Trade = None
+                          Dividend = None
+                          DividendTax = None
+                          DividendDate = None
+                          OptionTrade = Some optionTrade
+                          BrokerMovement = None
+                          BankAccountMovement = None
+                          TickerSplit = None
+                          FormattedTitle = ""
+                          FormattedSubtitle = None
+                          FormattedDate = ""
+                          FormattedQuantity = None
+                          ShowQuantity = false
+                          ShowSubtitle = false
+                          ShowOptionSubtitle = false
+                          ShowACAT = false
+                          ShowAmount = false }
+                    
+                    createMovementWithDisplayProperties rawMovement)
 
         // Snapshot conversion functions (backward compatible)
         [<Extension>]
