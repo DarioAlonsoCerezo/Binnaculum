@@ -5,22 +5,25 @@ namespace Binnaculum.Controls;
 
 public partial class MovementTemplate
 {
-	public MovementTemplate()
-	{
-		InitializeComponent();
-	}
+    private Color _redColor = (Color)Application.Current!.Resources["RedState"];
+    private Color _greenColor = (Color)Application.Current!.Resources["GreenState"];
+
+    public MovementTemplate()
+    {
+        InitializeComponent();
+    }
 
     protected override void StartLoad()
     {
-        
+
     }
 
     protected override void OnBindingContextChanged()
     {
         base.OnBindingContextChanged();
 
-        if(BindingContext is Models.Movement movement)
-        {            
+        if (BindingContext is Models.Movement movement)
+        {
             Quantity.IsVisible = movement.Type.IsTrade;
             SubTitle.IsVisible = ShowSubtitle(movement);
             OptionSubtitle.IsVisible = movement.Type.IsOptionTrade;
@@ -28,9 +31,9 @@ public partial class MovementTemplate
             Amount.IsVisible = !ACAT.IsVisible;
 
             if (movement.Type.IsBrokerMovement)
-                FillBrokerAccountMovement(movement);            
-            
-            if(movement.Type.IsBankAccountMovement)
+                FillBrokerAccountMovement(movement);
+
+            if (movement.Type.IsBankAccountMovement)
                 FillBankAccountMovement(movement.BankAccountMovement.Value);
 
             if (movement.Type.IsTrade)
@@ -39,18 +42,18 @@ public partial class MovementTemplate
             if (movement.Type.IsDividend)
                 FillDividendReceived(movement.Dividend.Value);
 
-            if(movement.Type.IsDividendDate)
+            if (movement.Type.IsDividendDate)
                 FillDividendDate(movement.DividendDate.Value);
 
-            if(movement.Type.IsDividendTax)
+            if (movement.Type.IsDividendTax)
                 FillDividendTax(movement.DividendTax.Value);
 
-            if(movement.Type.IsOptionTrade)
+            if (movement.Type.IsOptionTrade)
                 FillOptionTrade(movement.OptionTrade.Value);
         }
     }
 
-    
+
 
     private void FillBrokerAccountMovement(Models.Movement movement)
     {
@@ -65,8 +68,8 @@ public partial class MovementTemplate
             AmountConverted.Amount = movement.BrokerMovement.Value.AmountChanged.Value;
             AmountConverted.Money = movement.BrokerMovement.Value.FromCurrency.Value;
             AmountConverted.IsVisible = true;
-        } 
-        
+        }
+
         if (movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferReceived
             || movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferSent)
         {
@@ -74,11 +77,11 @@ public partial class MovementTemplate
             ACATQuantity.Text = movement.BrokerMovement.Value.Quantity.Value.ToString("N0");
 
             ACATQuantity.TextColor = movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferSent
-                ? (Color)Application.Current!.Resources["RedState"]
-                : (Color)Application.Current!.Resources["GreenState"];
+                ? _redColor
+                : _greenColor;
         }
 
-        if(movement.BrokerMovement.Value.MovementType.IsACATMoneyTransferReceived
+        if (movement.BrokerMovement.Value.MovementType.IsACATMoneyTransferReceived
             || movement.BrokerMovement.Value.MovementType.IsACATMoneyTransferSent
             || movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferReceived
             || movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferSent)
@@ -146,7 +149,7 @@ public partial class MovementTemplate
     private void FillOptionTrade(OptionTrade trade)
     {
         var toShow = trade.Code.ToShow();
-        
+
         if (toShow && trade.ExpirationDate > DateTime.Today)
         {
             ExpirationDateLabel.IsVisible = toShow;
@@ -236,7 +239,7 @@ public partial class MovementTemplate
 
     private bool ShowSubtitle(Models.Movement movement)
     {
-        if(movement.Type.IsBrokerMovement)
+        if (movement.Type.IsBrokerMovement)
         {
             return movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferReceived
                 || movement.BrokerMovement.Value.MovementType.IsACATSecuritiesTransferSent
