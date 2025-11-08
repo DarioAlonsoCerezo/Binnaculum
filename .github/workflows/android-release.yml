@@ -104,16 +104,18 @@ jobs:
           dotnet publish src/UI/Binnaculum.csproj \
             -f net9.0-android \
             -c Release \
-            -p:ApplicationDisplayVersion=${{ inputs.version }} \
+            -p:ApplicationDisplayVersion="${{ inputs.version }}" \
             -p:ApplicationVersion=${{ env.BUILD_NUMBER }} \
             -p:AndroidPackageFormat=apk \
             -p:AndroidKeyStore=true \
-            -p:AndroidSigningKeyStore=${{ github.workspace }}/release.keystore \
-            -p:AndroidSigningKeyAlias=${{ secrets.KEY_ALIAS }} \
-            -p:AndroidSigningKeyPass=${{ secrets.KEY_PASSWORD }} \
-            -p:AndroidSigningStorePass=${{ secrets.KEYSTORE_PASSWORD }} \
+            -p:AndroidSigningKeyStore="${{ github.workspace }}/release.keystore" \
+            -p:AndroidSigningKeyAlias="${KEY_ALIAS}" \
+            -p:AndroidSigningKeyPass="${KEY_PASSWORD}" \
+            -p:AndroidSigningStorePass="${KEYSTORE_PASSWORD}" \
             -o ${{ github.workspace }}/output
         env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Find and Rename APK
