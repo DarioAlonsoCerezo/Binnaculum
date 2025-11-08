@@ -98,6 +98,9 @@ StyleCopReport.xml
 .builds
 *.pidb
 *.svclog
+
+# Generated build configuration files
+BuildConfig.g.cs
 *.scc
 
 # Chutzpah Test files

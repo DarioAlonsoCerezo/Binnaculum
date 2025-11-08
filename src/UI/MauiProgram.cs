@@ -15,7 +15,8 @@ public static class MauiProgram
             .UseMarkdownView()
             .UseSentry(options =>
             {
-                options.Dsn = Environment.GetEnvironmentVariable("SENTRY_DSN") ?? "";
+                // Sentry DSN is injected at compile time via BuildConfig
+                options.Dsn = BuildConfig.SentryDsn;
                 options.Debug = true;
             })
             .ConfigureFonts(fonts =>

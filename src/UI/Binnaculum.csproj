@@ -7,6 +7,9 @@
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
 
+		<!-- Sentry DSN - injected at build time from MSBuild property -->
+		<SentryDsn Condition="'$(SentryDsn)' == ''"></SentryDsn>
+
 		<!-- Note for MacCatalyst:
 		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
 		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
@@ -89,6 +92,27 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Core\Core.fsproj" />
 	</ItemGroup>
+
+	<!-- Generate BuildConfig.cs with injected values at compile time -->
+	<Target Name="GenerateBuildConfig" BeforeTargets="CoreCompile">
+		<PropertyGroup>
+			<BuildConfigContent>
+namespace Binnaculum%3B
+
+/// &lt;summary&gt;
+/// Build-time configuration values injected via MSBuild properties.
+/// &lt;/summary&gt;
+internal static class BuildConfig
+{
+    public const string SentryDsn = "$(SentryDsn)"%3B
+}
+			</BuildConfigContent>
+		</PropertyGroup>
+		<WriteLinesToFile File="$(IntermediateOutputPath)BuildConfig.g.cs" Lines="$(BuildConfigContent)" Overwrite="true" />
+		<ItemGroup>
+			<Compile Include="$(IntermediateOutputPath)BuildConfig.g.cs" />
+		</ItemGroup>
+	</Target>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
