@@ -185,8 +185,8 @@ jobs:
           
           echo "Found signed APK: $SIGNED_APK"
           
-          # Create friendly filename
-          APK_NAME="Binnaculum-v${{ vars.APP_VERSION }}-build.${{ github.run_number }}.apk"
+          # Create friendly filename with build number in parentheses
+          APK_NAME="Binnaculum-v${{ vars.APP_VERSION }}(${{ github.run_number }}).apk"
           mv "$SIGNED_APK" "${{ github.workspace }}/$APK_NAME"
           
           echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
