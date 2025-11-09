@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.OptionTradeMovementTemplate"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    HeightRequest="90">
+    <Grid>
+        <controls:IconControl
+            x:Name="Icon"
+            Margin="12,4,0,0"
+            HorizontalOptions="Start"
+            VerticalOptions="Start" />
+        <Label
+            x:Name="OptionStrike"
+            Margin="12,0,0,4"
+            HorizontalOptions="Start"
+            VerticalOptions="End"
+            IsVisible="False"
+            FontSize="Micro"
+            Style="{StaticResource LabelInfo}">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span Text="Strike:" />
+                    <Span Text=" " />
+                    <Span x:Name="OptionStrikeValue" />
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
+
+        <!--  TITLE AND OPTION SUBTITLE  -->
+        <VerticalStackLayout Padding="80,4,0,0">
+            <Label
+                x:Name="Title"
+                HorizontalTextAlignment="Start"
+                VerticalTextAlignment="Start"
+                VerticalOptions="Start"
+                FontSize="Body"
+                Style="{StaticResource SelectableItem}" />
+            <Label
+                x:Name="OptionSubtitle"
+                HorizontalTextAlignment="Start"
+                VerticalTextAlignment="Start"
+                VerticalOptions="Start"
+                FontSize="Micro"
+                Style="{StaticResource LabelInfo}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span x:Name="OptionType" />
+                        <Span Text=": " />
+                        <Span x:Name="OptionCode" />
+                        <Span Text=" " />
+                        <Span x:Name="OptionQuantity" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </VerticalStackLayout>
+
+        <controls:MoneyControl
+            x:Name="Amount"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            TranslationY="14" />
+
+        <VerticalStackLayout
+            Margin="0,4,20,0"
+            HorizontalOptions="End"
+            VerticalOptions="Start">
+            <controls:TimeStampControl
+                x:Name="TimeStamp"
+                ShowTime="False" />
+            <Label
+                x:Name="ExpirationDateLabel"
+                FontSize="Micro"
+                Style="{StaticResource LabelInfo}"
+                IsVisible="False">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="Expiring:" />
+                        <Span Text=" " />
+                        <Span x:Name="ExpirationDate" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </VerticalStackLayout>
+
+        <Line Style="{StaticResource LineSettingsGroup}" />
+    </Grid>
+</controls:BaseContentView>
