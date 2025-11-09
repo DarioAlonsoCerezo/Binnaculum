@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using Binnaculum.Core.Logging;
 using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Controls;
@@ -24,23 +25,25 @@ public partial class BrokerMovementTemplate
 
         if (BindingContext is Models.Movement movement && movement.Type == Models.AccountMovementType.BrokerMovement)
         {
+            // Commented out to reduce log noise
+            //CoreLogger.logDebug("BrokerMovementTemplate", "BindingContext changed for template");
             var bm = movement.BrokerMovement.Value;
-            
+
             // Use pre-computed properties
             Title.SetLocalizedText(movement.FormattedTitle);
             TimeStamp.DateTime = movement.TimeStamp;
-            
+
             if (movement.FormattedSubtitle != null)
             {
                 SubTitle.SetLocalizedText(movement.FormattedSubtitle.Value);
                 SubTitle.IsVisible = true;
             }
-            
+
             // Bind broker movement values
             Icon.ImagePath = bm.BrokerAccount.Broker.Image;
             Amount.Amount = bm.Amount;
             Amount.Money = bm.Currency;
-            
+
             // Handle Conversion type
             if (bm.MovementType.IsConversion)
             {
@@ -48,7 +51,7 @@ public partial class BrokerMovementTemplate
                 AmountConverted.Money = bm.FromCurrency.Value;
                 AmountConverted.IsVisible = true;
             }
-            
+
             // Handle ACAT Securities transfers
             if (bm.MovementType.IsACATSecuritiesTransferReceived || bm.MovementType.IsACATSecuritiesTransferSent)
             {

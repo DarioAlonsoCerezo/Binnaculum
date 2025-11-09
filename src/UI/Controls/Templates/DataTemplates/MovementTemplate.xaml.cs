@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using Binnaculum.Core.Logging;
 using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Controls;
@@ -24,6 +25,8 @@ public partial class MovementTemplate
 
         if (BindingContext is Models.Movement movement)
         {
+            // Commented out to reduce log noise
+            //CoreLogger.logDebug("MovementTemplate", "BindingContext changed for template");
             Quantity.IsVisible = movement.Type.IsTrade;
             SubTitle.IsVisible = ShowSubtitle(movement);
             OptionSubtitle.IsVisible = movement.Type.IsOptionTrade;

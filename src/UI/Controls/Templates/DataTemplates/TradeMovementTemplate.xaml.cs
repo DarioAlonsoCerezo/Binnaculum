@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using Binnaculum.Core.Logging;
 using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Controls;
@@ -21,6 +22,8 @@ public partial class TradeMovementTemplate
 
         if (BindingContext is Models.Movement movement && movement.Type == Models.AccountMovementType.Trade)
         {
+            // Commented out to reduce log noise
+            //CoreLogger.logDebug("TradeMovementTemplate", "BindingContext changed for template");
             var trade = movement.Trade.Value;
             
             // Use pre-computed properties

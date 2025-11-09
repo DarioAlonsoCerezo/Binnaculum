@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<controls:BaseContentView
+<controls:BaseMovementContentView
     x:Class="Binnaculum.Controls.MovementTemplate"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Binnaculum"
-    xmlns:controls="clr-namespace:Binnaculum.Controls"
-    HeightRequest="90">
+    xmlns:controls="clr-namespace:Binnaculum.Controls">
     <Grid>
         <controls:IconControl
             x:Name="Icon"
             Margin="12,4,0,0"
             HorizontalOptions="Start"
-            VerticalOptions="Start" />
+            VerticalOptions="Start"/>
         <Label
             x:Name="OptionStrike"
             Margin="12,0,0,4"
@@ -22,9 +21,9 @@
             Style="{StaticResource LabelInfo}">
             <Label.FormattedText>
                 <FormattedString>
-                    <Span Text="Strike:" />
-                    <Span Text=" " />
-                    <Span x:Name="OptionStrikeValue" />
+                    <Span Text="Strike:"/>
+                    <Span Text=" "/>
+                    <Span x:Name="OptionStrikeValue"/>
                 </FormattedString>
             </Label.FormattedText>
         </Label>
@@ -37,7 +36,7 @@
                 VerticalTextAlignment="Start"
                 VerticalOptions="Start"
                 FontSize="Body"
-                Style="{StaticResource SelectableItem}" />
+                Style="{StaticResource SelectableItem}"/>
             <Label
                 x:Name="SubTitle"
                 IsVisible="False"
@@ -45,7 +44,7 @@
                 VerticalTextAlignment="Start"
                 VerticalOptions="Start"
                 FontSize="Micro"
-                Style="{StaticResource LabelInfo}" />
+                Style="{StaticResource LabelInfo}"/>
             <Label
                 x:Name="OptionSubtitle"
                 IsVisible="False"
@@ -56,11 +55,11 @@
                 Style="{StaticResource LabelInfo}">
                 <Label.FormattedText>
                     <FormattedString>
-                        <Span x:Name="OptionType" />
-                        <Span Text=": " />
-                        <Span x:Name="OptionCode" />
-                        <Span Text=" " />
-                        <Span x:Name="OptionQuantity" />
+                        <Span x:Name="OptionType"/>
+                        <Span Text=": "/>
+                        <Span x:Name="OptionCode"/>
+                        <Span Text=" "/>
+                        <Span x:Name="OptionQuantity"/>
                     </FormattedString>
                 </Label.FormattedText>
             </Label>
@@ -70,7 +69,7 @@
             x:Name="Amount"
             HorizontalOptions="Center"
             VerticalOptions="Center"
-            TranslationY="14" />
+            TranslationY="14"/>
 
         <controls:MoneyControl
             x:Name="AmountConverted"
@@ -80,7 +79,7 @@
             Opacity="0.5"
             HorizontalOptions="End"
             VerticalOptions="Center"
-            TranslationY="15" />
+            TranslationY="15"/>
 
         <Label
             x:Name="ACAT"
@@ -92,11 +91,11 @@
                     <Span
                         Text="x"
                         FontSize="Caption"
-                        FontFamily="OpenSansSemibold" />
+                        FontFamily="OpenSansSemibold"/>
                     <Span
                         x:Name="ACATQuantity"
                         FontSize="Title"
-                        FontFamily="OpenSansBold" />
+                        FontFamily="OpenSansBold"/>
                 </FormattedString>
             </Label.FormattedText>
         </Label>
@@ -106,7 +105,7 @@
             VerticalOptions="Start">
             <controls:TimeStampControl
                 x:Name="TimeStamp"
-                ShowTime="False" />
+                ShowTime="False"/>
             <Label
                 x:Name="ExpirationDateLabel"
                 FontSize="Micro"
@@ -114,9 +113,9 @@
                 IsVisible="False">
                 <Label.FormattedText>
                     <FormattedString>
-                        <Span Text="Expiring:" />
-                        <Span Text=" " />
-                        <Span x:Name="ExpirationDate" />
+                        <Span Text="Expiring:"/>
+                        <Span Text=" "/>
+                        <Span x:Name="ExpirationDate"/>
                     </FormattedString>
                 </Label.FormattedText>
             </Label>
@@ -128,7 +127,7 @@
             HorizontalOptions="End"
             VerticalOptions="Center"
             IsVisible="False"
-            FontFamily="OpenSansSemibold" />
-        <Line Style="{StaticResource LineSettingsGroup}" />
+            FontFamily="OpenSansSemibold"/>
+        <Line Style="{StaticResource LineSettingsGroup}"/>
     </Grid>
-</controls:BaseContentView>
+</controls:BaseMovementContentView>

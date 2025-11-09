@@ -1,4 +1,5 @@
 using Binnaculum.Core;
+using Binnaculum.Core.Logging;
 using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Controls;
@@ -21,6 +22,8 @@ public partial class DividendMovementTemplate
 
         if (BindingContext is Models.Movement movement && movement.Type == Models.AccountMovementType.Dividend)
         {
+            // Commented out to reduce log noise
+            //CoreLogger.logDebug("DividendMovementTemplate", "BindingContext changed for template");
             var dividend = movement.Dividend.Value;
             
             // Use pre-computed properties

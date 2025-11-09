@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<controls:BaseContentView
+<controls:BaseMovementContentView
     x:Class="Binnaculum.Controls.BankMovementTemplate"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Binnaculum"
-    xmlns:controls="clr-namespace:Binnaculum.Controls"
-    HeightRequest="90">
+    xmlns:controls="clr-namespace:Binnaculum.Controls">
     <Grid>
         <controls:IconControl
             x:Name="Icon"
             Margin="12,4,0,0"
             HorizontalOptions="Start"
-            VerticalOptions="Start" />
+            VerticalOptions="Start"/>
 
         <!--  TITLE  -->
         <VerticalStackLayout Padding="80,4,0,0">
@@ -21,14 +20,14 @@
                 VerticalTextAlignment="Start"
                 VerticalOptions="Start"
                 FontSize="Body"
-                Style="{StaticResource SelectableItem}" />
+                Style="{StaticResource SelectableItem}"/>
         </VerticalStackLayout>
 
         <controls:MoneyControl
             x:Name="Amount"
             HorizontalOptions="Center"
             VerticalOptions="Center"
-            TranslationY="14" />
+            TranslationY="14"/>
 
         <VerticalStackLayout
             Margin="0,4,20,0"
@@ -36,9 +35,9 @@
             VerticalOptions="Start">
             <controls:TimeStampControl
                 x:Name="TimeStamp"
-                ShowTime="False" />
+                ShowTime="False"/>
         </VerticalStackLayout>
 
-        <Line Style="{StaticResource LineSettingsGroup}" />
+        <Line Style="{StaticResource LineSettingsGroup}"/>
     </Grid>
-</controls:BaseContentView>
+</controls:BaseMovementContentView>
