@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.DividendDateMovementTemplate"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:controls="clr-namespace:Binnaculum.Controls"
+    HeightRequest="90">
+    <Grid>
+        <controls:IconControl
+            x:Name="Icon"
+            Margin="12,4,0,0"
+            HorizontalOptions="Start"
+            VerticalOptions="Start" />
+
+        <!--  TITLE AND SUBTITLE  -->
+        <VerticalStackLayout Padding="80,4,0,0">
+            <Label
+                x:Name="Title"
+                HorizontalTextAlignment="Start"
+                VerticalTextAlignment="Start"
+                VerticalOptions="Start"
+                FontSize="Body"
+                Style="{StaticResource SelectableItem}" />
+            <Label
+                x:Name="SubTitle"
+                HorizontalTextAlignment="Start"
+                VerticalTextAlignment="Start"
+                VerticalOptions="Start"
+                FontSize="Micro"
+                Style="{StaticResource LabelInfo}" />
+        </VerticalStackLayout>
+
+        <controls:MoneyControl
+            x:Name="Amount"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            TranslationY="14" />
+
+        <VerticalStackLayout
+            Margin="0,4,20,0"
+            HorizontalOptions="End"
+            VerticalOptions="Start">
+            <controls:TimeStampControl
+                x:Name="TimeStamp"
+                ShowTime="False" />
+        </VerticalStackLayout>
+
+        <Line Style="{StaticResource LineSettingsGroup}" />
+    </Grid>
+</controls:BaseContentView>
