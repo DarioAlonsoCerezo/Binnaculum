@@ -30,16 +30,27 @@ internal class MovementTemplateSelector : DataTemplateSelector
         if (item is not Models.Movement movement)
             return EmptyMovementTemplate;
 
-        return movement.Type switch
-        {
-            Models.AccountMovementType.Trade => TradeMovementTemplate,
-            Models.AccountMovementType.OptionTrade => OptionTradeMovementTemplate,
-            Models.AccountMovementType.Dividend => DividendMovementTemplate,
-            Models.AccountMovementType.DividendTax => DividendTaxMovementTemplate,
-            Models.AccountMovementType.DividendDate => DividendDateMovementTemplate,
-            Models.AccountMovementType.BrokerMovement => BrokerMovementTemplate,
-            Models.AccountMovementType.BankAccountMovement => BankMovementTemplate,
-            _ => EmptyMovementTemplate
-        };
+        if (movement.Type.IsTrade)
+            return TradeMovementTemplate;
+        
+        if (movement.Type.IsOptionTrade)
+            return OptionTradeMovementTemplate;
+        
+        if (movement.Type.IsDividend)
+            return DividendMovementTemplate;
+        
+        if (movement.Type.IsDividendTax)
+            return DividendTaxMovementTemplate;
+        
+        if (movement.Type.IsDividendDate)
+            return DividendDateMovementTemplate;
+        
+        if (movement.Type.IsBrokerMovement)
+            return BrokerMovementTemplate;
+        
+        if (movement.Type.IsBankAccountMovement)
+            return BankMovementTemplate;
+
+        return EmptyMovementTemplate;
     }
 }
