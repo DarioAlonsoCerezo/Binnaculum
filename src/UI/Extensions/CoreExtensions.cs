@@ -37,7 +37,7 @@ public static class CoreExtensions
         // SavingToDatabase state
         if (state == ImportStateEnum.SavingToDatabase)
         {
-            if (FSharpOption<int>.get_IsSome(status.RecordsProcessed) && FSharpOption<int>.get_IsSome(status.TotalRecords))
+            if (status.RecordsProcessed != null && status.TotalRecords != null)
             {
                 return LocalizationResourceManager.Instance.GetString(
                     "Import_SavingData", 
@@ -51,7 +51,7 @@ public static class CoreExtensions
         // ProcessingFile state
         if (state == ImportStateEnum.ProcessingFile)
         {
-            if (FSharpOption<string>.get_IsSome(status.FileName))
+            if (status.FileName != null)
             {
                 return LocalizationResourceManager.Instance.GetString(
                     "Import_ProcessingFile",
@@ -64,7 +64,7 @@ public static class CoreExtensions
         // ProcessingData state
         if (state == ImportStateEnum.ProcessingData)
         {
-            if (FSharpOption<int>.get_IsSome(status.RecordsProcessed) && FSharpOption<int>.get_IsSome(status.TotalRecords))
+            if (status.RecordsProcessed != null && status.TotalRecords != null)
             {
                 return LocalizationResourceManager.Instance.GetString(
                     "Import_ProcessingRecords",
