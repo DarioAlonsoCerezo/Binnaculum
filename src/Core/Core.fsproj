@@ -95,6 +95,8 @@
 		<Compile Include="Database\AutoImportOperationTradeExtensions.fs" />
 		<Compile Include="Import\ImportModels.fs" />
 		<Compile Include="Import\ImportDomainTypes.fs" />
+		<Compile Include="Import\MovementValidator.fs" />
+		<Compile Include="Import\MovementPersistence.fs" />
 		<Compile Include="Import\ImportState.fs" />
 		<Compile Include="Import\CsvDateAnalyzer.fs" />
 		<Compile Include="Import\ImportProgressTracker.fs" />
