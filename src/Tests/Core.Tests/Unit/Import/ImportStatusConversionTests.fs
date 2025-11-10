@@ -18,7 +18,7 @@ type ImportStatusConversionTests() =
     member this.``CurrentImportStatus.fromImportStatus converts NotStarted correctly``() =
         let status = NotStarted
         let converted = CurrentImportStatus.fromImportStatus status
-        
+
         Assert.That(converted.State, Is.EqualTo(ImportStateEnum.NotStarted))
         Assert.That(converted.FilePath, Is.EqualTo(None))
         Assert.That(converted.FileName, Is.EqualTo(None))
@@ -37,7 +37,7 @@ type ImportStatusConversionTests() =
         let filePath = "/test/path/file.csv"
         let status = Validating filePath
         let converted = CurrentImportStatus.fromImportStatus status
-        
+
         Assert.That(converted.State, Is.EqualTo(ImportStateEnum.Validating))
         Assert.That(converted.FilePath, Is.EqualTo(Some filePath))
         Assert.That(converted.FileName, Is.EqualTo(None))
@@ -55,9 +55,9 @@ type ImportStatusConversionTests() =
     member this.``CurrentImportStatus.fromImportStatus converts ProcessingFile correctly``() =
         let fileName = "test.csv"
         let progress = 0.75
-        let status = ProcessingFile (fileName, progress)
+        let status = ProcessingFile(fileName, progress)
         let converted = CurrentImportStatus.fromImportStatus status
-        
+
         Assert.That(converted.State, Is.EqualTo(ImportStateEnum.ProcessingFile))
         Assert.That(converted.FilePath, Is.EqualTo(None))
         Assert.That(converted.FileName, Is.EqualTo(Some fileName))
@@ -75,9 +75,9 @@ type ImportStatusConversionTests() =
     member this.``CurrentImportStatus.fromImportStatus converts ProcessingData correctly``() =
         let processed = 50
         let total = 100
-        let status = ProcessingData (processed, total)
+        let status = ProcessingData(processed, total)
         let converted = CurrentImportStatus.fromImportStatus status
-        
+
         Assert.That(converted.State, Is.EqualTo(ImportStateEnum.ProcessingData))
         Assert.That(converted.FilePath, Is.EqualTo(None))
         Assert.That(converted.FileName, Is.EqualTo(None))
@@ -95,15 +95,17 @@ type ImportStatusConversionTests() =
     member this.``CurrentImportStatus.fromImportStatus converts SavingToDatabase correctly``() =
         let message = "Saving records to database..."
         let progress = 0.9
-        let status = SavingToDatabase (message, progress)
+        let processed = 90
+        let total = 100
+        let status = SavingToDatabase(message, progress, processed, total)
         let converted = CurrentImportStatus.fromImportStatus status
-        
+
         Assert.That(converted.State, Is.EqualTo(ImportStateEnum.SavingToDatabase))
         Assert.That(converted.FilePath, Is.EqualTo(None))
         Assert.That(converted.FileName, Is.EqualTo(None))
         Assert.That(converted.Progress, Is.EqualTo(Some progress))
-        Assert.That(converted.RecordsProcessed, Is.EqualTo(None))
-        Assert.That(converted.TotalRecords, Is.EqualTo(None))
+        Assert.That(converted.RecordsProcessed, Is.EqualTo(Some processed))
+        Assert.That(converted.TotalRecords, Is.EqualTo(Some total))
         Assert.That(converted.Message, Is.EqualTo(Some message))
         Assert.That(converted.Result, Is.EqualTo(None))
         Assert.That(converted.Error, Is.EqualTo(None))
@@ -113,13 +115,21 @@ type ImportStatusConversionTests() =
     /// </summary>
     [<Test>]
     member this.``CurrentImportStatus.fromImportStatus converts Completed correctly``() =
-        let result = ImportResult.createSuccess 1 100 
-                        { Trades = 50; BrokerMovements = 30; Dividends = 20; OptionTrades = 0; NewTickers = 5 } 
-                        [] 
-                        1000L
+        let result =
+            ImportResult.createSuccess
+                1
+                100
+                { Trades = 50
+                  BrokerMovements = 30
+                  Dividends = 20
+                  OptionTrades = 0
+                  NewTickers = 5 }
+                []
+                1000L
+
         let status = Completed result
         let converted = CurrentImportStatus.fromImportStatus status
-        
+
         Assert.That(converted.State, Is.EqualTo(ImportStateEnum.Completed))
         Assert.That(converted.FilePath, Is.EqualTo(None))
         Assert.That(converted.FileName, Is.EqualTo(None))
@@ -138,7 +148,7 @@ type ImportStatusConversionTests() =
         let reason = "User cancelled import"
         let status = Cancelled reason
         let converted = CurrentImportStatus.fromImportStatus status
-        
+
         Assert.That(converted.State, Is.EqualTo(ImportStateEnum.Cancelled))
         Assert.That(converted.FilePath, Is.EqualTo(None))
         Assert.That(converted.FileName, Is.EqualTo(None))
@@ -157,7 +167,7 @@ type ImportStatusConversionTests() =
         let error = "Import failed due to invalid data"
         let status = Failed error
         let converted = CurrentImportStatus.fromImportStatus status
-        
+
         Assert.That(converted.State, Is.EqualTo(ImportStateEnum.Failed))
         Assert.That(converted.FilePath, Is.EqualTo(None))
         Assert.That(converted.FileName, Is.EqualTo(None))
@@ -188,16 +198,15 @@ type ImportStatusConversionTests() =
     /// </summary>
     [<Test>]
     member this.``CurrentImportStatus conversion preserves all data``() =
-        let testCases = [
-            (NotStarted, ImportStateEnum.NotStarted)
-            (Validating "test.csv", ImportStateEnum.Validating)
-            (ProcessingFile ("file.csv", 0.5), ImportStateEnum.ProcessingFile)
-            (ProcessingData (50, 100), ImportStateEnum.ProcessingData)
-            (SavingToDatabase ("Saving...", 0.8), ImportStateEnum.SavingToDatabase)
-            (Cancelled "User cancelled", ImportStateEnum.Cancelled)
-            (Failed "Error occurred", ImportStateEnum.Failed)
-        ]
-        
+        let testCases =
+            [ (NotStarted, ImportStateEnum.NotStarted)
+              (Validating "test.csv", ImportStateEnum.Validating)
+              (ProcessingFile("file.csv", 0.5), ImportStateEnum.ProcessingFile)
+              (ProcessingData(50, 100), ImportStateEnum.ProcessingData)
+              (SavingToDatabase("Saving...", 0.8, 80, 100), ImportStateEnum.SavingToDatabase)
+              (Cancelled "User cancelled", ImportStateEnum.Cancelled)
+              (Failed "Error occurred", ImportStateEnum.Failed) ]
+
         for (duStatus, expectedState) in testCases do
             let converted = CurrentImportStatus.fromImportStatus duStatus
             Assert.That(converted.State, Is.EqualTo(expectedState))

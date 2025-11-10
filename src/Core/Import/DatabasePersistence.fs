@@ -48,15 +48,16 @@ module DatabasePersistence =
             let mutable affectedTickerSymbols = Set.empty<string>
             let mutable movementDates = []
 
-            try
-                let totalItems =
-                    input.BrokerMovements.Length
-                    + input.OptionTrades.Length
-                    + input.StockTrades.Length
-                    + input.Dividends.Length
-                    + input.DividendTaxes.Length
+            let totalItems =
+                input.BrokerMovements.Length
+                + input.OptionTrades.Length
+                + input.StockTrades.Length
+                + input.Dividends.Length
+                + input.DividendTaxes.Length
 
-                let mutable processedCount = 0
+            let mutable processedCount = 0
+
+            try
 
                 // Persist BrokerMovements
                 for brokerMovement in input.BrokerMovements do
@@ -70,7 +71,7 @@ module DatabasePersistence =
                         let progress = float processedCount / float totalItems
 
                         ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress)
+                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
                         )
                     with ex ->
                         errors <- $"Error saving BrokerMovement ID={brokerMovement.Id}: {ex.Message}" :: errors
@@ -102,7 +103,7 @@ module DatabasePersistence =
                         let progress = float processedCount / float totalItems
 
                         ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress)
+                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
                         )
                     with ex ->
                         errors <- $"Error saving OptionTrade ID={optionTrade.Id}: {ex.Message}" :: errors
@@ -126,7 +127,7 @@ module DatabasePersistence =
                         let progress = float processedCount / float totalItems
 
                         ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress)
+                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
                         )
                     with ex ->
                         errors <- $"Error saving Trade ID={stockTrade.Id}: {ex.Message}" :: errors
@@ -150,7 +151,7 @@ module DatabasePersistence =
                         let progress = float processedCount / float totalItems
 
                         ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress)
+                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
                         )
                     with ex ->
                         errors <- $"Error saving Dividend ID={dividend.Id}: {ex.Message}" :: errors
@@ -174,13 +175,15 @@ module DatabasePersistence =
                         let progress = float processedCount / float totalItems
 
                         ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress)
+                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
                         )
                     with ex ->
                         errors <- $"Error saving DividendTax ID={dividendTax.Id}: {ex.Message}" :: errors
 
                 // Final progress update
-                ImportState.updateStatus (SavingToDatabase(ResourceKeys.Import_Completed, 1.0))
+                ImportState.updateStatus (
+                    SavingToDatabase(ResourceKeys.Import_Completed, 1.0, processedCount, totalItems)
+                )
 
                 // Create import metadata for targeted snapshot updates
                 let oldestMovementDate =
@@ -206,7 +209,9 @@ module DatabasePersistence =
 
             with
             | :? OperationCanceledException ->
-                ImportState.updateStatus (SavingToDatabase(ResourceKeys.Import_Cancelled, 0.0))
+                ImportState.updateStatus (
+                    SavingToDatabase(ResourceKeys.Import_Cancelled, 0.0, processedCount, totalItems)
+                )
 
                 return
                     { BrokerMovementsCreated = 0
