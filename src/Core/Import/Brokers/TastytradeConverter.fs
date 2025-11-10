@@ -324,6 +324,55 @@ module internal TastytradeConverter =
           Audit = AuditableEntity.FromDateTime(DateTime.UtcNow) }
 
     /// <summary>
+    /// Apply strike adjustment to a single option trade if a matching adjustment exists.
+    /// This is called per-trade BEFORE saving to ensure strikes are correct before FIFO matching.
+    /// </summary>
+    let private applyAdjustmentToSingleTrade
+        (trade: DatabaseModel.OptionTrade)
+        (adjustments: SpecialDividendAdjustmentDetector.DetectedAdjustment list)
+        : DatabaseModel.OptionTrade =
+
+        let matchingAdjustment =
+            adjustments
+            |> List.tryFind (fun adj ->
+                // Match by expiration date
+                let sameExpiration =
+                    match adj.ClosingTransaction.ExpirationDate with
+                    | Some expDate -> trade.ExpirationDate = DateTimePattern.FromDateTime(expDate)
+                    | None -> false
+
+                // Match by original strike (what we're adjusting FROM)
+                let sameStrike = trade.Strike.Value = adj.OriginalStrike
+
+                // Match by option type
+                let sameType =
+                    match adj.OptionType with
+                    | "CALL" -> trade.OptionType = OptionType.Call
+                    | "PUT" -> trade.OptionType = OptionType.Put
+                    | _ -> false
+
+                sameExpiration && sameStrike && sameType)
+
+        match matchingAdjustment with
+        | Some adj ->
+            // Apply the adjustment
+            let adjustmentNote =
+                SpecialDividendAdjustmentDetector.formatAdjustmentNote
+                    adj.OriginalStrike
+                    adj.NewStrike
+                    adj.DividendAmount
+
+            { trade with
+                Strike = Money.FromAmount(adj.NewStrike)
+                Notes = Some adjustmentNote
+                Audit =
+                    { trade.Audit with
+                        UpdatedAt = Some(DateTimePattern.FromDateTime(DateTime.UtcNow)) } }
+        | None ->
+            // No adjustment needed - return unchanged
+            trade
+
+    /// <summary>
     /// Convert Tastytrade transactions to domain models
     /// Main entry point for Tastytrade-to-domain conversion
     /// Supports session tracking for resumable imports (integrates with PR #420)
@@ -343,6 +392,12 @@ module internal TastytradeConverter =
 
             // Sort transactions by date (chronological order)
             let sortedTransactions = transactions |> List.sortBy (fun t -> t.Date)
+            
+            // Detect all strike adjustments BEFORE processing transactions
+            // This allows us to apply adjustments to option trades as they're created,
+            // ensuring strikes are correct BEFORE FIFO matching
+            let detectedAdjustments =
+                SpecialDividendAdjustmentDetector.detectAdjustments sortedTransactions
 
             // Process each transaction
             for transaction in sortedTransactions do
@@ -401,8 +456,13 @@ module internal TastytradeConverter =
 
                         let expandedOptionTrades =
                             createOptionTradeFromTransaction transaction brokerAccountId currencyId tickerId
+                        
+                        // Apply strike adjustments to each option trade (if applicable)
+                        let adjustedOptionTrades =
+                            expandedOptionTrades
+                            |> List.map (fun trade -> applyAdjustmentToSingleTrade trade detectedAdjustments)
 
-                        optionTrades <- List.append optionTrades expandedOptionTrades
+                        optionTrades <- List.append optionTrades adjustedOptionTrades
 
                     | Trade(_, _) when transaction.InstrumentType = Some "Equity" ->
                         // Get ticker ID for the stock symbol
