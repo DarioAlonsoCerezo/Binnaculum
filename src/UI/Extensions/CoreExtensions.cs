@@ -1,4 +1,6 @@
-﻿using Binnaculum.Core.Import;
+﻿using Android.Net.Wifi.Aware;
+using Binnaculum.Core.Import;
+using CSharpMath;
 
 namespace Binnaculum.Extensions;
 
@@ -22,5 +24,15 @@ public static class CoreExtensions
     {
         var state = status.State;
         return state != ImportStateEnum.NotStarted;
+    }
+
+    public static bool ToShowStatus(this CurrentImportStatus status)
+    {        
+        return status.Message != null;
+    }
+
+    public static string ToMessage(this CurrentImportStatus status) 
+    {
+        return status.Message != null ? status.Message.Value : string.Empty;
     }
 }
