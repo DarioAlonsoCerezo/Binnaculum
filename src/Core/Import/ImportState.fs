@@ -3,6 +3,7 @@ namespace Binnaculum.Core.Import
 open System
 open System.Reactive.Subjects
 open System.Threading
+open Binnaculum.Core
 
 /// <summary>
 /// Import state management with BehaviorSubject for UI connectivity and cancellation support
@@ -73,11 +74,11 @@ module ImportState =
 
     /// Background cancellation (app backgrounded, memory pressure, etc.)
     let cancelForBackground () =
-        cancelImport ("App moved to background")
+        cancelImport (ResourceKeys.Import_Cancelled)
 
     /// Force cleanup on disposal
     let cleanup () =
-        cancelImport ("System cleanup")
+        cancelImport (ResourceKeys.Import_Cancelled)
         cleanupCancellation ()
         ImportStatus.OnNext(NotStarted)
         CurrentStatus.OnNext(CurrentImportStatus.fromImportStatus NotStarted)

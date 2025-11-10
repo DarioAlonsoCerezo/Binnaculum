@@ -193,3 +193,34 @@ module ResourceKeys =
 
     [<Literal>]
     let Broker_Unknown = "Broker_Unknown"
+
+    // Import status resource keys (for UI localization)
+    [<Literal>]
+    let Import_SavingData = "Import_SavingData"
+
+    [<Literal>]
+    let Import_SavingData_Generic = "Import_SavingData_Generic"
+
+    [<Literal>]
+    let Import_ProcessingFile = "Import_ProcessingFile"
+
+    [<Literal>]
+    let Import_ProcessingFile_Generic = "Import_ProcessingFile_Generic"
+
+    [<Literal>]
+    let Import_ProcessingRecords = "Import_ProcessingRecords"
+
+    [<Literal>]
+    let Import_ProcessingRecords_Generic = "Import_ProcessingRecords_Generic"
+
+    [<Literal>]
+    let Import_Validating = "Import_Validating"
+
+    [<Literal>]
+    let Import_Cancelled = "Import_Cancelled"
+
+    [<Literal>]
+    let Import_Failed = "Import_Failed"
+
+    [<Literal>]
+    let Import_Completed = "Import_Completed"
