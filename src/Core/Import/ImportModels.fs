@@ -14,6 +14,54 @@ type ImportStatus =
     | Failed of error: string
 
 /// <summary>
+/// State enum for C# interop - represents mutually exclusive import states
+/// Exposed as simple enum for clean switch statements in C#
+/// </summary>
+and ImportStateEnum =
+    | NotStarted = 0
+    | Validating = 1
+    | ProcessingFile = 2
+    | ProcessingData = 3
+    | SavingToDatabase = 4
+    | Completed = 5
+    | Cancelled = 6
+    | Failed = 7
+
+/// <summary>
+/// C#-friendly import status for UI consumption via BehaviorSubject.
+/// Flattens F# discriminated union into record with optional properties.
+/// State field determines which optional properties are populated.
+/// </summary>
+and CurrentImportStatus = {
+    /// Current state of import operation (determines which properties are populated)
+    State: ImportStateEnum
+    
+    /// File path being validated (populated when State = Validating)
+    FilePath: string option
+    
+    /// File name being processed (populated when State = ProcessingFile)
+    FileName: string option
+    
+    /// Progress percentage 0.0-1.0 (populated for ProcessingFile, SavingToDatabase)
+    Progress: float option
+    
+    /// Number of records processed (populated when State = ProcessingData)
+    RecordsProcessed: int option
+    
+    /// Total records to process (populated when State = ProcessingData)
+    TotalRecords: int option
+    
+    /// Status message (populated for SavingToDatabase, Cancelled)
+    Message: string option
+    
+    /// Import result (populated when State = Completed)
+    Result: ImportResult option
+    
+    /// Error message (populated when State = Failed)
+    Error: string option
+}
+
+/// <summary>
 /// Comprehensive import result with detailed feedback for all processed files
 /// </summary>
 and ImportResult = {
@@ -204,3 +252,102 @@ module ImportMetadata =
             AffectedTickerSymbols = Set.union metadata1.AffectedTickerSymbols metadata2.AffectedTickerSymbols
             TotalMovementsImported = metadata1.TotalMovementsImported + metadata2.TotalMovementsImported
         }
+
+/// <summary>
+/// Helper functions for converting between F# DU and C#-friendly record
+/// </summary>
+module CurrentImportStatus =
+    
+    /// <summary>
+    /// Convert F# discriminated union to C#-friendly record.
+    /// Called automatically when pushing status updates to BehaviorSubject.
+    /// </summary>
+    let fromImportStatus (status: ImportStatus) : CurrentImportStatus =
+        match status with
+        | NotStarted -> 
+            { State = ImportStateEnum.NotStarted
+              FilePath = None
+              FileName = None
+              Progress = None
+              RecordsProcessed = None
+              TotalRecords = None
+              Message = None
+              Result = None
+              Error = None }
+        
+        | Validating filePath ->
+            { State = ImportStateEnum.Validating
+              FilePath = Some filePath
+              FileName = None
+              Progress = None
+              RecordsProcessed = None
+              TotalRecords = None
+              Message = None
+              Result = None
+              Error = None }
+        
+        | ProcessingFile (fileName, progress) ->
+            { State = ImportStateEnum.ProcessingFile
+              FilePath = None
+              FileName = Some fileName
+              Progress = Some progress
+              RecordsProcessed = None
+              TotalRecords = None
+              Message = None
+              Result = None
+              Error = None }
+        
+        | ProcessingData (processed, total) ->
+            { State = ImportStateEnum.ProcessingData
+              FilePath = None
+              FileName = None
+              Progress = None
+              RecordsProcessed = Some processed
+              TotalRecords = Some total
+              Message = None
+              Result = None
+              Error = None }
+        
+        | SavingToDatabase (msg, progress) ->
+            { State = ImportStateEnum.SavingToDatabase
+              FilePath = None
+              FileName = None
+              Progress = Some progress
+              RecordsProcessed = None
+              TotalRecords = None
+              Message = Some msg
+              Result = None
+              Error = None }
+        
+        | Completed result ->
+            { State = ImportStateEnum.Completed
+              FilePath = None
+              FileName = None
+              Progress = None
+              RecordsProcessed = None
+              TotalRecords = None
+              Message = None
+              Result = Some result
+              Error = None }
+        
+        | Cancelled reason ->
+            { State = ImportStateEnum.Cancelled
+              FilePath = None
+              FileName = None
+              Progress = None
+              RecordsProcessed = None
+              TotalRecords = None
+              Message = Some reason
+              Result = None
+              Error = None }
+        
+        | Failed error ->
+            { State = ImportStateEnum.Failed
+              FilePath = None
+              FileName = None
+              Progress = None
+              RecordsProcessed = None
+              TotalRecords = None
+              Message = None
+              Result = None
+              Error = Some error }

@@ -85,6 +85,7 @@
     <Compile Include="Unit/Managers/ProgressiveLoadingManagerTests.fs" />
     
     <!-- Unit Tests - Import/Converters -->
+    <Compile Include="Unit/Import/ImportStatusConversionTests.fs" />
     <Compile Include="Unit/Import/IBKRImportTests.fs" />
     <Compile Include="Unit/Import/TastytradeImportTests.fs" />
     <Compile Include="Unit/Import/TastytradeTransactionConverterTests.fs" />
