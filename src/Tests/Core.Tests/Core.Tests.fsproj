@@ -89,6 +89,7 @@
     <Compile Include="Unit/Import/TastytradeImportTests.fs" />
     <Compile Include="Unit/Import/TastytradeTransactionConverterTests.fs" />
     <Compile Include="Unit/Import/MovementValidatorTests.fs" />
+    <Compile Include="Unit/Import/MovementPersistenceTests.fs" />
     <Compile Include="Unit/Import/OptionTradeLinkingTests.fs" />
     <Compile Include="Unit/Import/SpecialDividendAdjustmentTests.fs" />
     <Compile Include="Unit/Import/CsvDateAnalyzerTests.fs" />
