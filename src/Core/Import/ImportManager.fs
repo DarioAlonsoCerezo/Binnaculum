@@ -112,7 +112,15 @@ module ImportManager =
                                             // IBKR importer doesn't need broker account ID but we still validate above
                                             // CoreLogger.logDebugf "ImportManager" "Invoking IBKR importer for %d files" pf.CsvFiles.Length
 
-                                            IBKRImporter.importMultipleWithCancellation pf.CsvFiles cancellationToken
+                                            // Use orchestrator for multi-file ZIP imports to enable chronological sorting
+                                            if pf.CsvFiles.Length > 1 then
+                                                CoreLogger.logInfof "ImportManager" "Multi-file IBKR import detected (%d files), using orchestrator with chronological sorting" pf.CsvFiles.Length
+                                                MultiFileImportOrchestrator.importWithProgressTracking
+                                                    pf.CsvFiles
+                                                    (fun files ct -> IBKRImporter.importMultipleWithCancellation files ct)
+                                                    cancellationToken
+                                            else
+                                                IBKRImporter.importMultipleWithCancellation pf.CsvFiles cancellationToken
                                         elif broker.SupportedBroker.ToString() = "Tastytrade" then
                                             // Tastytrade importer requires a specific broker account ID
                                             // CoreLogger.logDebugf "ImportManager" "Invoking Tastytrade importer for account %d" brokerAccount.Id
