@@ -31,6 +31,19 @@ public partial class BrokerMovementCreatorPage
         var isSupportedBroker = _account.Broker.SupportedBroker == SupportedBroker.IBKR ||
                                _account.Broker.SupportedBroker == SupportedBroker.Tastytrade;
         FromFileRadioButton.IsEnabled = isSupportedBroker;
+
+        ImportState
+            .CurrentStatus
+            .ObserveOn(UiThread)
+            .Do(status =>
+            {
+                ImportProgress.IsVisible = status.ToShowProgress();
+                ImportProgress.IsRunning = status.ToShowProgress();
+                ImportResults.IsVisible = status.ToShowResults();
+                SelectFileButton.IsEnabled = status.ToEnableButton();
+            })
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 
     protected override void StartLoad()
@@ -377,18 +390,18 @@ public partial class BrokerMovementCreatorPage
 
     private void ShowImportProgress()
     {
-        ImportProgress.IsVisible = true;
-        ImportProgress.IsRunning = true;
-        ImportResults.IsVisible = false;
-        SelectFileButton.IsEnabled = false;
+        //ImportProgress.IsVisible = true;
+        //ImportProgress.IsRunning = true;
+        //ImportResults.IsVisible = false;
+        //SelectFileButton.IsEnabled = false;
     }
 
     private void HandleImportResult(ImportResult result)
     {
-        ImportProgress.IsVisible = false;
-        ImportProgress.IsRunning = false;
-        ImportResults.IsVisible = true;
-        SelectFileButton.IsEnabled = true;
+        //ImportProgress.IsVisible = false;
+        //ImportProgress.IsRunning = false;
+        //ImportResults.IsVisible = true;
+        //SelectFileButton.IsEnabled = true;
 
         if (result.Success)
         {
