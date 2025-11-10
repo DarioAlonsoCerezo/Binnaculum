@@ -38,9 +38,11 @@ public partial class BrokerMovementCreatorPage
             .Do(status =>
             {
                 ImportProgress.IsVisible = status.ToShowProgress();
-                ImportProgress.IsRunning = status.ToShowProgress();
-                ImportResults.IsVisible = status.ToShowResults();
+                ImportProgress.IsRunning = status.ToShowProgress();                
                 SelectFileButton.IsEnabled = status.ToEnableButton();
+                ImportResults.IsVisible = status.ToShowResults();
+                ImportStatusLabel.IsVisible = status.ToShowStatus();
+                ImportDetailsLabel.Text = status.ToMessage();
             })
             .Subscribe()
             .DisposeWith(Disposables);
