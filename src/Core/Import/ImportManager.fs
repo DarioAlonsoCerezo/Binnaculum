@@ -160,12 +160,22 @@ module ImportManager =
                                                                     csvFile
                                                                     parsingResult.Errors.Length
 
-                                                        // Persist transactions to database
-                                                        // CoreLogger.logDebugf "ImportManager" "Persisting %d transactions to database for account %d" allTransactions.Length brokerAccount.Id
+                                                        // Convert Tastytrade transactions to domain models
+                                                        // CoreLogger.logDebugf "ImportManager" "Converting %d transactions to domain models for account %d" allTransactions.Length brokerAccount.Id
+
+                                                        let! domainModels =
+                                                            TastytradeConverter.convertToDomainModels
+                                                                allTransactions
+                                                                brokerAccount.Id
+                                                                None // No session ID for now
+                                                                cancellationToken
+
+                                                        // Persist domain models to database
+                                                        // CoreLogger.logDebugf "ImportManager" "Persisting domain models to database for account %d" brokerAccount.Id
 
                                                         let! persistenceResult =
-                                                            DatabasePersistence.persistTransactionsToDatabase
-                                                                allTransactions
+                                                            DatabasePersistence.persistDomainModelsToDatabase
+                                                                domainModels
                                                                 brokerAccount.Id
                                                                 cancellationToken
 
