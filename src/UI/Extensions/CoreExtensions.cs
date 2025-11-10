@@ -1,6 +1,5 @@
-﻿using Android.Net.Wifi.Aware;
-using Binnaculum.Core.Import;
-using CSharpMath;
+﻿using Binnaculum.Core.Import;
+using Microsoft.FSharp.Core;
 
 namespace Binnaculum.Extensions;
 
@@ -33,6 +32,73 @@ public static class CoreExtensions
 
     public static string ToMessage(this CurrentImportStatus status) 
     {
-        return status.Message != null ? status.Message.Value : string.Empty;
+        var state = status.State;
+        
+        // SavingToDatabase state
+        if (state == ImportStateEnum.SavingToDatabase)
+        {
+            if (FSharpOption<int>.get_IsSome(status.RecordsProcessed) && FSharpOption<int>.get_IsSome(status.TotalRecords))
+            {
+                return LocalizationResourceManager.Instance.GetString(
+                    "Import_SavingData", 
+                    status.RecordsProcessed.Value, 
+                    status.TotalRecords.Value
+                );
+            }
+            return LocalizationResourceManager.Instance["Import_SavingData_Generic"].ToString() ?? string.Empty;
+        }
+        
+        // ProcessingFile state
+        if (state == ImportStateEnum.ProcessingFile)
+        {
+            if (FSharpOption<string>.get_IsSome(status.FileName))
+            {
+                return LocalizationResourceManager.Instance.GetString(
+                    "Import_ProcessingFile",
+                    status.FileName.Value
+                );
+            }
+            return LocalizationResourceManager.Instance["Import_ProcessingFile_Generic"].ToString() ?? string.Empty;
+        }
+        
+        // ProcessingData state
+        if (state == ImportStateEnum.ProcessingData)
+        {
+            if (FSharpOption<int>.get_IsSome(status.RecordsProcessed) && FSharpOption<int>.get_IsSome(status.TotalRecords))
+            {
+                return LocalizationResourceManager.Instance.GetString(
+                    "Import_ProcessingRecords",
+                    status.RecordsProcessed.Value,
+                    status.TotalRecords.Value
+                );
+            }
+            return LocalizationResourceManager.Instance["Import_ProcessingRecords_Generic"].ToString() ?? string.Empty;
+        }
+        
+        // Validating state
+        if (state == ImportStateEnum.Validating)
+        {
+            return LocalizationResourceManager.Instance["Import_Validating"].ToString() ?? string.Empty;
+        }
+        
+        // Cancelled state
+        if (state == ImportStateEnum.Cancelled)
+        {
+            return LocalizationResourceManager.Instance["Import_Cancelled"].ToString() ?? string.Empty;
+        }
+        
+        // Failed state
+        if (state == ImportStateEnum.Failed)
+        {
+            return LocalizationResourceManager.Instance["Import_Failed"].ToString() ?? string.Empty;
+        }
+        
+        // Completed state
+        if (state == ImportStateEnum.Completed)
+        {
+            return LocalizationResourceManager.Instance["Import_Completed"].ToString() ?? string.Empty;
+        }
+        
+        return string.Empty;
     }
 }
