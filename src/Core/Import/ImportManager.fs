@@ -93,7 +93,7 @@ module ImportManager =
                                         filePath
                                         ex.Message
 
-                                    ImportState.failImport ($"Failed to process file: {ex.Message}")
+                                    ImportState.failImport (ResourceKeys.Import_Failed)
                                     None
 
                             match processedFile with
@@ -382,7 +382,7 @@ module ImportManager =
     /// Cancel current import operation
     /// </summary>
     let cancelCurrentImport () =
-        ImportState.cancelImport ("User requested cancellation")
+        ImportState.cancelImport (ResourceKeys.Import_Cancelled)
 
     /// <summary>
     /// Cancel for app backgrounding
