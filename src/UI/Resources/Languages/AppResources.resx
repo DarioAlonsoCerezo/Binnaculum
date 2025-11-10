@@ -1051,4 +1051,34 @@ A PUT option gives you the **right to sell** the underlying asset at a specific 
   <data name="MovementType_ACATSecuritiesTransferSent_Subtitle" xml:space="preserve">
     <value>Securities sent</value>
   </data>
+  <data name="Import_SavingData" xml:space="preserve">
+    <value>Saving {0} of {1} records</value>
+  </data>
+  <data name="Import_SavingData_Generic" xml:space="preserve">
+    <value>Saving to database...</value>
+  </data>
+  <data name="Import_ProcessingFile" xml:space="preserve">
+    <value>Processing {0}</value>
+  </data>
+  <data name="Import_ProcessingFile_Generic" xml:space="preserve">
+    <value>Processing file...</value>
+  </data>
+  <data name="Import_ProcessingRecords" xml:space="preserve">
+    <value>Processing {0} of {1} records</value>
+  </data>
+  <data name="Import_ProcessingRecords_Generic" xml:space="preserve">
+    <value>Processing data...</value>
+  </data>
+  <data name="Import_Validating" xml:space="preserve">
+    <value>Validating file...</value>
+  </data>
+  <data name="Import_Cancelled" xml:space="preserve">
+    <value>Import cancelled</value>
+  </data>
+  <data name="Import_Failed" xml:space="preserve">
+    <value>Import failed</value>
+  </data>
+  <data name="Import_Completed" xml:space="preserve">
+    <value>Import completed successfully</value>
+  </data>
 </root>

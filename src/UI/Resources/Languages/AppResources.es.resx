@@ -1037,4 +1037,34 @@ Una opción PUT te da el **derecho a vender** el activo subyacente a un precio e
   <data name="MovementType_ACATSecuritiesTransferSent_Subtitle" xml:space="preserve">
     <value>Valores enviados</value>
   </data>
+  <data name="Import_SavingData" xml:space="preserve">
+    <value>Guardando {0} de {1} registros</value>
+  </data>
+  <data name="Import_SavingData_Generic" xml:space="preserve">
+    <value>Guardando en base de datos...</value>
+  </data>
+  <data name="Import_ProcessingFile" xml:space="preserve">
+    <value>Procesando {0}</value>
+  </data>
+  <data name="Import_ProcessingFile_Generic" xml:space="preserve">
+    <value>Procesando archivo...</value>
+  </data>
+  <data name="Import_ProcessingRecords" xml:space="preserve">
+    <value>Procesando {0} de {1} registros</value>
+  </data>
+  <data name="Import_ProcessingRecords_Generic" xml:space="preserve">
+    <value>Procesando datos...</value>
+  </data>
+  <data name="Import_Validating" xml:space="preserve">
+    <value>Validando archivo...</value>
+  </data>
+  <data name="Import_Cancelled" xml:space="preserve">
+    <value>Importación cancelada</value>
+  </data>
+  <data name="Import_Failed" xml:space="preserve">
+    <value>Importación fallida</value>
+  </data>
+  <data name="Import_Completed" xml:space="preserve">
+    <value>Importación completada exitosamente</value>
+  </data>
 </root>
