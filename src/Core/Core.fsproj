@@ -111,14 +111,14 @@
 		<Compile Include="Import\Brokers\IBKR\IBKRStatementParser.fs" />
 		<Compile Include="Import\Brokers\IBKR\IBKRConverter.fs" />
 
-		<Compile Include="Import\Brokers\TastytradeModels.fs" />
-		<Compile Include="Import\Brokers\TastytradeOptionSymbolParser.fs" />
-		<Compile Include="Import\Brokers\TastytradeStatementParser.fs" />
-		<Compile Include="Import\Brokers\TastytradeStrategyDetector.fs" />
-		<Compile Include="Import\Brokers\TastytradeTransactionConverter.fs" />
-		<Compile Include="Import\Brokers\SpecialDividendAdjustmentDetector.fs" />
-		<Compile Include="Import\Brokers\TastytradeConverter.fs" />
-		<Compile Include="Import\Brokers\AdjustmentValidation.fs" />
+		<Compile Include="Import\Brokers\Tastytrade\TastytradeModels.fs" />
+		<Compile Include="Import\Brokers\Tastytrade\TastytradeOptionSymbolParser.fs" />
+		<Compile Include="Import\Brokers\Tastytrade\TastytradeStatementParser.fs" />
+		<Compile Include="Import\Brokers\Tastytrade\TastytradeStrategyDetector.fs" />
+		<Compile Include="Import\Brokers\Tastytrade\TastytradeTransactionConverter.fs" />
+		<Compile Include="Import\Brokers\Tastytrade\SpecialDividendAdjustmentDetector.fs" />
+		<Compile Include="Import\Brokers\Tastytrade\TastytradeConverter.fs" />
+		<Compile Include="Import\Brokers\Tastytrade\AdjustmentValidation.fs" />
 		<Compile Include="Models\Models.fs" />
 		<Compile Include="Models\MovementDisplay.fs" />
 		<Compile Include="Memory\Collections.fs" />
@@ -145,8 +145,8 @@
 		<!-- End ticker snapshot batch processing base modules -->
 		<Compile Include="Snapshots\TickerSnapshotManager.fs" />
 		<Compile Include="Import\DatabasePersistence.fs" />
-		<Compile Include="Import\Brokers\TastytradeImporter.fs" />
-		<Compile Include="Import\Brokers\IBKRImporter.fs" />
+		<Compile Include="Import\Brokers\Tastytrade\TastytradeImporter.fs" />
+		<Compile Include="Import\Brokers\IBKR\IBKRImporter.fs" />
 		<Compile Include="Import\MultiFileImportOrchestrator.fs" />
 		<Compile Include="Snapshots\BankSnapshotManager.fs" />
 		<Compile Include="Snapshots\BankAccountSnapshotManager.fs" />
