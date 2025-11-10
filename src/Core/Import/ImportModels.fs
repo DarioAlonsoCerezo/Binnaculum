@@ -9,6 +9,7 @@ type ImportStatus =
     | ProcessingFile of fileName: string * progress: float
     | ProcessingData of recordsProcessed: int * totalRecords: int
     | SavingToDatabase of message: string * progress: float * recordsProcessed: int * totalRecords: int
+    | CalculatingSnapshots of recordsProcessed: int * totalRecords: int * processedDate: string
     | Completed of result: ImportResult
     | Cancelled of reason: string
     | Failed of error: string
@@ -23,9 +24,10 @@ and ImportStateEnum =
     | ProcessingFile = 2
     | ProcessingData = 3
     | SavingToDatabase = 4
-    | Completed = 5
-    | Cancelled = 6
-    | Failed = 7
+    | CalculatingSnapshots = 5
+    | Completed = 6
+    | Cancelled = 7
+    | Failed = 8
 
 /// <summary>
 /// C#-friendly import status for UI consumption via BehaviorSubject.
@@ -46,11 +48,14 @@ and CurrentImportStatus =
         /// Progress percentage 0.0-1.0 (populated for ProcessingFile, SavingToDatabase)
         Progress: float option
 
-        /// Number of records processed (populated when State = ProcessingData)
+        /// Number of records processed (populated when State = ProcessingData, CalculatingSnapshots)
         RecordsProcessed: int option
 
-        /// Total records to process (populated when State = ProcessingData)
+        /// Total records to process (populated when State = ProcessingData, CalculatingSnapshots)
         TotalRecords: int option
+
+        /// Processed date in YYYY-MM-dd format (populated when State = CalculatingSnapshots)
+        ProcessedDate: string option
 
         /// Status message (populated for SavingToDatabase, Cancelled)
         Message: string option
@@ -273,6 +278,7 @@ module CurrentImportStatus =
               Progress = None
               RecordsProcessed = None
               TotalRecords = None
+              ProcessedDate = None
               Message = None
               Result = None
               Error = None }
@@ -284,6 +290,7 @@ module CurrentImportStatus =
               Progress = None
               RecordsProcessed = None
               TotalRecords = None
+              ProcessedDate = None
               Message = None
               Result = None
               Error = None }
@@ -295,6 +302,7 @@ module CurrentImportStatus =
               Progress = Some progress
               RecordsProcessed = None
               TotalRecords = None
+              ProcessedDate = None
               Message = None
               Result = None
               Error = None }
@@ -306,6 +314,7 @@ module CurrentImportStatus =
               Progress = None
               RecordsProcessed = Some processed
               TotalRecords = Some total
+              ProcessedDate = None
               Message = None
               Result = None
               Error = None }
@@ -317,7 +326,20 @@ module CurrentImportStatus =
               Progress = Some progress
               RecordsProcessed = Some processed
               TotalRecords = Some total
+              ProcessedDate = None
               Message = Some msg
+              Result = None
+              Error = None }
+
+        | CalculatingSnapshots(processed, total, processedDate) ->
+            { State = ImportStateEnum.CalculatingSnapshots
+              FilePath = None
+              FileName = None
+              Progress = None
+              RecordsProcessed = Some processed
+              TotalRecords = Some total
+              ProcessedDate = Some processedDate
+              Message = None
               Result = None
               Error = None }
 
@@ -328,6 +350,7 @@ module CurrentImportStatus =
               Progress = None
               RecordsProcessed = None
               TotalRecords = None
+              ProcessedDate = None
               Message = None
               Result = Some result
               Error = None }
@@ -339,6 +362,7 @@ module CurrentImportStatus =
               Progress = None
               RecordsProcessed = None
               TotalRecords = None
+              ProcessedDate = None
               Message = Some reason
               Result = None
               Error = None }
@@ -350,6 +374,7 @@ module CurrentImportStatus =
               Progress = None
               RecordsProcessed = None
               TotalRecords = None
+              ProcessedDate = None
               Message = None
               Result = None
               Error = Some error }

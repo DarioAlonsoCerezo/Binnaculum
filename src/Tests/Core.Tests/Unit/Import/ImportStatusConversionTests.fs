@@ -188,9 +188,10 @@ type ImportStatusConversionTests() =
         Assert.That(int ImportStateEnum.ProcessingFile, Is.EqualTo(2))
         Assert.That(int ImportStateEnum.ProcessingData, Is.EqualTo(3))
         Assert.That(int ImportStateEnum.SavingToDatabase, Is.EqualTo(4))
-        Assert.That(int ImportStateEnum.Completed, Is.EqualTo(5))
-        Assert.That(int ImportStateEnum.Cancelled, Is.EqualTo(6))
-        Assert.That(int ImportStateEnum.Failed, Is.EqualTo(7))
+        Assert.That(int ImportStateEnum.CalculatingSnapshots, Is.EqualTo(5))
+        Assert.That(int ImportStateEnum.Completed, Is.EqualTo(6))
+        Assert.That(int ImportStateEnum.Cancelled, Is.EqualTo(7))
+        Assert.That(int ImportStateEnum.Failed, Is.EqualTo(8))
 
     /// <summary>
     /// Test that conversion preserves all data for all ImportStatus cases
@@ -204,6 +205,7 @@ type ImportStatusConversionTests() =
               (ProcessingFile("file.csv", 0.5), ImportStateEnum.ProcessingFile)
               (ProcessingData(50, 100), ImportStateEnum.ProcessingData)
               (SavingToDatabase("Saving...", 0.8, 80, 100), ImportStateEnum.SavingToDatabase)
+              (CalculatingSnapshots(50, 100, "2025-11-10"), ImportStateEnum.CalculatingSnapshots)
               (Cancelled "User cancelled", ImportStateEnum.Cancelled)
               (Failed "Error occurred", ImportStateEnum.Failed) ]
 

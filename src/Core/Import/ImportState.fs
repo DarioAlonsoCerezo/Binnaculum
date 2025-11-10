@@ -12,11 +12,11 @@ module ImportState =
 
     /// Current import status - F# discriminated union for internal F# use
     let ImportStatus = new BehaviorSubject<ImportStatus>(NotStarted)
-    
+
     /// Current import status - C#-friendly record for UI consumption
     /// Subscribe to this from C# code for clean switch statements
-    let CurrentStatus = new BehaviorSubject<CurrentImportStatus>(
-        CurrentImportStatus.fromImportStatus NotStarted)
+    let CurrentStatus =
+        new BehaviorSubject<CurrentImportStatus>(CurrentImportStatus.fromImportStatus NotStarted)
 
     /// Current cancellation token source
     let private _cancellationSource = ref (None: CancellationTokenSource option)
@@ -46,7 +46,7 @@ module ImportState =
         | None -> ()
 
     /// Update import status (called by importers during processing)
-    let updateStatus (status: ImportStatus) = 
+    let updateStatus (status: ImportStatus) =
         ImportStatus.OnNext(status)
         CurrentStatus.OnNext(CurrentImportStatus.fromImportStatus status)
 
@@ -99,7 +99,8 @@ module ImportState =
         | Validating _
         | ProcessingFile _
         | ProcessingData _
-        | SavingToDatabase _ -> true
+        | SavingToDatabase _
+        | CalculatingSnapshots _ -> true
 
 // ==================== NEW REACTIVE IMPORT TYPES ====================
 // These types are for the new chunked import system with enhanced progress tracking

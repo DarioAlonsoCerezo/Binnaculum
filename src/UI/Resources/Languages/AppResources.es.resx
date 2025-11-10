@@ -1067,4 +1067,12 @@ Una opción PUT te da el **derecho a vender** el activo subyacente a un precio e
   <data name="Import_Completed" xml:space="preserve">
     <value>Importación completada exitosamente</value>
   </data>
+  <data name="Import_CalculatingSnapshots" xml:space="preserve">
+    <value>Calculando estado: {0} de {1} ({2})</value>
+    <comment>Progreso de importación: calculando estados financieros con fecha</comment>
+  </data>
+  <data name="Import_CalculatingSnapshots_Generic" xml:space="preserve">
+    <value>Calculando estado...</value>
+    <comment>Progreso de importación: calculando estados financieros (genérico)</comment>
+  </data>
 </root>

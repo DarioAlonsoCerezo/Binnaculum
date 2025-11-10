@@ -1081,4 +1081,12 @@ A PUT option gives you the **right to sell** the underlying asset at a specific 
   <data name="Import_Completed" xml:space="preserve">
     <value>Import completed successfully</value>
   </data>
+  <data name="Import_CalculatingSnapshots" xml:space="preserve">
+    <value>Calculating snapshots: {0} of {1} ({2})</value>
+    <comment>Import progress: calculating financial snapshots with date</comment>
+  </data>
+  <data name="Import_CalculatingSnapshots_Generic" xml:space="preserve">
+    <value>Calculating snapshots...</value>
+    <comment>Import progress: calculating financial snapshots (generic)</comment>
+  </data>
 </root>
