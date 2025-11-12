@@ -33,9 +33,10 @@ public partial class OptionBuilderPopup
         _multiplier = multiplier;
 
         ExpirationDate.Events().DateSelected
+            .Select(x => x.NewDate ?? DateTime.Now)
             .Subscribe(date =>
             {
-                var newDate = new DateTime(date.NewDate.Year, date.NewDate.Month, date.NewDate.Day, 23, 59, 59);
+                var newDate = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
                 _expiration = newDate;
             }).DisposeWith(Disposables);
 

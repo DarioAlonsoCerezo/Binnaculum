@@ -270,14 +270,14 @@ public partial class OverviewPage
                 var innerException = agEx.InnerException ?? agEx;
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await DisplayAlert("Error", innerException.Message, "Ok");
+                    await DisplayAlertAsync("Error", innerException.Message, "Ok");
                 });
             }
             catch (Exception ex)
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await DisplayAlert("Error", ex.Message, "Ok");
+                    await DisplayAlertAsync("Error", ex.Message, "Ok");
                 });
             }
         });
@@ -297,14 +297,14 @@ public partial class OverviewPage
                 var innerException = agEx.InnerException ?? agEx;
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await DisplayAlert("Error", innerException.Message, "Ok");
+                    await DisplayAlertAsync("Error", innerException.Message, "Ok");
                 });
             }
             catch (Exception ex)
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await DisplayAlert("Error", ex.Message, "Ok");
+                    await DisplayAlertAsync("Error", ex.Message, "Ok");
                 });
             }
         });

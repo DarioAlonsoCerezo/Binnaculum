@@ -22,7 +22,8 @@ public partial class TickerTemplate
         {
             SetupIcon(snapshot.Ticker);
 
-            TickerName.Text = snapshot.Ticker.Name.Value;
+            var name = snapshot.Ticker.Name.Value;
+            TickerName.Text = name.Length > 8 ? name.Substring(0, 8) + "..." : name;
             Realized.Percentage = snapshot.MainCurrency.Performance;
         }
     }

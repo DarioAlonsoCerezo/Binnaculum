@@ -20,7 +20,8 @@
                     VerticalOptions="Start" />
                 <Label
                     x:Name="TickerName"
-                    Grid.Column="1"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="3"
                     AutomationId="TickerTemplateName"
                     HorizontalTextAlignment="Center"
                     VerticalTextAlignment="Start"

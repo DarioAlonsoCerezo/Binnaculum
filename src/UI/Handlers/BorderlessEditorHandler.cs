@@ -20,7 +20,7 @@ public partial class BorderlessEditorHandler : EditorHandler
 #if ANDROID
 public partial class BorderlessEditorHandler : EditorHandler
 {
-    protected override AppCompatEditText CreatePlatformView()
+    protected override MauiAppCompatEditText CreatePlatformView()
     {
         var nativeView = base.CreatePlatformView();
 

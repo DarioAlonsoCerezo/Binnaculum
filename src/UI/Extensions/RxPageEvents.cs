@@ -4,13 +4,6 @@ public class RxPageEvents(Page data) : RxVisualElementEvents(data)
 {
     private readonly Page _data = data;
 
-    public IObservable<EventArgs> LayoutChanged
-        => Observable
-            .FromEvent<EventHandler, EventArgs>(
-                eventHandler => (_, e) => eventHandler(e),
-                handler => _data.LayoutChanged += handler,
-                handler => _data.LayoutChanged -= handler);
-
     public IObservable<EventArgs> Appearing
         => Observable
             .FromEvent<EventHandler, EventArgs>(

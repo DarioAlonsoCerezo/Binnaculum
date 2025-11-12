@@ -28,7 +28,7 @@ public partial class BorderlessEntryHandler : EntryHandler
 #if ANDROID
 public partial class BorderlessEntryHandler : EntryHandler
 {
-    protected override AppCompatEditText CreatePlatformView()
+    protected override MauiAppCompatEditText CreatePlatformView()
     {
         var nativeView = base.CreatePlatformView();
 

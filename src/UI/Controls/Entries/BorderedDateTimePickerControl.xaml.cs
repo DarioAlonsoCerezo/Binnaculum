@@ -42,9 +42,9 @@ public partial class BorderedDateTimePickerControl
         DateControl.Events().DateSelected
             .Subscribe(_ =>
             {
-                Date = DateControl.Date;
+                Date = DateControl.Date ?? DateTime.Now;
                 if(TimeControl.IsVisible)
-                    Date = Date.Add(TimeControl.Time);
+                    Date = Date.Add(TimeControl.Time ?? TimeSpan.Zero);
 
                 DateSelected?.Invoke(this, Date);
             })
@@ -53,7 +53,7 @@ public partial class BorderedDateTimePickerControl
         TimeControl.Events().TimeSelected
             .Subscribe(_ =>
             {
-                Date = Date.Add(TimeControl.Time);
+                Date = Date.Add(TimeControl.Time ?? TimeSpan.Zero);
 
                 DateSelected?.Invoke(this, Date);
             })

@@ -12,7 +12,6 @@ public static class EventsExtensions
     public static RxEditorEvents Events(this Editor item) => new(item);
     public static RxInputViewEvents Events(this InputView item) => new(item);
     public static RxImageEvents Events(this Image item) => new(item);
-    public static RxListViewEvents Events(this ListView item) => new(item);
     public static RxCollectionViewEvents Events(this CollectionView item) => new(item);
     public static RxWebViewEvents Events(this WebView item) => new(item);
     public static RxDatePickerEvents Events(this DatePicker item) => new(item);
