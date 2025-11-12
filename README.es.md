@@ -147,13 +147,13 @@ Utilizo la extensión [XAML Styler 2022](https://marketplace.visualstudio.com/it
 5. Compila el proyecto:
    ```bash
    # Compilar para Android (funciona en todas las plataformas)
-   dotnet build src/UI/Binnaculum.csproj -f net9.0-android
+   dotnet build src/UI/Binnaculum.csproj -f net10.0-android
 
    # Compilar para Windows (solo Windows)
-   dotnet build src/UI/Binnaculum.csproj -f net9.0-windows10.0.19041.0
+   dotnet build src/UI/Binnaculum.csproj -f net10.0-windows10.0.19041.0
 
    # Compilar para iOS (solo macOS)
-   dotnet build src/UI/Binnaculum.csproj -f net9.0-ios
+   dotnet build src/UI/Binnaculum.csproj -f net10.0-ios
    ```
 
 ## Soporte de Plataformas
@@ -256,10 +256,10 @@ Binnaculum utiliza GitHub Actions para aseguramiento automatizado de calidad:
 - **Protección de Rama**: Mantiene estándares de calidad de código
 
 ## Objetivos de Compilación
-- **Android**: `net9.0-android` - Objetivo móvil principal
-- **Windows**: `net9.0-windows10.0.19041.0` - Soporte de escritorio Windows
-- **iOS**: `net9.0-ios` - Soporte para iPhone y iPad
-- **Mac Catalyst**: `net9.0-maccatalyst` - Soporte de escritorio macOS
+- **Android**: `net10.0-android` - Objetivo móvil principal
+- **Windows**: `net10.0-windows10.0.19041.0` - Soporte de escritorio Windows
+- **iOS**: `net10.0-ios` - Soporte para iPhone y iPad
+- **Mac Catalyst**: `net10.0-maccatalyst` - Soporte de escritorio macOS
 
 # Contribuir
 

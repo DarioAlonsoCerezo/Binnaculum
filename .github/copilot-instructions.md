@@ -64,14 +64,14 @@ dotnet build src/Tests/Core.Tests/Core.Tests.fsproj  # 11-12 seconds. NEVER CANC
 
 Build MAUI UI (Android only on Linux):
 ```bash
-dotnet build src/UI/Binnaculum.csproj -f net9.0-android  # ~3 minutes. NEVER CANCEL. Set timeout to 300+ seconds.
+dotnet build src/UI/Binnaculum.csproj -f net10.0-android  # ~3 minutes. NEVER CANCEL. Set timeout to 300+ seconds.
 ```
 
 **Platform-Specific Builds**:
-- **Android**: `dotnet build -f net9.0-android` (available on all platforms)
-- **iOS**: `dotnet build -f net9.0-ios` (requires macOS + Xcode)
-- **MacCatalyst**: `dotnet build -f net9.0-maccatalyst` (requires macOS)
-- **Windows**: `dotnet build -f net9.0-windows10.0.19041.0` (requires Windows)
+- **Android**: `dotnet build -f net10.0-android` (available on all platforms)
+- **iOS**: `dotnet build -f net10.0-ios` (requires macOS + Xcode)
+- **MacCatalyst**: `dotnet build -f net10.0-maccatalyst` (requires macOS)
+- **Windows**: `dotnet build -f net10.0-windows10.0.19041.0` (requires Windows)
 
 Run tests:
 ```bash
@@ -117,9 +117,9 @@ Since the MAUI app cannot run in headless environments, validate UI changes by:
 ### Multi-Platform Considerations
 The UI project uses OS-aware conditional compilation:
 ```xml
-<TargetFrameworks>net9.0-android</TargetFrameworks>
-<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">net9.0-android;net9.0-windows10.0.19041.0</TargetFrameworks>
-<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+<TargetFrameworks>net10.0-android</TargetFrameworks>
+<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">net10.0-android;net10.0-windows10.0.19041.0</TargetFrameworks>
+<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
 ```
 
 **Platform Support Matrix:**

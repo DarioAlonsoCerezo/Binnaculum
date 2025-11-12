@@ -9,7 +9,7 @@ public class AppInstalation
     private static readonly ConcurrentDictionary<string, string> _builtApkCache = new();
     private static volatile bool _isBuilding = false;
     private static readonly ManualResetEventSlim _buildCompleteEvent = new(false);
-    
+
     public static void PrepareAndInstallApp()
     {
         const string packageName = "com.darioalonso.binnacle";
@@ -85,7 +85,7 @@ public class AppInstalation
             {
                 TestContext.Out.WriteLine("⏳ Another thread is building the APK. Waiting for completion...");
                 _buildCompleteEvent.Wait();
-                
+
                 // After waiting, check the cache again
                 if (_builtApkCache.TryGetValue(cacheKey, out cachedApkPath) && File.Exists(cachedApkPath))
                 {
@@ -102,11 +102,11 @@ public class AppInstalation
             {
                 TestContext.Out.WriteLine("🔨 This thread will build the APK...");
                 var apkPath = EnsureApkExists(workspaceRoot);
-                
+
                 // Cache the result for other threads
                 _builtApkCache.TryAdd(cacheKey, apkPath);
                 TestContext.Out.WriteLine($"✅ APK built and cached: {apkPath}");
-                
+
                 return apkPath;
             }
             finally
@@ -121,7 +121,7 @@ public class AppInstalation
     private static string EnsureApkExists(string workspaceRoot)
     {
         // Use Release build for better performance and production-like testing
-        var apkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Release", "net9.0-android");
+        var apkDirectory = Path.Combine(workspaceRoot, "src", "UI", "bin", "Release", "net10.0-android");
 
         TestContext.Out.WriteLine($"Workspace root: {workspaceRoot}");
         TestContext.Out.WriteLine($"APK directory (Release): {apkDirectory}");
@@ -215,7 +215,7 @@ public class AppInstalation
     public static string FindWorkspaceRoot(string startDirectory)
     {
         var currentDir = new DirectoryInfo(startDirectory);
-        
+
         // Look for workspace indicators (solution files, specific directory structure)
         while (currentDir != null)
         {
@@ -225,31 +225,31 @@ public class AppInstalation
                 TestContext.Out.WriteLine($"Found workspace root by .sln file: {currentDir.FullName}");
                 return currentDir.FullName;
             }
-            
+
             // Check for src directory with expected structure
             var srcDir = Path.Combine(currentDir.FullName, "src");
             if (Directory.Exists(srcDir))
             {
                 var uiDir = Path.Combine(srcDir, "UI");
                 var coreDir = Path.Combine(srcDir, "Core");
-                
+
                 if (Directory.Exists(uiDir) && Directory.Exists(coreDir))
                 {
                     TestContext.Out.WriteLine($"Found workspace root by src structure: {currentDir.FullName}");
                     return currentDir.FullName;
                 }
             }
-            
+
             // Check for git repository
             if (Directory.Exists(Path.Combine(currentDir.FullName, ".git")))
             {
                 TestContext.Out.WriteLine($"Found workspace root by .git directory: {currentDir.FullName}");
                 return currentDir.FullName;
             }
-            
+
             currentDir = currentDir.Parent;
         }
-        
+
         // Fallback to original method if no indicators found
         TestContext.Out.WriteLine("Could not find workspace root by indicators, using fallback method");
         return Path.GetFullPath(Path.Combine(startDirectory, "..", "..", "..", "..", "..", ".."));
@@ -307,25 +307,25 @@ public class AppInstalation
 
         // Build the project targeting Android with signing enabled (if keystore available)
         (int ExitCode, string Output, string Error) buildResult;
-        
+
         if (!string.IsNullOrEmpty(debugKeystorePath))
         {
             // Build with explicit signing parameters
-            buildResult = ExecuteCommand("dotnet", 
-                $"build \"{projectPath}\" -f net9.0-android -c Release " +
+            buildResult = ExecuteCommand("dotnet",
+                $"build \"{projectPath}\" -f net10.0-android -c Release " +
                 "-p:AndroidPackageFormat=aab " +
                 "-p:AndroidKeyStore=true " +
                 $"-p:AndroidSigningKeyStore=\"{debugKeystorePath}\" " +
                 "-p:AndroidSigningKeyAlias=androiddebugkey " +
                 "-p:AndroidSigningKeyPass=android " +
-                "-p:AndroidSigningStorePass=android", 
+                "-p:AndroidSigningStorePass=android",
                 workspaceRoot);
         }
         else
         {
             // Build without explicit signing (let the build system handle it)
-            buildResult = ExecuteCommand("dotnet", 
-                $"build \"{projectPath}\" -f net9.0-android -c Release -p:AndroidPackageFormat=aab", 
+            buildResult = ExecuteCommand("dotnet",
+                $"build \"{projectPath}\" -f net10.0-android -c Release -p:AndroidPackageFormat=aab",
                 workspaceRoot);
         }
 
@@ -334,7 +334,7 @@ public class AppInstalation
             TestContext.Out.WriteLine("❌ Release build with signing failed. Attempting simple Release build as fallback...");
 
             // Fallback to simple Release build without explicit signing parameters
-            var simpleBuildResult = ExecuteCommand("dotnet", $"build \"{projectPath}\" -f net9.0-android -c Release", workspaceRoot);
+            var simpleBuildResult = ExecuteCommand("dotnet", $"build \"{projectPath}\" -f net10.0-android -c Release", workspaceRoot);
 
             if (simpleBuildResult.ExitCode != 0)
             {
@@ -364,13 +364,13 @@ public class AppInstalation
     {
         try
         {
-            var bundlePath = Path.Combine(workspaceRoot, "src", "UI", "bin", "Release", "net9.0-android", "com.darioalonso.binnacle-Signed.aab");
-            var outputApkPath = Path.Combine(workspaceRoot, "src", "UI", "bin", "Release", "net9.0-android", "com.darioalonso.binnacle-Signed.apk");
-            
+            var bundlePath = Path.Combine(workspaceRoot, "src", "UI", "bin", "Release", "net10.0-android", "com.darioalonso.binnacle-Signed.aab");
+            var outputApkPath = Path.Combine(workspaceRoot, "src", "UI", "bin", "Release", "net10.0-android", "com.darioalonso.binnacle-Signed.apk");
+
             if (File.Exists(bundlePath))
             {
                 TestContext.Out.WriteLine($"Creating Universal APK from bundle: {bundlePath}");
-                
+
                 // Get the debug keystore path (project-specific or fallback)
                 string keystorePath;
                 try
@@ -383,9 +383,9 @@ public class AppInstalation
                     TestContext.Out.WriteLine("Skipping Universal APK creation...");
                     return;
                 }
-                
+
                 // Use bundletool to create universal APK (similar to what Visual Studio does)
-                var bundletoolResult = ExecuteCommand("java", 
+                var bundletoolResult = ExecuteCommand("java",
                     $"-jar \"{GetBundletoolPath()}\" build-apks " +
                     $"--mode universal " +
                     $"--bundle \"{bundlePath}\" " +
@@ -393,13 +393,13 @@ public class AppInstalation
                     $"--ks \"{keystorePath}\" " +
                     $"--ks-key-alias androiddebugkey " +
                     $"--key-pass pass:android " +
-                    $"--ks-pass pass:android", 
+                    $"--ks-pass pass:android",
                     workspaceRoot);
 
                 if (bundletoolResult.ExitCode == 0)
                 {
                     TestContext.Out.WriteLine("✅ Universal APK created successfully");
-                    
+
                     // Extract the APK from the .apks file
                     ExtractApkFromApks(outputApkPath.Replace(".apk", ".apks"), outputApkPath);
                 }
@@ -439,7 +439,7 @@ public class AppInstalation
             {
                 // Look for Microsoft.Android.Sdk.Windows directories
                 var androidSdkDirs = Directory.GetDirectories(basePath, "Microsoft.Android.Sdk*", SearchOption.TopDirectoryOnly);
-                
+
                 foreach (var sdkDir in androidSdkDirs.OrderByDescending(d => d)) // Try newest versions first
                 {
                     var bundletoolPath = Path.Combine(sdkDir, "tools", "bundletool.jar");
@@ -449,7 +449,7 @@ public class AppInstalation
                         return bundletoolPath;
                     }
                 }
-                
+
                 // Also check for direct bundletool.jar in cmdline-tools
                 var directBundletoolPath = Path.Combine(basePath, "bundletool.jar");
                 if (File.Exists(directBundletoolPath))
@@ -505,7 +505,7 @@ public class AppInstalation
         // Try to find workspace root first to locate project-specific keystore
         var testDirectory = TestContext.CurrentContext.TestDirectory;
         var workspaceRoot = FindWorkspaceRoot(testDirectory);
-        
+
         // Try project-specific keystore first (highest priority)
         var projectKeystorePath = Path.Combine(workspaceRoot, "debug.keystore");
         if (File.Exists(projectKeystorePath))
@@ -554,7 +554,7 @@ public class AppInstalation
         try
         {
             var tempKeystorePath = Path.Combine(Path.GetTempPath(), "debug.keystore");
-            
+
             if (File.Exists(tempKeystorePath))
             {
                 TestContext.Out.WriteLine($"Using existing temporary keystore: {tempKeystorePath}");
@@ -562,9 +562,9 @@ public class AppInstalation
             }
 
             TestContext.Out.WriteLine("Creating temporary debug keystore...");
-            
+
             // Use keytool to create a debug keystore
-            var keytoolResult = ExecuteCommand("keytool", 
+            var keytoolResult = ExecuteCommand("keytool",
                 $"-genkey -v -keystore \"{tempKeystorePath}\" " +
                 "-alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 " +
                 "-storepass android -keypass android " +
@@ -596,13 +596,13 @@ public class AppInstalation
             // We can extract it using standard ZIP operations
             using var archive = System.IO.Compression.ZipFile.OpenRead(apksPath);
             var universalApkEntry = archive.GetEntry("universal.apk");
-            
+
             if (universalApkEntry != null)
             {
                 using var apkStream = universalApkEntry.Open();
                 using var outputStream = File.Create(outputApkPath);
                 apkStream.CopyTo(outputStream);
-                
+
                 TestContext.Out.WriteLine($"✅ Extracted Universal APK to: {outputApkPath}");
             }
             else

@@ -11,7 +11,7 @@
                 "-c",
                 "Debug",
                 "-f",
-                "net9.0-android"
+                "net10.0-android"
             ],
             "problemMatcher": "$msCompile",
             "group": {
@@ -29,7 +29,7 @@
                 "-c",
                 "Debug",
                 "-f",
-                "net9.0-ios"
+                "net10.0-ios"
             ],
             "problemMatcher": "$msCompile",
             "group": {
@@ -47,7 +47,7 @@
                 "-c",
                 "Debug",
                 "-f",
-                "net9.0-windows10.0.19041.0"
+                "net10.0-windows10.0.19041.0"
             ],
             "problemMatcher": "$msCompile",
             "group": {

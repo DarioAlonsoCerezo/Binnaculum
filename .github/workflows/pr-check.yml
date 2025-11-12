@@ -118,7 +118,7 @@ jobs:
         run: |
           dotnet restore src/UI/Binnaculum.csproj
           dotnet build src/UI/Binnaculum.csproj \
-            --framework net9.0-android --configuration Release --no-restore
+            --framework net10.0-android --configuration Release --no-restore
 
       - name: Build success notification
         run: |

@@ -149,13 +149,13 @@ I use the [XAML Styler 2022](https://marketplace.visualstudio.com/items?itemName
 5. Build the project:
    ```bash
    # Build for Android (works on all platforms)
-   dotnet build src/UI/Binnaculum.csproj -f net9.0-android
+   dotnet build src/UI/Binnaculum.csproj -f net10.0-android
 
    # Build for Windows (Windows only)
-   dotnet build src/UI/Binnaculum.csproj -f net9.0-windows10.0.19041.0
+   dotnet build src/UI/Binnaculum.csproj -f net10.0-windows10.0.19041.0
 
    # Build for iOS (macOS only)
-   dotnet build src/UI/Binnaculum.csproj -f net9.0-ios
+   dotnet build src/UI/Binnaculum.csproj -f net10.0-ios
    ```
 
 ## Platform Support
@@ -258,10 +258,10 @@ Binnaculum uses GitHub Actions for automated quality assurance:
 - **Branch Protection**: Maintains code quality standards
 
 ## Build Targets
-- **Android**: `net9.0-android` - Primary mobile target
-- **Windows**: `net9.0-windows10.0.19041.0` - Desktop Windows support
-- **iOS**: `net9.0-ios` - iPhone and iPad support
-- **Mac Catalyst**: `net9.0-maccatalyst` - macOS desktop support
+- **Android**: `net10.0-android` - Primary mobile target
+- **Windows**: `net10.0-windows10.0.19041.0` - Desktop Windows support
+- **iOS**: `net10.0-ios` - iPhone and iPad support
+- **Mac Catalyst**: `net10.0-maccatalyst` - macOS desktop support
 
 # Contributing
 

@@ -35,12 +35,12 @@ The new `ExecuteBrokerAccountCreationTestAsync` method performs these steps:
 
 1. **Build the project:**
    ```bash
-   dotnet build src/Tests/Core.Platform.MauiTester/Core.Platform.MauiTester.csproj -f net9.0-android
+   dotnet build src/Tests/Core.Platform.MauiTester/Core.Platform.MauiTester.csproj -f net10.0-android
    ```
 
 2. **Deploy to Android device/emulator:**
    ```bash
-   dotnet run --project src/Tests/Core.Platform.MauiTester/Core.Platform.MauiTester.csproj -f net9.0-android
+   dotnet run --project src/Tests/Core.Platform.MauiTester/Core.Platform.MauiTester.csproj -f net10.0-android
    ```
 
 3. **In the app:**
