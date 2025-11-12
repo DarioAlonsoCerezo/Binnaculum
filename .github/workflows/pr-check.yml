@@ -40,6 +40,10 @@ jobs:
           cache: true
           cache-dependency-path: '**/Directory.Packages.props'
 
+      - name: Print DOTNET_VERSION
+        run: |
+          echo "Using .NET version: ${{ vars.DOTNET_VERSION }}"
+
       - name: Restore Core dependencies
         run: dotnet restore src/Core/Core.fsproj
 
