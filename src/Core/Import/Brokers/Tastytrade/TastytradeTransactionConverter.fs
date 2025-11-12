@@ -43,7 +43,10 @@ module TastytradeTransactionConverter =
                 // Money Movement types should create BrokerMovement records
                 brokerMovementsCount <- 1
             | Trade(_, _) when transaction.InstrumentType = Some "Equity Option" ->
-                // Option trades should create OptionTrade records
+                // Equity option trades should create OptionTrade records
+                optionTradesCount <- 1
+            | Trade(_, _) when transaction.InstrumentType = Some "Future Option" ->
+                // Future option trades should also create OptionTrade records
                 optionTradesCount <- 1
             | Trade(_, _) when transaction.InstrumentType = Some "Equity" ->
                 // Stock trades should create Trade records

@@ -89,7 +89,8 @@ and ImportError =
     { RowNumber: int option
       ErrorMessage: string
       ErrorType: ImportErrorType
-      RawData: string option }
+      RawData: string option
+      FromFile: string }
 
 /// <summary>
 /// Warning information for non-critical issues during import
@@ -209,7 +210,8 @@ module ImportResult =
             [ { RowNumber = None
                 ErrorMessage = errorMessage
                 ErrorType = ValidationError
-                RawData = None } ]
+                RawData = None
+                FromFile = "" } ]
           Warnings = []
           ImportedData =
             { Trades = 0

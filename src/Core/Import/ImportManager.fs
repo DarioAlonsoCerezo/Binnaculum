@@ -114,13 +114,20 @@ module ImportManager =
 
                                             // Use orchestrator for multi-file ZIP imports to enable chronological sorting
                                             if pf.CsvFiles.Length > 1 then
-                                                CoreLogger.logInfof "ImportManager" "Multi-file IBKR import detected (%d files), using orchestrator with chronological sorting" pf.CsvFiles.Length
+                                                CoreLogger.logInfof
+                                                    "ImportManager"
+                                                    "Multi-file IBKR import detected (%d files), using orchestrator with chronological sorting"
+                                                    pf.CsvFiles.Length
+
                                                 MultiFileImportOrchestrator.importWithProgressTracking
                                                     pf.CsvFiles
-                                                    (fun files ct -> IBKRImporter.importMultipleWithCancellation files ct)
+                                                    (fun files ct ->
+                                                        IBKRImporter.importMultipleWithCancellation files ct)
                                                     cancellationToken
                                             else
-                                                IBKRImporter.importMultipleWithCancellation pf.CsvFiles cancellationToken
+                                                IBKRImporter.importMultipleWithCancellation
+                                                    pf.CsvFiles
+                                                    cancellationToken
                                         elif broker.SupportedBroker.ToString() = "Tastytrade" then
                                             // Tastytrade importer requires a specific broker account ID
                                             // CoreLogger.logDebugf "ImportManager" "Invoking Tastytrade importer for account %d" brokerAccount.Id
@@ -264,7 +271,8 @@ module ImportManager =
                                                                 { RowNumber = None
                                                                   ErrorMessage = err
                                                                   ErrorType = ImportErrorType.ValidationError
-                                                                  RawData = None })
+                                                                  RawData = None
+                                                                  FromFile = "" })
 
                                                         let updatedErrors = parseResult.Errors @ persistenceErrors
 
