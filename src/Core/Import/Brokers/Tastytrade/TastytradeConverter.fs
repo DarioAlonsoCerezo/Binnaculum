@@ -143,7 +143,8 @@ module internal TastytradeConverter =
         (tickerId: int)
         : OptionTrade list =
         match transaction.TransactionType, transaction.InstrumentType with
-        | Trade(_, _), Some "Equity Option" ->
+        | Trade(_, _), Some "Equity Option"
+        | Trade(_, _), Some "Future Option" ->
             // Validate quantity
             if transaction.Quantity <= 0m then
                 [] // Invalid quantity - return empty list
@@ -392,7 +393,7 @@ module internal TastytradeConverter =
 
             // Sort transactions by date (chronological order)
             let sortedTransactions = transactions |> List.sortBy (fun t -> t.Date)
-            
+
             // Detect all strike adjustments BEFORE processing transactions
             // This allows us to apply adjustments to option trades as they're created,
             // ensuring strikes are correct BEFORE FIFO matching
@@ -456,7 +457,7 @@ module internal TastytradeConverter =
 
                         let expandedOptionTrades =
                             createOptionTradeFromTransaction transaction brokerAccountId currencyId tickerId
-                        
+
                         // Apply strike adjustments to each option trade (if applicable)
                         let adjustedOptionTrades =
                             expandedOptionTrades
@@ -485,6 +486,25 @@ module internal TastytradeConverter =
 
                     | ReceiveDeliver(_) when transaction.InstrumentType = Some "Equity Option" ->
                         // Option expirations/assignments/exercises - informational only, skip
+                        ()
+
+                    | Trade(_, _) when transaction.InstrumentType = Some "Future Option" ->
+                        // Future option trades - get ticker ID for the underlying future symbol
+                        let underlyingSymbol = transaction.UnderlyingSymbol |> Option.defaultValue "UNKNOWN"
+                        let! tickerId = getOrCreateTickerId underlyingSymbol
+
+                        let expandedOptionTrades =
+                            createOptionTradeFromTransaction transaction brokerAccountId currencyId tickerId
+
+                        // Apply strike adjustments to each option trade (if applicable)
+                        let adjustedOptionTrades =
+                            expandedOptionTrades
+                            |> List.map (fun trade -> applyAdjustmentToSingleTrade trade detectedAdjustments)
+
+                        optionTrades <- List.append optionTrades adjustedOptionTrades
+
+                    | ReceiveDeliver(_) when transaction.InstrumentType = Some "Future Option" ->
+                        // Future option expirations/assignments/exercises - informational only, skip
                         ()
 
                     | _ -> ()
