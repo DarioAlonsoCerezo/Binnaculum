@@ -160,8 +160,26 @@ module TastytradeModels =
 
         /// <summary>
         /// Determine if transaction involves options based on instrument type
+        /// Includes both equity options and future options
         /// </summary>
         let isOptionTransaction (instrumentType: string option) =
+            match instrumentType with
+            | Some "Equity Option" -> true
+            | Some "Future Option" -> true
+            | _ -> false
+
+        /// <summary>
+        /// Determine if transaction is specifically a future option
+        /// </summary>
+        let isFutureOptionTransaction (instrumentType: string option) =
+            match instrumentType with
+            | Some "Future Option" -> true
+            | _ -> false
+
+        /// <summary>
+        /// Determine if transaction is specifically an equity option
+        /// </summary>
+        let isEquityOptionTransaction (instrumentType: string option) =
             match instrumentType with
             | Some "Equity Option" -> true
             | _ -> false

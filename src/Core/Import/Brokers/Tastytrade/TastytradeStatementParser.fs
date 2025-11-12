@@ -209,7 +209,8 @@ module TastytradeStatementParser =
                 let transactionType =
                     TransactionTypeDetection.parseTransactionType fields.[1] fields.[2] fields.[3]
 
-                let symbol =
+                // Parse raw fields first
+                let rawSymbol =
                     if String.IsNullOrWhiteSpace(fields.[4]) then
                         None
                     else
@@ -250,6 +251,13 @@ module TastytradeStatementParser =
                         None
                     else
                         Some fields.[14]
+
+                // Use UnderlyingSymbol as the primary symbol identifier
+                // If UnderlyingSymbol is available, use it; otherwise fall back to rawSymbol
+                let symbol =
+                    match underlyingSymbol with
+                    | Some us when not (String.IsNullOrWhiteSpace(us)) -> Some us
+                    | _ -> rawSymbol
 
                 let expirationDate = parseExpirationDate fields.[15]
 
