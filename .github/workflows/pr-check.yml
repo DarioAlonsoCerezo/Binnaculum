@@ -39,7 +39,6 @@ jobs:
           dotnet-version: ${{ vars.DOTNET_VERSION }}
           cache: true
           cache-dependency-path: '**/Directory.Packages.props'
-          
 
       - name: Print DOTNET_VERSION
         run: |
