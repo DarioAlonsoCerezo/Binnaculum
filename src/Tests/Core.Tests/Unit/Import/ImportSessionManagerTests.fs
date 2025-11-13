@@ -1,5 +1,7 @@
 namespace Binnaculum.Core.Tests.Unit.Import
 
+#nowarn "3261" // Nullness warning for SqliteConnection
+
 open NUnit.Framework
 open System
 open System.Threading.Tasks
@@ -22,24 +24,20 @@ type ImportSessionManagerTests() =
     /// </summary>
     [<SetUp>]
     member this.Setup() =
-        task {
-            // Use in-memory database for testing
-            Do.setConnectionMode(DatabaseMode.InMemory)
-            
-            // Connect to initialize database (creates tables)
-            let! _ = Do.createCommand()
-            ()
-        }
+        // Use in-memory database for testing
+        let testDbName = $"test-db-{System.Guid.NewGuid().ToString()}"
+        Do.setConnectionMode(DatabaseMode.InMemory testDbName)
+        
+        // Initialize database (creates all tables including ImportSession and BrokerAccount)
+        Do.init() |> Async.AwaitTask |> Async.RunSynchronously
 
     /// <summary>
     /// Teardown database after each test
     /// </summary>
     [<TearDown>]
     member this.TearDown() =
-        task {
-            Do.closeDatabase()
-            return ()
-        }
+        // No explicit teardown needed - in-memory DB is cleaned up automatically
+        ()
 
     /// <summary>
     /// Helper to create a test DateAnalysis
@@ -161,7 +159,6 @@ type ImportSessionManagerTests() =
             // Act - Use transaction to test atomic update
             let! command = Do.createCommand()
             let conn = command.Connection
-            #nowarn "3261"
             if conn <> null then
                 use transaction = conn.BeginTransaction()
                 
@@ -206,7 +203,6 @@ type ImportSessionManagerTests() =
             // Act - Start transaction but rollback
             let! command = Do.createCommand()
             let conn = command.Connection
-            #nowarn "3261"
             if conn <> null then
                 use transaction = conn.BeginTransaction()
                 
@@ -290,7 +286,6 @@ type ImportSessionManagerTests() =
             // Mark first chunk complete
             let! command = Do.createCommand()
             let conn = command.Connection
-            #nowarn "3261"
             if conn <> null then
                 use transaction = conn.BeginTransaction()
                 do! ImportSessionManager.markChunkCompleted sessionId 1 500 1000L transaction
