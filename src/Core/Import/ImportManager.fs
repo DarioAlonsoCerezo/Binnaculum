@@ -27,54 +27,50 @@ module ImportManager =
         (endDate: DateOnly)
         (movements: ImportDomainTypes.PersistenceInput)
         : ImportDomainTypes.PersistenceInput =
-        
+
         let startDateTime = startDate.ToDateTime(TimeOnly.MinValue)
         let endDateTime = endDate.ToDateTime(TimeOnly.MinValue).AddDays(1.0).AddTicks(-1L) // End of day
-        
-        {
-            BrokerMovements = 
-                movements.BrokerMovements 
-                |> List.filter (fun m -> 
-                    let dt = m.TimeStamp.Value
-                    dt >= startDateTime && dt <= endDateTime)
-            
-            StockTrades = 
-                movements.StockTrades 
-                |> List.filter (fun t -> 
-                    let dt = t.TimeStamp.Value
-                    dt >= startDateTime && dt <= endDateTime)
-            
-            Dividends = 
-                movements.Dividends 
-                |> List.filter (fun d -> 
-                    let dt = d.TimeStamp.Value
-                    dt >= startDateTime && dt <= endDateTime)
-            
-            DividendTaxes =
-                movements.DividendTaxes
-                |> List.filter (fun d -> 
-                    let dt = d.TimeStamp.Value
-                    dt >= startDateTime && dt <= endDateTime)
-            
-            OptionTrades =
-                movements.OptionTrades
-                |> List.filter (fun o -> 
-                    let dt = o.TimeStamp.Value
-                    dt >= startDateTime && dt <= endDateTime)
-            
-            SessionId = movements.SessionId
-        }
+
+        { BrokerMovements =
+            movements.BrokerMovements
+            |> List.filter (fun m ->
+                let dt = m.TimeStamp.Value
+                dt >= startDateTime && dt <= endDateTime)
+
+          StockTrades =
+            movements.StockTrades
+            |> List.filter (fun t ->
+                let dt = t.TimeStamp.Value
+                dt >= startDateTime && dt <= endDateTime)
+
+          Dividends =
+            movements.Dividends
+            |> List.filter (fun d ->
+                let dt = d.TimeStamp.Value
+                dt >= startDateTime && dt <= endDateTime)
+
+          DividendTaxes =
+            movements.DividendTaxes
+            |> List.filter (fun d ->
+                let dt = d.TimeStamp.Value
+                dt >= startDateTime && dt <= endDateTime)
+
+          OptionTrades =
+            movements.OptionTrades
+            |> List.filter (fun o ->
+                let dt = o.TimeStamp.Value
+                dt >= startDateTime && dt <= endDateTime)
+
+          SessionId = movements.SessionId }
 
     /// <summary>
     /// Extract unique ticker IDs from movements for snapshot calculation.
     /// Returns distinct list of ticker IDs that have activity in the movements.
     /// </summary>
     let private getTickerIdsFromMovements (movements: ImportDomainTypes.PersistenceInput) : int list =
-        [
-            yield! movements.StockTrades |> List.map (fun t -> t.TickerId)
-            yield! movements.Dividends |> List.map (fun d -> d.TickerId)
-            yield! movements.OptionTrades |> List.map (fun o -> o.TickerId)
-        ]
+        [ yield! movements.StockTrades |> List.map (fun t -> t.TickerId)
+          yield! movements.Dividends |> List.map (fun d -> d.TickerId)
+          yield! movements.OptionTrades |> List.map (fun o -> o.TickerId) ]
         |> List.distinct
 
     /// <summary>
@@ -175,47 +171,51 @@ module ImportManager =
                                                     "ImportManager"
                                                     "Starting chunked IBKR import for %d files"
                                                     pf.CsvFiles.Length
-                                                
-                                                let! analysis = 
+
+                                                let! analysis =
                                                     task {
                                                         // Use CsvDateAnalyzer to scan files
                                                         let analysisResult = CsvDateAnalyzer.analyzeAndSort pf.CsvFiles
-                                                        
+
                                                         // Convert to DateAnalysis format for ChunkStrategy
                                                         match analysisResult.OverallDateRange with
-                                                        | Some (minDate, maxDate) ->
+                                                        | Some(minDate, maxDate) ->
                                                             // Build movement count map from file metadata
-                                                            let movementsByDate = 
+                                                            let movementsByDate =
                                                                 analysisResult.FilesOrderedByDate
                                                                 |> List.collect (fun meta -> meta.AllDates)
                                                                 |> List.groupBy DateOnly.FromDateTime
                                                                 |> List.map (fun (date, dates) -> (date, dates.Length))
                                                                 |> Map.ofList
-                                                            
-                                                            return {
-                                                                MinDate = minDate
-                                                                MaxDate = maxDate
-                                                                TotalMovements = analysisResult.TotalRecords
-                                                                MovementsByDate = movementsByDate
-                                                                UniqueDates = movementsByDate |> Map.toList |> List.map fst |> List.sort
-                                                                FileHash = CsvDateAnalyzer.calculateFileHash(pf.CsvFiles.[0])
-                                                            }
+
+                                                            return
+                                                                { MinDate = minDate
+                                                                  MaxDate = maxDate
+                                                                  TotalMovements = analysisResult.TotalRecords
+                                                                  MovementsByDate = movementsByDate
+                                                                  UniqueDates =
+                                                                    movementsByDate
+                                                                    |> Map.toList
+                                                                    |> List.map fst
+                                                                    |> List.sort
+                                                                  FileHash =
+                                                                    CsvDateAnalyzer.calculateFileHash (pf.CsvFiles.[0]) }
                                                         | None ->
                                                             // No data in files
                                                             let now = DateTime.Now
-                                                            return {
-                                                                MinDate = now
-                                                                MaxDate = now
-                                                                TotalMovements = 0
-                                                                MovementsByDate = Map.empty
-                                                                UniqueDates = []
-                                                                FileHash = ""
-                                                            }
+
+                                                            return
+                                                                { MinDate = now
+                                                                  MaxDate = now
+                                                                  TotalMovements = 0
+                                                                  MovementsByDate = Map.empty
+                                                                  UniqueDates = []
+                                                                  FileHash = "" }
                                                     }
-                                                
+
                                                 // PHASE 2: Create weekly chunks
                                                 let chunks = ChunkStrategy.createWeeklyChunks analysis
-                                                
+
                                                 CoreLogger.logInfof
                                                     "ImportManager"
                                                     "Created %d chunks for date range %s to %s (%d total movements)"
@@ -223,36 +223,50 @@ module ImportManager =
                                                     (analysis.MinDate.ToString("yyyy-MM-dd"))
                                                     (analysis.MaxDate.ToString("yyyy-MM-dd"))
                                                     analysis.TotalMovements
-                                                
+
                                                 if chunks.IsEmpty then
                                                     // No movements to process
-                                                    CoreLogger.logInfo "ImportManager" "No movements found in files, skipping import"
-                                                    return ImportResult.createSuccess 0 0 
-                                                        { Trades = 0; BrokerMovements = 0; Dividends = 0; OptionTrades = 0; NewTickers = 0 } 
-                                                        [] 0L
+                                                    CoreLogger.logInfo
+                                                        "ImportManager"
+                                                        "No movements found in files, skipping import"
+
+                                                    return
+                                                        ImportResult.createSuccess
+                                                            0
+                                                            0
+                                                            { Trades = 0
+                                                              BrokerMovements = 0
+                                                              Dividends = 0
+                                                              OptionTrades = 0
+                                                              NewTickers = 0 }
+                                                            []
+                                                            0L
                                                 else
                                                     // PHASE 3: Create import session
-                                                    let! sessionId = 
+                                                    let! sessionId =
                                                         ImportSessionManager.createSession
                                                             brokerAccount.Id
                                                             brokerAccount.AccountNumber
                                                             filePath
                                                             analysis
                                                             chunks
-                                                    
-                                                    CoreLogger.logInfof "ImportManager" "Created import session %d" sessionId
-                                                    
+
+                                                    CoreLogger.logInfof
+                                                        "ImportManager"
+                                                        "Created import session %d"
+                                                        sessionId
+
                                                     // PHASE 4: Process each chunk
                                                     let mutable totalProcessed = 0
                                                     let mutable totalMovementsImported = 0
                                                     let mutable allErrors = []
                                                     let stopwatch = System.Diagnostics.Stopwatch.StartNew()
-                                                    
+
                                                     for chunk in chunks do
                                                         cancellationToken.ThrowIfCancellationRequested()
-                                                        
+
                                                         let chunkStopwatch = System.Diagnostics.Stopwatch.StartNew()
-                                                        
+
                                                         CoreLogger.logInfof
                                                             "ImportManager"
                                                             "Processing chunk %d/%d (dates: %s to %s, estimated: %d movements)"
@@ -261,14 +275,16 @@ module ImportManager =
                                                             (chunk.StartDate.ToString("yyyy-MM-dd"))
                                                             (chunk.EndDate.ToString("yyyy-MM-dd"))
                                                             chunk.EstimatedMovements
-                                                        
+
                                                         try
                                                             // Parse CSV files to get IBKR statement data
-                                                            let mutable allStatementData: IBKRStatementData option = None
-                                                            
+                                                            let mutable allStatementData: IBKRStatementData option =
+                                                                None
+
                                                             for csvFile in pf.CsvFiles do
-                                                                let parseResult = IBKRStatementParser.parseCsvFile csvFile
-                                                                
+                                                                let parseResult =
+                                                                    IBKRStatementParser.parseCsvFile csvFile
+
                                                                 if parseResult.Success then
                                                                     match parseResult.Data with
                                                                     | Some statement ->
@@ -277,40 +293,61 @@ module ImportManager =
                                                                         | None -> allStatementData <- Some statement
                                                                         | Some existing ->
                                                                             // Combine data from multiple files
-                                                                            allStatementData <- Some {
-                                                                                StatementDate = existing.StatementDate // Keep first statement date
-                                                                                BrokerName = existing.BrokerName // Keep first broker name
-                                                                                Trades = existing.Trades @ statement.Trades
-                                                                                ForexTrades = existing.ForexTrades @ statement.ForexTrades
-                                                                                CashMovements = existing.CashMovements @ statement.CashMovements
-                                                                                CashFlows = existing.CashFlows @ statement.CashFlows
-                                                                                OpenPositions = existing.OpenPositions @ statement.OpenPositions
-                                                                                Instruments = existing.Instruments @ statement.Instruments
-                                                                                ExchangeRates = existing.ExchangeRates @ statement.ExchangeRates
-                                                                                ForexBalances = existing.ForexBalances @ statement.ForexBalances
-                                                                            }
+                                                                            allStatementData <-
+                                                                                Some
+                                                                                    { StatementDate =
+                                                                                        existing.StatementDate // Keep first statement date
+                                                                                      BrokerName = existing.BrokerName // Keep first broker name
+                                                                                      Trades =
+                                                                                        existing.Trades
+                                                                                        @ statement.Trades
+                                                                                      ForexTrades =
+                                                                                        existing.ForexTrades
+                                                                                        @ statement.ForexTrades
+                                                                                      CashMovements =
+                                                                                        existing.CashMovements
+                                                                                        @ statement.CashMovements
+                                                                                      CashFlows =
+                                                                                        existing.CashFlows
+                                                                                        @ statement.CashFlows
+                                                                                      OpenPositions =
+                                                                                        existing.OpenPositions
+                                                                                        @ statement.OpenPositions
+                                                                                      Instruments =
+                                                                                        existing.Instruments
+                                                                                        @ statement.Instruments
+                                                                                      ExchangeRates =
+                                                                                        existing.ExchangeRates
+                                                                                        @ statement.ExchangeRates
+                                                                                      ForexBalances =
+                                                                                        existing.ForexBalances
+                                                                                        @ statement.ForexBalances }
                                                                     | None -> ()
-                                                            
+
                                                             match allStatementData with
                                                             | Some statement ->
                                                                 // Convert to domain models
-                                                                let! domainModels = 
+                                                                let! domainModels =
                                                                     IBKRConverter.convertToDomainModels
                                                                         statement
                                                                         brokerAccount.Id
                                                                         (Some sessionId)
                                                                         cancellationToken
-                                                                
+
                                                                 // Filter movements by chunk date range
-                                                                let chunkMovements = filterMovementsByDateRange chunk.StartDate chunk.EndDate domainModels
-                                                                
-                                                                let chunkMovementCount = 
-                                                                    chunkMovements.BrokerMovements.Length +
-                                                                    chunkMovements.StockTrades.Length +
-                                                                    chunkMovements.Dividends.Length +
-                                                                    chunkMovements.DividendTaxes.Length +
-                                                                    chunkMovements.OptionTrades.Length
-                                                                
+                                                                let chunkMovements =
+                                                                    filterMovementsByDateRange
+                                                                        chunk.StartDate
+                                                                        chunk.EndDate
+                                                                        domainModels
+
+                                                                let chunkMovementCount =
+                                                                    chunkMovements.BrokerMovements.Length
+                                                                    + chunkMovements.StockTrades.Length
+                                                                    + chunkMovements.Dividends.Length
+                                                                    + chunkMovements.DividendTaxes.Length
+                                                                    + chunkMovements.OptionTrades.Length
+
                                                                 CoreLogger.logInfof
                                                                     "ImportManager"
                                                                     "Chunk %d filtered: %d movements (BrokerMovements: %d, Trades: %d, Dividends: %d, OptionTrades: %d)"
@@ -320,7 +357,7 @@ module ImportManager =
                                                                     chunkMovements.StockTrades.Length
                                                                     chunkMovements.Dividends.Length
                                                                     chunkMovements.OptionTrades.Length
-                                                                
+
                                                                 if chunkMovementCount > 0 then
                                                                     // Persist chunk to database
                                                                     let! persistResult =
@@ -328,61 +365,86 @@ module ImportManager =
                                                                             chunkMovements
                                                                             brokerAccount.Id
                                                                             cancellationToken
-                                                                    
-                                                                    totalMovementsImported <- totalMovementsImported + persistResult.ImportMetadata.TotalMovementsImported
+
+                                                                    totalMovementsImported <-
+                                                                        totalMovementsImported
+                                                                        + persistResult.ImportMetadata.TotalMovementsImported
+
                                                                     allErrors <- allErrors @ persistResult.Errors
-                                                                    
+
                                                                     // Calculate snapshots ONLY for this chunk
-                                                                    let tickerIds = getTickerIdsFromMovements chunkMovements
-                                                                    
+                                                                    let tickerIds =
+                                                                        getTickerIdsFromMovements chunkMovements
+
                                                                     if not tickerIds.IsEmpty then
                                                                         let! tickerResult =
-                                                                            TickerSnapshotBatchManager.processBatchedTickers {
-                                                                                BrokerAccountId = Some brokerAccount.Id
-                                                                                TickerIds = tickerIds
-                                                                                StartDate = Patterns.DateTimePattern.FromDateTime(chunk.StartDate.ToDateTime(TimeOnly.MinValue))
-                                                                                EndDate = Patterns.DateTimePattern.FromDateTime(chunk.EndDate.ToDateTime(TimeOnly.MinValue))
-                                                                                ForceRecalculation = false
-                                                                            }
-                                                                        
+                                                                            TickerSnapshotBatchManager.processBatchedTickers
+                                                                                { BrokerAccountId =
+                                                                                    Some brokerAccount.Id
+                                                                                  TickerIds = tickerIds
+                                                                                  StartDate =
+                                                                                    Patterns
+                                                                                        .DateTimePattern
+                                                                                        .FromDateTime(
+                                                                                            chunk.StartDate.ToDateTime(
+                                                                                                TimeOnly.MinValue
+                                                                                            )
+                                                                                        )
+                                                                                  EndDate =
+                                                                                    Patterns
+                                                                                        .DateTimePattern
+                                                                                        .FromDateTime(
+                                                                                            chunk.EndDate.ToDateTime(
+                                                                                                TimeOnly.MinValue
+                                                                                            )
+                                                                                        )
+                                                                                  ForceRecalculation = false }
+
                                                                         if not tickerResult.Success then
                                                                             CoreLogger.logWarningf
                                                                                 "ImportManager"
                                                                                 "Ticker snapshot processing had errors: %s"
-                                                                                (tickerResult.Errors |> String.concat "; ")
-                                                                        
+                                                                                (tickerResult.Errors
+                                                                                 |> String.concat "; ")
+
                                                                         let! brokerResult =
                                                                             BrokerFinancialBatchManager.processBatchedFinancials
-                                                                                {
-                                                                                    BrokerAccountId = brokerAccount.Id
-                                                                                    StartDate = Patterns.DateTimePattern.FromDateTime(chunk.StartDate.ToDateTime(TimeOnly.MinValue))
-                                                                                    EndDate = Patterns.DateTimePattern.FromDateTime(chunk.EndDate.ToDateTime(TimeOnly.MinValue))
-                                                                                    ForceRecalculation = false
-                                                                                }
+                                                                                { BrokerAccountId = brokerAccount.Id
+                                                                                  StartDate =
+                                                                                    Patterns
+                                                                                        .DateTimePattern
+                                                                                        .FromDateTime(
+                                                                                            chunk.StartDate.ToDateTime(
+                                                                                                TimeOnly.MinValue
+                                                                                            )
+                                                                                        )
+                                                                                  EndDate =
+                                                                                    Patterns
+                                                                                        .DateTimePattern
+                                                                                        .FromDateTime(
+                                                                                            chunk.EndDate.ToDateTime(
+                                                                                                TimeOnly.MinValue
+                                                                                            )
+                                                                                        )
+                                                                                  ForceRecalculation = false }
                                                                                 tickerResult.CalculatedOperations
                                                                                 tickerResult.CalculatedTickerSnapshots
-                                                                        
+
                                                                         if not brokerResult.Success then
                                                                             CoreLogger.logWarningf
                                                                                 "ImportManager"
                                                                                 "Broker snapshot processing had errors: %s"
-                                                                                (brokerResult.Errors |> String.concat "; ")
-                                                                    
-                                                                    // Mark chunk as completed in database
-                                                                    let! command = Database.Do.createCommand()
-                                                                    let connection = command.Connection
-                                                                    use transaction = connection.BeginTransaction()
-                                                                    
-                                                                    do! ImportSessionManager.markChunkCompleted
+                                                                                (brokerResult.Errors
+                                                                                 |> String.concat "; ")
+
+                                                                    // Mark chunk as completed in database (transaction handled internally)
+                                                                    do!
+                                                                        ImportSessionManager.markChunkCompleted
                                                                             sessionId
                                                                             chunk.ChunkNumber
                                                                             chunkMovementCount
                                                                             chunkStopwatch.ElapsedMilliseconds
-                                                                            transaction
-                                                                    
-                                                                    do! transaction.CommitAsync(cancellationToken) |> Async.AwaitTask
-                                                                    command.Dispose()
-                                                                    
+
                                                                     CoreLogger.logInfof
                                                                         "ImportManager"
                                                                         "Chunk %d completed in %dms"
@@ -393,29 +455,32 @@ module ImportManager =
                                                                         "ImportManager"
                                                                         "Chunk %d has no movements in date range, skipping"
                                                                         chunk.ChunkNumber
-                                                            
+
                                                             | None ->
                                                                 // No data parsed from files
-                                                                CoreLogger.logWarning "ImportManager" "No IBKR statement data parsed from CSV files"
-                                                            
+                                                                CoreLogger.logWarning
+                                                                    "ImportManager"
+                                                                    "No IBKR statement data parsed from CSV files"
+
                                                             totalProcessed <- totalProcessed + 1
-                                                            
+
                                                             // CRITICAL: Force garbage collection after each chunk
                                                             GC.Collect()
                                                             GC.WaitForPendingFinalizers()
                                                             GC.Collect()
-                                                            
+
                                                         with ex ->
                                                             CoreLogger.logErrorf
                                                                 "ImportManager"
                                                                 "Error processing chunk %d: %s"
                                                                 chunk.ChunkNumber
                                                                 ex.Message
+
                                                             allErrors <- ex.Message :: allErrors
-                                                    
+
                                                     // PHASE 5: Complete session
                                                     do! ImportSessionManager.completeSession sessionId
-                                                    
+
                                                     CoreLogger.logInfof
                                                         "ImportManager"
                                                         "Import session %d completed: processed %d/%d chunks, %d total movements in %dms"
@@ -424,38 +489,38 @@ module ImportManager =
                                                         chunks.Length
                                                         totalMovementsImported
                                                         stopwatch.ElapsedMilliseconds
-                                                    
+
                                                     // Refresh reactive managers after ALL chunks complete
                                                     do! ReactiveTickerManager.refreshAsync ()
                                                     do! ReactiveSnapshotManager.refreshAsync ()
                                                     do! TickerSnapshotLoader.load ()
-                                                    
+
                                                     // Return result
-                                                    return {
-                                                        Success = allErrors.IsEmpty
-                                                        ProcessedFiles = pf.CsvFiles.Length
-                                                        ProcessedRecords = totalMovementsImported
-                                                        SkippedRecords = 0
-                                                        TotalRecords = totalMovementsImported
-                                                        ProcessingTimeMs = stopwatch.ElapsedMilliseconds
-                                                        Errors = allErrors |> List.map (fun err ->
-                                                            { RowNumber = None
-                                                              ErrorMessage = err
-                                                              ErrorType = ImportErrorType.ValidationError
-                                                              RawData = None
-                                                              FromFile = "" })
-                                                        Warnings = []
-                                                        ImportedData = {
-                                                            Trades = 0 // TODO: Track per type
-                                                            BrokerMovements = 0
-                                                            Dividends = 0
-                                                            OptionTrades = 0
-                                                            NewTickers = 0
-                                                        }
-                                                        FileResults = []
-                                                        ProcessedChunks = totalProcessed
-                                                        SessionId = Some sessionId
-                                                    }
+                                                    return
+                                                        { Success = allErrors.IsEmpty
+                                                          ProcessedFiles = pf.CsvFiles.Length
+                                                          ProcessedRecords = totalMovementsImported
+                                                          SkippedRecords = 0
+                                                          TotalRecords = totalMovementsImported
+                                                          ProcessingTimeMs = stopwatch.ElapsedMilliseconds
+                                                          Errors =
+                                                            allErrors
+                                                            |> List.map (fun err ->
+                                                                { RowNumber = None
+                                                                  ErrorMessage = err
+                                                                  ErrorType = ImportErrorType.ValidationError
+                                                                  RawData = None
+                                                                  FromFile = "" })
+                                                          Warnings = []
+                                                          ImportedData =
+                                                            { Trades = 0 // TODO: Track per type
+                                                              BrokerMovements = 0
+                                                              Dividends = 0
+                                                              OptionTrades = 0
+                                                              NewTickers = 0 }
+                                                          FileResults = []
+                                                          ProcessedChunks = totalProcessed
+                                                          SessionId = Some sessionId }
                                             }
                                         elif broker.SupportedBroker.ToString() = "Tastytrade" then
                                             // Tastytrade importer requires a specific broker account ID

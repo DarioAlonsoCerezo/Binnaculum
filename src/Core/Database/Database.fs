@@ -315,6 +315,45 @@ module internal Do =
         task { return connect () |> Async.AwaitTask |> Async.Ignore }
 
     /// <summary>
+    /// Execute multiple database operations within a single transaction.
+    /// Automatically commits on success or rolls back on error.
+    /// Uses the singleton connection to ensure compatibility with test infrastructure.
+    /// </summary>
+    /// <param name="operation">Function that performs database operations using the provided connection and transaction</param>
+    let executeInTransaction
+        (operation: SqliteConnection -> SqliteTransaction -> System.Threading.Tasks.Task<'T>)
+        : System.Threading.Tasks.Task<'T> =
+        task {
+            try
+                do! connect () |> Async.AwaitTask |> Async.Ignore
+                use transaction = connection.BeginTransaction()
+
+                try
+                    let! result = operation connection transaction
+                    transaction.Commit()
+
+                    logDatabaseDebugOptimized "Database.Do" (fun () ->
+                        "executeInTransaction - Transaction committed successfully")
+
+                    return result
+                with ex ->
+                    logDatabaseError
+                        "Database.Do"
+                        $"executeInTransaction - Operation failed, rolling back: {ex.Message}"
+
+                    try
+                        transaction.Rollback()
+                        logDatabaseDebug "Database.Do" "executeInTransaction - Transaction rolled back"
+                    with rollbackEx ->
+                        logDatabaseError "Database.Do" $"executeInTransaction - Rollback failed: {rollbackEx.Message}"
+
+                    return raise ex
+            with ex ->
+                logDatabaseError "Database.Do" $"executeInTransaction - Failed to start transaction: {ex.Message}"
+                return raise ex
+        }
+
+    /// <summary>
     /// 🚨 WARNING: TEST-ONLY METHOD - DO NOT USE IN PRODUCTION! 🚨
     /// Wipes all data from all database tables for testing purposes only.
     /// This method is intended strictly for integration tests to reset the database
@@ -337,6 +376,8 @@ module internal Do =
                   BankAccountMovements
                   BankAccounts
                   Banks
+                  ImportSessionChunks // Must be before ImportSession due to FK
+                  ImportSessions // Must be before BrokerAccount due to FK
                   AutoImportOperationTrades
                   AutoImportOperations
                   Options

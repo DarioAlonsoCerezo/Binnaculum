@@ -3,6 +3,7 @@ namespace Binnaculum.Core.Import
 open System
 open System.Threading.Tasks
 open Microsoft.Data.Sqlite
+open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Logging
 open ImportSessionExtensions
@@ -36,9 +37,9 @@ module internal ImportSessionManager =
 
                 // Create session record
                 let fileName = System.IO.Path.GetFileName(filePath)
-                
+
                 let! sessionId =
-                    ImportSessionExtensions.Do.createSession(
+                    ImportSessionExtensions.Do.createSession (
                         brokerAccountId,
                         brokerAccountName,
                         fileName,
@@ -51,7 +52,7 @@ module internal ImportSessionManager =
                     )
 
                 // Create all chunk records
-                do! ImportSessionChunkExtensions.Do.createChunks(sessionId, chunks)
+                do! ImportSessionChunkExtensions.Do.createChunks (sessionId, chunks)
 
                 CoreLogger.logInfof
                     "ImportSessionManager"
@@ -72,7 +73,7 @@ module internal ImportSessionManager =
     let getActiveSession (brokerAccountId: int) : Task<ImportSession option> =
         task {
             try
-                let! session = ImportSessionExtensions.Do.getActiveSession(brokerAccountId)
+                let! session = ImportSessionExtensions.Do.getActiveSession (brokerAccountId)
 
                 match session with
                 | Some s ->
@@ -82,8 +83,7 @@ module internal ImportSessionManager =
                         s.Id
                         brokerAccountId
                         s.Phase
-                | None ->
-                    CoreLogger.logDebug "ImportSessionManager" $"No active session for account {brokerAccountId}"
+                | None -> CoreLogger.logDebug "ImportSessionManager" $"No active session for account {brokerAccountId}"
 
                 return session
             with ex ->
@@ -97,7 +97,7 @@ module internal ImportSessionManager =
     let getSessionById (sessionId: int) : Task<ImportSession option> =
         task {
             try
-                return! ImportSessionExtensions.Do.getById(sessionId)
+                return! ImportSessionExtensions.Do.getById (sessionId)
             with ex ->
                 CoreLogger.logError "ImportSessionManager" $"Failed to get session {sessionId}: {ex.Message}"
                 return None
@@ -109,7 +109,7 @@ module internal ImportSessionManager =
     let getChunks (sessionId: int) : Task<ImportSessionChunk list> =
         task {
             try
-                return! ImportSessionChunkExtensions.Do.getBySessionId(sessionId)
+                return! ImportSessionChunkExtensions.Do.getBySessionId (sessionId)
             with ex ->
                 CoreLogger.logError "ImportSessionManager" $"Failed to get chunks for session {sessionId}: {ex.Message}"
                 return []
@@ -122,7 +122,7 @@ module internal ImportSessionManager =
     let getPendingChunks (sessionId: int) : Task<ImportSessionChunk list> =
         task {
             try
-                let! pendingChunks = ImportSessionChunkExtensions.Do.getPendingChunks(sessionId)
+                let! pendingChunks = ImportSessionChunkExtensions.Do.getPendingChunks (sessionId)
 
                 CoreLogger.logInfof
                     "ImportSessionManager"
@@ -132,43 +132,49 @@ module internal ImportSessionManager =
 
                 return pendingChunks
             with ex ->
-                CoreLogger.logError "ImportSessionManager" $"Failed to get pending chunks for session {sessionId}: {ex.Message}"
+                CoreLogger.logError
+                    "ImportSessionManager"
+                    $"Failed to get pending chunks for session {sessionId}: {ex.Message}"
+
                 return []
         }
 
     /// <summary>
-    /// Mark chunk as completed - MUST be called within a transaction.
-    /// Updates both chunk state and session progress counters atomically.
+    /// Mark chunk as completed.
+    /// Updates both chunk state and session progress counters atomically in a transaction.
     /// </summary>
-    let markChunkCompleted
-        (sessionId: int)
-        (chunkNumber: int)
-        (actualMovements: int)
-        (durationMs: int64)
-        (transaction: SqliteTransaction)
-        : Task<unit> =
+    let markChunkCompleted (sessionId: int) (chunkNumber: int) (actualMovements: int) (durationMs: int64) : Task<unit> =
         task {
             try
-                // Update chunk record
-                do! ImportSessionChunkExtensions.Do.markCompleted(
-                    sessionId,
-                    chunkNumber,
-                    actualMovements,
-                    durationMs,
-                    transaction
-                )
+                // Execute both operations atomically in a transaction
+                do!
+                    Binnaculum.Core.Database.Do.executeInTransaction (fun conn tx ->
+                        task {
+                            // Update chunk record
+                            do!
+                                ImportSessionChunkExtensions.Do.markCompleted (
+                                    sessionId,
+                                    chunkNumber,
+                                    actualMovements,
+                                    durationMs
+                                )
 
-                // Update session progress
-                do! ImportSessionExtensions.Do.updateChunkProgress(
-                    sessionId,
-                    actualMovements,
-                    transaction
-                )
+                            // Update session progress
+                            do! ImportSessionExtensions.Do.updateChunkProgress (sessionId, actualMovements)
+                        })
 
-                // Note: No logging here since this is called within a transaction
-                // Logging will be done by the caller after commit
+                CoreLogger.logInfof
+                    "ImportSessionManager"
+                    "Chunk %d of session %d marked as completed (%d movements, %dms)"
+                    chunkNumber
+                    sessionId
+                    actualMovements
+                    durationMs
             with ex ->
-                // Still no logging - let the exception bubble up to trigger transaction rollback
+                CoreLogger.logError
+                    "ImportSessionManager"
+                    $"Failed to mark chunk {chunkNumber} completed for session {sessionId}: {ex.Message}"
+
                 raise ex
         }
 
@@ -178,15 +184,14 @@ module internal ImportSessionManager =
     let updatePhase (sessionId: int) (newPhase: string) : Task<unit> =
         task {
             try
-                do! ImportSessionExtensions.Do.updatePhase(sessionId, newPhase)
+                do! ImportSessionExtensions.Do.updatePhase (sessionId, newPhase)
 
-                CoreLogger.logInfof
-                    "ImportSessionManager"
-                    "Session %d phase updated to %s"
-                    sessionId
-                    newPhase
+                CoreLogger.logInfof "ImportSessionManager" "Session %d phase updated to %s" sessionId newPhase
             with ex ->
-                CoreLogger.logError "ImportSessionManager" $"Failed to update phase for session {sessionId}: {ex.Message}"
+                CoreLogger.logError
+                    "ImportSessionManager"
+                    $"Failed to update phase for session {sessionId}: {ex.Message}"
+
                 raise ex
         }
 
@@ -196,11 +201,16 @@ module internal ImportSessionManager =
     let markPhase1Completed (sessionId: int) : Task<unit> =
         task {
             try
-                do! ImportSessionExtensions.Do.markPhase1Completed(sessionId)
+                do! ImportSessionExtensions.Do.markPhase1Completed (sessionId)
 
-                CoreLogger.logInfo "ImportSessionManager" $"Session {sessionId} Phase 1 completed, transitioning to Phase 2"
+                CoreLogger.logInfo
+                    "ImportSessionManager"
+                    $"Session {sessionId} Phase 1 completed, transitioning to Phase 2"
             with ex ->
-                CoreLogger.logError "ImportSessionManager" $"Failed to mark Phase 1 completed for session {sessionId}: {ex.Message}"
+                CoreLogger.logError
+                    "ImportSessionManager"
+                    $"Failed to mark Phase 1 completed for session {sessionId}: {ex.Message}"
+
                 raise ex
         }
 
@@ -210,11 +220,14 @@ module internal ImportSessionManager =
     let markBrokerSnapshotsCompleted (sessionId: int) : Task<unit> =
         task {
             try
-                do! ImportSessionExtensions.Do.markBrokerSnapshotsCompleted(sessionId)
+                do! ImportSessionExtensions.Do.markBrokerSnapshotsCompleted (sessionId)
 
                 CoreLogger.logInfo "ImportSessionManager" $"Session {sessionId} broker snapshots calculated"
             with ex ->
-                CoreLogger.logError "ImportSessionManager" $"Failed to mark broker snapshots completed for session {sessionId}: {ex.Message}"
+                CoreLogger.logError
+                    "ImportSessionManager"
+                    $"Failed to mark broker snapshots completed for session {sessionId}: {ex.Message}"
+
                 raise ex
         }
 
@@ -224,11 +237,14 @@ module internal ImportSessionManager =
     let markTickerSnapshotsCompleted (sessionId: int) : Task<unit> =
         task {
             try
-                do! ImportSessionExtensions.Do.markTickerSnapshotsCompleted(sessionId)
+                do! ImportSessionExtensions.Do.markTickerSnapshotsCompleted (sessionId)
 
                 CoreLogger.logInfo "ImportSessionManager" $"Session {sessionId} ticker snapshots calculated"
             with ex ->
-                CoreLogger.logError "ImportSessionManager" $"Failed to mark ticker snapshots completed for session {sessionId}: {ex.Message}"
+                CoreLogger.logError
+                    "ImportSessionManager"
+                    $"Failed to mark ticker snapshots completed for session {sessionId}: {ex.Message}"
+
                 raise ex
         }
 
@@ -238,7 +254,7 @@ module internal ImportSessionManager =
     let completeSession (sessionId: int) : Task<unit> =
         task {
             try
-                do! ImportSessionExtensions.Do.completeSession(sessionId)
+                do! ImportSessionExtensions.Do.completeSession (sessionId)
 
                 CoreLogger.logInfo "ImportSessionManager" $"Session {sessionId} completed successfully"
             with ex ->
@@ -252,7 +268,7 @@ module internal ImportSessionManager =
     let markSessionFailed (sessionId: int) (errorMessage: string) : Task<unit> =
         task {
             try
-                do! ImportSessionExtensions.Do.markFailed(sessionId, errorMessage)
+                do! ImportSessionExtensions.Do.markFailed (sessionId, errorMessage)
 
                 CoreLogger.logError "ImportSessionManager" $"Session {sessionId} marked as failed: {errorMessage}"
             with ex ->
@@ -266,11 +282,14 @@ module internal ImportSessionManager =
     let markSessionCancelled (sessionId: int) : Task<unit> =
         task {
             try
-                do! ImportSessionExtensions.Do.markCancelled(sessionId)
+                do! ImportSessionExtensions.Do.markCancelled (sessionId)
 
                 CoreLogger.logInfo "ImportSessionManager" $"Session {sessionId} marked as cancelled"
             with ex ->
-                CoreLogger.logError "ImportSessionManager" $"Failed to mark session {sessionId} as cancelled: {ex.Message}"
+                CoreLogger.logError
+                    "ImportSessionManager"
+                    $"Failed to mark session {sessionId} as cancelled: {ex.Message}"
+
                 raise ex
         }
 
@@ -280,7 +299,7 @@ module internal ImportSessionManager =
     /// </summary>
     let validateFileHash (session: ImportSession) (currentFilePath: string) : bool =
         try
-            let currentHash = CsvDateAnalyzer.calculateFileHash(currentFilePath)
+            let currentHash = CsvDateAnalyzer.calculateFileHash (currentFilePath)
 
             if currentHash = session.FileHash then
                 CoreLogger.logInfo "ImportSessionManager" $"File hash validation passed for session {session.Id}"
@@ -289,7 +308,11 @@ module internal ImportSessionManager =
                 CoreLogger.logWarning
                     "ImportSessionManager"
                     $"File hash mismatch for session {session.Id}: expected {session.FileHash}, got {currentHash}"
+
                 false
         with ex ->
-            CoreLogger.logError "ImportSessionManager" $"Failed to validate file hash for session {session.Id}: {ex.Message}"
+            CoreLogger.logError
+                "ImportSessionManager"
+                $"Failed to validate file hash for session {session.Id}: {ex.Message}"
+
             false

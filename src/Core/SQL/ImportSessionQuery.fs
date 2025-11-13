@@ -34,17 +34,15 @@ module internal ImportSessionQuery =
             LastError TEXT,
             CreatedAt TEXT NOT NULL DEFAULT (datetime('now')),
             UpdatedAt TEXT NOT NULL DEFAULT (datetime('now')),
-            FOREIGN KEY (BrokerAccountId) REFERENCES BrokerAccount(Id) ON DELETE CASCADE
+            FOREIGN KEY (BrokerAccountId) REFERENCES BrokerAccounts(Id) ON DELETE CASCADE
         )
         """
 
     /// Create indexes for ImportSession table
     let createIndexes =
-        [
-            "CREATE INDEX IF NOT EXISTS idx_importsession_state ON ImportSession(State)"
-            "CREATE INDEX IF NOT EXISTS idx_importsession_brokeraccount ON ImportSession(BrokerAccountId)"
-            "CREATE INDEX IF NOT EXISTS idx_importsession_brokeraccount_state ON ImportSession(BrokerAccountId, State)"
-        ]
+        [ "CREATE INDEX IF NOT EXISTS idx_importsession_state ON ImportSession(State)"
+          "CREATE INDEX IF NOT EXISTS idx_importsession_brokeraccount ON ImportSession(BrokerAccountId)"
+          "CREATE INDEX IF NOT EXISTS idx_importsession_brokeraccount_state ON ImportSession(BrokerAccountId, State)" ]
 
     /// Insert a new import session
     let insert =

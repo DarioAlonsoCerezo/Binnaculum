@@ -54,19 +54,19 @@ module internal TableName =
 
     [<Literal>]
     let BrokerAccountSnapshots = "BrokerAccountSnapshots"
-    
+
     [<Literal>]
     let BrokerSnapshots = "BrokerSnapshots"
-    
+
     [<Literal>]
     let BankAccountSnapshots = "BankAccountSnapshots"
-    
+
     [<Literal>]
     let BankSnapshots = "BankSnapshots"
-    
+
     [<Literal>]
     let InvestmentOverviewSnapshots = "InvestmentOverviewSnapshots"
-    
+
     [<Literal>]
     let BrokerFinancialSnapshots = "BrokerFinancialSnapshots"
 
@@ -76,3 +76,8 @@ module internal TableName =
     [<Literal>]
     let AutoImportOperationTrades = "AutoImportOperationTrades"
 
+    [<Literal>]
+    let ImportSessions = "ImportSession"
+
+    [<Literal>]
+    let ImportSessionChunks = "ImportSessionChunk"
