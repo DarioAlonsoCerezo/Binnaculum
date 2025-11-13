@@ -440,10 +440,6 @@ module internal DatabaseModel =
             member this.UpdateSQL = "" // Custom updates via specific methods
             member this.DeleteSQL = "" // No direct delete - cascade via FK
 
-        interface IAuditEntity with
-            member this.CreatedAt = this.Audit.CreatedAt
-            member this.UpdatedAt = this.Audit.UpdatedAt
-
     type ImportSessionChunk =
         { Id: int
           ImportSessionId: int
@@ -464,7 +460,3 @@ module internal DatabaseModel =
             member this.InsertSQL = ImportSessionChunkQuery.insert
             member this.UpdateSQL = "" // Custom updates via specific methods
             member this.DeleteSQL = "" // No direct delete - cascade via FK
-
-        interface IAuditEntity with
-            member this.CreatedAt = this.Audit.CreatedAt
-            member this.UpdatedAt = this.Audit.UpdatedAt

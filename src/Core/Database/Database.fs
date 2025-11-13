@@ -199,42 +199,21 @@ module internal Do =
     let saveEntity<'T when 'T :> IEntity> (entity: 'T) (fill: 'T -> SqliteCommand -> SqliteCommand) =
         task {
             try
-                // Verbose step-by-step logging (commented for performance, uncomment if debugging needed)
-                // logDatabaseDebug "Database.Do" "saveEntity - Step 1: Creating database command..."
                 let! command = createCommand ()
-                // logDatabaseDebug "Database.Do" "saveEntity - Step 2: Command created successfully"
-
-                // logDatabaseDebugf "Database.Do" "saveEntity - Step 3: Setting CommandText based on entity ID = %d" entity.Id
 
                 command.CommandText <-
                     match entity.Id with
-                    | 0 ->
-                        // logDatabaseDebug "Database.Do" "saveEntity - Step 4a: Using INSERT SQL (new entity)"
-                        entity.InsertSQL
-                    | _ ->
-                        // logDatabaseDebug "Database.Do" "saveEntity - Step 4b: Using UPDATE SQL (existing entity)"
-                        entity.UpdateSQL
-
-                // logDatabaseDebugf "Database.Do" "saveEntity - Step 5: CommandText set to: %s" command.CommandText
-                // logDatabaseDebug "Database.Do" "saveEntity - Step 6: Calling fill method to populate parameters..."
+                    | 0 -> entity.InsertSQL
+                    | _ -> entity.UpdateSQL
 
                 let filledCommand = fill entity command
 
-                // logDatabaseDebugf
-                //     "Database.Do"
-                //     "saveEntity - Step 7: Fill method completed, command has %d parameters"
-                //     filledCommand.Parameters.Count
-
-                // logDatabaseDebug "Database.Do" "saveEntity - Step 8: Calling executeNonQuery..."
-
-                // Single optimized debug log with all relevant info (disabled by default, zero-cost when disabled)
+                // Single optimized debug log (disabled by default, zero-cost when disabled)
                 logDatabaseDebugOptimized "Database.Do" (fun () ->
                     let operation = if entity.Id = 0 then "INSERT" else "UPDATE"
                     $"saveEntity - {operation} entity (ID: {entity.Id}), Params: {filledCommand.Parameters.Count}")
 
                 do! executeNonQuery (filledCommand) |> Async.AwaitTask |> Async.Ignore
-
-            // logDatabaseDebug "Database.Do" "saveEntity - Step 9: executeNonQuery completed successfully"
             with ex ->
                 // Database errors are ALWAYS logged regardless of database logging setting
                 logDatabaseError "Database.Do" $"saveEntity failed - {ex.Message}"
