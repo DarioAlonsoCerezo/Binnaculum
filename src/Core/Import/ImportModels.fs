@@ -80,7 +80,11 @@ and ImportResult =
       Errors: ImportError list
       Warnings: ImportWarning list
       ImportedData: ImportedDataSummary
-      FileResults: FileImportResult list }
+      FileResults: FileImportResult list
+      /// Number of chunks processed (for chunked imports)
+      ProcessedChunks: int
+      /// Session ID for resumable imports
+      SessionId: int option }
 
 /// <summary>
 /// Structured error information for data validation issues
@@ -178,7 +182,9 @@ module ImportResult =
           Errors = []
           Warnings = []
           ImportedData = importedData
-          FileResults = fileResults }
+          FileResults = fileResults
+          ProcessedChunks = 0
+          SessionId = None }
 
     /// Create a cancelled import result
     let createCancelled () =
@@ -196,7 +202,9 @@ module ImportResult =
               Dividends = 0
               OptionTrades = 0
               NewTickers = 0 }
-          FileResults = [] }
+          FileResults = []
+          ProcessedChunks = 0
+          SessionId = None }
 
     /// Create an error import result
     let createError (errorMessage: string) =
@@ -219,7 +227,9 @@ module ImportResult =
               Dividends = 0
               OptionTrades = 0
               NewTickers = 0 }
-          FileResults = [] }
+          FileResults = []
+          ProcessedChunks = 0
+          SessionId = None }
 
 /// Helper functions for creating file import results
 module FileImportResult =

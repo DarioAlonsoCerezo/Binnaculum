@@ -37,7 +37,9 @@ module TastytradeImporter =
                       Dividends = 0
                       OptionTrades = 0
                       NewTickers = 0 }
-                  FileResults = [] }
+                  FileResults = []
+                  ProcessedChunks = 0
+                  SessionId = None }
 
             let mutable fileResults = []
             let mutable totalBrokerMovements = 0
