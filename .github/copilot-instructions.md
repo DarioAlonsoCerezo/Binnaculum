@@ -1,13 +1,24 @@
 # Copilot Instructions for Binnaculum
 
-**ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
+Please reference these instructions first for project-specific patterns and guidelines.
 
 ## Project Overview
 Binnaculum is a cross-platform investment tracking app built with .NET 9 and .NET MAUI. The solution includes F# and C# projects, focusing on investment, portfolio, and bank account management. It targets Android, iOS, MacCatalyst, and Windows platforms using SQLite for data persistence and ReactiveUI for MVVM patterns.
 
+## Success Criteria for Pull Requests
+
+All pull requests must meet these criteria before merging:
+- All Core.Tests pass without errors (100% pass rate expected)
+- F# code compiles without warnings
+- C# code follows .editorconfig style rules
+- XAML follows XAMLStylerConfiguration.json formatting
+- Changes include corresponding test coverage for business logic
+- Build succeeds on target platform (Windows/Android/iOS as applicable)
+- No new performance regressions in BrokerFinancialSnapshotManager tests
+
 ## Copilot Task Guidelines
 
-### ? Ideal Tasks for Copilot Assignment
+### Ideal Tasks for Copilot Assignment
 - **Core Logic Implementation**: F# business logic, financial calculations, database operations
 - **UI Component Development**: MAUI pages and controls for investment tracking
 - **Bug Fixes**: Specific compilation errors, test failures, package reference issues
@@ -15,7 +26,7 @@ Binnaculum is a cross-platform investment tracking app built with .NET 9 and .NE
 - **Documentation**: Update README files, add code comments, create examples (only if explicitly requested)
 - **Performance Optimization**: Memory leak detection, Observable chain cleanup
 
-### ❌ PROHIBITED Tasks - DO NOT CREATE UNLESS EXPLICITLY REQUESTED
+### PROHIBITED Tasks - DO NOT CREATE UNLESS EXPLICITLY REQUESTED
 - **New Documentation Files**: Do NOT create markdown files, analysis documents, summary files, or logs unless explicitly requested
 - **Temporary Files**: Do NOT create intermediate files, debug files, or working documents
 - **Report Generation**: Do NOT create test reports, build logs analysis, or summary documents
@@ -24,18 +35,59 @@ Binnaculum is a cross-platform investment tracking app built with .NET 9 and .NE
 
 **If a task requires documentation, ask the user first before creating any new files.**
 
-### ? Tasks to Handle Manually (Complex/Critical)
+### Tasks to Handle Manually (Complex/Critical)
 - **Core Financial Logic**: Complex percentage calculations, portfolio balance algorithms
 - **Database Schema Changes**: SQLite model updates, migration scripts
 - **Architecture Decisions**: Multi-platform targeting, project structure changes
 - **Security Concerns**: Authentication flows, sensitive data handling
 - **Production Issues**: Critical bugs affecting user data
 
-### ?? Task Scoping Best Practices
+### Task Scoping Best Practices
 - **Be Specific**: "Implement BrokerAccountTemplate UI component for investment display" vs "Add some UI"  
 - **Include Acceptance Criteria**: "Components must work on Android, iOS, Windows, MacCatalyst"
 - **Reference Examples**: "Follow patterns in existing MAUI controls and pages"
 - **Specify Files**: "Update files in src/UI/Pages/ or src/UI/Controls/"
+
+## Reference Implementations
+
+When implementing new features, reference these established patterns:
+- **Financial calculations**: `src/Core/Snapshots/BrokerFinancialSnapshotManager.fs`
+- **Database operations**: `src/Core/Database/BrokerAccountExtensions.fs`
+- **MAUI pages**: `src/UI/Pages/BrokerAccountPage.xaml` and `BrokerAccountPage.xaml.cs`
+- **Reactive patterns**: Observable chains in `src/UI/ViewModels/` (ViewModel pattern)
+- **Performance tests**: `src/Tests/Core.Tests/BrokerFinancialSnapshotManagerPerformanceTests.fs`
+
+## Common Patterns and Examples
+
+### Example: Adding a New Financial Calculation
+
+**Good approach**:
+1. Add calculation function to appropriate file in `src/Core/Snapshots/`
+2. Use `decimal` type for monetary values (never `float`)
+3. Add corresponding tests to `src/Tests/Core.Tests/`
+4. Follow existing async patterns for concurrent operations
+5. Update UI binding in relevant ViewModel
+
+**Avoid**:
+- Adding calculations directly to ViewModels or UI code
+- Using `float` or `double` types for monetary values
+- Skipping test coverage for financial logic
+- Blocking operations without async/await patterns
+
+### Example: Creating a New MAUI Page
+
+**Good approach**:
+1. Create XAML file in `src/UI/Pages/`
+2. Use existing templates from `src/UI/Controls/`
+3. Follow `XAMLStylerConfiguration.json` formatting
+4. Add `AutomationId` for testability
+5. Implement proper disposal with `DisposeWith(Disposables)`
+
+**Avoid**:
+- Inline styles instead of using ResourceDictionary
+- Missing BindingContext setup
+- Forgetting to dispose Observable subscriptions
+- Hard-coded colors instead of using theme resources
 
 ## Working Effectively
 
@@ -181,11 +233,12 @@ The UI project uses OS-aware conditional compilation:
 - **Extensions**: Modify database extensions in `src/Core/Database/`
 - **Queries**: Update SQL queries in `src/Core/SQL/`
 - **Always test**: Ensure existing functionality is preserved
+- **See**: `.github/instructions/database.instructions.md` for detailed guidelines
 
 ### Performance Considerations
 - **Mobile Targets**: Consider memory and CPU constraints on mobile devices
 - **Chunked Processing**: Use established patterns for large dataset handling
-- **GC Pressure**: Monitor garbage collection impact in performance tests
 - **Async Operations**: Use F# async workflows for concurrent operations
+- **See**: `.github/instructions/performance.instructions.md` for detailed guidelines
 
 This project has comprehensive test coverage including performance benchmarks specifically designed for mobile constraints. The BrokerFinancialSnapshotManager includes tests for memory pressure, concurrent processing, and mobile CPU simulation.

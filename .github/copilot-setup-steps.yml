@@ -1,0 +1,63 @@
+name: Setup Binnaculum Development Environment
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Verify .NET version
+        run: dotnet --version
+
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      - name: Install MAUI workload (Android - All platforms)
+        run: dotnet workload install maui-android
+        continue-on-error: false
+
+      - name: Install MAUI workload (Windows - Windows only)
+        if: runner.os == 'Windows'
+        run: dotnet workload install maui-windows
+
+      - name: Install MAUI workloads (iOS/MacCatalyst - macOS only)
+        if: runner.os == 'macOS'
+        run: |
+          dotnet workload install maui-ios
+          dotnet workload install maui-maccatalyst
+
+      - name: Build Core project
+        run: dotnet build src/Core/Core.fsproj
+
+      - name: Build Core.Tests project
+        run: dotnet build src/Tests/Core.Tests/Core.Tests.fsproj
+
+      - name: Run Core tests
+        run: dotnet test src/Tests/Core.Tests/Core.Tests.fsproj --no-build
+
+      - name: Build Android target
+        run: dotnet build src/UI/Binnaculum.csproj -f net10.0-android
+
+      - name: Build Windows target
+        if: runner.os == 'Windows'
+        run: dotnet build src/UI/Binnaculum.csproj -f net10.0-windows10.0.19041.0
+
+      - name: Build iOS target
+        if: runner.os == 'macOS'
+        run: dotnet build src/UI/Binnaculum.csproj -f net10.0-ios
+
+      - name: Build MacCatalyst target
+        if: runner.os == 'macOS'
+        run: dotnet build src/UI/Binnaculum.csproj -f net10.0-maccatalyst
