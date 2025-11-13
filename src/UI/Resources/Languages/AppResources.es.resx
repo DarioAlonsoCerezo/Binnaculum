@@ -1075,4 +1075,120 @@ Una opción PUT te da el **derecho a vender** el activo subyacente a un precio e
     <value>Calculando estado...</value>
     <comment>Progreso de importación: calculando estados financieros (genérico)</comment>
   </data>
+  <data name="Import_Chunked_State_Idle" xml:space="preserve">
+    <value>Listo</value>
+    <comment>Estado de importación por lotes: listo para comenzar</comment>
+  </data>
+  <data name="Import_Chunked_State_ReadingFile" xml:space="preserve">
+    <value>Leyendo archivo</value>
+    <comment>Estado de importación por lotes: leyendo archivo CSV</comment>
+  </data>
+  <data name="Import_Chunked_State_AnalyzingDates" xml:space="preserve">
+    <value>Analizando fechas</value>
+    <comment>Estado de importación por lotes: analizando rangos de fechas</comment>
+  </data>
+  <data name="Import_Chunked_State_ProcessingChunk" xml:space="preserve">
+    <value>Procesando datos</value>
+    <comment>Estado de importación por lotes: procesando lote</comment>
+  </data>
+  <data name="Import_Chunked_State_CalculatingSnapshots" xml:space="preserve">
+    <value>Calculando estados</value>
+    <comment>Estado de importación por lotes: calculando estados</comment>
+  </data>
+  <data name="Import_Chunked_State_Completed" xml:space="preserve">
+    <value>Importación completada</value>
+    <comment>Estado de importación por lotes: completada exitosamente</comment>
+  </data>
+  <data name="Import_Chunked_State_Failed" xml:space="preserve">
+    <value>Importación fallida</value>
+    <comment>Estado de importación por lotes: falló con error</comment>
+  </data>
+  <data name="Import_Chunked_State_Cancelled" xml:space="preserve">
+    <value>Importación cancelada</value>
+    <comment>Estado de importación por lotes: cancelada por usuario</comment>
+  </data>
+  <data name="Import_Phase_LoadingMovements" xml:space="preserve">
+    <value>Cargando movimientos</value>
+    <comment>Fase de lote: cargando movimientos de la base de datos</comment>
+  </data>
+  <data name="Import_Phase_CalculatingBrokerSnapshots" xml:space="preserve">
+    <value>Calculando estados del broker</value>
+    <comment>Fase de lote: calculando estados financieros del broker</comment>
+  </data>
+  <data name="Import_Phase_CalculatingTickerSnapshots" xml:space="preserve">
+    <value>Calculando estados de ticker</value>
+    <comment>Fase de lote: calculando estados de moneda del ticker</comment>
+  </data>
+  <data name="Import_Phase_CreatingOperations" xml:space="preserve">
+    <value>Creando operaciones</value>
+    <comment>Fase de lote: creando operaciones desde movimientos</comment>
+  </data>
+  <data name="Import_Phase_PersistingData" xml:space="preserve">
+    <value>Guardando datos</value>
+    <comment>Fase de lote: persistiendo datos en la base de datos</comment>
+  </data>
+  <data name="Import_SnapshotType_BrokerFinancial" xml:space="preserve">
+    <value>Financiero del Broker</value>
+    <comment>Tipo de estado: estado financiero del broker</comment>
+  </data>
+  <data name="Import_SnapshotType_TickerCurrency" xml:space="preserve">
+    <value>Moneda del Ticker</value>
+    <comment>Tipo de estado: estado de moneda del ticker</comment>
+  </data>
+  <data name="Import_SnapshotType_Operations" xml:space="preserve">
+    <value>Operaciones</value>
+    <comment>Tipo de estado: operaciones</comment>
+  </data>
+  <data name="Import_Chunked_ReadingFile" xml:space="preserve">
+    <value>Leyendo {0}...</value>
+    <comment>Mensaje de progreso: leyendo archivo con nombre</comment>
+  </data>
+  <data name="Import_Chunked_AnalyzingDates" xml:space="preserve">
+    <value>Analizando fechas en {0}...</value>
+    <comment>Mensaje de progreso: analizando fechas en archivo</comment>
+  </data>
+  <data name="Import_Chunked_ProcessingChunk" xml:space="preserve">
+    <value>Procesando lote {0} de {1}</value>
+    <comment>Mensaje de progreso: procesando lote N de M</comment>
+  </data>
+  <data name="Import_Chunked_ChunkDateRange" xml:space="preserve">
+    <value>Semana del {0} al {1}</value>
+    <comment>Mensaje de progreso: rango de fechas del lote actual</comment>
+  </data>
+  <data name="Import_Chunked_CalculatingSnapshots" xml:space="preserve">
+    <value>Calculando {0} ({1} de {2})</value>
+    <comment>Mensaje de progreso: calculando tipo de estado (N de M)</comment>
+  </data>
+  <data name="Import_Chunked_TimeRemaining" xml:space="preserve">
+    <value>Aproximadamente {0} restante</value>
+    <comment>Mensaje de progreso: tiempo estimado restante</comment>
+  </data>
+  <data name="Import_Chunked_CompletedSummary" xml:space="preserve">
+    <value>Completado: {0} movimientos en {1} lotes</value>
+    <comment>Mensaje de finalización: movimientos y lotes totales</comment>
+  </data>
+  <data name="Import_Chunked_CompletedDuration" xml:space="preserve">
+    <value>Completado en {0}</value>
+    <comment>Mensaje de finalización: duración total</comment>
+  </data>
+  <data name="Import_Chunked_Failed" xml:space="preserve">
+    <value>Importación fallida: {0}</value>
+    <comment>Mensaje de error: importación falló con razón</comment>
+  </data>
+  <data name="Time_Format_Seconds" xml:space="preserve">
+    <value>{0} segundos</value>
+    <comment>Formato de tiempo: N segundos</comment>
+  </data>
+  <data name="Time_Format_Minutes" xml:space="preserve">
+    <value>{0} minutos</value>
+    <comment>Formato de tiempo: N minutos</comment>
+  </data>
+  <data name="Time_Format_Hours" xml:space="preserve">
+    <value>{0} horas</value>
+    <comment>Formato de tiempo: N horas</comment>
+  </data>
+  <data name="Time_Format_LessThanMinute" xml:space="preserve">
+    <value>menos de un minuto</value>
+    <comment>Formato de tiempo: duración muy corta</comment>
+  </data>
 </root>
