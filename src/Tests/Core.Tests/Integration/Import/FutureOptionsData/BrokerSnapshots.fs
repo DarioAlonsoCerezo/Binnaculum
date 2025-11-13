@@ -198,7 +198,7 @@ module FutureOptionsBrokerSnapshots =
           // Snapshot 7: 2025-11-12 - Today (no changes, same as Oct 31)
           { Data =
               { Id = 0
-                Date = DateOnly(2025, 11, 12)
+                Date = DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
                 Broker = Some broker
                 BrokerAccount = Some brokerAccount
                 Currency = currency
