@@ -26,10 +26,7 @@ public partial class OverviewPage
         Core.UI.Collections.Snapshots.Connect()
             .ObserveOn(UiThread)
             .Bind(out _snapshots)
-            .Subscribe(x =>
-            {
-
-            });
+            .Subscribe();
 
         _filterPredicate = _selected
             .Throttle(TimeSpan.FromMilliseconds(300))
