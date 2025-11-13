@@ -164,3 +164,12 @@ module internal DividendTaxesQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
+
+    let getByBrokerAccountIdPaged =
+        $"""
+        SELECT * FROM {DividendTaxes}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+        ORDER BY {TimeStamp} DESC, {Id} DESC
+        LIMIT @PageSize OFFSET @Offset
+        """

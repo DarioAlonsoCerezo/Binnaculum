@@ -120,3 +120,12 @@ module internal BankAccountMovementsQuery =
             {TimeStamp} <= {SQLParameterName.TimeStampEnd}
         ORDER BY {TimeStamp} ASC
         """
+
+    let getByBankAccountIdPaged =
+        $"""
+        SELECT * FROM {BankAccountMovements}
+        WHERE
+            {BankAccountId} = {SQLParameterName.BankAccountId}
+        ORDER BY {TimeStamp} DESC, {Id} DESC
+        LIMIT @PageSize OFFSET @Offset
+        """

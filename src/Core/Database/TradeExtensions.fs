@@ -227,6 +227,26 @@ type Do() =
             return trade
         }
 
+    /// <summary>
+    /// Load trades with pagination support for a specific broker account.
+    /// Returns trades ordered by TimeStamp DESC (most recent first).
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID to filter by</param>
+    /// <param name="pageNumber">Zero-based page number</param>
+    /// <param name="pageSize">Number of items per page</param>
+    /// <returns>List of trades for the specified page</returns>
+    static member loadTradesPaged(brokerAccountId: int, pageNumber: int, pageSize: int) =
+        task {
+            let offset = pageNumber * pageSize
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- TradesQuery.getByBrokerAccountIdPaged
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+            command.Parameters.AddWithValue("@PageSize", pageSize) |> ignore
+            command.Parameters.AddWithValue("@Offset", offset) |> ignore
+            let! trades = Database.Do.readAll<Trade> (command, Do.read)
+            return trades
+        }
+
 /// <summary>
 /// Financial calculation extension methods for Trade collections.
 /// These methods provide reusable calculation logic for investment tracking and financial snapshot processing.
