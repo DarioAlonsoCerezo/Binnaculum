@@ -87,6 +87,7 @@
     <Compile Include="Unit/Managers/ReactiveTickerIntegrationTests.fs" />
     <Compile Include="Unit/Managers/DataLoadingManagerTests.fs" />
     <Compile Include="Unit/Managers/ProgressiveLoadingManagerTests.fs" />
+    <!-- <Compile Include="Unit/Managers/ReactiveMovementManagerTests.fs" /> WIP: Needs compilation fixes -->
     
     <!-- Unit Tests - Import/Converters -->
     <Compile Include="Unit/Import/ImportStatusConversionTests.fs" />
@@ -106,6 +107,7 @@
     <Compile Include="Unit/Database/OverviewWipingTests.fs" />
     <Compile Include="Unit/Database/AutoImportOperationTests.fs" />
     <Compile Include="Unit/Database/AutoImportOperationTradeTests.fs" />
+    <!-- <Compile Include="Unit/Database/PaginationMethodsTests.fs" /> WIP: Needs compilation fixes -->
     
     <!-- Performance Tests -->
     <Compile Include="Performance/BrokerFinancialSnapshotManagerIntegrationTests.fs" />
