@@ -110,3 +110,12 @@ module internal DividendDateQuery =
             {Id} = {SQLParameterName.Id}
         LIMIT 1
         """
+
+    let getByBrokerAccountIdPaged =
+        $"""
+        SELECT * FROM {DividendDates}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+        ORDER BY {TimeStamp} DESC, {Id} DESC
+        LIMIT @PageSize OFFSET @Offset
+        """

@@ -242,3 +242,12 @@ module internal TradesQuery =
         ORDER BY {TimeStamp} ASC
         LIMIT 1
         """
+
+    let getByBrokerAccountIdPaged =
+        $"""
+        SELECT * FROM {Trades}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+        ORDER BY {TimeStamp} DESC, {Id} DESC
+        LIMIT @PageSize OFFSET @Offset
+        """

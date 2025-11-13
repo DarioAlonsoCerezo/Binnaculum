@@ -150,6 +150,26 @@ type Do() =
             return dividends
         }
 
+    /// <summary>
+    /// Load dividends with pagination support for a specific broker account.
+    /// Returns dividends ordered by TimeStamp DESC (most recent first).
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID to filter by</param>
+    /// <param name="pageNumber">Zero-based page number</param>
+    /// <param name="pageSize">Number of items per page</param>
+    /// <returns>List of dividends for the specified page</returns>
+    static member loadDividendsPaged(brokerAccountId: int, pageNumber: int, pageSize: int) =
+        task {
+            let offset = pageNumber * pageSize
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- DividendsQuery.getByBrokerAccountIdPaged
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+            command.Parameters.AddWithValue("@PageSize", pageSize) |> ignore
+            command.Parameters.AddWithValue("@Offset", offset) |> ignore
+            let! dividends = Database.Do.readAll<Dividend> (command, Do.read)
+            return dividends
+        }
+
 /// <summary>
 /// Financial calculation extension methods for Dividend collections.
 /// These methods provide reusable calculation logic for dividend income tracking and financial snapshot processing.

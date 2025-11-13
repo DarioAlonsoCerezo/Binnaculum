@@ -337,6 +337,26 @@ type Do() =
             return optionTrades
         }
 
+    /// <summary>
+    /// Load option trades with pagination support for a specific broker account.
+    /// Returns option trades ordered by TimeStamp DESC (most recent first).
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID to filter by</param>
+    /// <param name="pageNumber">Zero-based page number</param>
+    /// <param name="pageSize">Number of items per page</param>
+    /// <returns>List of option trades for the specified page</returns>
+    static member loadOptionTradesPaged(brokerAccountId: int, pageNumber: int, pageSize: int) =
+        task {
+            let offset = pageNumber * pageSize
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- OptionsQuery.getByBrokerAccountIdPaged
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+            command.Parameters.AddWithValue("@PageSize", pageSize) |> ignore
+            command.Parameters.AddWithValue("@Offset", offset) |> ignore
+            let! optionTrades = Database.Do.readAll<OptionTrade> (command, Do.read)
+            return optionTrades
+        }
+
 /// <summary>
 /// Financial calculation extension methods for OptionTrade collections.
 /// These methods provide reusable calculation logic for options trading income, costs, and realized gains.

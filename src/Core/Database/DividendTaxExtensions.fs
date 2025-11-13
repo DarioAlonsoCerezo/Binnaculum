@@ -150,6 +150,26 @@ type Do() =
             return dividendTaxes
         }
 
+    /// <summary>
+    /// Load dividend taxes with pagination support for a specific broker account.
+    /// Returns dividend taxes ordered by TimeStamp DESC (most recent first).
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID to filter by</param>
+    /// <param name="pageNumber">Zero-based page number</param>
+    /// <param name="pageSize">Number of items per page</param>
+    /// <returns>List of dividend taxes for the specified page</returns>
+    static member loadDividendTaxesPaged(brokerAccountId: int, pageNumber: int, pageSize: int) =
+        task {
+            let offset = pageNumber * pageSize
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- DividendTaxesQuery.getByBrokerAccountIdPaged
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+            command.Parameters.AddWithValue("@PageSize", pageSize) |> ignore
+            command.Parameters.AddWithValue("@Offset", offset) |> ignore
+            let! dividendTaxes = Database.Do.readAll<DividendTax> (command, Do.read)
+            return dividendTaxes
+        }
+
 /// <summary>
 /// Financial calculation extension methods for DividendTax collections.
 /// These methods provide reusable calculation logic for dividend tax withholding tracking and financial snapshot processing.

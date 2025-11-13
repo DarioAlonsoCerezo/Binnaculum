@@ -241,3 +241,12 @@ module internal OptionsQuery =
             AND {TimeStamp} >= {SQLParameterName.TimeStamp}
         ORDER BY {TimeStamp}
         """
+
+    let getByBrokerAccountIdPaged =
+        $"""
+        SELECT * FROM {Options}
+        WHERE
+            {BrokerAccountId} = {SQLParameterName.BrokerAccountId}
+        ORDER BY {TimeStamp} DESC, {Id} DESC
+        LIMIT @PageSize OFFSET @Offset
+        """

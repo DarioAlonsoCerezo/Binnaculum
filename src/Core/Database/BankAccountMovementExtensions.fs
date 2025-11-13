@@ -66,3 +66,23 @@ type Do() =
             let! movements = Database.Do.readAll<BankAccountMovement>(command, Do.read)
             return movements
         }
+
+    /// <summary>
+    /// Load bank account movements with pagination support for a specific bank account.
+    /// Returns movements ordered by TimeStamp DESC (most recent first).
+    /// </summary>
+    /// <param name="bankAccountId">The bank account ID to filter by</param>
+    /// <param name="pageNumber">Zero-based page number</param>
+    /// <param name="pageSize">Number of items per page</param>
+    /// <returns>List of bank account movements for the specified page</returns>
+    static member loadBankMovementsPaged(bankAccountId: int, pageNumber: int, pageSize: int) =
+        task {
+            let offset = pageNumber * pageSize
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- BankAccountMovementsQuery.getByBankAccountIdPaged
+            command.Parameters.AddWithValue(SQLParameterName.BankAccountId, bankAccountId) |> ignore
+            command.Parameters.AddWithValue("@PageSize", pageSize) |> ignore
+            command.Parameters.AddWithValue("@Offset", offset) |> ignore
+            let! movements = Database.Do.readAll<BankAccountMovement> (command, Do.read)
+            return movements
+        }

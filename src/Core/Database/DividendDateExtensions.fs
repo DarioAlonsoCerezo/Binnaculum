@@ -46,3 +46,23 @@ type Do() =
     static member getAll() = Database.Do.getAllEntities Do.read DividendDateQuery.getAll
 
     static member getById(id: int) = Database.Do.getById Do.read id DividendDateQuery.getById
+
+    /// <summary>
+    /// Load dividend dates with pagination support for a specific broker account.
+    /// Returns dividend dates ordered by TimeStamp DESC (most recent first).
+    /// </summary>
+    /// <param name="brokerAccountId">The broker account ID to filter by</param>
+    /// <param name="pageNumber">Zero-based page number</param>
+    /// <param name="pageSize">Number of items per page</param>
+    /// <returns>List of dividend dates for the specified page</returns>
+    static member loadDividendDatesPaged(brokerAccountId: int, pageNumber: int, pageSize: int) =
+        task {
+            let offset = pageNumber * pageSize
+            let! command = Database.Do.createCommand ()
+            command.CommandText <- DividendDateQuery.getByBrokerAccountIdPaged
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, brokerAccountId) |> ignore
+            command.Parameters.AddWithValue("@PageSize", pageSize) |> ignore
+            command.Parameters.AddWithValue("@Offset", offset) |> ignore
+            let! dividendDates = Database.Do.readAll<DividendDate> (command, Do.read)
+            return dividendDates
+        }
