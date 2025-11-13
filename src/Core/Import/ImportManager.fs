@@ -523,198 +523,313 @@ module ImportManager =
                                                           SessionId = Some sessionId }
                                             }
                                         elif broker.SupportedBroker.ToString() = "Tastytrade" then
-                                            // Tastytrade importer requires a specific broker account ID
-                                            // CoreLogger.logDebugf "ImportManager" "Invoking Tastytrade importer for account %d" brokerAccount.Id
-
                                             task {
-                                                // First do the parsing/validation
-                                                let! parseResult =
-                                                    TastytradeImporter.importMultipleWithCancellation
-                                                        pf.CsvFiles
-                                                        brokerAccount.Id
-                                                        cancellationToken
-
-                                                // CoreLogger.logInfof "ImportManager" "Tastytrade parse complete: success=%b, processedFiles=%d, processedRecords=%d" parseResult.Success parseResult.ProcessedFiles parseResult.ProcessedRecords
-
-                                                // If parsing was successful, persist to database
-                                                if parseResult.Success then
-                                                    cancellationToken.ThrowIfCancellationRequested()
-
-                                                    // CoreLogger.logDebug "ImportManager" "Beginning database persistence for parsed transactions"
-
-                                                    try
-                                                        // Parse the transactions from files again for database persistence
+                                                // PHASE 1: Analyze CSV files for date ranges
+                                                let! analysis =
+                                                    task {
+                                                        // Parse all Tastytrade files to get date range
                                                         let mutable allTransactions = []
 
                                                         for csvFile in pf.CsvFiles do
                                                             let parsingResult =
-                                                                TastytradeStatementParser.parseTransactionHistoryFromFile
-                                                                    csvFile
+                                                                TastytradeStatementParser.parseTransactionHistoryFromFile csvFile
 
                                                             if parsingResult.Errors.IsEmpty then
                                                                 allTransactions <-
                                                                     allTransactions @ parsingResult.Transactions
-                                                            else
-                                                                CoreLogger.logWarningf
-                                                                    "ImportManager"
-                                                                    "Skipping %s due to %d parsing errors during persistence build"
-                                                                    csvFile
-                                                                    parsingResult.Errors.Length
 
-                                                        // Convert Tastytrade transactions to domain models
-                                                        // CoreLogger.logDebugf "ImportManager" "Converting %d transactions to domain models for account %d" allTransactions.Length brokerAccount.Id
+                                                        // Analyze date ranges from transactions
+                                                        if allTransactions.IsEmpty then
+                                                            let now = DateTime.Now
 
-                                                        let! domainModels =
-                                                            TastytradeConverter.convertToDomainModels
-                                                                allTransactions
-                                                                brokerAccount.Id
-                                                                None // No session ID for now
-                                                                cancellationToken
-
-                                                        // Persist domain models to database
-                                                        // CoreLogger.logDebugf "ImportManager" "Persisting domain models to database for account %d" brokerAccount.Id
-
-                                                        let! persistenceResult =
-                                                            DatabasePersistence.persistDomainModelsToDatabase
-                                                                domainModels
-                                                                brokerAccount.Id
-                                                                cancellationToken
-
-                                                        // CoreLogger.logInfof "ImportManager" "Database persistence complete: brokerMovements=%d, optionTrades=%d, stockTrades=%d, errors=%d" persistenceResult.BrokerMovementsCreated persistenceResult.OptionTradesCreated persistenceResult.StockTradesCreated persistenceResult.ErrorsCount
-
-                                                        // Log individual errors for debugging
-                                                        if persistenceResult.Errors.Length > 0 then
-                                                            persistenceResult.Errors
-                                                            |> List.iteri (fun idx error ->
-                                                                CoreLogger.logErrorf
-                                                                    "ImportManager"
-                                                                    "Persistence error %d/%d: %s"
-                                                                    (idx + 1)
-                                                                    persistenceResult.Errors.Length
-                                                                    error)
-
-                                                        // Use targeted reactive updates if ANY data was imported
-                                                        // (even if there are some linkClosingTrade or other non-critical errors)
-                                                        if
-                                                            persistenceResult.ImportMetadata.TotalMovementsImported > 0
-                                                        then
-                                                            // Refresh reactive managers in dependency order
-                                                            // CoreLogger.logDebug "ImportManager" "Performing targeted reactive refresh with batch snapshot processing"
-
-                                                            do! ReactiveTickerManager.refreshAsync () // First: base ticker data
-                                                            do! ReactiveMovementManager.refreshAsync () // Then: movements (depend on tickers)
-
-                                                            // PHASE 1: Process ticker snapshots FIRST (calculates AutoImportOperations)
-                                                            // CoreLogger.logInfo "ImportManager" "Starting batch ticker snapshot processing for import"
-
-                                                            let! tickerBatchResult =
-                                                                TickerSnapshotBatchManager.processBatchedTickersForImport
-                                                                    (brokerAccount.Id)
-                                                                    (persistenceResult.ImportMetadata)
-
-                                                            if tickerBatchResult.Success then
-                                                                // CoreLogger.logInfof "ImportManager" "Ticker snapshot batch processing completed: %d ticker snapshots, %d currency snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)" tickerBatchResult.TickerSnapshotsSaved tickerBatchResult.CurrencySnapshotsSaved tickerBatchResult.TotalTimeMs tickerBatchResult.LoadTimeMs tickerBatchResult.CalculationTimeMs tickerBatchResult.PersistenceTimeMs
-                                                                ()
-                                                            else
-                                                                CoreLogger.logWarningf
-                                                                    "ImportManager"
-                                                                    "Ticker snapshot batch processing had errors: %s"
-                                                                    (tickerBatchResult.Errors |> String.concat "; ")
-
-                                                            // PHASE 2: Process financial snapshots SECOND (uses AutoImportOperations from Phase 1)
-                                                            // CoreLogger.logInfo "ImportManager" "Starting batch financial snapshot processing for import"
-
-                                                            let! batchResult =
-                                                                BrokerFinancialBatchManager.processBatchedFinancialsForImport
-                                                                    brokerAccount.Id
-                                                                    tickerBatchResult.CalculatedOperations
-                                                                    tickerBatchResult.CalculatedTickerSnapshots
-
-                                                            if batchResult.Success then
-                                                                // CoreLogger.logInfof "ImportManager" "Batch snapshot processing completed: %d snapshots in %dms (Load: %dms, Calc: %dms, Save: %dms)" batchResult.SnapshotsSaved batchResult.TotalTimeMs batchResult.LoadTimeMs batchResult.CalculationTimeMs batchResult.PersistenceTimeMs
-                                                                ()
-                                                            else
-                                                                CoreLogger.logWarningf
-                                                                    "ImportManager"
-                                                                    "Batch snapshot processing had errors: %s"
-                                                                    (batchResult.Errors |> String.concat "; ")
-
-                                                            // Refresh reactive snapshot manager to pick up new snapshots
-                                                            do! ReactiveSnapshotManager.refreshAsync ()
-
-                                                            // Refresh TickerSnapshots collection to pick up newly created ticker snapshots
-                                                            do! TickerSnapshotLoader.load ()
+                                                            return
+                                                                { MinDate = now
+                                                                  MaxDate = now
+                                                                  TotalMovements = 0
+                                                                  MovementsByDate = Map.empty
+                                                                  UniqueDates = []
+                                                                  FileHash =
+                                                                    CsvDateAnalyzer.calculateFileHash (pf.CsvFiles.[0]) }
                                                         else
-                                                            // No movements imported, just do a basic refresh
-                                                            // CoreLogger.logDebug "ImportManager" "No movements imported; skipping reactive updates"
-                                                            ()
+                                                            let dates =
+                                                                allTransactions |> List.map (fun t -> t.Date) |> List.sort
 
-                                                        // Update the ImportResult with actual database persistence results
-                                                        let updatedImportedData =
-                                                            { parseResult.ImportedData with
-                                                                Trades = persistenceResult.StockTradesCreated
-                                                                BrokerMovements =
-                                                                    persistenceResult.BrokerMovementsCreated
-                                                                OptionTrades = persistenceResult.OptionTradesCreated
-                                                                Dividends = persistenceResult.DividendsCreated }
+                                                            let minDate = dates |> List.head
+                                                            let maxDate = dates |> List.last
 
-                                                        // Add any persistence errors to the result
-                                                        let persistenceErrors =
-                                                            persistenceResult.Errors
+                                                            // Group by date for movement counts
+                                                            let movementsByDate =
+                                                                allTransactions
+                                                                |> List.groupBy (fun t ->
+                                                                    DateOnly.FromDateTime(t.Date))
+                                                                |> List.map (fun (date, transactions) ->
+                                                                    (date, transactions.Length))
+                                                                |> Map.ofList
+
+                                                            return
+                                                                { MinDate = minDate
+                                                                  MaxDate = maxDate
+                                                                  TotalMovements = allTransactions.Length
+                                                                  MovementsByDate = movementsByDate
+                                                                  UniqueDates =
+                                                                    movementsByDate
+                                                                    |> Map.toList
+                                                                    |> List.map fst
+                                                                    |> List.sort
+                                                                  FileHash =
+                                                                    CsvDateAnalyzer.calculateFileHash (pf.CsvFiles.[0]) }
+                                                    }
+
+                                                // PHASE 2: Create weekly chunks
+                                                let chunks = ChunkStrategy.createWeeklyChunks analysis
+
+                                                CoreLogger.logInfof
+                                                    "ImportManager"
+                                                    "Created %d chunks for Tastytrade import (%d total movements)"
+                                                    chunks.Length
+                                                    analysis.TotalMovements
+
+                                                if chunks.IsEmpty then
+                                                    return
+                                                        ImportResult.createSuccess
+                                                            0
+                                                            0
+                                                            { Trades = 0
+                                                              BrokerMovements = 0
+                                                              Dividends = 0
+                                                              OptionTrades = 0
+                                                              NewTickers = 0 }
+                                                            []
+                                                            0L
+                                                else
+                                                    // PHASE 3: Create import session
+                                                    let! sessionId =
+                                                        ImportSessionManager.createSession
+                                                            brokerAccount.Id
+                                                            brokerAccount.AccountNumber
+                                                            filePath
+                                                            analysis
+                                                            chunks
+
+                                                    CoreLogger.logInfof
+                                                        "ImportManager"
+                                                        "Created import session %d for Tastytrade"
+                                                        sessionId
+
+                                                    // PHASE 4: Process each chunk
+                                                    let mutable totalProcessed = 0
+                                                    let mutable totalMovementsImported = 0
+                                                    let mutable allErrors = []
+                                                    let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+
+                                                    for chunk in chunks do
+                                                        cancellationToken.ThrowIfCancellationRequested()
+
+                                                        let chunkStopwatch = System.Diagnostics.Stopwatch.StartNew()
+
+                                                        CoreLogger.logInfof
+                                                            "ImportManager"
+                                                            "Processing Tastytrade chunk %d/%d (dates: %s to %s, estimated: %d movements)"
+                                                            chunk.ChunkNumber
+                                                            chunks.Length
+                                                            (chunk.StartDate.ToString("yyyy-MM-dd"))
+                                                            (chunk.EndDate.ToString("yyyy-MM-dd"))
+                                                            chunk.EstimatedMovements
+
+                                                        try
+                                                            // 4.1: Parse ALL Tastytrade transactions from CSV files
+                                                            let mutable allTransactions = []
+
+                                                            for csvFile in pf.CsvFiles do
+                                                                let parsingResult =
+                                                                    TastytradeStatementParser.parseTransactionHistoryFromFile
+                                                                        csvFile
+
+                                                                if parsingResult.Errors.IsEmpty then
+                                                                    allTransactions <-
+                                                                        allTransactions @ parsingResult.Transactions
+                                                                else
+                                                                    CoreLogger.logWarningf
+                                                                        "ImportManager"
+                                                                        "Skipping %s due to %d parsing errors"
+                                                                        csvFile
+                                                                        parsingResult.Errors.Length
+
+                                                            // 4.2: Convert ALL to domain models
+                                                            let! domainModels =
+                                                                TastytradeConverter.convertToDomainModels
+                                                                    allTransactions
+                                                                    brokerAccount.Id
+                                                                    (Some sessionId) // Pass session ID for tracking
+                                                                    cancellationToken
+
+                                                            // 4.3: Filter movements by chunk date range
+                                                            let chunkMovements =
+                                                                filterMovementsByDateRange
+                                                                    chunk.StartDate
+                                                                    chunk.EndDate
+                                                                    domainModels
+
+                                                            let chunkMovementCount =
+                                                                chunkMovements.BrokerMovements.Length
+                                                                + chunkMovements.StockTrades.Length
+                                                                + chunkMovements.Dividends.Length
+                                                                + chunkMovements.DividendTaxes.Length
+                                                                + chunkMovements.OptionTrades.Length
+
+                                                            CoreLogger.logInfof
+                                                                "ImportManager"
+                                                                "Chunk %d filtered: %d movements"
+                                                                chunk.ChunkNumber
+                                                                chunkMovementCount
+
+                                                            if chunkMovementCount > 0 then
+                                                                // 4.4: Persist chunk to database
+                                                                let! persistResult =
+                                                                    DatabasePersistence.persistDomainModelsToDatabase
+                                                                        chunkMovements
+                                                                        brokerAccount.Id
+                                                                        cancellationToken
+
+                                                                totalMovementsImported <-
+                                                                    totalMovementsImported
+                                                                    + persistResult.ImportMetadata.TotalMovementsImported
+
+                                                                allErrors <- allErrors @ persistResult.Errors
+
+                                                                // 4.5: Calculate snapshots ONLY for this chunk
+                                                                let tickerIds =
+                                                                    getTickerIdsFromMovements chunkMovements
+
+                                                                if not tickerIds.IsEmpty then
+                                                                    let! tickerResult =
+                                                                        TickerSnapshotBatchManager.processBatchedTickers
+                                                                            { BrokerAccountId =
+                                                                                Some brokerAccount.Id
+                                                                              TickerIds = tickerIds
+                                                                              StartDate =
+                                                                                Patterns.DateTimePattern.FromDateTime(
+                                                                                    chunk.StartDate.ToDateTime(
+                                                                                        TimeOnly.MinValue
+                                                                                    )
+                                                                                )
+                                                                              EndDate =
+                                                                                Patterns.DateTimePattern.FromDateTime(
+                                                                                    chunk.EndDate.ToDateTime(
+                                                                                        TimeOnly.MinValue
+                                                                                    )
+                                                                                )
+                                                                              ForceRecalculation = false }
+
+                                                                    if not tickerResult.Success then
+                                                                        CoreLogger.logWarningf
+                                                                            "ImportManager"
+                                                                            "Ticker snapshot processing had errors: %s"
+                                                                            (tickerResult.Errors |> String.concat "; ")
+
+                                                                    let! brokerResult =
+                                                                        BrokerFinancialBatchManager.processBatchedFinancials
+                                                                            { BrokerAccountId = brokerAccount.Id
+                                                                              StartDate =
+                                                                                Patterns.DateTimePattern.FromDateTime(
+                                                                                    chunk.StartDate.ToDateTime(
+                                                                                        TimeOnly.MinValue
+                                                                                    )
+                                                                                )
+                                                                              EndDate =
+                                                                                Patterns.DateTimePattern.FromDateTime(
+                                                                                    chunk.EndDate.ToDateTime(
+                                                                                        TimeOnly.MinValue
+                                                                                    )
+                                                                                )
+                                                                              ForceRecalculation = false }
+                                                                            tickerResult.CalculatedOperations
+                                                                            tickerResult.CalculatedTickerSnapshots
+
+                                                                    if not brokerResult.Success then
+                                                                        CoreLogger.logWarningf
+                                                                            "ImportManager"
+                                                                            "Broker snapshot processing had errors: %s"
+                                                                            (brokerResult.Errors |> String.concat "; ")
+
+                                                                // 4.6: Mark chunk as completed
+                                                                do!
+                                                                    ImportSessionManager.markChunkCompleted
+                                                                        sessionId
+                                                                        chunk.ChunkNumber
+                                                                        chunkMovementCount
+                                                                        chunkStopwatch.ElapsedMilliseconds
+
+                                                                CoreLogger.logInfof
+                                                                    "ImportManager"
+                                                                    "Chunk %d completed in %dms"
+                                                                    chunk.ChunkNumber
+                                                                    chunkStopwatch.ElapsedMilliseconds
+                                                            else
+                                                                CoreLogger.logInfof
+                                                                    "ImportManager"
+                                                                    "Chunk %d has no movements in date range, skipping"
+                                                                    chunk.ChunkNumber
+
+                                                            totalProcessed <- totalProcessed + 1
+
+                                                            // 4.7: CRITICAL - Force garbage collection after each chunk
+                                                            GC.Collect()
+                                                            GC.WaitForPendingFinalizers()
+                                                            GC.Collect()
+
+                                                        with ex ->
+                                                            CoreLogger.logErrorf
+                                                                "ImportManager"
+                                                                "Error processing Tastytrade chunk %d: %s"
+                                                                chunk.ChunkNumber
+                                                                ex.Message
+
+                                                            allErrors <- ex.Message :: allErrors
+
+                                                    // PHASE 5: Complete session
+                                                    do! ImportSessionManager.completeSession sessionId
+
+                                                    CoreLogger.logInfof
+                                                        "ImportManager"
+                                                        "Tastytrade import session %d completed: processed %d/%d chunks, %d total movements in %dms"
+                                                        sessionId
+                                                        totalProcessed
+                                                        chunks.Length
+                                                        totalMovementsImported
+                                                        stopwatch.ElapsedMilliseconds
+
+                                                    // PHASE 6: Refresh reactive managers
+                                                    do! ReactiveTickerManager.refreshAsync ()
+                                                    do! ReactiveSnapshotManager.refreshAsync ()
+                                                    do! TickerSnapshotLoader.load ()
+
+                                                    // Return result
+                                                    return
+                                                        { Success = allErrors.IsEmpty
+                                                          ProcessedFiles = pf.CsvFiles.Length
+                                                          ProcessedRecords = totalMovementsImported
+                                                          SkippedRecords = 0
+                                                          TotalRecords = totalMovementsImported
+                                                          ProcessingTimeMs = stopwatch.ElapsedMilliseconds
+                                                          Errors =
+                                                            allErrors
                                                             |> List.map (fun err ->
                                                                 { RowNumber = None
                                                                   ErrorMessage = err
                                                                   ErrorType = ImportErrorType.ValidationError
                                                                   RawData = None
                                                                   FromFile = "" })
-
-                                                        let updatedErrors = parseResult.Errors @ persistenceErrors
-
-                                                        return
-                                                            { parseResult with
-                                                                ImportedData = updatedImportedData
-                                                                Errors = updatedErrors
-                                                                Success =
-                                                                    parseResult.Success
-                                                                    && persistenceResult.ImportMetadata.TotalMovementsImported > 0 }
-
-                                                    with
-                                                    | :? OperationCanceledException ->
-                                                        // CoreLogger.logInfo "ImportManager" "Database persistence canceled"
-
-                                                        return ImportResult.createCancelled ()
-                                                    | ex ->
-                                                        CoreLogger.logErrorf
-                                                            "ImportManager"
-                                                            "Database persistence failed: %s"
-                                                            ex.Message
-
-                                                        return
-                                                            ImportResult.createError (
-                                                                $"Database persistence failed: {ex.Message}"
-                                                            )
-                                                else
-                                                    CoreLogger.logErrorf
-                                                        "ImportManager"
-                                                        "Tastytrade parse result indicates failure with %d errors"
-                                                        parseResult.Errors.Length
-
-                                                    // Log individual error details
-                                                    parseResult.Errors
-                                                    |> List.iteri (fun idx error ->
-                                                        let rowInfo =
-                                                            match error.RowNumber with
-                                                            | Some row -> $"Row {row}"
-                                                            | None -> "Unknown row"
-
-                                                        CoreLogger.logErrorf
-                                                            "ImportManager"
-                                                            "Error %d: %s - %s"
-                                                            (idx + 1)
-                                                            rowInfo
-                                                            error.ErrorMessage)
-
-                                                    return parseResult
+                                                          Warnings = []
+                                                          ImportedData =
+                                                            { Trades = 0
+                                                              BrokerMovements = 0
+                                                              Dividends = 0
+                                                              OptionTrades = 0
+                                                              NewTickers = 0 }
+                                                          FileResults = []
+                                                          ProcessedChunks = chunks.Length
+                                                          SessionId = Some sessionId }
                                             }
                                         else
                                             task {
