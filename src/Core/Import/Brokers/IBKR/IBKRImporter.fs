@@ -32,7 +32,9 @@ module IBKRImporter =
                       Dividends = 0
                       OptionTrades = 0
                       NewTickers = 0 }
-                  FileResults = [] }
+                  FileResults = []
+                  ProcessedChunks = 0
+                  SessionId = None }
 
             let mutable fileResults = []
             let stopwatch = System.Diagnostics.Stopwatch.StartNew()
@@ -201,7 +203,9 @@ module IBKRImporter =
                       Dividends = 0
                       OptionTrades = 0
                       NewTickers = 0 }
-                  FileResults = [] }
+                  FileResults = []
+                  ProcessedChunks = 0
+                  SessionId = None }
 
             let mutable fileResults = []
 
@@ -348,7 +352,9 @@ module IBKRImporter =
                       Dividends = 0
                       OptionTrades = 0
                       NewTickers = 0 }
-                  FileResults = [] }
+                  FileResults = []
+                  ProcessedChunks = 0
+                  SessionId = None }
 
             let mutable fileResults = []
             let mutable allStatements = []
