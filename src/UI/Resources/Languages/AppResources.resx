@@ -1089,4 +1089,120 @@ A PUT option gives you the **right to sell** the underlying asset at a specific 
     <value>Calculating snapshots...</value>
     <comment>Import progress: calculating financial snapshots (generic)</comment>
   </data>
+  <data name="Import_Chunked_State_Idle" xml:space="preserve">
+    <value>Ready</value>
+    <comment>Chunked import state: ready to start</comment>
+  </data>
+  <data name="Import_Chunked_State_ReadingFile" xml:space="preserve">
+    <value>Reading file</value>
+    <comment>Chunked import state: reading CSV file</comment>
+  </data>
+  <data name="Import_Chunked_State_AnalyzingDates" xml:space="preserve">
+    <value>Analyzing dates</value>
+    <comment>Chunked import state: analyzing date ranges</comment>
+  </data>
+  <data name="Import_Chunked_State_ProcessingChunk" xml:space="preserve">
+    <value>Processing data</value>
+    <comment>Chunked import state: processing chunk</comment>
+  </data>
+  <data name="Import_Chunked_State_CalculatingSnapshots" xml:space="preserve">
+    <value>Calculating snapshots</value>
+    <comment>Chunked import state: calculating snapshots</comment>
+  </data>
+  <data name="Import_Chunked_State_Completed" xml:space="preserve">
+    <value>Import completed</value>
+    <comment>Chunked import state: successfully completed</comment>
+  </data>
+  <data name="Import_Chunked_State_Failed" xml:space="preserve">
+    <value>Import failed</value>
+    <comment>Chunked import state: failed with error</comment>
+  </data>
+  <data name="Import_Chunked_State_Cancelled" xml:space="preserve">
+    <value>Import cancelled</value>
+    <comment>Chunked import state: cancelled by user</comment>
+  </data>
+  <data name="Import_Phase_LoadingMovements" xml:space="preserve">
+    <value>Loading movements</value>
+    <comment>Chunk phase: loading movements from database</comment>
+  </data>
+  <data name="Import_Phase_CalculatingBrokerSnapshots" xml:space="preserve">
+    <value>Calculating broker snapshots</value>
+    <comment>Chunk phase: calculating broker financial snapshots</comment>
+  </data>
+  <data name="Import_Phase_CalculatingTickerSnapshots" xml:space="preserve">
+    <value>Calculating ticker snapshots</value>
+    <comment>Chunk phase: calculating ticker currency snapshots</comment>
+  </data>
+  <data name="Import_Phase_CreatingOperations" xml:space="preserve">
+    <value>Creating operations</value>
+    <comment>Chunk phase: creating operations from movements</comment>
+  </data>
+  <data name="Import_Phase_PersistingData" xml:space="preserve">
+    <value>Saving data</value>
+    <comment>Chunk phase: persisting data to database</comment>
+  </data>
+  <data name="Import_SnapshotType_BrokerFinancial" xml:space="preserve">
+    <value>Broker Financial</value>
+    <comment>Snapshot type: broker financial snapshot</comment>
+  </data>
+  <data name="Import_SnapshotType_TickerCurrency" xml:space="preserve">
+    <value>Ticker Currency</value>
+    <comment>Snapshot type: ticker currency snapshot</comment>
+  </data>
+  <data name="Import_SnapshotType_Operations" xml:space="preserve">
+    <value>Operations</value>
+    <comment>Snapshot type: operations</comment>
+  </data>
+  <data name="Import_Chunked_ReadingFile" xml:space="preserve">
+    <value>Reading {0}...</value>
+    <comment>Progress message: reading file with name</comment>
+  </data>
+  <data name="Import_Chunked_AnalyzingDates" xml:space="preserve">
+    <value>Analyzing dates in {0}...</value>
+    <comment>Progress message: analyzing dates in file</comment>
+  </data>
+  <data name="Import_Chunked_ProcessingChunk" xml:space="preserve">
+    <value>Processing chunk {0} of {1}</value>
+    <comment>Progress message: processing chunk N of M</comment>
+  </data>
+  <data name="Import_Chunked_ChunkDateRange" xml:space="preserve">
+    <value>Week of {0} to {1}</value>
+    <comment>Progress message: date range for current chunk</comment>
+  </data>
+  <data name="Import_Chunked_CalculatingSnapshots" xml:space="preserve">
+    <value>Calculating {0} ({1} of {2})</value>
+    <comment>Progress message: calculating snapshot type (N of M)</comment>
+  </data>
+  <data name="Import_Chunked_TimeRemaining" xml:space="preserve">
+    <value>About {0} remaining</value>
+    <comment>Progress message: estimated time remaining</comment>
+  </data>
+  <data name="Import_Chunked_CompletedSummary" xml:space="preserve">
+    <value>Completed: {0} movements in {1} chunks</value>
+    <comment>Completion message: total movements and chunks</comment>
+  </data>
+  <data name="Import_Chunked_CompletedDuration" xml:space="preserve">
+    <value>Completed in {0}</value>
+    <comment>Completion message: total duration</comment>
+  </data>
+  <data name="Import_Chunked_Failed" xml:space="preserve">
+    <value>Import failed: {0}</value>
+    <comment>Error message: import failed with reason</comment>
+  </data>
+  <data name="Time_Format_Seconds" xml:space="preserve">
+    <value>{0} seconds</value>
+    <comment>Time format: N seconds</comment>
+  </data>
+  <data name="Time_Format_Minutes" xml:space="preserve">
+    <value>{0} minutes</value>
+    <comment>Time format: N minutes</comment>
+  </data>
+  <data name="Time_Format_Hours" xml:space="preserve">
+    <value>{0} hours</value>
+    <comment>Time format: N hours</comment>
+  </data>
+  <data name="Time_Format_LessThanMinute" xml:space="preserve">
+    <value>less than a minute</value>
+    <comment>Time format: very short duration</comment>
+  </data>
 </root>
