@@ -18,6 +18,65 @@ open Binnaculum.Core.Storage.TickerSnapshotBatchManager
 module ImportManager =
 
     /// <summary>
+    /// Filter PersistenceInput movements by date range for chunk processing.
+    /// Used to process only movements within a specific chunk's date boundaries.
+    /// </summary>
+    let private filterMovementsByDateRange
+        (startDate: DateOnly)
+        (endDate: DateOnly)
+        (movements: ImportDomainTypes.PersistenceInput)
+        : ImportDomainTypes.PersistenceInput =
+        
+        let startDateTime = startDate.ToDateTime(TimeOnly.MinValue)
+        let endDateTime = endDate.ToDateTime(TimeOnly.MinValue).AddDays(1.0).AddTicks(-1L) // End of day
+        
+        {
+            BrokerMovements = 
+                movements.BrokerMovements 
+                |> List.filter (fun m -> 
+                    let dt = m.TimeStamp.Value
+                    dt >= startDateTime && dt <= endDateTime)
+            
+            StockTrades = 
+                movements.StockTrades 
+                |> List.filter (fun t -> 
+                    let dt = t.TimeStamp.Value
+                    dt >= startDateTime && dt <= endDateTime)
+            
+            Dividends = 
+                movements.Dividends 
+                |> List.filter (fun d -> 
+                    let dt = d.TimeStamp.Value
+                    dt >= startDateTime && dt <= endDateTime)
+            
+            DividendTaxes =
+                movements.DividendTaxes
+                |> List.filter (fun d -> 
+                    let dt = d.TimeStamp.Value
+                    dt >= startDateTime && dt <= endDateTime)
+            
+            OptionTrades =
+                movements.OptionTrades
+                |> List.filter (fun o -> 
+                    let dt = o.TimeStamp.Value
+                    dt >= startDateTime && dt <= endDateTime)
+            
+            SessionId = movements.SessionId
+        }
+
+    /// <summary>
+    /// Extract unique ticker IDs from movements for snapshot calculation.
+    /// Returns distinct list of ticker IDs that have activity in the movements.
+    /// </summary>
+    let private getTickerIdsFromMovements (movements: ImportDomainTypes.PersistenceInput) : int list =
+        [
+            yield! movements.StockTrades |> List.map (fun t -> t.TickerId)
+            yield! movements.Dividends |> List.map (fun d -> d.TickerId)
+            yield! movements.OptionTrades |> List.map (fun o -> o.TickerId)
+        ]
+        |> List.distinct
+
+    /// <summary>
     /// Import file for a specific broker with cancellation and progress tracking
     /// </summary>
     /// <param name="brokerId">ID of the broker to import for</param>
