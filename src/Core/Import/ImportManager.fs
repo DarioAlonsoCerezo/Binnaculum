@@ -704,60 +704,9 @@ module ImportManager =
 
                                                                 allErrors <- allErrors @ persistResult.Errors
 
-                                                                // Calculate snapshots ONLY for this chunk
-                                                                let tickerIds =
-                                                                    getTickerIdsFromMovements chunkMovements
-
-                                                                if not tickerIds.IsEmpty then
-                                                                    let! tickerResult =
-                                                                        TickerSnapshotBatchManager.processBatchedTickers
-                                                                            { BrokerAccountId =
-                                                                                Some brokerAccount.Id
-                                                                              TickerIds = tickerIds
-                                                                              StartDate =
-                                                                                Patterns.DateTimePattern.FromDateTime(
-                                                                                    chunk.StartDate.ToDateTime(
-                                                                                        TimeOnly.MinValue
-                                                                                    )
-                                                                                )
-                                                                              EndDate =
-                                                                                Patterns.DateTimePattern.FromDateTime(
-                                                                                    chunk.EndDate.ToDateTime(
-                                                                                        TimeOnly.MinValue
-                                                                                    )
-                                                                                )
-                                                                              ForceRecalculation = false }
-
-                                                                    if not tickerResult.Success then
-                                                                        CoreLogger.logWarningf
-                                                                            "ImportManager"
-                                                                            "Ticker snapshot processing had errors: %s"
-                                                                            (tickerResult.Errors |> String.concat "; ")
-
-                                                                    let! brokerResult =
-                                                                        BrokerFinancialBatchManager.processBatchedFinancials
-                                                                            { BrokerAccountId = brokerAccount.Id
-                                                                              StartDate =
-                                                                                Patterns.DateTimePattern.FromDateTime(
-                                                                                    chunk.StartDate.ToDateTime(
-                                                                                        TimeOnly.MinValue
-                                                                                    )
-                                                                                )
-                                                                              EndDate =
-                                                                                Patterns.DateTimePattern.FromDateTime(
-                                                                                    chunk.EndDate.ToDateTime(
-                                                                                        TimeOnly.MinValue
-                                                                                    )
-                                                                                )
-                                                                              ForceRecalculation = false }
-                                                                            tickerResult.CalculatedOperations
-                                                                            tickerResult.CalculatedTickerSnapshots
-
-                                                                    if not brokerResult.Success then
-                                                                        CoreLogger.logWarningf
-                                                                            "ImportManager"
-                                                                            "Broker snapshot processing had errors: %s"
-                                                                            (brokerResult.Errors |> String.concat "; ")
+                                                                // NOTE: Skip per-chunk snapshot calculation for Tastytrade
+                                                                // Operations can span multiple chunks (e.g., open in chunk 1, close in chunk 3)
+                                                                // Final snapshot pass after all chunks will handle this correctly
 
                                                                 // Mark chunk as completed
                                                                 do!
