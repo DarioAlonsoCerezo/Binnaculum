@@ -99,6 +99,7 @@
     <Compile Include="Unit/Import/OptionTradeLinkingTests.fs" />
     <Compile Include="Unit/Import/SpecialDividendAdjustmentTests.fs" />
     <Compile Include="Unit/Import/CsvDateAnalyzerTests.fs" />
+    <Compile Include="Unit/Import/ImportSessionManagerTests.fs" />
     
     <!-- Unit Tests - Database -->
     <Compile Include="Unit/Database/DataLoaderTests.fs" />
