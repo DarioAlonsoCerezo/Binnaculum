@@ -203,6 +203,12 @@ public static class CoreExtensions
         return string.Empty;
     }
 
+    public static bool ToShowDetailMessage(this CurrentChunkedImportStatus status)
+    {
+        return (status.ChunkStartDate != null && status.ChunkEndDate != null) ||
+               status.CurrentPhase != null;
+    }
+
     public static string ToChunkInfo(this CurrentChunkedImportStatus status)
     {
         if (status.ChunkNumber != null && status.TotalChunks != null)

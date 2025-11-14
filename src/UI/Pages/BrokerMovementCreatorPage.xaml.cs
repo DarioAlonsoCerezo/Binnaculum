@@ -41,6 +41,7 @@ public partial class BrokerMovementCreatorPage
                 SelectFileButton.IsEnabled = status.ToEnableButton();
                 ImportResults.IsVisible = status.ToShowResults();
                 ImportStatusLabel.Text = status.ToMessage();
+                ImportDetailsLabel.IsVisible = status.ToShowDetailMessage();
                 ImportDetailsLabel.Text = status.ToDetailMessage();
                 ImportTimeRemaining.IsVisible = status.ToShowTimeRemaining();
                 ImportTimeRemaining.Text = status.ToTimeRemainingText();
