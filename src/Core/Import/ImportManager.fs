@@ -429,6 +429,7 @@ module ImportManager =
                                                                                             )
                                                                                         )
                                                                                   ForceRecalculation = false }
+                                                                                None // No progress callback during chunk processing
 
                                                                         if not tickerResult.Success then
                                                                             CoreLogger.logWarningf
@@ -839,14 +840,28 @@ module ImportManager =
                                                         stopwatch.ElapsedMilliseconds
 
                                                     // PHASE 7: Final snapshot pass to ensure coverage up to today
-                                                    // Emit final snapshot calculation state
-                                                    ImportState.updateChunkedState (
-                                                        CalculatingSnapshots
-                                                            { SnapshotType = "Final Ticker Snapshots"
-                                                              Processed = 0
-                                                              Total = totalMovementsImported
-                                                              Progress = 0m }
-                                                    )
+                                                    // Create progress callback to update UI during snapshot calculation
+                                                    let mutable estimatedTotal = 0
+
+                                                    let progressCallback processed total =
+                                                        estimatedTotal <- total // Update estimate as we learn the actual count
+
+                                                        let progress =
+                                                            if total > 0 then
+                                                                (decimal processed / decimal total) * 100m
+                                                            else
+                                                                0m
+
+                                                        ImportState.updateChunkedState (
+                                                            CalculatingSnapshots
+                                                                { SnapshotType = "Final Ticker Snapshots"
+                                                                  Processed = processed
+                                                                  Total = total
+                                                                  Progress = progress }
+                                                        )
+
+                                                    // Emit initial state
+                                                    progressCallback 0 0
 
                                                     // Build ImportMetadata for final snapshot calculation
                                                     let importMetadata =
@@ -859,6 +874,7 @@ module ImportManager =
                                                         TickerSnapshotBatchManager.processBatchedTickersForImport
                                                             brokerAccount.Id
                                                             importMetadata
+                                                            (Some progressCallback) // Pass the callback
 
                                                     if finalTickerResult.Success then
                                                         CoreLogger.logInfof

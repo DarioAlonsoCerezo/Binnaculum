@@ -62,6 +62,12 @@ module internal TickerSnapshotBatchCalculator =
         }
 
     /// <summary>
+    /// Progress callback for reporting snapshot calculation progress to UI.
+    /// Parameters: (processed: int, total: int) -> unit
+    /// </summary>
+    type SnapshotProgressCallback = int -> int -> unit
+
+    /// <summary>
     /// Check if a ticker has any movements on a specific date.
     /// Used to skip snapshots for tickers with no activity on a date.
     /// </summary>
@@ -292,9 +298,11 @@ module internal TickerSnapshotBatchCalculator =
     /// When a broker account ID is provided, operations are created/updated/closed as snapshots are calculated.
     /// </summary>
     /// <param name="context">The batch calculation context with pre-loaded data</param>
+    /// <param name="progressCallback">Optional callback for reporting progress to UI</param>
     /// <returns>Task containing TickerSnapshotBatchResult with all calculated snapshots and metrics</returns>
     let calculateBatchedTickerSnapshots
         (context: TickerSnapshotBatchContext)
+        (progressCallback: SnapshotProgressCallback option)
         : System.Threading.Tasks.Task<TickerSnapshotBatchResult> =
         task {
             let stopwatch = Stopwatch.StartNew()
@@ -323,8 +331,17 @@ module internal TickerSnapshotBatchCalculator =
                 let mutable latestCurrencySnapshots = context.BaselineCurrencySnapshots
 
                 // Process each date in chronological order (critical for cumulative calculations)
-                for date in context.DateRange do
+                for dateIndex, date in context.DateRange |> List.indexed do
                     try
+                        // Emit progress callback if provided
+                        match progressCallback with
+                        | Some callback ->
+                            let processedSnapshots = currencySnapshotsCreated
+                            // Estimate total: dates × tickers × avg 2 currencies per ticker
+                            let estimatedTotal = context.DateRange.Length * context.TickerIds.Length * 2
+                            callback processedSnapshots estimatedTotal
+                        | None -> ()
+
                         // CoreLogger.logDebugf "TickerSnapshotBatchCalculator" "Processing date %s" (date.ToString())
 
                         // Track snapshots created for this date (will be grouped into TickerSnapshot)

@@ -67,8 +67,12 @@ module internal TickerSnapshotBatchManager =
     /// This replaces the per-date, per-ticker processing with efficient batch operations.
     /// </summary>
     /// <param name="request">The batch processing request</param>
+    /// <param name="progressCallback">Optional callback for reporting progress to UI</param>
     /// <returns>Task containing BatchProcessingResult with all metrics</returns>
-    let processBatchedTickers (request: BatchProcessingRequest) : System.Threading.Tasks.Task<BatchProcessingResult> =
+    let processBatchedTickers
+        (request: BatchProcessingRequest)
+        (progressCallback: TickerSnapshotBatchCalculator.SnapshotProgressCallback option)
+        : System.Threading.Tasks.Task<BatchProcessingResult> =
         task {
             let totalStopwatch = Stopwatch.StartNew()
             let mutable errors = []
@@ -190,8 +194,9 @@ module internal TickerSnapshotBatchManager =
                       DateRange = dateRange
                       TickerIds = request.TickerIds }
 
-                // Calculate all snapshots in memory
-                let! calculationResult = TickerSnapshotBatchCalculator.calculateBatchedTickerSnapshots context
+                // Calculate all snapshots in memory (with optional progress callback)
+                let! calculationResult =
+                    TickerSnapshotBatchCalculator.calculateBatchedTickerSnapshots context progressCallback
 
                 errors <- errors @ calculationResult.Errors
 
@@ -291,10 +296,15 @@ module internal TickerSnapshotBatchManager =
     /// Automatically determines affected tickers and date ranges from broker account movements.
     /// This is the main entry point called from ImportManager after CSV import completes.
     /// </summary>
-    /// <param name="brokerAccountId">The broker account ID that was imported</param>
+    /// <param name="brokerAccountId">The broker account ID to process</param>
     /// <param name="importMetadata">Metadata from the import containing oldest movement date</param>
+    /// <param name="progressCallback">Optional callback for reporting progress to UI</param>
     /// <returns>Task containing BatchProcessingResult</returns>
-    let processBatchedTickersForImport (brokerAccountId: int) (importMetadata: ImportMetadata) =
+    let processBatchedTickersForImport
+        (brokerAccountId: int)
+        (importMetadata: ImportMetadata)
+        (progressCallback: TickerSnapshotBatchCalculator.SnapshotProgressCallback option)
+        =
         task {
             try
                 // CoreLogger.logInfof
@@ -365,7 +375,7 @@ module internal TickerSnapshotBatchManager =
                           ForceRecalculation = true // Always recalculate on import to ensure accuracy
                         }
 
-                    let! result = processBatchedTickers request
+                    let! result = processBatchedTickers request progressCallback
 
                     // if result.Success then
                     //     CoreLogger.logInfof
@@ -432,5 +442,5 @@ module internal TickerSnapshotBatchManager =
                   EndDate = endDate
                   ForceRecalculation = forceRecalculation }
 
-            return! processBatchedTickers request
+            return! processBatchedTickers request None // No progress callback for single ticker
         }
