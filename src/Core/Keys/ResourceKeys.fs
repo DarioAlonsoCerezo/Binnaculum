@@ -237,4 +237,56 @@ module ResourceKeys =
     let Import_Completed = "Import_Completed"
 
     [<Literal>]
+    let Import_CalculatingSnapshots_Generic = "Import_CalculatingSnapshots_Generic"
+
+    [<Literal>]
     let Import_Chunked_ReadingFile = "Import_Chunked_ReadingFile"
+
+    [<Literal>]
+    let Import_Chunked_AnalyzingDates = "Import_Chunked_AnalyzingDates"
+
+    [<Literal>]
+    let Import_Chunked_ProcessingChunk = "Import_Chunked_ProcessingChunk"
+
+    [<Literal>]
+    let Import_Chunked_CalculatingSnapshots = "Import_Chunked_CalculatingSnapshots"
+
+    [<Literal>]
+    let Import_Chunked_CompletedSummary = "Import_Chunked_CompletedSummary"
+
+    [<Literal>]
+    let Import_Chunked_State_Idle = "Import_Chunked_State_Idle"
+
+    [<Literal>]
+    let Import_Chunked_State_ReadingFile = "Import_Chunked_State_ReadingFile"
+
+    [<Literal>]
+    let Import_Chunked_State_AnalyzingDates = "Import_Chunked_State_AnalyzingDates"
+
+    [<Literal>]
+    let Import_Chunked_State_ProcessingChunk = "Import_Chunked_State_ProcessingChunk"
+
+    [<Literal>]
+    let Import_Chunked_State_CalculatingSnapshots =
+        "Import_Chunked_State_CalculatingSnapshots"
+
+    [<Literal>]
+    let Import_Chunked_State_Completed = "Import_Chunked_State_Completed"
+
+    [<Literal>]
+    let Import_Chunked_State_Failed = "Import_Chunked_State_Failed"
+
+    [<Literal>]
+    let Import_Chunked_State_Cancelled = "Import_Chunked_State_Cancelled"
+
+    [<Literal>]
+    let Time_Format_Hours = "Time_Format_Hours"
+
+    [<Literal>]
+    let Time_Format_Minutes = "Time_Format_Minutes"
+
+    [<Literal>]
+    let Time_Format_Seconds = "Time_Format_Seconds"
+
+    [<Literal>]
+    let Time_Format_LessThanMinute = "Time_Format_LessThanMinute"

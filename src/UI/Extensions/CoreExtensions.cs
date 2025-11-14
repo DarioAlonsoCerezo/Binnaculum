@@ -1,6 +1,5 @@
 ﻿using Binnaculum.Core;
 using Binnaculum.Core.Import;
-using Microsoft.FSharp.Core;
 
 namespace Binnaculum.Extensions;
 
@@ -155,42 +154,42 @@ public static class CoreExtensions
 
         if (state == ChunkedImportStateEnum.ReadingFile && status.FileName != null)
         {
-            return LocalizationResourceManager.Instance.GetString("Import_Chunked_ReadingFile", status.FileName);
+            return ResourceKeys.Import_Chunked_ReadingFile.ToLocalized(status.FileName);
         }
 
         if (state == ChunkedImportStateEnum.AnalyzingDates && status.FileName != null)
         {
-            return LocalizationResourceManager.Instance.GetString("Import_Chunked_AnalyzingDates", status.FileName);
+            return ResourceKeys.Import_Chunked_AnalyzingDates.ToLocalized(status.FileName);
         }
 
         if (state == ChunkedImportStateEnum.ProcessingChunk && status.ChunkNumber != null && status.TotalChunks != null)
         {
-            return LocalizationResourceManager.Instance.GetString("Import_Chunked_ProcessingChunk", status.ChunkNumber.Value, status.TotalChunks.Value);
+            return ResourceKeys.Import_Chunked_ProcessingChunk.ToLocalized(status.ChunkNumber.Value, status.TotalChunks.Value);
         }
 
         if (state == ChunkedImportStateEnum.CalculatingSnapshots && status.SnapshotType != null &&
             status.SnapshotsProcessed != null && status.SnapshotsTotal != null)
         {
             var localizedType = status.ToLocalizedSnapshotType();
-            return LocalizationResourceManager.Instance.GetString("Import_Chunked_CalculatingSnapshots", localizedType, status.SnapshotsProcessed.Value, status.SnapshotsTotal.Value);
+            return ResourceKeys.Import_Chunked_CalculatingSnapshots.ToLocalized(localizedType, status.SnapshotsProcessed.Value, status.SnapshotsTotal.Value);
         }
 
         if (state == ChunkedImportStateEnum.Completed && status.TotalMovements != null && status.TotalChunks != null)
         {
-            return LocalizationResourceManager.Instance.GetString("Import_Chunked_CompletedSummary", status.TotalMovements.Value, status.TotalChunks.Value);
+            return ResourceKeys.Import_Chunked_CompletedSummary.ToLocalized(status.TotalMovements.Value, status.TotalChunks.Value);
         }
 
         if (state == ChunkedImportStateEnum.Failed)
         {
-            return LocalizationResourceManager.Instance["Import_Chunked_State_Failed"].ToString() ?? string.Empty;
+            return ResourceKeys.Import_Chunked_State_Failed.ToLocalized();
         }
 
         if (state == ChunkedImportStateEnum.Cancelled)
         {
-            return LocalizationResourceManager.Instance["Import_Chunked_State_Cancelled"].ToString() ?? string.Empty;
+            return ResourceKeys.Import_Chunked_State_Cancelled.ToLocalized();
         }
 
-        return LocalizationResourceManager.Instance[$"Import_Chunked_State_{state}"].ToString() ?? string.Empty;
+        return $"Import_Chunked_State_{state}".ToLocalized();
     }
 
     //public static string ToDetailMessage(this CurrentChunkedImportStatus status)
@@ -235,14 +234,14 @@ public static class CoreExtensions
     //    return LocalizationResourceManager.Instance.GetString("Import_Chunked_CompletedDuration", formatted);
     //}
 
-    //private static string ToLocalizedPhase(this CurrentChunkedImportStatus status)
-    //{
+    // private static string ToLocalizedPhase(this CurrentChunkedImportStatus status)
+    // {
     //    if (status.CurrentPhase == null)
     //        return string.Empty;
 
     //    var key = $"Import_Phase_{status.CurrentPhase}";
     //    return LocalizationResourceManager.Instance[key].ToString() ?? status.CurrentPhase;
-    //}
+    // }
 
     private static string ToLocalizedSnapshotType(this CurrentChunkedImportStatus status)
     {
@@ -258,19 +257,21 @@ public static class CoreExtensions
         if (timeSpan.TotalSeconds < 60)
         {
             if (timeSpan.TotalSeconds < 5)
-                return LocalizationResourceManager.Instance["Time_Format_LessThanMinute"].ToString() ?? "less than a minute";
+                return ResourceKeys.Time_Format_LessThanMinute.ToLocalized();
 
-            return LocalizationResourceManager.Instance.GetString("Time_Format_Seconds", (int)timeSpan.TotalSeconds);
+            return ResourceKeys.Time_Format_Seconds.ToLocalized((int)timeSpan.TotalSeconds);
         }
         else if (timeSpan.TotalMinutes < 60)
         {
-            return LocalizationResourceManager.Instance.GetString("Time_Format_Minutes", (int)timeSpan.TotalMinutes);
+            return ResourceKeys.Time_Format_Minutes.ToLocalized((int)timeSpan.TotalMinutes);
         }
         else
         {
-            return LocalizationResourceManager.Instance.GetString("Time_Format_Hours", timeSpan.TotalHours.ToString("F1"));
+            return ResourceKeys.Time_Format_Hours.ToLocalized(timeSpan.TotalHours.ToString("F1"));
         }
     }
 
     public static string ToLocalized(this string key) => LocalizationResourceManager.Instance.GetString(key);
+
+    public static string ToLocalized(this string key, params object[] args) => LocalizationResourceManager.Instance.GetString(key, args);
 }
