@@ -150,12 +150,12 @@ public static class CoreExtensions
 
         if (state == ChunkedImportStateEnum.ReadingFile && status.FileName != null)
         {
-            return ResourceKeys.Import_Chunked_ReadingFile.ToLocalized(status.FileName);
+            return ResourceKeys.Import_Chunked_ReadingFile.ToLocalized(status.FileName.Value);
         }
 
         if (state == ChunkedImportStateEnum.AnalyzingDates && status.FileName != null)
         {
-            return ResourceKeys.Import_Chunked_AnalyzingDates.ToLocalized(status.FileName);
+            return ResourceKeys.Import_Chunked_AnalyzingDates.ToLocalized(status.FileName.Value);
         }
 
         if (state == ChunkedImportStateEnum.ProcessingChunk && status.ChunkNumber != null && status.TotalChunks != null)
@@ -192,7 +192,7 @@ public static class CoreExtensions
     {
         if (status.ChunkStartDate != null && status.ChunkEndDate != null)
         {
-            return ResourceKeys.Import_Chunked_ChunkDateRange.ToLocalized(status.ChunkStartDate, status.ChunkEndDate);
+            return ResourceKeys.Import_Chunked_ChunkDateRange.ToLocalized(status.ChunkStartDate.Value, status.ChunkEndDate.Value);
         }
 
         if (status.CurrentPhase != null)

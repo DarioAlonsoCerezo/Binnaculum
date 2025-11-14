@@ -40,7 +40,10 @@ public partial class BrokerMovementCreatorPage
                 ImportProgress.IsRunning = status.ToShowProgress();                
                 SelectFileButton.IsEnabled = status.ToEnableButton();
                 ImportResults.IsVisible = status.ToShowResults();
-                ImportDetailsLabel.Text = status.ToMessage();
+                ImportStatusLabel.Text = status.ToMessage();
+                ImportDetailsLabel.Text = status.ToDetailMessage();
+                ImportTimeRemaining.IsVisible = status.ToShowTimeRemaining();
+                ImportTimeRemaining.Text = status.ToTimeRemainingText();
             })
             .Subscribe()
             .DisposeWith(Disposables);

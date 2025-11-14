@@ -76,12 +76,14 @@
                         <StackLayout
                             x:Name="ImportResults"
                             Padding="16,0,0,0"
+                            Spacing="8"
                             IsVisible="False">
                             <Label
                                 x:Name="ImportStatusLabel"
                                 Padding="0"
                                 Style="{StaticResource LabelSettingsGroup}" />
                             <Label x:Name="ImportDetailsLabel" />
+                            <Label x:Name="ImportTimeRemaining"/>
                         </StackLayout>
                     </VerticalStackLayout>
                 </Border>

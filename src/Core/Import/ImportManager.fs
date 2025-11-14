@@ -169,6 +169,13 @@ module ImportManager =
                                                     "Starting chunked IBKR import for %d files"
                                                     pf.CsvFiles.Length
 
+                                                // Emit ReadingFile state for immediate user feedback
+                                                let firstFileName = Path.GetFileName(pf.CsvFiles.[0])
+
+                                                ImportState.updateChunkedState (
+                                                    ChunkedImportState.ReadingFile firstFileName
+                                                )
+
                                                 let! analysis =
                                                     task {
                                                         // Use CsvDateAnalyzer to scan files
@@ -210,8 +217,20 @@ module ImportManager =
                                                                   FileHash = "" }
                                                     }
 
+                                                // Emit AnalyzingDates state before chunk creation
+                                                let firstFileName = Path.GetFileName(pf.CsvFiles.[0])
+
+                                                ImportState.updateChunkedState (
+                                                    ChunkedImportState.AnalyzingDates(firstFileName, 50m)
+                                                )
+
                                                 // PHASE 2: Create weekly chunks
                                                 let chunks = ChunkStrategy.createWeeklyChunks analysis
+
+                                                // Complete date analysis
+                                                ImportState.updateChunkedState (
+                                                    ChunkedImportState.AnalyzingDates(firstFileName, 100m)
+                                                )
 
                                                 CoreLogger.logInfof
                                                     "ImportManager"
@@ -550,6 +569,13 @@ module ImportManager =
                                         elif broker.SupportedBroker.ToString() = "Tastytrade" then
                                             task {
                                                 // PHASE 1: Analyze CSV files for date ranges
+                                                // Emit ReadingFile state for immediate user feedback
+                                                let firstFileName = Path.GetFileName(pf.CsvFiles.[0])
+
+                                                ImportState.updateChunkedState (
+                                                    ChunkedImportState.ReadingFile firstFileName
+                                                )
+
                                                 let! analysis =
                                                     task {
                                                         // Parse all Tastytrade files to get date range
@@ -607,8 +633,20 @@ module ImportManager =
                                                                     CsvDateAnalyzer.calculateFileHash (pf.CsvFiles.[0]) }
                                                     }
 
+                                                // Emit AnalyzingDates state before chunk creation
+                                                let firstFileName = Path.GetFileName(pf.CsvFiles.[0])
+
+                                                ImportState.updateChunkedState (
+                                                    ChunkedImportState.AnalyzingDates(firstFileName, 50m)
+                                                )
+
                                                 // PHASE 2: Create weekly chunks
                                                 let chunks = ChunkStrategy.createWeeklyChunks analysis
+
+                                                // Complete date analysis
+                                                ImportState.updateChunkedState (
+                                                    ChunkedImportState.AnalyzingDates(firstFileName, 100m)
+                                                )
 
                                                 CoreLogger.logInfof
                                                     "ImportManager"

@@ -103,38 +103,40 @@ module ImportState =
         | Binnaculum.Core.Import.ImportStatus.CalculatingSnapshots _ -> true
 
     // ==================== CHUNKED IMPORT STATE MANAGEMENT ====================
-    
+
     /// Current chunked import status - C#-friendly for UI consumption
     /// Subscribe from C# like: ImportState.CurrentChunkedStatus.Subscribe(status => {...})
-    let CurrentChunkedStatus = 
+    let CurrentChunkedStatus =
         new BehaviorSubject<CurrentChunkedImportStatus>(
             CurrentChunkedImportStatus.fromChunkedState ChunkedImportState.Idle None
         )
-    
+
     /// Track start time for chunked imports (for duration/time remaining calculations)
     let private _chunkedStartTime = ref (None: DateTime option)
-    
+
     /// Update chunked import state - emits to UI-friendly observable
-    let updateChunkedState(state: ChunkedImportState) =
-        let currentStatus = CurrentChunkedImportStatus.fromChunkedState state _chunkedStartTime.Value
+    let updateChunkedState (state: ChunkedImportState) =
+        let currentStatus =
+            CurrentChunkedImportStatus.fromChunkedState state _chunkedStartTime.Value
+
         CurrentChunkedStatus.OnNext(currentStatus)
-    
+
     /// Start chunked import operation - initializes timing
-    let startChunkedImport() =
+    let startChunkedImport () =
         _chunkedStartTime.Value <- Some DateTime.Now
-        updateChunkedState(ChunkedImportState.Idle)
-    
+    // Don't emit Idle - caller will emit ReadingFile immediately
+
     /// Complete chunked import operation - clears timing
-    let completeChunkedImport(summary: ImportSummary) =
-        updateChunkedState(ChunkedImportState.Completed summary)
+    let completeChunkedImport (summary: ImportSummary) =
+        updateChunkedState (ChunkedImportState.Completed summary)
         _chunkedStartTime.Value <- None
-    
+
     /// Fail chunked import operation - clears timing
-    let failChunkedImport(errorMessage: string) =
-        updateChunkedState(ChunkedImportState.Failed errorMessage)
+    let failChunkedImport (errorMessage: string) =
+        updateChunkedState (ChunkedImportState.Failed errorMessage)
         _chunkedStartTime.Value <- None
-    
+
     /// Cancel chunked import operation - clears timing
-    let cancelChunkedImport() =
-        updateChunkedState(ChunkedImportState.Cancelled)
+    let cancelChunkedImport () =
+        updateChunkedState (ChunkedImportState.Cancelled)
         _chunkedStartTime.Value <- None
