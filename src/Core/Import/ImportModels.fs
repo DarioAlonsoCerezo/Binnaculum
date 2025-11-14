@@ -618,11 +618,19 @@ module ImportProgressCalculator =
 
     /// <summary>
     /// Calculate time remaining based on current progress.
+    /// Ignores first 3 chunks to avoid inaccurate early estimates that increase over time.
     /// </summary>
-    let calculateTimeRemaining (startTime: DateTime) (currentProgress: decimal) : TimeSpan option =
-        if currentProgress <= 0.0m then
-            None
-        else
+    let calculateTimeRemaining
+        (startTime: DateTime)
+        (currentProgress: decimal)
+        (currentChunk: int option)
+        : TimeSpan option =
+        // Don't show time estimate until at least 3 chunks are complete
+        // This prevents early overoptimistic estimates that increase as import progresses
+        match currentChunk with
+        | Some chunkNum when chunkNum < 3 -> None
+        | _ when currentProgress <= 0.0m -> None
+        | _ ->
             let elapsed = DateTime.Now - startTime
             let totalEstimated = elapsed.TotalSeconds / (float currentProgress / 100.0)
             let remaining = totalEstimated - elapsed.TotalSeconds
@@ -789,7 +797,8 @@ module CurrentChunkedImportStatus =
 
             let timeRemaining =
                 startTime
-                |> Option.bind (fun st -> ImportProgressCalculator.calculateTimeRemaining st overallProgress)
+                |> Option.bind (fun st ->
+                    ImportProgressCalculator.calculateTimeRemaining st overallProgress (Some chunkInfo.ChunkNumber))
 
             { State = ChunkedImportStateEnum.ProcessingChunk
               FileName = None
@@ -823,7 +832,7 @@ module CurrentChunkedImportStatus =
 
             let timeRemaining =
                 startTime
-                |> Option.bind (fun st -> ImportProgressCalculator.calculateTimeRemaining st overallProgress)
+                |> Option.bind (fun st -> ImportProgressCalculator.calculateTimeRemaining st overallProgress None)
 
             { State = ChunkedImportStateEnum.CalculatingSnapshots
               FileName = None
