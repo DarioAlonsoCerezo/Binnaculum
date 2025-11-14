@@ -1,9 +1,6 @@
 using Binnaculum.Core;
 using Binnaculum.Core.Utilities;
-using Binnaculum.Extensions;
-using Markdig.Helpers;
 using Microsoft.FSharp.Core;
-using System.ComponentModel;
 using System.Reactive.Subjects;
 
 namespace Binnaculum.Popups;

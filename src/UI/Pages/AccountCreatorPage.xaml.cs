@@ -3,7 +3,6 @@ using Binnaculum.Core;
 using Binnaculum.Core.UI;
 using Binnaculum.Popups;
 using CommunityToolkit.Maui.Core;
-using System.Diagnostics;
 
 namespace Binnaculum.Pages;
 
