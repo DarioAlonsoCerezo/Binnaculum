@@ -88,12 +88,14 @@ module ImportManager =
             // CoreLogger.logDebug "ImportManager" "ImportState.startImport() completed successfully"
 
             try
-                // Validate inputs
-                ImportState.updateStatus (Validating filePath)
+                // Validate inputs - use chunked state for consistent progress tracking
+                let fileName = Path.GetFileName(filePath)
+                ImportState.updateChunkedState (ChunkedImportState.Validating fileName)
                 // CoreLogger.logDebug "ImportManager" "Validating input parameters"
 
                 if not (File.Exists(filePath)) then
                     CoreLogger.logErrorf "ImportManager" "File not found: %s" filePath
+                    ImportState.failChunkedImport ($"File not found: {filePath}")
                     return ImportResult.createError ($"File not found: {filePath}")
                 else
                     // Look up broker information
@@ -132,8 +134,9 @@ module ImportManager =
 
                             // CoreLogger.logDebugf "ImportManager" "Validated account %s; proceeding to file processing" brokerAccount.AccountNumber
 
-                            // Process file (handles both CSV and ZIP)
-                            ImportState.updateStatus (ProcessingFile(Path.GetFileName(filePath), 0.0))
+                            // Process file (handles both CSV and ZIP) - use chunked state
+                            let fileName = Path.GetFileName(filePath)
+                            ImportState.updateChunkedState (ChunkedImportState.ExtractingFile(fileName, 0m))
                             // CoreLogger.logDebugf "ImportManager" "Processing file %s" filePath
 
                             let processedFile =
@@ -146,7 +149,7 @@ module ImportManager =
                                         filePath
                                         ex.Message
 
-                                    ImportState.failImport (ResourceKeys.Import_Failed)
+                                    ImportState.failChunkedImport (ResourceKeys.Import_Failed)
                                     None
 
                             match processedFile with

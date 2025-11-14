@@ -148,6 +148,20 @@ public static class CoreExtensions
     {
         var state = status.State;
 
+        if (state == ChunkedImportStateEnum.Validating && status.FileName != null)
+        {
+            return ResourceKeys.Import_Chunked_ValidatingFile.ToLocalized(status.FileName.Value);
+        }
+
+        if (state == ChunkedImportStateEnum.ExtractingFile && status.FileName != null)
+        {
+            if (status.AnalysisProgress != null && status.AnalysisProgress.Value > 0)
+            {
+                return ResourceKeys.Import_Chunked_ExtractingFileWithProgress.ToLocalized(status.FileName.Value, status.AnalysisProgress.Value);
+            }
+            return ResourceKeys.Import_Chunked_ExtractingFile.ToLocalized(status.FileName.Value);
+        }
+
         if (state == ChunkedImportStateEnum.ReadingFile && status.FileName != null)
         {
             return ResourceKeys.Import_Chunked_ReadingFile.ToLocalized(status.FileName.Value);

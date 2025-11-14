@@ -1154,6 +1154,22 @@ Una opción PUT te da el **derecho a vender** el activo subyacente a un precio e
     <value>Operaciones</value>
     <comment>Tipo de estado: operaciones</comment>
   </data>
+  <data name="Import_Chunked_Validating" xml:space="preserve">
+    <value>Validando...</value>
+    <comment>Mensaje de progreso: validando archivo</comment>
+  </data>
+  <data name="Import_Chunked_ValidatingFile" xml:space="preserve">
+    <value>Validando {0}...</value>
+    <comment>Mensaje de progreso: validando archivo con nombre</comment>
+  </data>
+  <data name="Import_Chunked_ExtractingFile" xml:space="preserve">
+    <value>Extrayendo {0}...</value>
+    <comment>Mensaje de progreso: extrayendo archivo</comment>
+  </data>
+  <data name="Import_Chunked_ExtractingFileWithProgress" xml:space="preserve">
+    <value>Extrayendo {0}... {1:F0}%</value>
+    <comment>Mensaje de progreso: extrayendo archivo con porcentaje de progreso</comment>
+  </data>
   <data name="Import_Chunked_ReadingFile" xml:space="preserve">
     <value>Leyendo {0}...</value>
     <comment>Mensaje de progreso: leyendo archivo con nombre</comment>

@@ -1153,6 +1153,22 @@ A PUT option gives you the **right to sell** the underlying asset at a specific 
     <value>Operations</value>
     <comment>Snapshot type: operations</comment>
   </data>
+  <data name="Import_Chunked_Validating" xml:space="preserve">
+    <value>Validating...</value>
+    <comment>Progress message: validating file</comment>
+  </data>
+  <data name="Import_Chunked_ValidatingFile" xml:space="preserve">
+    <value>Validating {0}...</value>
+    <comment>Progress message: validating file with name</comment>
+  </data>
+  <data name="Import_Chunked_ExtractingFile" xml:space="preserve">
+    <value>Extracting {0}...</value>
+    <comment>Progress message: extracting file</comment>
+  </data>
+  <data name="Import_Chunked_ExtractingFileWithProgress" xml:space="preserve">
+    <value>Extracting {0}... {1:F0}%</value>
+    <comment>Progress message: extracting file with progress percentage</comment>
+  </data>
   <data name="Import_Chunked_ReadingFile" xml:space="preserve">
     <value>Reading {0}...</value>
     <comment>Progress message: reading file with name</comment>

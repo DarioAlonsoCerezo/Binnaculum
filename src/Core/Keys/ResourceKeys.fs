@@ -318,4 +318,17 @@ module ResourceKeys =
     let Import_Chunked_CompletedDuration = "Import_Chunked_CompletedDuration"
 
     [<Literal>]
+    let Import_Chunked_Validating = "Import_Chunked_Validating"
+
+    [<Literal>]
+    let Import_Chunked_ValidatingFile = "Import_Chunked_ValidatingFile"
+
+    [<Literal>]
+    let Import_Chunked_ExtractingFile = "Import_Chunked_ExtractingFile"
+
+    [<Literal>]
+    let Import_Chunked_ExtractingFileWithProgress =
+        "Import_Chunked_ExtractingFileWithProgress"
+
+    [<Literal>]
     let Import_Chunked_ChunkDateRange = "Import_Chunked_ChunkDateRange"

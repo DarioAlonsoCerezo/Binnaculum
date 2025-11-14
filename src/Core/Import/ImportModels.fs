@@ -35,13 +35,15 @@ and ImportStateEnum =
 /// </summary>
 and ChunkedImportStateEnum =
     | Idle = 0
-    | ReadingFile = 1
-    | AnalyzingDates = 2
-    | ProcessingChunk = 3
-    | CalculatingSnapshots = 4
-    | Completed = 5
-    | Failed = 6
-    | Cancelled = 7
+    | Validating = 1
+    | ExtractingFile = 2
+    | ReadingFile = 3
+    | AnalyzingDates = 4
+    | ProcessingChunk = 5
+    | CalculatingSnapshots = 6
+    | Completed = 7
+    | Failed = 8
+    | Cancelled = 9
 
 /// <summary>
 /// C#-friendly import status for UI consumption via BehaviorSubject.
@@ -91,78 +93,78 @@ and CurrentChunkedImportStatus =
     {
         /// Current state of chunked import operation (determines which properties are populated)
         State: ChunkedImportStateEnum
-        
+
         /// File name being read/analyzed (populated when State = ReadingFile, AnalyzingDates)
         FileName: string option
-        
+
         /// Analysis progress 0-100 (populated when State = AnalyzingDates)
         AnalysisProgress: decimal option
-        
+
         /// Current chunk number (populated when State = ProcessingChunk, CalculatingSnapshots)
         ChunkNumber: int option
-        
+
         /// Total number of chunks (populated when State = ProcessingChunk, CalculatingSnapshots)
         TotalChunks: int option
-        
+
         /// Chunk start date formatted string (populated when State = ProcessingChunk)
         ChunkStartDate: string option
-        
+
         /// Chunk end date formatted string (populated when State = ProcessingChunk)
         ChunkEndDate: string option
-        
+
         /// Estimated movements in current chunk (populated when State = ProcessingChunk)
         EstimatedMovements: int option
-        
+
         /// Current phase name - raw enum string (populated when State = ProcessingChunk)
         /// Localized in UI extension methods
         CurrentPhase: string option
-        
+
         /// Progress within current chunk 0-100 (populated when State = ProcessingChunk)
         ChunkProgress: decimal option
-        
+
         /// Snapshot type being calculated - raw string (populated when State = CalculatingSnapshots)
         /// Localized in UI extension methods
         SnapshotType: string option
-        
+
         /// Number of snapshots processed (populated when State = CalculatingSnapshots)
         SnapshotsProcessed: int option
-        
+
         /// Total snapshots to process (populated when State = CalculatingSnapshots)
         SnapshotsTotal: int option
-        
+
         /// Snapshot calculation progress 0-100 (populated when State = CalculatingSnapshots)
         SnapshotProgress: decimal option
-        
+
         /// Overall progress percentage 0-100 (always populated during processing)
         OverallProgress: decimal
-        
+
         /// Import start time (populated when processing starts)
         StartTime: System.DateTime option
-        
+
         /// Elapsed time since start (populated during processing)
         ElapsedTime: System.TimeSpan option
-        
+
         /// Estimated time remaining (populated during processing when calculable)
         EstimatedTimeRemaining: System.TimeSpan option
-        
+
         /// Total movements imported (populated when State = Completed)
         TotalMovements: int option
-        
+
         /// Total broker snapshots calculated (populated when State = Completed)
         TotalBrokerSnapshots: int option
-        
+
         /// Total ticker snapshots calculated (populated when State = Completed)
         TotalTickerSnapshots: int option
-        
+
         /// Total operations created (populated when State = Completed)
         TotalOperations: int option
-        
+
         /// Total duration (populated when State = Completed)
         Duration: System.TimeSpan option
-        
+
         /// Whether import can be cancelled (false when Completed, Failed, Cancelled)
         CanCancel: bool
-        
+
         /// Error message (populated when State = Failed)
         ErrorMessage: string option
     }
@@ -171,20 +173,22 @@ and CurrentChunkedImportStatus =
 /// Comprehensive import result with detailed feedback for all processed files
 /// </summary>
 and ImportResult =
-    { Success: bool
-      ProcessedFiles: int
-      ProcessedRecords: int
-      SkippedRecords: int
-      TotalRecords: int
-      ProcessingTimeMs: int64
-      Errors: ImportError list
-      Warnings: ImportWarning list
-      ImportedData: ImportedDataSummary
-      FileResults: FileImportResult list
-      /// Number of chunks processed (for chunked imports)
-      ProcessedChunks: int
-      /// Session ID for resumable imports
-      SessionId: int option }
+    {
+        Success: bool
+        ProcessedFiles: int
+        ProcessedRecords: int
+        SkippedRecords: int
+        TotalRecords: int
+        ProcessingTimeMs: int64
+        Errors: ImportError list
+        Warnings: ImportWarning list
+        ImportedData: ImportedDataSummary
+        FileResults: FileImportResult list
+        /// Number of chunks processed (for chunked imports)
+        ProcessedChunks: int
+        /// Session ID for resumable imports
+        SessionId: int option
+    }
 
 /// <summary>
 /// Structured error information for data validation issues
@@ -549,6 +553,8 @@ and ImportSummary =
 /// </summary>
 and ChunkedImportState =
     | Idle // No import in progress
+    | Validating of fileName: string // Validating file before import
+    | ExtractingFile of fileName: string * progress: decimal // Extracting ZIP/processing file
     | ReadingFile of fileName: string // Reading CSV file
     | AnalyzingDates of fileName: string * progress: decimal // Parsing dates from CSV
     | ProcessingChunk of chunkInfo: ChunkProgress // Processing a weekly chunk
@@ -583,6 +589,8 @@ module ImportProgressCalculator =
     let calculateOverallProgress (state: ChunkedImportState) (totalChunks: int) : decimal =
         match state with
         | Idle -> 0.0m
+        | Validating _ -> 2.0m
+        | ExtractingFile(_, progress) -> 2.0m + (progress * 0.03m) // 2-5%
         | ReadingFile _ -> 5.0m
         | AnalyzingDates(_, progress) -> 5.0m + (progress * 0.05m) // 5-10%
         | ProcessingChunk chunk ->
@@ -628,9 +636,9 @@ module ImportProgressCalculator =
 /// Helper functions for converting between ChunkedImportState DU and C#-friendly record
 /// </summary>
 module CurrentChunkedImportStatus =
-    
+
     open System
-    
+
     /// <summary>
     /// Convert F# discriminated union to C#-friendly record.
     /// Called automatically when pushing status updates to BehaviorSubject.
@@ -664,7 +672,61 @@ module CurrentChunkedImportStatus =
               Duration = None
               CanCancel = false
               ErrorMessage = None }
-        
+
+        | Validating fileName ->
+            { State = ChunkedImportStateEnum.Validating
+              FileName = Some fileName
+              AnalysisProgress = None
+              ChunkNumber = None
+              TotalChunks = None
+              ChunkStartDate = None
+              ChunkEndDate = None
+              EstimatedMovements = None
+              CurrentPhase = None
+              ChunkProgress = None
+              SnapshotType = None
+              SnapshotsProcessed = None
+              SnapshotsTotal = None
+              SnapshotProgress = None
+              OverallProgress = 2m
+              StartTime = startTime
+              ElapsedTime = startTime |> Option.map (fun st -> DateTime.Now - st)
+              EstimatedTimeRemaining = None
+              TotalMovements = None
+              TotalBrokerSnapshots = None
+              TotalTickerSnapshots = None
+              TotalOperations = None
+              Duration = None
+              CanCancel = true
+              ErrorMessage = None }
+
+        | ExtractingFile(fileName, progress) ->
+            { State = ChunkedImportStateEnum.ExtractingFile
+              FileName = Some fileName
+              AnalysisProgress = Some progress
+              ChunkNumber = None
+              TotalChunks = None
+              ChunkStartDate = None
+              ChunkEndDate = None
+              EstimatedMovements = None
+              CurrentPhase = None
+              ChunkProgress = None
+              SnapshotType = None
+              SnapshotsProcessed = None
+              SnapshotsTotal = None
+              SnapshotProgress = None
+              OverallProgress = 2m + (progress * 0.03m) // 2-5%
+              StartTime = startTime
+              ElapsedTime = startTime |> Option.map (fun st -> DateTime.Now - st)
+              EstimatedTimeRemaining = None
+              TotalMovements = None
+              TotalBrokerSnapshots = None
+              TotalTickerSnapshots = None
+              TotalOperations = None
+              Duration = None
+              CanCancel = true
+              ErrorMessage = None }
+
         | ReadingFile fileName ->
             { State = ChunkedImportStateEnum.ReadingFile
               FileName = Some fileName
@@ -691,7 +753,7 @@ module CurrentChunkedImportStatus =
               Duration = None
               CanCancel = true
               ErrorMessage = None }
-        
+
         | AnalyzingDates(fileName, progress) ->
             { State = ChunkedImportStateEnum.AnalyzingDates
               FileName = Some fileName
@@ -707,7 +769,7 @@ module CurrentChunkedImportStatus =
               SnapshotsProcessed = None
               SnapshotsTotal = None
               SnapshotProgress = None
-              OverallProgress = 5m + (progress * 0.05m)  // 5-10%
+              OverallProgress = 5m + (progress * 0.05m) // 5-10%
               StartTime = startTime
               ElapsedTime = startTime |> Option.map (fun st -> DateTime.Now - st)
               EstimatedTimeRemaining = None
@@ -718,23 +780,26 @@ module CurrentChunkedImportStatus =
               Duration = None
               CanCancel = true
               ErrorMessage = None }
-        
+
         | ProcessingChunk chunkInfo ->
-            let overallProgress = ImportProgressCalculator.calculateOverallProgress state chunkInfo.TotalChunks
+            let overallProgress =
+                ImportProgressCalculator.calculateOverallProgress state chunkInfo.TotalChunks
+
             let elapsed = startTime |> Option.map (fun st -> DateTime.Now - st)
-            let timeRemaining = 
-                startTime 
+
+            let timeRemaining =
+                startTime
                 |> Option.bind (fun st -> ImportProgressCalculator.calculateTimeRemaining st overallProgress)
-            
+
             { State = ChunkedImportStateEnum.ProcessingChunk
               FileName = None
               AnalysisProgress = None
               ChunkNumber = Some chunkInfo.ChunkNumber
               TotalChunks = Some chunkInfo.TotalChunks
-              ChunkStartDate = Some (chunkInfo.StartDate.ToString())
-              ChunkEndDate = Some (chunkInfo.EndDate.ToString())
+              ChunkStartDate = Some(chunkInfo.StartDate.ToString())
+              ChunkEndDate = Some(chunkInfo.EndDate.ToString())
               EstimatedMovements = Some chunkInfo.EstimatedMovements
-              CurrentPhase = Some (chunkInfo.CurrentPhase.ToString())
+              CurrentPhase = Some(chunkInfo.CurrentPhase.ToString())
               ChunkProgress = Some chunkInfo.Progress
               SnapshotType = None
               SnapshotsProcessed = None
@@ -751,14 +816,15 @@ module CurrentChunkedImportStatus =
               Duration = None
               CanCancel = true
               ErrorMessage = None }
-        
+
         | CalculatingSnapshots snapshotInfo ->
             let overallProgress = 90m + (snapshotInfo.Progress * 0.05m)
             let elapsed = startTime |> Option.map (fun st -> DateTime.Now - st)
-            let timeRemaining = 
-                startTime 
+
+            let timeRemaining =
+                startTime
                 |> Option.bind (fun st -> ImportProgressCalculator.calculateTimeRemaining st overallProgress)
-            
+
             { State = ChunkedImportStateEnum.CalculatingSnapshots
               FileName = None
               AnalysisProgress = None
@@ -784,7 +850,7 @@ module CurrentChunkedImportStatus =
               Duration = None
               CanCancel = true
               ErrorMessage = None }
-        
+
         | Completed summary ->
             { State = ChunkedImportStateEnum.Completed
               FileName = None
@@ -811,7 +877,7 @@ module CurrentChunkedImportStatus =
               Duration = Some summary.Duration
               CanCancel = false
               ErrorMessage = None }
-        
+
         | Failed errorMessage ->
             { State = ChunkedImportStateEnum.Failed
               FileName = None
@@ -838,7 +904,7 @@ module CurrentChunkedImportStatus =
               Duration = None
               CanCancel = false
               ErrorMessage = Some errorMessage }
-        
+
         | Cancelled ->
             { State = ChunkedImportStateEnum.Cancelled
               FileName = None

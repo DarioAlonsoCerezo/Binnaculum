@@ -89,6 +89,15 @@ module ImportState =
         | Some source -> Some source.Token
         | None -> None
 
+    /// Clean up import resources without state emission
+    /// Used when transitioning from legacy to chunked state system
+    let cleanupImportResources () =
+        match _cancellationSource.Value with
+        | Some source ->
+            source.Dispose()
+            _cancellationSource.Value <- None
+        | None -> ()
+
     /// Check if an import is currently in progress (to defer reactive updates during import)
     let isImportInProgress () =
         match ImportStatus.Value with
