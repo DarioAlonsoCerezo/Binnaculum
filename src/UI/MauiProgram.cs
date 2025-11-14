@@ -13,12 +13,14 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
             .UseMarkdownView()
+#if !DEBUG
             .UseSentry(options =>
             {
                 // Sentry DSN is injected at compile time via BuildConfig
-                options.Dsn = BuildConfig.SentryDsn;
+                options.Dsn = BuildConfig.SentryDsn ?? string.Empty;
                 options.Debug = true;
             })
+#endif
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Bold.ttf", "OpenSansBold");
