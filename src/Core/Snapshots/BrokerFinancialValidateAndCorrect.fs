@@ -1,7 +1,6 @@
 ﻿namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.SnapshotsModel
-open Binnaculum.Core.Logging
 open BrokerFinancialSnapshotExtensions
 
 module internal BrokerFinancialValidateAndCorrect =

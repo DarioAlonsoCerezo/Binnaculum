@@ -4,10 +4,6 @@ open System.Threading.Tasks
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
-open BrokerMovementExtensions
-open BrokerFinancialSnapshotExtensions
-open TickerCurrencySnapshotExtensions
-open BrokerAccountExtensions
 
 /// <summary>
 /// Context-aware data loading manager for different app screens.

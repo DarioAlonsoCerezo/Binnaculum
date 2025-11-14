@@ -3,7 +3,6 @@
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open DynamicData
-open Microsoft.Maui.Storage
 open System.IO
 open System
 open Binnaculum.Core.DatabaseToModels

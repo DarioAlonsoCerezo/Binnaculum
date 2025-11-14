@@ -3,9 +3,6 @@ namespace Binnaculum.Core.Managers
 open System.Threading.Tasks
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
-open BrokerFinancialSnapshotExtensions
-open BrokerAccountExtensions
-open BrokerMovementExtensions
 
 /// <summary>
 /// Progressive loading manager for phased app startup.

@@ -4,7 +4,6 @@ open System
 open Binnaculum.Core.Import
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Storage
-open Binnaculum.Core.Database
 
 /// <summary>
 /// Reactive targeted snapshot manager that provides selective snapshot updates

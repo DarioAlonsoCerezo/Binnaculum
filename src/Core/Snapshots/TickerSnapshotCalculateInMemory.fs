@@ -3,7 +3,6 @@ namespace Binnaculum.Core.Storage
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
 open Binnaculum.Core.Snapshots.CapitalDeployedCalculator
 
 /// <summary>

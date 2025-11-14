@@ -2,7 +2,6 @@ namespace Binnaculum.Core
 
 open System
 open Binnaculum.Core.Models
-open Binnaculum.Core.Keys
 
 module MovementDisplay =
     

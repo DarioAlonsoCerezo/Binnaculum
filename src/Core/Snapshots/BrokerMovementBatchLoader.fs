@@ -2,12 +2,6 @@ namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
-open BrokerMovementExtensions
-open TradeExtensions
-open DividendExtensions
-open DividendTaxExtensions
-open OptionTradeExtensions
 
 /// <summary>
 /// Batch loader for broker movements to optimize database I/O.

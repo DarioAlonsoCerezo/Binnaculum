@@ -4,11 +4,9 @@ open System.Runtime.CompilerServices
 open Binnaculum.Core.Database.DatabaseModel
 open Microsoft.Data.Sqlite
 open Binnaculum.Core
-open Binnaculum.Core.Database.TypeParser
 open DataReaderExtensions
 open CommandExtensions
 open Binnaculum.Core.SQL
-open OptionExtensions
 open Binnaculum.Core.Patterns
 
 [<Extension>]

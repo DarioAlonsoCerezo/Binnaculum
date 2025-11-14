@@ -2,11 +2,9 @@ namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
-open Binnaculum.Core.Models
 open Binnaculum.Core.Import
 open Binnaculum.Core.Database.DatabaseModel
 open System.Diagnostics
-open System.Threading.Tasks
 
 /// <summary>
 /// Main orchestration manager for batch ticker snapshot processing.

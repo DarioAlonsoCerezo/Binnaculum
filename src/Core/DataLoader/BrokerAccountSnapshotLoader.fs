@@ -6,7 +6,6 @@ open Binnaculum.Core.DatabaseToModels
 open Binnaculum.Core.Models
 open Binnaculum.Core.Storage
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
 
 module internal BrokerAccountSnapshotLoader =
 

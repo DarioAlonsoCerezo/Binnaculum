@@ -2,13 +2,8 @@ namespace Binnaculum.Core.Import
 
 open System
 open System.Threading
-open System.Diagnostics
 open Binnaculum.Core
-open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
-open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
-open Binnaculum.Core.Storage
 open OptionTradeExtensions
 
 /// <summary>

@@ -1,15 +1,12 @@
 namespace Binnaculum.Core.Import
 
 open System
-open System.Threading
 open System.IO
 open Binnaculum.Core
-open Binnaculum.Core.Database
 open Binnaculum.Core.UI
 open Binnaculum.Core.Logging
 open Binnaculum.Core.Storage
 open Binnaculum.Core.DataLoader
-open BrokerExtensions
 open Binnaculum.Core.Storage.TickerSnapshotBatchManager
 open IBKRModels
 

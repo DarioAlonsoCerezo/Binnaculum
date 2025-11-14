@@ -2,8 +2,6 @@
 
 open Microsoft.Data.Sqlite
 open System
-open System.IO
-open Microsoft.Maui.Storage
 open System.Data
 open Binnaculum.Core.TableName
 open Binnaculum.Core.Logging.CoreLogger

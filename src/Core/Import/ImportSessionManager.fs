@@ -1,13 +1,8 @@
 namespace Binnaculum.Core.Import
 
-open System
 open System.Threading.Tasks
-open Microsoft.Data.Sqlite
-open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Logging
-open ImportSessionExtensions
-open ImportSessionChunkExtensions
 
 /// <summary>
 /// Session management for resumable imports.

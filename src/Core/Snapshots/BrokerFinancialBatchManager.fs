@@ -2,7 +2,6 @@ namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
-open Binnaculum.Core.Models
 open System.Diagnostics
 
 /// <summary>

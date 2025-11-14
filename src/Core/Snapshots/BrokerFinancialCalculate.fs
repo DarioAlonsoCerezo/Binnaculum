@@ -3,7 +3,6 @@
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
 open BrokerFinancialSnapshotExtensions
 
 module internal BrokerFinancialCalculate =

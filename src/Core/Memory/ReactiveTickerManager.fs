@@ -7,7 +7,6 @@ open System.Runtime.CompilerServices
 open System.Threading.Tasks
 open DynamicData
 open Binnaculum.Core.Models
-open Binnaculum.Core.Database
 open Binnaculum.Core.Logging
 
 /// <summary>

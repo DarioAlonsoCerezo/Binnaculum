@@ -2,9 +2,6 @@ namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
-open BrokerFinancialSnapshotExtensions
-open TickerPriceExtensions
 
 /// <summary>
 /// Batch loader for broker financial snapshots to optimize database I/O.

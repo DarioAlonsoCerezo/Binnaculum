@@ -2,16 +2,10 @@ namespace Binnaculum.Core.UI
 
 open System
 open System.Threading.Tasks
-open Binnaculum.Core.Database
-open Binnaculum.Core.Models
 open Binnaculum.Core.ModelsToDatabase
 open Binnaculum.Core.DatabaseToModels
-open Binnaculum.Core.Keys
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
 open TickerPriceExtensions
-open TickerSnapshotExtensions
-open TickerCurrencySnapshotExtensions
 
 /// <summary>
 /// This module provides the public API for all Ticker-related operations accessible from the UI layer.

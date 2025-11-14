@@ -2,7 +2,6 @@
 
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
 open BrokerFinancialSnapshotExtensions
 
 module internal BrokerFinancialCumulativeFinancial =

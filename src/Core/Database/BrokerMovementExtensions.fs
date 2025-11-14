@@ -10,7 +10,6 @@ open CommandExtensions
 open OptionExtensions
 open Binnaculum.Core.SQL
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
 
 [<Extension>]
 type Do() =

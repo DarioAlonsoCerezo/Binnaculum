@@ -1,11 +1,9 @@
 ﻿namespace Binnaculum.Core.UI
 
 open System.Reactive.Subjects
-open System.Diagnostics
 open Binnaculum.Core.Models
 open Binnaculum.Core.Storage
 open Binnaculum.Core.Database
-open Binnaculum.Core.Logging
 open Binnaculum.Core.Providers
 
 module Overview =

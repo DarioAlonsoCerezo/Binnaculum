@@ -2,13 +2,7 @@ namespace Binnaculum.Core.UI
 
 open System
 open System.Threading.Tasks
-open Binnaculum.Core.Database
-open BrokerAccountSnapshotExtensions
-open BrokerFinancialSnapshotExtensions
-open AutoImportOperationExtensions
-open Binnaculum.Core.Models
 open Binnaculum.Core.DatabaseToModels
-open Binnaculum.Core.Keys
 open Binnaculum.Core.Patterns
 
 /// <summary>

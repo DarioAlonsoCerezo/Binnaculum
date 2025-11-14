@@ -2,9 +2,7 @@ namespace Binnaculum.Core.Import
 
 open System
 open System.Threading
-open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
-open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
 open ImportDomainTypes
 

@@ -4,14 +4,6 @@ open System.Threading.Tasks
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
-open TickerSnapshotExtensions
-open TickerCurrencySnapshotExtensions
-open TradeExtensions
-open DividendExtensions
-open DividendTaxExtensions
-open OptionTradeExtensions
-open TickerPriceExtensions
 
 /// <summary>
 /// Batch loader for ticker snapshots to optimize database I/O.

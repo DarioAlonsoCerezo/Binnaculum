@@ -1,7 +1,6 @@
 ﻿namespace Binnaculum.Core.UI
 
 open Microsoft.Maui.ApplicationModel
-open Microsoft.Maui.Storage
 open System.Reactive.Subjects
 open Binnaculum.Core.Storage
 open Binnaculum.Core.Providers

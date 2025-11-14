@@ -1,7 +1,6 @@
 ﻿namespace Binnaculum.Core.Storage
 
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
 
 module BrokerFinancialUnrealizedGains =
 

@@ -1,8 +1,6 @@
 namespace Binnaculum.Core.Import
 
-open System
 open Binnaculum.Core.Database.DatabaseModel
-open Binnaculum.Core.Patterns
 open ImportDomainTypes
 
 /// <summary>

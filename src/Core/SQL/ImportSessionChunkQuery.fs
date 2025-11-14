@@ -1,8 +1,5 @@
 namespace Binnaculum.Core.SQL
 
-open Binnaculum.Core.TableName
-open Binnaculum.Core.FieldName
-open Binnaculum.Core
 
 module internal ImportSessionChunkQuery =
     /// Creates the ImportSessionChunk table if it does not already exist.

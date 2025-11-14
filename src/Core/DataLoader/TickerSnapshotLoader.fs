@@ -3,10 +3,8 @@
 open System
 open Binnaculum.Core.UI
 open DynamicData
-open Binnaculum.Core.DatabaseToModels
 open Binnaculum.Core.Storage
 open Binnaculum.Core.ModelsToDatabase
-open Binnaculum.Core.Database
 open Binnaculum.Core.Models
 
 module internal TickerSnapshotLoader =

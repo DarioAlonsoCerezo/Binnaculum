@@ -6,7 +6,6 @@ open DividendExtensions
 open DividendTaxExtensions
 open OptionTradeExtensions
 open Binnaculum.Core.Patterns
-open Binnaculum.Core.Logging
 
 module internal BrokerFinancialsMetricsFromMovements =
     /// <summary>

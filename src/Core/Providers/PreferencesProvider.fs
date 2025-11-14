@@ -1,7 +1,6 @@
 namespace Binnaculum.Core.Providers
 
 open Microsoft.Maui.Storage
-open Microsoft.Maui.ApplicationModel
 open System.Collections.Generic
 open System.Threading.Tasks
 open Binnaculum.Core.Logging

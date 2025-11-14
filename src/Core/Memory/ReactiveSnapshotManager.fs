@@ -6,7 +6,6 @@ open DynamicData
 open Binnaculum.Core.Models
 open Binnaculum.Core.DataLoader
 open Binnaculum.Core
-open Binnaculum.Core.Logging
 
 /// <summary>
 /// Reactive snapshot manager that provides automatic snapshot updates when underlying collections change.

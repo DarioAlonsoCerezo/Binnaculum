@@ -4,7 +4,6 @@ open Binnaculum.Core.Patterns
 open Binnaculum.Core.Logging
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Database.SnapshotsModel
-open Microsoft.Maui.Storage
 open Binnaculum.Core.Keys
 open System
 open Binnaculum.Core.Providers
