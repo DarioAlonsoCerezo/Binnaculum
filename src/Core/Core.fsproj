@@ -145,9 +145,6 @@
 		<!-- End ticker snapshot batch processing base modules -->
 		<Compile Include="Snapshots\TickerSnapshotManager.fs" />
 		<Compile Include="Import\DatabasePersistence.fs" />
-		<Compile Include="Import\Brokers\Tastytrade\TastytradeImporter.fs" />
-		<Compile Include="Import\Brokers\IBKR\IBKRImporter.fs" />
-		<Compile Include="Import\MultiFileImportOrchestrator.fs" />
 		<Compile Include="Snapshots\BankSnapshotManager.fs" />
 		<Compile Include="Snapshots\BankAccountSnapshotManager.fs" />
 		<Compile Include="Snapshots\BrokerFinancialUnrealizedGains.fs" />

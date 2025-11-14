@@ -10,14 +10,6 @@ open Binnaculum.Core
 /// </summary>
 module ImportState =
 
-    /// Current import status - F# discriminated union for internal F# use
-    let ImportStatus = new BehaviorSubject<ImportStatus>(NotStarted)
-
-    /// Current import status - C#-friendly record for UI consumption
-    /// Subscribe to this from C# code for clean switch statements
-    let CurrentStatus =
-        new BehaviorSubject<CurrentImportStatus>(CurrentImportStatus.fromImportStatus NotStarted)
-
     /// Current cancellation token source
     let private _cancellationSource = ref (None: CancellationTokenSource option)
 
@@ -32,23 +24,7 @@ module ImportState =
 
         let newSource = new CancellationTokenSource()
         _cancellationSource.Value <- Some newSource
-        ImportStatus.OnNext(NotStarted)
         newSource.Token
-
-    /// Cancel current import operation with reason
-    let cancelImport (reason: string) =
-        match _cancellationSource.Value with
-        | Some source ->
-            source.Cancel()
-            let cancelledStatus = Binnaculum.Core.Import.ImportStatus.Cancelled reason
-            ImportStatus.OnNext(cancelledStatus)
-            CurrentStatus.OnNext(CurrentImportStatus.fromImportStatus cancelledStatus)
-        | None -> ()
-
-    /// Update import status (called by importers during processing)
-    let updateStatus (status: ImportStatus) =
-        ImportStatus.OnNext(status)
-        CurrentStatus.OnNext(CurrentImportStatus.fromImportStatus status)
 
     /// Clean up cancellation resources
     let private cleanupCancellation () =
@@ -58,58 +34,14 @@ module ImportState =
 
         _cancellationSource.Value <- None
 
-    /// Complete import and clean up
-    let completeImport (result: ImportResult) =
-        let completedStatus = Binnaculum.Core.Import.ImportStatus.Completed result
-        ImportStatus.OnNext(completedStatus)
-        CurrentStatus.OnNext(CurrentImportStatus.fromImportStatus completedStatus)
-        cleanupCancellation ()
-
-    /// Fail import and clean up
-    let failImport (error: string) =
-        let failedStatus = Binnaculum.Core.Import.ImportStatus.Failed error
-        ImportStatus.OnNext(failedStatus)
-        CurrentStatus.OnNext(CurrentImportStatus.fromImportStatus failedStatus)
-        cleanupCancellation ()
-
-    /// Background cancellation (app backgrounded, memory pressure, etc.)
-    let cancelForBackground () =
-        cancelImport (ResourceKeys.Import_Cancelled)
-
     /// Force cleanup on disposal
-    let cleanup () =
-        cancelImport (ResourceKeys.Import_Cancelled)
-        cleanupCancellation ()
-        ImportStatus.OnNext(NotStarted)
-        CurrentStatus.OnNext(CurrentImportStatus.fromImportStatus NotStarted)
+    let cleanup () = cleanupCancellation ()
 
     /// Get current cancellation token if available
     let getCurrentCancellationToken () =
         match _cancellationSource.Value with
         | Some source -> Some source.Token
         | None -> None
-
-    /// Clean up import resources without state emission
-    /// Used when transitioning from legacy to chunked state system
-    let cleanupImportResources () =
-        match _cancellationSource.Value with
-        | Some source ->
-            source.Dispose()
-            _cancellationSource.Value <- None
-        | None -> ()
-
-    /// Check if an import is currently in progress (to defer reactive updates during import)
-    let isImportInProgress () =
-        match ImportStatus.Value with
-        | Binnaculum.Core.Import.ImportStatus.NotStarted
-        | Binnaculum.Core.Import.ImportStatus.Completed _
-        | Binnaculum.Core.Import.ImportStatus.Failed _
-        | Binnaculum.Core.Import.ImportStatus.Cancelled _ -> false
-        | Binnaculum.Core.Import.ImportStatus.Validating _
-        | Binnaculum.Core.Import.ImportStatus.ProcessingFile _
-        | Binnaculum.Core.Import.ImportStatus.ProcessingData _
-        | Binnaculum.Core.Import.ImportStatus.SavingToDatabase _
-        | Binnaculum.Core.Import.ImportStatus.CalculatingSnapshots _ -> true
 
     // ==================== CHUNKED IMPORT STATE MANAGEMENT ====================
 
@@ -119,6 +51,21 @@ module ImportState =
         new BehaviorSubject<CurrentChunkedImportStatus>(
             CurrentChunkedImportStatus.fromChunkedState ChunkedImportState.Idle None
         )
+
+    /// Check if an import is currently in progress (to defer reactive updates during import)
+    let isImportInProgress () =
+        match CurrentChunkedStatus.Value.State with
+        | ChunkedImportStateEnum.Idle
+        | ChunkedImportStateEnum.Completed
+        | ChunkedImportStateEnum.Failed
+        | ChunkedImportStateEnum.Cancelled -> false
+        | ChunkedImportStateEnum.ReadingFile
+        | ChunkedImportStateEnum.Validating
+        | ChunkedImportStateEnum.ProcessingChunk
+        | ChunkedImportStateEnum.CalculatingSnapshots
+        | ChunkedImportStateEnum.ExtractingFile
+        | ChunkedImportStateEnum.AnalyzingDates -> true
+        | _ -> true // Unknown states treated as in-progress for safety
 
     /// Track start time for chunked imports (for duration/time remaining calculations)
     let private _chunkedStartTime = ref (None: DateTime option)
@@ -147,5 +94,10 @@ module ImportState =
 
     /// Cancel chunked import operation - clears timing
     let cancelChunkedImport () =
+        // Cancel the token source
+        match _cancellationSource.Value with
+        | Some source -> source.Cancel()
+        | None -> ()
+
         updateChunkedState (ChunkedImportState.Cancelled)
         _chunkedStartTime.Value <- None

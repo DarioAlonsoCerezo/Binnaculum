@@ -982,8 +982,8 @@ module ImportManager =
                                     FileProcessor.cleanup pf
                                     // CoreLogger.logDebug "ImportManager" "File processing cleanup complete"
 
-                                    // Complete import and return result
-                                    ImportState.completeImport (importResult)
+                                    // Clean up cancellation resources (chunked import already called completeChunkedImport)
+                                    ImportState.cleanup ()
 
                                     // Trigger reactive updates now that import is complete
                                     // CoreLogger.logDebug "ImportManager" "Triggering post-import reactive updates"
@@ -1026,7 +1026,8 @@ module ImportManager =
                 // CoreLogger.logInfo "ImportManager" "Import canceled before completion"
                 return ImportResult.createCancelled ()
             | ex ->
-                ImportState.failImport (ex.Message)
+                ImportState.failChunkedImport (ex.Message)
+                ImportState.cleanup ()
                 CoreLogger.logErrorf "ImportManager" "Import failed unexpectedly: %s" ex.Message
                 return ImportResult.createError (ex.Message)
         }
@@ -1034,18 +1035,17 @@ module ImportManager =
     /// <summary>
     /// Cancel current import operation
     /// </summary>
-    let cancelCurrentImport () =
-        ImportState.cancelImport (ResourceKeys.Import_Cancelled)
+    let cancelCurrentImport () = ImportState.cancelChunkedImport ()
 
     /// <summary>
     /// Cancel for app backgrounding
     /// </summary>
-    let cancelForBackground () = ImportState.cancelForBackground ()
+    let cancelForBackground () = ImportState.cancelChunkedImport ()
 
     /// <summary>
     /// Get current import status
     /// </summary>
-    let getCurrentStatus () = ImportState.ImportStatus.Value
+    let getCurrentStatus () = ImportState.CurrentChunkedStatus.Value
 
     /// <summary>
     /// Check if an import is currently in progress

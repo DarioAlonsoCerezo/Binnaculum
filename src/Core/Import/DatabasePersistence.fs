@@ -62,12 +62,6 @@ module DatabasePersistence =
                         do! BrokerMovementExtensions.Do.save brokerMovement |> Async.AwaitTask
                         movementDates <- brokerMovement.TimeStamp.Value :: movementDates
                         processedCount <- processedCount + 1
-
-                        let progress = float processedCount / float totalItems
-
-                        ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
-                        )
                     with ex ->
                         errors <- $"Error saving BrokerMovement ID={brokerMovement.Id}: {ex.Message}" :: errors
 
@@ -95,11 +89,6 @@ module DatabasePersistence =
                             | Error _ -> () // Non-critical linking failure
 
                         processedCount <- processedCount + 1
-                        let progress = float processedCount / float totalItems
-
-                        ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
-                        )
                     with ex ->
                         errors <- $"Error saving OptionTrade ID={optionTrade.Id}: {ex.Message}" :: errors
 
@@ -119,11 +108,6 @@ module DatabasePersistence =
                         | None -> ()
 
                         processedCount <- processedCount + 1
-                        let progress = float processedCount / float totalItems
-
-                        ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
-                        )
                     with ex ->
                         errors <- $"Error saving Trade ID={stockTrade.Id}: {ex.Message}" :: errors
 
@@ -143,11 +127,6 @@ module DatabasePersistence =
                         | None -> ()
 
                         processedCount <- processedCount + 1
-                        let progress = float processedCount / float totalItems
-
-                        ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
-                        )
                     with ex ->
                         errors <- $"Error saving Dividend ID={dividend.Id}: {ex.Message}" :: errors
 
@@ -167,18 +146,8 @@ module DatabasePersistence =
                         | None -> ()
 
                         processedCount <- processedCount + 1
-                        let progress = float processedCount / float totalItems
-
-                        ImportState.updateStatus (
-                            SavingToDatabase(ResourceKeys.Import_SavingData, progress, processedCount, totalItems)
-                        )
                     with ex ->
                         errors <- $"Error saving DividendTax ID={dividendTax.Id}: {ex.Message}" :: errors
-
-                // Final progress update
-                ImportState.updateStatus (
-                    SavingToDatabase(ResourceKeys.Import_Completed, 1.0, processedCount, totalItems)
-                )
 
                 // Create import metadata for targeted snapshot updates
                 let oldestMovementDate =
@@ -204,10 +173,6 @@ module DatabasePersistence =
 
             with
             | :? OperationCanceledException ->
-                ImportState.updateStatus (
-                    SavingToDatabase(ResourceKeys.Import_Cancelled, 0.0, processedCount, totalItems)
-                )
-
                 return
                     { BrokerMovementsCreated = 0
                       OptionTradesCreated = 0

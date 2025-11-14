@@ -104,7 +104,7 @@ type ImportManagerTests() =
         let token1 = ImportState.startImport ()
         Assert.That(token1.IsCancellationRequested, Is.False, "New token should not be cancelled")
 
-        ImportState.cancelImport ("Test cancellation")
+        ImportState.cancelChunkedImport ()
         Assert.That(token1.IsCancellationRequested, Is.True, "Token should be cancelled after cancellation")
 
         // Start a new import - should get a fresh token
@@ -113,17 +113,19 @@ type ImportManagerTests() =
 
     [<Test>]
     member this.``ImportState tracks status changes``() =
-        let initialStatus = ImportState.ImportStatus.Value
-        Assert.That(initialStatus, Is.EqualTo(NotStarted), "Initial status should be NotStarted")
+        // Reset to idle state before test
+        ImportState.updateChunkedState (ChunkedImportState.Idle)
+
+        let initialStatus = ImportState.CurrentChunkedStatus.Value
+        Assert.That(initialStatus.State, Is.EqualTo(ChunkedImportStateEnum.Idle), "Initial status should be Idle")
 
         ImportState.startImport () |> ignore
-        ImportState.updateStatus (Validating "test.csv")
+        ImportState.updateChunkedState (ChunkedImportState.Validating "test.csv")
 
-        let currentStatus = ImportState.ImportStatus.Value
+        let currentStatus = ImportState.CurrentChunkedStatus.Value
 
-        match currentStatus with
-        | Validating filePath -> Assert.That(filePath, Is.EqualTo("test.csv"))
-        | _ -> Assert.Fail("Status should be Validating")
+        Assert.That(currentStatus.State, Is.EqualTo(ChunkedImportStateEnum.Validating), "Status should be Validating")
+        Assert.That(currentStatus.FileName, Is.EqualTo(Some "test.csv"), "FileName should be Some(test.csv)")
 
     [<Test>]
     member this.``FileProcessor handles CSV files correctly``() =
@@ -233,12 +235,17 @@ type ImportManagerTests() =
 
     [<Test>]
     member this.``ImportManager utility functions work correctly``() =
+        // Reset to known state
+        ImportState.updateChunkedState (ChunkedImportState.Idle)
+
         // Test initial state
         Assert.That(ImportManager.isImportInProgress (), Is.False, "No import should be in progress initially")
-        Assert.That(ImportManager.getCurrentStatus (), Is.EqualTo(NotStarted), "Status should be NotStarted")
+        let status = ImportManager.getCurrentStatus ()
+        Assert.That(status.State, Is.EqualTo(ChunkedImportStateEnum.Idle), "Status should be Idle")
 
         // Start an import state (but not a full import)
         ImportState.startImport () |> ignore
+        ImportState.updateChunkedState (ChunkedImportState.ReadingFile "test.csv")
         Assert.That(ImportManager.isImportInProgress (), Is.True, "Import should be in progress")
 
         // Cancel and verify
