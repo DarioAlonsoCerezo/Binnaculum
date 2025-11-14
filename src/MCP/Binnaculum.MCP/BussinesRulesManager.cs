@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Binnaculum.MCP.Managers;
+﻿namespace Binnaculum.MCP.Managers;
 
 /// <summary>
 /// Exposes documentation for business rules, validation rules, and data transformation rules
