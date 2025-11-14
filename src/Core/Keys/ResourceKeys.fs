@@ -237,6 +237,9 @@ module ResourceKeys =
     let Import_Completed = "Import_Completed"
 
     [<Literal>]
+    let Import_CalculatingSnapshots = "Import_CalculatingSnapshots"
+
+    [<Literal>]
     let Import_CalculatingSnapshots_Generic = "Import_CalculatingSnapshots_Generic"
 
     [<Literal>]
@@ -290,3 +293,29 @@ module ResourceKeys =
 
     [<Literal>]
     let Time_Format_LessThanMinute = "Time_Format_LessThanMinute"
+
+    [<Literal>]
+    let Import_Phase_LoadingMovements = "Import_Phase_LoadingMovements"
+
+    [<Literal>]
+    let Import_Phase_CalculatingBrokerSnapshots =
+        "Import_Phase_CalculatingBrokerSnapshots"
+
+    [<Literal>]
+    let Import_Phase_CalculatingTickerSnapshots =
+        "Import_Phase_CalculatingTickerSnapshots"
+
+    [<Literal>]
+    let Import_Phase_CreatingOperations = "Import_Phase_CreatingOperations"
+
+    [<Literal>]
+    let Import_Phase_PersistingData = "Import_Phase_PersistingData"
+
+    [<Literal>]
+    let Import_Chunked_TimeRemaining = "Import_Chunked_TimeRemaining"
+
+    [<Literal>]
+    let Import_Chunked_CompletedDuration = "Import_Chunked_CompletedDuration"
+
+    [<Literal>]
+    let Import_Chunked_ChunkDateRange = "Import_Chunked_ChunkDateRange"

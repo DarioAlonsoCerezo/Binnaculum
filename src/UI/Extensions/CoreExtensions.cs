@@ -39,8 +39,7 @@ public static class CoreExtensions
         {
             if (status.RecordsProcessed != null && status.TotalRecords != null)
             {
-                return LocalizationResourceManager.Instance.GetString(
-                    ResourceKeys.Import_SavingData,
+                return ResourceKeys.Import_SavingData.ToLocalized(
                     status.RecordsProcessed.Value,
                     status.TotalRecords.Value
                 );
@@ -53,8 +52,7 @@ public static class CoreExtensions
         {
             if (status.FileName != null)
             {
-                return LocalizationResourceManager.Instance.GetString(
-                    ResourceKeys.Import_ProcessingFile,
+                return ResourceKeys.Import_ProcessingFile.ToLocalized(
                     status.FileName.Value
                 );
             }
@@ -66,8 +64,7 @@ public static class CoreExtensions
         {
             if (status.RecordsProcessed != null && status.TotalRecords != null)
             {
-                return LocalizationResourceManager.Instance.GetString(
-                    ResourceKeys.Import_ProcessingRecords,
+                return ResourceKeys.Import_ProcessingRecords.ToLocalized(
                     status.RecordsProcessed.Value,
                     status.TotalRecords.Value
                 );
@@ -80,8 +77,7 @@ public static class CoreExtensions
         {
             if (status.RecordsProcessed != null && status.TotalRecords != null && status.ProcessedDate != null)
             {
-                return LocalizationResourceManager.Instance.GetString(
-                    "Import_CalculatingSnapshots",
+                return ResourceKeys.Import_CalculatingSnapshots.ToLocalized(
                     status.RecordsProcessed.Value,
                     status.TotalRecords.Value,
                     status.ProcessedDate
@@ -192,20 +188,20 @@ public static class CoreExtensions
         return $"Import_Chunked_State_{state}".ToLocalized();
     }
 
-    //public static string ToDetailMessage(this CurrentChunkedImportStatus status)
-    //{
-    //    if (status.ChunkStartDate != null && status.ChunkEndDate != null)
-    //    {
-    //        return LocalizationResourceManager.Instance.GetString("Import_Chunked_ChunkDateRange", status.ChunkStartDate, status.ChunkEndDate);
-    //    }
+    public static string ToDetailMessage(this CurrentChunkedImportStatus status)
+    {
+        if (status.ChunkStartDate != null && status.ChunkEndDate != null)
+        {
+            return ResourceKeys.Import_Chunked_ChunkDateRange.ToLocalized(status.ChunkStartDate, status.ChunkEndDate);
+        }
 
-    //    if (status.CurrentPhase != null)
-    //    {
-    //        return status.ToLocalizedPhase();
-    //    }
+        if (status.CurrentPhase != null)
+        {
+            return status.ToLocalizedPhase();
+        }
 
-    //    return string.Empty;
-    //}
+        return string.Empty;
+    }
 
     public static string ToChunkInfo(this CurrentChunkedImportStatus status)
     {
@@ -216,32 +212,32 @@ public static class CoreExtensions
         return string.Empty;
     }
 
-    //public static string ToTimeRemainingText(this CurrentChunkedImportStatus status)
-    //{
-    //    if (!status.EstimatedTimeRemaining != null)
-    //        return string.Empty;
+    public static string ToTimeRemainingText(this CurrentChunkedImportStatus status)
+    {
+        if (status.EstimatedTimeRemaining == null)
+            return string.Empty;
 
-    //    var formatted = FormatTimeSpan(status.EstimatedTimeRemaining.Value);
-    //    return LocalizationResourceManager.Instance.GetString("Import_Chunked_TimeRemaining", formatted);
-    //}
+        var formatted = FormatTimeSpan(status.EstimatedTimeRemaining.Value);
+        return ResourceKeys.Import_Chunked_TimeRemaining.ToLocalized(formatted);
+    }
 
-    //public static string ToDurationText(this CurrentChunkedImportStatus status)
-    //{
-    //    if (!status.Duration != null)
-    //        return string.Empty;
+    public static string ToDurationText(this CurrentChunkedImportStatus status)
+    {
+        if (status.Duration == null)
+            return string.Empty;
 
-    //    var formatted = FormatTimeSpan(status.Duration.Value);
-    //    return LocalizationResourceManager.Instance.GetString("Import_Chunked_CompletedDuration", formatted);
-    //}
+        var formatted = FormatTimeSpan(status.Duration.Value);
+        return ResourceKeys.Import_Chunked_CompletedDuration.ToLocalized(formatted);
+    }
 
-    // private static string ToLocalizedPhase(this CurrentChunkedImportStatus status)
-    // {
-    //    if (status.CurrentPhase == null)
-    //        return string.Empty;
+    private static string ToLocalizedPhase(this CurrentChunkedImportStatus status)
+    {
+        if (status.CurrentPhase == null)
+            return string.Empty;
 
-    //    var key = $"Import_Phase_{status.CurrentPhase}";
-    //    return LocalizationResourceManager.Instance[key].ToString() ?? status.CurrentPhase;
-    // }
+        var key = $"Import_Phase_{status.CurrentPhase}";
+        return key.ToLocalized();
+    }
 
     private static string ToLocalizedSnapshotType(this CurrentChunkedImportStatus status)
     {
@@ -249,7 +245,7 @@ public static class CoreExtensions
             return string.Empty;
 
         var key = $"Import_SnapshotType_{status.SnapshotType.Value.Replace(" ", "")}";
-        return LocalizationResourceManager.Instance[key].ToString() ?? status.SnapshotType.Value;
+        return key.ToLocalized();
     }
 
     private static string FormatTimeSpan(TimeSpan timeSpan)
