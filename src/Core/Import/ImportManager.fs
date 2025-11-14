@@ -460,6 +460,7 @@ module ImportManager =
                                                                                   ForceRecalculation = false }
                                                                                 tickerResult.CalculatedOperations
                                                                                 tickerResult.CalculatedTickerSnapshots
+                                                                                None // No progress callback during chunk processing
 
                                                                         if not brokerResult.Success then
                                                                             CoreLogger.logWarningf
@@ -882,11 +883,31 @@ module ImportManager =
                                                             "Final ticker snapshot pass completed: %d snapshots calculated"
                                                             finalTickerResult.TickerSnapshotsSaved
 
+                                                        // Create progress callback for broker snapshot calculation
+                                                        let brokerProgressCallback processed total =
+                                                            let progress =
+                                                                if total > 0 then
+                                                                    (decimal processed / decimal total) * 100m
+                                                                else
+                                                                    0m
+
+                                                            ImportState.updateChunkedState (
+                                                                CalculatingSnapshots
+                                                                    { SnapshotType = "Final Broker Snapshots"
+                                                                      Processed = processed
+                                                                      Total = total
+                                                                      Progress = progress }
+                                                            )
+
+                                                        // Emit initial broker snapshot state
+                                                        brokerProgressCallback 0 0
+
                                                         let! finalBrokerResult =
                                                             BrokerFinancialBatchManager.processBatchedFinancialsForImport
                                                                 brokerAccount.Id
                                                                 finalTickerResult.CalculatedOperations
                                                                 finalTickerResult.CalculatedTickerSnapshots
+                                                                (Some brokerProgressCallback) // Pass the callback
 
                                                         if finalBrokerResult.Success then
                                                             CoreLogger.logInfof

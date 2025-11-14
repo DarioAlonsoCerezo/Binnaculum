@@ -52,12 +52,22 @@ module internal BrokerFinancialBatchCalculator =
         }
 
     /// <summary>
+    /// Progress callback for reporting broker snapshot calculation progress to UI.
+    /// Parameters: (processed: int, total: int) -> unit
+    /// </summary>
+    type SnapshotProgressCallback = int -> int -> unit
+
+    /// <summary>
     /// Calculate all financial snapshots for date range in memory.
     /// This is where the magic happens - all calculations without database I/O.
     /// </summary>
     /// <param name="context">The batch calculation context</param>
+    /// <param name="progressCallback">Optional callback for reporting progress to UI</param>
     /// <returns>BatchCalculationResult with all calculated snapshots</returns>
-    let calculateBatchedFinancials (context: BatchCalculationContext) : BatchCalculationResult =
+    let calculateBatchedFinancials
+        (context: BatchCalculationContext)
+        (progressCallback: SnapshotProgressCallback option)
+        : BatchCalculationResult =
         let stopwatch = Stopwatch.StartNew()
         let mutable calculatedSnapshots = []
         let mutable errors = []
@@ -75,8 +85,17 @@ module internal BrokerFinancialBatchCalculator =
             let mutable latestSnapshotsByCurrency = context.BaselineSnapshots
 
             // Process each date in chronological order
-            for date in context.DateRange do
+            for dateIndex, date in context.DateRange |> List.indexed do
                 try
+                    // Emit progress callback if provided
+                    match progressCallback with
+                    | Some callback ->
+                        let processedSnapshots = snapshotsCreated
+                        // Estimate total: dates × avg 8 currencies per date
+                        let estimatedTotal = context.DateRange.Length * 8
+                        callback processedSnapshots estimatedTotal
+                    | None -> ()
+
                     // CoreLogger.logDebugf "BrokerFinancialBatchCalculator" "Processing date %s" (date.ToString())
 
                     // Get movements for this date

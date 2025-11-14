@@ -1207,6 +1207,9 @@ Una opción PUT te da el **derecho a vender** el activo subyacente a un precio e
     <comment>Formato de tiempo: duración muy corta</comment>
   </data>
   <data name="Import_SnapshotType_FinalTickerSnapshots" xml:space="preserve">
-    <value>Estado final del Ticker</value>
+    <value>estado de ticker</value>
+  </data>
+  <data name="Import_SnapshotType_FinalBrokerSnapshots" xml:space="preserve">
+    <value>estado de broker</value>
   </data>
 </root>

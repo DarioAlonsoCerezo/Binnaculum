@@ -40,12 +40,14 @@ module internal BrokerFinancialBatchManager =
     /// <param name="request">The batch processing request</param>
     /// <param name="calculatedOperations">List of AutoImportOperations for realized gains calculation</param>
     /// <param name="calculatedTickerSnapshots">List of TickerCurrencySnapshots for performance aggregation</param>
+    /// <param name="progressCallback">Optional callback for reporting progress to UI</param>
     /// <returns>Task containing BatchProcessingResult with all metrics</returns>
     let processBatchedFinancials
         (request: BatchProcessingRequest)
         (calculatedOperations: (DateTimePattern * Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) list)
         (calculatedTickerSnapshots:
             (DateTimePattern * Binnaculum.Core.Database.SnapshotsModel.TickerCurrencySnapshot) list)
+        (progressCallback: BrokerFinancialBatchCalculator.SnapshotProgressCallback option)
         : System.Threading.Tasks.Task<BatchProcessingResult> =
         task {
             let totalStopwatch = Stopwatch.StartNew()
@@ -173,9 +175,9 @@ module internal BrokerFinancialBatchManager =
                       BrokerAccountSnapshotId = 0 // Will be set appropriately for each snapshot
                     }
 
-                // Calculate all snapshots in memory
+                // Calculate all snapshots in memory (with optional progress callback)
                 let calculationResult =
-                    BrokerFinancialBatchCalculator.calculateBatchedFinancials context
+                    BrokerFinancialBatchCalculator.calculateBatchedFinancials context progressCallback
 
                 errors <- errors @ calculationResult.Errors
 
@@ -276,12 +278,14 @@ module internal BrokerFinancialBatchManager =
     /// <param name="brokerAccountId">The broker account ID</param>
     /// <param name="calculatedOperations">List of (Date, AutoImportOperation) tuples from ticker snapshot processing</param>
     /// <param name="calculatedTickerSnapshots">List of (Date, TickerCurrencySnapshot) tuples for performance aggregation</param>
+    /// <param name="progressCallback">Optional callback for reporting progress to UI</param>
     /// <returns>Task containing BatchProcessingResult</returns>
     let processBatchedFinancialsForImport
         (brokerAccountId: int)
         (calculatedOperations: (DateTimePattern * Binnaculum.Core.Database.DatabaseModel.AutoImportOperation) list)
         (calculatedTickerSnapshots:
             (DateTimePattern * Binnaculum.Core.Database.SnapshotsModel.TickerCurrencySnapshot) list)
+        (progressCallback: BrokerFinancialBatchCalculator.SnapshotProgressCallback option)
         =
         task {
             try
@@ -331,7 +335,8 @@ module internal BrokerFinancialBatchManager =
                       ForceRecalculation = true // Always recalculate on import
                     }
 
-                let! result = processBatchedFinancials request calculatedOperations calculatedTickerSnapshots
+                let! result =
+                    processBatchedFinancials request calculatedOperations calculatedTickerSnapshots progressCallback
 
                 // After batch processing, create BrokerAccountSnapshot for each unique date that has movements
                 // This ensures BrokerAccounts.GetSnapshots() returns all snapshots (one per movement date)

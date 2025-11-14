@@ -78,7 +78,7 @@ module internal SnapshotProcessingCoordinator =
                           BrokerFinancialBatchManager.BatchProcessingRequest.ForceRecalculation = false }
 
                     // Execute batch processing (no operations or ticker snapshots needed in non-import context)
-                    let! batchResult = BrokerFinancialBatchManager.processBatchedFinancials batchRequest [] []
+                    let! batchResult = BrokerFinancialBatchManager.processBatchedFinancials batchRequest [] [] None
 
                     if batchResult.Success then
                         // CoreLogger.logInfof

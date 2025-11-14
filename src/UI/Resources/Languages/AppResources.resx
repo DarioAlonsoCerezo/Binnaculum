@@ -1206,6 +1206,9 @@ A PUT option gives you the **right to sell** the underlying asset at a specific 
     <comment>Time format: very short duration</comment>
   </data>
   <data name="Import_SnapshotType_FinalTickerSnapshots" xml:space="preserve">
-    <value>Final Ticker snapshot</value>
+    <value>ticker snapshot</value>
+  </data>
+  <data name="Import_SnapshotType_FinalBrokerSnapshots" xml:space="preserve">
+    <value>broker snapshot</value>
   </data>
 </root>
