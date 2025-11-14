@@ -1,6 +1,4 @@
-﻿using Microsoft.Maui.Animations;
-
-namespace Binnaculum.Controls;
+﻿namespace Binnaculum.Controls;
 
 public class RadioButtonDrawable : IDrawable
 {

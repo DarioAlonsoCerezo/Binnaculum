@@ -1,5 +1,4 @@
 using Binnaculum.Core;
-using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Controls;
 

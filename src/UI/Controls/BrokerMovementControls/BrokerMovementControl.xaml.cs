@@ -1,7 +1,6 @@
 using Binnaculum.Core;
 using Binnaculum.Core.UI;
 using Binnaculum.Popups;
-using System.Xml.Schema;
 
 namespace Binnaculum.Controls;
 

@@ -1,6 +1,4 @@
-﻿using Microsoft.Maui.Graphics;
-
-namespace Binnaculum.Controls;
+﻿namespace Binnaculum.Controls;
 
 public class SwitchDrawable : IDrawable
 {

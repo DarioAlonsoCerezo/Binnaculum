@@ -1,6 +1,4 @@
 using Binnaculum.Core;
-using Binnaculum.Core.Logging;
-using static Binnaculum.Core.Models;
 
 namespace Binnaculum.Controls;
 

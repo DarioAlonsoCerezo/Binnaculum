@@ -1,5 +1,4 @@
 using Binnaculum.Popups;
-using CommunityToolkit.Maui.Views;
 
 namespace Binnaculum.Controls;
 

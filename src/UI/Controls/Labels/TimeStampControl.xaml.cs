@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace Binnaculum.Controls;
 
 public partial class TimeStampControl
