@@ -33,7 +33,7 @@ public partial class BrokerMovementCreatorPage
         FromFileRadioButton.IsEnabled = isSupportedBroker;
 
         ImportState
-            .CurrentStatus
+            .CurrentChunkedStatus
             .ObserveOn(UiThread)
             .Do(status =>
             {
@@ -41,7 +41,6 @@ public partial class BrokerMovementCreatorPage
                 ImportProgress.IsRunning = status.ToShowProgress();                
                 SelectFileButton.IsEnabled = status.ToEnableButton();
                 ImportResults.IsVisible = status.ToShowResults();
-                ImportStatusLabel.IsVisible = status.ToShowStatus();
                 ImportDetailsLabel.Text = status.ToMessage();
             })
             .Subscribe()

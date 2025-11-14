@@ -261,6 +261,8 @@ module ImportManager =
                                                     let mutable totalMovementsImported = 0
                                                     let mutable allErrors = []
                                                     let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+                                                    let importStartTime = DateTime.Now
+                                                    ImportState.startChunkedImport ()
 
                                                     for chunk in chunks do
                                                         cancellationToken.ThrowIfCancellationRequested()
@@ -275,6 +277,18 @@ module ImportManager =
                                                             (chunk.StartDate.ToString("yyyy-MM-dd"))
                                                             (chunk.EndDate.ToString("yyyy-MM-dd"))
                                                             chunk.EstimatedMovements
+
+                                                        // Emit chunk progress state
+                                                        ImportState.updateChunkedState (
+                                                            ProcessingChunk
+                                                                { ChunkNumber = chunk.ChunkNumber
+                                                                  TotalChunks = chunks.Length
+                                                                  StartDate = chunk.StartDate
+                                                                  EndDate = chunk.EndDate
+                                                                  EstimatedMovements = chunk.EstimatedMovements
+                                                                  CurrentPhase = LoadingMovements
+                                                                  Progress = 0m }
+                                                        )
 
                                                         try
                                                             // Parse CSV files to get IBKR statement data
@@ -470,6 +484,8 @@ module ImportManager =
                                                             GC.Collect()
 
                                                         with ex ->
+                                                            ImportState.failChunkedImport (ex.Message)
+
                                                             CoreLogger.logErrorf
                                                                 "ImportManager"
                                                                 "Error processing chunk %d: %s"
@@ -489,6 +505,18 @@ module ImportManager =
                                                         chunks.Length
                                                         totalMovementsImported
                                                         stopwatch.ElapsedMilliseconds
+
+                                                    // Complete chunked import state
+                                                    ImportState.completeChunkedImport (
+                                                        { TotalMovements = totalMovementsImported
+                                                          TotalChunks = chunks.Length
+                                                          BrokerSnapshots = 0
+                                                          TickerSnapshots = 0
+                                                          Operations = 0
+                                                          Duration = stopwatch.Elapsed
+                                                          StartTime = importStartTime
+                                                          EndTime = DateTime.Now }
+                                                    )
 
                                                     // Refresh reactive managers after ALL chunks complete
                                                     do! ReactiveTickerManager.refreshAsync ()
@@ -532,7 +560,8 @@ module ImportManager =
 
                                                         for csvFile in pf.CsvFiles do
                                                             let parsingResult =
-                                                                TastytradeStatementParser.parseTransactionHistoryFromFile csvFile
+                                                                TastytradeStatementParser.parseTransactionHistoryFromFile
+                                                                    csvFile
 
                                                             if parsingResult.Errors.IsEmpty then
                                                                 allTransactions <-
@@ -552,7 +581,9 @@ module ImportManager =
                                                                     CsvDateAnalyzer.calculateFileHash (pf.CsvFiles.[0]) }
                                                         else
                                                             let dates =
-                                                                allTransactions |> List.map (fun t -> t.Date) |> List.sort
+                                                                allTransactions
+                                                                |> List.map (fun t -> t.Date)
+                                                                |> List.sort
 
                                                             let minDate = dates |> List.head
                                                             let maxDate = dates |> List.last
@@ -560,8 +591,7 @@ module ImportManager =
                                                             // Group by date for movement counts
                                                             let movementsByDate =
                                                                 allTransactions
-                                                                |> List.groupBy (fun t ->
-                                                                    DateOnly.FromDateTime(t.Date))
+                                                                |> List.groupBy (fun t -> DateOnly.FromDateTime(t.Date))
                                                                 |> List.map (fun (date, transactions) ->
                                                                     (date, transactions.Length))
                                                                 |> Map.ofList
@@ -625,10 +655,12 @@ module ImportManager =
 
                                                     for csvFile in pf.CsvFiles do
                                                         let parsingResult =
-                                                            TastytradeStatementParser.parseTransactionHistoryFromFile csvFile
+                                                            TastytradeStatementParser.parseTransactionHistoryFromFile
+                                                                csvFile
 
                                                         if parsingResult.Errors.IsEmpty then
-                                                            allTransactions <- allTransactions @ parsingResult.Transactions
+                                                            allTransactions <-
+                                                                allTransactions @ parsingResult.Transactions
                                                         else
                                                             CoreLogger.logWarningf
                                                                 "ImportManager"
@@ -654,6 +686,8 @@ module ImportManager =
                                                     let mutable totalMovementsImported = 0
                                                     let mutable allErrors = []
                                                     let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+                                                    let importStartTime = DateTime.Now
+                                                    ImportState.startChunkedImport ()
 
                                                     for chunk in chunks do
                                                         cancellationToken.ThrowIfCancellationRequested()
@@ -668,6 +702,18 @@ module ImportManager =
                                                             (chunk.StartDate.ToString("yyyy-MM-dd"))
                                                             (chunk.EndDate.ToString("yyyy-MM-dd"))
                                                             chunk.EstimatedMovements
+
+                                                        // Emit chunk progress state
+                                                        ImportState.updateChunkedState (
+                                                            ProcessingChunk
+                                                                { ChunkNumber = chunk.ChunkNumber
+                                                                  TotalChunks = chunks.Length
+                                                                  StartDate = chunk.StartDate
+                                                                  EndDate = chunk.EndDate
+                                                                  EstimatedMovements = chunk.EstimatedMovements
+                                                                  CurrentPhase = LoadingMovements
+                                                                  Progress = 0m }
+                                                        )
 
                                                         try
                                                             // Filter domain models by chunk date range
@@ -735,6 +781,8 @@ module ImportManager =
                                                             GC.Collect()
 
                                                         with ex ->
+                                                            ImportState.failChunkedImport (ex.Message)
+
                                                             CoreLogger.logErrorf
                                                                 "ImportManager"
                                                                 "Error processing Tastytrade chunk %d: %s"
@@ -756,6 +804,15 @@ module ImportManager =
                                                         stopwatch.ElapsedMilliseconds
 
                                                     // PHASE 7: Final snapshot pass to ensure coverage up to today
+                                                    // Emit final snapshot calculation state
+                                                    ImportState.updateChunkedState (
+                                                        CalculatingSnapshots
+                                                            { SnapshotType = "Final Ticker Snapshots"
+                                                              Processed = 0
+                                                              Total = totalMovementsImported
+                                                              Progress = 0m }
+                                                    )
+
                                                     // Build ImportMetadata for final snapshot calculation
                                                     let importMetadata =
                                                         { OldestMovementDate = Some analysis.MinDate
@@ -795,6 +852,18 @@ module ImportManager =
                                                     do! ReactiveTickerManager.refreshAsync ()
                                                     do! ReactiveSnapshotManager.refreshAsync ()
                                                     do! TickerSnapshotLoader.load ()
+
+                                                    // Complete chunked import state
+                                                    ImportState.completeChunkedImport (
+                                                        { TotalMovements = totalMovementsImported
+                                                          TotalChunks = chunks.Length
+                                                          BrokerSnapshots = 0
+                                                          TickerSnapshots = finalTickerResult.TickerSnapshotsSaved
+                                                          Operations = 0
+                                                          Duration = stopwatch.Elapsed
+                                                          StartTime = importStartTime
+                                                          EndTime = DateTime.Now }
+                                                    )
 
                                                     // Return result
                                                     return

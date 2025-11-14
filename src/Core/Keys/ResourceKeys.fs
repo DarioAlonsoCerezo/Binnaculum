@@ -3,85 +3,94 @@
 module ResourceKeys =
     [<Literal>]
     let AccountCreator_Select_Broker = "AccountCreator_Select_Broker"
-    
+
     [<Literal>]
-    let AccountCreator_Creating_Account_For_Broker = "AccountCreator_Creating_Account_For_Broker"
-    
+    let AccountCreator_Creating_Account_For_Broker =
+        "AccountCreator_Creating_Account_For_Broker"
+
     [<Literal>]
     let AccountCreator_Change_Selection = "AccountCreator_Change_Selection"
-    
+
     [<Literal>]
     let AccountCreator_Select_Bank = "AccountCreator_Select_Bank"
-    
+
     [<Literal>]
-    let AccountCreator_Creating_Account_For_Bank = "AccountCreator_Creating_Account_For_Bank"
-    
+    let AccountCreator_Creating_Account_For_Bank =
+        "AccountCreator_Creating_Account_For_Bank"
+
     [<Literal>]
     let FilePicker_Select_Image = "FilePicker_Select_Image"
-    
+
     [<Literal>]
     let ItemSelector_Select_Option = "ItemSelector_Select_Option"
-    
+
     [<Literal>]
     let ItemSelector_Change_Selection = "ItemSelector_Change_Selection"
-    
+
     [<Literal>]
     let MovementType_Deposit = "MovementType_Deposit"
-    
+
     [<Literal>]
     let MovementType_Withdrawal = "MovementType_Withdrawal"
-    
+
     [<Literal>]
     let MovementType_Fee = "MovementType_Fee"
-    
+
     [<Literal>]
     let MovementType_InterestsGained = "MovementType_InterestsGained"
-    
+
     [<Literal>]
     let MovementType_Lending = "MovementType_Lending"
 
     [<Literal>]
     let MovementType_ACATTransfer = "MovementType_ACATTransfer"
-    
+
     [<Literal>]
     let MovementType_ACATMoneyTransferSent = "MovementType_ACATMoneyTransferSent"
 
     [<Literal>]
-    let MovementType_ACATMoneyTransferSent_Subtitle = "MovementType_ACATMoneyTransferSent_Subtitle"
-    
-    [<Literal>]
-    let MovementType_ACATMoneyTransferReceived = "MovementType_ACATMoneyTransferReceived"
+    let MovementType_ACATMoneyTransferSent_Subtitle =
+        "MovementType_ACATMoneyTransferSent_Subtitle"
 
     [<Literal>]
-    let MovementType_ACATMoneyTransferReceived_Subtitle = "MovementType_ACATMoneyTransferReceived_Subtitle"
-    
-    [<Literal>]
-    let MovementType_ACATSecuritiesTransferSent = "MovementType_ACATSecuritiesTransferSent"
+    let MovementType_ACATMoneyTransferReceived =
+        "MovementType_ACATMoneyTransferReceived"
 
     [<Literal>]
-    let MovementType_ACATSecuritiesTransferSent_Subtitle = "MovementType_ACATSecuritiesTransferSent_Subtitle"
-    
-    [<Literal>]
-    let MovementType_ACATSecuritiesTransferReceived = "MovementType_ACATSecuritiesTransferReceived"
+    let MovementType_ACATMoneyTransferReceived_Subtitle =
+        "MovementType_ACATMoneyTransferReceived_Subtitle"
 
     [<Literal>]
-    let MovementType_ACATSecuritiesTransferReceived_Subtitle = "MovementType_ACATSecuritiesTransferReceived_Subtitle"
-    
+    let MovementType_ACATSecuritiesTransferSent =
+        "MovementType_ACATSecuritiesTransferSent"
+
+    [<Literal>]
+    let MovementType_ACATSecuritiesTransferSent_Subtitle =
+        "MovementType_ACATSecuritiesTransferSent_Subtitle"
+
+    [<Literal>]
+    let MovementType_ACATSecuritiesTransferReceived =
+        "MovementType_ACATSecuritiesTransferReceived"
+
+    [<Literal>]
+    let MovementType_ACATSecuritiesTransferReceived_Subtitle =
+        "MovementType_ACATSecuritiesTransferReceived_Subtitle"
+
     [<Literal>]
     let MovementType_InterestsPaid = "MovementType_InterestsPaid"
-    
+
     [<Literal>]
     let MovementType_Conversion = "MovementType_Conversion"
-    
+
     [<Literal>]
     let MovementType_DividendReceived = "MovementType_DividendReceived"
-    
+
     [<Literal>]
     let MovementType_DividendTaxWithheld = "MovementType_DividendTaxWithheld"
-    
+
     [<Literal>]
     let MovementType_DividendExDate = "MovementType_DividendExDate"
-    
+
     [<Literal>]
     let MovementType_DividendPayDate = "MovementType_DividendPayDate"
 
@@ -157,27 +166,29 @@ module ResourceKeys =
 
     [<Literal>]
     let OptionCode_BTC_Extended = "OptionCode_BTC_Extended"
-    
+
     [<Literal>]
     let OptionCode_BTO_Extended = "OptionCode_BTO_Extended"
-    
+
     [<Literal>]
     let OptionCode_STC_Extended = "OptionCode_STC_Extended"
-    
+
     [<Literal>]
     let OptionCode_STO_Extended = "OptionCode_STO_Extended"
-    
+
     [<Literal>]
     let OptionCode_Assigned_Extended = "OptionCode_Assigned_Extended"
-    
+
     [<Literal>]
     let OptionCode_Expired_Extended = "OptionCode_Expired_Extended"
 
     [<Literal>]
-    let OptionCode_CashSettledAssigned_Extended = "OptionCode_CashSettledAssigned_Extended"
+    let OptionCode_CashSettledAssigned_Extended =
+        "OptionCode_CashSettledAssigned_Extended"
 
     [<Literal>]
-    let OptionCode_CashSettledExercised_Extended = "OptionCode_CashSettledExercised_Extended"
+    let OptionCode_CashSettledExercised_Extended =
+        "OptionCode_CashSettledExercised_Extended"
 
     [<Literal>]
     let OptionCode_Exercised_Extended = "OptionCode_Exercised_Extended"
@@ -224,3 +235,6 @@ module ResourceKeys =
 
     [<Literal>]
     let Import_Completed = "Import_Completed"
+
+    [<Literal>]
+    let Import_Chunked_ReadingFile = "Import_Chunked_ReadingFile"
