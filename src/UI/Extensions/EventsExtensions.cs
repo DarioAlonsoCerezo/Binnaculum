@@ -1,5 +1,4 @@
 ﻿using Binnaculum.Controls;
-using System.Runtime.CompilerServices;
 
 namespace Binnaculum.Extensions;
 
