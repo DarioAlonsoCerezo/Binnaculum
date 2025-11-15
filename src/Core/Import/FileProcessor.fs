@@ -40,10 +40,11 @@ module FileProcessor =
                 ZipFile.ExtractToDirectory(filePath, tempDir)
             with
             | ex -> 
+                CoreLogger.logError "FileProcessor" $"Failed to extract ZIP file: {filePath}"
                 // Clean up temp directory on extraction failure
                 if Directory.Exists(tempDir) then
                     Directory.Delete(tempDir, true)
-                failwith $"Failed to extract ZIP file {filePath}: {ex.Message}"
+                raise ex
             
             let csvFiles = 
                 Directory.GetFiles(tempDir, "*.csv", SearchOption.AllDirectories)
