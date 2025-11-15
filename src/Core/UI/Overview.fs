@@ -52,15 +52,10 @@ module Overview =
             // CoreLogger.logDebug "Overview.LoadData" "LoadData completed successfully"
         }
 
-    let LoadMovements () =
-        // Use reactive movement manager instead of manual DataLoader
-        ReactiveMovementManager.refresh ()
-        System.Threading.Tasks.Task.CompletedTask
-
-    let RefreshSnapshots () =
-        // Use reactive snapshot manager instead of manual DataLoader
-        ReactiveSnapshotManager.refresh ()
-        System.Threading.Tasks.Task.CompletedTask
+    let InitCore () = task {
+        do! InitDatabase() |> Async.AwaitTask |> Async.Ignore
+        do! LoadData() |> Async.AwaitTask |> Async.Ignore
+    }
 
     /// <summary>
     /// 🚨🚨🚨 WARNING: TEST-ONLY METHOD - NEVER USE IN PRODUCTION CODE! 🚨🚨🚨

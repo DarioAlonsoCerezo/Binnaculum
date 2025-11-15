@@ -6,4 +6,14 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
     }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        Core.UI.Overview.Data.Where(x => !x.IsDatabaseInitialized)
+            .Take(1)
+            .CatchCoreError(Core.UI.Overview.InitCore)
+            .Subscribe();
+    }
 }

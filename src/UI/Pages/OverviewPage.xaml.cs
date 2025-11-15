@@ -71,14 +71,6 @@ public partial class OverviewPage
 
         var data = Core.UI.Overview.Data;
 
-        //Here we initialize the database
-        data.Where(x => !x.IsDatabaseInitialized)
-            .Subscribe(_ => InitDatabase()).DisposeWith(Disposables);
-
-        //Here we load the data from the database
-        data.Where(x => !x.TransactionsLoaded && x.IsDatabaseInitialized)
-            .Subscribe(_ => LoadData()).DisposeWith(Disposables);
-
         data.Where(x => x.IsDatabaseInitialized)
             .Throttle(TimeSpan.FromMilliseconds(300), UiThread)
             .Subscribe(x => CarouselIndicator.IsVisible = false)
@@ -251,59 +243,5 @@ public partial class OverviewPage
 
             return false;
         };
-    }
-
-    private void InitDatabase()
-    {
-        Task.Run(async () =>
-        {
-            try
-            {
-                await Core.UI.Overview.InitDatabase();
-            }
-            catch (AggregateException agEx)
-            {
-                // F# async exceptions are often wrapped in AggregateException
-                var innerException = agEx.InnerException ?? agEx;
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await DisplayAlertAsync("Error", innerException.Message, "Ok");
-                });
-            }
-            catch (Exception ex)
-            {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await DisplayAlertAsync("Error", ex.Message, "Ok");
-                });
-            }
-        });
-    }
-
-    private void LoadData()
-    {
-        Task.Run(async () =>
-        {
-            try
-            {
-                await Core.UI.Overview.LoadData();
-            }
-            catch (AggregateException agEx)
-            {
-                // F# async exceptions are often wrapped in AggregateException
-                var innerException = agEx.InnerException ?? agEx;
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await DisplayAlertAsync("Error", innerException.Message, "Ok");
-                });
-            }
-            catch (Exception ex)
-            {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await DisplayAlertAsync("Error", ex.Message, "Ok");
-                });
-            }
-        });
     }
 }
