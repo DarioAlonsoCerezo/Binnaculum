@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!--  Font Family Resources  -->
+    <x:String x:Key="Regular">OpenSansRegular</x:String>
+    <x:String x:Key="Bold">OpenSansBold</x:String>
+    <x:String x:Key="Semibold">OpenSansSemibold</x:String>
+    <x:String x:Key="Light">OpenSansLight</x:String>
+
+</ResourceDictionary>
