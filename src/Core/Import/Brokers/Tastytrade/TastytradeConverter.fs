@@ -42,28 +42,12 @@ module internal TastytradeConverter =
 
     /// <summary>
     /// Get or create ticker ID for a given symbol
+    /// Delegates to TickerExtensions.Do.getBySymbol which handles icon download on creation
     /// </summary>
     let private getOrCreateTickerId (symbol: string) =
         task {
-            let! tickers = TickerExtensions.Do.getAll () |> Async.AwaitTask
-            let existingTicker = tickers |> List.tryFind (fun t -> t.Symbol = symbol)
-
-            match existingTicker with
-            | Some ticker -> return ticker.Id
-            | None ->
-                // Create new ticker
-                let newTicker =
-                    { Id = 0
-                      Symbol = symbol
-                      Image = None
-                      Name = Some symbol
-                      Audit = AuditableEntity.FromDateTime(DateTime.UtcNow) }
-
-                do! TickerExtensions.Do.save (newTicker) |> Async.AwaitTask
-                let! allTickers = TickerExtensions.Do.getAll () |> Async.AwaitTask
-                let createdTicker = allTickers |> List.find (fun t -> t.Symbol = symbol)
-
-                return createdTicker.Id
+            let! ticker = TickerExtensions.Do.getBySymbol (symbol)
+            return ticker.Id
         }
 
     /// <summary>

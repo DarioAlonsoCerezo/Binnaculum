@@ -61,6 +61,7 @@
 		<Compile Include="Providers\ConnectionProvider.fs" />
 		<Compile Include="Providers\PreferencesProvider.fs" />
 		<Compile Include="Providers\AppDataDirectoryProvider.fs" />
+		<Compile Include="Providers\TickerIconProvider.fs" />
 		<Compile Include="Database\Database.fs" />
 		<Compile Include="Database\OptionExtensions.fs" />
 		<Compile Include="Database\DatabaseModel.fs" />
