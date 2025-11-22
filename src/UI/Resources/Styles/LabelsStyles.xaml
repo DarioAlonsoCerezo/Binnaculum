@@ -9,7 +9,7 @@
         TargetType="Label">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
         <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
@@ -36,91 +36,91 @@
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="32" />
-        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="FontFamily" Value="{StaticResource Bold}" />
     </Style>
     <Style
         x:Key="SubHeadline"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="24" />
-        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="FontFamily" Value="{StaticResource Bold}" />
     </Style>
     <Style
         x:Key="HeadlineSmall"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="24" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
     <Style
         x:Key="TitleLarge"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="20" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
     <Style
         x:Key="TitleMedium"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="18" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
     <Style
         x:Key="TitleSmall"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="16" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
     <Style
         x:Key="BodyLarge"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="16" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
     <Style
         x:Key="BodyMedium"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
     <Style
         x:Key="BodySmall"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
     <Style
         x:Key="LabelLarge"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
     <Style
         x:Key="LabelMedium"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
     <Style
         x:Key="LabelMediumSemibold"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontFamily" Value="{StaticResource Semibold}" />
     </Style>
     <Style
         x:Key="LabelSmall"
         TargetType="Label"
         BasedOn="{StaticResource BaseStyle}">
         <Setter Property="FontSize" Value="11" />
-        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="FontFamily" Value="{StaticResource Regular}" />
     </Style>
 
     <Style
@@ -136,7 +136,7 @@
         TargetType="Label">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
         <Setter Property="Padding" Value="32,0,0,0" />
-        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontFamily" Value="{StaticResource Semibold}" />
         <Setter Property="VerticalOptions" Value="Center" />
     </Style>
 
@@ -144,7 +144,7 @@
         x:Key="LabelSettingsTitle"
         TargetType="Label"
         BasedOn="{StaticResource LabelSettingsGroup}">
-        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="FontFamily" Value="{StaticResource Bold}" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="VerticalOptions" Value="End" />
     </Style>
@@ -159,14 +159,14 @@
     <Style
         x:Key="SelectableItem"
         TargetType="Label">
-        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="FontFamily" Value="{StaticResource Bold}" />
         <Setter Property="VerticalOptions" Value="Center" />
     </Style>
 
     <Style
         x:Key="IconText"
         TargetType="Label">
-        <Setter Property="FontFamily" Value="OpenSansBold" />
+        <Setter Property="FontFamily" Value="{StaticResource Bold}" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
         <Setter Property="VerticalTextAlignment" Value="Center" />
         <Setter Property="HorizontalTextAlignment" Value="Center" />
