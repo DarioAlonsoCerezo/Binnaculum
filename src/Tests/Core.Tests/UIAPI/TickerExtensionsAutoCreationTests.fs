@@ -49,8 +49,9 @@ type TickerExtensionsAutoCreationTests() =
         let getTickerTask () = Do.getBySymbol("EXAMPLE")
         let result = getTickerTask()
         
-        // The result should be exactly Task<Ticker>
-        Assert.That(result.GetType(), Is.EqualTo(taskType))
+        // The result should be assignable to Task<Ticker>
+        // Note: F# task expressions return AsyncStateMachineBox which implements Task<T>
+        Assert.That(result, Is.InstanceOf<Task<Ticker>>())
 
     [<Test>]
     member this.``No option unwrapping needed in new implementation``() =
