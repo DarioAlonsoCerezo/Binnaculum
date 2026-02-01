@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-		<MauiVersion>10.0.20</MauiVersion>
+		<MauiVersion>10.0.30</MauiVersion>
 		<ReactiveUiVersion>22.3.1</ReactiveUiVersion>
 	</PropertyGroup>
 	<!-- MAUI -->
@@ -19,11 +19,11 @@
 	<!-- FSharp -->
 	<ItemGroup>
 		<PackageVersion Include="FSharp.Data" Version="6.3.0" />
-		<PackageVersion Include="FSharp.Core" Version="10.0.101" />
+		<PackageVersion Include="FSharp.Core" Version="10.0.102" />
 	</ItemGroup>
 	<!-- SQLite -->
 	<ItemGroup>
-		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.1" />
+		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.2" />
 		<PackageVersion Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
 	</ItemGroup>
 	<!-- ReactiveUI -->
@@ -36,23 +36,23 @@
 	<!-- Microsoft extensions -->
 	<ItemGroup>
 		<PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.8" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.8" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.1" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.2" />
 	</ItemGroup>
 	<!-- Testing -->
 	<ItemGroup>
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
 		<PackageVersion Include="NUnit" Version="4.4.0" />
 		<PackageVersion Include="NUnit.Analyzers" Version="4.11.2" />
-		<PackageVersion Include="NUnit3TestAdapter" Version="6.0.0" />
+		<PackageVersion Include="NUnit3TestAdapter" Version="6.1.0" />
 		<PackageVersion Include="coverlet.collector" Version="6.0.4" />
 		<!-- XUnit for Device Tests -->
 		<PackageVersion Include="xunit" Version="2.9.3" />
 		<PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
 		<!-- Appium for E2E Testing -->
 		<PackageVersion Include="Appium.WebDriver" Version="8.0.1" />
-		<PackageVersion Include="Selenium.WebDriver" Version="4.39.0" />
+		<PackageVersion Include="Selenium.WebDriver" Version="4.40.0" />
 		<!-- Performance Testing -->
 		<PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
 		<!-- MAUI TestUtils - Note: Currently commented out in projects as it may not be available -->
@@ -60,15 +60,15 @@
 	</ItemGroup>
 	<!-- Others-->
 	<ItemGroup>
-		<PackageVersion Include="CommunityToolkit.Maui" Version="13.0.0" />
-		<PackageVersion Include="Plugin.Maui.Calendar" Version="2.0.12" />
-		<PackageVersion Include="Indiko.Maui.Controls.Markdown" Version="1.3.16" />
+		<PackageVersion Include="CommunityToolkit.Maui" Version="14.0.0" />
+		<PackageVersion Include="Plugin.Maui.Calendar" Version="3.0.1" />
+		<PackageVersion Include="Indiko.Maui.Controls.Markdown" Version="1.5.0" />
 		<PackageVersion Include="Sentry.Maui" Version="6.0.0" />
 		<!-- Command Line Interface -->
 		<PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
 		
 		<!-- Model Context Protocol -->
-		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
+		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
 		<PackageVersion Include="ModelContextProtocol" Version="0.4.0-preview.1" />
 	</ItemGroup>
 </Project>
