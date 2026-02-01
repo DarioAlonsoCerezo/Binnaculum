@@ -134,6 +134,6 @@ public partial class TickerSelectorPopup
         var imagePath = string.IsNullOrWhiteSpace(TickerIcon.ImagePath)
             ? FSharpOption<string>.None
             : FSharpOption<string>.Some(TickerIcon.ImagePath);
-        return new Models.Ticker(0, symbol, imagePath, name);
+        return new Models.Ticker(0, symbol, imagePath, name, true, 100);
     }
 }
