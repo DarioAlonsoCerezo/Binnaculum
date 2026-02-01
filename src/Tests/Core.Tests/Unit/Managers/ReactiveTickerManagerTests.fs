@@ -14,9 +14,9 @@ type ReactiveTickerManagerTests() =
     member this.Setup() =
         // Set up test data using Edit instead of EditDiff
         let testTickers = [
-            { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple Inc." }
-            { Id = 2; Symbol = "MSFT"; Image = None; Name = Some "Microsoft Corporation" }
-            { Id = 3; Symbol = "GOOGL"; Image = None; Name = Some "Alphabet Inc." }
+            { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple Inc."; OptionsEnabled = true; OptionContractMultiplier = 100 }
+            { Id = 2; Symbol = "MSFT"; Image = None; Name = Some "Microsoft Corporation"; OptionsEnabled = true; OptionContractMultiplier = 100 }
+            { Id = 3; Symbol = "GOOGL"; Image = None; Name = Some "Alphabet Inc."; OptionsEnabled = true; OptionContractMultiplier = 100 }
         ]
         
         Collections.Tickers.Edit(fun list ->
@@ -123,7 +123,7 @@ type ReactiveTickerManagerTests() =
         // Add more tickers to make the difference noticeable
         let additionalTickers = [
             for i in 4..100 do
-                yield { Id = i; Symbol = sprintf "TICK%d" i; Image = None; Name = Some (sprintf "Ticker %d" i) }
+                yield { Id = i; Symbol = sprintf "TICK%d" i; Image = None; Name = Some (sprintf "Ticker %d" i); OptionsEnabled = true; OptionContractMultiplier = 100 }
         ]
         
         Collections.Tickers.Edit(fun list ->
@@ -158,7 +158,7 @@ type ReactiveTickerManagerTests() =
         // Add a moderate number of tickers for performance testing
         let additionalTickers = [
             for i in 4..50 do
-                yield { Id = i; Symbol = sprintf "TEST%d" i; Image = None; Name = Some (sprintf "Test Ticker %d" i) }
+                yield { Id = i; Symbol = sprintf "TEST%d" i; Image = None; Name = Some (sprintf "Test Ticker %d" i); OptionsEnabled = true; OptionContractMultiplier = 100 }
         ]
         
         Collections.Tickers.Edit(fun list ->
@@ -212,7 +212,7 @@ type ReactiveTickerManagerTests() =
     [<Test>]
     member this.``Cache should handle ticker collection updates correctly``() =
         // Test adding new ticker
-        let newTicker = { Id = 4; Symbol = "TESLA"; Image = None; Name = Some "Tesla Inc." }
+        let newTicker = { Id = 4; Symbol = "TESLA"; Image = None; Name = Some "Tesla Inc."; OptionsEnabled = true; OptionContractMultiplier = 100 }
         
         Collections.Tickers.Edit(fun list ->
             list.Add(newTicker))
@@ -248,7 +248,7 @@ type ReactiveTickerManagerTests() =
         
         // Add a new ticker to Collections.Tickers
         // This simulates what happens after import saves to DB and updates the collection
-        let newTicker = { Id = 999; Symbol = "IMPORTTEST"; Image = None; Name = Some "Import Test Ticker" }
+        let newTicker = { Id = 999; Symbol = "IMPORTTEST"; Image = None; Name = Some "Import Test Ticker"; OptionsEnabled = true; OptionContractMultiplier = 100 }
         Collections.Tickers.Edit(fun list -> list.Add(newTicker))
         
         // Verify the new ticker is immediately available via fast lookup

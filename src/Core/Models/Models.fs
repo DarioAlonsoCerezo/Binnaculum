@@ -110,7 +110,9 @@ module Models =
         { Id: int
           Symbol: string
           Image: string option
-          Name: string option }
+          Name: string option
+          OptionsEnabled: bool
+          OptionContractMultiplier: int }
 
     type BrokerMovement =
         { Id: int

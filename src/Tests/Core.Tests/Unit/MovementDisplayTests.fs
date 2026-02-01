@@ -110,7 +110,7 @@ type MovementDisplayTests() =
               Quantity = 100m
               Price = 10m
               TotalInvestedAmount = 1000m
-              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple" }
+              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple"; OptionsEnabled = true; OptionContractMultiplier = 100 }
               BrokerAccount = { Id = 1; Broker = { Id = 1; Name = "Test"; Image = ""; SupportedBroker = SupportedBroker.Unknown }; AccountNumber = "123" }
               Currency = { Id = 1; Title = "US Dollar"; Code = "USD"; Symbol = "$" }
               TradeCode = TradeCode.BuyToOpen
@@ -136,7 +136,7 @@ type MovementDisplayTests() =
               Quantity = 100m
               Price = 10m
               TotalInvestedAmount = 1000m
-              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple" }
+              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple"; OptionsEnabled = true; OptionContractMultiplier = 100 }
               BrokerAccount = { Id = 1; Broker = { Id = 1; Name = "Test"; Image = ""; SupportedBroker = SupportedBroker.Unknown }; AccountNumber = "123" }
               Currency = { Id = 1; Title = "US Dollar"; Code = "USD"; Symbol = "$" }
               TradeCode = TradeCode.SellToClose
@@ -160,7 +160,7 @@ type MovementDisplayTests() =
             { Id = 1
               TimeStamp = DateTime(2023, 12, 15)
               Amount = 10m
-              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple" }
+              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple"; OptionsEnabled = true; OptionContractMultiplier = 100 }
               Currency = { Id = 1; Title = "US Dollar"; Code = "USD"; Symbol = "$" }
               BrokerAccount = { Id = 1; Broker = { Id = 1; Name = "Test"; Image = ""; SupportedBroker = SupportedBroker.Unknown }; AccountNumber = "123" }
               DividendCode = DividendCode.ExDividendDate }
@@ -181,7 +181,7 @@ type MovementDisplayTests() =
               Quantity = 1234.5m
               Price = 10m
               TotalInvestedAmount = 12345m
-              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple" }
+              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple"; OptionsEnabled = true; OptionContractMultiplier = 100 }
               BrokerAccount = { Id = 1; Broker = { Id = 1; Name = "Test"; Image = ""; SupportedBroker = SupportedBroker.Unknown }; AccountNumber = "123" }
               Currency = { Id = 1; Title = "US Dollar"; Code = "USD"; Symbol = "$" }
               TradeCode = TradeCode.BuyToOpen
@@ -260,7 +260,7 @@ type MovementDisplayTests() =
               Quantity = 100m
               Price = 10m
               TotalInvestedAmount = 1000m
-              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple" }
+              Ticker = { Id = 1; Symbol = "AAPL"; Image = None; Name = Some "Apple"; OptionsEnabled = true; OptionContractMultiplier = 100 }
               BrokerAccount = { Id = 1; Broker = { Id = 1; Name = "Test"; Image = ""; SupportedBroker = SupportedBroker.Unknown }; AccountNumber = "123" }
               Currency = { Id = 1; Title = "US Dollar"; Code = "USD"; Symbol = "$" }
               TradeCode = TradeCode.BuyToOpen

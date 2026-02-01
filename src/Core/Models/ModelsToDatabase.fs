@@ -159,7 +159,9 @@ module internal ModelsToDatabase =
                 Id = ticker.Id; 
                 Symbol = ticker.Symbol; 
                 Image = ticker.Image; 
-                Name = ticker.Name; 
+                Name = ticker.Name;
+                OptionsEnabled = ticker.OptionsEnabled;
+                OptionContractMultiplier = ticker.OptionContractMultiplier;
                 Audit = AuditableEntity.FromDateTime(DateTime.Now);
             }
 

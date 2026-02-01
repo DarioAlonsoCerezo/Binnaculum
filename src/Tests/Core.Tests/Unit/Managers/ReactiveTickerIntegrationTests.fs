@@ -13,7 +13,7 @@ type ReactiveTickerIntegrationTests() =
         // Set up larger test data for better performance measurement
         let testTickers = [
             for i in 1..1000 do
-                yield { Id = i; Symbol = sprintf "STOCK%d" i; Image = None; Name = Some (sprintf "Stock %d Corporation" i) }
+                yield { Id = i; Symbol = sprintf "STOCK%d" i; Image = None; Name = Some (sprintf "Stock %d Corporation" i); OptionsEnabled = true; OptionContractMultiplier = 100 }
         ]
         
         Collections.Tickers.Edit(fun list ->
@@ -90,7 +90,7 @@ type ReactiveTickerIntegrationTests() =
     [<Test>]
     member this.``Validate cache updates correctly when collection changes``() =
         // Add a new ticker
-        let newTicker = { Id = 1001; Symbol = "NEWSTOCK"; Image = None; Name = Some "New Stock Corp" }
+        let newTicker = { Id = 1001; Symbol = "NEWSTOCK"; Image = None; Name = Some "New Stock Corp"; OptionsEnabled = true; OptionContractMultiplier = 100 }
         
         Collections.Tickers.Edit(fun list -> list.Add(newTicker))
         

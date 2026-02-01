@@ -13,6 +13,8 @@ module internal TickersQuery =
             {Symbol} TEXT NOT NULL,
             {Image} TEXT,
             {Name} TEXT,
+            {OptionsEnabled} INTEGER NOT NULL DEFAULT 1,
+            {OptionContractMultiplier} INTEGER NOT NULL DEFAULT 100,
             {CreatedAt} TEXT NOT NULL DEFAULT (datetime('now')),
             {UpdatedAt} TEXT
         );
@@ -35,6 +37,8 @@ module internal TickersQuery =
             {Symbol},
             {Image},
             {Name},
+            {OptionsEnabled},
+            {OptionContractMultiplier},
             {CreatedAt},
             {UpdatedAt}
         )
@@ -43,6 +47,8 @@ module internal TickersQuery =
             {SQLParameterName.Symbol},
             {SQLParameterName.Image},
             {SQLParameterName.Name},
+            {SQLParameterName.OptionsEnabled},
+            {SQLParameterName.OptionContractMultiplier},
             {SQLParameterName.CreatedAt},
             {SQLParameterName.UpdatedAt}
         )
@@ -55,6 +61,8 @@ module internal TickersQuery =
             {Symbol} = {SQLParameterName.Symbol},
             {Image} = {SQLParameterName.Image},
             {Name} = {SQLParameterName.Name},
+            {OptionsEnabled} = {SQLParameterName.OptionsEnabled},
+            {OptionContractMultiplier} = {SQLParameterName.OptionContractMultiplier},
             {CreatedAt} = {SQLParameterName.CreatedAt},
             {UpdatedAt} = {SQLParameterName.UpdatedAt}
         WHERE
