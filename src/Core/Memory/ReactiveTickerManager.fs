@@ -100,7 +100,9 @@ module ReactiveTickerManager =
                         { Id = dbTicker.Id
                           Symbol = dbTicker.Symbol
                           Image = dbTicker.Image
-                          Name = dbTicker.Name })
+                          Name = dbTicker.Name
+                          OptionsEnabled = dbTicker.OptionsEnabled
+                          OptionContractMultiplier = dbTicker.OptionContractMultiplier })
 
                 // ✅ Update Collections.Tickers using EditDiff (triggers reactive updates)
                 Collections.Tickers.EditDiff(freshTickers)

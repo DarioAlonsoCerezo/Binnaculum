@@ -51,6 +51,13 @@ module internal TastytradeConverter =
         }
 
     /// <summary>
+    /// Get or create ticker for a given symbol
+    /// Returns the full Ticker object including options settings
+    /// </summary>
+    let private getOrCreateTicker (symbol: string) =
+        TickerExtensions.Do.getBySymbol (symbol)
+
+    /// <summary>
     /// Convert TastytradeTransaction to BrokerMovement domain object
     /// </summary>
     let private createBrokerMovementFromTransaction
@@ -123,7 +130,7 @@ module internal TastytradeConverter =
         (transaction: TastytradeTransaction)
         (brokerAccountId: int)
         (currencyId: int)
-        (tickerId: int)
+        (ticker: DatabaseModel.Ticker)
         : OptionTrade list =
         match transaction.TransactionType, transaction.InstrumentType with
         | Trade(_, _), Some "Equity Option"
@@ -161,7 +168,11 @@ module internal TastytradeConverter =
                 // For BUY trades: Premium (negative) - Commissions - Fees = Net cost (more negative)
                 let netPremium = premium - commissionCost - feeCost
 
-                let multiplier = transaction.Multiplier |> Option.defaultValue 100m
+                // Use ticker's OptionContractMultiplier, falling back to transaction multiplier if available
+                let multiplier = 
+                    match ticker.OptionsEnabled with
+                    | true -> decimal ticker.OptionContractMultiplier
+                    | false -> transaction.Multiplier |> Option.defaultValue 100m
                 let strike = transaction.StrikePrice |> Option.defaultValue 0m
 
                 // CRITICAL: Expand trades with quantity > 1 into multiple records with quantity = 1
@@ -174,7 +185,7 @@ module internal TastytradeConverter =
                       ExpirationDate = expirationDate
                       Premium = Money.FromAmount(premium / transaction.Quantity)
                       NetPremium = Money.FromAmount(netPremiumPerContract)
-                      TickerId = tickerId
+                      TickerId = ticker.Id
                       BrokerAccountId = brokerAccountId
                       CurrencyId = currencyId
                       OptionType = optionType
@@ -434,12 +445,12 @@ module internal TastytradeConverter =
                             | _ -> ()
 
                     | Trade(_, _) when transaction.InstrumentType = Some "Equity Option" ->
-                        // Get ticker ID for the underlying symbol
+                        // Get ticker for the underlying symbol
                         let underlyingSymbol = transaction.UnderlyingSymbol |> Option.defaultValue "UNKNOWN"
-                        let! tickerId = getOrCreateTickerId underlyingSymbol
+                        let! ticker = getOrCreateTicker underlyingSymbol
 
                         let expandedOptionTrades =
-                            createOptionTradeFromTransaction transaction brokerAccountId currencyId tickerId
+                            createOptionTradeFromTransaction transaction brokerAccountId currencyId ticker
 
                         // Apply strike adjustments to each option trade (if applicable)
                         let adjustedOptionTrades =
@@ -472,12 +483,12 @@ module internal TastytradeConverter =
                         ()
 
                     | Trade(_, _) when transaction.InstrumentType = Some "Future Option" ->
-                        // Future option trades - get ticker ID for the underlying future symbol
+                        // Future option trades - get ticker for the underlying future symbol
                         let underlyingSymbol = transaction.UnderlyingSymbol |> Option.defaultValue "UNKNOWN"
-                        let! tickerId = getOrCreateTickerId underlyingSymbol
+                        let! ticker = getOrCreateTicker underlyingSymbol
 
                         let expandedOptionTrades =
-                            createOptionTradeFromTransaction transaction brokerAccountId currencyId tickerId
+                            createOptionTradeFromTransaction transaction brokerAccountId currencyId ticker
 
                         // Apply strike adjustments to each option trade (if applicable)
                         let adjustedOptionTrades =

@@ -19,7 +19,9 @@ type Do() =
         command.fillEntityAuditable<Ticker> (
             [ (SQLParameterName.Symbol, ticker.Symbol)
               (SQLParameterName.Image, ticker.Image.ToDbValue())
-              (SQLParameterName.Name, ticker.Name.ToDbValue()) ],
+              (SQLParameterName.Name, ticker.Name.ToDbValue())
+              (SQLParameterName.OptionsEnabled, ticker.OptionsEnabled)
+              (SQLParameterName.OptionContractMultiplier, ticker.OptionContractMultiplier) ],
             ticker
         )
 
@@ -29,6 +31,8 @@ type Do() =
           Symbol = reader.getString FieldName.Symbol
           Image = reader.getStringOrNone FieldName.Image
           Name = reader.getStringOrNone FieldName.Name
+          OptionsEnabled = reader.getBoolean FieldName.OptionsEnabled
+          OptionContractMultiplier = reader.getInt32 FieldName.OptionContractMultiplier
           Audit = reader.getAudit () }
 
     [<Extension>]
@@ -67,6 +71,8 @@ type Do() =
                       Symbol = symbol
                       Image = icon
                       Name = None
+                      OptionsEnabled = true
+                      OptionContractMultiplier = 100
                       Audit = audit }
 
                 do! newTicker.save () |> Async.AwaitTask |> Async.Ignore
@@ -91,6 +97,8 @@ type Do() =
             Symbol = "SPY"
             Image = Some("spy.png")
             Name = Some("SPDR S&P 500 ETF Trust")
+            OptionsEnabled = true
+            OptionContractMultiplier = 100
             Audit = audit } ]
 
     static member exists(symbol: string) =
@@ -113,6 +121,8 @@ type Do() =
                   Symbol = "SPY"
                   Image = Some("spy.png")
                   Name = Some("SPDR S&P 500 ETF Trust")
+                  OptionsEnabled = true
+                  OptionContractMultiplier = 100
                   Audit = audit }
 
             let! exists = Do.exists (spy.Symbol)

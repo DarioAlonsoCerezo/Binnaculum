@@ -60,6 +60,13 @@ module internal FieldName =
     [<Literal>]
     let Symbol = "Symbol"
 
+    // Ticker Options fields
+    [<Literal>]
+    let OptionsEnabled = "OptionsEnabled"
+
+    [<Literal>]
+    let OptionContractMultiplier = "OptionContractMultiplier"
+
     // Broker Movements
     [<Literal>]
     let AmountDefault = "Amount"

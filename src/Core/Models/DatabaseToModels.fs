@@ -170,7 +170,9 @@ module internal DatabaseToModels =
             { Id = ticker.Id
               Symbol = ticker.Symbol
               Image = ticker.Image
-              Name = ticker.Name }
+              Name = ticker.Name
+              OptionsEnabled = ticker.OptionsEnabled
+              OptionContractMultiplier = ticker.OptionContractMultiplier }
 
         [<Extension>]
         static member tickersToModel(tikers: Binnaculum.Core.Database.DatabaseModel.Ticker list) =

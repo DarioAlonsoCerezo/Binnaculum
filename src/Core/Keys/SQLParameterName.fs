@@ -72,6 +72,13 @@ module internal SQLParameterName =
     [<Literal>]
     let Symbol = "@Symbol"
 
+    // Ticker Options parameters
+    [<Literal>]
+    let OptionsEnabled = "@OptionsEnabled"
+
+    [<Literal>]
+    let OptionContractMultiplier = "@OptionContractMultiplier"
+
     // Broker Movements
     [<Literal>]
     let AmountDefault = "@Amount"

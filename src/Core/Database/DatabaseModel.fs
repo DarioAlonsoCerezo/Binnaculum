@@ -147,6 +147,8 @@ module internal DatabaseModel =
           Symbol: string
           Image: string option
           Name: string option
+          OptionsEnabled: bool
+          OptionContractMultiplier: int
           Audit: AuditableEntity }
 
         interface IEntity with
