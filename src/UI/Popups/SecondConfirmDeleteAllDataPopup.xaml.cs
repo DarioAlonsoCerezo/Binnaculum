@@ -1,8 +1,8 @@
 namespace Binnaculum.Popups;
 
-public partial class ConfirmDeleteAllDataPopup
+public partial class SecondConfirmDeleteAllDataPopup
 {
-    public ConfirmDeleteAllDataPopup()
+    public SecondConfirmDeleteAllDataPopup()
     {
         InitializeComponent();
 

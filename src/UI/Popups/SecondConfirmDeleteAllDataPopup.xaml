@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<popups:BasePopup
+    x:Class="Binnaculum.Popups.SecondConfirmDeleteAllDataPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Binnaculum"
+    xmlns:popups="clr-namespace:Binnaculum.Popups"
+    x:Name="Control"
+    Padding="24"
+    x:DataType="popups:SecondConfirmDeleteAllDataPopup">
+    <VerticalStackLayout Spacing="16">
+        <Label
+            FontSize="20"
+            FontAttributes="Bold"
+            HorizontalTextAlignment="Center"
+            Text="{local:Translate Settings_DeleteAllData_SecondConfirm_Title}" />
+        
+        <Label
+            FontSize="16"
+            TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"
+            Text="{local:Translate Settings_DeleteAllData_SecondConfirm_Message}" />
+        
+        <Label
+            FontSize="14"
+            FontAttributes="Bold"
+            TextColor="{StaticResource RedState}"
+            Text="{local:Translate Settings_DeleteAllData_Warning}" />
+        
+        <Grid
+            ColumnDefinitions="*,*"
+            ColumnSpacing="16"
+            Margin="0,16,0,0">
+            <Button
+                x:Name="CancelButton"
+                Grid.Column="0"
+                Text="{local:Translate Global_Button_Cancel}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+            
+            <Button
+                x:Name="ConfirmButton"
+                Grid.Column="1"
+                Text="{local:Translate Global_Button_Confirm}"
+                BackgroundColor="{StaticResource RedState}"
+                TextColor="{StaticResource White}" />
+        </Grid>
+    </VerticalStackLayout>
+</popups:BasePopup>

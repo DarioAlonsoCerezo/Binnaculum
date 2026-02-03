@@ -169,7 +169,7 @@ public partial class SettingsPage : ContentPage
             }
 
             // Second confirmation
-            var secondConfirm = await new ConfirmDeleteAllDataPopup().ShowAndWait();
+            var secondConfirm = await new SecondConfirmDeleteAllDataPopup().ShowAndWait();
             if (secondConfirm.Result is not bool secondResult || !secondResult)
             {
                 // User cancelled
@@ -188,16 +188,16 @@ public partial class SettingsPage : ContentPage
 
             // Show success message
             await DisplayAlert(
-                AppResources.Global_Button_Ok,
-                "All operational data has been deleted successfully.",
+                AppResources.Global_Success_Title,
+                AppResources.Settings_DeleteAllData_Success_Message,
                 AppResources.Global_Button_Ok);
         }
         catch (Exception ex)
         {
             // Show error message
             await DisplayAlert(
-                "Error",
-                $"Failed to delete data: {ex.Message}",
+                AppResources.Global_Error_Title,
+                string.Format(AppResources.Settings_DeleteAllData_Error_Message, ex.Message),
                 AppResources.Global_Button_Ok);
         }
     }

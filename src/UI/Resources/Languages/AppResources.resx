@@ -255,6 +255,18 @@ We recommend using a name or identifier that is meaningful to you, making it eas
   <data name="Global_Button_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="Settings_DeleteAllData_Success_Message" xml:space="preserve">
+    <value>All operational data has been deleted successfully.</value>
+  </data>
+  <data name="Global_Error_Title" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Settings_DeleteAllData_Error_Message" xml:space="preserve">
+    <value>Failed to delete data: {0}</value>
+  </data>
+  <data name="Global_Success_Title" xml:space="preserve">
+    <value>Success</value>
+  </data>
   <data name="Account_Card_Add_Movement" xml:space="preserve">
     <value>Add movement</value>
   </data>
