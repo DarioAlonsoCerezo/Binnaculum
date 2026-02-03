@@ -232,7 +232,7 @@ internal class AppResources {
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to Select a broker statement file to import transacti....
+    ///   Looks up a localized string similar to Select a broker statement file to import transactions.
     /// </summary>
     internal static string BrokerMovementCreator_SelectFileHint {
         get {
@@ -2122,9 +2122,7 @@ internal class AppResources {
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to # Important 
-
-When creating a bank, you can use an....
+    ///   Looks up a localized string similar to # Important   When creating a bank, you can use any name or identifier....
     /// </summary>
     internal static string Information_Create_Bank {
         get {
@@ -2133,9 +2131,7 @@ When creating a bank, you can use an....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to # Important
-
-When creating a bank account, you sho....
+    ///   Looks up a localized string similar to # Important  When creating a bank account, you should know that it is ....
     /// </summary>
     internal static string Information_Create_Bank_Account {
         get {
@@ -2144,9 +2140,7 @@ When creating a bank account, you sho....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to # Important 
-
-When creating a broker, you can use ....
+    ///   Looks up a localized string similar to # Important   When creating a broker, you can use any name or identifi....
     /// </summary>
     internal static string Information_Create_Broker {
         get {
@@ -2155,9 +2149,7 @@ When creating a broker, you can use ....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to # Important
-
-For the broker account, you can use a....
+    ///   Looks up a localized string similar to # Important  For the broker account, you can use any name or number yo....
     /// </summary>
     internal static string Information_Create_Broker_Account {
         get {
@@ -2166,9 +2158,7 @@ For the broker account, you can use a....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to # WARNING: High Risk of Leveraged Trading
-
-Leverag....
+    ///   Looks up a localized string similar to # WARNING: High Risk of Leveraged Trading  Leveraged trading involves ....
     /// </summary>
     internal static string Information_Leveraged_Trading {
         get {
@@ -2177,11 +2167,7 @@ Leverag....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to # Options Trading Basics
-
-## Option Types
-
-### CAL....
+    ///   Looks up a localized string similar to # Options Trading Basics  ## Option Types  ### CALL Options A CALL opt....
     /// </summary>
     internal static string Information_Options_Trading {
         get {
@@ -2676,7 +2662,7 @@ Leverag....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to Start creating an account for a broker or bank to ....
+    ///   Looks up a localized string similar to Start creating an account for a broker or bank to start your binnacle..
     /// </summary>
     internal static string Overview_Empty_Account_Info {
         get {
@@ -2685,7 +2671,7 @@ Leverag....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to Movements will appear here once they are added to ....
+    ///   Looks up a localized string similar to Movements will appear here once they are added to your account..
     /// </summary>
     internal static string Overview_No_Movements {
         get {
@@ -2820,7 +2806,7 @@ Leverag....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to This will permanently delete all your operations, ....
+    ///   Looks up a localized string similar to This will permanently delete all your operations, accounts, movements,....
     /// </summary>
     internal static string Settings_DeleteAllData_Message {
         get {
@@ -2829,7 +2815,7 @@ Leverag....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to Are you absolutely sure? This is your last chance ....
+    ///   Looks up a localized string similar to Are you absolutely sure? This is your last chance to cancel..
     /// </summary>
     internal static string Settings_DeleteAllData_SecondConfirm_Message {
         get {
@@ -2847,7 +2833,7 @@ Leverag....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to All operational data has been deleted successfully....
+    ///   Looks up a localized string similar to All operational data has been deleted successfully..
     /// </summary>
     internal static string Settings_DeleteAllData_Success_Message {
         get {
@@ -2919,7 +2905,7 @@ Leverag....
     }
 
     /// <summary>
-    ///   Looks up a localized string similar to [Report a problem or improvement.](https://github.....
+    ///   Looks up a localized string similar to [Report a problem or improvement.](https://github.com/DarioAlonsoCerez....
     /// </summary>
     internal static string Settings_Section_Issue {
         get {
