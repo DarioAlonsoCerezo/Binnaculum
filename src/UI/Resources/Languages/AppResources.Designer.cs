@@ -3076,5 +3076,3 @@ internal class AppResources {
     }
 
 }
-
-___BEGIN___COMMAND_DONE_MARKER___0
