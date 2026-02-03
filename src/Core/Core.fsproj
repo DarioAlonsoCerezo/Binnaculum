@@ -58,6 +58,7 @@
 		<Compile Include="SQL\AutoImportOperationTradeQuery.fs" />
 		<Compile Include="SQL\ImportSessionQuery.fs" />
 		<Compile Include="SQL\ImportSessionChunkQuery.fs" />
+		<Compile Include="SQL\DataResetQuery.fs" />
 		<Compile Include="Providers\ConnectionProvider.fs" />
 		<Compile Include="Providers\PreferencesProvider.fs" />
 		<Compile Include="Providers\AppDataDirectoryProvider.fs" />
@@ -94,6 +95,7 @@
 		<Compile Include="Database\InvestmentOverviewSnapshotExtensions.fs" />
 		<Compile Include="Database\AutoImportOperationExtensions.fs" />
 		<Compile Include="Database\AutoImportOperationTradeExtensions.fs" />
+		<Compile Include="Database\DataResetExtensions.fs" />
 		<Compile Include="Import\ImportModels.fs" />
 		<Compile Include="Import\ImportDomainTypes.fs" />
 		<Compile Include="Import\MovementValidator.fs" />

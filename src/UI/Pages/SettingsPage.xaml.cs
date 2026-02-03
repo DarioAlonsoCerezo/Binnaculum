@@ -84,6 +84,15 @@ public partial class SettingsPage : ContentPage
             }))
             .Subscribe()
             .DisposeWith(Disposables);
+
+        DeleteAllDataButton.Events().Clicked
+            .SelectMany(_ => Observable.FromAsync(async () =>
+            {
+                await HandleDeleteAllData();
+                return Unit.Default;
+            }))
+            .Subscribe()
+            .DisposeWith(Disposables);
     }
 
     private void SetupTheme(AppTheme theme)
@@ -144,6 +153,52 @@ public partial class SettingsPage : ContentPage
             {
                 Debug.WriteLine($"Error opening URL: {ex.Message}");
             }
+        }
+    }
+
+    private async Task HandleDeleteAllData()
+    {
+        try
+        {
+            // First confirmation
+            var firstConfirm = await new ConfirmDeleteAllDataPopup().ShowAndWait();
+            if (firstConfirm.Result is not bool firstResult || !firstResult)
+            {
+                // User cancelled
+                return;
+            }
+
+            // Second confirmation
+            var secondConfirm = await new ConfirmDeleteAllDataPopup().ShowAndWait();
+            if (secondConfirm.Result is not bool secondResult || !secondResult)
+            {
+                // User cancelled
+                return;
+            }
+
+            // Both confirmations passed - proceed with deletion
+            await Core.Database.DataResetExtensions.Do.deleteAllOperationalData();
+
+            // Refresh app state by reloading all data
+            await Core.Storage.DataLoader.loadBasicData();
+            await Core.Storage.DataLoader.getOrRefreshAllAccounts();
+            
+            // Refresh reactive managers
+            Core.UI.ReactiveSnapshotManager.refresh();
+
+            // Show success message
+            await DisplayAlert(
+                AppResources.Global_Button_Ok,
+                "All operational data has been deleted successfully.",
+                AppResources.Global_Button_Ok);
+        }
+        catch (Exception ex)
+        {
+            // Show error message
+            await DisplayAlert(
+                "Error",
+                $"Failed to delete data: {ex.Message}",
+                AppResources.Global_Button_Ok);
         }
     }
 }
