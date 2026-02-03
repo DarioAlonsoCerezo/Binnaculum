@@ -231,6 +231,42 @@ We recommend using a name or identifier that is meaningful to you, making it eas
   <data name="Settings_Section_Issue" xml:space="preserve">
     <value>[Report a problem or improvement.](https://github.com/DarioAlonsoCerezo/Binnaculum/issues)</value>
   </data>
+  <data name="Settings_DeleteAllData_Button" xml:space="preserve">
+    <value>Delete all data</value>
+  </data>
+  <data name="Settings_DeleteAllData_Title" xml:space="preserve">
+    <value>Delete All Data</value>
+  </data>
+  <data name="Settings_DeleteAllData_Message" xml:space="preserve">
+    <value>This will permanently delete all your operations, accounts, movements, trades, and snapshots. Reference data (tickers, currencies, prices) will be preserved.</value>
+  </data>
+  <data name="Settings_DeleteAllData_Warning" xml:space="preserve">
+    <value>⚠️ This action cannot be undone!</value>
+  </data>
+  <data name="Settings_DeleteAllData_SecondConfirm_Title" xml:space="preserve">
+    <value>Final Confirmation</value>
+  </data>
+  <data name="Settings_DeleteAllData_SecondConfirm_Message" xml:space="preserve">
+    <value>Are you absolutely sure? This is your last chance to cancel.</value>
+  </data>
+  <data name="Global_Button_Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Global_Button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Settings_DeleteAllData_Success_Message" xml:space="preserve">
+    <value>All operational data has been deleted successfully.</value>
+  </data>
+  <data name="Global_Error_Title" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Settings_DeleteAllData_Error_Message" xml:space="preserve">
+    <value>Failed to delete data: {0}</value>
+  </data>
+  <data name="Global_Success_Title" xml:space="preserve">
+    <value>Success</value>
+  </data>
   <data name="Account_Card_Add_Movement" xml:space="preserve">
     <value>Add movement</value>
   </data>

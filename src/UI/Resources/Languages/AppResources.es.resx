@@ -232,6 +232,42 @@ Le recomendamos utilizar un nombre o identificador que sea significativo para us
   <data name="Settings_Section_Issue" xml:space="preserve">
     <value>[Informar de un problema o mejora.](https://github.com/DarioAlonsoCerezo/Binnaculum/issues)</value>
   </data>
+  <data name="Settings_DeleteAllData_Button" xml:space="preserve">
+    <value>Eliminar todos los datos</value>
+  </data>
+  <data name="Settings_DeleteAllData_Title" xml:space="preserve">
+    <value>Eliminar Todos los Datos</value>
+  </data>
+  <data name="Settings_DeleteAllData_Message" xml:space="preserve">
+    <value>Esto eliminará permanentemente todas tus operaciones, cuentas, movimientos, transacciones y capturas. Los datos de referencia (tickers, monedas, precios) se conservarán.</value>
+  </data>
+  <data name="Settings_DeleteAllData_Warning" xml:space="preserve">
+    <value>⚠️ ¡Esta acción no se puede deshacer!</value>
+  </data>
+  <data name="Settings_DeleteAllData_SecondConfirm_Title" xml:space="preserve">
+    <value>Confirmación Final</value>
+  </data>
+  <data name="Settings_DeleteAllData_SecondConfirm_Message" xml:space="preserve">
+    <value>¿Estás completamente seguro? Esta es tu última oportunidad de cancelar.</value>
+  </data>
+  <data name="Global_Button_Confirm" xml:space="preserve">
+    <value>Confirmar</value>
+  </data>
+  <data name="Global_Button_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Settings_DeleteAllData_Success_Message" xml:space="preserve">
+    <value>Todos los datos operacionales han sido eliminados exitosamente.</value>
+  </data>
+  <data name="Global_Error_Title" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Settings_DeleteAllData_Error_Message" xml:space="preserve">
+    <value>Error al eliminar datos: {0}</value>
+  </data>
+  <data name="Global_Success_Title" xml:space="preserve">
+    <value>Éxito</value>
+  </data>
   <data name="Account_Card_Add_Movement" xml:space="preserve">
     <value>Añadir movimiento</value>
   </data>

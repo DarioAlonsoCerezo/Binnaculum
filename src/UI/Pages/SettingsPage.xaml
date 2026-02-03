@@ -162,6 +162,21 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!--  DELETE ALL DATA SECTION  -->
+            <Label
+                Margin="0,16,0,0"
+                Style="{StaticResource LabelSettingsTitle}"
+                Text="{local:Translate Settings_DeleteAllData_Title}" />
+
+            <Button
+                x:Name="DeleteAllDataButton"
+                Text="{local:Translate Settings_DeleteAllData_Button}"
+                BackgroundColor="{StaticResource RedState}"
+                TextColor="{StaticResource White}"
+                FontAttributes="Bold"
+                Padding="16"
+                CornerRadius="8" />
+
             <!--  VERSION  -->
 
             <Label
