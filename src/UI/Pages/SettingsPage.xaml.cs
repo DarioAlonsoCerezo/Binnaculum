@@ -186,7 +186,7 @@ public partial class SettingsPage : ContentPage
             Core.UI.ReactiveSnapshotManager.refresh();
 
             // Show success message
-            await DisplayAlert(
+            await DisplayAlertAsync(
                 AppResources.Global_Success_Title,
                 AppResources.Settings_DeleteAllData_Success_Message,
                 AppResources.Global_Button_Ok);
@@ -194,7 +194,7 @@ public partial class SettingsPage : ContentPage
         catch (Exception ex)
         {
             // Show error message
-            await DisplayAlert(
+            await DisplayAlertAsync(
                 AppResources.Global_Error_Title,
                 string.Format(AppResources.Settings_DeleteAllData_Error_Message, ex.Message),
                 AppResources.Global_Button_Ok);
