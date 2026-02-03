@@ -180,8 +180,7 @@ public partial class SettingsPage : ContentPage
             await Core.Database.DataResetExtensions.Do.deleteAllOperationalData();
 
             // Refresh app state by reloading all data
-            await Core.Storage.DataLoader.loadBasicData();
-            await Core.Storage.DataLoader.getOrRefreshAllAccounts();
+            await Core.UI.Overview.LoadData();
             
             // Refresh reactive managers
             Core.UI.ReactiveSnapshotManager.refresh();

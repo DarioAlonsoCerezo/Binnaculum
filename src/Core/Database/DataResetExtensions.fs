@@ -1,4 +1,4 @@
-module internal DataResetExtensions
+module DataResetExtensions
 
 open System.Runtime.CompilerServices
 open Microsoft.Data.Sqlite
