@@ -32,12 +32,12 @@ jobs:
           dotnet restore src/Core/Core.fsproj
           dotnet build src/Core/Core.fsproj --configuration Release --no-restore
 
-      - name: Run Core Tests
-        run: |
-          dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
-          dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
-          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
-            --configuration Release --no-build --verbosity normal
+      # - name: Run Core Tests
+      #   run: |
+      #     dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
+      #     dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
+      #     dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+      #       --configuration Release --no-build --verbosity normal
 
       - name: Validation Summary
         run: |

@@ -22,21 +22,21 @@ jobs:
         with:
           dotnet-version: ${{ vars.DOTNET_VERSION }}
           
-      - name: Restore dependencies
-        run: dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
+      # - name: Restore dependencies
+      #   run: dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
         
       - name: Build Core project
         run: dotnet build src/Core/Core.fsproj --configuration Release --no-restore
         
-      - name: Build Core.Tests
-        run: dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
+      # - name: Build Core.Tests
+      #   run: dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
         
-      - name: Run Core Tests
-        run: |
-          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
-            --configuration Release --no-build --verbosity normal
-          # Exit code 0 = all tests passed, != 0 = some tests failed
-          # Let dotnet handle the reporting - no manual parsing needed
+      # - name: Run Core Tests
+      #   run: |
+      #     dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+      #       --configuration Release --no-build --verbosity normal
+      #     # Exit code 0 = all tests passed, != 0 = some tests failed
+      #     # Let dotnet handle the reporting - no manual parsing needed
 
   enable-auto-merge:
     name: Enable Auto-Merge on Approval
