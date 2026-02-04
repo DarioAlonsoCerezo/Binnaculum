@@ -39,28 +39,18 @@ open Binnaculum.Core.SQL
         static member getById(id: int) = Database.Do.getById Do.read id BrokerAccountQuery.getById
 
         static member hasMovements(id: int) = task {
-            try
-                let! command = Database.Do.createCommand()
-                command.CommandText <- BrokerAccountQuery.hasMovements
-                command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, id) |> ignore
-                
-                // Use ExecuteScalar to get the CASE WHEN result directly
-                let! result = command.ExecuteScalarAsync() |> Async.AwaitTask
-                
-                // Check if result is DBNull or null, if not, convert to int
-                let hasMovements = 
-                    if result = null || result = box System.DBNull.Value then false
-                    else System.Convert.ToInt32(result) = 1
-                
-                command.Dispose() |> ignore
-                return hasMovements
-            with
-                | :? SqliteException as ex ->
-                    // Handle the exception (e.g., log it, rethrow it, etc.)
-                    printfn "SQL error in hasMovements: %s" ex.Message
-                    return false
-                | ex ->
-                    // Handle other exceptions if necessary
-                    printfn "Unexpected error in hasMovements: %s" ex.Message
-                    return false
+            let! command = Database.Do.createCommand()
+            command.CommandText <- BrokerAccountQuery.hasMovements
+            command.Parameters.AddWithValue(SQLParameterName.BrokerAccountId, id) |> ignore
+            
+            // Use ExecuteScalar to get the CASE WHEN result directly
+            let! result = command.ExecuteScalarAsync() |> Async.AwaitTask
+            
+            // Check if result is DBNull or null, if not, convert to int
+            let hasMovements = 
+                if result = null || result = box System.DBNull.Value then false
+                else System.Convert.ToInt32(result) = 1
+            
+            command.Dispose() |> ignore
+            return hasMovements
         }
