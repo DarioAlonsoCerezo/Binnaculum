@@ -37,33 +37,26 @@ module TastytradeTransactionConverter =
         let mutable stockTradesCount = 0
         let mutable errors = []
 
-        try
-            match transaction.TransactionType with
-            | MoneyMovement(_) ->
-                // Money Movement types should create BrokerMovement records
-                brokerMovementsCount <- 1
-            | Trade(_, _) when transaction.InstrumentType = Some "Equity Option" ->
-                // Equity option trades should create OptionTrade records
-                optionTradesCount <- 1
-            | Trade(_, _) when transaction.InstrumentType = Some "Future Option" ->
-                // Future option trades should also create OptionTrade records
-                optionTradesCount <- 1
-            | Trade(_, _) when transaction.InstrumentType = Some "Equity" ->
-                // Stock trades should create Trade records
-                stockTradesCount <- 1
-            | ReceiveDeliver(_) ->
-                // ReceiveDeliver transactions (Expiration, Special Dividend, etc.)
-                // are informational and don't create tradeable records - skip them
-                ()
-            | _ ->
-                // Unknown transaction type
-                errors <-
-                    $"Unsupported transaction type: {transaction.TransactionType} for line {transaction.LineNumber}"
-                    :: errors
-        with ex ->
-            errors <-
-                $"Error converting transaction on line {transaction.LineNumber}: {ex.Message}"
-                :: errors
+        match transaction.TransactionType with
+        | MoneyMovement(_) ->
+            // Money Movement types should create BrokerMovement records
+            brokerMovementsCount <- 1
+        | Trade(_, _) when transaction.InstrumentType = Some "Equity Option" ->
+            // Equity option trades should create OptionTrade records
+            optionTradesCount <- 1
+        | Trade(_, _) when transaction.InstrumentType = Some "Future Option" ->
+            // Future option trades should also create OptionTrade records
+            optionTradesCount <- 1
+        | Trade(_, _) when transaction.InstrumentType = Some "Equity" ->
+            // Stock trades should create Trade records
+            stockTradesCount <- 1
+        | ReceiveDeliver(_) ->
+            // ReceiveDeliver transactions (Expiration, Special Dividend, etc.)
+            // are informational and don't create tradeable records - skip them
+            ()
+        | _ ->
+            // Unknown transaction type
+            failwithf "Unsupported transaction type: %O for line %d" transaction.TransactionType transaction.LineNumber
 
         { BrokerMovementsCount = brokerMovementsCount
           OptionTradesCount = optionTradesCount
