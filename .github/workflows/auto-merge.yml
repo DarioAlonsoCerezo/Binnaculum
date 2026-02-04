@@ -22,8 +22,8 @@ jobs:
         with:
           dotnet-version: ${{ vars.DOTNET_VERSION }}
           
-      # - name: Restore dependencies
-      #   run: dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
+      - name: Restore dependencies
+        run: dotnet restore src/Core/Core.fsproj
         
       - name: Build Core project
         run: dotnet build src/Core/Core.fsproj --configuration Release --no-restore
