@@ -43,95 +43,64 @@ module internal SnapshotManagerUtils =
 
     /// Creates a base snapshot with the given date
     let createBaseSnapshot (date: DateTimePattern) : BaseSnapshot =
-        try
-            // CoreLogger.logDebug
-            //     "SnapshotManagerUtils"
-            //     $"createBaseSnapshot - Step 1: Creating base snapshot for date {date}"
+        // CoreLogger.logDebug
+        //     "SnapshotManagerUtils"
+        //     $"createBaseSnapshot - Step 1: Creating base snapshot for date {date}"
 
-            let normalizedDate = getDateOnly date
+        let normalizedDate = getDateOnly date
 
-            // CoreLogger.logDebug
-            //     "SnapshotManagerUtils"
-            //     $"createBaseSnapshot - Step 2: Normalized date = {normalizedDate}"
+        // CoreLogger.logDebug
+        //     "SnapshotManagerUtils"
+        //     $"createBaseSnapshot - Step 2: Normalized date = {normalizedDate}"
 
-            let auditEntity = AuditableEntity.FromDateTime(DateTime.UtcNow)
+        let auditEntity = AuditableEntity.FromDateTime(DateTime.UtcNow)
 
-            // CoreLogger.logDebug "SnapshotManagerUtils" $"createBaseSnapshot - Step 3: Created audit entity"
+        // CoreLogger.logDebug "SnapshotManagerUtils" $"createBaseSnapshot - Step 3: Created audit entity"
 
-            let baseSnapshot =
-                { Id = 0
-                  Date = normalizedDate
-                  Audit = auditEntity }
+        let baseSnapshot =
+            { Id = 0
+              Date = normalizedDate
+              Audit = auditEntity }
 
-            // CoreLogger.logDebug
-            //     "SnapshotManagerUtils"
-            //     $"createBaseSnapshot - Step 4: Base snapshot created successfully with ID = {baseSnapshot.Id}"
+        // CoreLogger.logDebug
+        //     "SnapshotManagerUtils"
+        //     $"createBaseSnapshot - Step 4: Base snapshot created successfully with ID = {baseSnapshot.Id}"
 
-            baseSnapshot
-        with ex ->
-            CoreLogger.logDebugf "SnapshotManagerUtils" "createBaseSnapshot - EXCEPTION: %A" ex.Message
-
-            CoreLogger.logDebug "SnapshotManagerUtils" $"createBaseSnapshot - STACK TRACE: {ex.StackTrace}"
-
-            let innerMsg =
-                if ex.InnerException <> null then
-                    ex.InnerException.Message
-                else
-                    "None"
-
-            CoreLogger.logDebug "SnapshotManagerUtils" $"createBaseSnapshot - INNER EXCEPTION: {innerMsg}"
-
-            raise ex
+        baseSnapshot
 
     let getDefaultCurrency () =
         task {
-            try
-                // CoreLogger.logDebug "SnapshotManagerUtils" "getDefaultCurrency - Step 1: Getting preference currency..."
+            // CoreLogger.logDebug "SnapshotManagerUtils" "getDefaultCurrency - Step 1: Getting preference currency..."
 
-                let preferenceCurrency = PreferencesProvider.getString CurrencyKey DefaultCurrency
+            let preferenceCurrency = PreferencesProvider.getString CurrencyKey DefaultCurrency
 
+            // CoreLogger.logDebug
+            //     "SnapshotManagerUtils"
+            //     $"getDefaultCurrency - Step 2: Preference currency = {preferenceCurrency}"
+
+            // CoreLogger.logDebug
+            //     "SnapshotManagerUtils"
+            //     "getDefaultCurrency - Step 3: Calling CurrencyExtensions.Do.getByCode..."
+
+            let! defaultCurrency = CurrencyExtensions.Do.getByCode (preferenceCurrency)
+
+            // CoreLogger.logDebug
+            //     "SnapshotManagerUtils"
+            //     "getDefaultCurrency - Step 4: CurrencyExtensions.Do.getByCode completed"
+
+            match defaultCurrency with
+            | Some currency ->
                 // CoreLogger.logDebug
                 //     "SnapshotManagerUtils"
-                //     $"getDefaultCurrency - Step 2: Preference currency = {preferenceCurrency}"
+                //     $"getDefaultCurrency - Success: Found currency ID = {currency.Id}"
 
-                // CoreLogger.logDebug
-                //     "SnapshotManagerUtils"
-                //     "getDefaultCurrency - Step 3: Calling CurrencyExtensions.Do.getByCode..."
+                return currency.Id
+            | None ->
+                CoreLogger.logDebug
+                    "SnapshotManagerUtils"
+                    $"getDefaultCurrency - Error: Currency {preferenceCurrency} not found"
 
-                let! defaultCurrency = CurrencyExtensions.Do.getByCode (preferenceCurrency)
-
-                // CoreLogger.logDebug
-                //     "SnapshotManagerUtils"
-                //     "getDefaultCurrency - Step 4: CurrencyExtensions.Do.getByCode completed"
-
-                match defaultCurrency with
-                | Some currency ->
-                    // CoreLogger.logDebug
-                    //     "SnapshotManagerUtils"
-                    //     $"getDefaultCurrency - Success: Found currency ID = {currency.Id}"
-
-                    return currency.Id
-                | None ->
-                    CoreLogger.logDebug
-                        "SnapshotManagerUtils"
-                        $"getDefaultCurrency - Error: Currency {preferenceCurrency} not found"
-
-                    failwithf "Default currency %s not found and no fallback currency available" preferenceCurrency
-                    return -1 // This line will never be reached but satisfies the compiler
-            with ex ->
-                CoreLogger.logDebug "SnapshotManagerUtils" $"getDefaultCurrency - EXCEPTION: {ex.Message}"
-
-                CoreLogger.logDebug "SnapshotManagerUtils" $"getDefaultCurrency - STACK TRACE: {ex.StackTrace}"
-
-                let innerMsg =
-                    if ex.InnerException <> null then
-                        ex.InnerException.Message
-                    else
-                        "None"
-
-                CoreLogger.logDebug "SnapshotManagerUtils" $"getDefaultCurrency - INNER EXCEPTION: {innerMsg}"
-
-                raise ex
+                failwithf "Default currency %s not found and no fallback currency available" preferenceCurrency
                 return -1 // This line will never be reached but satisfies the compiler
         }
 
