@@ -89,33 +89,30 @@ module ReactiveTickerManager =
         task {
             // CoreLogger.logDebug "ReactiveTickerManager" "Starting loadTickers"
 
-            try
-                // ✅ Load fresh data from DATABASE (authoritative source)
-                let! freshDatabaseTickers = TickerExtensions.Do.getAll () |> Async.AwaitTask
+            // ✅ Load fresh data from DATABASE (authoritative source)
+            let! freshDatabaseTickers = TickerExtensions.Do.getAll () |> Async.AwaitTask
 
-                // ✅ Convert database models to UI models (inline conversion to avoid dependency issues)
-                let freshTickers =
-                    freshDatabaseTickers
-                    |> List.map (fun dbTicker ->
-                        { Id = dbTicker.Id
-                          Symbol = dbTicker.Symbol
-                          Image = dbTicker.Image
-                          Name = dbTicker.Name
-                          OptionsEnabled = dbTicker.OptionsEnabled
-                          OptionContractMultiplier = dbTicker.OptionContractMultiplier })
+            // ✅ Convert database models to UI models (inline conversion to avoid dependency issues)
+            let freshTickers =
+                freshDatabaseTickers
+                |> List.map (fun dbTicker ->
+                    { Id = dbTicker.Id
+                      Symbol = dbTicker.Symbol
+                      Image = dbTicker.Image
+                      Name = dbTicker.Name
+                      OptionsEnabled = dbTicker.OptionsEnabled
+                      OptionContractMultiplier = dbTicker.OptionContractMultiplier })
 
-                // ✅ Update Collections.Tickers using EditDiff (triggers reactive updates)
-                Collections.Tickers.EditDiff(freshTickers)
+            // ✅ Update Collections.Tickers using EditDiff (triggers reactive updates)
+            Collections.Tickers.EditDiff(freshTickers)
 
-                // ✅ Give reactive updates time to propagate through DynamicData
-                do! Task.Delay(50) |> Async.AwaitTask
+            // ✅ Give reactive updates time to propagate through DynamicData
+            do! Task.Delay(50) |> Async.AwaitTask
 
-                // CoreLogger.logDebug "ReactiveTickerManager" "Completed loadTickers"
-            with ex ->
-                CoreLogger.logErrorf "ReactiveTickerManager" "loadTickers error: %s" ex.Message
+            // CoreLogger.logDebug "ReactiveTickerManager" "Completed loadTickers"
 
-        // ✅ NO manual cache manipulation needed!
-        // The reactive subscription automatically updates both caches efficiently
+            // ✅ NO manual cache manipulation needed!
+            // The reactive subscription automatically updates both caches efficiently
         }
 
     /// <summary>
