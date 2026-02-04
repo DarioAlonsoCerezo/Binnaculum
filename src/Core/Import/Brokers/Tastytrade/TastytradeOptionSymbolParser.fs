@@ -16,9 +16,8 @@ module TastytradeOptionSymbolParser =
     /// Regex pattern for parsing Tastytrade option symbols
     /// Format: [TICKER][SPACES][YYMMDD][C/P][STRIKE_PADDED]
     /// </summary>
-    let private optionSymbolPattern = 
-        @"^([A-Z]+)\s+(\d{6})([CP])(\d{8})$"
-    
+    let private optionSymbolPattern = @"^([A-Z]+)\s+(\d{6})([CP])(\d{8})$"
+
     let private optionSymbolRegex = Regex(optionSymbolPattern, RegexOptions.Compiled)
 
     /// <summary>
@@ -32,48 +31,37 @@ module TastytradeOptionSymbolParser =
 
         let trimmedSymbol = symbol.Trim()
         let regexMatch = optionSymbolRegex.Match(trimmedSymbol)
-        
+
         if not regexMatch.Success then
             failwith $"Invalid option symbol format: '{symbol}'. Expected format: TICKER YYMMDDCXXXXXXXX"
 
-        try
-            let ticker = regexMatch.Groups.[1].Value
-            let dateString = regexMatch.Groups.[2].Value
-            let optionTypeChar = regexMatch.Groups.[3].Value
-            let strikeString = regexMatch.Groups.[4].Value
+        let ticker = regexMatch.Groups.[1].Value
+        let dateString = regexMatch.Groups.[2].Value
+        let optionTypeChar = regexMatch.Groups.[3].Value
+        let strikeString = regexMatch.Groups.[4].Value
 
-            // Parse expiration date from YYMMDD format
-            let year = 2000 + int (dateString.Substring(0, 2))
-            let month = int (dateString.Substring(2, 2))
-            let day = int (dateString.Substring(4, 2))
-            let expirationDate = DateTime(year, month, day)
+        // Parse expiration date from YYMMDD format
+        let year = 2000 + int (dateString.Substring(0, 2))
+        let month = int (dateString.Substring(2, 2))
+        let day = int (dateString.Substring(4, 2))
+        let expirationDate = DateTime(year, month, day)
 
-            // Parse option type
-            let optionType = 
-                match optionTypeChar with
-                | "C" -> "CALL"
-                | "P" -> "PUT"
-                | _ -> failwith $"Invalid option type: {optionTypeChar}. Expected 'C' or 'P'"
+        // Parse option type
+        let optionType =
+            match optionTypeChar with
+            | "C" -> "CALL"
+            | "P" -> "PUT"
+            | _ -> failwith $"Invalid option type: {optionTypeChar}. Expected 'C' or 'P'"
 
-            // Parse strike price from padded format (8 digits with implied decimals)
-            // Format: 00022000 represents 22.000
-            let strikeInt = int64 strikeString
-            let strike = decimal strikeInt / 1000m
+        // Parse strike price from padded format (8 digits with implied decimals)
+        // Format: 00022000 represents 22.000
+        let strikeInt = int64 strikeString
+        let strike = decimal strikeInt / 1000m
 
-            {
-                Ticker = ticker
-                ExpirationDate = expirationDate
-                Strike = strike
-                OptionType = optionType
-            }
-
-        with
-        | :? FormatException as ex ->
-            failwith $"Failed to parse numeric components in option symbol '{symbol}': {ex.Message}"
-        | :? ArgumentOutOfRangeException as ex ->
-            failwith $"Invalid date components in option symbol '{symbol}': {ex.Message}"
-        | ex ->
-            failwith $"Failed to parse option symbol '{symbol}': {ex.Message}"
+        { Ticker = ticker
+          ExpirationDate = expirationDate
+          Strike = strike
+          OptionType = optionType }
 
     /// <summary>
     /// Validate that a string looks like a Tastytrade option symbol
@@ -81,8 +69,10 @@ module TastytradeOptionSymbolParser =
     /// <param name="symbol">The symbol to validate</param>
     /// <returns>True if the symbol matches the expected format</returns>
     let isValidOptionSymbol (symbol: string) : bool =
-        if String.IsNullOrWhiteSpace(symbol) then false
-        else optionSymbolRegex.IsMatch(symbol.Trim())
+        if String.IsNullOrWhiteSpace(symbol) then
+            false
+        else
+            optionSymbolRegex.IsMatch(symbol.Trim())
 
     /// <summary>
     /// Extract just the ticker from an option symbol without full parsing
@@ -95,7 +85,7 @@ module TastytradeOptionSymbolParser =
 
         let trimmedSymbol = symbol.Trim()
         let regexMatch = optionSymbolRegex.Match(trimmedSymbol)
-        
+
         if not regexMatch.Success then
             failwith $"Invalid option symbol format: '{symbol}'"
 
@@ -107,20 +97,8 @@ module TastytradeOptionSymbolParser =
     /// <param name="symbols">List of symbols to parse</param>
     /// <returns>Tuple of (successful results, error messages)</returns>
     let parseMultipleOptionSymbols (symbols: string list) : ParsedOptionSymbol list * string list =
-        let results, errors = 
-            symbols
-            |> List.map (fun symbol ->
-                try
-                    let parsed = parseOptionSymbol symbol
-                    Some parsed, None
-                with
-                | ex -> None, Some $"Failed to parse '{symbol}': {ex.Message}")
-            |> List.unzip
-
-        let successfulResults = results |> List.choose id
-        let errorMessages = errors |> List.choose id
-
-        successfulResults, errorMessages
+        let results = symbols |> List.map parseOptionSymbol
+        results, []
 
     /// <summary>
     /// Format a parsed option symbol back to Tastytrade format (for testing/validation)
@@ -132,5 +110,5 @@ module TastytradeOptionSymbolParser =
         let optionTypeChar = if parsed.OptionType = "CALL" then "C" else "P"
         let strikeInt = int64 (parsed.Strike * 1000m)
         let strikePadded = strikeInt.ToString("00000000")
-        
+
         $"{parsed.Ticker}  {dateString}{optionTypeChar}{strikePadded}"
