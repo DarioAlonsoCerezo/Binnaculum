@@ -169,10 +169,11 @@ module internal TastytradeConverter =
                 let netPremium = premium - commissionCost - feeCost
 
                 // Use ticker's OptionContractMultiplier, falling back to transaction multiplier if available
-                let multiplier = 
+                let multiplier =
                     match ticker.OptionsEnabled with
                     | true -> decimal ticker.OptionContractMultiplier
                     | false -> transaction.Multiplier |> Option.defaultValue 100m
+
                 let strike = transaction.StrikePrice |> Option.defaultValue 0m
 
                 // CRITICAL: Expand trades with quantity > 1 into multiple records with quantity = 1
@@ -398,117 +399,101 @@ module internal TastytradeConverter =
             for transaction in sortedTransactions do
                 cancellationToken.ThrowIfCancellationRequested()
 
-                try
-                    // Get currency ID for this transaction (with USD fallback)
-                    let currencyCode =
-                        if String.IsNullOrWhiteSpace(transaction.Currency) then
-                            "USD"
-                        else
-                            transaction.Currency
+                // Get currency ID for this transaction (with USD fallback)
+                let currencyCode =
+                    if String.IsNullOrWhiteSpace(transaction.Currency) then
+                        "USD"
+                    else
+                        transaction.Currency
 
-                    let! currencyId = getCurrencyId currencyCode
+                let! currencyId = getCurrencyId currencyCode
 
-                    match transaction.TransactionType with
-                    | MoneyMovement(_) ->
-                        match createBrokerMovementFromTransaction transaction brokerAccountId currencyId with
-                        | Some brokerMovement -> brokerMovements <- brokerMovement :: brokerMovements
-                        | None ->
-                            // Dividend transactions return None from createBrokerMovementFromTransaction
-                            // Process them as ticker-level Dividend/DividendTax records
-                            match transaction.TransactionType with
-                            | MoneyMovement(Dividend) ->
-                                let tickerSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
+                match transaction.TransactionType with
+                | MoneyMovement(_) ->
+                    match createBrokerMovementFromTransaction transaction brokerAccountId currencyId with
+                    | Some brokerMovement -> brokerMovements <- brokerMovement :: brokerMovements
+                    | None ->
+                        // Dividend transactions return None from createBrokerMovementFromTransaction
+                        // Process them as ticker-level Dividend/DividendTax records
+                        match transaction.TransactionType with
+                        | MoneyMovement(Dividend) ->
+                            let tickerSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
 
-                                if tickerSymbol <> "UNKNOWN" && tickerSymbol <> "" then
-                                    let! tickerId = getOrCreateTickerId tickerSymbol
+                            if tickerSymbol <> "UNKNOWN" && tickerSymbol <> "" then
+                                let! tickerId = getOrCreateTickerId tickerSymbol
 
-                                    if transaction.Value > 0m then
-                                        // Positive amount = Dividend received
-                                        let dividend =
-                                            createDividendFromTransaction
-                                                transaction
-                                                brokerAccountId
-                                                currencyId
-                                                tickerId
+                                if transaction.Value > 0m then
+                                    // Positive amount = Dividend received
+                                    let dividend =
+                                        createDividendFromTransaction transaction brokerAccountId currencyId tickerId
 
-                                        dividends <- dividend :: dividends
-                                    else
-                                        // Negative amount = Dividend tax withheld
-                                        let dividendTax =
-                                            createDividendTaxFromTransaction
-                                                transaction
-                                                brokerAccountId
-                                                currencyId
-                                                tickerId
+                                    dividends <- dividend :: dividends
+                                else
+                                    // Negative amount = Dividend tax withheld
+                                    let dividendTax =
+                                        createDividendTaxFromTransaction transaction brokerAccountId currencyId tickerId
 
-                                        dividendTaxes <- dividendTax :: dividendTaxes
-                            | _ -> ()
+                                    dividendTaxes <- dividendTax :: dividendTaxes
+                        | _ -> ()
 
-                    | Trade(_, _) when transaction.InstrumentType = Some "Equity Option" ->
-                        // Get ticker for the underlying symbol
-                        let underlyingSymbol = transaction.UnderlyingSymbol |> Option.defaultValue "UNKNOWN"
-                        let! ticker = getOrCreateTicker underlyingSymbol
+                | Trade(_, _) when transaction.InstrumentType = Some "Equity Option" ->
+                    // Get ticker for the underlying symbol
+                    let underlyingSymbol = transaction.UnderlyingSymbol |> Option.defaultValue "UNKNOWN"
+                    let! ticker = getOrCreateTicker underlyingSymbol
 
-                        let expandedOptionTrades =
-                            createOptionTradeFromTransaction transaction brokerAccountId currencyId ticker
+                    let expandedOptionTrades =
+                        createOptionTradeFromTransaction transaction brokerAccountId currencyId ticker
 
-                        // Apply strike adjustments to each option trade (if applicable)
-                        let adjustedOptionTrades =
-                            expandedOptionTrades
-                            |> List.map (fun trade -> applyAdjustmentToSingleTrade trade detectedAdjustments)
+                    // Apply strike adjustments to each option trade (if applicable)
+                    let adjustedOptionTrades =
+                        expandedOptionTrades
+                        |> List.map (fun trade -> applyAdjustmentToSingleTrade trade detectedAdjustments)
 
-                        optionTrades <- List.append optionTrades adjustedOptionTrades
+                    optionTrades <- List.append optionTrades adjustedOptionTrades
 
-                    | Trade(_, _) when transaction.InstrumentType = Some "Equity" ->
-                        // Get ticker ID for the stock symbol
-                        let stockSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
-                        let! tickerId = getOrCreateTickerId stockSymbol
+                | Trade(_, _) when transaction.InstrumentType = Some "Equity" ->
+                    // Get ticker ID for the stock symbol
+                    let stockSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
+                    let! tickerId = getOrCreateTickerId stockSymbol
 
-                        match createTradeFromTransaction transaction brokerAccountId currencyId tickerId with
-                        | Some stockTrade -> stockTrades <- stockTrade :: stockTrades
-                        | None -> ()
+                    match createTradeFromTransaction transaction brokerAccountId currencyId tickerId with
+                    | Some stockTrade -> stockTrades <- stockTrade :: stockTrades
+                    | None -> ()
 
-                    | ReceiveDeliver(_) when transaction.InstrumentType = Some "Equity" ->
-                        // ACAT equity transfers
-                        let stockSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
-                        let! tickerId = getOrCreateTickerId stockSymbol
+                | ReceiveDeliver(_) when transaction.InstrumentType = Some "Equity" ->
+                    // ACAT equity transfers
+                    let stockSymbol = transaction.Symbol |> Option.defaultValue "UNKNOWN"
+                    let! tickerId = getOrCreateTickerId stockSymbol
 
-                        let acatTrade =
-                            createAcatTradeFromTransaction transaction brokerAccountId currencyId tickerId
+                    let acatTrade =
+                        createAcatTradeFromTransaction transaction brokerAccountId currencyId tickerId
 
-                        stockTrades <- acatTrade :: stockTrades
+                    stockTrades <- acatTrade :: stockTrades
 
-                    | ReceiveDeliver(_) when transaction.InstrumentType = Some "Equity Option" ->
-                        // Option expirations/assignments/exercises - informational only, skip
-                        ()
+                | ReceiveDeliver(_) when transaction.InstrumentType = Some "Equity Option" ->
+                    // Option expirations/assignments/exercises - informational only, skip
+                    ()
 
-                    | Trade(_, _) when transaction.InstrumentType = Some "Future Option" ->
-                        // Future option trades - get ticker for the underlying future symbol
-                        let underlyingSymbol = transaction.UnderlyingSymbol |> Option.defaultValue "UNKNOWN"
-                        let! ticker = getOrCreateTicker underlyingSymbol
+                | Trade(_, _) when transaction.InstrumentType = Some "Future Option" ->
+                    // Future option trades - get ticker for the underlying future symbol
+                    let underlyingSymbol = transaction.UnderlyingSymbol |> Option.defaultValue "UNKNOWN"
+                    let! ticker = getOrCreateTicker underlyingSymbol
 
-                        let expandedOptionTrades =
-                            createOptionTradeFromTransaction transaction brokerAccountId currencyId ticker
+                    let expandedOptionTrades =
+                        createOptionTradeFromTransaction transaction brokerAccountId currencyId ticker
 
-                        // Apply strike adjustments to each option trade (if applicable)
-                        let adjustedOptionTrades =
-                            expandedOptionTrades
-                            |> List.map (fun trade -> applyAdjustmentToSingleTrade trade detectedAdjustments)
+                    // Apply strike adjustments to each option trade (if applicable)
+                    let adjustedOptionTrades =
+                        expandedOptionTrades
+                        |> List.map (fun trade -> applyAdjustmentToSingleTrade trade detectedAdjustments)
 
-                        optionTrades <- List.append optionTrades adjustedOptionTrades
+                    optionTrades <- List.append optionTrades adjustedOptionTrades
 
-                    | ReceiveDeliver(_) when transaction.InstrumentType = Some "Future Option" ->
-                        // Future option expirations/assignments/exercises - informational only, skip
-                        ()
+                | ReceiveDeliver(_) when transaction.InstrumentType = Some "Future Option" ->
+                    // Future option expirations/assignments/exercises - informational only, skip
+                    ()
 
-                    | _ -> ()
-
-                with ex ->
-                    CoreLogger.logWarningf
-                        "TastytradeConverter"
-                        "Error converting transaction line %d: %s"
-                        transaction.LineNumber
-                        ex.Message
+                | _ -> ()
 
             return
                 { ImportDomainTypes.PersistenceInput.BrokerMovements = brokerMovements
