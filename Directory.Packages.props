@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-		<MauiVersion>10.0.30</MauiVersion>
+		<MauiVersion>10.0.31</MauiVersion>
 		<ReactiveUiVersion>22.3.1</ReactiveUiVersion>
 	</PropertyGroup>
 	<!-- MAUI -->
