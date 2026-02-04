@@ -55,12 +55,9 @@ module ReactiveImportManager =
     let cancelImport () =
         match currentCancellationSource with
         | Some cts ->
-            try
-                cts.Cancel()
-                updateState Cancelled
-                CoreLogger.logInfo "ReactiveImportManager" "Import cancelled by user"
-            with ex ->
-                CoreLogger.logError "ReactiveImportManager" $"Error cancelling import: {ex.Message}"
+            cts.Cancel()
+            updateState Cancelled
+            CoreLogger.logInfo "ReactiveImportManager" "Import cancelled by user"
         | None -> ()
 
     /// <summary>
@@ -85,70 +82,56 @@ module ReactiveImportManager =
     let startImport (brokerAccountId: int) (brokerAccountName: string) (filePath: string) =
         task {
             try
-                try
-                    // Cancel any existing import
-                    if isImportInProgress () then
-                        cancelImport ()
+                // Cancel any existing import
+                if isImportInProgress () then
+                    cancelImport ()
 
-                    // Create new cancellation token
-                    let cts = new CancellationTokenSource()
-                    currentCancellationSource <- Some cts
+                // Create new cancellation token
+                let cts = new CancellationTokenSource()
+                currentCancellationSource <- Some cts
 
-                    // Initialize import state
-                    let fileName = System.IO.Path.GetFileName(filePath)
+                // Initialize import state
+                let fileName = System.IO.Path.GetFileName(filePath)
 
-                    let initialState =
-                        { BrokerAccountId = brokerAccountId
-                          BrokerAccountName = brokerAccountName
-                          FileName = fileName
-                          State = Idle
+                let initialState =
+                    { BrokerAccountId = brokerAccountId
+                      BrokerAccountName = brokerAccountName
+                      FileName = fileName
+                      State = Idle
+                      StartTime = DateTime.Now
+                      EstimatedDuration = None
+                      CanCancel = true }
+
+                ImportProgress.OnNext(Some initialState)
+
+                CoreLogger.logInfof
+                    "ReactiveImportManager"
+                    "Import started for account %d (%s), file: %s"
+                    brokerAccountId
+                    brokerAccountName
+                    fileName
+
+                // NOTE: Actual chunked import logic will be implemented later
+                // For now, this just sets up the reactive infrastructure
+
+                // Placeholder completion
+                do! Task.Delay(100)
+
+                updateState (
+                    Completed
+                        { TotalMovements = 0
+                          TotalChunks = 0
+                          BrokerSnapshots = 0
+                          TickerSnapshots = 0
+                          Operations = 0
+                          Duration = TimeSpan.Zero
                           StartTime = DateTime.Now
-                          EstimatedDuration = None
-                          CanCancel = true }
+                          EndTime = DateTime.Now }
+                )
 
-                    ImportProgress.OnNext(Some initialState)
-
-                    CoreLogger.logInfof
-                        "ReactiveImportManager"
-                        "Import started for account %d (%s), file: %s"
-                        brokerAccountId
-                        brokerAccountName
-                        fileName
-
-                    // NOTE: Actual chunked import logic will be implemented later
-                    // For now, this just sets up the reactive infrastructure
-
-                    // Placeholder completion
-                    do! Task.Delay(100)
-
-                    updateState (
-                        Completed
-                            { TotalMovements = 0
-                              TotalChunks = 0
-                              BrokerSnapshots = 0
-                              TickerSnapshots = 0
-                              Operations = 0
-                              Duration = TimeSpan.Zero
-                              StartTime = DateTime.Now
-                              EndTime = DateTime.Now }
-                    )
-
-                    // Clear state after delay
-                    do! Task.Delay(5000)
-                    ImportProgress.OnNext(None)
-
-                with
-                | :? OperationCanceledException ->
-                    updateState Cancelled
-                    CoreLogger.logInfo "ReactiveImportManager" "Import cancelled"
-                    do! Task.Delay(3000)
-                    ImportProgress.OnNext(None)
-                | ex ->
-                    let errorMsg = $"Import failed: {ex.Message}"
-                    updateState (Failed errorMsg)
-                    CoreLogger.logError "ReactiveImportManager" errorMsg
-                    do! Task.Delay(5000)
-                    ImportProgress.OnNext(None)
+                // Clear state after delay
+                do! Task.Delay(5000)
+                ImportProgress.OnNext(None)
             finally
                 currentCancellationSource <- None
         }
@@ -169,11 +152,8 @@ module ReactiveImportManager =
     let reset () =
         match currentCancellationSource with
         | Some cts ->
-            try
-                cts.Cancel()
-                cts.Dispose()
-            with _ ->
-                ()
+            cts.Cancel()
+            cts.Dispose()
         | None -> ()
 
         currentCancellationSource <- None
