@@ -185,12 +185,17 @@ module PreferencesProvider =
         | Some FileSystem
         | None ->
             // FileSystem mode (or default): use platform SecureStorage
-            try
-                SecureStorage.GetAsync(key)
-            with ex ->
-                // Graceful degradation: log error and return null
-                CoreLogger.logError "PreferencesProvider" $"Failed to get secure value for key '{key}': {ex.Message}"
-                Task.FromResult(null)
+            task {
+                try
+                    return! SecureStorage.GetAsync(key)
+                with ex ->
+                    // Log error and re-raise
+                    CoreLogger.logError
+                        "PreferencesProvider"
+                        $"Failed to get secure value for key '{key}': {ex.Message}"
+
+                    return failwith $"Failed to get secure value for key '{key}': {ex.Message}"
+            }
 
     /// <summary>
     /// Asynchronously sets a secure value.
@@ -207,12 +212,17 @@ module PreferencesProvider =
         | Some FileSystem
         | None ->
             // FileSystem mode (or default): use platform SecureStorage
-            try
-                SecureStorage.SetAsync(key, value)
-            with ex ->
-                // Graceful degradation: log error but don't throw
-                CoreLogger.logError "PreferencesProvider" $"Failed to set secure value for key '{key}': {ex.Message}"
-                Task.CompletedTask
+            task {
+                try
+                    return! SecureStorage.SetAsync(key, value)
+                with ex ->
+                    // Log error and re-raise
+                    CoreLogger.logError
+                        "PreferencesProvider"
+                        $"Failed to set secure value for key '{key}': {ex.Message}"
+
+                    return failwith $"Failed to set secure value for key '{key}': {ex.Message}"
+            }
 
     /// <summary>
     /// Removes a secure value.
@@ -230,6 +240,6 @@ module PreferencesProvider =
             try
                 SecureStorage.Remove(key)
             with ex ->
-                // Graceful degradation: log error and return false
+                // Log error and re-raise
                 CoreLogger.logError "PreferencesProvider" $"Failed to remove secure value for key '{key}': {ex.Message}"
-                false
+                failwith $"Failed to remove secure value for key '{key}': {ex.Message}"

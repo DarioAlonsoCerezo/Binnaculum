@@ -139,6 +139,7 @@ module internal TickerSnapshotBatchPersistence =
                                     ex.Message
 
                             CoreLogger.logError "TickerSnapshotBatchPersistence" errorMsg
+                            failwith errorMsg
                     // Continue with other snapshots
 
                     // PHASE 2 & 3: Update and save TickerCurrencySnapshots with correct FKs
@@ -211,6 +212,7 @@ module internal TickerSnapshotBatchPersistence =
                                     ex.Message
 
                             CoreLogger.logError "TickerSnapshotBatchPersistence" errorMsg
+                            failwith errorMsg
                     // Continue with other snapshots
 
                     stopwatch.Stop()
@@ -237,5 +239,5 @@ module internal TickerSnapshotBatchPersistence =
                         sprintf "Batch persistence failed after %dms: %s" stopwatch.ElapsedMilliseconds ex.Message
 
                     CoreLogger.logError "TickerSnapshotBatchPersistence" errorMsg
-                    return Error errorMsg
+                    return failwith errorMsg
         }
