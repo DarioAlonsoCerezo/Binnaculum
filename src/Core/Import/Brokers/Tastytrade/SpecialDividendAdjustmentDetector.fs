@@ -69,57 +69,52 @@ module SpecialDividendAdjustmentDetector =
         if not (isSpecialDividendTransaction closing && isSpecialDividendTransaction opening) then
             false
         else
-            try
-                // Same underlying ticker
-                let sameTicker =
-                    ((closing.RootSymbol |> Option.defaultValue "") = (opening.RootSymbol |> Option.defaultValue ""))
+            // Same underlying ticker
+            let sameTicker =
+                ((closing.RootSymbol |> Option.defaultValue "") = (opening.RootSymbol |> Option.defaultValue ""))
 
-                // Same expiration date
-                let sameExpiration =
-                    match closing.ExpirationDate, opening.ExpirationDate with
-                    | Some closeExp, Some openExp -> closeExp = openExp
-                    | _ -> false
+            // Same expiration date
+            let sameExpiration =
+                match closing.ExpirationDate, opening.ExpirationDate with
+                | Some closeExp, Some openExp -> closeExp = openExp
+                | _ -> false
 
-                // Same option type (both CALL or both PUT)
-                let sameOptionType =
-                    ((closing.CallOrPut |> Option.defaultValue "") = (opening.CallOrPut |> Option.defaultValue ""))
+            // Same option type (both CALL or both PUT)
+            let sameOptionType =
+                ((closing.CallOrPut |> Option.defaultValue "") = (opening.CallOrPut |> Option.defaultValue ""))
 
-                // Within 2-second tolerance
-                let withinTimeframe = Math.Abs((opening.Date - closing.Date).TotalSeconds) <= 2.0
+            // Within 2-second tolerance
+            let withinTimeframe = Math.Abs((opening.Date - closing.Date).TotalSeconds) <= 2.0
 
-                // Opposite actions based on CSV Action column values
-                // The Action column contains: BUY_TO_OPEN, SELL_TO_CLOSE, etc.
-                // For special dividends, we expect paired inverse actions like:
-                // BUY_TO_OPEN with premium -X matched against SELL_TO_CLOSE with premium +X
-                let oppositeActions =
-                    // Check that premiums have opposite signs (one positive, one negative)
-                    (closing.Value < 0m && opening.Value > 0m)
-                    || (closing.Value > 0m && opening.Value < 0m)
+            // Opposite actions based on CSV Action column values
+            // The Action column contains: BUY_TO_OPEN, SELL_TO_CLOSE, etc.
+            // For special dividends, we expect paired inverse actions like:
+            // BUY_TO_OPEN with premium -X matched against SELL_TO_CLOSE with premium +X
+            let oppositeActions =
+                // Check that premiums have opposite signs (one positive, one negative)
+                (closing.Value < 0m && opening.Value > 0m)
+                || (closing.Value > 0m && opening.Value < 0m)
 
-                // Different strikes
-                let differentStrikes =
-                    match closing.StrikePrice, opening.StrikePrice with
-                    | Some closeStrike, Some openStrike -> closeStrike <> openStrike
-                    | _ -> false
+            // Different strikes
+            let differentStrikes =
+                match closing.StrikePrice, opening.StrikePrice with
+                | Some closeStrike, Some openStrike -> closeStrike <> openStrike
+                | _ -> false
 
-                // Net premium balances to zero (within $0.01 tolerance)
-                let netPremiumBalanced = Math.Abs((closing.Value + opening.Value)) <= 0.01m
+            // Net premium balances to zero (within $0.01 tolerance)
+            let netPremiumBalanced = Math.Abs((closing.Value + opening.Value)) <= 0.01m
 
-                // Quantity matches
-                let quantityMatches = closing.Quantity = opening.Quantity
+            // Quantity matches
+            let quantityMatches = closing.Quantity = opening.Quantity
 
-                sameTicker
-                && sameExpiration
-                && sameOptionType
-                && withinTimeframe
-                && oppositeActions
-                && differentStrikes
-                && netPremiumBalanced
-                && quantityMatches
-            with ex ->
-                CoreLogger.logDebugf "SpecialDividendAdjustmentDetector" "Pair validation failed: %s" ex.Message
-
-                false
+            sameTicker
+            && sameExpiration
+            && sameOptionType
+            && withinTimeframe
+            && oppositeActions
+            && differentStrikes
+            && netPremiumBalanced
+            && quantityMatches
 
     /// <summary>
     /// Extract adjustment data from a validated pair of transactions
@@ -128,38 +123,33 @@ module SpecialDividendAdjustmentDetector =
         (closing: TastytradeTransaction)
         (opening: TastytradeTransaction)
         : DetectedAdjustment option =
-        try
-            // For special dividend adjustments:
-            // Get the two strikes from the pair and determine original vs new
-            // Original strike = higher value (before adjustment)
-            // New strike = lower value (after adjustment due to dividend)
-            // This handles all cases regardless of transaction order
-            let strike1 = closing.StrikePrice |> Option.defaultValue 0m
-            let strike2 = opening.StrikePrice |> Option.defaultValue 0m
+        // For special dividend adjustments:
+        // Get the two strikes from the pair and determine original vs new
+        // Original strike = higher value (before adjustment)
+        // New strike = lower value (after adjustment due to dividend)
+        // This handles all cases regardless of transaction order
+        let strike1 = closing.StrikePrice |> Option.defaultValue 0m
+        let strike2 = opening.StrikePrice |> Option.defaultValue 0m
 
-            let originalStrike = max strike1 strike2
-            let newStrike = min strike1 strike2
-            let strikeDelta = newStrike - originalStrike
-            let dividendAmount = Math.Abs(closing.Value) // Use absolute value of either transaction
+        let originalStrike = max strike1 strike2
+        let newStrike = min strike1 strike2
+        let strikeDelta = newStrike - originalStrike
+        let dividendAmount = Math.Abs(closing.Value) // Use absolute value of either transaction
 
-            let adjustment =
-                { OriginalStrike = originalStrike
-                  NewStrike = newStrike
-                  StrikeDelta = strikeDelta
-                  DividendAmount = dividendAmount
-                  AdjustmentTimestamp = closing.Date // Use the earlier transaction
-                  TickerSymbol = closing.RootSymbol |> Option.defaultValue "UNKNOWN"
-                  ExpirationDate = closing.ExpirationDate |> Option.defaultValue DateTime.MinValue
-                  OptionType = closing.CallOrPut |> Option.defaultValue "CALL"
-                  TransactionIds = []
-                  ClosingTransaction = closing
-                  OpeningTransaction = opening }
+        let adjustment =
+            { OriginalStrike = originalStrike
+              NewStrike = newStrike
+              StrikeDelta = strikeDelta
+              DividendAmount = dividendAmount
+              AdjustmentTimestamp = closing.Date // Use the earlier transaction
+              TickerSymbol = closing.RootSymbol |> Option.defaultValue "UNKNOWN"
+              ExpirationDate = closing.ExpirationDate |> Option.defaultValue DateTime.MinValue
+              OptionType = closing.CallOrPut |> Option.defaultValue "CALL"
+              TransactionIds = []
+              ClosingTransaction = closing
+              OpeningTransaction = opening }
 
-            Some adjustment
-        with ex ->
-            CoreLogger.logErrorf "SpecialDividendAdjustmentDetector" "Failed to extract adjustment data: %s" ex.Message
-
-            None
+        Some adjustment
 
     /// <summary>
     /// Find all valid adjustment pairs in a transaction group
@@ -217,52 +207,48 @@ module SpecialDividendAdjustmentDetector =
     /// Returns list of detected adjustment pairs with metadata.
     /// </summary>
     let detectAdjustments (transactions: TastytradeTransaction list) : DetectedAdjustment list =
-        try
-            // Filter to only special dividend transactions
-            let specialDividendTxns = transactions |> List.filter isSpecialDividendTransaction
+        // Filter to only special dividend transactions
+        let specialDividendTxns = transactions |> List.filter isSpecialDividendTransaction
 
-            if List.isEmpty specialDividendTxns then
-                // CoreLogger.logDebugf "SpecialDividendAdjustmentDetector" "No special dividend transactions found"
-                []
-            else
-                // CoreLogger.logInfof
-                //     "SpecialDividendAdjustmentDetector"
-                //     "Detected %d special dividend transactions for adjustment detection"
-                //     specialDividendTxns.Length
-
-                let grouped = groupByTimeAndTicker specialDividendTxns
-
-                let allAdjustments =
-                    grouped |> Map.values |> Seq.map findValidPairs |> Seq.concat |> Seq.toList
-
-                // CoreLogger.logInfof
-                //     "SpecialDividendAdjustmentDetector"
-                //     "Found %d valid adjustment pairs"
-                //     allAdjustments.Length
-
-                // Extract adjustment data from pairs
-                let adjustments =
-                    allAdjustments
-                    |> List.choose (fun (closing, opening) -> extractAdjustmentData closing opening)
-
-                // Log each detected adjustment
-                // adjustments
-                // |> List.iter (fun adj ->
-                //     CoreLogger.logDebugf
-                //         "SpecialDividendAdjustmentDetector"
-                //         "Adjustment detected: %s %s exp=%O original=%.2f new=%.2f delta=%.2f dividend=%.2f"
-                //         adj.TickerSymbol
-                //         adj.OptionType
-                //         adj.ExpirationDate
-                //         adj.OriginalStrike
-                //         adj.NewStrike
-                //         adj.StrikeDelta
-                //         adj.DividendAmount)
-
-                adjustments
-        with ex ->
-            CoreLogger.logErrorf "SpecialDividendAdjustmentDetector" "Detection failed: %s" ex.Message
+        if List.isEmpty specialDividendTxns then
+            // CoreLogger.logDebugf "SpecialDividendAdjustmentDetector" "No special dividend transactions found"
             []
+        else
+            // CoreLogger.logInfof
+            //     "SpecialDividendAdjustmentDetector"
+            //     "Detected %d special dividend transactions for adjustment detection"
+            //     specialDividendTxns.Length
+
+            let grouped = groupByTimeAndTicker specialDividendTxns
+
+            let allAdjustments =
+                grouped |> Map.values |> Seq.map findValidPairs |> Seq.concat |> Seq.toList
+
+            // CoreLogger.logInfof
+            //     "SpecialDividendAdjustmentDetector"
+            //     "Found %d valid adjustment pairs"
+            //     allAdjustments.Length
+
+            // Extract adjustment data from pairs
+            let adjustments =
+                allAdjustments
+                |> List.choose (fun (closing, opening) -> extractAdjustmentData closing opening)
+
+            // Log each detected adjustment
+            // adjustments
+            // |> List.iter (fun adj ->
+            //     CoreLogger.logDebugf
+            //         "SpecialDividendAdjustmentDetector"
+            //         "Adjustment detected: %s %s exp=%O original=%.2f new=%.2f delta=%.2f dividend=%.2f"
+            //         adj.TickerSymbol
+            //         adj.OptionType
+            //         adj.ExpirationDate
+            //         adj.OriginalStrike
+            //         adj.NewStrike
+            //         adj.StrikeDelta
+            //         adj.DividendAmount)
+
+            adjustments
 
     /// <summary>
     /// Format adjustment information for display in Notes field
