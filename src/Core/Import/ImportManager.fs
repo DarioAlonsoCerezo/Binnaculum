@@ -140,13 +140,14 @@ module ImportManager =
 
                         let processedFile = FileProcessor.processFile filePath
 
-                        cancellationToken.ThrowIfCancellationRequested()
+                        try
+                            cancellationToken.ThrowIfCancellationRequested()
 
-                        // Route to appropriate broker importer based on SupportedBroker
-                        // CoreLogger.logDebugf "ImportManager" "Routing to importer for broker type %A" broker.SupportedBroker
+                            // Route to appropriate broker importer based on SupportedBroker
+                            // CoreLogger.logDebugf "ImportManager" "Routing to importer for broker type %A" broker.SupportedBroker
 
-                        let! importResult =
-                            if broker.SupportedBroker.ToString() = "IBKR" then
+                            let! importResult =
+                                if broker.SupportedBroker.ToString() = "IBKR" then
                                     task {
                                         // PHASE 1: Analyze CSV files for date ranges
                                         CoreLogger.logInfof
@@ -936,30 +937,29 @@ module ImportManager =
                                             ImportResult.createError ($"Unsupported broker type: {broker.Name}")
                                     }
 
-                        // Clean up temporary files
-                        FileProcessor.cleanup processedFile
-                        // CoreLogger.logDebug "ImportManager" "File processing cleanup complete"
+                            // Trigger reactive updates now that import is complete
+                            // CoreLogger.logDebug "ImportManager" "Triggering post-import reactive updates"
 
-                        // Clean up cancellation resources (chunked import already called completeChunkedImport)
-                        ImportState.cleanup ()
+                            do! ReactiveTickerManager.refreshAsync ()
+                            do! ReactiveMovementManager.refreshAsync ()
+                            do! ReactiveSnapshotManager.refreshAsync ()
 
-                        // Trigger reactive updates now that import is complete
-                        // CoreLogger.logDebug "ImportManager" "Triggering post-import reactive updates"
+                            // CoreLogger.logDebug "ImportManager" "Post-import reactive updates completed successfully"
 
-                        do! ReactiveTickerManager.refreshAsync ()
-                        do! ReactiveMovementManager.refreshAsync ()
-                        do! ReactiveSnapshotManager.refreshAsync ()
+                            CoreLogger.logInfof
+                                "ImportManager"
+                                "Import completed: success=%b, processedRecords=%d, errors=%d"
+                                importResult.Success
+                                importResult.ProcessedRecords
+                                importResult.Errors.Length
 
-                        // CoreLogger.logDebug "ImportManager" "Post-import reactive updates completed successfully"
+                            return importResult
 
-                        CoreLogger.logInfof
-                            "ImportManager"
-                            "Import completed: success=%b, processedRecords=%d, errors=%d"
-                            importResult.Success
-                            importResult.ProcessedRecords
-                            importResult.Errors.Length
-
-                        return importResult
+                        finally
+                            // Clean up temporary files
+                            FileProcessor.cleanup processedFile
+                            // Clean up cancellation resources
+                            ImportState.cleanup ()
         }
 
     /// <summary>
