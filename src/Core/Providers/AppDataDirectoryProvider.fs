@@ -50,11 +50,7 @@ module AppDataDirectoryProvider =
         | FileSystem ->
             // Clean up any in-memory directory when switching to FileSystem
             match inMemoryTempDirectory with
-            | Some path when Directory.Exists(path) ->
-                try
-                    Directory.Delete(path, true)
-                with _ ->
-                    () // Ignore cleanup errors
+            | Some path when Directory.Exists(path) -> Directory.Delete(path, true)
             | _ -> ()
 
             inMemoryTempDirectory <- None
@@ -66,12 +62,9 @@ module AppDataDirectoryProvider =
     let clearInMemoryDirectory () =
         match inMemoryTempDirectory with
         | Some path when Directory.Exists(path) ->
-            try
-                Directory.Delete(path, true)
-                // Recreate an empty directory
-                Directory.CreateDirectory(path) |> ignore
-            with _ ->
-                () // Ignore cleanup errors
+            Directory.Delete(path, true)
+            // Recreate an empty directory
+            Directory.CreateDirectory(path) |> ignore
         | _ -> ()
 
     /// <summary>

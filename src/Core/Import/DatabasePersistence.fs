@@ -52,144 +52,105 @@ module DatabasePersistence =
 
             let mutable processedCount = 0
 
-            try
+            // Persist BrokerMovements
+            for brokerMovement in input.BrokerMovements do
+                cancellationToken.ThrowIfCancellationRequested()
 
-                // Persist BrokerMovements
-                for brokerMovement in input.BrokerMovements do
-                    cancellationToken.ThrowIfCancellationRequested()
+                do! BrokerMovementExtensions.Do.save brokerMovement |> Async.AwaitTask
+                movementDates <- brokerMovement.TimeStamp.Value :: movementDates
+                processedCount <- processedCount + 1
 
-                    try
-                        do! BrokerMovementExtensions.Do.save brokerMovement |> Async.AwaitTask
-                        movementDates <- brokerMovement.TimeStamp.Value :: movementDates
-                        processedCount <- processedCount + 1
-                    with ex ->
-                        errors <- $"Error saving BrokerMovement ID={brokerMovement.Id}: {ex.Message}" :: errors
+            // Persist OptionTrades
+            for optionTrade in input.OptionTrades do
+                cancellationToken.ThrowIfCancellationRequested()
 
-                // Persist OptionTrades
-                for optionTrade in input.OptionTrades do
-                    cancellationToken.ThrowIfCancellationRequested()
+                let! persistedTrade = OptionTradeExtensions.Do.saveAndReturn optionTrade
+                movementDates <- optionTrade.TimeStamp.Value :: movementDates
 
-                    try
-                        let! persistedTrade = OptionTradeExtensions.Do.saveAndReturn optionTrade
-                        movementDates <- optionTrade.TimeStamp.Value :: movementDates
+                // Collect ticker symbol for metadata (need to look it up)
+                let! tickerOption = TickerExtensions.Do.getById optionTrade.TickerId |> Async.AwaitTask
 
-                        // Collect ticker symbol for metadata (need to look it up)
-                        let! tickerOption = TickerExtensions.Do.getById optionTrade.TickerId |> Async.AwaitTask
+                match tickerOption with
+                | Some ticker -> affectedTickerSymbols <- Set.add ticker.Symbol affectedTickerSymbols
+                | None -> ()
 
-                        match tickerOption with
-                        | Some ticker -> affectedTickerSymbols <- Set.add ticker.Symbol affectedTickerSymbols
-                        | None -> ()
+                // Link closing trades
+                if isClosingCode persistedTrade.Code then
+                    let! linkResult = OptionTradeExtensions.Do.linkClosingTrade persistedTrade
 
-                        // Link closing trades
-                        if isClosingCode persistedTrade.Code then
-                            let! linkResult = OptionTradeExtensions.Do.linkClosingTrade persistedTrade
+                    match linkResult with
+                    | Ok _ -> ()
+                    | Error _ -> () // Non-critical linking failure
 
-                            match linkResult with
-                            | Ok _ -> ()
-                            | Error _ -> () // Non-critical linking failure
+                processedCount <- processedCount + 1
 
-                        processedCount <- processedCount + 1
-                    with ex ->
-                        errors <- $"Error saving OptionTrade ID={optionTrade.Id}: {ex.Message}" :: errors
+            // Persist StockTrades
+            for stockTrade in input.StockTrades do
+                cancellationToken.ThrowIfCancellationRequested()
 
-                // Persist StockTrades
-                for stockTrade in input.StockTrades do
-                    cancellationToken.ThrowIfCancellationRequested()
+                do! TradeExtensions.Do.save stockTrade |> Async.AwaitTask
+                movementDates <- stockTrade.TimeStamp.Value :: movementDates
 
-                    try
-                        do! TradeExtensions.Do.save stockTrade |> Async.AwaitTask
-                        movementDates <- stockTrade.TimeStamp.Value :: movementDates
+                // Collect ticker symbol for metadata
+                let! tickerOption = TickerExtensions.Do.getById stockTrade.TickerId |> Async.AwaitTask
 
-                        // Collect ticker symbol for metadata
-                        let! tickerOption = TickerExtensions.Do.getById stockTrade.TickerId |> Async.AwaitTask
+                match tickerOption with
+                | Some ticker -> affectedTickerSymbols <- Set.add ticker.Symbol affectedTickerSymbols
+                | None -> ()
 
-                        match tickerOption with
-                        | Some ticker -> affectedTickerSymbols <- Set.add ticker.Symbol affectedTickerSymbols
-                        | None -> ()
+                processedCount <- processedCount + 1
 
-                        processedCount <- processedCount + 1
-                    with ex ->
-                        errors <- $"Error saving Trade ID={stockTrade.Id}: {ex.Message}" :: errors
+            // Persist Dividends
+            for dividend in input.Dividends do
+                cancellationToken.ThrowIfCancellationRequested()
 
-                // Persist Dividends
-                for dividend in input.Dividends do
-                    cancellationToken.ThrowIfCancellationRequested()
+                do! DividendExtensions.Do.save dividend |> Async.AwaitTask
+                movementDates <- dividend.TimeStamp.Value :: movementDates
 
-                    try
-                        do! DividendExtensions.Do.save dividend |> Async.AwaitTask
-                        movementDates <- dividend.TimeStamp.Value :: movementDates
+                // Collect ticker symbol for metadata
+                let! tickerOption = TickerExtensions.Do.getById dividend.TickerId |> Async.AwaitTask
 
-                        // Collect ticker symbol for metadata
-                        let! tickerOption = TickerExtensions.Do.getById dividend.TickerId |> Async.AwaitTask
+                match tickerOption with
+                | Some ticker -> affectedTickerSymbols <- Set.add ticker.Symbol affectedTickerSymbols
+                | None -> ()
 
-                        match tickerOption with
-                        | Some ticker -> affectedTickerSymbols <- Set.add ticker.Symbol affectedTickerSymbols
-                        | None -> ()
+                processedCount <- processedCount + 1
 
-                        processedCount <- processedCount + 1
-                    with ex ->
-                        errors <- $"Error saving Dividend ID={dividend.Id}: {ex.Message}" :: errors
+            // Persist DividendTaxes
+            for dividendTax in input.DividendTaxes do
+                cancellationToken.ThrowIfCancellationRequested()
 
-                // Persist DividendTaxes
-                for dividendTax in input.DividendTaxes do
-                    cancellationToken.ThrowIfCancellationRequested()
+                do! DividendTaxExtensions.Do.save dividendTax |> Async.AwaitTask
+                movementDates <- dividendTax.TimeStamp.Value :: movementDates
 
-                    try
-                        do! DividendTaxExtensions.Do.save dividendTax |> Async.AwaitTask
-                        movementDates <- dividendTax.TimeStamp.Value :: movementDates
+                // Collect ticker symbol for metadata
+                let! tickerOption = TickerExtensions.Do.getById dividendTax.TickerId |> Async.AwaitTask
 
-                        // Collect ticker symbol for metadata
-                        let! tickerOption = TickerExtensions.Do.getById dividendTax.TickerId |> Async.AwaitTask
+                match tickerOption with
+                | Some ticker -> affectedTickerSymbols <- Set.add ticker.Symbol affectedTickerSymbols
+                | None -> ()
 
-                        match tickerOption with
-                        | Some ticker -> affectedTickerSymbols <- Set.add ticker.Symbol affectedTickerSymbols
-                        | None -> ()
+                processedCount <- processedCount + 1
 
-                        processedCount <- processedCount + 1
-                    with ex ->
-                        errors <- $"Error saving DividendTax ID={dividendTax.Id}: {ex.Message}" :: errors
+            // Create import metadata for targeted snapshot updates
+            let oldestMovementDate =
+                if List.isEmpty movementDates then
+                    None
+                else
+                    Some(movementDates |> List.min)
 
-                // Create import metadata for targeted snapshot updates
-                let oldestMovementDate =
-                    if List.isEmpty movementDates then
-                        None
-                    else
-                        Some(movementDates |> List.min)
+            let importMetadata =
+                { OldestMovementDate = oldestMovementDate
+                  AffectedBrokerAccountIds = Set.singleton brokerAccountId
+                  AffectedTickerSymbols = affectedTickerSymbols
+                  TotalMovementsImported = totalItems }
 
-                let importMetadata =
-                    { OldestMovementDate = oldestMovementDate
-                      AffectedBrokerAccountIds = Set.singleton brokerAccountId
-                      AffectedTickerSymbols = affectedTickerSymbols
-                      TotalMovementsImported = totalItems }
-
-                return
-                    { BrokerMovementsCreated = input.BrokerMovements.Length
-                      OptionTradesCreated = input.OptionTrades.Length
-                      StockTradesCreated = input.StockTrades.Length
-                      DividendsCreated = input.Dividends.Length + input.DividendTaxes.Length
-                      ErrorsCount = errors.Length
-                      Errors = List.rev errors
-                      ImportMetadata = importMetadata }
-
-            with
-            | :? OperationCanceledException ->
-                return
-                    { BrokerMovementsCreated = 0
-                      OptionTradesCreated = 0
-                      StockTradesCreated = 0
-                      DividendsCreated = 0
-                      ErrorsCount = 1
-                      Errors = [ "Operation was cancelled" ]
-                      ImportMetadata = ImportMetadata.createEmpty () }
-            | ex ->
-                errors <- $"Database persistence failed: {ex.Message}" :: errors
-
-                return
-                    { BrokerMovementsCreated = 0
-                      OptionTradesCreated = 0
-                      StockTradesCreated = 0
-                      DividendsCreated = 0
-                      ErrorsCount = errors.Length
-                      Errors = List.rev errors
-                      ImportMetadata = ImportMetadata.createEmpty () }
+            return
+                { BrokerMovementsCreated = input.BrokerMovements.Length
+                  OptionTradesCreated = input.OptionTrades.Length
+                  StockTradesCreated = input.StockTrades.Length
+                  DividendsCreated = input.Dividends.Length + input.DividendTaxes.Length
+                  ErrorsCount = errors.Length
+                  Errors = List.rev errors
+                  ImportMetadata = importMetadata }
         }
