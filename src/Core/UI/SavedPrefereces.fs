@@ -66,14 +66,8 @@ module SavedPrefereces =
             // Load Polygon API Key from SecureStorage with error handling
             let! polygonApiKey =
                 task {
-                    try
-                        let! key = PreferencesProvider.getSecureAsync (PolygonApiKeyKey)
-                        return if String.IsNullOrEmpty(key) then None else Some key
-                    with ex ->
-                        // Log error if needed, but don't throw - just return None as default
-                        CoreLogger.logError "SavedPreferences" $"Failed to load Polygon API Key from SecureStorage: {ex.Message}"
-
-                        return None
+                    let! key = PreferencesProvider.getSecureAsync (PolygonApiKeyKey)
+                    return if String.IsNullOrEmpty(key) then None else Some key
                 }
 
             return
@@ -163,25 +157,16 @@ module SavedPrefereces =
     /// Change the Polygon API Key, saving it to SecureStorage and updating UserPreferences
     let ChangePolygonApiKey (apiKey: string option) =
         task {
-            try
-                // Save to SecureStorage
-                match apiKey with
-                | Some key -> do! PreferencesProvider.setSecureAsync PolygonApiKeyKey key
-                | None -> PreferencesProvider.removeSecure (PolygonApiKeyKey) |> ignore
+            // Save to SecureStorage
+            match apiKey with
+            | Some key -> do! PreferencesProvider.setSecureAsync PolygonApiKeyKey key
+            | None -> PreferencesProvider.removeSecure (PolygonApiKeyKey) |> ignore
 
-                // Update UserPreferences
-                UserPreferences.OnNext(
-                    { UserPreferences.Value with
-                        PolygonApiKey = apiKey }
-                )
-            with ex ->
-                // Log error but don't throw - this maintains app stability
-                CoreLogger.logError "SavedPreferences" $"Failed to save Polygon API Key to SecureStorage: {ex.Message}"
-                // Still update the in-memory preferences for consistency
-                UserPreferences.OnNext(
-                    { UserPreferences.Value with
-                        PolygonApiKey = apiKey }
-                )
+            // Update UserPreferences
+            UserPreferences.OnNext(
+                { UserPreferences.Value with
+                    PolygonApiKey = apiKey }
+            )
         }
 
     /// <summary>

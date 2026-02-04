@@ -34,18 +34,12 @@ type Do() =
 
     [<Extension>]
     static member getMoney(reader: SqliteDataReader, columName: string) =
-        try
-            let textValue = reader.getString columName
-            // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Reading Money from column {columName} - Raw text value: '{textValue}'")
-            let decimalValue =
-                System.Decimal.Parse(textValue, System.Globalization.CultureInfo.InvariantCulture)
-            // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Parsed decimal value: {decimalValue}")
-            Money.FromAmount(decimalValue)
-        with ex ->
-            // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Error reading Money from column {columName}: {ex.Message}")
-            let fallbackValue = reader.getDecimal columName
-            // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Fallback decimal read: {fallbackValue}")
-            Money.FromAmount(decimal fallbackValue)
+        let textValue = reader.getString columName
+        // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Reading Money from column {columName} - Raw text value: '{textValue}'")
+        let decimalValue =
+            System.Decimal.Parse(textValue, System.Globalization.CultureInfo.InvariantCulture)
+        // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Parsed decimal value: {decimalValue}")
+        Money.FromAmount(decimalValue)
 
     [<Extension>]
     static member getMoneyOrNone(reader: SqliteDataReader, columName: string) =
@@ -54,18 +48,12 @@ type Do() =
         if reader.IsDBNull(ordinal) then
             None
         else
-            try
-                let textValue = reader.getString columName
-                // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Reading MoneyOrNone from column {columName} - Raw text value: '{textValue}'")
-                let decimalValue =
-                    System.Decimal.Parse(textValue, System.Globalization.CultureInfo.InvariantCulture)
-                // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Parsed MoneyOrNone decimal value: {decimalValue}")
-                Some(Money.FromAmount(decimalValue))
-            with ex ->
-                // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Error reading MoneyOrNone from column {columName}: {ex.Message}")
-                let fallbackValue = reader.getDecimal columName
-                // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] MoneyOrNone fallback decimal read: {fallbackValue}")
-                Some(Money.FromAmount(decimal fallbackValue))
+            let textValue = reader.getString columName
+            // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Reading MoneyOrNone from column {columName} - Raw text value: '{textValue}'")
+            let decimalValue =
+                System.Decimal.Parse(textValue, System.Globalization.CultureInfo.InvariantCulture)
+            // System.Diagnostics.Debug.WriteLine($"[DataReaderExtensions] Parsed MoneyOrNone decimal value: {decimalValue}")
+            Some(Money.FromAmount(decimalValue))
 
     [<Extension>]
     static member getStringOrNone(reader: SqliteDataReader, columName: string) =

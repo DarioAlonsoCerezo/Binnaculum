@@ -181,50 +181,37 @@ module internal IBKRConverter =
             for cashMovement in statementData.CashMovements do
                 cancellationToken.ThrowIfCancellationRequested()
 
-                try
-                    let! currencyId = getCurrencyId cashMovement.Currency
+                let! currencyId = getCurrencyId cashMovement.Currency
 
-                    let movement =
-                        createBrokerMovementFromCashMovement cashMovement brokerAccountId currencyId
+                let movement =
+                    createBrokerMovementFromCashMovement cashMovement brokerAccountId currencyId
 
-                    brokerMovements <- movement :: brokerMovements
-                with ex ->
-                    CoreLogger.logWarningf "IBKRConverter" "Error converting cash movement: %s" ex.Message
+                brokerMovements <- movement :: brokerMovements
 
             // Process forex trades as currency conversions
             for forexTrade in statementData.ForexTrades do
                 cancellationToken.ThrowIfCancellationRequested()
 
-                try
-                    let! baseCurrencyId = getCurrencyId forexTrade.BaseCurrency
-                    let! quoteCurrencyId = getCurrencyId forexTrade.QuoteCurrency
+                let! baseCurrencyId = getCurrencyId forexTrade.BaseCurrency
+                let! quoteCurrencyId = getCurrencyId forexTrade.QuoteCurrency
 
-                    let movement =
-                        createBrokerMovementFromForexTrade forexTrade brokerAccountId baseCurrencyId quoteCurrencyId
+                let movement =
+                    createBrokerMovementFromForexTrade forexTrade brokerAccountId baseCurrencyId quoteCurrencyId
 
-                    brokerMovements <- movement :: brokerMovements
-                with ex ->
-                    CoreLogger.logWarningf "IBKRConverter" "Error converting forex trade: %s" ex.Message
+                brokerMovements <- movement :: brokerMovements
 
             // Process stock trades
             for ibkrTrade in statementData.Trades do
                 cancellationToken.ThrowIfCancellationRequested()
 
-                try
-                    // Only process stock trades
-                    if ibkrTrade.AssetCategory = "Stocks" || ibkrTrade.AssetCategory = "STK" then
-                        let! currencyId = getCurrencyId ibkrTrade.Currency
-                        let! tickerId = getOrCreateTickerId ibkrTrade.Symbol
+                // Only process stock trades
+                if ibkrTrade.AssetCategory = "Stocks" || ibkrTrade.AssetCategory = "STK" then
+                    let! currencyId = getCurrencyId ibkrTrade.Currency
+                    let! tickerId = getOrCreateTickerId ibkrTrade.Symbol
 
-                        match createTradeFromIBKRTrade ibkrTrade brokerAccountId currencyId tickerId with
-                        | Some trade -> stockTrades <- trade :: stockTrades
-                        | None -> ()
-                with ex ->
-                    CoreLogger.logWarningf
-                        "IBKRConverter"
-                        "Error converting IBKR trade for symbol %s: %s"
-                        ibkrTrade.Symbol
-                        ex.Message
+                    match createTradeFromIBKRTrade ibkrTrade brokerAccountId currencyId tickerId with
+                    | Some trade -> stockTrades <- trade :: stockTrades
+                    | None -> ()
 
             return
                 { ImportDomainTypes.PersistenceInput.BrokerMovements = brokerMovements

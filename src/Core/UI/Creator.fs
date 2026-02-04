@@ -80,83 +80,72 @@ module Creator =
 
     let SaveBrokerMovement (movement: Binnaculum.Core.Models.BrokerMovement) =
         task {
-            try
-                // CoreLogger.logDebugf "Creator" "SaveBrokerMovement ENTRY - Amount: %A, Type: %A, BrokerAccountId: %A, Date: %A" movement.Amount movement.MovementType movement.BrokerAccount.Id movement.TimeStamp
+            // CoreLogger.logDebugf "Creator" "SaveBrokerMovement ENTRY - Amount: %A, Type: %A, BrokerAccountId: %A, Date: %A" movement.Amount movement.MovementType movement.BrokerAccount.Id movement.TimeStamp
 
-                // Validate FromCurrency based on MovementType
-                // CoreLogger.logDebug "Creator" "Validating movement type and FromCurrency..."
+            // Validate FromCurrency based on MovementType
+            // CoreLogger.logDebug "Creator" "Validating movement type and FromCurrency..."
 
-                match movement.MovementType, movement.FromCurrency with
+            match movement.MovementType, movement.FromCurrency with
+            | Binnaculum.Core.Models.BrokerMovementType.Conversion, None ->
+                failwith "FromCurrency is required when MovementType is Conversion"
+            | Binnaculum.Core.Models.BrokerMovementType.Conversion, Some _ -> () // Valid: Conversion with FromCurrency
+            | _, Some _ -> failwith "FromCurrency should only be set when MovementType is Conversion"
+            | _, None -> () // Valid: Non-conversion without FromCurrency
+
+            // CoreLogger.logDebug "Creator" "Movement validation passed"
+
+            // Set default AmountChanged for Conversion movements if not provided
+            let movementWithDefaults =
+                match movement.MovementType, movement.AmountChanged with
                 | Binnaculum.Core.Models.BrokerMovementType.Conversion, None ->
-                    failwith "FromCurrency is required when MovementType is Conversion"
-                | Binnaculum.Core.Models.BrokerMovementType.Conversion, Some _ -> () // Valid: Conversion with FromCurrency
-                | _, Some _ -> failwith "FromCurrency should only be set when MovementType is Conversion"
-                | _, None -> () // Valid: Non-conversion without FromCurrency
+                    // Set default value for AmountChanged (using the same amount as the main Amount for now)
+                    { movement with
+                        AmountChanged = Some movement.Amount }
+                | _ -> movement
 
-                // CoreLogger.logDebug "Creator" "Movement validation passed"
+            // CoreLogger.logDebug "Creator" "Converting movement to database model..."
+            let databaseModel = movementWithDefaults.brokerMovementToDatabase ()
+            // CoreLogger.logDebug "Creator" "Database model created, saving movement..."
+            do! Saver.saveBrokerMovement (databaseModel) |> Async.AwaitTask
+            // CoreLogger.logDebug "Creator" "Movement saved to database successfully"
 
-                // Set default AmountChanged for Conversion movements if not provided
-                let movementWithDefaults =
-                    match movement.MovementType, movement.AmountChanged with
-                    | Binnaculum.Core.Models.BrokerMovementType.Conversion, None ->
-                        // Set default value for AmountChanged (using the same amount as the main Amount for now)
-                        { movement with
-                            AmountChanged = Some movement.Amount }
-                    | _ -> movement
+            // Update snapshots for this movement using coordinator (batch mode if enabled)
+            let movementDatePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
 
-                // CoreLogger.logDebug "Creator" "Converting movement to database model..."
-                let databaseModel = movementWithDefaults.brokerMovementToDatabase ()
-                // CoreLogger.logDebug "Creator" "Database model created, saving movement..."
-                do! Saver.saveBrokerMovement (databaseModel) |> Async.AwaitTask
-                // CoreLogger.logDebug "Creator" "Movement saved to database successfully"
+            // CoreLogger.logDebugf "Creator" "SaveBrokerMovement - About to update snapshots for movement date: %A, Amount: %A, Type: %A" movementDatePattern movement.Amount movement.MovementType
 
-                // Update snapshots for this movement using coordinator (batch mode if enabled)
-                let movementDatePattern = DateTimePattern.FromDateTime(movement.TimeStamp)
+            do!
+                SnapshotProcessingCoordinator.handleBrokerAccountChange (movement.BrokerAccount.Id, movementDatePattern)
+                |> Async.AwaitTask
 
-                // CoreLogger.logDebugf "Creator" "SaveBrokerMovement - About to update snapshots for movement date: %A, Amount: %A, Type: %A" movementDatePattern movement.Amount movement.MovementType
+            // CoreLogger.logDebug "Creator" "SaveBrokerMovement - Historical movement date snapshot update completed"
+
+            // If this is a historical movement (not today), also update today's snapshot to reflect the new data
+            let today = DateTime.Now.Date
+            let movementDate = movement.TimeStamp.Date
+
+            // CoreLogger.logDebugf "Creator" "Checking if historical movement - Movement date: %A, Today: %A" movementDate today
+
+            if movementDate < today then
+                // CoreLogger.logDebugf "Creator" "*** HISTORICAL MOVEMENT DETECTED *** - Movement date: %A, Today: %A" movementDate today
+
+                // CoreLogger.logDebugf "Creator" "About to update today's snapshot to reflect historical deposit of %A" movement.Amount
+
+                let todayPattern = DateTimePattern.FromDateTime(today.AddDays(1).AddTicks(-1)) // End of today
+                // CoreLogger.logDebugf "Creator" "Today pattern calculated: %A" todayPattern
 
                 do!
-                    SnapshotProcessingCoordinator.handleBrokerAccountChange (
-                        movement.BrokerAccount.Id,
-                        movementDatePattern
-                    )
+                    SnapshotProcessingCoordinator.handleBrokerAccountChange (movement.BrokerAccount.Id, todayPattern)
                     |> Async.AwaitTask
 
-                // CoreLogger.logDebug "Creator" "SaveBrokerMovement - Historical movement date snapshot update completed"
+            // CoreLogger.logDebug "Creator" "*** TODAY'S SNAPSHOT UPDATE COMPLETED AFTER HISTORICAL MOVEMENT ***"
+            else
+                // CoreLogger.logDebug "Creator" "Movement is for today - no additional snapshot update needed"
+                ()
 
-                // If this is a historical movement (not today), also update today's snapshot to reflect the new data
-                let today = DateTime.Now.Date
-                let movementDate = movement.TimeStamp.Date
-
-                // CoreLogger.logDebugf "Creator" "Checking if historical movement - Movement date: %A, Today: %A" movementDate today
-
-                if movementDate < today then
-                    // CoreLogger.logDebugf "Creator" "*** HISTORICAL MOVEMENT DETECTED *** - Movement date: %A, Today: %A" movementDate today
-
-                    // CoreLogger.logDebugf "Creator" "About to update today's snapshot to reflect historical deposit of %A" movement.Amount
-
-                    let todayPattern = DateTimePattern.FromDateTime(today.AddDays(1).AddTicks(-1)) // End of today
-                    // CoreLogger.logDebugf "Creator" "Today pattern calculated: %A" todayPattern
-
-                    do!
-                        SnapshotProcessingCoordinator.handleBrokerAccountChange (
-                            movement.BrokerAccount.Id,
-                            todayPattern
-                        )
-                        |> Async.AwaitTask
-
-                    // CoreLogger.logDebug "Creator" "*** TODAY'S SNAPSHOT UPDATE COMPLETED AFTER HISTORICAL MOVEMENT ***"
-                else
-                    // CoreLogger.logDebug "Creator" "Movement is for today - no additional snapshot update needed"
-                    ()
-
-                // CoreLogger.logDebug "Creator" "Refreshing reactive snapshot manager..."
-                ReactiveSnapshotManager.refresh ()
-                // CoreLogger.logDebug "Creator" "SaveBrokerMovement COMPLETED SUCCESSFULLY"
-            with ex ->
-                CoreLogger.logErrorf "Creator" "*** ERROR IN SaveBrokerMovement *** - Exception: %A" ex.Message
-                CoreLogger.logErrorf "Creator" "*** STACK TRACE *** - %A" ex.StackTrace
-                raise ex
+            // CoreLogger.logDebug "Creator" "Refreshing reactive snapshot manager..."
+            ReactiveSnapshotManager.refresh ()
+        // CoreLogger.logDebug "Creator" "SaveBrokerMovement COMPLETED SUCCESSFULLY"
         }
 
     let SaveBankMovement (movement: Binnaculum.Core.Models.BankAccountMovement) =
