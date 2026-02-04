@@ -43,148 +43,145 @@ module ReactiveMovementManager =
             isLoadingMovements <- true
             // CoreLogger.logDebug "ReactiveMovementManager" "Starting loadMovements"
 
-            try
-                // Get all account IDs from Collections.Accounts
-                let brokerAccounts =
-                    Collections.Accounts.Items
-                    |> Seq.filter (fun acc -> acc.Broker.IsSome)
-                    |> Seq.map (fun acc -> acc.Broker.Value.Id)
-                    |> Seq.toList
-                
-                let bankAccounts =
-                    Collections.Accounts.Items
-                    |> Seq.filter (fun acc -> acc.Bank.IsSome)
-                    |> Seq.map (fun acc -> acc.Bank.Value.Id)
-                    |> Seq.toList
-                
-                // Build async tasks (one per account per movement type)
-                let movementTasks = [
-                    // Broker movements per account
-                    for brokerId in brokerAccounts do
-                        async {
-                            let! movements =
-                                BrokerMovementExtensions.Do.loadMovementsPaged(brokerId, 0, 50)
-                                |> Async.AwaitTask
-                            return (brokerId, movements.brokerMovementsToModel())
-                        }
-                    
-                    // Trades per account
-                    for brokerId in brokerAccounts do
-                        async {
-                            let! trades =
-                                TradeExtensions.Do.loadTradesPaged(brokerId, 0, 50)
-                                |> Async.AwaitTask
-                            return (brokerId, trades.tradesToMovements())
-                        }
-                    
-                    // Dividends per account
-                    for brokerId in brokerAccounts do
-                        async {
-                            let! dividends =
-                                DividendExtensions.Do.loadDividendsPaged(brokerId, 0, 50)
-                                |> Async.AwaitTask
-                            return (brokerId, dividends.dividendsReceivedToMovements())
-                        }
-                    
-                    // Dividend dates per account
-                    for brokerId in brokerAccounts do
-                        async {
-                            let! dividendDates =
-                                DividendDateExtensions.Do.loadDividendDatesPaged(brokerId, 0, 50)
-                                |> Async.AwaitTask
-                            return (brokerId, dividendDates.dividendDatesToMovements())
-                        }
-                    
-                    // Dividend taxes per account
-                    for brokerId in brokerAccounts do
-                        async {
-                            let! dividendTaxes =
-                                DividendTaxExtensions.Do.loadDividendTaxesPaged(brokerId, 0, 50)
-                                |> Async.AwaitTask
-                            return (brokerId, dividendTaxes.dividendTaxesToMovements())
-                        }
-                    
-                    // Option trades per account
-                    for brokerId in brokerAccounts do
-                        async {
-                            let! optionTrades =
-                                OptionTradeExtensions.Do.loadOptionTradesPaged(brokerId, 0, 50)
-                                |> Async.AwaitTask
-                            return (brokerId, optionTrades.optionTradesToMovements())
-                        }
-                    
-                    // Bank movements per account
-                    for bankId in bankAccounts do
-                        async {
-                            let! bankMovements =
-                                BankAccountBalanceExtensions.Do.loadBankMovementsPaged(bankId, 0, 50)
-                                |> Async.AwaitTask
-                            return (bankId, bankMovements.bankAccountMovementsToMovements())
-                        }
-                ]
-                
-                // Execute all tasks in parallel
-                let! allMovementsByAccount = Async.Parallel movementTasks
-                
-                // Group by account, combine types, sort, and truncate to 50 per account
-                let movements =
-                    allMovementsByAccount
-                    |> Array.toList
-                    |> List.groupBy fst  // Group by accountId
-                    |> List.collect (fun (accountId, accountMovements) ->
-                        accountMovements
-                        |> List.collect snd  // Get all movements
-                        |> List.sortByDescending (fun m -> m.TimeStamp)  // Newest first
-                        |> List.truncate 50)  // Top 50 per account
-                
-                // Update the movements collection with bounded dataset
-                Collections.Movements.EditDiff movements
-
-                // Update account movement status
+            // Get all account IDs from Collections.Accounts
+            let brokerAccounts =
                 Collections.Accounts.Items
-                |> Seq.iter (fun account ->
-                    if account.Bank.IsSome then
-                        let hasMovements =
-                            movements
-                            |> List.filter (fun m ->
-                                m.BankAccountMovement.IsSome
-                                && m.BankAccountMovement.Value.BankAccount.Id = account.Bank.Value.Id)
-                            |> List.length > 0
+                |> Seq.filter (fun acc -> acc.Broker.IsSome)
+                |> Seq.map (fun acc -> acc.Broker.Value.Id)
+                |> Seq.toList
+
+            let bankAccounts =
+                Collections.Accounts.Items
+                |> Seq.filter (fun acc -> acc.Bank.IsSome)
+                |> Seq.map (fun acc -> acc.Bank.Value.Id)
+                |> Seq.toList
+
+            // Build async tasks (one per account per movement type)
+            let movementTasks =
+                [
+                  // Broker movements per account
+                  for brokerId in brokerAccounts do
+                      async {
+                          let! movements =
+                              BrokerMovementExtensions.Do.loadMovementsPaged (brokerId, 0, 50)
+                              |> Async.AwaitTask
+
+                          return (brokerId, movements.brokerMovementsToModel ())
+                      }
+
+                  // Trades per account
+                  for brokerId in brokerAccounts do
+                      async {
+                          let! trades = TradeExtensions.Do.loadTradesPaged (brokerId, 0, 50) |> Async.AwaitTask
+                          return (brokerId, trades.tradesToMovements ())
+                      }
+
+                  // Dividends per account
+                  for brokerId in brokerAccounts do
+                      async {
+                          let! dividends = DividendExtensions.Do.loadDividendsPaged (brokerId, 0, 50) |> Async.AwaitTask
+                          return (brokerId, dividends.dividendsReceivedToMovements ())
+                      }
+
+                  // Dividend dates per account
+                  for brokerId in brokerAccounts do
+                      async {
+                          let! dividendDates =
+                              DividendDateExtensions.Do.loadDividendDatesPaged (brokerId, 0, 50)
+                              |> Async.AwaitTask
+
+                          return (brokerId, dividendDates.dividendDatesToMovements ())
+                      }
+
+                  // Dividend taxes per account
+                  for brokerId in brokerAccounts do
+                      async {
+                          let! dividendTaxes =
+                              DividendTaxExtensions.Do.loadDividendTaxesPaged (brokerId, 0, 50)
+                              |> Async.AwaitTask
+
+                          return (brokerId, dividendTaxes.dividendTaxesToMovements ())
+                      }
+
+                  // Option trades per account
+                  for brokerId in brokerAccounts do
+                      async {
+                          let! optionTrades =
+                              OptionTradeExtensions.Do.loadOptionTradesPaged (brokerId, 0, 50)
+                              |> Async.AwaitTask
+
+                          return (brokerId, optionTrades.optionTradesToMovements ())
+                      }
+
+                  // Bank movements per account
+                  for bankId in bankAccounts do
+                      async {
+                          let! bankMovements =
+                              BankAccountBalanceExtensions.Do.loadBankMovementsPaged (bankId, 0, 50)
+                              |> Async.AwaitTask
+
+                          return (bankId, bankMovements.bankAccountMovementsToMovements ())
+                      } ]
+
+            // Execute all tasks in parallel
+            let! allMovementsByAccount = Async.Parallel movementTasks
+
+            // Group by account, combine types, sort, and truncate to 50 per account
+            let movements =
+                allMovementsByAccount
+                |> Array.toList
+                |> List.groupBy fst // Group by accountId
+                |> List.collect (fun (accountId, accountMovements) ->
+                    accountMovements
+                    |> List.collect snd // Get all movements
+                    |> List.sortByDescending (fun m -> m.TimeStamp) // Newest first
+                    |> List.truncate 50) // Top 50 per account
+
+            // Update the movements collection with bounded dataset
+            Collections.Movements.EditDiff movements
+
+            // Update account movement status
+            Collections.Accounts.Items
+            |> Seq.iter (fun account ->
+                if account.Bank.IsSome then
+                    let hasMovements =
+                        movements
+                        |> List.filter (fun m ->
+                            m.BankAccountMovement.IsSome
+                            && m.BankAccountMovement.Value.BankAccount.Id = account.Bank.Value.Id)
+                        |> List.length > 0
+
+                    if hasMovements <> account.HasMovements then
+                        let updatedAccount =
+                            { account with
+                                HasMovements = hasMovements }
+
+                        match
+                            Collections.Accounts.Items
+                            |> Seq.tryFind (fun a -> a.Bank.IsSome && a.Bank.Value.Id = account.Bank.Value.Id)
+                        with
+                        | Some current -> Collections.Accounts.Replace(current, updatedAccount)
+                        | None ->
+                            // CoreLogger.logDebug "ReactiveMovementManager" $"Bank account with ID {account.Bank.Value.Id} not found in Collections.Accounts for movement update"
+                            ()
+
+                if account.Broker.IsSome then
+                    async {
+                        let! hasMovements =
+                            BrokerAccountExtensions.Do.hasMovements account.Broker.Value.Id
+                            |> Async.AwaitTask
 
                         if hasMovements <> account.HasMovements then
                             let updatedAccount =
                                 { account with
                                     HasMovements = hasMovements }
 
-                            match
-                                Collections.Accounts.Items
-                                |> Seq.tryFind (fun a -> a.Bank.IsSome && a.Bank.Value.Id = account.Bank.Value.Id)
-                            with
-                            | Some current -> Collections.Accounts.Replace(current, updatedAccount)
-                            | None ->
-                                // CoreLogger.logDebug "ReactiveMovementManager" $"Bank account with ID {account.Bank.Value.Id} not found in Collections.Accounts for movement update"
-                                ()
+                            Collections.updateBrokerAccount updatedAccount
+                    }
+                    |> Async.StartImmediate)
 
-                    if account.Broker.IsSome then
-                        async {
-                            let! hasMovements =
-                                BrokerAccountExtensions.Do.hasMovements account.Broker.Value.Id
-                                |> Async.AwaitTask
-
-                            if hasMovements <> account.HasMovements then
-                                let updatedAccount =
-                                    { account with
-                                        HasMovements = hasMovements }
-
-                                Collections.updateBrokerAccount updatedAccount
-                        }
-                        |> Async.StartImmediate)
-
-                // CoreLogger.logDebug "ReactiveMovementManager" "Completed loadMovements"
-                isLoadingMovements <- false
-            with ex ->
-                CoreLogger.logError "ReactiveMovementManager" $"loadMovements error: {ex.Message}"
-                isLoadingMovements <- false
+            // CoreLogger.logDebug "ReactiveMovementManager" "Completed loadMovements"
+            isLoadingMovements <- false
         }
 
     /// <summary>

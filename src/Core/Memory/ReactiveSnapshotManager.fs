@@ -40,37 +40,35 @@ module ReactiveSnapshotManager =
 
                 return ()
 
-            try
-                isLoadingSnapshots <- true
-                // CoreLogger.logDebug "ReactiveSnapshotManager" "Starting loadSnapshots"
+            isLoadingSnapshots <- true
+            // CoreLogger.logDebug "ReactiveSnapshotManager" "Starting loadSnapshots"
 
-                // Load all snapshot types (same as original loadOverviewSnapshots)
-                do! BrokerSnapshotLoader.load () |> Async.AwaitTask |> Async.Ignore
-                do! BankSnapshotLoader.load () |> Async.AwaitTask |> Async.Ignore
-                do! BrokerAccountSnapshotLoader.load () |> Async.AwaitTask |> Async.Ignore
-                do! BankAccountSnapshotLoader.load () |> Async.AwaitTask |> Async.Ignore
+            // Load all snapshot types (same as original loadOverviewSnapshots)
+            do! BrokerSnapshotLoader.load () |> Async.AwaitTask |> Async.Ignore
+            do! BankSnapshotLoader.load () |> Async.AwaitTask |> Async.Ignore
+            do! BrokerAccountSnapshotLoader.load () |> Async.AwaitTask |> Async.Ignore
+            do! BankAccountSnapshotLoader.load () |> Async.AwaitTask |> Async.Ignore
 
-                // Check for empty snapshots and real snapshots
-                let emptySnapshots =
-                    Collections.Snapshots.Items
-                    |> Seq.filter (fun s -> s.Type = Models.OverviewSnapshotType.Empty)
-                    |> Seq.toList
+            // Check for empty snapshots and real snapshots
+            let emptySnapshots =
+                Collections.Snapshots.Items
+                |> Seq.filter (fun s -> s.Type = Models.OverviewSnapshotType.Empty)
+                |> Seq.toList
 
-                let realSnapshots =
-                    Collections.Snapshots.Items
-                    |> Seq.filter (fun s -> s.Type <> Models.OverviewSnapshotType.Empty)
-                    |> Seq.toList
+            let realSnapshots =
+                Collections.Snapshots.Items
+                |> Seq.filter (fun s -> s.Type <> Models.OverviewSnapshotType.Empty)
+                |> Seq.toList
 
-                // If we have real snapshots, remove any empty snapshots
-                if not (List.isEmpty realSnapshots) then
-                    emptySnapshots |> List.iter (Collections.Snapshots.Remove >> ignore)
-                // If we have no snapshots at all, add empty snapshot
-                elif Collections.Snapshots.Items.Count = 0 then
-                    Collections.Snapshots.Add(DatabaseToModels.Do.createEmptyOverviewSnapshot ())
+            // If we have real snapshots, remove any empty snapshots
+            if not (List.isEmpty realSnapshots) then
+                emptySnapshots |> List.iter (Collections.Snapshots.Remove >> ignore)
+            // If we have no snapshots at all, add empty snapshot
+            elif Collections.Snapshots.Items.Count = 0 then
+                Collections.Snapshots.Add(DatabaseToModels.Do.createEmptyOverviewSnapshot ())
 
-                // CoreLogger.logDebug "ReactiveSnapshotManager" "Completed loadSnapshots"
-            finally
-                isLoadingSnapshots <- false
+            // CoreLogger.logDebug "ReactiveSnapshotManager" "Completed loadSnapshots"
+            isLoadingSnapshots <- false
         }
 
     /// <summary>
