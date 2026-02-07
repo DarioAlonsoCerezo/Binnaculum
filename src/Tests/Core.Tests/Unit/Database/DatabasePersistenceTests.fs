@@ -1,31 +1,26 @@
 namespace Binnaculum.Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
-open System.IO
-open System.Threading
 open Binnaculum.Core.Import
 open Binnaculum.Core.Import.DatabasePersistence
 open Binnaculum.Core.Import.TastytradeModels
-open Binnaculum.Core.Database
-open Binnaculum.Core.Database.DatabaseModel
-open Binnaculum.Core.UI
 
-[<TestFixture>]
-type DatabasePersistenceTests() =
+[<TestClass>]
+type public DatabasePersistenceTests() =
 
     /// <summary>
     /// NOTE: These tests validate type structures and logic without requiring database access.
     /// For actual database operations, see InMemoryDatabaseExampleTests.
     /// </summary>
 
-    [<Test>]
-    member this.``DatabasePersistence module exists and compiles correctly``() =
+    [<TestMethod>]
+    member public this.``DatabasePersistence module exists and compiles correctly``() =
         // This test validates that the DatabasePersistence module compiles without errors
-        Assert.Pass("DatabasePersistence module compiles successfully")
+        Assert.Inconclusive("DatabasePersistence module compiles successfully")
 
-    [<Test>]
-    member this.``DatabasePersistence types are properly defined``() =
+    [<TestMethod>]
+    member public this.``DatabasePersistence types are properly defined``() =
         // Test that we can create the result type structures
         let persistenceResult =
             { BrokerMovementsCreated = 1
@@ -36,12 +31,12 @@ type DatabasePersistenceTests() =
               Errors = []
               ImportMetadata = ImportMetadata.createEmpty () }
 
-        Assert.That(persistenceResult.BrokerMovementsCreated, Is.EqualTo(1))
-        Assert.That(persistenceResult.OptionTradesCreated, Is.EqualTo(2))
-        Assert.That(persistenceResult.ErrorsCount, Is.EqualTo(0))
+        Assert.AreEqual(1, persistenceResult.BrokerMovementsCreated)
+        Assert.AreEqual(2, persistenceResult.OptionTradesCreated)
+        Assert.AreEqual(0, persistenceResult.ErrorsCount)
 
-    [<Test>]
-    member this.``TastytradeTransaction structure is correct for database persistence``() =
+    [<TestMethod>]
+    member public this.``TastytradeTransaction structure is correct for database persistence``() =
         // Test that we can create valid TastytradeTransaction objects
         let testTransaction =
             { Date = DateTime(2024, 4, 30, 15, 45, 8)
@@ -65,12 +60,12 @@ type DatabasePersistenceTests() =
               RawCsvLine = "test line"
               LineNumber = 1 }
 
-        Assert.That(testTransaction.Value, Is.EqualTo(16.00m))
-        Assert.That(testTransaction.InstrumentType, Is.EqualTo(Some "Equity Option"))
-        Assert.That(testTransaction.Currency, Is.EqualTo("USD"))
+        Assert.AreEqual(16.00m, testTransaction.Value)
+        Assert.AreEqual(Some "Equity Option", testTransaction.InstrumentType)
+        Assert.AreEqual("USD", testTransaction.Currency)
 
-    [<Test>]
-    member this.``Import flow integration validates database persistence is called``() =
+    [<TestMethod>]
+    member public this.``Import flow integration validates database persistence is called``() =
         // This validates that the ImportManager has been updated to include database persistence
         // We can't test the actual database operations but we can verify the flow exists
 
@@ -82,7 +77,7 @@ type DatabasePersistenceTests() =
         // 3. Update ImportResult with actual persisted counts
         // 4. Handle errors and cancellation properly
 
-        Assert.Pass("ImportManager integration with DatabasePersistence compiles successfully")
+        Assert.Inconclusive("ImportManager integration with DatabasePersistence compiles successfully")
 
     /// <summary>
     /// Integration test documentation:
@@ -106,8 +101,8 @@ type DatabasePersistenceTests() =
     /// This resolves the issue where imported data was parsed but not persisted to the database.
     /// </summary>
 
-    [<Test>]
-    member this.``TastytradeTransaction structure supports multi-currency data``() =
+    [<TestMethod>]
+    member public this.``TastytradeTransaction structure supports multi-currency data``() =
         // Test USD transaction (existing behavior)
         let usdTransaction =
             { Date = DateTime(2024, 4, 30, 15, 45, 8)
@@ -154,11 +149,11 @@ type DatabasePersistenceTests() =
               RawCsvLine = "test EUR line"
               LineNumber = 2 }
 
-        Assert.That(usdTransaction.Currency, Is.EqualTo("USD"))
-        Assert.That(eurTransaction.Currency, Is.EqualTo("EUR"))
+        Assert.AreEqual("USD", usdTransaction.Currency)
+        Assert.AreEqual("EUR", eurTransaction.Currency)
 
-    [<Test>]
-    member this.``Currency handling logic validation for multi-currency scenarios``() =
+    [<TestMethod>]
+    member public this.``Currency handling logic validation for multi-currency scenarios``() =
         // Test case: Valid currency codes that should be supported
         let validCurrencies = [ "USD"; "EUR"; "GBP"; "JPY"; "CAD" ]
 
@@ -185,10 +180,10 @@ type DatabasePersistenceTests() =
                   RawCsvLine = $"test {currency} line"
                   LineNumber = 1 }
 
-            Assert.That(transaction.Currency, Is.EqualTo(currency))
+            Assert.AreEqual(currency, transaction.Currency)
 
-    [<Test>]
-    member this.``Multi-currency transaction list supports mixed currencies``() =
+    [<TestMethod>]
+    member public this.``Multi-currency transaction list supports mixed currencies``() =
         // Test that a list of transactions can contain mixed currencies
         let mixedCurrencyTransactions =
             [
@@ -235,18 +230,18 @@ type DatabasePersistenceTests() =
                 RawCsvLine = "test EUR deposit line"
                 LineNumber = 2 } ]
 
-        Assert.That(mixedCurrencyTransactions.Length, Is.EqualTo(2))
-        Assert.That(mixedCurrencyTransactions.[0].Currency, Is.EqualTo("USD"))
-        Assert.That(mixedCurrencyTransactions.[1].Currency, Is.EqualTo("EUR"))
+        Assert.AreEqual(2, mixedCurrencyTransactions.Length)
+        Assert.AreEqual("USD", mixedCurrencyTransactions.[0].Currency)
+        Assert.AreEqual("EUR", mixedCurrencyTransactions.[1].Currency)
 
-    [<Test>]
-    member this.``DatabasePersistence getCurrencyId function behavior validation``() =
+    [<TestMethod>]
+    member public this.``DatabasePersistence getCurrencyId function behavior validation``() =
         // This test documents the expected behavior of the new getCurrencyId function
 
         // Test case 1: USD should always work (backward compatibility)
         let usdCurrency = "USD"
-        Assert.That(String.IsNullOrWhiteSpace(usdCurrency), Is.False)
-        Assert.That(usdCurrency, Is.EqualTo("USD"))
+        Assert.IsFalse(String.IsNullOrWhiteSpace(usdCurrency))
+        Assert.AreEqual("USD", usdCurrency)
 
         // Test case 2: Empty/null currency should fallback to USD
         let emptyCurrencies = [ ""; " " ]
@@ -258,18 +253,18 @@ type DatabasePersistenceTests() =
                 else
                     currency
 
-            Assert.That(fallbackCurrency, Is.EqualTo("USD"))
+            Assert.AreEqual("USD", fallbackCurrency)
 
-        Assert.Pass(
+        Assert.Inconclusive(
             "getCurrencyId function logic validation completed - supports per-transaction currency lookup with USD fallback"
         )
 
-    [<Test>]
-    member this.``Performance improvement validation - efficient currency lookup``() =
+    [<TestMethod>]
+    member public this.``Performance improvement validation - efficient currency lookup``() =
         // This test documents the performance improvement from using getByCode instead of getAll
         // Old approach: getAll() + List.tryFind (inefficient)
         // New approach: getByCode(currencyCode) (efficient targeted query)
-        Assert.Pass(
+        Assert.Inconclusive(
             "Performance improvement documented: targeted getByCode() queries replace inefficient getAll() + linear search pattern"
         )
 

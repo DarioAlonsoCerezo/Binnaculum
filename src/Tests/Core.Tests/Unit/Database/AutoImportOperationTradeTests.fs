@@ -1,6 +1,6 @@
 namespace Binnaculum.Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
 
@@ -8,12 +8,12 @@ open Binnaculum.Core.Database.DatabaseModel
 /// Unit tests for AutoImportOperationTrade database operations.
 /// Tests the junction table that links operations to trades, options, dividends, and dividend taxes.
 /// </summary>
-[<TestFixture>]
-type AutoImportOperationTradeTests() =
+[<TestClass>]
+type public AutoImportOperationTradeTests() =
     inherit InMemoryDatabaseFixture()
     
-    [<Test>]
-    member this.``Can create stock trade link``() =
+    [<TestMethod>]
+    member public this.``Can create stock trade link``() =
         let link =
             { Id = 0
               AutoOperationId = 1
@@ -21,12 +21,12 @@ type AutoImportOperationTradeTests() =
               ReferenceId = 123
               Audit = AuditableEntity.Default }
         
-        Assert.That(link.AutoOperationId, Is.EqualTo(1))
-        Assert.That(link.TradeType, Is.EqualTo(OperationTradeType.StockTrade))
-        Assert.That(link.ReferenceId, Is.EqualTo(123))
+        Assert.AreEqual(1, link.AutoOperationId)
+        Assert.AreEqual(OperationTradeType.StockTrade, link.TradeType)
+        Assert.AreEqual(123, link.ReferenceId)
     
-    [<Test>]
-    member this.``Can create option trade link``() =
+    [<TestMethod>]
+    member public this.``Can create option trade link``() =
         let link =
             { Id = 0
               AutoOperationId = 1
@@ -34,10 +34,10 @@ type AutoImportOperationTradeTests() =
               ReferenceId = 456
               Audit = AuditableEntity.Default }
         
-        Assert.That(link.TradeType, Is.EqualTo(OperationTradeType.OptionTrade))
+        Assert.AreEqual(OperationTradeType.OptionTrade, link.TradeType)
     
-    [<Test>]
-    member this.``Can create dividend link``() =
+    [<TestMethod>]
+    member public this.``Can create dividend link``() =
         let link =
             { Id = 0
               AutoOperationId = 1
@@ -45,10 +45,10 @@ type AutoImportOperationTradeTests() =
               ReferenceId = 789
               Audit = AuditableEntity.Default }
         
-        Assert.That(link.TradeType, Is.EqualTo(OperationTradeType.Dividend))
+        Assert.AreEqual(OperationTradeType.Dividend, link.TradeType)
     
-    [<Test>]
-    member this.``Can create dividend tax link``() =
+    [<TestMethod>]
+    member public this.``Can create dividend tax link``() =
         let link =
             { Id = 0
               AutoOperationId = 1
@@ -56,10 +56,10 @@ type AutoImportOperationTradeTests() =
               ReferenceId = 999
               Audit = AuditableEntity.Default }
         
-        Assert.That(link.TradeType, Is.EqualTo(OperationTradeType.DividendTax))
+        Assert.AreEqual(OperationTradeType.DividendTax, link.TradeType)
     
-    [<Test>]
-    member this.``AutoImportOperationTrade implements IEntity interface``() =
+    [<TestMethod>]
+    member public this.``AutoImportOperationTrade implements IEntity interface``() =
         let link =
             { Id = 5
               AutoOperationId = 1
@@ -68,10 +68,10 @@ type AutoImportOperationTradeTests() =
               Audit = AuditableEntity.Default }
         
         let entity = link :> Do.IEntity
-        Assert.That(entity.Id, Is.EqualTo(5))
+        Assert.AreEqual(5, entity.Id)
     
-    [<Test>]
-    member this.``AutoImportOperationTrade implements IAuditEntity interface``() =
+    [<TestMethod>]
+    member public this.``AutoImportOperationTrade implements IAuditEntity interface``() =
         let link =
             { Id = 0
               AutoOperationId = 1
@@ -80,21 +80,21 @@ type AutoImportOperationTradeTests() =
               Audit = AuditableEntity.Default }
         
         let auditEntity = link :> Do.IAuditEntity
-        Assert.That(auditEntity.CreatedAt, Is.EqualTo(None))
-        Assert.That(auditEntity.UpdatedAt, Is.EqualTo(None))
+        Assert.AreEqual(None, auditEntity.CreatedAt)
+        Assert.AreEqual(None, auditEntity.UpdatedAt)
     
-    [<Test>]
-    member this.``OperationTradeType can be converted to and from database string``() =
+    [<TestMethod>]
+    member public this.``OperationTradeType can be converted to and from database string``() =
         // Test that type parsers work correctly
         let stockTradeStr = TypeParser.fromOperationTradeTypeToDatabase OperationTradeType.StockTrade
         let optionTradeStr = TypeParser.fromOperationTradeTypeToDatabase OperationTradeType.OptionTrade
         let dividendStr = TypeParser.fromOperationTradeTypeToDatabase OperationTradeType.Dividend
         let dividendTaxStr = TypeParser.fromOperationTradeTypeToDatabase OperationTradeType.DividendTax
         
-        Assert.That(stockTradeStr, Is.EqualTo("STOCK_TRADE"))
-        Assert.That(optionTradeStr, Is.EqualTo("OPTION_TRADE"))
-        Assert.That(dividendStr, Is.EqualTo("DIVIDEND"))
-        Assert.That(dividendTaxStr, Is.EqualTo("DIVIDEND_TAX"))
+        Assert.AreEqual("STOCK_TRADE", stockTradeStr)
+        Assert.AreEqual("OPTION_TRADE", optionTradeStr)
+        Assert.AreEqual("DIVIDEND", dividendStr)
+        Assert.AreEqual("DIVIDEND_TAX", dividendTaxStr)
         
         // Test round-trip conversion
         let stockTradeBack = TypeParser.fromDatabaseToOperationTradeType stockTradeStr
@@ -102,7 +102,7 @@ type AutoImportOperationTradeTests() =
         let dividendBack = TypeParser.fromDatabaseToOperationTradeType dividendStr
         let dividendTaxBack = TypeParser.fromDatabaseToOperationTradeType dividendTaxStr
         
-        Assert.That(stockTradeBack, Is.EqualTo(OperationTradeType.StockTrade))
-        Assert.That(optionTradeBack, Is.EqualTo(OperationTradeType.OptionTrade))
-        Assert.That(dividendBack, Is.EqualTo(OperationTradeType.Dividend))
-        Assert.That(dividendTaxBack, Is.EqualTo(OperationTradeType.DividendTax))
+        Assert.AreEqual(OperationTradeType.StockTrade, stockTradeBack)
+        Assert.AreEqual(OperationTradeType.OptionTrade, optionTradeBack)
+        Assert.AreEqual(OperationTradeType.Dividend, dividendBack)
+        Assert.AreEqual(OperationTradeType.DividendTax, dividendTaxBack)

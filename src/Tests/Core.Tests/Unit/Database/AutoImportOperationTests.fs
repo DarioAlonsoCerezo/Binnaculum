@@ -1,6 +1,6 @@
 namespace Binnaculum.Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
@@ -9,29 +9,29 @@ open Binnaculum.Core.Patterns
 /// Unit tests for AutoImportOperation database operations.
 /// Tests basic CRUD functionality using in-memory database.
 /// </summary>
-[<TestFixture>]
-type AutoImportOperationTests() =
+[<TestClass>]
+type public AutoImportOperationTests() =
     inherit InMemoryDatabaseFixture()
     
-    [<Test>]
-    member this.``Can create AutoImportOperation with default values``() =
+    [<TestMethod>]
+    member public this.``Can create AutoImportOperation with default values``() =
         let operation = AutoImportOperationExtensions.Do.createOperation(1, 1, 1)
         
-        Assert.That(operation.BrokerAccountId, Is.EqualTo(1))
-        Assert.That(operation.TickerId, Is.EqualTo(1))
-        Assert.That(operation.CurrencyId, Is.EqualTo(1))
-        Assert.That(operation.IsOpen, Is.True)
-        Assert.That(operation.Realized.Value, Is.EqualTo(0m))
-        Assert.That(operation.Commissions.Value, Is.EqualTo(0m))
-        Assert.That(operation.Fees.Value, Is.EqualTo(0m))
-        Assert.That(operation.Premium.Value, Is.EqualTo(0m))
-        Assert.That(operation.Dividends.Value, Is.EqualTo(0m))
-        Assert.That(operation.DividendTaxes.Value, Is.EqualTo(0m))
-        Assert.That(operation.CapitalDeployed.Value, Is.EqualTo(0m))
-        Assert.That(operation.Performance, Is.EqualTo(0m))
+        Assert.AreEqual(1, operation.BrokerAccountId)
+        Assert.AreEqual(1, operation.TickerId)
+        Assert.AreEqual(1, operation.CurrencyId)
+        Assert.IsTrue(operation.IsOpen)
+        Assert.AreEqual(0m, operation.Realized.Value)
+        Assert.AreEqual(0m, operation.Commissions.Value)
+        Assert.AreEqual(0m, operation.Fees.Value)
+        Assert.AreEqual(0m, operation.Premium.Value)
+        Assert.AreEqual(0m, operation.Dividends.Value)
+        Assert.AreEqual(0m, operation.DividendTaxes.Value)
+        Assert.AreEqual(0m, operation.CapitalDeployed.Value)
+        Assert.AreEqual(0m, operation.Performance)
     
-    [<Test>]
-    member this.``Can update operation metrics``() =
+    [<TestMethod>]
+    member public this.``Can update operation metrics``() =
         let operation = AutoImportOperationExtensions.Do.createOperation(1, 1, 1)
         
         let updatedOperation =
@@ -46,17 +46,17 @@ type AutoImportOperationTests() =
                 Money.FromAmount(1000m)
             )
         
-        Assert.That(updatedOperation.Realized.Value, Is.EqualTo(100m))
-        Assert.That(updatedOperation.Commissions.Value, Is.EqualTo(5m))
-        Assert.That(updatedOperation.Fees.Value, Is.EqualTo(2m))
-        Assert.That(updatedOperation.Premium.Value, Is.EqualTo(50m))
-        Assert.That(updatedOperation.Dividends.Value, Is.EqualTo(10m))
-        Assert.That(updatedOperation.DividendTaxes.Value, Is.EqualTo(3m))
-        Assert.That(updatedOperation.CapitalDeployed.Value, Is.EqualTo(1000m))
-        Assert.That(updatedOperation.Performance, Is.EqualTo(10m)) // 100 / 1000 * 100 = 10%
+        Assert.AreEqual(100m, updatedOperation.Realized.Value)
+        Assert.AreEqual(5m, updatedOperation.Commissions.Value)
+        Assert.AreEqual(2m, updatedOperation.Fees.Value)
+        Assert.AreEqual(50m, updatedOperation.Premium.Value)
+        Assert.AreEqual(10m, updatedOperation.Dividends.Value)
+        Assert.AreEqual(3m, updatedOperation.DividendTaxes.Value)
+        Assert.AreEqual(1000m, updatedOperation.CapitalDeployed.Value)
+        Assert.AreEqual(10m, updatedOperation.Performance) // 100 / 1000 * 100 = 10%
     
-    [<Test>]
-    member this.``Performance calculation handles zero capital deployed``() =
+    [<TestMethod>]
+    member public this.``Performance calculation handles zero capital deployed``() =
         let operation = AutoImportOperationExtensions.Do.createOperation(1, 1, 1)
         
         let updatedOperation =
@@ -71,42 +71,42 @@ type AutoImportOperationTests() =
                 Money.FromAmount(0m) // Zero capital deployed
             )
         
-        Assert.That(updatedOperation.Performance, Is.EqualTo(0m), "Performance should be 0% when capital is 0")
+        Assert.AreEqual(0m, updatedOperation.Performance, "Performance should be 0% when capital is 0")
     
-    [<Test>]
-    member this.``Can close an operation``() =
+    [<TestMethod>]
+    member public this.``Can close an operation``() =
         let operation = AutoImportOperationExtensions.Do.createOperation(1, 1, 1)
-        Assert.That(operation.IsOpen, Is.True)
+        Assert.IsTrue(operation.IsOpen)
         
         let closedOperation = AutoImportOperationExtensions.Do.closeOperation(operation)
-        Assert.That(closedOperation.IsOpen, Is.False)
+        Assert.IsFalse(closedOperation.IsOpen)
     
-    [<Test>]
-    member this.``OperationTradeType discriminated union has all expected cases``() =
+    [<TestMethod>]
+    member public this.``OperationTradeType discriminated union has all expected cases``() =
         // Test that all operation trade types are defined
         let stockTrade = OperationTradeType.StockTrade
         let optionTrade = OperationTradeType.OptionTrade
         let dividend = OperationTradeType.Dividend
         let dividendTax = OperationTradeType.DividendTax
         
-        Assert.That(stockTrade, Is.Not.Null)
-        Assert.That(optionTrade, Is.Not.Null)
-        Assert.That(dividend, Is.Not.Null)
-        Assert.That(dividendTax, Is.Not.Null)
+        Assert.IsNotNull(stockTrade)
+        Assert.IsNotNull(optionTrade)
+        Assert.IsNotNull(dividend)
+        Assert.IsNotNull(dividendTax)
     
-    [<Test>]
-    member this.``AutoImportOperation implements IEntity interface``() =
+    [<TestMethod>]
+    member public this.``AutoImportOperation implements IEntity interface``() =
         let operation = AutoImportOperationExtensions.Do.createOperation(1, 1, 1)
         let entity = operation :> Do.IEntity
         
-        Assert.That(entity, Is.Not.Null)
-        Assert.That(entity.Id, Is.EqualTo(0))
+        Assert.IsNotNull(entity)
+        Assert.AreEqual(0, entity.Id)
     
-    [<Test>]
-    member this.``AutoImportOperation implements IAuditEntity interface``() =
+    [<TestMethod>]
+    member public this.``AutoImportOperation implements IAuditEntity interface``() =
         let operation = AutoImportOperationExtensions.Do.createOperation(1, 1, 1)
         let auditEntity = operation :> Do.IAuditEntity
         
-        Assert.That(auditEntity, Is.Not.Null)
-        Assert.That(auditEntity.CreatedAt, Is.EqualTo(None))
-        Assert.That(auditEntity.UpdatedAt, Is.EqualTo(None))
+        Assert.IsNotNull(auditEntity)
+        Assert.AreEqual(None, auditEntity.CreatedAt)
+        Assert.AreEqual(None, auditEntity.UpdatedAt)

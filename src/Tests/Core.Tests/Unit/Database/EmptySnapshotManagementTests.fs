@@ -1,20 +1,18 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Models
-open System.Collections.Generic
-open System
 
-[<TestFixture>]
-type EmptySnapshotManagementTests () =
+[<TestClass>]
+type public EmptySnapshotManagementTests () =
     let snapshots = ResizeArray<OverviewSnapshot>()
 
-    [<SetUp>]
-    member _.Setup() =
+    [<TestInitialize>]
+    member public _.Setup() =
         snapshots.Clear()
 
-    [<Test>]
-    member _.``Snapshots allows multiple empty snapshots when using Add directly`` () =
+    [<TestMethod>]
+    member public _.``Snapshots allows multiple empty snapshots when using Add directly`` () =
         // Arrange
         let emptySnapshot1 = {
             Type = OverviewSnapshotType.Empty
@@ -37,10 +35,10 @@ type EmptySnapshotManagementTests () =
         snapshots.Add(emptySnapshot2)
         // Assert
         let emptyCount = snapshots |> Seq.filter (fun s -> s.Type = OverviewSnapshotType.Empty) |> Seq.length
-        Assert.That(emptyCount, NUnit.Framework.Is.EqualTo(2))
+        Assert.AreEqual(2, emptyCount)
 
-    [<Test>]
-    member _.``createEmptyOverviewSnapshot creates snapshot with Empty type`` () =
+    [<TestMethod>]
+    member public _.``createEmptyOverviewSnapshot creates snapshot with Empty type`` () =
         let emptySnapshot = {
             Type = OverviewSnapshotType.Empty
             InvestmentOverview = None
@@ -49,13 +47,13 @@ type EmptySnapshotManagementTests () =
             BrokerAccount = None
             BankAccount = None
         }
-        Assert.That(emptySnapshot.Type, NUnit.Framework.Is.EqualTo(OverviewSnapshotType.Empty))
-        Assert.That(emptySnapshot.InvestmentOverview.IsNone, NUnit.Framework.Is.True)
-        Assert.That(emptySnapshot.Broker.IsNone, NUnit.Framework.Is.True)
-        Assert.That(emptySnapshot.Bank.IsNone, NUnit.Framework.Is.True)
-        Assert.That(emptySnapshot.BrokerAccount.IsNone, NUnit.Framework.Is.True)
-        Assert.That(emptySnapshot.BankAccount.IsNone, NUnit.Framework.Is.True)
+        Assert.AreEqual(OverviewSnapshotType.Empty, emptySnapshot.Type)
+        Assert.IsTrue(emptySnapshot.InvestmentOverview.IsNone)
+        Assert.IsTrue(emptySnapshot.Broker.IsNone)
+        Assert.IsTrue(emptySnapshot.Bank.IsNone)
+        Assert.IsTrue(emptySnapshot.BrokerAccount.IsNone)
+        Assert.IsTrue(emptySnapshot.BankAccount.IsNone)
 
-    [<Test>]
-    member _.``Empty snapshot management logic implementation note`` () =
-        Assert.Pass("Implementation documented in DataLoader.fs helper functions")
+    [<TestMethod>]
+    member public _.``Empty snapshot management logic implementation note`` () =
+        Assert.Inconclusive("Implementation documented in DataLoader.fs helper functions")

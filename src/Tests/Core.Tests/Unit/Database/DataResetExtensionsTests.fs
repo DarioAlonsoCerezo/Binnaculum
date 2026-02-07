@@ -1,6 +1,6 @@
 namespace Binnaculum.Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
@@ -10,14 +10,16 @@ open System
 /// Tests for the DataReset functionality that deletes all operational data
 /// while preserving reference tables (Ticker, Currency, TickerSplit, TickerPrice).
 /// </summary>
-[<TestFixture>]
-type DataResetExtensionsTests() =
+[<TestClass>]
+type public DataResetExtensionsTests() =
     inherit InMemoryDatabaseFixture()
     
     /// <summary>
     /// Helper to create test data for operational tables
     /// </summary>
     member private this.CreateTestOperationalData() =
+        let now = DateTime.UtcNow
+
         // Create a broker
         let broker = {
             Id = 0
@@ -35,15 +37,32 @@ type DataResetExtensionsTests() =
             Id = 0
             BrokerId = savedBroker.Id
             AccountNumber = "TEST123"
-            Audit = AuditableEntity.FromDateTime(DateTime.UtcNow)
+            Audit = AuditableEntity.FromDateTime(now)
         }
         BrokerAccountExtensions.Do.save(brokerAccount) |> Async.AwaitTask |> Async.RunSynchronously
+
+        let savedCurrency =
+            CurrencyExtensions.Do.getAll()
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+            |> List.tryHead
+            |> Option.defaultWith (fun () ->
+                let currency = {
+                    Id = 0
+                    Name = "US Dollar"
+                    Code = "USD"
+                    Symbol = "$"
+                }
+                CurrencyExtensions.Do.save(currency) |> Async.AwaitTask |> Async.RunSynchronously
+                CurrencyExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously |> List.head
+            )
         
         // Create a bank
         let bank = {
             Id = 0
             Name = "Test Bank"
-            Image = "bank.png"
+            Image = Some "bank.png"
+            Audit = AuditableEntity.FromDateTime(now)
         }
         BankExtensions.Do.save(bank) |> Async.AwaitTask |> Async.RunSynchronously
         
@@ -54,8 +73,10 @@ type DataResetExtensionsTests() =
         let bankAccount = {
             Id = 0
             BankId = savedBank.Id
-            AccountNumber = "BANK456"
-            Audit = AuditableEntity.FromDateTime(DateTime.UtcNow)
+            Name = "Primary Account"
+            Description = Some "Test account"
+            CurrencyId = savedCurrency.Id
+            Audit = AuditableEntity.FromDateTime(now)
         }
         BankAccountExtensions.Do.save(bankAccount) |> Async.AwaitTask |> Async.RunSynchronously
         
@@ -65,9 +86,12 @@ type DataResetExtensionsTests() =
     /// Helper to create test data for reference tables
     /// </summary>
     member private this.CreateTestReferenceData() =
+        let now = DateTime.UtcNow
+
         // Create a currency
         let currency = {
             Id = 0
+            Name = "US Dollar"
             Code = "USD"
             Symbol = "$"
         }
@@ -80,8 +104,11 @@ type DataResetExtensionsTests() =
         let ticker = {
             Id = 0
             Symbol = "AAPL"
-            Name = "Apple Inc."
+            Image = None
+            Name = Some "Apple Inc."
             OptionsEnabled = true
+            OptionContractMultiplier = 100
+            Audit = AuditableEntity.FromDateTime(now)
         }
         TickerExtensions.Do.save(ticker) |> Async.AwaitTask |> Async.RunSynchronously
         
@@ -92,8 +119,9 @@ type DataResetExtensionsTests() =
         let tickerSplit = {
             Id = 0
             TickerId = savedTicker.Id
-            SplitDate = DateTimePattern.FromDateTime(DateTime.UtcNow)
+            SplitDate = DateTimePattern.FromDateTime(now)
             SplitFactor = 2.0m
+            Audit = AuditableEntity.FromDateTime(now)
         }
         TickerSplitExtensions.Do.save(tickerSplit) |> Async.AwaitTask |> Async.RunSynchronously
         
@@ -102,15 +130,16 @@ type DataResetExtensionsTests() =
             Id = 0
             TickerId = savedTicker.Id
             CurrencyId = savedCurrency.Id
-            PriceDate = DateTimePattern.FromDateTime(DateTime.UtcNow)
-            Price = Money.Create(150.0m)
+            PriceDate = DateTimePattern.FromDateTime(now)
+            Price = Money.FromAmount(150.0m)
+            Audit = AuditableEntity.FromDateTime(now)
         }
         TickerPriceExtensions.Do.save(tickerPrice) |> Async.AwaitTask |> Async.RunSynchronously
         
         ()
     
-    [<Test>]
-    member this.``deleteAllOperationalData removes all operational data``() =
+    [<TestMethod>]
+    member public this.``deleteAllOperationalData removes all operational data``() =
         // Arrange
         this.CreateTestReferenceData()
         this.CreateTestOperationalData()
@@ -121,10 +150,10 @@ type DataResetExtensionsTests() =
         let banksBeforeDelete = BankExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         let bankAccountsBeforeDelete = BankAccountExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         
-        Assert.That(brokersBeforeDelete.Length, Is.GreaterThan(0), "Should have brokers before delete")
-        Assert.That(brokerAccountsBeforeDelete.Length, Is.GreaterThan(0), "Should have broker accounts before delete")
-        Assert.That(banksBeforeDelete.Length, Is.GreaterThan(0), "Should have banks before delete")
-        Assert.That(bankAccountsBeforeDelete.Length, Is.GreaterThan(0), "Should have bank accounts before delete")
+        Assert.IsTrue(brokersBeforeDelete.Length > 0, "Should have brokers before delete")
+        Assert.IsTrue(brokerAccountsBeforeDelete.Length > 0, "Should have broker accounts before delete")
+        Assert.IsTrue(banksBeforeDelete.Length > 0, "Should have banks before delete")
+        Assert.IsTrue(bankAccountsBeforeDelete.Length > 0, "Should have bank accounts before delete")
         
         // Act
         DataResetExtensions.Do.deleteAllOperationalData() |> Async.AwaitTask |> Async.RunSynchronously
@@ -135,13 +164,13 @@ type DataResetExtensionsTests() =
         let banksAfterDelete = BankExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         let bankAccountsAfterDelete = BankAccountExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         
-        Assert.That(brokersAfterDelete.Length, Is.EqualTo(0), "All brokers should be deleted")
-        Assert.That(brokerAccountsAfterDelete.Length, Is.EqualTo(0), "All broker accounts should be deleted")
-        Assert.That(banksAfterDelete.Length, Is.EqualTo(0), "All banks should be deleted")
-        Assert.That(bankAccountsAfterDelete.Length, Is.EqualTo(0), "All bank accounts should be deleted")
+        Assert.AreEqual(0, brokersAfterDelete.Length, "All brokers should be deleted")
+        Assert.AreEqual(0, brokerAccountsAfterDelete.Length, "All broker accounts should be deleted")
+        Assert.AreEqual(0, banksAfterDelete.Length, "All banks should be deleted")
+        Assert.AreEqual(0, bankAccountsAfterDelete.Length, "All bank accounts should be deleted")
     
-    [<Test>]
-    member this.``deleteAllOperationalData preserves reference data``() =
+    [<TestMethod>]
+    member public this.``deleteAllOperationalData preserves reference data``() =
         // Arrange
         this.CreateTestReferenceData()
         
@@ -151,10 +180,10 @@ type DataResetExtensionsTests() =
         let tickerSplitsBeforeDelete = TickerSplitExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         let tickerPricesBeforeDelete = TickerPriceExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         
-        Assert.That(currenciesBeforeDelete.Length, Is.GreaterThan(0), "Should have currencies before delete")
-        Assert.That(tickersBeforeDelete.Length, Is.GreaterThan(0), "Should have tickers before delete")
-        Assert.That(tickerSplitsBeforeDelete.Length, Is.GreaterThan(0), "Should have ticker splits before delete")
-        Assert.That(tickerPricesBeforeDelete.Length, Is.GreaterThan(0), "Should have ticker prices before delete")
+        Assert.IsTrue(currenciesBeforeDelete.Length > 0, "Should have currencies before delete")
+        Assert.IsTrue(tickersBeforeDelete.Length > 0, "Should have tickers before delete")
+        Assert.IsTrue(tickerSplitsBeforeDelete.Length > 0, "Should have ticker splits before delete")
+        Assert.IsTrue(tickerPricesBeforeDelete.Length > 0, "Should have ticker prices before delete")
         
         // Act
         DataResetExtensions.Do.deleteAllOperationalData() |> Async.AwaitTask |> Async.RunSynchronously
@@ -165,27 +194,28 @@ type DataResetExtensionsTests() =
         let tickerSplitsAfterDelete = TickerSplitExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         let tickerPricesAfterDelete = TickerPriceExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         
-        Assert.That(currenciesAfterDelete.Length, Is.EqualTo(currenciesBeforeDelete.Length), "Currencies should be preserved")
-        Assert.That(tickersAfterDelete.Length, Is.EqualTo(tickersBeforeDelete.Length), "Tickers should be preserved")
-        Assert.That(tickerSplitsAfterDelete.Length, Is.EqualTo(tickerSplitsBeforeDelete.Length), "Ticker splits should be preserved")
-        Assert.That(tickerPricesAfterDelete.Length, Is.EqualTo(tickerPricesBeforeDelete.Length), "Ticker prices should be preserved")
+        Assert.AreEqual(currenciesBeforeDelete.Length, currenciesAfterDelete.Length, "Currencies should be preserved")
+        Assert.AreEqual(tickersBeforeDelete.Length, tickersAfterDelete.Length, "Tickers should be preserved")
+        Assert.AreEqual(tickerSplitsBeforeDelete.Length, tickerSplitsAfterDelete.Length, "Ticker splits should be preserved")
+        Assert.AreEqual(tickerPricesBeforeDelete.Length, tickerPricesAfterDelete.Length, "Ticker prices should be preserved")
     
-    [<Test>]
-    member this.``deleteAllOperationalData works on empty database``() =
+    [<TestMethod>]
+    member public this.``deleteAllOperationalData works on empty database``() =
         // Act - should not throw on empty database
-        Assert.DoesNotThrow(fun () ->
+        try
             DataResetExtensions.Do.deleteAllOperationalData() |> Async.AwaitTask |> Async.RunSynchronously
-        )
+        with ex ->
+            Assert.Fail($"Unexpected exception: {ex.Message}")
         
         // Assert - verify database is still empty
         let brokers = BrokerExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         let currencies = CurrencyExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         
-        Assert.That(brokers.Length, Is.EqualTo(0), "Brokers should remain empty")
-        Assert.That(currencies.Length, Is.EqualTo(0), "Currencies should remain empty")
+        Assert.AreEqual(0, brokers.Length, "Brokers should remain empty")
+        Assert.AreEqual(0, currencies.Length, "Currencies should remain empty")
     
-    [<Test>]
-    member this.``deleteAllOperationalData uses transaction``() =
+    [<TestMethod>]
+    member public this.``deleteAllOperationalData uses transaction``() =
         // Arrange
         this.CreateTestReferenceData()
         this.CreateTestOperationalData()
@@ -201,7 +231,7 @@ type DataResetExtensionsTests() =
         let bankAccounts = BankAccountExtensions.Do.getAll() |> Async.AwaitTask |> Async.RunSynchronously
         
         // If transaction works correctly, either all data is deleted or none is deleted
-        Assert.That(brokers.Length, Is.EqualTo(0), "All brokers should be deleted atomically")
-        Assert.That(banks.Length, Is.EqualTo(0), "All banks should be deleted atomically")
-        Assert.That(brokerAccounts.Length, Is.EqualTo(0), "All broker accounts should be deleted atomically")
-        Assert.That(bankAccounts.Length, Is.EqualTo(0), "All bank accounts should be deleted atomically")
+        Assert.AreEqual(0, brokers.Length, "All brokers should be deleted atomically")
+        Assert.AreEqual(0, banks.Length, "All banks should be deleted atomically")
+        Assert.AreEqual(0, brokerAccounts.Length, "All broker accounts should be deleted atomically")
+        Assert.AreEqual(0, bankAccounts.Length, "All bank accounts should be deleted atomically")

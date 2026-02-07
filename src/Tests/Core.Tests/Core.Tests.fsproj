@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -9,9 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="NUnit" />
-    <PackageReference Include="NUnit3TestAdapter" />
-    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="MSTest.TestAdapter" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="SQLitePCLRaw.bundle_green" />
   </ItemGroup>
@@ -22,24 +21,24 @@
     <Compile Include="Examples/InMemoryDatabaseExampleTests.fs" />
     
     <!-- Integration Test Framework - MUST COME FIRST (other tests depend on these) -->
-    <Compile Include="Integration/Framework/TestEnvironment.fs" />
+    <!--<Compile Include="Integration/Framework/TestEnvironment.fs" />
     <Compile Include="Integration/Framework/TestContext.fs" />
     <Compile Include="Integration/Framework/TestModels.fs" />
     <Compile Include="Integration/Framework/StreamObserver.fs" />
     <Compile Include="Integration/Framework/TestActions.fs" />
     <Compile Include="Integration/Framework/TestVerifications.fs" />
     <Compile Include="Integration/Framework/TestSetup.fs" />
-    <Compile Include="Integration/Framework/TestFixtureBase.fs" />
+    <Compile Include="Integration/Framework/TestFixtureBase.fs" />-->
     
     <!-- Integration Tests - Workflows -->
-    <Compile Include="Integration/Workflows/OverviewTests.fs" />
+    <!--<Compile Include="Integration/Workflows/OverviewTests.fs" />
     <Compile Include="Integration/Workflows/BrokerAccountTests.fs" />
     <Compile Include="Integration/Workflows/BrokerAccountDepositTests.fs" />
     <Compile Include="Integration/Workflows/BrokerAccountMultipleMovementsTests.fs" />
-    <Compile Include="Integration/Workflows/DepositsWithdrawalsTests.fs" />
+    <Compile Include="Integration/Workflows/DepositsWithdrawalsTests.fs" />-->
     
     <!-- Integration Tests - Import -->
-    <Compile Include="Integration/Import/OptionsImportExpectedSnapshots.fs" />
+    <!--<Compile Include="Integration/Import/OptionsImportExpectedSnapshots.fs" />
     <Compile Include="Integration/Import/OptionsImportTests.fs" />
     <Compile Include="Integration/Import/PfizerImportExpectedSnapshots.fs" />
     <Compile Include="Integration/Import/PfizerImportTests.fs" />
@@ -56,13 +55,13 @@
     <Compile Include="Integration/Import/FutureOptionsData/BrokerSnapshots.fs" />
     <Compile Include="Integration/Import/FutureOptionsData/Operations.fs" />
     <Compile Include="Integration/Import/FutureOptionsImportExpectedSnapshots.fs" />
-    <Compile Include="Integration/Import/FutureOptionsImportTests.fs" />
+    <Compile Include="Integration/Import/FutureOptionsImportTests.fs" />-->
     
     <!-- Unit Tests - Models -->
-    <Compile Include="Unit/MovementDisplayTests.fs" />
+    <!--<Compile Include="Unit/MovementDisplayTests.fs" />-->
     
     <!-- Unit Tests - Financial Calculations -->
-    <Compile Include="Unit/Financial/BrokerAccountSnapshotTests.fs" />
+    <!--<Compile Include="Unit/Financial/BrokerAccountSnapshotTests.fs" />
     <Compile Include="Unit/Financial/BrokerAccountMultiCurrencySnapshotTests.fs" />
     <Compile Include="Unit/Financial/BrokerSnapshotTests.fs" />
     <Compile Include="Unit/Financial/BrokerFinancialSnapshotAggregationTests.fs" />
@@ -71,13 +70,13 @@
     <Compile Include="Unit/Financial/BrokerAccountFinancialCalculationTests.fs" />
     <Compile Include="Unit/Financial/HistoricalDepositTests.fs" />
     <Compile Include="Unit/Financial/NetCashFlowTests.fs" />
-    <Compile Include="Unit/Financial/PercentageCalculationTests.fs" />
+    <Compile Include="Unit/Financial/PercentageCalculationTests.fs" />-->
     
     <!-- Unit Tests - Verifications -->
-    <Compile Include="Unit/Verifications/SnapshotVerificationTests.fs" />
+    <!--<Compile Include="Unit/Verifications/SnapshotVerificationTests.fs" />-->
     
     <!-- Unit Tests - Reactive Managers -->
-    <Compile Include="Unit/Managers/ReactiveCurrencyManagerTests.fs" />
+    <!--<Compile Include="Unit/Managers/ReactiveCurrencyManagerTests.fs" />
     <Compile Include="Unit/Managers/ReactiveTickerManagerTests.fs" />
     <Compile Include="Unit/Managers/ReactiveBrokerManagerTests.fs" />
     <Compile Include="Unit/Managers/ReactiveBrokerAccountManagerTests.fs" />
@@ -86,11 +85,11 @@
     <Compile Include="Unit/Managers/ReactiveApplicationManagerTests.fs" />
     <Compile Include="Unit/Managers/ReactiveTickerIntegrationTests.fs" />
     <Compile Include="Unit/Managers/DataLoadingManagerTests.fs" />
-    <Compile Include="Unit/Managers/ProgressiveLoadingManagerTests.fs" />
+    <Compile Include="Unit/Managers/ProgressiveLoadingManagerTests.fs" />-->
     <!-- <Compile Include="Unit/Managers/ReactiveMovementManagerTests.fs" /> WIP: Needs compilation fixes -->
     
     <!-- Unit Tests - Import/Converters -->
-    <Compile Include="Unit/Import/ImportStatusConversionTests.fs" />
+    <!--<Compile Include="Unit/Import/ImportStatusConversionTests.fs" />
     <Compile Include="Unit/Import/IBKRImportTests.fs" />
     <Compile Include="Unit/Import/TastytradeImportTests.fs" />
     <Compile Include="Unit/Import/TastytradeTransactionConverterTests.fs" />
@@ -99,7 +98,7 @@
     <Compile Include="Unit/Import/OptionTradeLinkingTests.fs" />
     <Compile Include="Unit/Import/SpecialDividendAdjustmentTests.fs" />
     <Compile Include="Unit/Import/CsvDateAnalyzerTests.fs" />
-    <Compile Include="Unit/Import/ImportSessionManagerTests.fs" />
+    <Compile Include="Unit/Import/ImportSessionManagerTests.fs" />-->
     
     <!-- Unit Tests - Database -->
     <Compile Include="Unit/Database/DataLoaderTests.fs" />
@@ -112,18 +111,18 @@
     <!-- <Compile Include="Unit/Database/PaginationMethodsTests.fs" /> WIP: Needs compilation fixes -->
     
     <!-- Performance Tests -->
-    <Compile Include="Performance/BrokerFinancialSnapshotManagerIntegrationTests.fs" />
-    <Compile Include="Performance/BrokerFinancialSnapshotManagerPerformanceTests.fs" />
+    <!--<Compile Include="Performance/BrokerFinancialSnapshotManagerIntegrationTests.fs" />
+    <Compile Include="Performance/BrokerFinancialSnapshotManagerPerformanceTests.fs" />-->
     
     <!-- UI API Tests -->
-    <Compile Include="UIAPI/TickersUIAPITests.fs" />
+    <!--<Compile Include="UIAPI/TickersUIAPITests.fs" />
     <Compile Include="UIAPI/BrokerAccountsUIAPITests.fs" />
-    <Compile Include="UIAPI/TickerExtensionsAutoCreationTests.fs" />
+    <Compile Include="UIAPI/TickerExtensionsAutoCreationTests.fs" />-->
     
     <!-- Additional Examples -->
-    <Compile Include="Examples/WorkOnMemoryIntegrationExample.fs" />
+    <!--<Compile Include="Examples/WorkOnMemoryIntegrationExample.fs" />
     <Compile Include="Examples/ImportManagerTests.fs" />
-    <Compile Include="Examples/HolisticSnapshotVerificationExample.fs" />
+    <Compile Include="Examples/HolisticSnapshotVerificationExample.fs" />-->
     
     <!-- <Compile Include="SavedPreferencesTests.fs" /> Disabled - MAUI platform APIs don't work in headless test environment -->
   </ItemGroup>

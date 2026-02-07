@@ -1,6 +1,6 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System.Threading.Tasks
 open Binnaculum.Core.UI
 
@@ -12,17 +12,17 @@ open Binnaculum.Core.UI
 /// Note: Some tests are limited because FileSystem APIs are not available 
 /// in unit test environments without MAUI platform initialization.
 /// </summary>
-[<TestFixture>]
-type OverviewWipingTests() =
+[<TestClass>]
+type public OverviewWipingTests() =
 
-    [<Test>]
-    member _.``WipeAllDataForTesting method exists and is accessible`` () =
+    [<TestMethod>]
+    member public _.``WipeAllDataForTesting method exists and is accessible`` () =
         // Verify that the WipeAllDataForTesting method exists and can be referenced
         // This test confirms that the method is properly implemented and accessible from test projects
-        Assert.Pass("Overview.WipeAllDataForTesting method is accessible from test projects")
+        Assert.IsTrue(true, "Overview.WipeAllDataForTesting method is accessible from test projects")
 
-    [<Test>]
-    member _.``Collections clearing method exists and is accessible`` () =
+    [<TestMethod>]
+    member public _.``Collections clearing method exists and is accessible`` () =
         // Test that the collections clearing method exists
         // This validates the API without requiring database access
         try
@@ -32,10 +32,10 @@ type OverviewWipingTests() =
         | ex -> Assert.Fail($"Collections clearing failed with exception: {ex.Message}")
         
         // Test passes if no exception was thrown
-        Assert.Pass("Collections.clearAllCollectionsForTesting executed successfully")
+        Assert.IsTrue(true, "Collections.clearAllCollectionsForTesting executed successfully")
 
-    [<Test>]
-    member _.``Overview Data state can be reset`` () =
+    [<TestMethod>]
+    member public _.``Overview Data state can be reset`` () =
         // Test that the Overview.Data BehaviorSubject can be reset to initial state
         // This is the non-database part of the wiping functionality
         
@@ -44,19 +44,19 @@ type OverviewWipingTests() =
         
         // Verify state was set
         let stateBefore = Overview.Data.Value
-        Assert.That(stateBefore.IsDatabaseInitialized, Is.True, "State should be initialized before reset")
-        Assert.That(stateBefore.TransactionsLoaded, Is.True, "Transactions should be loaded before reset")
+        Assert.IsTrue(stateBefore.IsDatabaseInitialized, "State should be initialized before reset")
+        Assert.IsTrue(stateBefore.TransactionsLoaded, "Transactions should be loaded before reset")
         
         // Reset the state manually (same as what WipeAllDataForTesting does)
         Overview.Data.OnNext { IsDatabaseInitialized = false; TransactionsLoaded = false }
         
         // Verify state was reset
         let stateAfter = Overview.Data.Value
-        Assert.That(stateAfter.IsDatabaseInitialized, Is.False, "State should be reset after wiping")
-        Assert.That(stateAfter.TransactionsLoaded, Is.False, "Transactions should be reset after wiping")
+        Assert.IsFalse(stateAfter.IsDatabaseInitialized, "State should be reset after wiping")
+        Assert.IsFalse(stateAfter.TransactionsLoaded, "Transactions should be reset after wiping")
 
-    [<Test>]
-    member _.``Collections are empty after clearing`` () =
+    [<TestMethod>]
+    member public _.``Collections are empty after clearing`` () =
         // Test that in-memory collections are cleared by clearAllCollectionsForTesting
         // This validates the collections clearing part without database access
         
@@ -64,17 +64,17 @@ type OverviewWipingTests() =
         Collections.clearAllCollectionsForTesting()
         
         // Verify collections are cleared
-        Assert.That(Collections.AvailableImages.Count, Is.EqualTo(0), "AvailableImages should be empty after clearing")
-        Assert.That(Collections.Currencies.Count, Is.EqualTo(0), "Currencies should be empty after clearing")
-        Assert.That(Collections.Brokers.Count, Is.EqualTo(0), "Brokers should be empty after clearing")
-        Assert.That(Collections.Banks.Count, Is.EqualTo(0), "Banks should be empty after clearing")
-        Assert.That(Collections.Accounts.Count, Is.EqualTo(0), "Accounts should be empty after clearing")
-        Assert.That(Collections.Movements.Count, Is.EqualTo(0), "Movements should be empty after clearing")
-        Assert.That(Collections.Tickers.Count, Is.EqualTo(0), "Tickers should be empty after clearing")
-        Assert.That(Collections.Snapshots.Count, Is.EqualTo(0), "Snapshots should be empty after clearing")
+        Assert.AreEqual(0, Collections.AvailableImages.Count, "AvailableImages should be empty after clearing")
+        Assert.AreEqual(0, Collections.Currencies.Count, "Currencies should be empty after clearing")
+        Assert.AreEqual(0, Collections.Brokers.Count, "Brokers should be empty after clearing")
+        Assert.AreEqual(0, Collections.Banks.Count, "Banks should be empty after clearing")
+        Assert.AreEqual(0, Collections.Accounts.Count, "Accounts should be empty after clearing")
+        Assert.AreEqual(0, Collections.Movements.Count, "Movements should be empty after clearing")
+        Assert.AreEqual(0, Collections.Tickers.Count, "Tickers should be empty after clearing")
+        Assert.AreEqual(0, Collections.Snapshots.Count, "Snapshots should be empty after clearing")
 
-    [<Test>]
-    member _.``BehaviorSubject collections are reset to default states`` () =
+    [<TestMethod>]
+    member public _.``BehaviorSubject collections are reset to default states`` () =
         // Test that BehaviorSubject collections are reset to their default/empty states
         
         // Clear collections to ensure default state
@@ -82,39 +82,39 @@ type OverviewWipingTests() =
         
         // Verify BehaviorSubjects are in default states
         let accountAfter = Collections.AccountDetails.Value
-        Assert.That(accountAfter.Type, Is.EqualTo(Binnaculum.Core.Models.AccountType.EmptyAccount), "AccountDetails should be reset to EmptyAccount")
-        Assert.That(accountAfter.HasMovements, Is.False, "Account should not have movements after clearing")
+        Assert.AreEqual(Binnaculum.Core.Models.AccountType.EmptyAccount, accountAfter.Type, "AccountDetails should be reset to EmptyAccount")
+        Assert.IsFalse(accountAfter.HasMovements, "Account should not have movements after clearing")
 
-    [<Test>]
-    member _.``Warning documentation is comprehensive`` () =
+    [<TestMethod>]
+    member public _.``Warning documentation is comprehensive`` () =
         // Test that ensures the dangerous nature of this method is well documented
         // This is a "documentation test" that verifies the method has proper warnings
-        Assert.Pass("WipeAllDataForTesting method has comprehensive warning documentation marking it as test-only")
+        Assert.IsTrue(true, "WipeAllDataForTesting method has comprehensive warning documentation marking it as test-only")
 
-    [<Test>]
-    member _.``Method follows F# async patterns`` () =
+    [<TestMethod>]
+    member public _.``Method follows F# async patterns`` () =
         // Test that the method follows proper F# async patterns and returns Task
         let methodResult = Overview.WipeAllDataForTesting()
         // Simply check that it returns without error - type checking is done at compile time
-        Assert.Pass("Method properly returns Task and follows F# async patterns")
+        Assert.IsTrue(true, "Method properly returns Task and follows F# async patterns")
 
-    [<Test>]
-    member _.``Database wiping functionality is implemented`` () =
+    [<TestMethod>]
+    member public _.``Database wiping functionality is implemented`` () =
         // Test that verifies the database wiping function exists in the Do module
         // This ensures the implementation is complete even if we can't test database functionality in unit tests
         
         // The wipeAllTablesForTesting function should exist and be callable
         // We can't actually run it due to FileSystem dependencies, but we can verify it compiles
-        Assert.Pass("Database wiping functionality is implemented and accessible")
+        Assert.IsTrue(true, "Database wiping functionality is implemented and accessible")
     
-    [<Test>]
-    member _.``WorkOnMemory method exists and is accessible`` () =
+    [<TestMethod>]
+    member public _.``WorkOnMemory method exists and is accessible`` () =
         // Verify that the WorkOnMemory method exists and can be referenced
         // This test confirms that the method is properly implemented and accessible from test projects
-        Assert.Pass("Overview.WorkOnMemory method is accessible from test projects")
+        Assert.IsTrue(true, "Overview.WorkOnMemory method is accessible from test projects")
     
-    [<Test>]
-    member _.``WorkOnMemory configures in-memory mode`` () =
+    [<TestMethod>]
+    member public _.``WorkOnMemory configures in-memory mode`` () =
         // Test that WorkOnMemory successfully configures both database and preferences for in-memory operation
         
         // Call WorkOnMemory to configure in-memory mode
@@ -123,15 +123,16 @@ type OverviewWipingTests() =
         // Verify we can change preferences without platform services
         SavedPrefereces.ChangeLanguage("es")
         let currentLang = SavedPrefereces.UserPreferences.Value.Language
-        Assert.That(currentLang, Is.EqualTo("es"), "Language should be 'es' after change")
+        Assert.AreEqual("es", currentLang, "Language should be 'es' after change")
         
         // Verify we can change another preference
         SavedPrefereces.ChangeCurrency("EUR")
         let currentCurrency = SavedPrefereces.UserPreferences.Value.Currency
-        Assert.That(currentCurrency, Is.EqualTo("EUR"), "Currency should be 'EUR' after change")
+        Assert.AreEqual("EUR", currentCurrency, "Currency should be 'EUR' after change")
     
-    [<Test>]
-    member _.``WorkOnMemory enables preference persistence in memory`` () = task {
+    [<TestMethod>]
+    member public _.``WorkOnMemory enables preference persistence in memory`` () : Task =
+        task {
         // Test that preferences can be set and retrieved in in-memory mode
         
         // Configure in-memory mode
@@ -146,15 +147,16 @@ type OverviewWipingTests() =
         
         // Verify all preferences were set correctly
         let prefs = SavedPrefereces.UserPreferences.Value
-        Assert.That(prefs.Language, Is.EqualTo("fr"), "Language should persist")
-        Assert.That(prefs.Currency, Is.EqualTo("GBP"), "Currency should persist")
-        Assert.That(prefs.AllowCreateAccount, Is.False, "AllowCreateAccount should persist")
-        Assert.That(prefs.Ticker, Is.EqualTo("AAPL"), "Ticker should persist")
-        Assert.That(prefs.GroupOptions, Is.False, "GroupOptions should persist")
-    }
+        Assert.AreEqual("fr", prefs.Language, "Language should persist")
+        Assert.AreEqual("GBP", prefs.Currency, "Currency should persist")
+        Assert.IsFalse(prefs.AllowCreateAccount, "AllowCreateAccount should persist")
+        Assert.AreEqual("AAPL", prefs.Ticker, "Ticker should persist")
+        Assert.IsFalse(prefs.GroupOptions, "GroupOptions should persist")
+        } :> Task
     
-    [<Test>]
-    member _.``WorkOnMemory enables secure storage in memory`` () = task {
+    [<TestMethod>]
+    member public _.``WorkOnMemory enables secure storage in memory`` () : Task =
+        task {
         // Test that secure storage (API keys) can be set and retrieved in in-memory mode
         
         // Configure in-memory mode
@@ -166,16 +168,17 @@ type OverviewWipingTests() =
         
         // Verify the API key was stored correctly
         let prefs = SavedPrefereces.UserPreferences.Value
-        Assert.That(prefs.PolygonApiKey, Is.EqualTo(Some testApiKey), "API key should be stored in memory")
+        Assert.AreEqual(Some testApiKey, prefs.PolygonApiKey, "API key should be stored in memory")
         
         // Test removing the API key
         do! SavedPrefereces.ChangePolygonApiKey(None)
         let prefsAfter = SavedPrefereces.UserPreferences.Value
-        Assert.That(prefsAfter.PolygonApiKey, Is.EqualTo(None), "API key should be removed")
-    }
+        Assert.AreEqual(None, prefsAfter.PolygonApiKey, "API key should be removed")
+        } :> Task
     
-    [<Test>]
-    member _.``WipeAllDataForTesting clears in-memory preferences`` () = task {
+    [<TestMethod>]
+    member public _.``WipeAllDataForTesting clears in-memory preferences`` () : Task =
+        task {
         // Test that WipeAllDataForTesting also clears in-memory preferences
         
         // Configure in-memory mode
@@ -187,8 +190,8 @@ type OverviewWipingTests() =
         
         // Verify preferences were set
         let prefsBefore = SavedPrefereces.UserPreferences.Value
-        Assert.That(prefsBefore.Language, Is.EqualTo("de"), "Language should be set")
-        Assert.That(prefsBefore.Currency, Is.EqualTo("CHF"), "Currency should be set")
+        Assert.AreEqual("de", prefsBefore.Language, "Language should be set")
+        Assert.AreEqual("CHF", prefsBefore.Currency, "Currency should be set")
         
         // Wipe all data
         do! Overview.WipeAllDataForTesting()
@@ -201,6 +204,6 @@ type OverviewWipingTests() =
         let prefsAfter = SavedPrefereces.UserPreferences.Value
         
         // After wiping and reloading, preferences should be back to defaults
-        Assert.That(prefsAfter.Language, Is.EqualTo("en"), "Language should be reset to default 'en'")
-        Assert.That(prefsAfter.Currency, Is.EqualTo("USD"), "Currency should be reset to default 'USD'")
-    }
+        Assert.AreEqual("en", prefsAfter.Language, "Language should be reset to default 'en'")
+        Assert.AreEqual("USD", prefsAfter.Currency, "Currency should be reset to default 'USD'")
+        } :> Task

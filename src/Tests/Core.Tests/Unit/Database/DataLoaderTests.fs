@@ -1,20 +1,19 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Models
-open System.Collections.Generic
 open System
 
-[<TestFixture>]
-type DataLoaderTests () =
+[<TestClass>]
+type public DataLoaderTests () =
     let accounts = ResizeArray<Account>()
 
-    [<SetUp>]
-    member _.Setup() =
+    [<TestInitialize>]
+    member public _.Setup() =
         accounts.Clear()
 
-    [<Test>]
-    member _.``loadLatestBrokerAccountSnapshots should return early when no BrokerAccounts exist`` () =
+    [<TestMethod>]
+    member public _.``loadLatestBrokerAccountSnapshots should return early when no BrokerAccounts exist`` () =
         // Arrange - ensure no broker accounts exist
         accounts.Clear()
         // Add a bank account to ensure we're specifically testing broker accounts
@@ -35,10 +34,10 @@ type DataLoaderTests () =
         accounts.Add(account)
         // Act & Assert
         let brokerAccounts = accounts |> Seq.filter (fun a -> a.Broker.IsSome) |> Seq.length
-        Assert.That(brokerAccounts, NUnit.Framework.Is.EqualTo(0))
+        Assert.AreEqual(0, brokerAccounts)
 
-    [<Test>]
-    member _.``loadLatestBrokerAccountSnapshots should process snapshots when BrokerAccounts exist`` () =
+    [<TestMethod>]
+    member public _.``loadLatestBrokerAccountSnapshots should process snapshots when BrokerAccounts exist`` () =
         // Arrange - add a broker account
         let broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = SupportedBroker.Unknown }
         let brokerAccount = {
@@ -55,10 +54,10 @@ type DataLoaderTests () =
         accounts.Add(account)
         // Act & Assert
         let brokerAccountCount = accounts |> Seq.filter (fun a -> a.Broker.IsSome) |> Seq.length
-        Assert.That(brokerAccountCount, NUnit.Framework.Is.EqualTo(1))
+        Assert.AreEqual(1, brokerAccountCount)
 
-    [<Test>]
-    member _.``BrokerAccounts collection filtering works correctly`` () =
+    [<TestMethod>]
+    member public _.``BrokerAccounts collection filtering works correctly`` () =
         // Arrange - add mixed account types
         let broker = { Id = 1; Name = "Test Broker"; Image = ""; SupportedBroker = SupportedBroker.Unknown }
         let brokerAccount = {
@@ -95,6 +94,6 @@ type DataLoaderTests () =
             |> Seq.map (fun a -> a.Broker.Value)
             |> Seq.toList
         // Assert
-        Assert.That(brokerAccounts.Length, NUnit.Framework.Is.EqualTo(1))
-        Assert.That(brokerAccounts.Head.Id, NUnit.Framework.Is.EqualTo(1))
-        Assert.That(brokerAccounts.Head.Broker.Name, NUnit.Framework.Is.EqualTo("Test Broker"))
+        Assert.AreEqual(1, brokerAccounts.Length)
+        Assert.AreEqual(1, brokerAccounts.Head.Id)
+        Assert.AreEqual("Test Broker", brokerAccounts.Head.Broker.Name)
