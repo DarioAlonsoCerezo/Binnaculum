@@ -32,7 +32,7 @@ type WorkOnMemoryIntegrationExample() =
             let prefs = SavedPrefereces.UserPreferences.Value
             Assert.AreEqual("en", prefs.Language, "Language should be English")
             Assert.AreEqual("USD", prefs.Currency, "Currency should be USD")
-        }
+        } :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Example Pattern 2: Test with multiple preference types.
@@ -58,7 +58,7 @@ type WorkOnMemoryIntegrationExample() =
             Assert.AreEqual("AAPL", prefs.Ticker, "Ticker should be AAPL")
             Assert.IsFalse(prefs.AllowCreateAccount, "Create account should be disabled")
             Assert.IsTrue(prefs.GroupOptions, "Group options should be enabled")
-        }
+        } :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Example Pattern 3a: Preference configuration with English and USD.
@@ -77,7 +77,7 @@ type WorkOnMemoryIntegrationExample() =
             let prefs1 = SavedPrefereces.UserPreferences.Value
             Assert.AreEqual("en", prefs1.Language, "Scenario 1: Language should be English")
             Assert.AreEqual("USD", prefs1.Currency, "Scenario 1: Currency should be USD")
-        }
+        } :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Example Pattern 3b: Preference configuration with Spanish and EUR.
@@ -97,7 +97,7 @@ type WorkOnMemoryIntegrationExample() =
             let prefs2 = SavedPrefereces.UserPreferences.Value
             Assert.AreEqual("es", prefs2.Language, "Scenario 2: Language should be Spanish")
             Assert.AreEqual("EUR", prefs2.Currency, "Scenario 2: Currency should be EUR")
-        }
+        } :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Example Pattern 4: Secure storage (API keys) testing.
@@ -127,7 +127,7 @@ type WorkOnMemoryIntegrationExample() =
             do! SavedPrefereces.ChangePolygonApiKey(None)
             let prefsAfterRemove = SavedPrefereces.UserPreferences.Value
             Assert.AreEqual(None, prefsAfterRemove.PolygonApiKey, "API key should be removed")
-        }
+        } :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Example Pattern 5: Reactive verification with preferences.
@@ -163,7 +163,7 @@ type WorkOnMemoryIntegrationExample() =
             // Change currency
             SavedPrefereces.ChangeCurrency("CHF")
             Assert.AreEqual("CHF", currencyUpdated, "Currency should be updated to CHF")
-        }
+        } :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Comprehensive preference management test demonstrating the complete workflow:
@@ -225,4 +225,4 @@ type WorkOnMemoryIntegrationExample() =
             Assert.IsFalse(prefs2.GroupOptions, "Phase 2: Group options disabled")
             Assert.AreEqual("AAPL", prefs2.Ticker, "Phase 2: Ticker should be AAPL")
             Assert.AreEqual(Some "key-phase2", prefs2.PolygonApiKey, "Phase 2: Different API key")
-        }
+        } :> System.Threading.Tasks.Task

@@ -117,7 +117,7 @@ type ImportSessionManagerTests() =
                 Assert.AreEqual(0, session.ChunksCompleted)
                 Assert.AreEqual("Phase1_PersistingMovements", session.State)
             | None -> Assert.Fail("Session should exist")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``createSession creates all chunks in database``() =
@@ -141,7 +141,7 @@ type ImportSessionManagerTests() =
                 Assert.AreEqual(i + 1, savedChunks.[i].ChunkNumber)
                 Assert.AreEqual("Pending", savedChunks.[i].State)
                 Assert.AreEqual(500, savedChunks.[i].EstimatedMovements)
-        }
+        } :> System.Threading.Tasks.Task
 
     // ==================== Chunk Status Tests ====================
 
@@ -177,7 +177,7 @@ type ImportSessionManagerTests() =
                 Assert.AreEqual(1, session.ChunksCompleted)
                 Assert.AreEqual(500, session.MovementsPersisted)
             | None -> Assert.Fail("Session should exist")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``markChunkCompleted is lenient with non-existent chunks``() =
@@ -204,7 +204,7 @@ type ImportSessionManagerTests() =
                 Assert.AreEqual(1, session.ChunksCompleted, "Progress should be updated (lenient behavior)")
                 Assert.AreEqual(500, session.MovementsPersisted)
             | None -> Assert.Fail("Session should exist")
-        }
+        } :> System.Threading.Tasks.Task
 
     // ==================== Session Query Tests ====================
 
@@ -231,7 +231,7 @@ type ImportSessionManagerTests() =
                 Assert.AreEqual(sessionId, session.Id)
                 Assert.AreEqual("Phase1_PersistingMovements", session.State)
             | None -> Assert.Fail("Should find active session")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``getActiveSession returns None when no active session``() =
@@ -241,7 +241,7 @@ type ImportSessionManagerTests() =
 
             // Assert
             Assert.IsTrue((Option.isNone activeSession))
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``getPendingChunks returns only pending and failed chunks``() =
@@ -266,7 +266,7 @@ type ImportSessionManagerTests() =
             Assert.IsTrue((pendingChunks |> List.forall (fun c -> c.State = "Pending")))
 
             Assert.IsFalse((pendingChunks |> List.exists (fun c -> c.ChunkNumber = 1)), "Completed chunk should not be in pending list")
-        }
+        } :> System.Threading.Tasks.Task
 
     // ==================== Phase Transition Tests ====================
 
@@ -294,7 +294,7 @@ type ImportSessionManagerTests() =
                 Assert.IsTrue((Option.isSome session.Phase1CompletedAt))
                 Assert.IsTrue((Option.isSome session.Phase2StartedAt))
             | None -> Assert.Fail("Session should exist")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``markBrokerSnapshotsCompleted sets flag``() =
@@ -317,7 +317,7 @@ type ImportSessionManagerTests() =
             match sessionOpt with
             | Some session -> Assert.AreEqual(1, session.BrokerSnapshotsCalculated)
             | None -> Assert.Fail("Session should exist")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``markTickerSnapshotsCompleted sets flag``() =
@@ -340,7 +340,7 @@ type ImportSessionManagerTests() =
             match sessionOpt with
             | Some session -> Assert.AreEqual(1, session.TickerSnapshotsCalculated)
             | None -> Assert.Fail("Session should exist")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``completeSession marks session as completed``() =
@@ -369,7 +369,7 @@ type ImportSessionManagerTests() =
             // Verify it's no longer active
             let! activeSession = ImportSessionManager.getActiveSession 1
             Assert.IsTrue((Option.isNone activeSession), "Completed session should not be active")
-        }
+        } :> System.Threading.Tasks.Task
 
     // ==================== File Hash Validation Tests ====================
 
@@ -410,7 +410,7 @@ type ImportSessionManagerTests() =
 
             // Cleanup
             System.IO.File.Delete(testFile)
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``validateFileHash returns false for mismatched hash``() =
@@ -447,7 +447,7 @@ type ImportSessionManagerTests() =
 
             // Cleanup
             System.IO.File.Delete(testFile)
-        }
+        } :> System.Threading.Tasks.Task
 
     // ==================== Error Handling Tests ====================
 
@@ -474,7 +474,7 @@ type ImportSessionManagerTests() =
                 Assert.AreEqual("Failed", session.State)
                 Assert.AreEqual(Some "Test error message", session.LastError)
             | None -> Assert.Fail("Session should exist")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``markSessionCancelled marks session as cancelled``() =
@@ -497,7 +497,7 @@ type ImportSessionManagerTests() =
             match sessionOpt with
             | Some session -> Assert.AreEqual("Cancelled", session.State)
             | None -> Assert.Fail("Session should exist")
-        }
+        } :> System.Threading.Tasks.Task
 
     // ==================== Multiple Sessions Tests ====================
 
@@ -535,7 +535,7 @@ type ImportSessionManagerTests() =
                 Assert.AreEqual(account2Id, s2.BrokerAccountId)
                 Assert.AreNotEqual(s1.Id, s2.Id)
             | _ -> Assert.Fail("Both sessions should exist")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``only one active session allowed per account``() =
@@ -561,7 +561,7 @@ type ImportSessionManagerTests() =
             match activeSession with
             | Some session -> Assert.AreEqual(sessionId2, session.Id, "Should return most recent session")
             | None -> Assert.Fail("Should have an active session")
-        }
+        } :> System.Threading.Tasks.Task
 
     // ==================== Exception Propagation Tests ====================
 
@@ -588,7 +588,7 @@ type ImportSessionManagerTests() =
             // Assert - Should return None for non-existent session, not throw
             // This demonstrates exceptions aren't being caught and converted to None
             Assert.IsTrue((Option.isNone result), "Non-existent session should return None naturally")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``getPendingChunks propagates exceptions instead of returning empty list``() =
@@ -604,7 +604,7 @@ type ImportSessionManagerTests() =
             // Assert - Should return empty list naturally for non-existent session
             // The key is that we're not catching and hiding exceptions
             Assert.AreEqual(0, chunks.Length, "Non-existent session should return empty list naturally")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``validateFileHash propagates exceptions for invalid file paths``() =
@@ -654,4 +654,4 @@ type ImportSessionManagerTests() =
 
             // Assert - Should return None for non-existent account
             Assert.IsTrue((Option.isNone result), "Non-existent account should return None")
-        }
+        } :> System.Threading.Tasks.Task

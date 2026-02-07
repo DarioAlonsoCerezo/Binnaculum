@@ -37,7 +37,7 @@ type HistoricalDepositTests() =
             // 3. This prevents the UI from refreshing with stale snapshot data
             
             Assert.IsTrue(true, "Historical deposit scenario framework validated with async race condition fix") // Test passed
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member _.``SaveBrokerMovement awaits cascade update before UI refresh`` () =

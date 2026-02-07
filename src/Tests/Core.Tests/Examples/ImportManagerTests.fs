@@ -32,7 +32,7 @@ type ImportManagerTests() =
             Assert.IsFalse(result.Success, "Import should fail for non-existent file")
             Assert.AreEqual(1, result.Errors.Length, "Should have one error")
             StringAssert.Contains(result.Errors.[0].ErrorMessage, "File not found")
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``ImportManager fails for invalid broker ID``() =
@@ -64,7 +64,7 @@ type ImportManagerTests() =
             finally
                 if File.Exists(csvFile) then
                     File.Delete(csvFile)
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``ImportManager fails for invalid broker account``() =
@@ -93,7 +93,7 @@ type ImportManagerTests() =
             finally
                 if File.Exists(csvFile) then
                     File.Delete(csvFile)
-        }
+        } :> System.Threading.Tasks.Task
 
     [<TestMethod>]
     member this.``ImportState starts and manages cancellation correctly``() =
@@ -282,4 +282,4 @@ type ImportManagerTests() =
                 Assert.IsTrue(true, "Both sync and async refresh methods are accessible and functional")
             with ex ->
                 Assert.Fail($"Async refresh methods should be accessible and awaitable. Error: {ex.Message}")
-        }
+        } :> System.Threading.Tasks.Task

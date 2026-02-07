@@ -296,4 +296,4 @@ type ReactiveTickerManagerTests() =
             // ✅ Reactive subscription updates caches automatically
             
             Assert.IsTrue(true, "Database-driven refresh completed successfully without exceptions")
-        }
+        } :> System.Threading.Tasks.Task
