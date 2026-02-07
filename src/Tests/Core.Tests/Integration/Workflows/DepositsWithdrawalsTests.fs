@@ -1,6 +1,6 @@
 namespace Core.Tests.Integration
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open System.IO
 open Binnaculum.Core.Models
@@ -19,7 +19,7 @@ open Binnaculum.Core.Logging
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type DepositsWithdrawalsTests() =
     inherit TestFixtureBase()
 
@@ -63,8 +63,8 @@ type DepositsWithdrawalsTests() =
     /// - 21 snapshots (1 initial + 20 movements)
     /// - BrokerAccounts.GetSnapshots returns exactly 21 snapshots
     /// </summary>
-    [<Test>]
-    [<Category("Integration")>]
+    [<TestMethod>]
+    [<TestCategory("Integration")>]
     member this.``Money movements import CSV workflow updates snapshots``() =
         async {
             CoreLogger.logInfo "Test" "=== TEST: Money Movements Import CSV Workflow Updates Snapshots ==="
@@ -76,12 +76,12 @@ type DepositsWithdrawalsTests() =
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
-            Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Wipe should succeed: %A" error)
             CoreLogger.logInfo "Verification" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
-            Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Database initialization should succeed: %A" error)
             CoreLogger.logInfo "Verification" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
@@ -97,13 +97,13 @@ type DepositsWithdrawalsTests() =
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("Deposits-Withdrawals-Test")
-            Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
+            Assert.IsTrue(ok, sprintf "Account creation should succeed: %s - %A" details error)
             CoreLogger.logInfo "Verification" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
-            Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
+            Assert.IsTrue(signalsReceived, "Account creation signals should have been received")
             CoreLogger.logInfo "Verification" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: IMPORT DEPOSITS/WITHDRAWALS CSV ====================
@@ -112,7 +112,7 @@ type DepositsWithdrawalsTests() =
             // Get CSV path
             let csvPath = this.getCsvPath ("TastytradeDeposits.csv")
             CoreLogger.logDebug "Import" (sprintf "📄 CSV file path: %s" csvPath)
-            Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
+            Assert.IsTrue(File.Exists(csvPath), sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
             StreamObserver.expectSignals (
@@ -131,13 +131,13 @@ type DepositsWithdrawalsTests() =
                 (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
-            Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
+            Assert.IsTrue(ok, sprintf "Import should succeed: %s - %A" importDetails error)
             CoreLogger.logInfo "Verification" (sprintf "✅ CSV import completed: %s" importDetails)
 
             // WAIT: Wait for import signals (longer timeout for import processing)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for import reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
-            Assert.That(signalsReceived, Is.True, "Import signals should have been received")
+            Assert.IsTrue(signalsReceived, "Import signals should have been received")
             CoreLogger.logInfo "Verification" "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY DATA COUNTS ====================
@@ -146,22 +146,14 @@ type DepositsWithdrawalsTests() =
             // Verify movement count (19 deposits + 1 withdrawal = 20)
             let! (verified, movementCount, error) = actions.verifyMovementCount (20)
 
-            Assert.That(
-                verified,
-                Is.True,
-                sprintf "Movement count verification should succeed: %s - %A" movementCount error
-            )
+            Assert.IsTrue(verified, sprintf "Movement count verification should succeed: %s - %A" movementCount error)
 
             CoreLogger.logInfo "Verification" "✅ Movement count verified: 20 movements (19 deposits + 1 withdrawal)"
 
             // Verify Collections.Snapshots has at least 1 snapshot (latest only)
             let! (verified, snapshotCount, error) = actions.verifySnapshotCount (1)
 
-            Assert.That(
-                verified,
-                Is.True,
-                sprintf "Snapshot count verification should succeed: %s - %A" snapshotCount error
-            )
+            Assert.IsTrue(verified, sprintf "Snapshot count verification should succeed: %s - %A" snapshotCount error)
 
             CoreLogger.logInfo
                 "Verification"
@@ -175,28 +167,20 @@ type DepositsWithdrawalsTests() =
             // Verify deposited amount ($19,388.40 total from 19 deposits)
             let! (verified, deposited, error) = actions.verifyDeposited (19388.40m)
 
-            Assert.That(
-                verified,
-                Is.True,
-                sprintf "Deposited amount verification should succeed: %s - %A" deposited error
-            )
+            Assert.IsTrue(verified, sprintf "Deposited amount verification should succeed: %s - %A" deposited error)
 
             CoreLogger.logInfo "Verification" "✅ Deposited amount verified: $19,388.40"
 
             // Verify withdrawn amount ($25.00 from 1 withdrawal)
             let! (verified, withdrawn, error) = actions.verifyWithdrawn (25.00m)
 
-            Assert.That(
-                verified,
-                Is.True,
-                sprintf "Withdrawn amount verification should succeed: %s - %A" withdrawn error
-            )
+            Assert.IsTrue(verified, sprintf "Withdrawn amount verification should succeed: %s - %A" withdrawn error)
 
             CoreLogger.logInfo "Verification" "✅ Withdrawn amount verified: $25.00"
 
             // Verify movement counter (should be 20)
             let! (verified, counter, error) = actions.verifyMovementCounter (20)
-            Assert.That(verified, Is.True, sprintf "MovementCounter verification should succeed: %s - %A" counter error)
+            Assert.IsTrue(verified, sprintf "MovementCounter verification should succeed: %s - %A" counter error)
             CoreLogger.logInfo "Verification" "✅ MovementCounter verified: 20"
 
             // ==================== PHASE 6: VERIFY BROKERACCOUNTS.GETSNAPSHOTS ====================
@@ -205,11 +189,7 @@ type DepositsWithdrawalsTests() =
             // Verify BrokerAccounts.GetSnapshots returns exactly 21 snapshots
             let! (verified, retrievedCount, error) = actions.verifyBrokerAccountSnapshots (accountId, 21)
 
-            Assert.That(
-                verified,
-                Is.True,
-                sprintf "BrokerAccounts.GetSnapshots verification should succeed: %s - %A" retrievedCount error
-            )
+            Assert.IsTrue(verified, sprintf "BrokerAccounts.GetSnapshots verification should succeed: %s - %A" retrievedCount error)
 
             CoreLogger.logInfo "Verification" "✅ BrokerAccounts.GetSnapshots verified: 21 snapshots retrieved"
 

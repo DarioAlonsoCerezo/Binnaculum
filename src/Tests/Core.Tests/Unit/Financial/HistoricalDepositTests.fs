@@ -1,6 +1,6 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open System.Threading.Tasks
 open Binnaculum.Core.Models
@@ -10,10 +10,10 @@ open Binnaculum.Core.UI
 /// Integration tests specifically for the historical deposit scenario described in issue #243.
 /// Tests that adding a deposit with a historical date properly updates the latest broker account snapshot MovementCounter.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type HistoricalDepositTests() =
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Adding historical deposit should update latest snapshot MovementCounter`` () =
         task {
             // This test reproduces the exact scenario from issue #243:
@@ -29,8 +29,7 @@ type HistoricalDepositTests() =
             let accountCreationDate = DateTime.Now
             
             // Verify that the historical date is before the account creation date
-            Assert.That(historicalDate, Is.LessThan(accountCreationDate), 
-                "Historical deposit date should be before account creation date")
+            Assert.IsTrue(historicalDate < accountCreationDate, "Historical deposit date should be before account creation date")
             
             // The async race condition fix ensures that:
             // 1. SaveBrokerMovement properly awaits BrokerAccountSnapshotManager.handleBrokerAccountChange
@@ -40,7 +39,7 @@ type HistoricalDepositTests() =
             Assert.Pass("Historical deposit scenario framework validated with async race condition fix")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member _.``SaveBrokerMovement awaits cascade update before UI refresh`` () =
         // This test verifies that the async race condition fix is in place
         // by checking that the Creator.SaveBrokerMovement function properly awaits
@@ -52,7 +51,7 @@ type HistoricalDepositTests() =
         
         Assert.Pass("Async race condition fix verified - Creator.SaveBrokerMovement properly awaits cascade updates")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``All broker operations properly await cascade updates`` () =
         // This test verifies that all broker-related save operations in Creator.fs
         // properly await their cascade updates before calling ReactiveSnapshotManager.refresh()
@@ -67,7 +66,7 @@ type HistoricalDepositTests() =
         
         Assert.Pass("All broker operations properly await cascade updates before UI refresh")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Historical movement processing maintains chronological order`` () =
         // This test validates that when historical movements are processed,
         // the cascade update logic maintains proper chronological order
@@ -79,7 +78,7 @@ type HistoricalDepositTests() =
         
         Assert.Pass("Chronological processing of historical movements validated")
 
-    [<Test>] 
+    [<TestMethod>] 
     member _.``Movement counter calculation includes historical movements`` () =
         // This test validates that the movement counter calculation in
         // BrokerFinancialsMetricsFromMovements correctly counts all movements

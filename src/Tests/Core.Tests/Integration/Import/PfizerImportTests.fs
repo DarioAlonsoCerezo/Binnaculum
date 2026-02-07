@@ -1,6 +1,6 @@
 namespace Core.Tests.Integration
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open System.IO
 open Binnaculum.Core.Models
@@ -20,7 +20,7 @@ open TestModels
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type PfizerImportTests() =
     inherit TestFixtureBase()
 
@@ -65,8 +65,8 @@ type PfizerImportTests() =
     /// - Unrealized gains: $0.00 (all positions closed)
     /// - PFE snapshots: 4 (2025-08-25, 2025-10-01, 2025-10-03, + today)
     /// </summary>
-    [<Test>]
-    [<Category("Integration")>]
+    [<TestMethod>]
+    [<TestCategory("Integration")>]
     member this.``Pfizer options import CSV workflow with FIFO matching``() =
         async {
             CoreLogger.logInfo "Test" "=== TEST: Pfizer Options Import CSV Workflow with FIFO Matching ==="
@@ -78,12 +78,12 @@ type PfizerImportTests() =
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
-            Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Wipe should succeed: %A" error)
             CoreLogger.logInfo "Verification" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
-            Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Database initialization should succeed: %A" error)
             CoreLogger.logInfo "Verification" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
@@ -99,13 +99,13 @@ type PfizerImportTests() =
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("Pfizer-Import-Test")
-            Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
+            Assert.IsTrue(ok, sprintf "Account creation should succeed: %s - %A" details error)
             CoreLogger.logInfo "Verification" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
-            Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
+            Assert.IsTrue(signalsReceived, "Account creation signals should have been received")
             CoreLogger.logInfo "Verification" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: IMPORT PFIZER OPTIONS CSV ====================
@@ -114,7 +114,7 @@ type PfizerImportTests() =
             // Get CSV path
             let csvPath = this.getCsvPath ("PfizerImportTest.csv")
             CoreLogger.logDebug "Import" (sprintf "📄 CSV file path: %s" csvPath)
-            Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
+            Assert.IsTrue(File.Exists(csvPath), sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
             StreamObserver.expectSignals (
@@ -136,13 +136,13 @@ type PfizerImportTests() =
                 (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
-            Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
+            Assert.IsTrue(ok, sprintf "Import should succeed: %s - %A" importDetails error)
             CoreLogger.logInfo "Verification" (sprintf "✅ CSV import completed: %s" importDetails)
 
             // WAIT: Wait for import signals (longer timeout for import processing)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for import reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
-            Assert.That(signalsReceived, Is.True, "Import signals should have been received")
+            Assert.IsTrue(signalsReceived, "Import signals should have been received")
             CoreLogger.logInfo "Verification" "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY TICKER COUNT ====================
@@ -151,11 +151,7 @@ type PfizerImportTests() =
             // Verify ticker count (PFE + SPY default = 2)
             let! (verified, tickerCount, error) = actions.verifyTickerCount (2)
 
-            Assert.That(
-                verified,
-                Is.True,
-                sprintf "Ticker count verification should succeed: %s - %A" tickerCount error
-            )
+            Assert.IsTrue(verified, sprintf "Ticker count verification should succeed: %s - %A" tickerCount error)
 
             CoreLogger.logInfo "Verification" "✅ Ticker count verified: 2 tickers (PFE + SPY)"
 
@@ -165,7 +161,7 @@ type PfizerImportTests() =
             // Get PFE ticker and USD currency from Collections
             let pfeTicker = Collections.Tickers.Items |> Seq.tryFind (fun t -> t.Symbol = "PFE")
 
-            Assert.That(pfeTicker.IsSome, Is.True, "PFE ticker should exist in Collections")
+            Assert.IsTrue(pfeTicker.IsSome, "PFE ticker should exist in Collections")
 
             let pfeTickerId = pfeTicker.Value.Id
             let usd = Collections.Currencies.Items |> Seq.find (fun c -> c.Code = "USD")
@@ -177,10 +173,7 @@ type PfizerImportTests() =
 
             CoreLogger.logInfo "Verification" (sprintf "📊 Found %d PFE snapshots" sortedPFESnapshots.Length)
 
-            Assert.That(
-                sortedPFESnapshots.Length,
-                Is.EqualTo(4),
-                "Should have 4 PFE snapshots (2025-08-25, 2025-10-01, 2025-10-03 + today)"
+            Assert.AreEqual(4, sortedPFESnapshots.Length, "Should have 4 PFE snapshots (2025-08-25, 2025-10-01, 2025-10-03 + today)"
             )
 
             // Get expected PFE snapshots with descriptions from PfizerImportExpectedSnapshots
@@ -221,7 +214,7 @@ type PfizerImportTests() =
                 "Verification"
                 (sprintf "📊 Found %d BrokerAccount snapshots" brokerFinancialSnapshots.Length)
 
-            Assert.That(brokerFinancialSnapshots.Length, Is.EqualTo(4), "Should have 4 BrokerAccount snapshots")
+            Assert.AreEqual(4, brokerFinancialSnapshots.Length, "Should have 4 BrokerAccount snapshots")
 
             // Get broker and currency for snapshot construction
             let broker = Collections.Brokers.Items |> Seq.find (fun b -> b.Name = "Tastytrade")
@@ -268,11 +261,7 @@ type PfizerImportTests() =
                 expectedOperationsWithDescriptions |> TestModels.getOperationData
 
             // Verify operation count
-            Assert.That(
-                actualOperations.Length,
-                Is.EqualTo(expectedOperations.Length),
-                sprintf "Expected %d operations for PFE but found %d" expectedOperations.Length actualOperations.Length
-            )
+            Assert.AreEqual(expectedOperations.Length, actualOperations.Length, sprintf "Expected %d operations for PFE but found %d" expectedOperations.Length actualOperations.Length)
 
             // Verify each operation using TestVerifications
             let operationResults =

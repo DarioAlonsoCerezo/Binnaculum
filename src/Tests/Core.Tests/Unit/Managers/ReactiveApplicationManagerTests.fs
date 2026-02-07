@@ -1,16 +1,16 @@
 namespace Binnaculum.Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open DynamicData
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
 open Binnaculum.Core.UI.ReactiveApplicationManager
 
-[<TestFixture>]
+[<TestClass>]
 type ReactiveApplicationManagerTests() =
 
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Clear all collections before each test
         Collections.Snapshots.Clear()
@@ -20,19 +20,19 @@ type ReactiveApplicationManagerTests() =
         Collections.Accounts.Clear()
         Collections.Movements.Clear()
 
-    [<TearDown>]
+    [<TestCleanup>]
     member this.TearDown() =
         // Cleanup after each test
         ReactiveApplicationManager.disposeReactiveManagers()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveApplicationManager should initialize all reactive managers successfully``() =
         // Test that all reactive managers can be initialized together
         ReactiveApplicationManager.initializeReactiveManagers()
         
         Assert.Pass("All reactive managers initialized successfully")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveApplicationManager should dispose cleanly``() =
         ReactiveApplicationManager.initializeReactiveManagers()
         
@@ -42,7 +42,7 @@ type ReactiveApplicationManagerTests() =
         
         Assert.Pass("ReactiveApplicationManager disposed cleanly")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveApplicationManager should handle initialization with empty collections``() =
         // Test initialization with empty collections
         ReactiveApplicationManager.initializeReactiveManagers()
@@ -50,7 +50,7 @@ type ReactiveApplicationManagerTests() =
         // Should not crash even with no data
         Assert.Pass("ReactiveApplicationManager handled empty collections gracefully")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``initializeReactiveApplication should work without database errors``() =
         // Initialize reactive managers first
         ReactiveApplicationManager.initializeReactiveManagers()
@@ -64,7 +64,7 @@ type ReactiveApplicationManagerTests() =
         
         Assert.Pass("ReactiveApplicationManager initialization completed")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``initializeTraditional should work as fallback``() =
         // Traditional initialization should work as a fallback
         let task = ReactiveApplicationManager.initializeTraditional()

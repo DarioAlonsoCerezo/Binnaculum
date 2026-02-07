@@ -2,7 +2,7 @@ namespace Core.Tests.Integration
 
 #nowarn "3261" // Nullness warning for SqliteConnection
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open Binnaculum.Core.Import
 open Binnaculum.Core.Database
@@ -19,7 +19,7 @@ open TestModels
 /// Inherits from TestFixtureBase - provides proper database initialization,
 /// reactive collections, and test context with broker/account data.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type ImportSessionManagerTests() =
     inherit TestFixtureBase()
 
@@ -29,18 +29,18 @@ type ImportSessionManagerTests() =
     /// <summary>
     /// Setup test environment with a broker account
     /// </summary>
-    [<SetUp>]
+    [<TestInitialize>]
     member this.SetupTest() =
         async {
             CoreLogger.logInfo "ImportSessionManagerTests" "Setting up test environment..."
 
             // Initialize database (loads brokers, currencies, etc.)
             let! (ok, _, error) = this.Actions.initDatabase ()
-            Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Database initialization should succeed: %A" error)
 
             // Create a test broker account
             let! (ok, details, error) = this.Actions.createBrokerAccount ("ImportSession-Test")
-            Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
+            Assert.IsTrue(ok, sprintf "Account creation should succeed: %s - %A" details error)
 
             // Extract account ID from details (format: "Account created (ID=X)")
             let idStr = details.Replace("Account created (ID=", "").Replace(")", "")
@@ -88,7 +88,7 @@ type ImportSessionManagerTests() =
 
     // ==================== Session Creation Tests ====================
 
-    [<Test>]
+    [<TestMethod>]
     member this.``createSession creates session in database``() =
         task {
             // Arrange
@@ -102,24 +102,24 @@ type ImportSessionManagerTests() =
                 ImportSessionManager.createSession testBrokerAccountId "Test Account" "/test/file.csv" analysis chunks
 
             // Assert
-            Assert.That(sessionId, Is.GreaterThan 0, "Session ID should be positive")
+            Assert.IsTrue(sessionId > 0, "Session ID should be positive")
 
             // Verify session was created
             let! sessionOpt = ImportSessionManager.getSessionById sessionId
-            Assert.That((Option.isSome sessionOpt), Is.True, "Session should exist")
+            Assert.IsTrue((Option.isSome sessionOpt), "Session should exist")
 
             match sessionOpt with
             | Some session ->
-                Assert.That(session.BrokerAccountId, Is.EqualTo(1))
-                Assert.That(session.BrokerAccountName, Is.EqualTo("Test Account"))
-                Assert.That(session.FileHash, Is.EqualTo("test-hash-123"))
-                Assert.That(session.TotalChunks, Is.EqualTo(2))
-                Assert.That(session.ChunksCompleted, Is.EqualTo(0))
-                Assert.That(session.State, Is.EqualTo("Phase1_PersistingMovements"))
+                Assert.AreEqual(1, session.BrokerAccountId)
+                Assert.AreEqual("Test Account", session.BrokerAccountName)
+                Assert.AreEqual("test-hash-123", session.FileHash)
+                Assert.AreEqual(2, session.TotalChunks)
+                Assert.AreEqual(0, session.ChunksCompleted)
+                Assert.AreEqual("Phase1_PersistingMovements", session.State)
             | None -> Assert.Fail("Session should exist")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``createSession creates all chunks in database``() =
         task {
             // Arrange
@@ -134,18 +134,18 @@ type ImportSessionManagerTests() =
 
             // Assert
             let! savedChunks = ImportSessionManager.getChunks sessionId
-            Assert.That(savedChunks.Length, Is.EqualTo(3), "Should have 3 chunks")
+            Assert.AreEqual(3, savedChunks.Length, "Should have 3 chunks")
 
             // Verify chunks are in correct order
             for i in 0 .. savedChunks.Length - 1 do
-                Assert.That(savedChunks.[i].ChunkNumber, Is.EqualTo(i + 1))
-                Assert.That(savedChunks.[i].State, Is.EqualTo("Pending"))
-                Assert.That(savedChunks.[i].EstimatedMovements, Is.EqualTo(500))
+                Assert.AreEqual(i + 1, savedChunks.[i].ChunkNumber)
+                Assert.AreEqual("Pending", savedChunks.[i].State)
+                Assert.AreEqual(500, savedChunks.[i].EstimatedMovements)
         }
 
     // ==================== Chunk Status Tests ====================
 
-    [<Test>]
+    [<TestMethod>]
     member this.``markChunkCompleted updates chunk status atomically``() =
         task {
             // Arrange
@@ -164,22 +164,22 @@ type ImportSessionManagerTests() =
             let! allChunks = ImportSessionManager.getChunks sessionId
             let chunk1 = allChunks |> List.find (fun c -> c.ChunkNumber = 1)
 
-            Assert.That(chunk1.State, Is.EqualTo("Completed"))
-            Assert.That(chunk1.ActualMovements, Is.EqualTo(500))
-            Assert.That(chunk1.DurationMs, Is.EqualTo(Some 1000L))
-            Assert.That((Option.isSome chunk1.CompletedAt), Is.True)
+            Assert.AreEqual("Completed", chunk1.State)
+            Assert.AreEqual(500, chunk1.ActualMovements)
+            Assert.AreEqual(Some 1000L, chunk1.DurationMs)
+            Assert.IsTrue((Option.isSome chunk1.CompletedAt))
 
             // Verify session progress was updated
             let! sessionOpt = ImportSessionManager.getSessionById sessionId
 
             match sessionOpt with
             | Some session ->
-                Assert.That(session.ChunksCompleted, Is.EqualTo(1))
-                Assert.That(session.MovementsPersisted, Is.EqualTo(500))
+                Assert.AreEqual(1, session.ChunksCompleted)
+                Assert.AreEqual(500, session.MovementsPersisted)
             | None -> Assert.Fail("Session should exist")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``markChunkCompleted is lenient with non-existent chunks``() =
         task {
             // Arrange
@@ -201,14 +201,14 @@ type ImportSessionManagerTests() =
             match sessionOpt with
             | Some session ->
                 // Since the system is lenient, chunk 999 was marked complete even though it doesn't exist
-                Assert.That(session.ChunksCompleted, Is.EqualTo(1), "Progress should be updated (lenient behavior)")
-                Assert.That(session.MovementsPersisted, Is.EqualTo(500))
+                Assert.AreEqual(1, session.ChunksCompleted, "Progress should be updated (lenient behavior)")
+                Assert.AreEqual(500, session.MovementsPersisted)
             | None -> Assert.Fail("Session should exist")
         }
 
     // ==================== Session Query Tests ====================
 
-    [<Test>]
+    [<TestMethod>]
     member this.``getActiveSession returns active session for account``() =
         task {
             // Arrange
@@ -224,26 +224,26 @@ type ImportSessionManagerTests() =
             let! activeSession = ImportSessionManager.getActiveSession 1
 
             // Assert
-            Assert.That((Option.isSome activeSession), Is.True)
+            Assert.IsTrue((Option.isSome activeSession))
 
             match activeSession with
             | Some session ->
-                Assert.That(session.Id, Is.EqualTo(sessionId))
-                Assert.That(session.State, Is.EqualTo("Phase1_PersistingMovements"))
+                Assert.AreEqual(sessionId, session.Id)
+                Assert.AreEqual("Phase1_PersistingMovements", session.State)
             | None -> Assert.Fail("Should find active session")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``getActiveSession returns None when no active session``() =
         task {
             // Act
             let! activeSession = ImportSessionManager.getActiveSession 999
 
             // Assert
-            Assert.That((Option.isNone activeSession), Is.True)
+            Assert.IsTrue((Option.isNone activeSession))
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``getPendingChunks returns only pending and failed chunks``() =
         task {
             // Arrange
@@ -262,19 +262,15 @@ type ImportSessionManagerTests() =
             let! pendingChunks = ImportSessionManager.getPendingChunks sessionId
 
             // Assert
-            Assert.That(pendingChunks.Length, Is.EqualTo(2), "Should have 2 pending chunks")
-            Assert.That((pendingChunks |> List.forall (fun c -> c.State = "Pending")), Is.True)
+            Assert.AreEqual(2, pendingChunks.Length, "Should have 2 pending chunks")
+            Assert.IsTrue((pendingChunks |> List.forall (fun c -> c.State = "Pending")))
 
-            Assert.That(
-                (pendingChunks |> List.exists (fun c -> c.ChunkNumber = 1)),
-                Is.False,
-                "Completed chunk should not be in pending list"
-            )
+            Assert.IsFalse((pendingChunks |> List.exists (fun c -> c.ChunkNumber = 1)), "Completed chunk should not be in pending list")
         }
 
     // ==================== Phase Transition Tests ====================
 
-    [<Test>]
+    [<TestMethod>]
     member this.``markPhase1Completed transitions to Phase2``() =
         task {
             // Arrange
@@ -294,13 +290,13 @@ type ImportSessionManagerTests() =
 
             match sessionOpt with
             | Some session ->
-                Assert.That(session.Phase, Is.EqualTo("Phase2_CalculatingSnapshots"))
-                Assert.That((Option.isSome session.Phase1CompletedAt), Is.True)
-                Assert.That((Option.isSome session.Phase2StartedAt), Is.True)
+                Assert.AreEqual("Phase2_CalculatingSnapshots", session.Phase)
+                Assert.IsTrue((Option.isSome session.Phase1CompletedAt))
+                Assert.IsTrue((Option.isSome session.Phase2StartedAt))
             | None -> Assert.Fail("Session should exist")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``markBrokerSnapshotsCompleted sets flag``() =
         task {
             // Arrange
@@ -319,11 +315,11 @@ type ImportSessionManagerTests() =
             let! sessionOpt = ImportSessionManager.getSessionById sessionId
 
             match sessionOpt with
-            | Some session -> Assert.That(session.BrokerSnapshotsCalculated, Is.EqualTo(1))
+            | Some session -> Assert.AreEqual(1, session.BrokerSnapshotsCalculated)
             | None -> Assert.Fail("Session should exist")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``markTickerSnapshotsCompleted sets flag``() =
         task {
             // Arrange
@@ -342,11 +338,11 @@ type ImportSessionManagerTests() =
             let! sessionOpt = ImportSessionManager.getSessionById sessionId
 
             match sessionOpt with
-            | Some session -> Assert.That(session.TickerSnapshotsCalculated, Is.EqualTo(1))
+            | Some session -> Assert.AreEqual(1, session.TickerSnapshotsCalculated)
             | None -> Assert.Fail("Session should exist")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``completeSession marks session as completed``() =
         task {
             // Arrange
@@ -366,18 +362,18 @@ type ImportSessionManagerTests() =
 
             match sessionOpt with
             | Some session ->
-                Assert.That(session.State, Is.EqualTo("Completed"))
-                Assert.That((Option.isSome session.CompletedAt), Is.True)
+                Assert.AreEqual("Completed", session.State)
+                Assert.IsTrue((Option.isSome session.CompletedAt))
             | None -> Assert.Fail("Session should exist")
 
             // Verify it's no longer active
             let! activeSession = ImportSessionManager.getActiveSession 1
-            Assert.That((Option.isNone activeSession), Is.True, "Completed session should not be active")
+            Assert.IsTrue((Option.isNone activeSession), "Completed session should not be active")
         }
 
     // ==================== File Hash Validation Tests ====================
 
-    [<Test>]
+    [<TestMethod>]
     member this.``validateFileHash returns true for matching hash``() =
         task {
             // Arrange
@@ -410,13 +406,13 @@ type ImportSessionManagerTests() =
             let isValid = ImportSessionManager.validateFileHash session testFile
 
             // Assert
-            Assert.That(isValid, Is.True, "File hash should match")
+            Assert.IsTrue(isValid, "File hash should match")
 
             // Cleanup
             System.IO.File.Delete(testFile)
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``validateFileHash returns false for mismatched hash``() =
         task {
             // Arrange
@@ -447,7 +443,7 @@ type ImportSessionManagerTests() =
             let isValid = ImportSessionManager.validateFileHash session testFile
 
             // Assert
-            Assert.That(isValid, Is.False, "File hash should not match")
+            Assert.IsFalse(isValid, "File hash should not match")
 
             // Cleanup
             System.IO.File.Delete(testFile)
@@ -455,7 +451,7 @@ type ImportSessionManagerTests() =
 
     // ==================== Error Handling Tests ====================
 
-    [<Test>]
+    [<TestMethod>]
     member this.``markSessionFailed records error message``() =
         task {
             // Arrange
@@ -475,12 +471,12 @@ type ImportSessionManagerTests() =
 
             match sessionOpt with
             | Some session ->
-                Assert.That(session.State, Is.EqualTo("Failed"))
-                Assert.That(session.LastError, Is.EqualTo(Some "Test error message"))
+                Assert.AreEqual("Failed", session.State)
+                Assert.AreEqual(Some "Test error message", session.LastError)
             | None -> Assert.Fail("Session should exist")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``markSessionCancelled marks session as cancelled``() =
         task {
             // Arrange
@@ -499,13 +495,13 @@ type ImportSessionManagerTests() =
             let! sessionOpt = ImportSessionManager.getSessionById sessionId
 
             match sessionOpt with
-            | Some session -> Assert.That(session.State, Is.EqualTo("Cancelled"))
+            | Some session -> Assert.AreEqual("Cancelled", session.State)
             | None -> Assert.Fail("Session should exist")
         }
 
     // ==================== Multiple Sessions Tests ====================
 
-    [<Test>]
+    [<TestMethod>]
     member this.``multiple sessions can exist for different accounts``() =
         task {
             // Arrange
@@ -516,7 +512,7 @@ type ImportSessionManagerTests() =
 
             // Create a second broker account for testing
             let! (ok, details, error) = this.Actions.createBrokerAccount ("ImportSession-Test-2")
-            Assert.That(ok, Is.True, sprintf "Account 2 creation should succeed: %s - %A" details error)
+            Assert.IsTrue(ok, sprintf "Account 2 creation should succeed: %s - %A" details error)
             let idStr = details.Replace("Account created (ID=", "").Replace(")", "")
             let account2Id = Int32.Parse(idStr)
 
@@ -528,20 +524,20 @@ type ImportSessionManagerTests() =
                 ImportSessionManager.createSession account2Id "Account 2" "/test/file2.csv" analysis chunks
 
             // Assert
-            Assert.That(sessionId2, Is.Not.EqualTo(sessionId1))
+            Assert.AreNotEqual(sessionId1, sessionId2)
 
             let! activeSession1 = ImportSessionManager.getActiveSession testBrokerAccountId
             let! activeSession2 = ImportSessionManager.getActiveSession account2Id
 
             match activeSession1, activeSession2 with
             | Some s1, Some s2 ->
-                Assert.That(s1.BrokerAccountId, Is.EqualTo(testBrokerAccountId))
-                Assert.That(s2.BrokerAccountId, Is.EqualTo(account2Id))
-                Assert.That(s2.Id, Is.Not.EqualTo(s1.Id))
+                Assert.AreEqual(testBrokerAccountId, s1.BrokerAccountId)
+                Assert.AreEqual(account2Id, s2.BrokerAccountId)
+                Assert.AreNotEqual(s1.Id, s2.Id)
             | _ -> Assert.Fail("Both sessions should exist")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``only one active session allowed per account``() =
         task {
             // Arrange
@@ -563,13 +559,13 @@ type ImportSessionManagerTests() =
 
             // Assert - Should return the most recent session (sessionId2)
             match activeSession with
-            | Some session -> Assert.That(session.Id, Is.EqualTo(sessionId2), "Should return most recent session")
+            | Some session -> Assert.AreEqual(sessionId2, session.Id, "Should return most recent session")
             | None -> Assert.Fail("Should have an active session")
         }
 
     // ==================== Exception Propagation Tests ====================
 
-    [<Test>]
+    [<TestMethod>]
     member this.``getSessionById propagates exceptions on database errors``() =
         task {
             // Arrange - Use a session ID that will cause issues deep in the DB layer
@@ -591,10 +587,10 @@ type ImportSessionManagerTests() =
 
             // Assert - Should return None for non-existent session, not throw
             // This demonstrates exceptions aren't being caught and converted to None
-            Assert.That((Option.isNone result), Is.True, "Non-existent session should return None naturally")
+            Assert.IsTrue((Option.isNone result), "Non-existent session should return None naturally")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``getPendingChunks propagates exceptions instead of returning empty list``() =
         task {
             // Arrange - Use invalid session ID
@@ -607,10 +603,10 @@ type ImportSessionManagerTests() =
 
             // Assert - Should return empty list naturally for non-existent session
             // The key is that we're not catching and hiding exceptions
-            Assert.That(chunks, Is.Empty, "Non-existent session should return empty list naturally")
+            Assert.AreEqual(0, chunks.Count, "Non-existent session should return empty list naturally")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``validateFileHash propagates exceptions for invalid file paths``() =
         // Arrange - Create a session
         let analysis =
@@ -645,9 +641,9 @@ type ImportSessionManagerTests() =
                 |> ignore)
 
         // Verify it's the expected exception type
-        Assert.That(ex, Is.Not.Null, "FileNotFoundException should be thrown")
+        Assert.IsNotNull(ex, "FileNotFoundException should be thrown")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``getActiveSession returns None naturally without catching exceptions``() =
         task {
             // Arrange - Query for non-existent broker account
@@ -657,5 +653,5 @@ type ImportSessionManagerTests() =
             let! result = ImportSessionManager.getActiveSession 99999
 
             // Assert - Should return None for non-existent account
-            Assert.That((Option.isNone result), Is.True, "Non-existent account should return None")
+            Assert.IsTrue((Option.isNone result), "Non-existent account should return None")
         }

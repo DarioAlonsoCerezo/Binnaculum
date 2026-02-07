@@ -1,51 +1,51 @@
 namespace Core.Tests.Unit
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Models
 open Binnaculum.Core.MovementDisplay
 open Binnaculum.Core
 open System
 
-[<TestFixture>]
+[<TestClass>]
 type MovementDisplayTests() =
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedTitle should return correct resource key for Trade`` () =
         let movement = emptyMovement()
         let movement = { movement with Type = AccountMovementType.Trade }
         
         let title = computeFormattedTitle movement
         
-        Assert.That(title, Is.EqualTo(ResourceKeys.MovementType_Trade))
+        Assert.AreEqual(ResourceKeys.MovementType_Trade, title)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedTitle should return correct resource key for OptionTrade`` () =
         let movement = emptyMovement()
         let movement = { movement with Type = AccountMovementType.OptionTrade }
         
         let title = computeFormattedTitle movement
         
-        Assert.That(title, Is.EqualTo(ResourceKeys.MovementType_OptionTrade))
+        Assert.AreEqual(ResourceKeys.MovementType_OptionTrade, title)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedTitle should return correct resource key for Dividend`` () =
         let movement = emptyMovement()
         let movement = { movement with Type = AccountMovementType.Dividend }
         
         let title = computeFormattedTitle movement
         
-        Assert.That(title, Is.EqualTo(ResourceKeys.MovementType_DividendReceived))
+        Assert.AreEqual(ResourceKeys.MovementType_DividendReceived, title)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedTitle should return correct resource key for DividendTax`` () =
         let movement = emptyMovement()
         let movement = { movement with Type = AccountMovementType.DividendTax }
         
         let title = computeFormattedTitle movement
         
-        Assert.That(title, Is.EqualTo(ResourceKeys.MovementType_DividendTaxWithheld))
+        Assert.AreEqual(ResourceKeys.MovementType_DividendTaxWithheld, title)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedTitle should return correct resource key for BrokerMovement Deposit`` () =
         let brokerMovement = 
             { Id = 1
@@ -67,9 +67,9 @@ type MovementDisplayTests() =
         
         let title = computeFormattedTitle movement
         
-        Assert.That(title, Is.EqualTo(ResourceKeys.MovementType_Deposit))
+        Assert.AreEqual(ResourceKeys.MovementType_Deposit, title)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedTitle should return correct resource key for BrokerMovement ACAT`` () =
         let brokerMovement = 
             { Id = 1
@@ -91,18 +91,18 @@ type MovementDisplayTests() =
         
         let title = computeFormattedTitle movement
         
-        Assert.That(title, Is.EqualTo(ResourceKeys.MovementType_ACATTransfer))
+        Assert.AreEqual(ResourceKeys.MovementType_ACATTransfer, title)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedSubtitle should return None for Dividend`` () =
         let movement = emptyMovement()
         let movement = { movement with Type = AccountMovementType.Dividend }
         
         let subtitle = computeFormattedSubtitle movement
         
-        Assert.That(subtitle, Is.EqualTo(None))
+        Assert.AreEqual(None, subtitle)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedSubtitle should return correct resource key for Trade BuyToOpen`` () =
         let trade = 
             { Id = 1
@@ -125,10 +125,10 @@ type MovementDisplayTests() =
         
         let subtitle = computeFormattedSubtitle movement
         
-        Assert.That(subtitle.IsSome, Is.True)
-        Assert.That(subtitle.Value, Is.EqualTo(ResourceKeys.Movement_BuyToOpen))
+        Assert.IsTrue(subtitle.IsSome)
+        Assert.AreEqual(ResourceKeys.Movement_BuyToOpen, subtitle.Value)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedSubtitle should return correct resource key for Trade SellToClose`` () =
         let trade = 
             { Id = 1
@@ -151,10 +151,10 @@ type MovementDisplayTests() =
         
         let subtitle = computeFormattedSubtitle movement
         
-        Assert.That(subtitle.IsSome, Is.True)
-        Assert.That(subtitle.Value, Is.EqualTo(ResourceKeys.Movement_SellToClose))
+        Assert.IsTrue(subtitle.IsSome)
+        Assert.AreEqual(ResourceKeys.Movement_SellToClose, subtitle.Value)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedSubtitle should return date string for DividendDate`` () =
         let dividendDate = 
             { Id = 1
@@ -170,10 +170,13 @@ type MovementDisplayTests() =
         
         let subtitle = computeFormattedSubtitle movement
         
-        Assert.That(subtitle, Is.Not.EqualTo(None))
-        Assert.That(subtitle.Value, Does.Contain("12/15/2023").Or.Contain("15/12/2023").Or.Contain("2023"))
+        Assert.AreNotEqual(None, subtitle)
+        Assert.IsTrue(
+            subtitle.Value.Contains("12/15/2023") || subtitle.Value.Contains("15/12/2023") || subtitle.Value.Contains("2023"),
+            "Subtitle should contain a date representation"
+        )
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeFormattedQuantity should format Trade quantity correctly`` () =
         let trade = 
             { Id = 1
@@ -196,38 +199,38 @@ type MovementDisplayTests() =
         
         let quantity = computeFormattedQuantity movement
         
-        Assert.That(quantity, Is.Not.EqualTo(None))
-        Assert.That(quantity.Value, Does.StartWith("x"))
-        Assert.That(quantity.Value, Does.Contain("1,234"))
+        Assert.AreNotEqual(None, quantity)
+        StringAssert.StartsWith(quantity.Value, "x")
+        StringAssert.Contains(quantity.Value, "1,234")
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeVisibilityFlags should set ShowQuantity true for Trade`` () =
         let movement = emptyMovement()
         let movement = { movement with Type = AccountMovementType.Trade }
         
         let (showQuantity, _, _, _, _) = computeVisibilityFlags movement
         
-        Assert.That(showQuantity, Is.True)
+        Assert.IsTrue(showQuantity)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeVisibilityFlags should set ShowSubtitle true for Trade`` () =
         let movement = emptyMovement()
         let movement = { movement with Type = AccountMovementType.Trade }
         
         let (_, showSubtitle, _, _, _) = computeVisibilityFlags movement
         
-        Assert.That(showSubtitle, Is.True)
+        Assert.IsTrue(showSubtitle)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeVisibilityFlags should set ShowOptionSubtitle true for OptionTrade`` () =
         let movement = emptyMovement()
         let movement = { movement with Type = AccountMovementType.OptionTrade }
         
         let (_, _, showOptionSubtitle, _, _) = computeVisibilityFlags movement
         
-        Assert.That(showOptionSubtitle, Is.True)
+        Assert.IsTrue(showOptionSubtitle)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``computeVisibilityFlags should set ShowACAT true for ACAT securities transfer`` () =
         let brokerMovement = 
             { Id = 1
@@ -249,10 +252,10 @@ type MovementDisplayTests() =
         
         let (_, _, _, showACAT, showAmount) = computeVisibilityFlags movement
         
-        Assert.That(showACAT, Is.True)
-        Assert.That(showAmount, Is.False)
+        Assert.IsTrue(showACAT)
+        Assert.IsFalse(showAmount)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``createMovementWithDisplayProperties should populate all display properties`` () =
         let trade = 
             { Id = 1
@@ -276,13 +279,13 @@ type MovementDisplayTests() =
         let movement = createMovementWithDisplayProperties rawMovement
         
         // Verify all properties are populated
-        Assert.That(movement.FormattedTitle, Is.EqualTo(ResourceKeys.MovementType_Trade))
-        Assert.That(movement.FormattedSubtitle.IsSome, Is.True)
-        Assert.That(movement.FormattedSubtitle.Value, Is.EqualTo(ResourceKeys.Movement_BuyToOpen))
-        Assert.That(movement.FormattedDate, Is.Not.Empty)
-        Assert.That(movement.FormattedQuantity, Is.Not.EqualTo(None))
-        Assert.That(movement.ShowQuantity, Is.True)
-        Assert.That(movement.ShowSubtitle, Is.True)
-        Assert.That(movement.ShowOptionSubtitle, Is.False)
-        Assert.That(movement.ShowACAT, Is.False)
-        Assert.That(movement.ShowAmount, Is.True)
+        Assert.AreEqual(ResourceKeys.MovementType_Trade, movement.FormattedTitle)
+        Assert.IsTrue(movement.FormattedSubtitle.IsSome)
+        Assert.AreEqual(ResourceKeys.Movement_BuyToOpen, movement.FormattedSubtitle.Value)
+        Assert.IsTrue(movement.FormattedDate.Length > 0)
+        Assert.AreNotEqual(None, movement.FormattedQuantity)
+        Assert.IsTrue(movement.ShowQuantity)
+        Assert.IsTrue(movement.ShowSubtitle)
+        Assert.IsFalse(movement.ShowOptionSubtitle)
+        Assert.IsFalse(movement.ShowACAT)
+        Assert.IsTrue(movement.ShowAmount)

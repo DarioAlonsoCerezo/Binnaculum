@@ -1,6 +1,6 @@
 namespace Core.Tests.Unit.Database
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Tests
@@ -11,11 +11,11 @@ open System
 /// Unit tests for pagination methods across all movement types.
 /// Tests verify LIMIT/OFFSET behavior and proper ordering.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type PaginationMethodsTests() =
     inherit InMemoryDatabaseFixture()
     
-    [<Test>]
+    [<TestMethod>]
     member this.``loadMovementsPaged handles empty results correctly``() =
         task {
             // Arrange - create currency, broker and account but no movements
@@ -43,10 +43,10 @@ type PaginationMethodsTests() =
             let! page = BrokerMovementExtensions.Do.loadMovementsPaged(savedAccount.Id, 0, 50)
             
             // Assert
-            Assert.That(page.Length, Is.EqualTo(0), "Empty result should return empty list")
+            Assert.AreEqual(0, page.Length, "Empty result should return empty list")
         }
     
-    [<Test>]
+    [<TestMethod>]
     member this.``loadMovementsPaged respects page size limit``() =
         task {
             // Arrange - create test data
@@ -96,16 +96,16 @@ type PaginationMethodsTests() =
             let! firstPage = BrokerMovementExtensions.Do.loadMovementsPaged(savedAccount.Id, 0, 50)
             
             // Assert
-            Assert.That(firstPage.Length, Is.EqualTo(50), "First page should contain exactly 50 movements")
+            Assert.AreEqual(50, firstPage.Length, "First page should contain exactly 50 movements")
             
             // Act - load second page
             let! secondPage = BrokerMovementExtensions.Do.loadMovementsPaged(savedAccount.Id, 1, 50)
             
             // Assert  
-            Assert.That(secondPage.Length, Is.EqualTo(25), "Second page should contain remaining 25 movements")
+            Assert.AreEqual(25, secondPage.Length, "Second page should contain remaining 25 movements")
         }
     
-    [<Test>]
+    [<TestMethod>]
     member this.``getMovementCount returns correct total``() =
         task {
             // Arrange
@@ -155,5 +155,5 @@ type PaginationMethodsTests() =
             let! count = BrokerMovementExtensions.Do.getMovementCount(savedAccount.Id)
             
             // Assert
-            Assert.That(count, Is.EqualTo(42), "Count should match total movements created")
+            Assert.AreEqual(42, count, "Count should match total movements created")
         }

@@ -1,6 +1,6 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System.Threading.Tasks
 open Binnaculum.Core.UI
 
@@ -9,7 +9,7 @@ open Binnaculum.Core.UI
 /// These tests showcase the patterns described in the issue for using in-memory
 /// mode for comprehensive integration testing without MAUI platform dependencies.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type WorkOnMemoryIntegrationExample() =
 
     /// <summary>
@@ -18,7 +18,7 @@ type WorkOnMemoryIntegrationExample() =
     /// Note: InitDatabase() and LoadData() require platform-specific file system access,
     /// so this example focuses on preference management which works in headless environments.
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member _.``Pattern 1 - Basic in-memory preferences configuration``() =
         task {
             // Configure in-memory mode FIRST (before any operations)
@@ -30,15 +30,15 @@ type WorkOnMemoryIntegrationExample() =
 
             // Verify preferences work in in-memory mode
             let prefs = SavedPrefereces.UserPreferences.Value
-            Assert.That(prefs.Language, Is.EqualTo("en"), "Language should be English")
-            Assert.That(prefs.Currency, Is.EqualTo("USD"), "Currency should be USD")
+            Assert.AreEqual("en", prefs.Language, "Language should be English")
+            Assert.AreEqual("USD", prefs.Currency, "Currency should be USD")
         }
 
     /// <summary>
     /// Example Pattern 2: Test with multiple preference types.
     /// This demonstrates how to set and verify different types of preferences in in-memory mode.
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member _.``Pattern 2 - Multiple preference types configuration``() =
         task {
             // Configure in-memory mode FIRST
@@ -53,11 +53,11 @@ type WorkOnMemoryIntegrationExample() =
 
             // Verify all preferences were applied
             let prefs = SavedPrefereces.UserPreferences.Value
-            Assert.That(prefs.Language, Is.EqualTo("es"), "Language should be Spanish")
-            Assert.That(prefs.Currency, Is.EqualTo("EUR"), "Currency should be EUR")
-            Assert.That(prefs.Ticker, Is.EqualTo("AAPL"), "Ticker should be AAPL")
-            Assert.That(prefs.AllowCreateAccount, Is.False, "Create account should be disabled")
-            Assert.That(prefs.GroupOptions, Is.True, "Group options should be enabled")
+            Assert.AreEqual("es", prefs.Language, "Language should be Spanish")
+            Assert.AreEqual("EUR", prefs.Currency, "Currency should be EUR")
+            Assert.AreEqual("AAPL", prefs.Ticker, "Ticker should be AAPL")
+            Assert.IsFalse(prefs.AllowCreateAccount, "Create account should be disabled")
+            Assert.IsTrue(prefs.GroupOptions, "Group options should be enabled")
         }
 
     /// <summary>
@@ -65,7 +65,7 @@ type WorkOnMemoryIntegrationExample() =
     /// Demonstrates in-memory preference management for Scenario 1.
     /// NOTE: Moved to separate test to avoid mid-test database reset issues.
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member _.``Pattern 3a - Preference configuration scenario 1 (English USD)``() =
         task {
             // Configure in-memory mode
@@ -75,8 +75,8 @@ type WorkOnMemoryIntegrationExample() =
             SavedPrefereces.ChangeLanguage("en")
             SavedPrefereces.ChangeCurrency("USD")
             let prefs1 = SavedPrefereces.UserPreferences.Value
-            Assert.That(prefs1.Language, Is.EqualTo("en"), "Scenario 1: Language should be English")
-            Assert.That(prefs1.Currency, Is.EqualTo("USD"), "Scenario 1: Currency should be USD")
+            Assert.AreEqual("en", prefs1.Language, "Scenario 1: Language should be English")
+            Assert.AreEqual("USD", prefs1.Currency, "Scenario 1: Currency should be USD")
         }
 
     /// <summary>
@@ -85,7 +85,7 @@ type WorkOnMemoryIntegrationExample() =
     /// Each scenario runs in its own fresh test context (NUnit handles setup/teardown).
     /// NOTE: Moved to separate test to avoid mid-test database reset issues.
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member _.``Pattern 3b - Preference configuration scenario 2 (Spanish EUR)``() =
         task {
             // Configure in-memory mode (fresh start for this test)
@@ -95,15 +95,15 @@ type WorkOnMemoryIntegrationExample() =
             SavedPrefereces.ChangeLanguage("es")
             SavedPrefereces.ChangeCurrency("EUR")
             let prefs2 = SavedPrefereces.UserPreferences.Value
-            Assert.That(prefs2.Language, Is.EqualTo("es"), "Scenario 2: Language should be Spanish")
-            Assert.That(prefs2.Currency, Is.EqualTo("EUR"), "Scenario 2: Currency should be EUR")
+            Assert.AreEqual("es", prefs2.Language, "Scenario 2: Language should be Spanish")
+            Assert.AreEqual("EUR", prefs2.Currency, "Scenario 2: Currency should be EUR")
         }
 
     /// <summary>
     /// Example Pattern 4: Secure storage (API keys) testing.
     /// This demonstrates how to test secure storage functionality in in-memory mode.
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member _.``Pattern 4 - Secure storage API key persistence``() =
         task {
             // Configure in-memory mode
@@ -115,22 +115,18 @@ type WorkOnMemoryIntegrationExample() =
 
             // Verify the API key was stored
             let prefs = SavedPrefereces.UserPreferences.Value
-            Assert.That(prefs.PolygonApiKey, Is.EqualTo(Some testKey), "API key should be stored in memory")
+            Assert.AreEqual(Some testKey, prefs.PolygonApiKey, "API key should be stored in memory")
 
             // Verify we can load the key asynchronously
             do! SavedPrefereces.LoadPolygonApiKeyAsync()
             let prefsAfterLoad = SavedPrefereces.UserPreferences.Value
 
-            Assert.That(
-                prefsAfterLoad.PolygonApiKey,
-                Is.EqualTo(Some testKey),
-                "API key should persist after async load"
-            )
+            Assert.AreEqual(Some testKey, prefsAfterLoad.PolygonApiKey, "API key should persist after async load")
 
             // Verify we can remove the key
             do! SavedPrefereces.ChangePolygonApiKey(None)
             let prefsAfterRemove = SavedPrefereces.UserPreferences.Value
-            Assert.That(prefsAfterRemove.PolygonApiKey, Is.EqualTo(None), "API key should be removed")
+            Assert.AreEqual(None, prefsAfterRemove.PolygonApiKey, "API key should be removed")
         }
 
     /// <summary>
@@ -138,7 +134,7 @@ type WorkOnMemoryIntegrationExample() =
     /// This demonstrates how to verify that preference changes properly update
     /// the reactive UserPreferences BehaviorSubject.
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member _.``Pattern 5 - Preference changes update reactive subscribers``() =
         task {
             // Configure in-memory mode
@@ -161,12 +157,12 @@ type WorkOnMemoryIntegrationExample() =
 
             // Change language
             SavedPrefereces.ChangeLanguage("fr")
-            Assert.That(languageUpdated, Is.EqualTo("fr"), "Language should be updated to French")
-            Assert.That(updateCount, Is.GreaterThan(initialCount), "Update count should increase")
+            Assert.AreEqual("fr", languageUpdated, "Language should be updated to French")
+            Assert.IsTrue(updateCount > initialCount, "Update count should increase")
 
             // Change currency
             SavedPrefereces.ChangeCurrency("CHF")
-            Assert.That(currencyUpdated, Is.EqualTo("CHF"), "Currency should be updated to CHF")
+            Assert.AreEqual("CHF", currencyUpdated, "Currency should be updated to CHF")
         }
 
     /// <summary>
@@ -181,7 +177,7 @@ type WorkOnMemoryIntegrationExample() =
     /// use this pattern in environments with MAUI platform services available
     /// (such as Core.Platform.Tests or UI integration tests).
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member _.``Comprehensive workflow - Complete preference management``() =
         task {
             // === Phase 1: Initial Setup with English/USD ===
@@ -199,12 +195,12 @@ type WorkOnMemoryIntegrationExample() =
 
             // Verify Phase 1 state
             let prefs1 = SavedPrefereces.UserPreferences.Value
-            Assert.That(prefs1.Language, Is.EqualTo("en"), "Phase 1: Language should be English")
-            Assert.That(prefs1.Currency, Is.EqualTo("USD"), "Phase 1: Currency should be USD")
-            Assert.That(prefs1.AllowCreateAccount, Is.True, "Phase 1: Create account enabled")
-            Assert.That(prefs1.GroupOptions, Is.True, "Phase 1: Group options enabled")
-            Assert.That(prefs1.Ticker, Is.EqualTo("SPY"), "Phase 1: Ticker should be SPY")
-            Assert.That(prefs1.PolygonApiKey, Is.EqualTo(Some "key-phase1"), "Phase 1: API key set")
+            Assert.AreEqual("en", prefs1.Language, "Phase 1: Language should be English")
+            Assert.AreEqual("USD", prefs1.Currency, "Phase 1: Currency should be USD")
+            Assert.IsTrue(prefs1.AllowCreateAccount, "Phase 1: Create account enabled")
+            Assert.IsTrue(prefs1.GroupOptions, "Phase 1: Group options enabled")
+            Assert.AreEqual("SPY", prefs1.Ticker, "Phase 1: Ticker should be SPY")
+            Assert.AreEqual(Some "key-phase1", prefs1.PolygonApiKey, "Phase 1: API key set")
 
             // === Phase 2: Clear preferences and Configure with Spanish/EUR ===
             // Manually clear preferences (WipeAllDataForTesting requires database initialization)
@@ -223,10 +219,10 @@ type WorkOnMemoryIntegrationExample() =
 
             // Verify Phase 2 state (should be completely independent from Phase 1)
             let prefs2 = SavedPrefereces.UserPreferences.Value
-            Assert.That(prefs2.Language, Is.EqualTo("es"), "Phase 2: Language should be Spanish")
-            Assert.That(prefs2.Currency, Is.EqualTo("EUR"), "Phase 2: Currency should be EUR")
-            Assert.That(prefs2.AllowCreateAccount, Is.False, "Phase 2: Create account disabled")
-            Assert.That(prefs2.GroupOptions, Is.False, "Phase 2: Group options disabled")
-            Assert.That(prefs2.Ticker, Is.EqualTo("AAPL"), "Phase 2: Ticker should be AAPL")
-            Assert.That(prefs2.PolygonApiKey, Is.EqualTo(Some "key-phase2"), "Phase 2: Different API key")
+            Assert.AreEqual("es", prefs2.Language, "Phase 2: Language should be Spanish")
+            Assert.AreEqual("EUR", prefs2.Currency, "Phase 2: Currency should be EUR")
+            Assert.IsFalse(prefs2.AllowCreateAccount, "Phase 2: Create account disabled")
+            Assert.IsFalse(prefs2.GroupOptions, "Phase 2: Group options disabled")
+            Assert.AreEqual("AAPL", prefs2.Ticker, "Phase 2: Ticker should be AAPL")
+            Assert.AreEqual(Some "key-phase2", prefs2.PolygonApiKey, "Phase 2: Different API key")
         }

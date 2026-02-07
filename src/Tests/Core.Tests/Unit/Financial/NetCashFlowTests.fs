@@ -1,13 +1,13 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open Binnaculum.Core.Models
 
-[<TestFixture>]
+[<TestClass>]
 type NetCashFlowTests () =
 
-    [<Test>]
+    [<TestMethod>]
     member _.``NetCashFlow should be computed correctly with deposits and dividends`` () =
         // Arrange
         let mockCurrency = {
@@ -49,10 +49,10 @@ type NetCashFlowTests () =
         let expectedNetCashFlow = snapshot.Deposited - snapshot.Withdrawn - snapshot.Commissions - snapshot.Fees + snapshot.DividendsReceived + snapshot.OptionsIncome + snapshot.OtherIncome
         
         // Assert
-        Assert.That(snapshot.NetCashFlow, Is.EqualTo(expectedNetCashFlow))
-        Assert.That(snapshot.NetCashFlow, Is.EqualTo(1785.0m))
+        Assert.AreEqual(expectedNetCashFlow, snapshot.NetCashFlow)
+        Assert.AreEqual(1785.0m, snapshot.NetCashFlow)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``NetCashFlow should be negative when withdrawals exceed deposits`` () =
         // Arrange
         let mockCurrency = {
@@ -88,11 +88,11 @@ type NetCashFlowTests () =
         let expectedNetCashFlow = snapshot.Deposited - snapshot.Withdrawn - snapshot.Commissions - snapshot.Fees + snapshot.DividendsReceived + snapshot.OptionsIncome + snapshot.OtherIncome
         
         // Assert
-        Assert.That(snapshot.NetCashFlow, Is.EqualTo(expectedNetCashFlow))
-        Assert.That(snapshot.NetCashFlow, Is.EqualTo(-190.0m))
-        Assert.That(snapshot.NetCashFlow, Is.LessThan(0.0m))
+        Assert.AreEqual(expectedNetCashFlow, snapshot.NetCashFlow)
+        Assert.AreEqual(-190.0m, snapshot.NetCashFlow)
+        Assert.IsTrue(snapshot.NetCashFlow < 0.0m)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``NetCashFlow should be zero for empty snapshot`` () =
         // Arrange
         let mockCurrency = {
@@ -125,9 +125,9 @@ type NetCashFlowTests () =
         }
         
         // Act & Assert
-        Assert.That(snapshot.NetCashFlow, Is.EqualTo(0.0m))
+        Assert.AreEqual(0.0m, snapshot.NetCashFlow)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``NetCashFlow formula matches issue specification`` () =
         // Test the specific formula from the issue:
         // NetCashFlow = Deposited - Withdrawn - Commissions - Fees + DividendsReceived + OptionsIncome + OtherIncome
@@ -172,4 +172,4 @@ type NetCashFlowTests () =
         }
         
         // Act & Assert - Formula validation
-        Assert.That(snapshot.NetCashFlow, Is.EqualTo(4350.0m))
+        Assert.AreEqual(4350.0m, snapshot.NetCashFlow)

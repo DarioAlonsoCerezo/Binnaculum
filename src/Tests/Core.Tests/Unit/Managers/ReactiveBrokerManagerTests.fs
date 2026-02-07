@@ -1,16 +1,16 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open System.Reactive.Linq
 open System
 open System.Threading.Tasks
 
-[<TestFixture>]
+[<TestClass>]
 type ReactiveBrokerManagerTests() =
 
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Set up test data using Edit instead of EditDiff
         let testBrokers = [
@@ -26,29 +26,29 @@ type ReactiveBrokerManagerTests() =
         // Initialize the reactive broker manager
         ReactiveBrokerManager.initialize()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast broker lookup by ID should return correct broker with O(1) performance``() =
         // Test fast lookup by ID
         let ib = ReactiveBrokerManager.getBrokerByIdFast(1)
         let schwab = ReactiveBrokerManager.getBrokerByIdFast(2)
         let tda = ReactiveBrokerManager.getBrokerByIdFast(3)
         
-        Assert.That(ib.Name, Is.EqualTo("Interactive Brokers"))
-        Assert.That(ib.Image, Is.EqualTo("ib"))
-        Assert.That(ib.Id, Is.EqualTo(1))
-        Assert.That(ib.SupportedBroker, Is.EqualTo(SupportedBroker.Unknown))
+        Assert.AreEqual("Interactive Brokers", ib.Name)
+        Assert.AreEqual("ib", ib.Image)
+        Assert.AreEqual(1, ib.Id)
+        Assert.AreEqual(SupportedBroker.Unknown, ib.SupportedBroker)
         
-        Assert.That(schwab.Name, Is.EqualTo("Charles Schwab"))
-        Assert.That(schwab.Image, Is.EqualTo("schwab"))
-        Assert.That(schwab.Id, Is.EqualTo(2))
-        Assert.That(schwab.SupportedBroker, Is.EqualTo(SupportedBroker.Unknown))
+        Assert.AreEqual("Charles Schwab", schwab.Name)
+        Assert.AreEqual("schwab", schwab.Image)
+        Assert.AreEqual(2, schwab.Id)
+        Assert.AreEqual(SupportedBroker.Unknown, schwab.SupportedBroker)
         
-        Assert.That(tda.Name, Is.EqualTo("TD Ameritrade"))
-        Assert.That(tda.Image, Is.EqualTo("tda"))
-        Assert.That(tda.Id, Is.EqualTo(3))
-        Assert.That(tda.SupportedBroker, Is.EqualTo(SupportedBroker.Unknown))
+        Assert.AreEqual("TD Ameritrade", tda.Name)
+        Assert.AreEqual("tda", tda.Image)
+        Assert.AreEqual(3, tda.Id)
+        Assert.AreEqual(SupportedBroker.Unknown, tda.SupportedBroker)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive broker lookup should return observable broker``() =
         // Test reactive lookup
         let observable = ReactiveBrokerManager.getBrokerByIdReactive(1)
@@ -63,11 +63,11 @@ type ReactiveBrokerManagerTests() =
         // Wait briefly for observable to emit
         System.Threading.Thread.Sleep(10)
         
-        Assert.That(testCompleted, Is.True)
-        Assert.That(resultBroker.Name, Is.EqualTo("Interactive Brokers"))
-        Assert.That(resultBroker.Id, Is.EqualTo(1))
+        Assert.IsTrue(testCompleted)
+        Assert.AreEqual("Interactive Brokers", resultBroker.Name)
+        Assert.AreEqual(1, resultBroker.Id)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Performance comparison should show improvement over linear search``() =
         // Create larger dataset for performance testing
         let largeBrokersList = [
@@ -109,9 +109,9 @@ type ReactiveBrokerManagerTests() =
         printfn "========================================"
         
         // Assert that fast lookup is at least as fast as linear search (with tolerance for timing variance)
-        Assert.That(fastLookupTime, Is.LessThanOrEqualTo(linearSearchTime + 10L))
+        Assert.IsTrue(fastLookupTime <= linearSearchTime + 10L)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive cache should update when broker is added to collection``() =
         // Add a new broker to the collection
         let newBroker = { Id = 4; Name = "Fidelity"; Image = "fidelity"; SupportedBroker = SupportedBroker.Unknown }
@@ -120,14 +120,14 @@ type ReactiveBrokerManagerTests() =
         // The reactive cache should automatically pick up the new broker
         let retrievedBroker = ReactiveBrokerManager.getBrokerByIdFast(4)
         
-        Assert.That(retrievedBroker.Name, Is.EqualTo("Fidelity"))
-        Assert.That(retrievedBroker.Id, Is.EqualTo(4))
+        Assert.AreEqual("Fidelity", retrievedBroker.Name)
+        Assert.AreEqual(4, retrievedBroker.Id)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive cache should update when broker is updated in collection``() =
         // Update an existing broker by removing and re-adding with changes
         let originalBroker = ReactiveBrokerManager.getBrokerByIdFast(1)
-        Assert.That(originalBroker.Name, Is.EqualTo("Interactive Brokers"))
+        Assert.AreEqual("Interactive Brokers", originalBroker.Name)
         
         let updatedBroker = { originalBroker with Name = "IB (Updated)" }
         Collections.Brokers.Edit(fun list -> 
@@ -139,10 +139,10 @@ type ReactiveBrokerManagerTests() =
         let retrievedBroker = ReactiveBrokerManager.getBrokerByIdFast(1)
         Assert.That(retrievedBroker.Name, Is.EqualTo("IB (Updated)"))
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Backward compatibility - Collections.getBroker should still work``() =
         // Test that broker lookup still works via fallback to linear search
         let broker = Collections.Brokers.Items |> Seq.find(fun b -> b.Id = 1)
         
-        Assert.That(broker.Name, Is.EqualTo("Interactive Brokers"))
-        Assert.That(broker.Id, Is.EqualTo(1))
+        Assert.AreEqual("Interactive Brokers", broker.Name)
+        Assert.AreEqual(1, broker.Id)

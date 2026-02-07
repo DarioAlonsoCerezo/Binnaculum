@@ -1,7 +1,7 @@
 namespace Core.Tests
 
 open System
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Patterns
 open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
@@ -36,10 +36,10 @@ module private BrokerFinancialCalculateTestHelpers =
           TotalCount = List.length trades + List.length optionTrades
           UniqueDates = Set.empty<DateTimePattern> }
 
-[<TestFixture>]
+[<TestClass>]
 type BrokerFinancialCalculateTests() =
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Scenario D direct update replaces existing totals``() =
         // Arrange
         let targetDate = DateTime(2024, 4, 22, 23, 59, 59, DateTimeKind.Utc)
@@ -104,23 +104,19 @@ type BrokerFinancialCalculateTests() =
                 stockUnrealizedGains
 
         // Assert
-        Assert.That(
-            updatedSnapshot.Deposited.Value,
-            Is.EqualTo(10m),
-            "Deposits should match recalculated metrics without accumulation"
-        )
+        Assert.AreEqual(10m, updatedSnapshot.Deposited.Value, "Deposits should match recalculated metrics without accumulation")
 
-        Assert.That(updatedSnapshot.Withdrawn.Value, Is.EqualTo(0m))
-        Assert.That(updatedSnapshot.RealizedGains.Value, Is.EqualTo(0m))
-        Assert.That(updatedSnapshot.MovementCounter, Is.EqualTo(1))
-        Assert.That(updatedSnapshot.Commissions.Value, Is.EqualTo(0m))
-        Assert.That(updatedSnapshot.Fees.Value, Is.EqualTo(0m))
-        Assert.That(updatedSnapshot.OpenTrades, Is.False)
-        Assert.That(updatedSnapshot.RealizedPercentage, Is.EqualTo(0m))
-        Assert.That(updatedSnapshot.UnrealizedGains.Value, Is.EqualTo(0m))
-        Assert.That(updatedSnapshot.UnrealizedGainsPercentage, Is.EqualTo(0m))
+        Assert.AreEqual(0m, updatedSnapshot.Withdrawn.Value)
+        Assert.AreEqual(0m, updatedSnapshot.RealizedGains.Value)
+        Assert.AreEqual(1, updatedSnapshot.MovementCounter)
+        Assert.AreEqual(0m, updatedSnapshot.Commissions.Value)
+        Assert.AreEqual(0m, updatedSnapshot.Fees.Value)
+        Assert.IsFalse(updatedSnapshot.OpenTrades)
+        Assert.AreEqual(0m, updatedSnapshot.RealizedPercentage)
+        Assert.AreEqual(0m, updatedSnapshot.UnrealizedGains.Value)
+        Assert.AreEqual(0m, updatedSnapshot.UnrealizedGainsPercentage)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Scenario D direct update preserves realized gains without closing movements``() =
         // Arrange
         let targetDate = DateTime(2024, 4, 22, 23, 59, 59, DateTimeKind.Utc)
@@ -181,11 +177,11 @@ type BrokerFinancialCalculateTests() =
                 stockUnrealizedGains
 
         // Assert
-        Assert.That(updatedSnapshot.RealizedGains.Value, Is.EqualTo(23.65m))
-        Assert.That(updatedSnapshot.RealizedPercentage, Is.EqualTo(2.5m))
-        Assert.That(updatedSnapshot.Deposited.Value, Is.EqualTo(878.79m))
+        Assert.AreEqual(23.65m, updatedSnapshot.RealizedGains.Value)
+        Assert.AreEqual(2.5m, updatedSnapshot.RealizedPercentage)
+        Assert.AreEqual(878.79m, updatedSnapshot.Deposited.Value)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Option summary replicates Tastytrade integration dataset``() =
         // Arrange
         let createOptionTrade
@@ -370,9 +366,9 @@ type BrokerFinancialCalculateTests() =
         // Assert
         // OptionsIncome = Sum of all Premium values (positive for sells, negative for buys)
         // 16 + 5 - 9 + 17 - 17 + 1 - 8 - 11 + 19 + 19 - 4 + 35 = 63.00
-        Assert.That(summary.OptionsIncome.Value, Is.EqualTo(63.00m).Within(0.01m))
+        Assert.IsTrue(abs(summary.OptionsIncome.Value - 63.00m) <= 0.01m)
         // OptionsInvestment = Total cost of buying options = Sum of absolute NetPremiums for buys
-        Assert.That(summary.OptionsInvestment.Value, Is.EqualTo(51.65m).Within(0.01m))
+        Assert.IsTrue(abs(summary.OptionsInvestment.Value - 51.65m) <= 0.01m)
         // RealizedGains: Correctly calculated with FIFO matching
         // Pair 1: SellToOpen(33.86) + BuyToClose(-17.13) = 16.73
         // Pair 2: BuyToOpen(-12.13) + SellToClose(4.86) = -7.27
@@ -380,5 +376,5 @@ type BrokerFinancialCalculateTests() =
         // Pair 4: BuyToOpen(-5.13) + SellToClose(0.86) = -4.27
         // Pair 5: SellToOpen(17.86) + BuyToClose(-8.13) = 9.73
         // Total: 16.73 + (-7.27) + 8.73 + (-4.27) + 9.73 = 23.65
-        Assert.That(summary.RealizedGains.Value, Is.EqualTo(23.65m).Within(0.01m))
-        Assert.That(summary.UnrealizedGains.Value, Is.EqualTo(14.86m).Within(0.01m))
+        Assert.IsTrue(abs(summary.RealizedGains.Value - 23.65m) <= 0.01m)
+        Assert.IsTrue(abs(summary.UnrealizedGains.Value - 14.86m) <= 0.01m)

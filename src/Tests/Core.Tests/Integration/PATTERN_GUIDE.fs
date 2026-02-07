@@ -23,14 +23,14 @@
 ///     -----------
 ///     let! result = actions.createBrokerAccount("Test")
 ///     Thread.Sleep(1000)  // ❌ Fragile timing
-///     Assert.That(Collections.Accounts.Count, Is.EqualTo(1))
+///     Assert.AreEqual(1, Collections.Accounts.Count)
 ///
 ///     NEW (DO):
 ///     --------
 ///     StreamObserver.expectSignals([ Accounts_Updated ])
 ///     let! result = actions.createBrokerAccount("Test")
 ///     let! signalsReceived = StreamObserver.waitForAllSignalsAsync(...)
-///     Assert.That(signalsReceived, Is.True)  // ✅ Signal-based waiting
+///     Assert.IsTrue(signalsReceived)  // ✅ Signal-based waiting
 ///
 /// WHY THIS MATTERS
 /// ================
@@ -77,7 +77,7 @@
 ///    StreamObserver.expectSignals([ Accounts_Updated ])
 ///    let! (ok, _) = actions.createBrokerAccount("Test")
 ///    let! received = StreamObserver.waitForAllSignalsAsync(timeout)
-///    Assert.That(received, Is.True)
+///    Assert.IsTrue(received)
 ///
 /// 3. INMEMORY MODE
 ///    All tests run with InMemory database to avoid platform dependencies
@@ -109,24 +109,24 @@
 ///
 ///             // SETUP: Initialize state
 ///             let! (ok, _, _) = actions.initDatabase()
-///             Assert.That(ok, Is.True)
+///             Assert.IsTrue(ok)
 ///
 ///             // EXPECT: Declare signals before operation
 ///             StreamObserver.expectSignals([ Accounts_Updated ])
 ///
 ///             // EXECUTE: Perform operation
 ///             let! (ok, details) = actions.createBrokerAccount("Test")
-///             Assert.That(ok, Is.True)
+///             Assert.IsTrue(ok)
 ///
 ///             // WAIT: Wait for signals (not arbitrary delays!)
 ///             let! signalsReceived = StreamObserver.waitForAllSignalsAsync(
 ///                 TimeSpan.FromSeconds(10.0)
 ///             )
-///             Assert.That(signalsReceived, Is.True)
+///             Assert.IsTrue(signalsReceived)
 ///
 ///             // VERIFY: Verify outcome
 ///             let! (verified, count, _) = actions.verifyAccountCount(1)
-///             Assert.That(verified, Is.True)
+///             Assert.IsTrue(verified)
 ///         }
 ///
 /// Step 3: Use Available Actions
@@ -159,7 +159,7 @@
 /// Usage:
 ///     let verifications = TestVerifications.verifyFullDatabaseState()
 ///     for (success, message) in verifications do
-///         Assert.That(success, Is.True, message)
+///         Assert.IsTrue(success, message)
 ///
 /// SIGNAL CHAIN EXAMPLE
 /// ====================
@@ -214,7 +214,7 @@
 ///
 ///                 // Initialize database
 ///                 let! (ok, _, _) = actions.initDatabase()
-///                 Assert.That(ok, Is.True, "Database init should succeed")
+///                 Assert.IsTrue(ok, "Database init should succeed")
 ///
 ///                 // Expect signals
 ///                 StreamObserver.expectSignals([
@@ -224,16 +224,16 @@
 ///
 ///                 // Create account
 ///                 let! (ok, details) = actions.createBrokerAccount("TestAccount")
-///                 Assert.That(ok, Is.True, $"Account creation should succeed: {details}")
+///                 Assert.IsTrue(ok, $"Account creation should succeed: {details}")
 ///
 ///                 // Wait for signals
 ///                 let! signalsReceived =
 ///                     StreamObserver.waitForAllSignalsAsync(TimeSpan.FromSeconds(10.0))
-///                 Assert.That(signalsReceived, Is.True, "Should receive both signals")
+///                 Assert.IsTrue(signalsReceived, "Should receive both signals")
 ///
 ///                 // Verify account count
 ///                 let! (verified, count, _) = actions.verifyAccountCount(1)
-///                 Assert.That(verified, Is.True, "Account count should be 1")
+///                 Assert.IsTrue(verified, "Account count should be 1")
 ///             }
 ///
 /// ADDING NEW TESTS
@@ -257,18 +257,18 @@
 ///     StreamObserver.expectSignals([ Accounts_Updated ])
 ///     let! (ok, _) = actions.createBrokerAccount("Test")
 ///     let! received = StreamObserver.waitForAllSignalsAsync(timeout)
-///     Assert.That(received, Is.True, "Signal should be received")
+///     Assert.IsTrue(received, "Signal should be received")
 ///
 /// Pattern 2: Verify Collection Updated
 /// ------------------------------------
 ///     let (success, count, _) = TestVerifications.verifyAccounts(1)
-///     Assert.That(success, Is.True, count)
+///     Assert.IsTrue(success, count)
 ///
 /// Pattern 3: Run All Verifications
 /// --------------------------------
 ///     let verifications = TestVerifications.verifyFullDatabaseState()
 ///     for (success, message) in verifications do
-///         Assert.That(success, Is.True, message)
+///         Assert.IsTrue(success, message)
 ///         CoreLogger.logInfo "[Verification]" (sprintf "✅ %s" message)
 ///
 /// Pattern 4: Print Phase Headers

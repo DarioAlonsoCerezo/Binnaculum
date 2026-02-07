@@ -1,6 +1,6 @@
 namespace Core.Tests.Unit.Verifications
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open Binnaculum.Core.Models
 open Core.Tests.Integration
@@ -9,7 +9,7 @@ open Core.Tests.Integration
 /// Unit tests for holistic snapshot verification functions.
 /// Tests verifyBrokerFinancialSnapshot and verifyTickerCurrencySnapshot.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type SnapshotVerificationTests() =
 
     /// <summary>
@@ -74,7 +74,7 @@ type SnapshotVerificationTests() =
           Commissions = 0m
           Fees = 0m }
 
-    [<Test>]
+    [<TestMethod>]
     member _.``verifyBrokerFinancialSnapshot returns true when all fields match``() =
         // Arrange
         let snapshot = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
@@ -84,11 +84,11 @@ type SnapshotVerificationTests() =
             TestVerifications.verifyBrokerFinancialSnapshot snapshot snapshot
 
         // Assert
-        Assert.That(allMatch, Is.True, "All fields should match when comparing identical snapshots")
-        Assert.That(results.Length, Is.GreaterThan(0), "Should have validation results")
-        Assert.That(results |> List.forall (fun r -> r.Match), Is.True, "All individual field results should match")
+        Assert.IsTrue(allMatch, "All fields should match when comparing identical snapshots")
+        Assert.IsTrue(results.Length > 0, "Should have validation results")
+        Assert.IsTrue(results |> List.forall (fun r -> r.Match), "All individual field results should match")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``verifyBrokerFinancialSnapshot detects Deposited mismatch``() =
         // Arrange
         let expected = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
@@ -99,13 +99,13 @@ type SnapshotVerificationTests() =
             TestVerifications.verifyBrokerFinancialSnapshot expected actual
 
         // Assert
-        Assert.That(allMatch, Is.False, "Should detect mismatch")
+        Assert.IsFalse(allMatch, "Should detect mismatch")
         let depositedResult = results |> List.find (fun r -> r.Field = "Deposited")
-        Assert.That(depositedResult.Match, Is.False, "Deposited field should not match")
-        Assert.That(depositedResult.Expected, Is.EqualTo("5000.00"))
-        Assert.That(depositedResult.Actual, Is.EqualTo("4999.00"))
+        Assert.IsFalse(depositedResult.Match, "Deposited field should not match")
+        Assert.AreEqual("5000.00", depositedResult.Expected)
+        Assert.AreEqual("4999.00", depositedResult.Actual)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``verifyBrokerFinancialSnapshot detects OptionsIncome mismatch``() =
         // Arrange
         let expected = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
@@ -116,11 +116,11 @@ type SnapshotVerificationTests() =
             TestVerifications.verifyBrokerFinancialSnapshot expected actual
 
         // Assert
-        Assert.That(allMatch, Is.False, "Should detect mismatch")
+        Assert.IsFalse(allMatch, "Should detect mismatch")
         let optionsResult = results |> List.find (fun r -> r.Field = "OptionsIncome")
-        Assert.That(optionsResult.Match, Is.False, "OptionsIncome field should not match")
+        Assert.IsFalse(optionsResult.Match, "OptionsIncome field should not match")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``verifyBrokerFinancialSnapshot detects multiple mismatches``() =
         // Arrange
         let expected = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
@@ -131,12 +131,12 @@ type SnapshotVerificationTests() =
             TestVerifications.verifyBrokerFinancialSnapshot expected actual
 
         // Assert
-        Assert.That(allMatch, Is.False, "Should detect mismatches")
+        Assert.IsFalse(allMatch, "Should detect mismatches")
         let mismatches = results |> List.filter (fun r -> not r.Match)
         // Expected differences: Deposited, Withdrawn, OptionsIncome, RealizedGains, UnrealizedGains, MovementCounter, NetCashFlow
-        Assert.That(mismatches.Length, Is.EqualTo(7), "Should detect 7 mismatched fields")
+        Assert.AreEqual(7, mismatches.Length, "Should detect 7 mismatched fields")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``verifyTickerCurrencySnapshot returns true when all fields match``() =
         // Arrange
         let snapshot = createTickerSnapshot 100m 250.50m -50.25m 75.00m
@@ -146,11 +146,11 @@ type SnapshotVerificationTests() =
             TestVerifications.verifyTickerCurrencySnapshot snapshot snapshot
 
         // Assert
-        Assert.That(allMatch, Is.True, "All fields should match when comparing identical snapshots")
-        Assert.That(results.Length, Is.GreaterThan(0), "Should have validation results")
-        Assert.That(results |> List.forall (fun r -> r.Match), Is.True, "All individual field results should match")
+        Assert.IsTrue(allMatch, "All fields should match when comparing identical snapshots")
+        Assert.IsTrue(results.Length > 0, "Should have validation results")
+        Assert.IsTrue(results |> List.forall (fun r -> r.Match), "All individual field results should match")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``verifyTickerCurrencySnapshot detects TotalShares mismatch``() =
         // Arrange
         let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
@@ -161,13 +161,13 @@ type SnapshotVerificationTests() =
             TestVerifications.verifyTickerCurrencySnapshot expected actual
 
         // Assert
-        Assert.That(allMatch, Is.False, "Should detect mismatch")
+        Assert.IsFalse(allMatch, "Should detect mismatch")
         let sharesResult = results |> List.find (fun r -> r.Field = "TotalShares")
-        Assert.That(sharesResult.Match, Is.False, "TotalShares field should not match")
-        Assert.That(sharesResult.Expected, Is.EqualTo("100.00"))
-        Assert.That(sharesResult.Actual, Is.EqualTo("99.00"))
+        Assert.IsFalse(sharesResult.Match, "TotalShares field should not match")
+        Assert.AreEqual("100.00", sharesResult.Expected)
+        Assert.AreEqual("99.00", sharesResult.Actual)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``verifyTickerCurrencySnapshot detects Options mismatch``() =
         // Arrange
         let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
@@ -178,11 +178,11 @@ type SnapshotVerificationTests() =
             TestVerifications.verifyTickerCurrencySnapshot expected actual
 
         // Assert
-        Assert.That(allMatch, Is.False, "Should detect mismatch")
+        Assert.IsFalse(allMatch, "Should detect mismatch")
         let optionsResult = results |> List.find (fun r -> r.Field = "Options")
-        Assert.That(optionsResult.Match, Is.False, "Options field should not match")
+        Assert.IsFalse(optionsResult.Match, "Options field should not match")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``formatValidationResults produces readable output``() =
         // Arrange
         let expected = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
@@ -193,15 +193,15 @@ type SnapshotVerificationTests() =
         let formatted = TestVerifications.formatValidationResults results
 
         // Assert
-        Assert.That(formatted, Is.Not.Null)
-        Assert.That(formatted, Is.Not.Empty)
-        Assert.That(formatted, Does.Contain("✅"), "Should contain success icon for matching fields")
-        Assert.That(formatted, Does.Contain("❌"), "Should contain error icon for mismatched fields")
-        Assert.That(formatted, Does.Contain("Deposited"), "Should contain field names")
-        Assert.That(formatted, Does.Contain("5000.00"), "Should contain expected values")
-        Assert.That(formatted, Does.Contain("4999.00"), "Should contain actual values")
+        Assert.IsNotNull(formatted)
+        Assert.IsTrue(formatted.Length > 0)
+        StringAssert.Contains(formatted, "✅", "Should contain success icon for matching fields")
+        StringAssert.Contains(formatted, "❌", "Should contain error icon for mismatched fields")
+        StringAssert.Contains(formatted, "Deposited", "Should contain field names")
+        StringAssert.Contains(formatted, "5000.00", "Should contain expected values")
+        StringAssert.Contains(formatted, "4999.00", "Should contain actual values")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``formatValidationResults shows all fields``() =
         // Arrange
         let snapshot = createBrokerSnapshot 5000m 0m 54.37m -28.67m 83.04m 16
@@ -211,15 +211,15 @@ type SnapshotVerificationTests() =
         let formatted = TestVerifications.formatValidationResults results
 
         // Assert - Check that key field names are present
-        Assert.That(formatted, Does.Contain("Deposited"))
-        Assert.That(formatted, Does.Contain("Withdrawn"))
-        Assert.That(formatted, Does.Contain("OptionsIncome"))
-        Assert.That(formatted, Does.Contain("RealizedGains"))
-        Assert.That(formatted, Does.Contain("UnrealizedGains"))
-        Assert.That(formatted, Does.Contain("MovementCounter"))
-        Assert.That(formatted, Does.Contain("NetCashFlow"))
+        StringAssert.Contains(formatted, "Deposited")
+        StringAssert.Contains(formatted, "Withdrawn")
+        StringAssert.Contains(formatted, "OptionsIncome")
+        StringAssert.Contains(formatted, "RealizedGains")
+        StringAssert.Contains(formatted, "UnrealizedGains")
+        StringAssert.Contains(formatted, "MovementCounter")
+        StringAssert.Contains(formatted, "NetCashFlow")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``verifyTickerCurrencySnapshot detects Commissions mismatch``() =
         // Arrange
         let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
@@ -233,13 +233,13 @@ type SnapshotVerificationTests() =
             TestVerifications.verifyTickerCurrencySnapshot expected actual
 
         // Assert
-        Assert.That(allMatch, Is.False, "Should detect mismatch")
+        Assert.IsFalse(allMatch, "Should detect mismatch")
         let commissionsResult = results |> List.find (fun r -> r.Field = "Commissions")
-        Assert.That(commissionsResult.Match, Is.False, "Commissions field should not match")
-        Assert.That(commissionsResult.Expected, Is.EqualTo("0.00"))
-        Assert.That(commissionsResult.Actual, Is.EqualTo("10.50"))
+        Assert.IsFalse(commissionsResult.Match, "Commissions field should not match")
+        Assert.AreEqual("0.00", commissionsResult.Expected)
+        Assert.AreEqual("10.50", commissionsResult.Actual)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``verifyTickerCurrencySnapshot detects Fees mismatch``() =
         // Arrange
         let expected = createTickerSnapshot 100m 250.50m -50.25m 75.00m
@@ -253,8 +253,8 @@ type SnapshotVerificationTests() =
             TestVerifications.verifyTickerCurrencySnapshot expected actual
 
         // Assert
-        Assert.That(allMatch, Is.False, "Should detect mismatch")
+        Assert.IsFalse(allMatch, "Should detect mismatch")
         let feesResult = results |> List.find (fun r -> r.Field = "Fees")
-        Assert.That(feesResult.Match, Is.False, "Fees field should not match")
-        Assert.That(feesResult.Expected, Is.EqualTo("0.00"))
-        Assert.That(feesResult.Actual, Is.EqualTo("5.25"))
+        Assert.IsFalse(feesResult.Match, "Fees field should not match")
+        Assert.AreEqual("0.00", feesResult.Expected)
+        Assert.AreEqual("5.25", feesResult.Actual)

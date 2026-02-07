@@ -1,6 +1,6 @@
 namespace Core.Tests.Integration
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
@@ -17,7 +17,7 @@ open Binnaculum.Core.Logging
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type OverviewTests() =
     inherit TestFixtureBase()
 
@@ -33,8 +33,8 @@ type OverviewTests() =
     /// The test uses signal-based verification instead of timing-based assertions,
     /// making it robust and portable across platforms.
     /// </summary>
-    [<Test>]
-    [<Category("Integration")>]
+    [<TestMethod>]
+    [<TestCategory("Integration")>]
     member this.``Overview reactive validation``() =
         async {
             CoreLogger.logInfo "Test" "=== TEST: Overview Reactive Validation ==="
@@ -56,11 +56,7 @@ type OverviewTests() =
             let! signalsReceived =
                 TestSetup.initializeDatabaseAndVerifySignals actions expectedSignals (TimeSpan.FromSeconds(10.0))
 
-            Assert.That(
-                signalsReceived,
-                Is.True,
-                "All database initialization and data loading signals should be received"
-            )
+            Assert.IsTrue(signalsReceived, "All database initialization and data loading signals should be received")
 
             // ==================== PHASE 2: VERIFY COLLECTIONS ====================
             TestSetup.printPhaseHeader 2 "Verify Collections"
@@ -70,24 +66,24 @@ type OverviewTests() =
 
             // Assert all verifications passed
             for (success, message) in verifications do
-                Assert.That(success, Is.True, message)
+                Assert.IsTrue(success, message)
                 CoreLogger.logInfo "Verification" (sprintf "✅ %s" message)
 
             // Additional detailed verifications
             let (brokerSuccess, brokerMsg) = TestVerifications.verifyBrokers 2
-            Assert.That(brokerSuccess, Is.True, brokerMsg)
+            Assert.IsTrue(brokerSuccess, brokerMsg)
 
             let (currencySuccess, currencyMsg) = TestVerifications.verifyCurrencies 2
-            Assert.That(currencySuccess, Is.True, currencyMsg)
+            Assert.IsTrue(currencySuccess, currencyMsg)
 
             let (tickerSuccess, tickerMsg) = TestVerifications.verifyTickers 1
-            Assert.That(tickerSuccess, Is.True, tickerMsg)
+            Assert.IsTrue(tickerSuccess, tickerMsg)
 
             let (accountSuccess, accountMsg) = TestVerifications.verifyAccounts 0
-            Assert.That(accountSuccess, Is.True, accountMsg)
+            Assert.IsTrue(accountSuccess, accountMsg)
 
             let (snapshotSuccess, snapshotMsg) = TestVerifications.verifySnapshots 0
-            Assert.That(snapshotSuccess, Is.True, snapshotMsg)
+            Assert.IsTrue(snapshotSuccess, snapshotMsg)
 
             // ==================== SUMMARY ====================
             TestSetup.printPhaseHeader 3 "Test Summary"

@@ -1,13 +1,13 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Models
 open System
 
-[<TestFixture>]
+[<TestClass>]
 type BrokerFinancialSnapshotRefactoredTests () =
 
-    [<Test>]
+    [<TestMethod>]
     member _.``BrokerFinancialSnapshot has Id property`` () =
         // Arrange & Act
         let currency = {
@@ -41,7 +41,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
         // Assert
         Assert.That(snapshot.Id, NUnit.Framework.Is.EqualTo(123))
 
-    [<Test>]
+    [<TestMethod>]
     member _.``BrokerFinancialSnapshot uses strongly-typed Broker reference`` () =
         // Arrange
         let broker = {
@@ -82,7 +82,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
         Assert.That(snapshot.Broker.IsSome, NUnit.Framework.Is.True)
         Assert.That(snapshot.Broker.Value.Name, NUnit.Framework.Is.EqualTo("Test Broker"))
 
-    [<Test>]
+    [<TestMethod>]
     member _.``BrokerFinancialSnapshot uses strongly-typed BrokerAccount reference`` () =
         // Arrange
         let broker = {
@@ -129,7 +129,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
         Assert.That(snapshot.BrokerAccount.Value.AccountNumber, NUnit.Framework.Is.EqualTo("ACC123"))
         Assert.That(snapshot.BrokerAccount.Value.Id, NUnit.Framework.Is.EqualTo(2))
 
-    [<Test>]
+    [<TestMethod>]
     member _.``BrokerFinancialSnapshot uses strongly-typed Currency reference`` () =
         // Arrange
         let currency = {
@@ -165,7 +165,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
         Assert.That(snapshot.Currency.Symbol, NUnit.Framework.Is.EqualTo("$"))
         Assert.That(snapshot.Currency.Id, NUnit.Framework.Is.EqualTo(1))
 
-    [<Test>]
+    [<TestMethod>]
     member _.``BrokerFinancialSnapshot allows None values for optional references`` () =
         // Arrange
         let currency = {

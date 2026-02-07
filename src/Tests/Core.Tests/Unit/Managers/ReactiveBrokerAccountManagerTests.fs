@@ -1,21 +1,21 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System.Collections.Generic
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
 
-[<TestFixture>]
+[<TestClass>]
 type ReactiveBrokerAccountManagerTests() =
 
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Clear collections before each test using Edit method
         Collections.Accounts.Edit(fun list -> list.Clear())
         Collections.Brokers.Edit(fun list -> list.Clear())
         ReactiveBrokerAccountManager.dispose()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveBrokerAccountManager should provide fast lookup by ID``() =
         // Arrange
         let broker = {
@@ -50,11 +50,11 @@ type ReactiveBrokerAccountManagerTests() =
         let result = brokerAccountId.ToFastBrokerAccountById()
         
         // Assert
-        Assert.That(result.Id, Is.EqualTo(1))
-        Assert.That(result.AccountNumber, Is.EqualTo("ACC001"))
-        Assert.That(result.Broker.Name, Is.EqualTo("Test Broker"))
+        Assert.AreEqual(1, result.Id)
+        Assert.AreEqual("ACC001", result.AccountNumber)
+        Assert.AreEqual("Test Broker", result.Broker.Name)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveBrokerAccountManager should provide fast lookup by AccountNumber``() =
         // Arrange
         let broker = {
@@ -89,11 +89,11 @@ type ReactiveBrokerAccountManagerTests() =
         let result = accountNumber.ToFastBrokerAccountByAccountNumber()
         
         // Assert
-        Assert.That(result.IsSome, Is.True)
-        Assert.That(result.Value.Id, Is.EqualTo(1))
-        Assert.That(result.Value.AccountNumber, Is.EqualTo("ACC001"))
+        Assert.IsTrue(result.IsSome)
+        Assert.AreEqual(1, result.Value.Id)
+        Assert.AreEqual("ACC001", result.Value.AccountNumber)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveBrokerAccountManager should handle missing broker account gracefully``() =
         // Arrange
         ReactiveBrokerAccountManager.initialize()
@@ -106,9 +106,9 @@ type ReactiveBrokerAccountManagerTests() =
         // Act for AccountNumber lookup - should return None
         let nonExistentAccountNumber = "NONEXISTENT"
         let result = nonExistentAccountNumber.ToFastBrokerAccountByAccountNumber()
-        Assert.That(result.IsNone, Is.True)
+        Assert.IsTrue(result.IsNone)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveBrokerAccountManager should update cache when accounts change``() =
         // Arrange
         let broker = {
@@ -143,10 +143,10 @@ type ReactiveBrokerAccountManagerTests() =
         let result = brokerAccountId.ToFastBrokerAccountById()
         
         // Assert
-        Assert.That(result.Id, Is.EqualTo(1))
-        Assert.That(result.AccountNumber, Is.EqualTo("ACC001"))
+        Assert.AreEqual(1, result.Id)
+        Assert.AreEqual("ACC001", result.AccountNumber)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``DatabaseToModels extensions should work with new fast lookups``() =
         // Arrange
         let broker = {
@@ -178,12 +178,12 @@ type ReactiveBrokerAccountManagerTests() =
         let result = brokerAccountId.ToFastBrokerAccountById()
         
         // Assert
-        Assert.That(result.Id, Is.EqualTo(1))
-        Assert.That(result.AccountNumber, Is.EqualTo("ACC001"))
-        Assert.That(result.Broker.Id, Is.EqualTo(1))
-        Assert.That(result.Broker.Name, Is.EqualTo("Test Broker"))
+        Assert.AreEqual(1, result.Id)
+        Assert.AreEqual("ACC001", result.AccountNumber)
+        Assert.AreEqual(1, result.Broker.Id)
+        Assert.AreEqual("Test Broker", result.Broker.Name)
 
-    [<TearDown>]
+    [<TestCleanup>]
     member this.TearDown() =
         // Clean up after each test using Edit method
         Collections.Accounts.Edit(fun list -> list.Clear())

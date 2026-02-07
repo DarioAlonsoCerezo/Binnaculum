@@ -1,6 +1,6 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 
 /// <summary>
@@ -13,10 +13,10 @@ type MockMovementType = Deposit | Withdrawal | Fee | Interest | Other
 /// These tests validate the design and logic of the multi-currency snapshot system
 /// without requiring database setup.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type BrokerAccountMultiCurrencySnapshotTests () =
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates basic money operations`` () =
         // Test basic decimal operations that would be used in the implementation
         let deposited = 1000.0m
@@ -27,9 +27,9 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         // Calculate net cash flow as would be done in the implementation
         let netCash = deposited - withdrawn + interest - fees
         
-        Assert.That(netCash, Is.EqualTo(790.0m))
+        Assert.AreEqual(790.0m, netCash)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates currency filtering logic`` () =
         // Test the logic for filtering by currency as would be used in the implementation
         let movements = [
@@ -44,10 +44,10 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         let currency1Movements = movements |> List.filter (fun (currencyId, _) -> currencyId = 1)
         let currency1Total = currency1Movements |> List.sumBy (fun (_, amount) -> amount)
         
-        Assert.That(currency1Movements.Length, Is.EqualTo(3))
-        Assert.That(currency1Total, Is.EqualTo(1250.0m))
+        Assert.AreEqual(3, currency1Movements.Length)
+        Assert.AreEqual(1250.0m, currency1Total)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates unique currency extraction`` () =
         // Test the logic for extracting unique currencies as would be used in getRelevantCurrencies
         let movements = [
@@ -60,9 +60,9 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         
         let uniqueCurrencies = movements |> List.map (fun (currencyId, _) -> currencyId) |> Set.ofList |> Set.toList |> List.sort
         
-        Assert.That(uniqueCurrencies, Is.EqualTo<seq<int>>([1; 2; 3]))
+        CollectionAssert.AreEqual([1; 2; 3], uniqueCurrencies)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates default currency fallback`` () =
         // Test the logic for falling back to default currency when no movements exist
         let movements: (int * decimal) list = []
@@ -71,9 +71,9 @@ type BrokerAccountMultiCurrencySnapshotTests () =
             if List.isEmpty movements then [1] // Default to USD (currency ID 1)
             else movements |> List.map (fun (currencyId, _) -> currencyId) |> Set.ofList |> Set.toList
             
-        Assert.That(currencies, Is.EqualTo<seq<int>>([1]))
+        CollectionAssert.AreEqual([1], currencies)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates movement type classification`` () =
         // Test the logic for classifying movement types as would be used in calculations
         let movements = [
@@ -89,12 +89,12 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         let fees = movements |> List.filter (fun (t, _) -> t = MockMovementType.Fee) |> List.sumBy (fun (_, amount) -> amount)
         let interest = movements |> List.filter (fun (t, _) -> t = MockMovementType.Interest) |> List.sumBy (fun (_, amount) -> amount)
         
-        Assert.That(deposited, Is.EqualTo(1000.0m))
-        Assert.That(withdrawn, Is.EqualTo(200.0m))
-        Assert.That(fees, Is.EqualTo(25.0m))
-        Assert.That(interest, Is.EqualTo(15.0m))
+        Assert.AreEqual(1000.0m, deposited)
+        Assert.AreEqual(200.0m, withdrawn)
+        Assert.AreEqual(25.0m, fees)
+        Assert.AreEqual(15.0m, interest)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates date comparison logic`` () =
         // Test the logic for date comparisons as would be used in handleBrokerAccountChange
         let today = DateTime.Today
@@ -106,11 +106,11 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         let isYesterday = yesterday.Date = today.Date
         let isTomorrow = tomorrow.Date = today.Date
         
-        Assert.That(isSameDay, Is.True)
-        Assert.That(isYesterday, Is.False)
-        Assert.That(isTomorrow, Is.False)
+        Assert.IsTrue(isSameDay)
+        Assert.IsFalse(isYesterday)
+        Assert.IsFalse(isTomorrow)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates cascade date range logic`` () =
         // Test the logic for determining future dates in cascade updates
         let baseDate = DateTime(2024, 1, 15)
@@ -125,10 +125,10 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         
         let datesAfterBase = futureSnapshotDates |> List.filter (fun d -> d >= nextDay)
         
-        Assert.That(datesAfterBase.Length, Is.EqualTo(3))
-        Assert.That(datesAfterBase |> List.head, Is.EqualTo(DateTime(2024, 1, 16)))
+        Assert.AreEqual(3, datesAfterBase.Length)
+        Assert.AreEqual(DateTime(2024, 1, 16), datesAfterBase |> List.head)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates portfolio value calculation`` () =
         // Test the basic portfolio value calculation logic
         let deposited = 5000.0m
@@ -143,10 +143,10 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         let netCash = deposited - withdrawn + interest - fees - dividendTaxes + dividends + optionsIncome
         let expectedValue = 5000.0m - 1000.0m + 25.0m - 50.0m - 15.0m + 100.0m + 200.0m
         
-        Assert.That(netCash, Is.EqualTo(expectedValue))
-        Assert.That(netCash, Is.EqualTo(4260.0m))
+        Assert.AreEqual(expectedValue, netCash)
+        Assert.AreEqual(4260.0m, netCash)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates snapshot structure requirements`` () =
         // Test that the expected snapshot structure elements are conceptually valid
         let accountId = 123
@@ -159,17 +159,17 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         let openTrades = true
         
         // Validate that all required fields have reasonable values
-        Assert.That(accountId, Is.GreaterThan(0))
-        Assert.That(currencyId, Is.GreaterThan(0))
-        Assert.That(movementCounter, Is.GreaterThanOrEqualTo(0))
-        Assert.That(deposited, Is.GreaterThanOrEqualTo(0m))
-        Assert.That(withdrawn, Is.GreaterThanOrEqualTo(0m))
+        Assert.IsTrue(accountId > 0)
+        Assert.IsTrue(currencyId > 0)
+        Assert.IsTrue(movementCounter >= 0)
+        Assert.IsTrue(deposited >= 0m)
+        Assert.IsTrue(withdrawn >= 0m)
         // Gains can be negative
-        Assert.That(realizedGains, Is.Not.EqualTo(System.Decimal.MinValue))
-        Assert.That(unrealizedGains, Is.Not.EqualTo(System.Decimal.MinValue))
-        Assert.That(openTrades, Is.TypeOf<bool>())
+        Assert.AreNotEqual(System.Decimal.MinValue, realizedGains)
+        Assert.AreNotEqual(System.Decimal.MinValue, unrealizedGains)
+        Assert.IsInstanceOfType(openTrades, typeof<bool>)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Multi-currency snapshot design validates percentage calculation logic`` () =
         // Test percentage calculations as would be used for performance metrics
         let invested = 10000.0m
@@ -178,10 +178,10 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         
         let percentage = if invested > 0m then (gains / invested) * 100.0m else 0.0m
         
-        Assert.That(gains, Is.EqualTo(500.0m))
-        Assert.That(percentage, Is.EqualTo(5.0m)) // 5% gain
+        Assert.AreEqual(500.0m, gains)
+        Assert.AreEqual(5.0m, percentage) // 5% gain
         
         // Test edge case with zero investment
         let zeroInvested = 0.0m
         let zeroPercentage = if zeroInvested > 0m then (gains / zeroInvested) * 100.0m else 0.0m
-        Assert.That(zeroPercentage, Is.EqualTo(0.0m))
+        Assert.AreEqual(0.0m, zeroPercentage)

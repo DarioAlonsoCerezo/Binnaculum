@@ -1,6 +1,6 @@
 namespace Binnaculum.Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open System.IO
 open System.Threading.Tasks
@@ -11,30 +11,30 @@ open Binnaculum.Core.Import.FileProcessor
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
 
-[<TestFixture>]
+[<TestClass>]
 type ImportManagerTests() =
 
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Clean up any existing import state
         ImportState.cleanup ()
 
-    [<TearDown>]
+    [<TestCleanup>]
     member this.TearDown() =
         // Clean up after each test
         ImportState.cleanup ()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ImportManager fails for non-existent file``() =
         task {
             let! result = ImportManager.importFile 1 1 "non-existent.csv"
 
-            Assert.That(result.Success, Is.False, "Import should fail for non-existent file")
-            Assert.That(result.Errors.Length, Is.EqualTo(1), "Should have one error")
-            Assert.That(result.Errors.[0].ErrorMessage, Does.Contain("File not found"))
+            Assert.IsFalse(result.Success, "Import should fail for non-existent file")
+            Assert.AreEqual(1, result.Errors.Length, "Should have one error")
+            StringAssert.Contains(result.Errors.[0].ErrorMessage, "File not found")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ImportManager fails for invalid broker ID``() =
         task {
             // Create a temporary CSV file for testing
@@ -49,13 +49,9 @@ type ImportManagerTests() =
 
                 // The import should fail - either because the broker doesn't exist
                 // or because of database configuration issues in the test environment
-                Assert.That(
-                    result.Success,
-                    Is.False,
-                    "Import should fail for non-existent broker ID or database issues"
-                )
+                Assert.IsFalse(result.Success, "Import should fail for non-existent broker ID or database issues")
 
-                Assert.That(result.Errors.Length, Is.GreaterThan(0), "Should have at least one error")
+                Assert.IsTrue(result.Errors.Length > 0, "Should have at least one error")
                 // Accept either the broker not found error or database configuration errors
                 let errorMessage = result.Errors.[0].ErrorMessage
 
@@ -64,13 +60,13 @@ type ImportManagerTests() =
                     || errorMessage.Contains("This functionality is not implemented")
                     || errorMessage.Contains("One or more errors occurred")
 
-                Assert.That(hasExpectedError, Is.True, $"Should have expected error type, got: {errorMessage}")
+                Assert.IsTrue(hasExpectedError, $"Should have expected error type, got: {errorMessage}")
             finally
                 if File.Exists(csvFile) then
                     File.Delete(csvFile)
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ImportManager fails for invalid broker account``() =
         task {
             // Create a temporary CSV file for testing
@@ -82,8 +78,8 @@ type ImportManagerTests() =
             try
                 let! result = ImportManager.importFile 1 999 csvFile
 
-                Assert.That(result.Success, Is.False, "Import should fail for invalid broker account")
-                Assert.That(result.Errors.Length, Is.GreaterThan(0), "Should have at least one error")
+                Assert.IsFalse(result.Success, "Import should fail for invalid broker account")
+                Assert.IsTrue(result.Errors.Length > 0, "Should have at least one error")
 
                 let errorMessage = result.Errors.[0].ErrorMessage
 
@@ -93,41 +89,41 @@ type ImportManagerTests() =
                     || errorMessage.Contains("This functionality is not implemented")
                     || errorMessage.Contains("One or more errors occurred")
 
-                Assert.That(hasExpectedError, Is.True, $"Should have expected error type, got: {errorMessage}")
+                Assert.IsTrue(hasExpectedError, $"Should have expected error type, got: {errorMessage}")
             finally
                 if File.Exists(csvFile) then
                     File.Delete(csvFile)
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ImportState starts and manages cancellation correctly``() =
         let token1 = ImportState.startImport ()
-        Assert.That(token1.IsCancellationRequested, Is.False, "New token should not be cancelled")
+        Assert.IsFalse(token1.IsCancellationRequested, "New token should not be cancelled")
 
         ImportState.cancelChunkedImport ()
-        Assert.That(token1.IsCancellationRequested, Is.True, "Token should be cancelled after cancellation")
+        Assert.IsTrue(token1.IsCancellationRequested, "Token should be cancelled after cancellation")
 
         // Start a new import - should get a fresh token
         let token2 = ImportState.startImport ()
-        Assert.That(token2.IsCancellationRequested, Is.False, "New token should not be cancelled")
+        Assert.IsFalse(token2.IsCancellationRequested, "New token should not be cancelled")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ImportState tracks status changes``() =
         // Reset to idle state before test
         ImportState.updateChunkedState (ChunkedImportState.Idle)
 
         let initialStatus = ImportState.CurrentChunkedStatus.Value
-        Assert.That(initialStatus.State, Is.EqualTo(ChunkedImportStateEnum.Idle), "Initial status should be Idle")
+        Assert.AreEqual(ChunkedImportStateEnum.Idle, initialStatus.State, "Initial status should be Idle")
 
         ImportState.startImport () |> ignore
         ImportState.updateChunkedState (ChunkedImportState.Validating "test.csv")
 
         let currentStatus = ImportState.CurrentChunkedStatus.Value
 
-        Assert.That(currentStatus.State, Is.EqualTo(ChunkedImportStateEnum.Validating), "Status should be Validating")
-        Assert.That(currentStatus.FileName, Is.EqualTo(Some "test.csv"), "FileName should be Some(test.csv)")
+        Assert.AreEqual(ChunkedImportStateEnum.Validating, currentStatus.State, "Status should be Validating")
+        Assert.AreEqual(Some "test.csv", currentStatus.FileName, "FileName should be Some(test.csv)")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``FileProcessor handles CSV files correctly``() =
         let tempFile = Path.GetTempFileName()
         let csvFile = tempFile + ".csv" // Simple concatenation instead of ChangeExtension
@@ -137,17 +133,17 @@ type ImportManagerTests() =
         try
             let result = FileProcessor.processFile csvFile
 
-            Assert.That(result.IsTemporary, Is.False, "CSV file should not be temporary")
-            Assert.That(result.CsvFiles.Length, Is.EqualTo(1), "Should have one CSV file")
-            Assert.That(result.CsvFiles.[0], Is.EqualTo(csvFile), "Should return the same file path")
+            Assert.IsFalse(result.IsTemporary, "CSV file should not be temporary")
+            Assert.AreEqual(1, result.CsvFiles.Length, "Should have one CSV file")
+            Assert.AreEqual(csvFile, result.CsvFiles.[0], "Should return the same file path")
 
-            Assert.That(FileProcessor.validateCsvFiles result, Is.True, "CSV file should be valid")
-            Assert.That(FileProcessor.getTotalFileSize result, Is.GreaterThan(0L), "File should have content")
+            Assert.IsTrue(FileProcessor.validateCsvFiles result, "CSV file should be valid")
+            Assert.IsTrue(FileProcessor.getTotalFileSize result > 0L, "File should have content")
         finally
             if File.Exists(csvFile) then
                 File.Delete(csvFile)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``FileProcessor fails for unsupported file types``() =
         let tempFile = Path.GetTempFileName()
         let txtFile = tempFile + ".txt" // Simple concatenation instead of ChangeExtension
@@ -161,7 +157,7 @@ type ImportManagerTests() =
             if File.Exists(txtFile) then
                 File.Delete(txtFile)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``FileProcessor handles ZIP files correctly``() =
         let tempDir = Path.GetTempPath()
         let zipFile = Path.Combine(tempDir, Path.GetRandomFileName() + ".zip")
@@ -187,23 +183,23 @@ type ImportManagerTests() =
 
             let result = FileProcessor.processFile zipFile
 
-            Assert.That(result.IsTemporary, Is.True, "ZIP extraction should create temporary files")
-            Assert.That(result.CsvFiles.Length, Is.EqualTo(1), "Should find one CSV file")
-            Assert.That(File.Exists(result.CsvFiles.[0]), Is.True, "Extracted CSV file should exist")
+            Assert.IsTrue(result.IsTemporary, "ZIP extraction should create temporary files")
+            Assert.AreEqual(1, result.CsvFiles.Length, "Should find one CSV file")
+            Assert.IsTrue(File.Exists(result.CsvFiles.[0]), "Extracted CSV file should exist")
 
             // Verify content
             let extractedContent = File.ReadAllText(result.CsvFiles.[0])
-            Assert.That(extractedContent, Is.EqualTo(csvContent), "Content should match")
+            Assert.AreEqual(csvContent, extractedContent, "Content should match")
 
             // Test cleanup
             FileProcessor.cleanup result
-            Assert.That(Directory.Exists(result.FilePath), Is.False, "Temporary directory should be cleaned up")
+            Assert.IsFalse(Directory.Exists(result.FilePath), "Temporary directory should be cleaned up")
 
         finally
             if File.Exists(zipFile) then
                 File.Delete(zipFile)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ImportResult helper functions work correctly``() =
         let importedData =
             { Trades = 5
@@ -215,59 +211,47 @@ type ImportManagerTests() =
         let fileResults = [ FileImportResult.createSuccess "test.csv" 10 ]
 
         let successResult = ImportResult.createSuccess 1 10 importedData fileResults 1000L
-        Assert.That(successResult.Success, Is.True, "Success result should be successful")
-        Assert.That(successResult.ProcessedRecords, Is.EqualTo(10), "Should have processed 10 records")
-        Assert.That(successResult.ProcessingTimeMs, Is.EqualTo(1000L), "Should have correct processing time")
+        Assert.IsTrue(successResult.Success, "Success result should be successful")
+        Assert.AreEqual(10, successResult.ProcessedRecords, "Should have processed 10 records")
+        Assert.AreEqual(1000L, successResult.ProcessingTimeMs, "Should have correct processing time")
 
         let cancelledResult = ImportResult.createCancelled ()
-        Assert.That(cancelledResult.Success, Is.False, "Cancelled result should not be successful")
+        Assert.IsFalse(cancelledResult.Success, "Cancelled result should not be successful")
 
-        Assert.That(
-            cancelledResult.ProcessedRecords,
-            Is.EqualTo(0),
-            "Cancelled result should have no processed records"
-        )
+        Assert.AreEqual(0, cancelledResult.ProcessedRecords, "Cancelled result should have no processed records")
 
         let errorResult = ImportResult.createError ("Test error")
-        Assert.That(errorResult.Success, Is.False, "Error result should not be successful")
-        Assert.That(errorResult.Errors.Length, Is.EqualTo(1), "Should have one error")
-        Assert.That(errorResult.Errors.[0].ErrorMessage, Is.EqualTo("Test error"), "Should have correct error message")
+        Assert.IsFalse(errorResult.Success, "Error result should not be successful")
+        Assert.AreEqual(1, errorResult.Errors.Length, "Should have one error")
+        Assert.AreEqual("Test error", errorResult.Errors.[0].ErrorMessage, "Should have correct error message")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ImportManager utility functions work correctly``() =
         // Reset to known state
         ImportState.updateChunkedState (ChunkedImportState.Idle)
 
         // Test initial state
-        Assert.That(ImportManager.isImportInProgress (), Is.False, "No import should be in progress initially")
+        Assert.IsFalse(ImportManager.isImportInProgress (), "No import should be in progress initially")
         let status = ImportManager.getCurrentStatus ()
-        Assert.That(status.State, Is.EqualTo(ChunkedImportStateEnum.Idle), "Status should be Idle")
+        Assert.AreEqual(ChunkedImportStateEnum.Idle, status.State, "Status should be Idle")
 
         // Start an import state (but not a full import)
         ImportState.startImport () |> ignore
         ImportState.updateChunkedState (ChunkedImportState.ReadingFile "test.csv")
-        Assert.That(ImportManager.isImportInProgress (), Is.True, "Import should be in progress")
+        Assert.IsTrue(ImportManager.isImportInProgress (), "Import should be in progress")
 
         // Cancel and verify
         ImportManager.cancelCurrentImport ()
 
-        Assert.That(
-            ImportManager.isImportInProgress (),
-            Is.False,
-            "Import should not be in progress after cancellation"
-        )
+        Assert.IsFalse(ImportManager.isImportInProgress (), "Import should not be in progress after cancellation")
 
         // Test background cancellation
         ImportState.startImport () |> ignore
         ImportManager.cancelForBackground ()
 
-        Assert.That(
-            ImportManager.isImportInProgress (),
-            Is.False,
-            "Import should not be in progress after background cancellation"
-        )
+        Assert.IsFalse(ImportManager.isImportInProgress (), "Import should not be in progress after background cancellation")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveManagers are accessible for refresh after successful import``() =
         // Test that ImportManager can access the reactive managers for refresh
         // This validates that our changes to ImportManager.fs compilation order work correctly
@@ -277,15 +261,11 @@ type ImportManagerTests() =
             Binnaculum.Core.UI.ReactiveMovementManager.refresh ()
             Binnaculum.Core.UI.ReactiveSnapshotManager.refresh ()
             // If we get here without exceptions, the test passes
-            Assert.That(
-                true,
-                Is.True,
-                "All reactive managers are accessible and refreshable from ImportManager context"
-            )
+            Assert.IsTrue(true, "All reactive managers are accessible and refreshable from ImportManager context")
         with ex ->
             Assert.Fail($"Reactive managers should be accessible from ImportManager context. Error: {ex.Message}")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveManagers async refresh methods are accessible and awaitable``() =
         task {
             // Test that the new awaitable refresh methods work correctly
@@ -299,7 +279,7 @@ type ImportManagerTests() =
                 ReactiveMovementManager.refresh ()
                 ReactiveSnapshotManager.refresh ()
 
-                Assert.That(true, Is.True, "Both sync and async refresh methods are accessible and functional")
+                Assert.IsTrue(true, "Both sync and async refresh methods are accessible and functional")
             with ex ->
                 Assert.Fail($"Async refresh methods should be accessible and awaitable. Error: {ex.Message}")
         }

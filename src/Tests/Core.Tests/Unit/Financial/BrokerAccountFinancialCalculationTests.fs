@@ -1,19 +1,19 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 
-[<TestFixture>]
+[<TestClass>]
 type BrokerAccountFinancialCalculationTests () =
 
-    [<Test>]
+    [<TestMethod>]
     member _.``BrokerFinancialSnapshotManager calculateBrokerAccountFinancialForCurrency method implementation exists`` () =
         // This is a simple smoke test to verify the implementation is complete
         // Testing that the new calculateBrokerAccountFinancialForCurrency method was implemented
         // and the calculateBrokerAccountFinancials method was updated to use it
         Assert.Pass("calculateBrokerAccountFinancialForCurrency method implementation is complete and calculateBrokerAccountFinancials updated")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Implementation follows requirements`` () =
         // Verify the implementation follows the requirements:
         // 1. Created calculateBrokerAccountFinancialForCurrency method

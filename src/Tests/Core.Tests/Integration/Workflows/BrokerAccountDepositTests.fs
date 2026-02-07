@@ -1,6 +1,6 @@
 namespace Core.Tests.Integration
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
@@ -19,7 +19,7 @@ open Binnaculum.Core.Logging
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type BrokerAccountDepositTests() =
     inherit TestFixtureBase()
 
@@ -40,8 +40,8 @@ type BrokerAccountDepositTests() =
     /// - Phase 1: Create account and wait for account signals
     /// - Phase 2: Create deposit and wait for movement signals
     /// </summary>
-    [<Test>]
-    [<Category("Integration")>]
+    [<TestMethod>]
+    [<TestCategory("Integration")>]
     member this.``BrokerAccount creation with deposit updates collections``() =
         async {
             CoreLogger.logInfo "Test" "=== TEST: BrokerAccount Creation with Deposit Updates Collections ==="
@@ -53,12 +53,12 @@ type BrokerAccountDepositTests() =
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
-            Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Wipe should succeed: %A" error)
             CoreLogger.logInfo "TestSetup" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
-            Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Database initialization should succeed: %A" error)
             CoreLogger.logInfo "TestSetup" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
@@ -74,13 +74,13 @@ type BrokerAccountDepositTests() =
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("Trading")
-            Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
+            Assert.IsTrue(ok, sprintf "Account creation should succeed: %s - %A" details error)
             CoreLogger.logInfo "TestActions" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
-            Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
+            Assert.IsTrue(signalsReceived, "Account creation signals should have been received")
             CoreLogger.logInfo "StreamObserver" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: CREATE DEPOSIT MOVEMENT ====================
@@ -98,13 +98,13 @@ type BrokerAccountDepositTests() =
             let! (ok, details, error) =
                 actions.createMovement (5000m, BrokerMovementType.Deposit, -30, "Reactive deposit test")
 
-            Assert.That(ok, Is.True, sprintf "Deposit creation should succeed: %s - %A" details error)
+            Assert.IsTrue(ok, sprintf "Deposit creation should succeed: %s - %A" details error)
             CoreLogger.logInfo "TestActions" (sprintf "✅ Deposit movement created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for deposit creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
-            Assert.That(signalsReceived, Is.True, "Deposit creation signals should have been received")
+            Assert.IsTrue(signalsReceived, "Deposit creation signals should have been received")
             CoreLogger.logInfo "StreamObserver" "✅ Deposit creation signals received successfully"
 
             // ==================== PHASE 4: VERIFY ====================
@@ -112,31 +112,23 @@ type BrokerAccountDepositTests() =
 
             // Verify account was created
             let! (verified, count, error) = actions.verifyAccountCount (1)
-            Assert.That(verified, Is.True, sprintf "Account count verification should succeed: %s - %A" count error)
+            Assert.IsTrue(verified, sprintf "Account count verification should succeed: %s - %A" count error)
 
-            Assert.That(
-                count,
-                Is.EqualTo("Account count: expected=1, actual=1"),
-                sprintf "Should have exactly 1 account, but got: %s" count
-            )
+            Assert.AreEqual("Account count: expected=1, actual=1", count, sprintf "Should have exactly 1 account, but got: %s" count)
 
             CoreLogger.logInfo "Verification" "✅ Account count verified: 1"
 
             // Verify movement was created
             let! (verified, count, error) = actions.verifyMovementCount (1)
-            Assert.That(verified, Is.True, sprintf "Movement count verification should succeed: %s - %A" count error)
+            Assert.IsTrue(verified, sprintf "Movement count verification should succeed: %s - %A" count error)
 
-            Assert.That(
-                count,
-                Is.EqualTo("Movement count: expected=1, actual=1"),
-                sprintf "Should have exactly 1 movement, but got: %s" count
-            )
+            Assert.AreEqual("Movement count: expected=1, actual=1", count, sprintf "Should have exactly 1 movement, but got: %s" count)
 
             CoreLogger.logInfo "Verification" "✅ Movement count verified: 1"
 
             // Verify snapshots were calculated
             let! (verified, count, error) = actions.verifySnapshotCount (1)
-            Assert.That(verified, Is.True, sprintf "Snapshot count verification should succeed: %s - %A" count error)
+            Assert.IsTrue(verified, sprintf "Snapshot count verification should succeed: %s - %A" count error)
             CoreLogger.logInfo "Verification" (sprintf "✅ Snapshot count verified: >= 1 (%s)" count)
 
             // ==================== SUMMARY ====================

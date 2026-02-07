@@ -1,13 +1,13 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Models
 open System
 
-[<TestFixture>]
+[<TestClass>]
 type BrokerAccountSnapshotTests () =
 
-    [<Test>]
+    [<TestMethod>]
     member _.``BrokerAccountSnapshot has Financial property of type BrokerFinancialSnapshot`` () =
         // Arrange
         let mockCurrency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
@@ -47,13 +47,13 @@ type BrokerAccountSnapshotTests () =
             FinancialOtherCurrencies = []
         }
         // Act & Assert
-        Assert.That(snapshot.Financial, Is.Not.Null)
-        Assert.That(snapshot.Financial.RealizedGains, Is.EqualTo(100.0m))
-        Assert.That(snapshot.Financial.UnrealizedGains, Is.EqualTo(50.0m))
-        Assert.That(snapshot.FinancialOtherCurrencies, Is.Not.Null)
-        Assert.That(snapshot.FinancialOtherCurrencies.Length, Is.EqualTo(0))
+        Assert.IsNotNull(snapshot.Financial)
+        Assert.AreEqual(100.0m, snapshot.Financial.RealizedGains)
+        Assert.AreEqual(50.0m, snapshot.Financial.UnrealizedGains)
+        Assert.IsNotNull(snapshot.FinancialOtherCurrencies)
+        Assert.AreEqual(0, snapshot.FinancialOtherCurrencies.Length)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``BrokerAccountSnapshot has FinancialOtherCurrencies property of type BrokerFinancialSnapshot list`` () =
         // Arrange
         let mockCurrency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
@@ -116,7 +116,7 @@ type BrokerAccountSnapshotTests () =
             FinancialOtherCurrencies = [mockFinancialOtherCurrency]
         }
         // Act & Assert
-        Assert.That(snapshot.FinancialOtherCurrencies, Is.Not.Null)
-        Assert.That(snapshot.FinancialOtherCurrencies.Length, Is.EqualTo(1))
-        Assert.That(snapshot.FinancialOtherCurrencies.Head.Currency.Id, Is.EqualTo(2))
-        Assert.That(snapshot.FinancialOtherCurrencies.Head.RealizedGains, Is.EqualTo(50.0m))
+        Assert.IsNotNull(snapshot.FinancialOtherCurrencies)
+        Assert.AreEqual(1, snapshot.FinancialOtherCurrencies.Length)
+        Assert.AreEqual(2, snapshot.FinancialOtherCurrencies.Head.Currency.Id)
+        Assert.AreEqual(50.0m, snapshot.FinancialOtherCurrencies.Head.RealizedGains)

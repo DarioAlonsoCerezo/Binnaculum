@@ -1,12 +1,12 @@
 namespace Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Import
 open Binnaculum.Core.Import.TastytradeModels
 open Binnaculum.Core.Import.TastytradeTransactionConverter
 open System
 
-[<TestFixture>]
+[<TestClass>]
 type TastytradeTransactionConverterTests() =
 
     let createMoneyMovementTransaction (date: DateTime) (subType: MoneyMovementSubType) (value: decimal) =
@@ -53,7 +53,7 @@ type TastytradeTransactionConverterTests() =
           RawCsvLine = "Test option line"
           LineNumber = 2 }
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Should convert Money Movement Deposit to BrokerMovement count``() =
         // Arrange
         let transaction = createMoneyMovementTransaction (DateTime(2024, 4, 22)) Deposit 10m
@@ -62,12 +62,12 @@ type TastytradeTransactionConverterTests() =
         let result = convertTransaction transaction
 
         // Assert
-        Assert.That(result.BrokerMovementsCount, Is.EqualTo(1))
-        Assert.That(result.OptionTradesCount, Is.EqualTo(0))
-        Assert.That(result.StockTradesCount, Is.EqualTo(0))
-        Assert.That(result.Errors, Is.Empty)
+        Assert.AreEqual(1, result.BrokerMovementsCount)
+        Assert.AreEqual(0, result.OptionTradesCount)
+        Assert.AreEqual(0, result.StockTradesCount)
+        Assert.AreEqual(0, result.Errors.Count)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Should convert Money Movement Balance Adjustment to BrokerMovement count``() =
         // Arrange
         let transaction =
@@ -77,12 +77,12 @@ type TastytradeTransactionConverterTests() =
         let result = convertTransaction transaction
 
         // Assert
-        Assert.That(result.BrokerMovementsCount, Is.EqualTo(1))
-        Assert.That(result.OptionTradesCount, Is.EqualTo(0))
-        Assert.That(result.StockTradesCount, Is.EqualTo(0))
-        Assert.That(result.Errors, Is.Empty)
+        Assert.AreEqual(1, result.BrokerMovementsCount)
+        Assert.AreEqual(0, result.OptionTradesCount)
+        Assert.AreEqual(0, result.StockTradesCount)
+        Assert.AreEqual(0, result.Errors.Count)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Should convert Option Trade to OptionTrade count``() =
         // Arrange
         let transaction =
@@ -92,12 +92,12 @@ type TastytradeTransactionConverterTests() =
         let result = convertTransaction transaction
 
         // Assert
-        Assert.That(result.BrokerMovementsCount, Is.EqualTo(0))
-        Assert.That(result.OptionTradesCount, Is.EqualTo(1))
-        Assert.That(result.StockTradesCount, Is.EqualTo(0))
-        Assert.That(result.Errors, Is.Empty)
+        Assert.AreEqual(0, result.BrokerMovementsCount)
+        Assert.AreEqual(1, result.OptionTradesCount)
+        Assert.AreEqual(0, result.StockTradesCount)
+        Assert.AreEqual(0, result.Errors.Count)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Should sort transactions chronologically``() =
         // Arrange
         let transaction1 =
@@ -115,13 +115,13 @@ type TastytradeTransactionConverterTests() =
         let stats = convertTransactions transactions
 
         // Assert - should process all transactions regardless of input order
-        Assert.That(stats.TotalTransactions, Is.EqualTo(3))
-        Assert.That(stats.BrokerMovementsCreated, Is.EqualTo(2)) // 2 money movements
-        Assert.That(stats.OptionTradesCreated, Is.EqualTo(1)) // 1 option trade
-        Assert.That(stats.StockTradesCreated, Is.EqualTo(0))
-        Assert.That(stats.ErrorsCount, Is.EqualTo(0))
+        Assert.AreEqual(3, stats.TotalTransactions)
+        Assert.AreEqual(2, stats.BrokerMovementsCreated) // 2 money movements
+        Assert.AreEqual(1, stats.OptionTradesCreated) // 1 option trade
+        Assert.AreEqual(0, stats.StockTradesCreated)
+        Assert.AreEqual(0, stats.ErrorsCount)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Should handle unknown transaction types with error``() =
         // This test verifies that only known transaction types are counted
         // ReceiveDeliver transactions are informational and don't create records, but are not errors
@@ -153,24 +153,24 @@ type TastytradeTransactionConverterTests() =
         let result = convertTransaction receiveDeliverTransaction
 
         // Assert - ReceiveDeliver transactions don't create records but also don't error
-        Assert.That(result.BrokerMovementsCount, Is.EqualTo(0))
-        Assert.That(result.OptionTradesCount, Is.EqualTo(0))
-        Assert.That(result.StockTradesCount, Is.EqualTo(0))
-        Assert.That(result.Errors, Is.Empty)
+        Assert.AreEqual(0, result.BrokerMovementsCount)
+        Assert.AreEqual(0, result.OptionTradesCount)
+        Assert.AreEqual(0, result.StockTradesCount)
+        Assert.AreEqual(0, result.Errors.Count)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Should handle empty transaction list``() =
         // Act
         let stats = convertTransactions []
 
         // Assert
-        Assert.That(stats.TotalTransactions, Is.EqualTo(0))
-        Assert.That(stats.BrokerMovementsCreated, Is.EqualTo(0))
-        Assert.That(stats.OptionTradesCreated, Is.EqualTo(0))
-        Assert.That(stats.StockTradesCreated, Is.EqualTo(0))
-        Assert.That(stats.ErrorsCount, Is.EqualTo(0))
+        Assert.AreEqual(0, stats.TotalTransactions)
+        Assert.AreEqual(0, stats.BrokerMovementsCreated)
+        Assert.AreEqual(0, stats.OptionTradesCreated)
+        Assert.AreEqual(0, stats.StockTradesCreated)
+        Assert.AreEqual(0, stats.ErrorsCount)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Should handle real Tastytrade CSV sample data from problem statement``() =
         // This test demonstrates the fix using the exact data from the GitHub issue
 
@@ -191,17 +191,14 @@ type TastytradeTransactionConverterTests() =
         let stats = convertTransactions sampleTransactions
 
         // Assert - Should show meaningful counts instead of 0 movements
-        Assert.That(stats.TotalTransactions, Is.EqualTo(3), "Should process all 3 transactions")
+        Assert.AreEqual(3, stats.TotalTransactions, "Should process all 3 transactions")
 
-        Assert.That(
-            stats.BrokerMovementsCreated,
-            Is.EqualTo(2),
-            "Should create 2 BrokerMovements (deposit + balance adjustment)"
+        Assert.AreEqual(2, stats.BrokerMovementsCreated, "Should create 2 BrokerMovements (deposit + balance adjustment)"
         )
 
-        Assert.That(stats.OptionTradesCreated, Is.EqualTo(1), "Should create 1 OptionTrade")
-        Assert.That(stats.StockTradesCreated, Is.EqualTo(0), "No stock trades in this sample")
-        Assert.That(stats.ErrorsCount, Is.EqualTo(0), "Should process without errors")
+        Assert.AreEqual(1, stats.OptionTradesCreated, "Should create 1 OptionTrade")
+        Assert.AreEqual(0, stats.StockTradesCreated, "No stock trades in this sample")
+        Assert.AreEqual(0, stats.ErrorsCount, "Should process without errors")
 
 // This demonstrates the core fix: instead of returning 0 movements,
 // we now get meaningful counts that can be displayed to the user

@@ -1,6 +1,6 @@
 namespace Binnaculum.Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Managers
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
@@ -12,7 +12,7 @@ open System.Diagnostics
 /// Unit tests for ProgressiveLoadingManager phased loading functionality.
 /// Tests performance and correctness of progressive data loading.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type ProgressiveLoadingManagerTests() =
     inherit InMemoryDatabaseFixture()
     
@@ -20,7 +20,7 @@ type ProgressiveLoadingManagerTests() =
     let mutable testCurrencyId = 0
     let mutable testBrokerId = 0
     
-    [<SetUp>]
+    [<TestInitialize>]
     member _.Setup() =
         task {
             // Create a test currency since in-memory DB starts empty
@@ -81,7 +81,7 @@ type ProgressiveLoadingManagerTests() =
                 ()
         }
     
-    [<Test>]
+    [<TestMethod>]
     member this.``loadCriticalData should load account info``() =
         task {
             // Arrange
@@ -91,16 +91,16 @@ type ProgressiveLoadingManagerTests() =
             let! result = ProgressiveLoadingManager.loadCriticalData testBrokerAccountId
             
             // Assert
-            Assert.That(result.AccountInfo, Is.Not.Null, "Should load account info")
+            Assert.IsNotNull(result.AccountInfo, "Should load account info")
             match result.AccountInfo with
             | Some account ->
-                Assert.That(account.Id, Is.EqualTo(testBrokerAccountId))
-                Assert.That(account.AccountNumber, Is.EqualTo("TEST123"))
+                Assert.AreEqual(testBrokerAccountId, account.Id)
+                Assert.AreEqual("TEST123", account.AccountNumber)
             | None ->
                 Assert.Fail("Account info should be present")
         } |> Async.AwaitTask |> Async.RunSynchronously
     
-    [<Test>]
+    [<TestMethod>]
     member this.``loadSecondaryData should load first page of movements``() =
         task {
             // Arrange
@@ -110,11 +110,11 @@ type ProgressiveLoadingManagerTests() =
             let! result = ProgressiveLoadingManager.loadSecondaryData testBrokerAccountId 50
             
             // Assert
-            Assert.That(result.FirstPageMovements.Length, Is.EqualTo(50), "Should load 50 movements")
-            Assert.That(result.TotalMovementCount, Is.EqualTo(100), "Should have correct total count")
+            Assert.AreEqual(50, result.FirstPageMovements.Length, "Should load 50 movements")
+            Assert.AreEqual(100, result.TotalMovementCount, "Should have correct total count")
         } |> Async.AwaitTask |> Async.RunSynchronously
     
-    [<Test>]
+    [<TestMethod>]
     member this.``loadAllPhases should load both critical and secondary data``() =
         task {
             // Arrange
@@ -124,14 +124,14 @@ type ProgressiveLoadingManagerTests() =
             let! (critical, secondary) = ProgressiveLoadingManager.loadAllPhases testBrokerAccountId 30
             
             // Assert - Critical data
-            Assert.That(critical.AccountInfo, Is.Not.Null, "Should have account info")
+            Assert.IsNotNull(critical.AccountInfo, "Should have account info")
             
             // Assert - Secondary data
-            Assert.That(secondary.FirstPageMovements.Length, Is.EqualTo(30), "Should load 30 movements")
-            Assert.That(secondary.TotalMovementCount, Is.EqualTo(75), "Should have correct total")
+            Assert.AreEqual(30, secondary.FirstPageMovements.Length, "Should load 30 movements")
+            Assert.AreEqual(75, secondary.TotalMovementCount, "Should have correct total")
         } |> Async.AwaitTask |> Async.RunSynchronously
     
-    [<Test>]
+    [<TestMethod>]
     member this.``loadCriticalData should be fast``() =
         task {
             // Arrange
@@ -143,14 +143,13 @@ type ProgressiveLoadingManagerTests() =
             sw.Stop()
             
             // Assert
-            Assert.That(result.AccountInfo, Is.Not.Null)
+            Assert.IsNotNull(result.AccountInfo)
             // Performance assertion - critical data should load quickly
             // Note: In-memory database is very fast, so this is a sanity check
-            Assert.That(sw.ElapsedMilliseconds, Is.LessThan(500), 
-                $"Critical data loading should be fast (was {sw.ElapsedMilliseconds}ms)")
+            Assert.IsTrue(sw.ElapsedMilliseconds < 500, $"Critical data loading should be fast (was {sw.ElapsedMilliseconds}ms)")
         } |> Async.AwaitTask |> Async.RunSynchronously
     
-    [<Test>]
+    [<TestMethod>]
     member this.``loadSecondaryData should handle empty movements``() =
         task {
             // Arrange - No movements created
@@ -159,11 +158,11 @@ type ProgressiveLoadingManagerTests() =
             let! result = ProgressiveLoadingManager.loadSecondaryData testBrokerAccountId 50
             
             // Assert
-            Assert.That(result.FirstPageMovements.Length, Is.EqualTo(0), "Should return empty list")
-            Assert.That(result.TotalMovementCount, Is.EqualTo(0), "Should have zero count")
+            Assert.AreEqual(0, result.FirstPageMovements.Length, "Should return empty list")
+            Assert.AreEqual(0, result.TotalMovementCount, "Should have zero count")
         } |> Async.AwaitTask |> Async.RunSynchronously
     
-    [<Test>]
+    [<TestMethod>]
     member this.``loadSecondaryData with custom page size should respect the size``() =
         task {
             // Arrange
@@ -174,8 +173,8 @@ type ProgressiveLoadingManagerTests() =
             let! result75 = ProgressiveLoadingManager.loadSecondaryData testBrokerAccountId 75
             
             // Assert
-            Assert.That(result25.FirstPageMovements.Length, Is.EqualTo(25))
-            Assert.That(result75.FirstPageMovements.Length, Is.EqualTo(75))
-            Assert.That(result25.TotalMovementCount, Is.EqualTo(100))
-            Assert.That(result75.TotalMovementCount, Is.EqualTo(100))
+            Assert.AreEqual(25, result25.FirstPageMovements.Length)
+            Assert.AreEqual(75, result75.FirstPageMovements.Length)
+            Assert.AreEqual(100, result25.TotalMovementCount)
+            Assert.AreEqual(100, result75.TotalMovementCount)
         } |> Async.AwaitTask |> Async.RunSynchronously
