@@ -425,4 +425,4 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
         Console.WriteLine()
         Console.WriteLine("All performance tests passed - system ready for production use")
         
-        Assert.Pass("Comprehensive performance validation completed successfully")
+        Assert.IsTrue(true, "Comprehensive performance validation completed successfully") // Test passed

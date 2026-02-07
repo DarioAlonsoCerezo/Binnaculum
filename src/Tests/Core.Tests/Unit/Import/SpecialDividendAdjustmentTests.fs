@@ -143,7 +143,7 @@ type SpecialDividendAdjustmentTests() =
         let adjustments = detectAdjustments transactions
 
         // Assert
-        Assert.AreEqual(0, adjustments.Count)
+        Assert.AreEqual(0, adjustments.Length)
 
     [<TestMethod>]
     member this.``Handle multiple adjustments on same date``() =
@@ -240,7 +240,7 @@ type SpecialDividendAdjustmentTests() =
         let adjustments = detectAdjustments transactions
 
         // Assert
-        Assert.AreEqual(0, adjustments.Count)
+        Assert.AreEqual(0, adjustments.Length)
 
     [<TestMethod>]
     member this.``Reject different expiration dates``() =
@@ -262,7 +262,7 @@ type SpecialDividendAdjustmentTests() =
         let adjustments = detectAdjustments transactions
 
         // Assert
-        Assert.AreEqual(0, adjustments.Count)
+        Assert.AreEqual(0, adjustments.Length)
 
     // ============================================
     // Phase 6: Validation Tests
@@ -288,7 +288,7 @@ type SpecialDividendAdjustmentTests() =
 
         // Assert
         Assert.IsTrue(result.IsValid)
-        Assert.AreEqual(0, result.Errors.Count)
+        Assert.AreEqual(0, result.Errors.Length)
 
     [<TestMethod>]
     member this.``Reject adjustment with zero strike``() =
@@ -309,7 +309,7 @@ type SpecialDividendAdjustmentTests() =
         let result = validateAndFilterAdjustments adjustments
 
         // Assert
-        Assert.AreEqual(0, result.Count)
+        Assert.AreEqual(0, result.Length)
 
     [<TestMethod>]
     member this.``Validate strike delta calculation``() =
@@ -394,7 +394,7 @@ type SpecialDividendAdjustmentTests() =
         let adjustments = detectAdjustments transactions
 
         // Assert
-        Assert.AreEqual(0, adjustments.Count)
+        Assert.AreEqual(0, adjustments.Length)
 
     [<TestMethod>]
     member this.``Accept premium with rounding error < tolerance``() =

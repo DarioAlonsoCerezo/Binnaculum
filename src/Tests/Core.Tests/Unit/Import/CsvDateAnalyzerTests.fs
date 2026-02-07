@@ -95,7 +95,7 @@ type CsvDateAnalyzerTests() =
     [<TestMethod>]
     member this.``extractAllDatesFromCsv should return empty list for non-existent file``() =
         let result = CsvDateAnalyzer.extractAllDatesFromCsv "/tmp/nonexistent_file.csv"
-        Assert.AreEqual(0, result.Count)
+        Assert.AreEqual(0, result.Length)
     
     /// <summary>
     /// Test analyzeFile with temporary test files
@@ -127,8 +127,8 @@ type CsvDateAnalyzerTests() =
                 | fileName -> Assert.AreEqual(fileName, result.FileName)
                 
                 Assert.AreEqual(3, result.ExactRecordCount)
-                Assert.AreEqual(Some(DateTime(2023, 2, 1, result.EarliestDate)))
-                Assert.AreEqual(Some(DateTime(2023, 2, 28, result.LatestDate)))
+                Assert.AreEqual(Some(DateTime(2023, 2, 1)), result.EarliestDate)
+                Assert.AreEqual(Some(DateTime(2023, 2, 28)), result.LatestDate)
                 Assert.AreEqual(3, result.AllDates.Length)
             finally
                 if File.Exists(tempCsv) then File.Delete(tempCsv)
@@ -157,8 +157,8 @@ type CsvDateAnalyzerTests() =
         
         Assert.AreEqual(1, gaps.Length)
         let (startDate, endDate, daysMissing) = gaps.[0]
-        Assert.AreEqual(DateTime(2023, 2, 10, startDate))
-        Assert.AreEqual(DateTime(2023, 2, 20, endDate))
+        Assert.AreEqual(DateTime(2023, 2, 10), startDate)
+        Assert.AreEqual(DateTime(2023, 2, 20), endDate)
         Assert.AreEqual(10, daysMissing)
     
     [<TestMethod>]
@@ -180,7 +180,7 @@ type CsvDateAnalyzerTests() =
         
         let gaps = CsvDateAnalyzer.detectDateGaps metadata
         
-        Assert.AreEqual(0, gaps.Count)
+        Assert.AreEqual(0, gaps.Length)
     
     /// <summary>
     /// Test detectDateOverlaps with sample data
@@ -208,7 +208,7 @@ type CsvDateAnalyzerTests() =
         let (file1, file2, overlapDate) = overlaps.[0]
         Assert.AreEqual("file1.csv", file1)
         Assert.AreEqual("file2.csv", file2)
-        Assert.AreEqual(DateTime(2023, 2, 10, overlapDate))
+        Assert.AreEqual(DateTime(2023, 2, 10), overlapDate)
     
     [<TestMethod>]
     member this.``detectDateOverlaps should return empty for non-overlapping files``() =
@@ -229,7 +229,7 @@ type CsvDateAnalyzerTests() =
         
         let overlaps = CsvDateAnalyzer.detectDateOverlaps metadata
         
-        Assert.AreEqual(0, overlaps.Count)
+        Assert.AreEqual(0, overlaps.Length)
     
     /// <summary>
     /// Test analyzeAndSort for chronological ordering
@@ -259,15 +259,15 @@ type CsvDateAnalyzerTests() =
                 analysis.FilesOrderedByDate 
                 |> List.choose (fun m -> m.EarliestDate)
             
-            Assert.AreEqual(DateTime(2023, 2, 15, orderedDates.[0]))
-            Assert.AreEqual(DateTime(2023, 2, 28, orderedDates.[1]))
-            Assert.AreEqual(DateTime(2023, 3, 1, orderedDates.[2]))
+            Assert.AreEqual(DateTime(2023, 2, 15), orderedDates.[0])
+            Assert.AreEqual(DateTime(2023, 2, 28), orderedDates.[1])
+            Assert.AreEqual(DateTime(2023, 3, 1), orderedDates.[2])
             
             // Verify overall date range
             match analysis.OverallDateRange with
             | Some (earliest, latest) ->
-                Assert.AreEqual(DateTime(2023, 2, 15, earliest))
-                Assert.AreEqual(DateTime(2023, 3, 1, latest))
+                Assert.AreEqual(DateTime(2023, 2, 15), earliest)
+                Assert.AreEqual(DateTime(2023, 3, 1), latest)
             | None ->
                 Assert.Fail("Expected overall date range to be calculated")
         finally

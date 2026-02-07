@@ -30,7 +30,7 @@ type ReactiveApplicationManagerTests() =
         // Test that all reactive managers can be initialized together
         ReactiveApplicationManager.initializeReactiveManagers()
         
-        Assert.Pass("All reactive managers initialized successfully")
+        Assert.IsTrue(true, "All reactive managers initialized successfully") // Test passed
 
     [<TestMethod>]
     member this.``ReactiveApplicationManager should dispose cleanly``() =
@@ -40,7 +40,7 @@ type ReactiveApplicationManagerTests() =
         ReactiveApplicationManager.disposeReactiveManagers()
         ReactiveApplicationManager.disposeReactiveManagers()
         
-        Assert.Pass("ReactiveApplicationManager disposed cleanly")
+        Assert.IsTrue(true, "ReactiveApplicationManager disposed cleanly") // Test passed
 
     [<TestMethod>]
     member this.``ReactiveApplicationManager should handle initialization with empty collections``() =
@@ -48,7 +48,7 @@ type ReactiveApplicationManagerTests() =
         ReactiveApplicationManager.initializeReactiveManagers()
         
         // Should not crash even with no data
-        Assert.Pass("ReactiveApplicationManager handled empty collections gracefully")
+        Assert.IsTrue(true, "ReactiveApplicationManager handled empty collections gracefully") // Test passed
 
     [<TestMethod>]
     member this.``initializeReactiveApplication should work without database errors``() =
@@ -62,7 +62,7 @@ type ReactiveApplicationManagerTests() =
         // Allow some time for async operations
         System.Threading.Thread.Sleep(100)
         
-        Assert.Pass("ReactiveApplicationManager initialization completed")
+        Assert.IsTrue(true, "ReactiveApplicationManager initialization completed") // Test passed
 
     [<TestMethod>]
     member this.``initializeTraditional should work as fallback``() =
@@ -72,4 +72,4 @@ type ReactiveApplicationManagerTests() =
         // Allow some time for async operations
         System.Threading.Thread.Sleep(100)
         
-        Assert.Pass("Traditional initialization worked as fallback")
+        Assert.IsTrue(true, "Traditional initialization worked as fallback") // Test passed

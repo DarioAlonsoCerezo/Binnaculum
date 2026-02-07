@@ -1,4 +1,5 @@
 namespace Core.Tests
+open System
 
 open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.UI

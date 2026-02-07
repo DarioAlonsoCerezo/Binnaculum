@@ -603,7 +603,7 @@ type ImportSessionManagerTests() =
 
             // Assert - Should return empty list naturally for non-existent session
             // The key is that we're not catching and hiding exceptions
-            Assert.AreEqual(0, chunks.Count, "Non-existent session should return empty list naturally")
+            Assert.AreEqual(0, chunks.Length, "Non-existent session should return empty list naturally")
         }
 
     [<TestMethod>]

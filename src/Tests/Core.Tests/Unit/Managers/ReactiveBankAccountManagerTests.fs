@@ -84,7 +84,7 @@ type ReactiveBankAccountManagerTests() =
     [<TestMethod>]
     member this.``ReactiveBankAccountManager should initialize successfully``() =
         // Test passes if no exceptions are thrown during setup
-        Assert.Pass("ReactiveBankAccountManager initialized successfully")
+        Assert.IsTrue(true, "ReactiveBankAccountManager initialized successfully") // Test passed
 
     [<TestMethod>]
     member this.``Fast lookup should return correct bank account by ID``() =

@@ -161,9 +161,9 @@ type DataLoadingManagerTests() =
             let page1Ids = page1 |> List.map (fun m -> m.Id) |> Set.ofList
             let page2Ids = page2 |> List.map (fun m -> m.Id) |> Set.ofList
 
-            Assert.AreEqual(0, Set.intersect page0Ids page1Ids.Count, "Pages 0 and 1 should not overlap")
-            Assert.AreEqual(0, Set.intersect page1Ids page2Ids.Count, "Pages 1 and 2 should not overlap")
-            Assert.AreEqual(0, Set.intersect page0Ids page2Ids.Count, "Pages 0 and 2 should not overlap")
+            Assert.AreEqual(0, Set.count (Set.intersect page0Ids page1Ids), "Pages 0 and 1 should not overlap")
+            Assert.AreEqual(0, Set.count (Set.intersect page1Ids page2Ids), "Pages 1 and 2 should not overlap")
+            Assert.AreEqual(0, Set.count (Set.intersect page0Ids page2Ids), "Pages 0 and 2 should not overlap")
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously

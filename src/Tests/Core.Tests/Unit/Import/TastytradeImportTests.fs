@@ -20,7 +20,7 @@ type TastytradeImportTests() =
         let result = parseOptionSymbol "PLTR  240531C00022000"
 
         Assert.AreEqual("PLTR", result.Ticker)
-        Assert.AreEqual(DateTime(2024, 5, 31, result.ExpirationDate))
+        Assert.AreEqual(DateTime(2024, 5, 31), result.ExpirationDate)
         Assert.AreEqual(22.00m, result.Strike)
         Assert.AreEqual("CALL", result.OptionType)
 
@@ -29,7 +29,7 @@ type TastytradeImportTests() =
         let result = parseOptionSymbol "AAPL  240614P00185000"
 
         Assert.AreEqual("AAPL", result.Ticker)
-        Assert.AreEqual(DateTime(2024, 6, 14, result.ExpirationDate))
+        Assert.AreEqual(DateTime(2024, 6, 14), result.ExpirationDate)
         Assert.AreEqual(185.00m, result.Strike)
         Assert.AreEqual("PUT", result.OptionType)
 
@@ -39,13 +39,13 @@ type TastytradeImportTests() =
             parseOptionSymbol "INVALID_SYMBOL" |> ignore
             Assert.Fail("Should have thrown exception for invalid symbol")
         with _ ->
-            Assert.Pass("Exception thrown as expected")
+            Assert.IsTrue(true, "Exception thrown as expected") // Test passed
 
         try
             parseOptionSymbol "" |> ignore
             Assert.Fail("Should have thrown exception for empty symbol")
         with _ ->
-            Assert.Pass("Exception thrown as expected")
+            Assert.IsTrue(true, "Exception thrown as expected") // Test passed
 
     [<TestMethod>]
     member this.``TastytradeOptionSymbolParser isValidOptionSymbol should work correctly``() =
@@ -78,7 +78,7 @@ type TastytradeImportTests() =
         let errorMessages =
             String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))
 
-        Assert.AreEqual(0, result.Errors.Count, sprintf "Parsing errors: %s" errorMessages)
+        Assert.AreEqual(0, result.Errors.Length, sprintf "Parsing errors: %s" errorMessages)
         Assert.AreEqual(6, result.Transactions.Length)
         Assert.AreEqual(6, result.ProcessedLines)
 
@@ -97,7 +97,7 @@ type TastytradeImportTests() =
         let errorMessages =
             String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))
 
-        Assert.AreEqual(0, result.Errors.Count, sprintf "Parsing errors: %s" errorMessages)
+        Assert.AreEqual(0, result.Errors.Length, sprintf "Parsing errors: %s" errorMessages)
         Assert.AreEqual(11, result.Transactions.Length)
 
         // Verify transaction type distribution
@@ -133,7 +133,7 @@ type TastytradeImportTests() =
         let errorMessages =
             String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))
 
-        Assert.AreEqual(0, result.Errors.Count, sprintf "Parsing errors: %s" errorMessages)
+        Assert.AreEqual(0, result.Errors.Length, sprintf "Parsing errors: %s" errorMessages)
 
         Assert.AreEqual(3, result.Transactions.Length, "Should parse all 3 transactions: ACH deposit, ACAT equity transfer, and money transfer from Interactive Brokers")
 
@@ -186,7 +186,7 @@ type TastytradeImportTests() =
 
         let result = parseTransactionHistory csvContent
 
-        Assert.AreEqual(0, result.Errors.Count)
+        Assert.AreEqual(0, result.Errors.Length)
         Assert.AreEqual(1, result.Transactions.Length)
 
         let transaction = result.Transactions.[0]
@@ -340,8 +340,8 @@ type TastytradeImportTests() =
     member this.``TastytradeStatementParser should handle empty CSV gracefully``() =
         let result = parseTransactionHistory ""
 
-        Assert.AreEqual(0, result.Transactions.Count)
-        Assert.AreEqual(0, result.Errors.Count)
+        Assert.AreEqual(0, result.Transactions.Length)
+        Assert.AreEqual(0, result.Errors.Length)
         Assert.AreEqual(0, result.ProcessedLines)
 
     [<TestMethod>]
@@ -351,8 +351,8 @@ type TastytradeImportTests() =
 
         let result = parseTransactionHistory csvContent
 
-        Assert.AreEqual(0, result.Transactions.Count)
-        Assert.AreEqual(0, result.Errors.Count)
+        Assert.AreEqual(0, result.Transactions.Length)
+        Assert.AreEqual(0, result.Errors.Length)
         Assert.AreEqual(0, result.ProcessedLines)
 
     [<TestMethod>]
@@ -363,9 +363,9 @@ type TastytradeImportTests() =
 
         let result = parseTransactionHistory csvContent
 
-        Assert.AreEqual(0, result.Transactions.Count)
+        Assert.AreEqual(0, result.Transactions.Length)
         Assert.AreEqual(1, result.Errors.Length)
-        Assert.AreEqual(MissingRequiredField("All fields", result.Errors.[0].ErrorType))
+        Assert.AreEqual(MissingRequiredField("All fields"), result.Errors.[0].ErrorType)
 
     [<TestMethod>]
     member this.``TastytradeStatementParser should handle invalid dates``() =
@@ -375,7 +375,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
 
         let result = parseTransactionHistory csvContent
 
-        Assert.AreEqual(0, result.Transactions.Count)
+        Assert.AreEqual(0, result.Transactions.Length)
         Assert.AreEqual(1, result.Errors.Length)
         Assert.AreEqual(InvalidDateFormat, result.Errors.[0].ErrorType)
 
@@ -387,7 +387,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
 
         let result = parseTransactionHistory csvContent
 
-        Assert.AreEqual(0, result.Errors.Count)
+        Assert.AreEqual(0, result.Errors.Length)
         Assert.AreEqual(1, result.Transactions.Length)
         Assert.AreEqual(1234.56m, result.Transactions.[0].Value)
 
@@ -399,7 +399,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
         let errorMessages =
             String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))
 
-        Assert.AreEqual(0, result.Errors.Count, sprintf "Parsing errors: %s" errorMessages)
+        Assert.AreEqual(0, result.Errors.Length, sprintf "Parsing errors: %s" errorMessages)
 
         Assert.AreEqual(2, result.Transactions.Length, "Should parse 2 transactions (debit interest + lending rebate)"
         )
@@ -411,7 +411,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
         let debitInterestTransaction = result.Transactions.[0]
         Assert.AreEqual("FROM 05/16 THRU 06/15 @11    %", debitInterestTransaction.Description)
         Assert.AreEqual(-0.01m, debitInterestTransaction.Value)
-        Assert.AreEqual(DateTime(2024, 6, 17, 22, 0, 0, debitInterestTransaction.Date))
+        Assert.AreEqual(DateTime(2024, 6, 17, 22, 0, 0), debitInterestTransaction.Date)
 
         // Verify it's a Money Movement with DebitInterest subtype
         match debitInterestTransaction.TransactionType with
@@ -423,7 +423,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
         let lendingTransaction = result.Transactions.[1]
         Assert.AreEqual("FULLYPAID LENDING REBATE", lendingTransaction.Description)
         Assert.AreEqual(0.30m, lendingTransaction.Value)
-        Assert.AreEqual(DateTime(2024, 6, 14, 22, 0, 0, lendingTransaction.Date))
+        Assert.AreEqual(DateTime(2024, 6, 14, 22, 0, 0), lendingTransaction.Date)
 
         // Verify it's a Money Movement with Lending subtype
         match lendingTransaction.TransactionType with
@@ -438,7 +438,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
         let errorMessages =
             String.Join("; ", result.Errors |> List.map (fun e -> e.ErrorMessage))
 
-        Assert.AreEqual(0, result.Errors.Count, sprintf "Parsing errors: %s" errorMessages)
+        Assert.AreEqual(0, result.Errors.Length, sprintf "Parsing errors: %s" errorMessages)
         Assert.AreEqual(11, result.Transactions.Length, "Should have 11 total transactions")
 
         // Extract all Future Option transactions
@@ -458,7 +458,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
 
         Assert.IsTrue(buyToClose6880.IsSome, "Should find Buy to Close 6880 call")
         let tx1 = buyToClose6880.Value
-        Assert.AreEqual(DateTime(2025, 11, 11, 17, 50, 40, tx1.Date))
+        Assert.AreEqual(DateTime(2025, 11, 11, 17, 50, 40), tx1.Date)
         Assert.AreEqual(Some "/ESZ5", tx1.Symbol, "Symbol should use UnderlyingSymbol (/ESZ5)")
         Assert.AreEqual(Some "Future Option", tx1.InstrumentType)
         Assert.AreEqual("Bought 1 /ESZ5 E2BX5 11/11/25 Call 6880.00 @ 1.1", tx1.Description)
@@ -470,7 +470,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
         Assert.AreEqual(Some 1m, tx1.Multiplier, "Future Option multiplier should be 1 (not 100)")
         Assert.AreEqual(Some "./ESZ5 E2BX5", tx1.RootSymbol)
         Assert.AreEqual(Some "/ESZ5", tx1.UnderlyingSymbol)
-        Assert.AreEqual(Some(DateTime(2025, 11, 11, tx1.ExpirationDate)))
+        Assert.AreEqual(Some(DateTime(2025, 11, 11)), tx1.ExpirationDate)
         Assert.AreEqual(Some 6880m, tx1.StrikePrice)
         Assert.AreEqual(Some "CALL", tx1.CallOrPut)
         Assert.AreEqual(Some "420000990", tx1.OrderNumber)
@@ -485,7 +485,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
 
         Assert.IsTrue(sellToClose6865.IsSome, "Should find Sell to Close 6865 call")
         let tx2 = sellToClose6865.Value
-        Assert.AreEqual(DateTime(2025, 11, 11, 17, 50, 40, tx2.Date))
+        Assert.AreEqual(DateTime(2025, 11, 11, 17, 50, 40), tx2.Date)
         Assert.AreEqual(Some "/ESZ5", tx2.Symbol, "Symbol should use UnderlyingSymbol (/ESZ5)")
         Assert.AreEqual(Some "Future Option", tx2.InstrumentType)
         Assert.AreEqual("Sold 1 /ESZ5 E2BX5 11/11/25 Call 6865.00 @ 4.9", tx2.Description)
@@ -507,7 +507,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
 
         Assert.IsTrue(sellToOpen6880.IsSome, "Should find Sell to Open 6880 call")
         let tx3 = sellToOpen6880.Value
-        Assert.AreEqual(DateTime(2025, 11, 11, 14, 56, 57, tx3.Date))
+        Assert.AreEqual(DateTime(2025, 11, 11, 14, 56, 57), tx3.Date)
         Assert.AreEqual(Some "/ESZ5", tx3.Symbol, "Symbol should use UnderlyingSymbol (/ESZ5)")
         Assert.AreEqual(Some "Future Option", tx3.InstrumentType)
         Assert.AreEqual("Sold 1 /ESZ5 E2BX5 11/11/25 Call 6880.00 @ 1.75", tx3.Description)
@@ -528,7 +528,7 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
 
         Assert.IsTrue(buyToOpen6865.IsSome, "Should find Buy to Open 6865 call")
         let tx4 = buyToOpen6865.Value
-        Assert.AreEqual(DateTime(2025, 11, 11, 14, 56, 57, tx4.Date))
+        Assert.AreEqual(DateTime(2025, 11, 11, 14, 56, 57), tx4.Date)
         Assert.AreEqual(Some "/ESZ5", tx4.Symbol, "Symbol should use UnderlyingSymbol (/ESZ5)")
         Assert.AreEqual(Some "Future Option", tx4.InstrumentType)
         Assert.AreEqual("Bought 1 /ESZ5 E2BX5 11/11/25 Call 6865.00 @ 4.5", tx4.Description)
@@ -547,5 +547,5 @@ INVALID_DATE,Trade,Buy to Close,BUY_TO_CLOSE,AAPL,Equity,Test,-100,1,-100,0,0,,,
             Assert.AreEqual(-0.87m, futureOption.Fees, "All should have -0.87 fees")
             Assert.IsNotNull(futureOption.RootSymbol, "Root symbol should be set")
             Assert.AreEqual(Some "/ESZ5", futureOption.UnderlyingSymbol, "All ES futures")
-            Assert.AreEqual(Some(DateTime(2025, 11, 11, futureOption.ExpirationDate)), "All expire 11/11/25")
+            Assert.AreEqual(Some(DateTime(2025, 11, 11)), futureOption.ExpirationDate, "All expire 11/11/25")
             Assert.AreEqual(Some "CALL", futureOption.CallOrPut, "All are call options")

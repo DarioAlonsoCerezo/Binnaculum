@@ -30,11 +30,11 @@ type TickersUIAPITests() =
     member this.``SaveTickerPrice exists in Binnaculum.Core.UI namespace``() =
         // API surface test - if this compiles, the namespace is correct
         // We can reference Tickers.SaveTickerPrice directly
-        Assert.Pass("Tickers.SaveTickerPrice is accessible from Binnaculum.Core.UI namespace")
+        Assert.IsTrue(true, "Tickers.SaveTickerPrice is accessible from Binnaculum.Core.UI namespace") // Test passed
 
     [<TestMethod>]
     member this.``SaveTickerPrice method compiles with correct signature``() =
         // API surface test - if this compiles, the signature is correct
         // The fact that we can reference a function with this signature means it exists
         let _: (TickerPrice -> Task<unit>) = Tickers.SaveTickerPrice
-        Assert.Pass("SaveTickerPrice has correct signature: TickerPrice -> Task<unit>")
+        Assert.IsTrue(true, "SaveTickerPrice has correct signature: TickerPrice -> Task<unit>") // Test passed
