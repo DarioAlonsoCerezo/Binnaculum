@@ -199,4 +199,4 @@ type DepositsWithdrawalsTests() =
                 "Successfully created BrokerAccount, imported deposits/withdrawals CSV, received all signals, verified financial data and snapshot counts"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

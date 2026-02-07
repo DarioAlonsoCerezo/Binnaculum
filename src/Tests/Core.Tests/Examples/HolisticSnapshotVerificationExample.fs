@@ -160,7 +160,7 @@ type HolisticSnapshotVerificationExample() =
             printfn "✅ Pure function: No async, testable in isolation"
             printfn "✅ Less code: One call vs many"
             printfn "✅ Better error messages with clear diff"
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Example: Demonstrate compile-time safety

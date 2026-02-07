@@ -434,4 +434,4 @@ type OptionsImportTests() =
                 "Successfully created BrokerAccount, imported options CSV, received all signals, and verified SOFI, MPW, and PLTR ticker snapshots with complete financial state"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

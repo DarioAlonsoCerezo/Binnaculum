@@ -94,7 +94,7 @@ type TestFixtureBase() =
             let! (ctx, actions) = TestSetup.setupTestEnvironment ()
             testContext <- Some ctx
             testActions <- Some actions
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Teardown after each test - stop observing streams and clean up.
@@ -106,7 +106,7 @@ type TestFixtureBase() =
             do! TestSetup.teardownTestEnvironment ()
             testContext <- None
             testActions <- None
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Verify and assert a list of TickerCurrencySnapshots with standardized logging.

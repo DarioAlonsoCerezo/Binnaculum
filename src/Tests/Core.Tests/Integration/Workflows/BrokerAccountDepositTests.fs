@@ -137,4 +137,4 @@ type BrokerAccountDepositTests() =
                 "Successfully created BrokerAccount, added deposit movement, received all signals, and verified state in Collections"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

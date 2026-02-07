@@ -96,4 +96,4 @@ type BrokerAccountTests() =
                 "Successfully created BrokerAccount, received all signals, and verified account in Collections"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

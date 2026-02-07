@@ -318,4 +318,4 @@ type TsllImportTests() =
                 "Successfully created BrokerAccount, imported TSLL CSV, verified all 72 ticker snapshots, all 4 operations, and all 72 broker snapshots (148 items total)"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

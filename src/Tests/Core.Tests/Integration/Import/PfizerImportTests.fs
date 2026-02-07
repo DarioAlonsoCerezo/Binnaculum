@@ -290,4 +290,4 @@ type PfizerImportTests() =
                 "Successfully created BrokerAccount, imported Pfizer options CSV, received all signals, verified FIFO matching ($175.52), validated PFE ticker snapshots, and verified auto-import operations"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

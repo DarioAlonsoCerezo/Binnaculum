@@ -230,4 +230,4 @@ type BrokerAccountMultipleMovementsTests() =
                 "Successfully created BrokerAccount, added 4 movements (2 deposits + 2 withdrawals), received all signals, and verified state in Collections. Net cash flow: +$1200"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

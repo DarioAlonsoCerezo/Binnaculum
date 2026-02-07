@@ -326,4 +326,4 @@ type MpwImportTests() =
                     totalValidations)
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

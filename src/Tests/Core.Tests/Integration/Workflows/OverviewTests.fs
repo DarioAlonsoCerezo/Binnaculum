@@ -95,4 +95,4 @@ type OverviewTests() =
             TestSetup.printTestCompletionSummary
                 "Overview Reactive Validation"
                 (sprintf "Verified all signals and collections: %s" stateSummary)
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task
