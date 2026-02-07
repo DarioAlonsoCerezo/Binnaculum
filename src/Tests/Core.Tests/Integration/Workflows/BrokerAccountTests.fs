@@ -1,6 +1,6 @@
 namespace Core.Tests.Integration
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
@@ -19,7 +19,7 @@ open Binnaculum.Core.Logging
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type BrokerAccountTests() =
     inherit TestFixtureBase()
 
@@ -36,8 +36,8 @@ type BrokerAccountTests() =
     /// The test uses signal-based verification instead of timing-based assertions,
     /// making it robust and portable across platforms.
     /// </summary>
-    [<Test>]
-    [<Category("Integration")>]
+    [<TestMethod>]
+    [<TestCategory("Integration")>]
     member this.``BrokerAccount creation updates collections``() =
         async {
             CoreLogger.logInfo "Test" "=== TEST: BrokerAccount Creation Updates Collections ==="
@@ -49,12 +49,12 @@ type BrokerAccountTests() =
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
-            Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Wipe should succeed: %A" error)
             CoreLogger.logInfo "TestSetup" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
-            Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Database initialization should succeed: %A" error)
             CoreLogger.logInfo "TestSetup" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
@@ -70,13 +70,13 @@ type BrokerAccountTests() =
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("TestAccount")
-            Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
+            Assert.IsTrue(ok, sprintf "Account creation should succeed: %s - %A" details error)
             CoreLogger.logInfo "TestActions" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
-            Assert.That(signalsReceived, Is.True, "Expected signals should have been received")
+            Assert.IsTrue(signalsReceived, "Expected signals should have been received")
             CoreLogger.logInfo "StreamObserver" "✅ All signals received successfully"
 
             // ==================== PHASE 3: VERIFY ====================
@@ -84,13 +84,9 @@ type BrokerAccountTests() =
 
             // Verify account was created
             let! (verified, count, error) = actions.verifyAccountCount (1)
-            Assert.That(verified, Is.True, sprintf "Account count verification should succeed: %s - %A" count error)
+            Assert.IsTrue(verified, sprintf "Account count verification should succeed: %s - %A" count error)
 
-            Assert.That(
-                count,
-                Is.EqualTo("Account count: expected=1, actual=1"),
-                sprintf "Should have exactly 1 account, but got: %s" count
-            )
+            Assert.AreEqual("Account count: expected=1, actual=1", count, sprintf "Should have exactly 1 account, but got: %s" count)
 
             CoreLogger.logInfo "Verification" "✅ Account count verified: 1"
 
@@ -100,4 +96,4 @@ type BrokerAccountTests() =
                 "Successfully created BrokerAccount, received all signals, and verified account in Collections"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

@@ -1,16 +1,17 @@
 namespace Core.Tests
+open System
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open System.Reactive.Linq
 open System
 open System.Threading.Tasks
 
-[<TestFixture>]
+[<TestClass>]
 type ReactiveTickerManagerTests() =
 
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Set up test data using Edit instead of EditDiff
         let testTickers = [
@@ -26,45 +27,45 @@ type ReactiveTickerManagerTests() =
         // Initialize the reactive ticker manager
         ReactiveTickerManager.initialize()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast ticker lookup should return correct ticker with O(1) performance``() =
         // Test fast lookup
         let aapl = "AAPL".ToFastTicker()
         let msft = "MSFT".ToFastTicker()
         let googl = "GOOGL".ToFastTicker()
         
-        Assert.That(aapl.Symbol, Is.EqualTo("AAPL"))
-        Assert.That(aapl.Name.Value, Is.EqualTo("Apple Inc."))
-        Assert.That(aapl.Id, Is.EqualTo(1))
+        Assert.AreEqual("AAPL", aapl.Symbol)
+        Assert.AreEqual("Apple Inc.", aapl.Name.Value)
+        Assert.AreEqual(1, aapl.Id)
         
-        Assert.That(msft.Symbol, Is.EqualTo("MSFT"))
-        Assert.That(msft.Name.Value, Is.EqualTo("Microsoft Corporation"))
-        Assert.That(msft.Id, Is.EqualTo(2))
+        Assert.AreEqual("MSFT", msft.Symbol)
+        Assert.AreEqual("Microsoft Corporation", msft.Name.Value)
+        Assert.AreEqual(2, msft.Id)
         
-        Assert.That(googl.Symbol, Is.EqualTo("GOOGL"))
-        Assert.That(googl.Name.Value, Is.EqualTo("Alphabet Inc."))
-        Assert.That(googl.Id, Is.EqualTo(3))
+        Assert.AreEqual("GOOGL", googl.Symbol)
+        Assert.AreEqual("Alphabet Inc.", googl.Name.Value)
+        Assert.AreEqual(3, googl.Id)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast ticker lookup by ID should return correct ticker``() =
         // Test fast lookup by ID
         let aapl = (1).ToFastTickerById()
         let msft = (2).ToFastTickerById()
         let googl = (3).ToFastTickerById()
         
-        Assert.That(aapl.Id, Is.EqualTo(1))
-        Assert.That(aapl.Symbol, Is.EqualTo("AAPL"))
-        Assert.That(aapl.Name.Value, Is.EqualTo("Apple Inc."))
+        Assert.AreEqual(1, aapl.Id)
+        Assert.AreEqual("AAPL", aapl.Symbol)
+        Assert.AreEqual("Apple Inc.", aapl.Name.Value)
         
-        Assert.That(msft.Id, Is.EqualTo(2))
-        Assert.That(msft.Symbol, Is.EqualTo("MSFT"))
-        Assert.That(msft.Name.Value, Is.EqualTo("Microsoft Corporation"))
+        Assert.AreEqual(2, msft.Id)
+        Assert.AreEqual("MSFT", msft.Symbol)
+        Assert.AreEqual("Microsoft Corporation", msft.Name.Value)
         
-        Assert.That(googl.Id, Is.EqualTo(3))
-        Assert.That(googl.Symbol, Is.EqualTo("GOOGL"))
-        Assert.That(googl.Name.Value, Is.EqualTo("Alphabet Inc."))
+        Assert.AreEqual(3, googl.Id)
+        Assert.AreEqual("GOOGL", googl.Symbol)
+        Assert.AreEqual("Alphabet Inc.", googl.Name.Value)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive ticker lookup should emit ticker when available``() =
         let mutable result: Ticker option = None
         let mutable completed = false
@@ -80,13 +81,13 @@ type ReactiveTickerManagerTests() =
         // Wait a bit for the observable to emit
         System.Threading.Thread.Sleep(100)
         
-        Assert.That(result.IsSome, Is.True)
-        Assert.That(result.Value.Symbol, Is.EqualTo("AAPL"))
-        Assert.That(result.Value.Name.Value, Is.EqualTo("Apple Inc."))
+        Assert.IsTrue(result.IsSome)
+        Assert.AreEqual("AAPL", result.Value.Symbol)
+        Assert.AreEqual("Apple Inc.", result.Value.Name.Value)
         
         subscription.Dispose()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive ticker lookup by ID should emit ticker when available``() =
         let mutable result: Ticker option = None
         let subscription = 
@@ -95,13 +96,13 @@ type ReactiveTickerManagerTests() =
         
         System.Threading.Thread.Sleep(100)
         
-        Assert.That(result.IsSome, Is.True)
-        Assert.That(result.Value.Id, Is.EqualTo(1))
-        Assert.That(result.Value.Symbol, Is.EqualTo("AAPL"))
+        Assert.IsTrue(result.IsSome)
+        Assert.AreEqual(1, result.Value.Id)
+        Assert.AreEqual("AAPL", result.Value.Symbol)
         
         subscription.Dispose()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive ticker should update when collection changes``() =
         let results = System.Collections.Generic.List<Ticker>()
         
@@ -113,12 +114,12 @@ type ReactiveTickerManagerTests() =
         System.Threading.Thread.Sleep(100)
         
         // Should have received the ticker
-        Assert.That(results.Count, Is.GreaterThanOrEqualTo(1))
-        Assert.That(results.[0].Symbol, Is.EqualTo("AAPL"))
+        Assert.IsTrue(results.Count >= 1)
+        Assert.AreEqual("AAPL", results.[0].Symbol)
         
         subscription.Dispose()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast ticker lookup should be faster than linear search``() =
         // Add more tickers to make the difference noticeable
         let additionalTickers = [
@@ -147,13 +148,13 @@ type ReactiveTickerManagerTests() =
         
         // Fast lookup should be at least as fast or faster
         // Note: For small datasets, the difference might not be significant
-        Assert.That(fastTime, Is.LessThanOrEqualTo(linearTime + 50L)) // Allow some margin for variance
+        Assert.IsTrue(fastTime <= linearTime + 50L) // Allow some margin for variance
         
-        TestContext.Out.WriteLine($"Linear search: {linearTime}ms")
-        TestContext.Out.WriteLine($"Fast lookup: {fastTime}ms")
-        TestContext.Out.WriteLine($"Performance improvement: {float linearTime / float fastTime}x")
+        Console.WriteLine($"Linear search: {linearTime}ms")
+        Console.WriteLine($"Fast lookup: {fastTime}ms")
+        Console.WriteLine($"Performance improvement: {float linearTime / float fastTime}x")
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Performance comparison between old and new methods``() =
         // Add a moderate number of tickers for performance testing
         let additionalTickers = [
@@ -182,9 +183,9 @@ type ReactiveTickerManagerTests() =
         stopwatch.Stop()
         let newMethodTime = stopwatch.ElapsedMilliseconds
         
-        TestContext.Out.WriteLine($"ID Lookup - Old method: {oldMethodTime}ms")
-        TestContext.Out.WriteLine($"ID Lookup - New method: {newMethodTime}ms")
-        TestContext.Out.WriteLine($"ID Lookup - Performance improvement: {float oldMethodTime / float newMethodTime}x")
+        Console.WriteLine($"ID Lookup - Old method: {oldMethodTime}ms")
+        Console.WriteLine($"ID Lookup - New method: {newMethodTime}ms")
+        Console.WriteLine($"ID Lookup - Performance improvement: {float oldMethodTime / float newMethodTime}x")
         
         // Test O(1) reactive method comparison (was symbol lookup comparison)
         stopwatch.Restart()
@@ -201,15 +202,15 @@ type ReactiveTickerManagerTests() =
         stopwatch.Stop()
         let newSymbolTime = stopwatch.ElapsedMilliseconds
         
-        TestContext.Out.WriteLine($"Old method: {oldSymbolTime}ms")
-        TestContext.Out.WriteLine($"New method: {newSymbolTime}ms")
-        TestContext.Out.WriteLine($"Performance improvement: {float oldSymbolTime / float newSymbolTime}x")
+        Console.WriteLine($"Old method: {oldSymbolTime}ms")
+        Console.WriteLine($"New method: {newSymbolTime}ms")
+        Console.WriteLine($"Performance improvement: {float oldSymbolTime / float newSymbolTime}x")
         
         // New method should be at least as fast as old method
-        Assert.That(newMethodTime, Is.LessThanOrEqualTo(oldMethodTime + 50L))
-        Assert.That(newSymbolTime, Is.LessThanOrEqualTo(oldSymbolTime + 50L))
+        Assert.IsTrue(newMethodTime <= oldMethodTime + 50L)
+        Assert.IsTrue(newSymbolTime <= oldSymbolTime + 50L)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Cache should handle ticker collection updates correctly``() =
         // Test adding new ticker
         let newTicker = { Id = 4; Symbol = "TESLA"; Image = None; Name = Some "Tesla Inc."; OptionsEnabled = true; OptionContractMultiplier = 100 }
@@ -219,8 +220,8 @@ type ReactiveTickerManagerTests() =
         
         // Should be able to find the new ticker immediately
         let tesla = "TESLA".ToFastTicker()
-        Assert.That(tesla.Symbol, Is.EqualTo("TESLA"))
-        Assert.That(tesla.Name.Value, Is.EqualTo("Tesla Inc."))
+        Assert.AreEqual("TESLA", tesla.Symbol)
+        Assert.AreEqual("Tesla Inc.", tesla.Name.Value)
         
         // Test removing ticker
         Collections.Tickers.Edit(fun list ->
@@ -230,7 +231,7 @@ type ReactiveTickerManagerTests() =
         Assert.Throws<System.Collections.Generic.KeyNotFoundException>(fun () -> 
             "TESLA".ToFastTicker() |> ignore) |> ignore
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Initialize should be idempotent``() =
         // Multiple calls to initialize should not cause issues
         ReactiveTickerManager.initialize()
@@ -239,9 +240,9 @@ type ReactiveTickerManagerTests() =
         
         // Should still work correctly
         let aapl = "AAPL".ToFastTicker()
-        Assert.That(aapl.Symbol, Is.EqualTo("AAPL"))
+        Assert.AreEqual("AAPL", aapl.Symbol)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Cache should synchronize when Collections.Tickers is updated via Edit``() =
         // Initialize the reactive ticker manager
         ReactiveTickerManager.initialize()
@@ -254,18 +255,18 @@ type ReactiveTickerManagerTests() =
         // Verify the new ticker is immediately available via fast lookup
         // The reactive subscription should have updated the cache synchronously
         let importedTicker = "IMPORTTEST".ToFastTicker()
-        Assert.That(importedTicker.Symbol, Is.EqualTo("IMPORTTEST"))
-        Assert.That(importedTicker.Name.Value, Is.EqualTo("Import Test Ticker"))
-        Assert.That(importedTicker.Id, Is.EqualTo(999))
+        Assert.AreEqual("IMPORTTEST", importedTicker.Symbol)
+        Assert.AreEqual("Import Test Ticker", importedTicker.Name.Value)
+        Assert.AreEqual(999, importedTicker.Id)
         
         // Also verify by ID lookup
         let importedTickerById = (999).ToFastTickerById()
-        Assert.That(importedTickerById.Symbol, Is.EqualTo("IMPORTTEST"))
+        Assert.AreEqual("IMPORTTEST", importedTickerById.Symbol)
         
         // Clean up
         Collections.Tickers.Edit(fun list -> list.Remove(newTicker) |> ignore)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveTickerManager refresh should load from database and use EditDiff properly``() =
         task {
             // Initialize the reactive ticker manager
@@ -276,7 +277,7 @@ type ReactiveTickerManagerTests() =
             Collections.Tickers.Edit(fun list -> list.Clear())
             
             // Verify Collections.Tickers is empty (simulating stale state)
-            Assert.That(Collections.Tickers.Items.Count, Is.EqualTo(0), "Collections.Tickers should be empty to test database loading")
+            Assert.AreEqual(0, Collections.Tickers.Items.Count, "Collections.Tickers should be empty to test database loading")
             
             // Call the new database-driven refresh() method and AWAIT it
             // This should load fresh data from DATABASE and use EditDiff to update Collections.Tickers
@@ -294,5 +295,5 @@ type ReactiveTickerManagerTests() =
             // ✅ refresh() doesn't rely on stale Collections.Tickers.Items
             // ✅ Reactive subscription updates caches automatically
             
-            Assert.That(true, Is.True, "Database-driven refresh completed successfully without exceptions")
-        }
+            Assert.IsTrue(true, "Database-driven refresh completed successfully without exceptions")
+        } :> System.Threading.Tasks.Task

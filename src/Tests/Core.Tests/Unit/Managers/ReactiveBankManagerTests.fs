@@ -1,16 +1,16 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open System.Reactive.Linq
 open System
 open System.Threading.Tasks
 
-[<TestFixture>]
+[<TestClass>]
 type ReactiveBankManagerTests() =
 
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Set up test data using Edit instead of EditDiff
         let testBanks = [
@@ -26,26 +26,26 @@ type ReactiveBankManagerTests() =
         // Initialize the reactive bank manager
         ReactiveBankManager.initialize()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast bank lookup by ID should return correct bank with O(1) performance``() =
         // Test fast lookup by ID
         let boa = ReactiveBankManager.getBankByIdFast(1)
         let wells = ReactiveBankManager.getBankByIdFast(2)
         let chase = ReactiveBankManager.getBankByIdFast(3)
         
-        Assert.That(boa.Name, Is.EqualTo("Bank of America"))
-        Assert.That(boa.Image, Is.EqualTo(Some "boa"))
-        Assert.That(boa.Id, Is.EqualTo(1))
+        Assert.AreEqual("Bank of America", boa.Name)
+        Assert.AreEqual(Some "boa", boa.Image)
+        Assert.AreEqual(1, boa.Id)
         
-        Assert.That(wells.Name, Is.EqualTo("Wells Fargo"))
-        Assert.That(wells.Image, Is.EqualTo(Some "wells"))
-        Assert.That(wells.Id, Is.EqualTo(2))
+        Assert.AreEqual("Wells Fargo", wells.Name)
+        Assert.AreEqual(Some "wells", wells.Image)
+        Assert.AreEqual(2, wells.Id)
         
-        Assert.That(chase.Name, Is.EqualTo("Chase Bank"))
-        Assert.That(chase.Image, Is.EqualTo(Some "chase"))
-        Assert.That(chase.Id, Is.EqualTo(3))
+        Assert.AreEqual("Chase Bank", chase.Name)
+        Assert.AreEqual(Some "chase", chase.Image)
+        Assert.AreEqual(3, chase.Id)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive bank lookup should return observable bank``() =
         // Test reactive lookup
         let observable = ReactiveBankManager.getBankByIdReactive(1)
@@ -60,11 +60,11 @@ type ReactiveBankManagerTests() =
         // Wait briefly for observable to emit
         System.Threading.Thread.Sleep(10)
         
-        Assert.That(testCompleted, Is.True)
-        Assert.That(resultBank.Name, Is.EqualTo("Bank of America"))
-        Assert.That(resultBank.Id, Is.EqualTo(1))
+        Assert.IsTrue(testCompleted)
+        Assert.AreEqual("Bank of America", resultBank.Name)
+        Assert.AreEqual(1, resultBank.Id)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Performance comparison should show improvement over linear search``() =
         // Create larger dataset for performance testing
         let largeBanksList = [
@@ -106,9 +106,9 @@ type ReactiveBankManagerTests() =
         printfn "========================================"
         
         // Assert that fast lookup is at least as fast as linear search (with tolerance for timing variance)
-        Assert.That(fastLookupTime, Is.LessThanOrEqualTo(linearSearchTime + 10L))
+        Assert.IsTrue(fastLookupTime <= linearSearchTime + 10L)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive cache should update when bank is added to collection``() =
         // Add a new bank to the collection
         let newBank = { Id = 4; Name = "Citibank"; Image = Some "citi"; CreatedAt = DateTime.Now }
@@ -117,14 +117,14 @@ type ReactiveBankManagerTests() =
         // The reactive cache should automatically pick up the new bank
         let retrievedBank = ReactiveBankManager.getBankByIdFast(4)
         
-        Assert.That(retrievedBank.Name, Is.EqualTo("Citibank"))
-        Assert.That(retrievedBank.Id, Is.EqualTo(4))
+        Assert.AreEqual("Citibank", retrievedBank.Name)
+        Assert.AreEqual(4, retrievedBank.Id)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive cache should update when bank is updated in collection``() =
         // Update an existing bank by removing and re-adding with changes
         let originalBank = ReactiveBankManager.getBankByIdFast(1)
-        Assert.That(originalBank.Name, Is.EqualTo("Bank of America"))
+        Assert.AreEqual("Bank of America", originalBank.Name)
         
         let updatedBank = { originalBank with Name = "BofA (Updated)" }
         Collections.Banks.Edit(fun list -> 
@@ -134,26 +134,26 @@ type ReactiveBankManagerTests() =
         
         // The reactive cache should reflect the update
         let retrievedBank = ReactiveBankManager.getBankByIdFast(1)
-        Assert.That(retrievedBank.Name, Is.EqualTo("BofA (Updated)"))
+        Assert.AreEqual("BofA (Updated)", retrievedBank.Name)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Backward compatibility - Collections.getBank should still work``() =
         // Test that bank lookup still works via existing direct access
         let bank = Collections.Banks.Items |> Seq.find(fun b -> b.Id = 1)
         
-        Assert.That(bank.Name, Is.EqualTo("Bank of America"))
-        Assert.That(bank.Id, Is.EqualTo(1))
+        Assert.AreEqual("Bank of America", bank.Name)
+        Assert.AreEqual(1, bank.Id)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Extension method ToFastBankById should work correctly``() =
         // Test the extension method
         let bank = (1).ToFastBankById()
         
-        Assert.That(bank.Name, Is.EqualTo("Bank of America"))
-        Assert.That(bank.Id, Is.EqualTo(1))
-        Assert.That(bank.Image, Is.EqualTo(Some "boa"))
+        Assert.AreEqual("Bank of America", bank.Name)
+        Assert.AreEqual(1, bank.Id)
+        Assert.AreEqual(Some "boa", bank.Image)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Extension method ToReactiveBankById should return observable``() =
         // Test the reactive extension method
         let observable = (2).ToReactiveBankById()
@@ -168,6 +168,6 @@ type ReactiveBankManagerTests() =
         // Wait briefly for observable to emit
         System.Threading.Thread.Sleep(10)
         
-        Assert.That(testCompleted, Is.True)
-        Assert.That(resultBank.Name, Is.EqualTo("Wells Fargo"))
-        Assert.That(resultBank.Id, Is.EqualTo(2))
+        Assert.IsTrue(testCompleted)
+        Assert.AreEqual("Wells Fargo", resultBank.Name)
+        Assert.AreEqual(2, resultBank.Id)

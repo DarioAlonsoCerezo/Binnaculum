@@ -1,13 +1,13 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Models
 open System
 
-[<TestFixture>]
+[<TestClass>]
 type BrokerFinancialSnapshotAggregationTests () =
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Aggregates financial snapshots with highest MovementCounter as main`` () =
         // Arrange
         let mockCurrency1 = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
@@ -74,15 +74,15 @@ type BrokerFinancialSnapshotAggregationTests () =
             FinancialOtherCurrencies = otherFinancials
         }
         // Act & Assert
-        Assert.That(snapshot.Financial.MovementCounter, Is.EqualTo(10))
-        Assert.That(snapshot.Financial.Currency.Id, Is.EqualTo(2))
-        Assert.That(snapshot.Financial.RealizedGains, Is.EqualTo(200.0m))
-        Assert.That(snapshot.FinancialOtherCurrencies.Length, Is.EqualTo(1))
-        Assert.That(snapshot.FinancialOtherCurrencies.Head.MovementCounter, Is.EqualTo(5))
-        Assert.That(snapshot.FinancialOtherCurrencies.Head.Currency.Id, Is.EqualTo(1))
-        Assert.That(snapshot.FinancialOtherCurrencies.Head.RealizedGains, Is.EqualTo(100.0m))
+        Assert.AreEqual(10, snapshot.Financial.MovementCounter)
+        Assert.AreEqual(2, snapshot.Financial.Currency.Id)
+        Assert.AreEqual(200.0m, snapshot.Financial.RealizedGains)
+        Assert.AreEqual(1, snapshot.FinancialOtherCurrencies.Length)
+        Assert.AreEqual(5, snapshot.FinancialOtherCurrencies.Head.MovementCounter)
+        Assert.AreEqual(1, snapshot.FinancialOtherCurrencies.Head.Currency.Id)
+        Assert.AreEqual(100.0m, snapshot.FinancialOtherCurrencies.Head.RealizedGains)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Handles empty financial snapshots list`` () =
         // Arrange
         let mockCurrency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
@@ -124,12 +124,12 @@ type BrokerFinancialSnapshotAggregationTests () =
             FinancialOtherCurrencies = []
         }
         // Act & Assert
-        Assert.That(snapshot.Financial.MovementCounter, Is.EqualTo(0))
-        Assert.That(snapshot.Financial.Currency.Id, Is.EqualTo(1))
-        Assert.That(snapshot.Financial.RealizedGains, Is.EqualTo(0.0m))
-        Assert.That(snapshot.FinancialOtherCurrencies.Length, Is.EqualTo(0))
+        Assert.AreEqual(0, snapshot.Financial.MovementCounter)
+        Assert.AreEqual(1, snapshot.Financial.Currency.Id)
+        Assert.AreEqual(0.0m, snapshot.Financial.RealizedGains)
+        Assert.AreEqual(0, snapshot.FinancialOtherCurrencies.Length)
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Handles single financial snapshot`` () =
         // Arrange
         let mockCurrency = { Id = 1; Title = "USD"; Code = "USD"; Symbol = "$" }
@@ -170,7 +170,7 @@ type BrokerFinancialSnapshotAggregationTests () =
             FinancialOtherCurrencies = []
         }
         // Act & Assert
-        Assert.That(snapshot.Financial.MovementCounter, Is.EqualTo(7))
-        Assert.That(snapshot.Financial.Currency.Id, Is.EqualTo(1))
-        Assert.That(snapshot.Financial.RealizedGains, Is.EqualTo(150.0m))
-        Assert.That(snapshot.FinancialOtherCurrencies.Length, Is.EqualTo(0))
+        Assert.AreEqual(7, snapshot.Financial.MovementCounter)
+        Assert.AreEqual(1, snapshot.Financial.Currency.Id)
+        Assert.AreEqual(150.0m, snapshot.Financial.RealizedGains)
+        Assert.AreEqual(0, snapshot.FinancialOtherCurrencies.Length)

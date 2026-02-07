@@ -3,7 +3,7 @@ namespace Core.Tests.Integration
 open System
 open Binnaculum.Core.Models
 open Binnaculum.Core.UI
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 
 /// <summary>
 /// Reusable verification utilities for reactive integration tests.
@@ -25,12 +25,12 @@ open NUnit.Framework
 /// USAGE:
 /// ------
 /// let (success, message) = TestVerifications.verifyBrokers 2
-/// Assert.That(success, Is.True, message)
+/// Assert.IsTrue(success, message)
 ///
 /// Or batch verify:
 /// let verifications = TestVerifications.verifyFullDatabaseState()
 /// for (success, message) in verifications do
-///     Assert.That(success, Is.True, message)
+///     Assert.IsTrue(success, message)
 ///
 /// Holistic snapshot verification:
 /// let (allMatch, results) = TestVerifications.verifyBrokerFinancialSnapshot expected actual
@@ -184,7 +184,7 @@ module TestVerifications =
     /// let expected: BrokerFinancialSnapshot = { Deposited = 5000m; ... }
     /// let actual = BrokerAccounts.GetLatestSnapshot(accountId).Financial
     /// let (allMatch, results) = verifyBrokerFinancialSnapshot expected actual
-    /// Assert.That(allMatch, Is.True)
+    /// Assert.IsTrue(allMatch)
     /// </summary>
     let verifyBrokerFinancialSnapshot
         (expected: BrokerFinancialSnapshot)
@@ -288,7 +288,7 @@ module TestVerifications =
     /// let expected: TickerCurrencySnapshot = { TotalShares = 100m; ... }
     /// let actual = Tickers.GetSnapshots(tickerId) |> Seq.head
     /// let (allMatch, results) = verifyTickerCurrencySnapshot expected actual
-    /// Assert.That(allMatch, Is.True)
+    /// Assert.IsTrue(allMatch)
     /// </summary>
     let verifyTickerCurrencySnapshot
         (expected: TickerCurrencySnapshot)
@@ -444,7 +444,7 @@ module TestVerifications =
     /// results |> List.iteri (fun i (allMatch, fieldResults) ->
     ///     if not allMatch then
     ///         printfn "Snapshot %d failed:\n%s" i (formatValidationResults fieldResults)
-    ///     Assert.That(allMatch, Is.True)
+    ///     Assert.IsTrue(allMatch)
     /// )
     /// </summary>
     let verifyTickerCurrencySnapshotList
@@ -487,7 +487,7 @@ module TestVerifications =
     /// results |> List.iteri (fun i (allMatch, fieldResults) ->
     ///     if not allMatch then
     ///         printfn "BrokerSnapshot %d failed:\n%s" i (formatValidationResults fieldResults)
-    ///     Assert.That(allMatch, Is.True)
+    ///     Assert.IsTrue(allMatch)
     /// )
     /// </summary>
     let verifyBrokerFinancialSnapshotList
@@ -523,7 +523,7 @@ module TestVerifications =
     /// let expected: AutoImportOperation = { Realized = 350m; CapitalDeployed = 5000m; ... }
     /// let actual = getOperationById(operationId)
     /// let (allMatch, results) = verifyAutoImportOperation expected actual
-    /// Assert.That(allMatch, Is.True)
+    /// Assert.IsTrue(allMatch)
     /// </summary>
     let verifyAutoImportOperation
         (expected: AutoImportOperation)
@@ -605,7 +605,7 @@ module TestVerifications =
     /// results |> List.iteri (fun i (allMatch, fieldResults) ->
     ///     if not allMatch then
     ///         printfn "Operation %d failed:\n%s" i (formatValidationResults fieldResults)
-    ///     Assert.That(allMatch, Is.True)
+    ///     Assert.IsTrue(allMatch)
     /// )
     /// </summary>
     let verifyAutoImportOperationList

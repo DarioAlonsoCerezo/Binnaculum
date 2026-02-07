@@ -1,6 +1,6 @@
 namespace Core.Tests.Integration
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open Binnaculum.Core.Models
 open Binnaculum.Core.Logging
@@ -41,11 +41,11 @@ open Binnaculum.Core.Logging
 ///
 ///             // Wait for signals (NOT Thread.Sleep!)
 ///             let! received = StreamObserver.waitForAllSignalsAsync(TimeSpan.FromSeconds(10.0))
-///             Assert.That(received, Is.True)
+///             Assert.IsTrue(received)
 ///
 ///             // Verify
 ///             let! (verified, count, _) = actions.verifyAccountCount(1)
-///             Assert.That(verified, Is.True)
+///             Assert.IsTrue(verified)
 ///         }
 ///
 /// PATTERN: Setup/Expect/Execute/Wait/Verify
@@ -86,27 +86,27 @@ type TestFixtureBase() =
 
     /// <summary>
     /// Setup before each test - prepare environment and start observing streams.
-    /// This is called automatically by NUnit before each test method.
+    /// This is called automatically by MSTest before each test method.
     /// </summary>
-    [<SetUp>]
+    [<TestInitialize>]
     member _.Setup() =
         async {
             let! (ctx, actions) = TestSetup.setupTestEnvironment ()
             testContext <- Some ctx
             testActions <- Some actions
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Teardown after each test - stop observing streams and clean up.
-    /// This is called automatically by NUnit after each test method.
+    /// This is called automatically by MSTest after each test method.
     /// </summary>
-    [<TearDown>]
+    [<TestCleanup>]
     member _.Teardown() =
         async {
             do! TestSetup.teardownTestEnvironment ()
             testContext <- None
             testActions <- None
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task
 
     /// <summary>
     /// Verify and assert a list of TickerCurrencySnapshots with standardized logging.
@@ -170,9 +170,8 @@ type TestFixtureBase() =
 
                 CoreLogger.logInfo "Verification" message
 
-            Assert.That(
+            Assert.IsTrue(
                 allMatch,
-                Is.True,
                 sprintf "%s Snapshot %d (%s) verification failed" snapshotName (i + 1) description
             ))
 
@@ -246,7 +245,7 @@ type TestFixtureBase() =
 
                 CoreLogger.logInfo "Verification" message
 
-            Assert.That(allMatch, Is.True, sprintf "BrokerSnapshot %d (%s) verification failed" (i + 1) description))
+            Assert.IsTrue(allMatch, sprintf "BrokerSnapshot %d (%s) verification failed" (i + 1) description))
 
         CoreLogger.logInfo
             "Verification"

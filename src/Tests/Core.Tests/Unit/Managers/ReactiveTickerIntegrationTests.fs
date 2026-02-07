@@ -1,14 +1,15 @@
 namespace Core.Tests
+open System
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open System.Diagnostics
 
-[<TestFixture>]
+[<TestClass>]
 type ReactiveTickerIntegrationTests() =
 
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Set up larger test data for better performance measurement
         let testTickers = [
@@ -24,7 +25,7 @@ type ReactiveTickerIntegrationTests() =
         ReactiveCurrencyManager.initialize()
         ReactiveTickerManager.initialize()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Performance comparison with realistic dataset``() =
         let iterations = 1000
         let stopwatch = Stopwatch.StartNew()
@@ -47,47 +48,47 @@ type ReactiveTickerIntegrationTests() =
         stopwatch.Stop()
         let fastLookupTime = stopwatch.ElapsedMilliseconds
         
-        TestContext.Out.WriteLine($"=== Reactive Ticker Performance Results ===")
-        TestContext.Out.WriteLine($"Dataset: 1,000 tickers, {iterations} lookups")
-        TestContext.Out.WriteLine($"Linear search time: {linearSearchTime}ms")
-        TestContext.Out.WriteLine($"Fast O(1) lookup time: {fastLookupTime}ms")
+        Console.WriteLine($"=== Reactive Ticker Performance Results ===")
+        Console.WriteLine($"Dataset: 1,000 tickers, {iterations} lookups")
+        Console.WriteLine($"Linear search time: {linearSearchTime}ms")
+        Console.WriteLine($"Fast O(1) lookup time: {fastLookupTime}ms")
         
         if fastLookupTime > 0L && linearSearchTime > 0L then
             let improvement = float linearSearchTime / float fastLookupTime
-            TestContext.Out.WriteLine($"Performance improvement: {improvement:F1}x faster")
+            Console.WriteLine($"Performance improvement: {improvement:F1}x faster")
         else
-            TestContext.Out.WriteLine($"Performance improvement: Significant (sub-millisecond)")
+            Console.WriteLine($"Performance improvement: Significant (sub-millisecond)")
         
-        TestContext.Out.WriteLine($"========================================")
+        Console.WriteLine($"========================================")
         
         // The new approach should be faster or at least as fast
-        Assert.That(fastLookupTime, Is.LessThanOrEqualTo(linearSearchTime + 5L))
+        Assert.IsTrue(fastLookupTime <= linearSearchTime + 5L)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Validate integration with fast lookups``() =
         // Test that the new fast lookups work correctly in realistic scenarios
         let ticker500 = (500).ToFastTickerById()
         let ticker250 = "STOCK250".ToFastTicker()
         
-        Assert.That(ticker500.Id, Is.EqualTo(500))
-        Assert.That(ticker500.Symbol, Is.EqualTo("STOCK500"))
-        Assert.That(ticker500.Name.Value, Is.EqualTo("Stock 500 Corporation"))
+        Assert.AreEqual(500, ticker500.Id)
+        Assert.AreEqual("STOCK500", ticker500.Symbol)
+        Assert.AreEqual("Stock 500 Corporation", ticker500.Name.Value)
         
-        Assert.That(ticker250.Id, Is.EqualTo(250))
-        Assert.That(ticker250.Symbol, Is.EqualTo("STOCK250"))
-        Assert.That(ticker250.Name.Value, Is.EqualTo("Stock 250 Corporation"))
+        Assert.AreEqual(250, ticker250.Id)
+        Assert.AreEqual("STOCK250", ticker250.Symbol)
+        Assert.AreEqual("Stock 250 Corporation", ticker250.Name.Value)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Validate backward compatibility with existing Collections methods``() =
         // Ensure old methods still work for any code that hasn't been updated yet
         let ticker1 = Collections.Tickers.Items |> Seq.find(fun t -> t.Symbol = "STOCK1")
         let ticker2 = "STOCK1".ToFastTicker()
         
-        Assert.That(ticker1.Id, Is.EqualTo(ticker2.Id))
-        Assert.That(ticker1.Symbol, Is.EqualTo(ticker2.Symbol))
-        Assert.That(ticker1.Name, Is.EqualTo(ticker2.Name))
+        Assert.AreEqual(ticker2.Id, ticker1.Id)
+        Assert.AreEqual(ticker2.Symbol, ticker1.Symbol)
+        Assert.AreEqual(ticker2.Name, ticker1.Name)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Validate cache updates correctly when collection changes``() =
         // Add a new ticker
         let newTicker = { Id = 1001; Symbol = "NEWSTOCK"; Image = None; Name = Some "New Stock Corp"; OptionsEnabled = true; OptionContractMultiplier = 100 }
@@ -96,8 +97,8 @@ type ReactiveTickerIntegrationTests() =
         
         // Should be immediately available via fast lookup
         let retrievedTicker = "NEWSTOCK".ToFastTicker()
-        Assert.That(retrievedTicker.Id, Is.EqualTo(1001))
-        Assert.That(retrievedTicker.Symbol, Is.EqualTo("NEWSTOCK"))
+        Assert.AreEqual(1001, retrievedTicker.Id)
+        Assert.AreEqual("NEWSTOCK", retrievedTicker.Symbol)
         
         // Remove the ticker
         Collections.Tickers.Edit(fun list -> list.Remove(newTicker) |> ignore)

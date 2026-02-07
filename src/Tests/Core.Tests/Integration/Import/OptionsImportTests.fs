@@ -1,6 +1,6 @@
 namespace Core.Tests.Integration
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open System.IO
 open Binnaculum.Core.Models
@@ -20,7 +20,7 @@ open TestModels
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type OptionsImportTests() =
     inherit TestFixtureBase()
 
@@ -62,8 +62,8 @@ type OptionsImportTests() =
     /// - Realized gains: -$28.67 (sum of closed position premiums)
     /// - Unrealized gains: $83.04 (sum of open position premiums)
     /// </summary>
-    [<Test>]
-    [<Category("Integration")>]
+    [<TestMethod>]
+    [<TestCategory("Integration")>]
     member this.``Options import from CSV updates collections``() =
         async {
             CoreLogger.logInfo "Test" "=== TEST: Options Import from CSV Updates Collections ==="
@@ -75,12 +75,12 @@ type OptionsImportTests() =
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
-            Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Wipe should succeed: %A" error)
             CoreLogger.logInfo "Verification" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
-            Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Database initialization should succeed: %A" error)
             CoreLogger.logInfo "Verification" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
@@ -96,13 +96,13 @@ type OptionsImportTests() =
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("Options-Import-Test")
-            Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
+            Assert.IsTrue(ok, sprintf "Account creation should succeed: %s - %A" details error)
             CoreLogger.logInfo "Verification" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
-            Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
+            Assert.IsTrue(signalsReceived, "Account creation signals should have been received")
             CoreLogger.logInfo "Verification" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: IMPORT OPTIONS CSV ====================
@@ -111,7 +111,7 @@ type OptionsImportTests() =
             // Get CSV path
             let csvPath = this.getCsvPath ("TastytradeOptionsTest.csv")
             CoreLogger.logDebug "Import" (sprintf "📄 CSV file path: %s" csvPath)
-            Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
+            Assert.IsTrue(File.Exists(csvPath), sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
             StreamObserver.expectSignals (
@@ -133,13 +133,13 @@ type OptionsImportTests() =
                 (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
-            Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
+            Assert.IsTrue(ok, sprintf "Import should succeed: %s - %A" importDetails error)
             CoreLogger.logInfo "Verification" (sprintf "✅ CSV import completed: %s" importDetails)
 
             // WAIT: Wait for import signals (longer timeout for import processing)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for import reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
-            Assert.That(signalsReceived, Is.True, "Import signals should have been received")
+            Assert.IsTrue(signalsReceived, "Import signals should have been received")
             CoreLogger.logInfo "Verification" "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY SOFI TICKER SNAPSHOTS CHRONOLOGICALLY ====================
@@ -149,7 +149,7 @@ type OptionsImportTests() =
             let sofiTicker =
                 Collections.Tickers.Items |> Seq.tryFind (fun t -> t.Symbol = "SOFI")
 
-            Assert.That(sofiTicker.IsSome, Is.True, "SOFI ticker should exist in Collections")
+            Assert.IsTrue(sofiTicker.IsSome, "SOFI ticker should exist in Collections")
 
             let sofiTickerId = sofiTicker.Value.Id
             let usd = Collections.Currencies.Items |> Seq.find (fun c -> c.Code = "USD")
@@ -161,10 +161,7 @@ type OptionsImportTests() =
 
             CoreLogger.logInfo "Verification" (sprintf "📊 Found %d SOFI snapshots" sortedSOFISnapshots.Length)
 
-            Assert.That(
-                sortedSOFISnapshots.Length,
-                Is.EqualTo(4),
-                "Should have 4 SOFI snapshots (2024-04-25, 04-29, 04-30 + today)"
+            Assert.AreEqual(4, sortedSOFISnapshots.Length, "Should have 4 SOFI snapshots (2024-04-25, 04-29, 04-30 + today)"
             )
 
             // Get expected SOFI snapshots with descriptions from OptionsImportExpectedSnapshots
@@ -189,7 +186,7 @@ type OptionsImportTests() =
 
             // Get MPW ticker from Collections
             let mpwTicker = Collections.Tickers.Items |> Seq.tryFind (fun t -> t.Symbol = "MPW")
-            Assert.That(mpwTicker.IsSome, Is.True, "MPW ticker should exist in Collections")
+            Assert.IsTrue(mpwTicker.IsSome, "MPW ticker should exist in Collections")
 
             let mpwTickerId = mpwTicker.Value.Id
             CoreLogger.logInfo "Verification" (sprintf "📊 MPW Ticker ID: %d" mpwTickerId)
@@ -200,10 +197,7 @@ type OptionsImportTests() =
 
             CoreLogger.logInfo "Verification" (sprintf "📊 Found %d MPW snapshots" sortedMPWSnapshots.Length)
 
-            Assert.That(
-                sortedMPWSnapshots.Length,
-                Is.EqualTo(3),
-                "Should have 3 MPW snapshots (2024-04-26, 04-29 + today)"
+            Assert.AreEqual(3, sortedMPWSnapshots.Length, "Should have 3 MPW snapshots (2024-04-26, 04-29 + today)"
             )
 
             // Get expected MPW snapshots with descriptions from OptionsImportExpectedSnapshots
@@ -230,7 +224,7 @@ type OptionsImportTests() =
             let pltrTicker =
                 Collections.Tickers.Items |> Seq.tryFind (fun t -> t.Symbol = "PLTR")
 
-            Assert.That(pltrTicker.IsSome, Is.True, "PLTR ticker should exist in Collections")
+            Assert.IsTrue(pltrTicker.IsSome, "PLTR ticker should exist in Collections")
 
             let pltrTickerId = pltrTicker.Value.Id
             CoreLogger.logInfo "Verification" (sprintf "📊 PLTR Ticker ID: %d" pltrTickerId)
@@ -241,10 +235,7 @@ type OptionsImportTests() =
 
             CoreLogger.logInfo "Verification" (sprintf "📊 Found %d PLTR snapshots" sortedPLTRSnapshots.Length)
 
-            Assert.That(
-                sortedPLTRSnapshots.Length,
-                Is.EqualTo(3),
-                "Should have 3 PLTR snapshots (2024-04-26, 04-29 + today)"
+            Assert.AreEqual(3, sortedPLTRSnapshots.Length, "Should have 3 PLTR snapshots (2024-04-26, 04-29 + today)"
             )
 
             // Get expected PLTR snapshots with descriptions from OptionsImportExpectedSnapshots
@@ -290,11 +281,7 @@ type OptionsImportTests() =
                 expectedSOFIOperationsWithDescriptions |> TestModels.getOperationData
 
             // Verify SOFI operation count
-            Assert.That(
-                sofiOperations.Length,
-                Is.EqualTo(expectedSOFIOperations.Length),
-                sprintf "Expected %d SOFI operations but found %d" expectedSOFIOperations.Length sofiOperations.Length
-            )
+            Assert.AreEqual(expectedSOFIOperations.Length, sofiOperations.Length, sprintf "Expected %d SOFI operations but found %d" expectedSOFIOperations.Length sofiOperations.Length)
 
             // Verify each SOFI operation
             let sofiOperationResults =
@@ -332,11 +319,7 @@ type OptionsImportTests() =
                 expectedMPWOperationsWithDescriptions |> TestModels.getOperationData
 
             // Verify MPW operation count
-            Assert.That(
-                mpwOperations.Length,
-                Is.EqualTo(expectedMPWOperations.Length),
-                sprintf "Expected %d MPW operations but found %d" expectedMPWOperations.Length mpwOperations.Length
-            )
+            Assert.AreEqual(expectedMPWOperations.Length, mpwOperations.Length, sprintf "Expected %d MPW operations but found %d" expectedMPWOperations.Length mpwOperations.Length)
 
             // Verify each MPW operation
             let mpwOperationResults =
@@ -374,11 +357,7 @@ type OptionsImportTests() =
                 expectedPLTROperationsWithDescriptions |> TestModels.getOperationData
 
             // Verify PLTR operation count
-            Assert.That(
-                pltrOperations.Length,
-                Is.EqualTo(expectedPLTROperations.Length),
-                sprintf "Expected %d PLTR operations but found %d" expectedPLTROperations.Length pltrOperations.Length
-            )
+            Assert.AreEqual(expectedPLTROperations.Length, pltrOperations.Length, sprintf "Expected %d PLTR operations but found %d" expectedPLTROperations.Length pltrOperations.Length)
 
             // Verify each PLTR operation
             let pltrOperationResults =
@@ -422,7 +401,7 @@ type OptionsImportTests() =
                 "Verification"
                 (sprintf "📊 Found %d BrokerAccount snapshots" brokerFinancialSnapshots.Length)
 
-            Assert.That(brokerFinancialSnapshots.Length, Is.EqualTo(9), "Should have 9 BrokerAccount snapshots")
+            Assert.AreEqual(9, brokerFinancialSnapshots.Length, "Should have 9 BrokerAccount snapshots")
 
             // Get broker and currency for snapshot construction
             let broker = Collections.Brokers.Items |> Seq.find (fun b -> b.Name = "Tastytrade")
@@ -455,4 +434,4 @@ type OptionsImportTests() =
                 "Successfully created BrokerAccount, imported options CSV, received all signals, and verified SOFI, MPW, and PLTR ticker snapshots with complete financial state"
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

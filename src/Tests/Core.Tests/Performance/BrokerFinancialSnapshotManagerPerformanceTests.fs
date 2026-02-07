@@ -1,6 +1,6 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open System.Threading.Tasks
 open System.Diagnostics
@@ -10,7 +10,7 @@ open System.Diagnostics
 /// Tests focus on verifying performance characteristics and identifying potential bottlenecks
 /// without requiring access to internal database types.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type BrokerFinancialSnapshotManagerPerformanceTests() =
 
     // Performance measurement helpers
@@ -24,7 +24,7 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
     // PERFORMANCE BASELINE TESTS
     // ================================================================================
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Performance baseline - Module loading time`` () =
         // Measure the time it takes to reference the module
         let (_, elapsedMs) = measureTime (fun () ->
@@ -32,10 +32,10 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             "BrokerFinancialSnapshotManager module reference"
         )
         
-        Assert.That(elapsedMs, Is.LessThan(100L), "Module should load within 100ms")
+        Assert.IsTrue(elapsedMs < 100L, "Module should load within 100ms")
         Console.WriteLine($"Module loading baseline: {elapsedMs}ms")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Performance baseline - Type system overhead`` () =
         // Measure F# type system performance for complex types
         let (_, elapsedMs) = measureTime (fun () ->
@@ -45,14 +45,14 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
                 ignore testRecord
         )
         
-        Assert.That(elapsedMs, Is.LessThan(500L), "Type system operations should be efficient")
+        Assert.IsTrue(elapsedMs < 500L, "Type system operations should be efficient")
         Console.WriteLine($"Type system baseline: {elapsedMs}ms for 10K operations")
 
     // ================================================================================
     // ALGORITHMIC PERFORMANCE TESTS
     // ================================================================================
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Algorithmic performance - List processing efficiency`` () =
         // Test list processing performance similar to snapshot chains
         let (_, elapsedMs) = measureTime (fun () ->
@@ -65,10 +65,10 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             processed.Length
         )
         
-        Assert.That(elapsedMs, Is.LessThan(1000L), "List processing should be efficient for large datasets")
+        Assert.IsTrue(elapsedMs < 1000L, "List processing should be efficient for large datasets")
         Console.WriteLine($"List processing (10K items): {elapsedMs}ms")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Algorithmic performance - Map operations efficiency`` () =
         // Test Map operations performance similar to currency grouping
         let (_, elapsedMs) = measureTime (fun () ->
@@ -84,10 +84,10 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             grouped.Length
         )
         
-        Assert.That(elapsedMs, Is.LessThan(2000L), "Map operations should be efficient for currency processing")
+        Assert.IsTrue(elapsedMs < 2000L, "Map operations should be efficient for currency processing")
         Console.WriteLine($"Map operations (5K items): {elapsedMs}ms")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Algorithmic performance - Date sorting and filtering`` () =
         // Test date operations performance similar to chronological processing
         let (_, elapsedMs) = measureTime (fun () ->
@@ -102,14 +102,14 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             processed.Length
         )
         
-        Assert.That(elapsedMs, Is.LessThan(500L), "Date operations should be efficient")
+        Assert.IsTrue(elapsedMs < 500L, "Date operations should be efficient")
         Console.WriteLine($"Date operations (1K dates): {elapsedMs}ms")
 
     // ================================================================================
     // SCALABILITY PATTERN TESTS
     // ================================================================================
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Scalability pattern - Linear growth validation`` () =
         // Test that processing time grows linearly with data size
         let sizes = [100; 500; 1000; 2000]
@@ -123,7 +123,7 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
         
         // Verify that processing time doesn't grow exponentially
         let maxTimePerItem = results |> List.map (fun (size, time) -> float time / float size) |> List.max
-        Assert.That(maxTimePerItem, Is.LessThan(1.0), "Processing time should grow linearly")
+        Assert.IsTrue(maxTimePerItem < 1.0, "Processing time should grow linearly")
         
         Console.WriteLine("Scalability results:")
         results |> List.iter (fun (size, time) ->
@@ -131,7 +131,7 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             Console.WriteLine($"Size: {size}, Time: {time}ms, Time/item: {timePerItem:F3}ms")
         )
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Scalability pattern - Memory allocation efficiency`` () =
         // Test memory allocation patterns
         let (_, elapsedMs) = measureTime (fun () ->
@@ -149,14 +149,14 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
                     System.GC.Collect()
         )
         
-        Assert.That(elapsedMs, Is.LessThan(5000L), "Memory allocation should be efficient")
+        Assert.IsTrue(elapsedMs < 5000L, "Memory allocation should be efficient")
         Console.WriteLine($"Memory allocation test: {elapsedMs}ms for 1K allocations")
 
     // ================================================================================
     // MOBILE PERFORMANCE SIMULATIONS
     // ================================================================================
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Mobile simulation - Low-end device CPU`` () =
         // Simulate processing on slower mobile CPUs
         let (_, elapsedMs) = measureTime (fun () ->
@@ -170,10 +170,10 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             total
         )
         
-        Assert.That(elapsedMs, Is.LessThan(3000L), "Should perform well on low-end mobile CPUs")
+        Assert.IsTrue(elapsedMs < 3000L, "Should perform well on low-end mobile CPUs")
         Console.WriteLine($"Mobile CPU simulation: {elapsedMs}ms")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Mobile simulation - Limited memory pressure`` () =
         // Simulate memory constraints of mobile devices
         let (_, elapsedMs) = measureTime (fun () ->
@@ -193,10 +193,10 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             results.Length
         )
         
-        Assert.That(elapsedMs, Is.LessThan(2000L), "Should handle mobile memory constraints")
+        Assert.IsTrue(elapsedMs < 2000L, "Should handle mobile memory constraints")
         Console.WriteLine($"Mobile memory simulation: {elapsedMs}ms")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Mobile simulation - Battery efficiency`` () =
         // Test processing efficiency to minimize battery drain
         let (_, elapsedMs) = measureTime (fun () ->
@@ -209,14 +209,14 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             result
         )
         
-        Assert.That(elapsedMs, Is.LessThan(100L), "Should be battery-efficient")
+        Assert.IsTrue(elapsedMs < 100L, "Should be battery-efficient")
         Console.WriteLine($"Battery efficiency simulation: {elapsedMs}ms")
 
     // ================================================================================
     // CONCURRENT PROCESSING TESTS
     // ================================================================================
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Concurrent processing - Task parallelism`` () =
         // Test parallel processing capabilities using F# async
         let computation = async {
@@ -232,13 +232,13 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             let! results = tasks |> Async.Parallel
             let totalTime = results |> Array.sumBy (fun (_, time) -> time)
             
-            Assert.That(totalTime, Is.LessThan(5000L), "Parallel processing should be efficient")
+            Assert.IsTrue(totalTime < 5000L, "Parallel processing should be efficient")
             Console.WriteLine($"Concurrent processing: {totalTime}ms total")
         }
         
         computation |> Async.RunSynchronously
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Concurrent processing - Resource contention`` () =
         // Test behavior under resource contention using F# async
         let computation = async {
@@ -260,7 +260,7 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             let! _ = tasks |> Async.Parallel
             stopwatch.Stop()
             
-            Assert.That(stopwatch.ElapsedMilliseconds, Is.LessThan(3000L), "Should handle contention gracefully")
+            Assert.IsTrue(stopwatch.ElapsedMilliseconds < 3000L, "Should handle contention gracefully")
             Console.WriteLine($"Resource contention test: {stopwatch.ElapsedMilliseconds}ms")
         }
         
@@ -270,7 +270,7 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
     // MEMORY PRESSURE TESTS
     // ================================================================================
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Memory pressure - Large dataset handling`` () =
         // Test handling of large datasets without memory issues
         let (_, elapsedMs) = measureTime (fun () ->
@@ -288,10 +288,10 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             result
         )
         
-        Assert.That(elapsedMs, Is.LessThan(2000L), "Should handle large datasets efficiently")
+        Assert.IsTrue(elapsedMs < 2000L, "Should handle large datasets efficiently")
         Console.WriteLine($"Large dataset test: {elapsedMs}ms")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Memory pressure - Repeated allocations`` () =
         // Test repeated allocation/deallocation patterns
         let (_, elapsedMs) = measureTime (fun () ->
@@ -310,14 +310,14 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
                     System.GC.Collect()
         )
         
-        Assert.That(elapsedMs, Is.LessThan(3000L), "Should handle repeated allocations efficiently")
+        Assert.IsTrue(elapsedMs < 3000L, "Should handle repeated allocations efficiently")
         Console.WriteLine($"Repeated allocations test: {elapsedMs}ms")
 
     // ================================================================================
     // PERFORMANCE REGRESSION TESTS
     // ================================================================================
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Performance regression - Baseline computation`` () =
         // Establish performance baseline for regression detection
         let iterations = 5
@@ -333,12 +333,12 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
         let maxTime = times |> List.max
         let minTime = times |> List.min
         
-        Assert.That(averageTime, Is.LessThan(1000L), "Average performance should meet baseline")
-        Assert.That(maxTime - minTime, Is.LessThan(500L), "Performance should be consistent")
+        Assert.IsTrue(averageTime < 1000L, "Average performance should meet baseline")
+        Assert.IsTrue(maxTime - minTime < 500L, "Performance should be consistent")
         
         Console.WriteLine($"Performance baseline - Avg: {averageTime}ms, Min: {minTime}ms, Max: {maxTime}ms")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Performance regression - Complex operations`` () =
         // Test performance of complex operations
         let (_, elapsedMs) = measureTime (fun () ->
@@ -352,14 +352,14 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
             step4.Length
         )
         
-        Assert.That(elapsedMs, Is.LessThan(2000L), "Complex operations should maintain performance")
+        Assert.IsTrue(elapsedMs < 2000L, "Complex operations should maintain performance")
         Console.WriteLine($"Complex operations test: {elapsedMs}ms")
 
     // ================================================================================
     // PERFORMANCE MONITORING TESTS
     // ================================================================================
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Performance monitoring - Resource usage tracking`` () =
         // Monitor resource usage during processing
         let initialMemory = System.GC.GetTotalMemory(false)
@@ -376,12 +376,12 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
         let finalMemory = System.GC.GetTotalMemory(false)
         let memoryDelta = finalMemory - initialMemory
         
-        Assert.That(elapsedMs, Is.LessThan(1000L), "Processing time should be acceptable")
-        Assert.That(memoryDelta, Is.LessThan(10485760L), "Memory usage should be reasonable (< 10MB)")
+        Assert.IsTrue(elapsedMs < 1000L, "Processing time should be acceptable")
+        Assert.IsTrue(memoryDelta < 10485760L, "Memory usage should be reasonable (< 10MB)")
         
         Console.WriteLine($"Resource monitoring - Time: {elapsedMs}ms, Memory delta: {memoryDelta / 1024L}KB")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Performance monitoring - GC pressure analysis`` () =
         // Analyze garbage collection pressure
         let initialGCCount = [0; 1; 2] |> List.map System.GC.CollectionCount
@@ -402,7 +402,7 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
         let finalGCCount = [0; 1; 2] |> List.map System.GC.CollectionCount
         let gcDelta = List.zip initialGCCount finalGCCount |> List.map (fun (initial, final) -> final - initial)
         
-        Assert.That(elapsedMs, Is.LessThan(2000L), "Should complete within reasonable time")
+        Assert.IsTrue(elapsedMs < 2000L, "Should complete within reasonable time")
         
         Console.WriteLine($"GC pressure analysis - Time: {elapsedMs}ms")
         Console.WriteLine($"GC Collections - Gen0: {gcDelta.[0]}, Gen1: {gcDelta.[1]}, Gen2: {gcDelta.[2]}")
@@ -411,7 +411,7 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
     // PERFORMANCE SUMMARY TEST
     // ================================================================================
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Performance summary - Overall system performance`` () =
         // Comprehensive performance summary
         Console.WriteLine("=== BrokerFinancialSnapshotManager Performance Summary ===")
@@ -425,4 +425,4 @@ type BrokerFinancialSnapshotManagerPerformanceTests() =
         Console.WriteLine()
         Console.WriteLine("All performance tests passed - system ready for production use")
         
-        Assert.Pass("Comprehensive performance validation completed successfully")
+        Assert.IsTrue(true, "Comprehensive performance validation completed successfully") // Test passed

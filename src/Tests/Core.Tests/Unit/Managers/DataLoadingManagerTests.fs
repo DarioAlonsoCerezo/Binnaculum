@@ -1,6 +1,6 @@
 namespace Binnaculum.Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Managers
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
@@ -12,7 +12,7 @@ open System
 /// Unit tests for DataLoadingManager pagination functionality.
 /// Tests pagination, date range filtering, and context-aware data loading.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type DataLoadingManagerTests() =
     inherit InMemoryDatabaseFixture()
 
@@ -20,7 +20,7 @@ type DataLoadingManagerTests() =
     let mutable testCurrencyId = 0
     let mutable testBrokerId = 0
 
-    [<SetUp>]
+    [<TestInitialize>]
     member _.Setup() =
         task {
             // Create a test currency since in-memory DB starts empty
@@ -83,7 +83,7 @@ type DataLoadingManagerTests() =
                 ()
         }
 
-    [<Test>]
+    [<TestMethod>]
     member this.``loadMovementsPaged should return correct page size``() =
         task {
             // Arrange
@@ -93,12 +93,12 @@ type DataLoadingManagerTests() =
             let! result = BrokerMovementExtensions.Do.loadMovementsPaged (testBrokerAccountId, 0, 25)
 
             // Assert
-            Assert.That(result.Length, Is.EqualTo(25), "Should return exactly 25 movements")
+            Assert.AreEqual(25, result.Length, "Should return exactly 25 movements")
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-    [<Test>]
+    [<TestMethod>]
     member this.``loadMovementsPaged should return movements in descending order``() =
         task {
             // Arrange
@@ -108,7 +108,7 @@ type DataLoadingManagerTests() =
             let! result = BrokerMovementExtensions.Do.loadMovementsPaged (testBrokerAccountId, 0, 10)
 
             // Assert
-            Assert.That(result.Length, Is.GreaterThan(0), "Should have movements")
+            Assert.IsTrue(result.Length > 0, "Should have movements")
 
             // Debug: Print timestamps in ISO format
             CoreLogger.logDebug "DataLoadingManagerTests" $"Movements from loadMovementsPaged (count=%d{result.Length})"
@@ -135,12 +135,12 @@ type DataLoadingManagerTests() =
 
                     result)
 
-            Assert.That(isDescending, Is.True, "Movements should be in descending order")
+            Assert.IsTrue(isDescending, "Movements should be in descending order")
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-    [<Test>]
+    [<TestMethod>]
     member this.``loadMovementsPaged should handle pagination correctly``() =
         task {
             // Arrange
@@ -152,23 +152,23 @@ type DataLoadingManagerTests() =
             let! page2 = BrokerMovementExtensions.Do.loadMovementsPaged (testBrokerAccountId, 2, 10)
 
             // Assert
-            Assert.That(page0.Length, Is.EqualTo(10), "Page 0 should have 10 items")
-            Assert.That(page1.Length, Is.EqualTo(10), "Page 1 should have 10 items")
-            Assert.That(page2.Length, Is.EqualTo(10), "Page 2 should have 10 items")
+            Assert.AreEqual(10, page0.Length, "Page 0 should have 10 items")
+            Assert.AreEqual(10, page1.Length, "Page 1 should have 10 items")
+            Assert.AreEqual(10, page2.Length, "Page 2 should have 10 items")
 
             // Verify pages don't overlap
             let page0Ids = page0 |> List.map (fun m -> m.Id) |> Set.ofList
             let page1Ids = page1 |> List.map (fun m -> m.Id) |> Set.ofList
             let page2Ids = page2 |> List.map (fun m -> m.Id) |> Set.ofList
 
-            Assert.That(Set.intersect page0Ids page1Ids, Is.Empty, "Pages 0 and 1 should not overlap")
-            Assert.That(Set.intersect page1Ids page2Ids, Is.Empty, "Pages 1 and 2 should not overlap")
-            Assert.That(Set.intersect page0Ids page2Ids, Is.Empty, "Pages 0 and 2 should not overlap")
+            Assert.AreEqual(0, Set.count (Set.intersect page0Ids page1Ids), "Pages 0 and 1 should not overlap")
+            Assert.AreEqual(0, Set.count (Set.intersect page1Ids page2Ids), "Pages 1 and 2 should not overlap")
+            Assert.AreEqual(0, Set.count (Set.intersect page0Ids page2Ids), "Pages 0 and 2 should not overlap")
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-    [<Test>]
+    [<TestMethod>]
     member this.``getMovementCount should return correct count``() =
         task {
             // Arrange
@@ -178,12 +178,12 @@ type DataLoadingManagerTests() =
             let! count = BrokerMovementExtensions.Do.getMovementCount (testBrokerAccountId)
 
             // Assert
-            Assert.That(count, Is.EqualTo(42), "Should return exact count")
+            Assert.AreEqual(42, count, "Should return exact count")
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-    [<Test>]
+    [<TestMethod>]
     member this.``loadMovementListData should calculate HasMore correctly``() =
         task {
             // Arrange
@@ -193,16 +193,16 @@ type DataLoadingManagerTests() =
             let! result = DataLoadingManager.loadMovementListData testBrokerAccountId 0 10
 
             // Assert
-            Assert.That(result.TotalCount, Is.EqualTo(25))
-            Assert.That(result.CurrentPage, Is.EqualTo(0))
-            Assert.That(result.PageSize, Is.EqualTo(10))
-            Assert.That(result.HasMore, Is.True, "Should have more pages")
-            Assert.That(result.Movements.Length, Is.EqualTo(10))
+            Assert.AreEqual(25, result.TotalCount)
+            Assert.AreEqual(0, result.CurrentPage)
+            Assert.AreEqual(10, result.PageSize)
+            Assert.IsTrue(result.HasMore, "Should have more pages")
+            Assert.AreEqual(10, result.Movements.Length)
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-    [<Test>]
+    [<TestMethod>]
     member this.``loadMovementListData should indicate no more pages on last page``() =
         task {
             // Arrange
@@ -212,13 +212,13 @@ type DataLoadingManagerTests() =
             let! result = DataLoadingManager.loadMovementListData testBrokerAccountId 2 10
 
             // Assert
-            Assert.That(result.HasMore, Is.False, "Should not have more pages")
-            Assert.That(result.Movements.Length, Is.EqualTo(5), "Should have 5 remaining items")
+            Assert.IsFalse(result.HasMore, "Should not have more pages")
+            Assert.AreEqual(5, result.Movements.Length, "Should have 5 remaining items")
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-    [<Test>]
+    [<TestMethod>]
     member this.``loadMovementsInDateRange should filter by date correctly``() =
         task {
             // Arrange
@@ -265,13 +265,13 @@ type DataLoadingManagerTests() =
             let! result = BrokerMovementExtensions.Do.loadMovementsInDateRange (testBrokerAccountId, startDate, endDate)
 
             // Assert
-            Assert.That(result.Length, Is.EqualTo(1), "Should only return movement from 2 days ago")
-            Assert.That(result.[0].Notes, Is.EqualTo(Some "2 days ago"))
+            Assert.AreEqual(1, result.Length, "Should only return movement from 2 days ago")
+            Assert.AreEqual(Some "2 days ago", result.[0].Notes)
         }
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-    [<Test>]
+    [<TestMethod>]
     member this.``loadOverviewData should return data without movements``() =
         task {
             // Arrange
@@ -281,7 +281,7 @@ type DataLoadingManagerTests() =
             let! result = DataLoadingManager.loadOverviewData testBrokerAccountId
 
             // Assert
-            Assert.That(result.AccountInfo, Is.Not.Null)
+            Assert.IsNotNull(result.AccountInfo)
         // This test verifies that we're not loading movements for overview
         // The actual snapshot would need to be created separately
         }

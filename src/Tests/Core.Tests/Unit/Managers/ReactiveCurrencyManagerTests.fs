@@ -1,16 +1,16 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 open System.Reactive.Linq
 open System
 open System.Threading.Tasks
 
-[<TestFixture>]
+[<TestClass>]
 type ReactiveCurrencyManagerTests() =
 
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Set up test data using Edit instead of EditDiff
         let testCurrencies = [
@@ -26,26 +26,26 @@ type ReactiveCurrencyManagerTests() =
         // Initialize the reactive currency manager
         ReactiveCurrencyManager.initialize()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast currency lookup should return correct currency with O(1) performance``() =
         // Test fast lookup
         let usd = "USD".ToFastCurrency()
         let eur = "EUR".ToFastCurrency()
         let gbp = "GBP".ToFastCurrency()
         
-        Assert.That(usd.Code, Is.EqualTo("USD"))
-        Assert.That(usd.Title, Is.EqualTo("US Dollar"))
-        Assert.That(usd.Symbol, Is.EqualTo("$"))
+        Assert.AreEqual("USD", usd.Code)
+        Assert.AreEqual("US Dollar", usd.Title)
+        Assert.AreEqual("$", usd.Symbol)
         
-        Assert.That(eur.Code, Is.EqualTo("EUR"))
-        Assert.That(eur.Title, Is.EqualTo("Euro"))
-        Assert.That(eur.Symbol, Is.EqualTo("€"))
+        Assert.AreEqual("EUR", eur.Code)
+        Assert.AreEqual("Euro", eur.Title)
+        Assert.AreEqual("€", eur.Symbol)
         
-        Assert.That(gbp.Code, Is.EqualTo("GBP"))
-        Assert.That(gbp.Title, Is.EqualTo("British Pound"))
-        Assert.That(gbp.Symbol, Is.EqualTo("£"))
+        Assert.AreEqual("GBP", gbp.Code)
+        Assert.AreEqual("British Pound", gbp.Title)
+        Assert.AreEqual("£", gbp.Symbol)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast currency lookup should be faster than linear search``() =
         // Add more currencies to make the difference noticeable
         let additionalCurrencies = [1..100] |> List.map (fun i -> 
@@ -72,9 +72,9 @@ type ReactiveCurrencyManagerTests() =
         let linearTime = stopwatch.ElapsedMilliseconds
         
         // Fast lookup should be significantly faster or at least not slower
-        Assert.That(fastTime, Is.LessThanOrEqualTo(linearTime + 10L)) // Allow 10ms tolerance
+        Assert.IsTrue(fastTime <= linearTime + 10L) // Allow 10ms tolerance
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive currency lookup should emit currency when available``() =
         let mutable result: Currency option = None
         let mutable completed = false
@@ -90,13 +90,13 @@ type ReactiveCurrencyManagerTests() =
         // Wait a bit for the observable to emit
         System.Threading.Thread.Sleep(100)
         
-        Assert.That(result.IsSome, Is.True)
-        Assert.That(result.Value.Code, Is.EqualTo("USD"))
-        Assert.That(result.Value.Title, Is.EqualTo("US Dollar"))
+        Assert.IsTrue(result.IsSome)
+        Assert.AreEqual("USD", result.Value.Code)
+        Assert.AreEqual("US Dollar", result.Value.Title)
         
         subscription.Dispose()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive currency should update when collection changes``() =
         let results = System.Collections.Generic.List<Currency>()
         
@@ -108,16 +108,16 @@ type ReactiveCurrencyManagerTests() =
         System.Threading.Thread.Sleep(100)
         
         // Should have received the currency
-        Assert.That(results.Count, Is.GreaterThanOrEqualTo(1))
-        Assert.That(results.[0].Code, Is.EqualTo("USD"))
+        Assert.IsTrue(results.Count >= 1)
+        Assert.AreEqual("USD", results.[0].Code)
         
         subscription.Dispose()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast currency lookup should handle cache updates when currencies change``() =
         // Initial lookup
         let initialUsd = "USD".ToFastCurrency()
-        Assert.That(initialUsd.Title, Is.EqualTo("US Dollar"))
+        Assert.AreEqual("US Dollar", initialUsd.Title)
         
         // Update the currency in the collection
         let updatedUsd = { Id = 1; Title = "United States Dollar"; Code = "USD"; Symbol = "$" }
@@ -130,23 +130,23 @@ type ReactiveCurrencyManagerTests() =
         
         // Lookup should return updated currency
         let newUsd = "USD".ToFastCurrency()
-        Assert.That(newUsd.Title, Is.EqualTo("United States Dollar"))
+        Assert.AreEqual("United States Dollar", newUsd.Title)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Original tickerSnapshotToModel should work with fast currency lookup``() =
         // This test validates that the existing method still works but now uses fast lookup
         // We can't test the actual database snapshot conversion without more setup,
         // but we can verify the fast currency lookup is working
         
         let usd = "USD".ToFastCurrency()
-        Assert.That(usd.Code, Is.EqualTo("USD"))
-        Assert.That(usd.Title, Is.EqualTo("US Dollar"))
+        Assert.AreEqual("USD", usd.Code)
+        Assert.AreEqual("US Dollar", usd.Title)
         
         // Test that the extension method is available
         let fastUsd = "USD".ToFastCurrency()
-        Assert.That(fastUsd.Code, Is.EqualTo("USD"))
+        Assert.AreEqual("USD", fastUsd.Code)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Performance comparison between old and new currency lookup``() =
         // Add many currencies to test performance difference
         let manyCurrencies = [1..1000] |> List.map (fun i -> 
@@ -175,30 +175,30 @@ type ReactiveCurrencyManagerTests() =
         printfn $"Performance improvement: {float stopwatchOld.ElapsedMilliseconds / float stopwatchNew.ElapsedMilliseconds}x"
         
         // New method should be at least as fast (allowing small margin for variance)
-        Assert.That(stopwatchNew.ElapsedMilliseconds, Is.LessThanOrEqualTo(stopwatchOld.ElapsedMilliseconds + 5L))
+        Assert.IsTrue(stopwatchNew.ElapsedMilliseconds <= stopwatchOld.ElapsedMilliseconds + 5L)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast currency lookup by ID should return correct currency with O(1) performance``() =
         let usd = (1).ToFastCurrencyById()
         let eur = (2).ToFastCurrencyById()
         let gbp = (3).ToFastCurrencyById()
         
-        Assert.That(usd.Id, Is.EqualTo(1))
-        Assert.That(usd.Code, Is.EqualTo("USD"))
-        Assert.That(usd.Title, Is.EqualTo("US Dollar"))
-        Assert.That(usd.Symbol, Is.EqualTo("$"))
+        Assert.AreEqual(1, usd.Id)
+        Assert.AreEqual("USD", usd.Code)
+        Assert.AreEqual("US Dollar", usd.Title)
+        Assert.AreEqual("$", usd.Symbol)
         
-        Assert.That(eur.Id, Is.EqualTo(2))
-        Assert.That(eur.Code, Is.EqualTo("EUR"))
-        Assert.That(eur.Title, Is.EqualTo("Euro"))
-        Assert.That(eur.Symbol, Is.EqualTo("€"))
+        Assert.AreEqual(2, eur.Id)
+        Assert.AreEqual("EUR", eur.Code)
+        Assert.AreEqual("Euro", eur.Title)
+        Assert.AreEqual("€", eur.Symbol)
         
-        Assert.That(gbp.Id, Is.EqualTo(3))
-        Assert.That(gbp.Code, Is.EqualTo("GBP"))
-        Assert.That(gbp.Title, Is.EqualTo("British Pound"))
-        Assert.That(gbp.Symbol, Is.EqualTo("£"))
+        Assert.AreEqual(3, gbp.Id)
+        Assert.AreEqual("GBP", gbp.Code)
+        Assert.AreEqual("British Pound", gbp.Title)
+        Assert.AreEqual("£", gbp.Symbol)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive currency lookup by ID should emit currency when available``() =
         let mutable result: Currency option = None
         let subscription = 
@@ -207,14 +207,14 @@ type ReactiveCurrencyManagerTests() =
         
         System.Threading.Thread.Sleep(100)
         
-        Assert.That(result.IsSome, Is.True)
-        Assert.That(result.Value.Id, Is.EqualTo(1))
-        Assert.That(result.Value.Code, Is.EqualTo("USD"))
-        Assert.That(result.Value.Title, Is.EqualTo("US Dollar"))
+        Assert.IsTrue(result.IsSome)
+        Assert.AreEqual(1, result.Value.Id)
+        Assert.AreEqual("USD", result.Value.Code)
+        Assert.AreEqual("US Dollar", result.Value.Title)
         
         subscription.Dispose()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast currency lookup by ID should be faster than linear search``() =
         // Add more currencies to make the difference noticeable
         let additionalCurrencies = [1..100] |> List.map (fun i -> 
@@ -241,13 +241,13 @@ type ReactiveCurrencyManagerTests() =
         let linearTime = stopwatch.ElapsedMilliseconds
         
         // Fast lookup should be significantly faster or at least not slower
-        Assert.That(fastTime, Is.LessThanOrEqualTo(linearTime + 10L)) // Allow 10ms tolerance
+        Assert.IsTrue(fastTime <= linearTime + 10L) // Allow 10ms tolerance
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast currency lookup by ID should handle cache updates when currencies change``() =
         // Initial lookup
         let initialUsd = (1).ToFastCurrencyById()
-        Assert.That(initialUsd.Title, Is.EqualTo("US Dollar"))
+        Assert.AreEqual("US Dollar", initialUsd.Title)
         
         // Update the currency in the collection
         let updatedUsd = { Id = 1; Title = "United States Dollar"; Code = "USD"; Symbol = "$" }
@@ -260,9 +260,9 @@ type ReactiveCurrencyManagerTests() =
         
         // Lookup should return updated currency
         let newUsd = (1).ToFastCurrencyById()
-        Assert.That(newUsd.Title, Is.EqualTo("United States Dollar"))
+        Assert.AreEqual("United States Dollar", newUsd.Title)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Both cache types should stay synchronized during collection changes``() =
         // Test that both code and ID caches stay in sync
         let newCurrency = { Id = 999; Title = "Test Currency"; Code = "TEST"; Symbol = "T" }
@@ -274,12 +274,12 @@ type ReactiveCurrencyManagerTests() =
         let byCode = "TEST".ToFastCurrency()
         let byId = (999).ToFastCurrencyById()
         
-        Assert.That(byCode.Id, Is.EqualTo(byId.Id))
-        Assert.That(byCode.Code, Is.EqualTo(byId.Code))
-        Assert.That(byCode.Title, Is.EqualTo(byId.Title))
-        Assert.That(byCode.Symbol, Is.EqualTo(byId.Symbol))
+        Assert.AreEqual(byId.Id, byCode.Id)
+        Assert.AreEqual(byId.Code, byCode.Code)
+        Assert.AreEqual(byId.Title, byCode.Title)
+        Assert.AreEqual(byId.Symbol, byCode.Symbol)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Performance comparison between ID-based old and new currency lookup``() =
         // Add many currencies to test performance difference
         let manyCurrencies = [1..1000] |> List.map (fun i -> 
@@ -308,4 +308,4 @@ type ReactiveCurrencyManagerTests() =
         printfn $"ID Lookup - Performance improvement: {float stopwatchOld.ElapsedMilliseconds / float stopwatchNew.ElapsedMilliseconds}x"
         
         // New method should be at least as fast (allowing small margin for variance)
-        Assert.That(stopwatchNew.ElapsedMilliseconds, Is.LessThanOrEqualTo(stopwatchOld.ElapsedMilliseconds + 5L))
+        Assert.IsTrue(stopwatchNew.ElapsedMilliseconds <= stopwatchOld.ElapsedMilliseconds + 5L)

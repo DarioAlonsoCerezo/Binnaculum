@@ -1,16 +1,16 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.UI.SavedPrefereces
 open Microsoft.Maui.Storage
 open Microsoft.Maui.ApplicationModel
 open System
 open System.Threading.Tasks
 
-[<TestFixture>]
+[<TestClass>]
 type SavedPreferencesTests() =
     
-    [<SetUp>]
+    [<TestInitialize>]
     member _.Setup() =
         // Clean up any existing test keys
         try
@@ -18,7 +18,7 @@ type SavedPreferencesTests() =
         with
         | _ -> () // Ignore if key doesn't exist
     
-    [<TearDown>]
+    [<TestCleanup>]
     member _.TearDown() =
         // Clean up after tests
         try
@@ -26,13 +26,13 @@ type SavedPreferencesTests() =
         with
         | _ -> () // Ignore if key doesn't exist
 
-    [<Test>]
+    [<TestMethod>]
     member _.``PreferencesCollection should have PolygonApiKey property`` () =
         // Verify the new property exists in the record type
         let defaultPrefs = UserPreferences.Value
-        Assert.That(defaultPrefs.PolygonApiKey, Is.EqualTo(None), "Default PolygonApiKey should be None")
+        Assert.AreEqual(None, defaultPrefs.PolygonApiKey, "Default PolygonApiKey should be None")
 
-    [<Test>]
+    [<TestMethod>]
     member _.``LoadPolygonApiKeyAsync should update UserPreferences when no key exists`` () = 
         task {
             let initialPrefs = UserPreferences.Value
@@ -41,13 +41,13 @@ type SavedPreferencesTests() =
             do! LoadPolygonApiKeyAsync()
             
             let updatedPrefs = UserPreferences.Value
-            Assert.That(updatedPrefs.PolygonApiKey, Is.EqualTo(None), "PolygonApiKey should remain None when no key is stored")
+            Assert.AreEqual(None, updatedPrefs.PolygonApiKey, "PolygonApiKey should remain None when no key is stored")
             // Verify other preferences remain unchanged
-            Assert.That(updatedPrefs.Theme, Is.EqualTo(initialPrefs.Theme), "Theme should remain unchanged")
-            Assert.That(updatedPrefs.Language, Is.EqualTo(initialPrefs.Language), "Language should remain unchanged")
+            Assert.AreEqual(initialPrefs.Theme, updatedPrefs.Theme, "Theme should remain unchanged")
+            Assert.AreEqual(initialPrefs.Language, updatedPrefs.Language, "Language should remain unchanged")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member _.``ChangePolygonApiKey should save and update UserPreferences with Some value`` () =
         task {
             let testApiKey = "test-api-key-12345"
@@ -57,14 +57,14 @@ type SavedPreferencesTests() =
             
             // Verify UserPreferences is updated
             let updatedPrefs = UserPreferences.Value
-            Assert.That(updatedPrefs.PolygonApiKey, Is.EqualTo(Some testApiKey), "PolygonApiKey should be updated in UserPreferences")
+            Assert.AreEqual(Some testApiKey, updatedPrefs.PolygonApiKey, "PolygonApiKey should be updated in UserPreferences")
             
             // Verify it's saved to SecureStorage
             let! storedValue = SecureStorage.GetAsync(Binnaculum.Core.Keys.PolygonApiKeyKey)
-            Assert.That(storedValue, Is.EqualTo(testApiKey), "API key should be saved to SecureStorage")
+            Assert.AreEqual(testApiKey, storedValue, "API key should be saved to SecureStorage")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member _.``ChangePolygonApiKey should remove key and update UserPreferences with None`` () =
         task {
             let testApiKey = "test-api-key-to-remove"
@@ -77,14 +77,14 @@ type SavedPreferencesTests() =
             
             // Verify UserPreferences is updated
             let updatedPrefs = UserPreferences.Value
-            Assert.That(updatedPrefs.PolygonApiKey, Is.EqualTo(None), "PolygonApiKey should be None in UserPreferences")
+            Assert.AreEqual(None, updatedPrefs.PolygonApiKey, "PolygonApiKey should be None in UserPreferences")
             
             // Verify it's removed from SecureStorage
             let! storedValue = SecureStorage.GetAsync(Binnaculum.Core.Keys.PolygonApiKeyKey)
-            Assert.That(String.IsNullOrEmpty(storedValue), Is.True, "API key should be removed from SecureStorage")
+            Assert.IsTrue(String.IsNullOrEmpty(storedValue), "API key should be removed from SecureStorage")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member _.``LoadPolygonApiKeyAsync should load existing key from SecureStorage`` () =
         task {
             let testApiKey = "existing-api-key-xyz"
@@ -97,10 +97,10 @@ type SavedPreferencesTests() =
             
             // Verify UserPreferences is updated
             let updatedPrefs = UserPreferences.Value
-            Assert.That(updatedPrefs.PolygonApiKey, Is.EqualTo(Some testApiKey), "PolygonApiKey should be loaded from SecureStorage")
+            Assert.AreEqual(Some testApiKey, updatedPrefs.PolygonApiKey, "PolygonApiKey should be loaded from SecureStorage")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member _.``ChangePolygonApiKey should handle empty string as None`` () =
         task {
             // Change to empty string
@@ -108,10 +108,10 @@ type SavedPreferencesTests() =
             
             // Verify UserPreferences shows empty string
             let updatedPrefs = UserPreferences.Value
-            Assert.That(updatedPrefs.PolygonApiKey, Is.EqualTo(Some ""), "Empty string should be preserved in UserPreferences")
+            Assert.AreEqual(Some "", updatedPrefs.PolygonApiKey, "Empty string should be preserved in UserPreferences")
         }
 
-    [<Test>]
+    [<TestMethod>]
     member _.``Preferences integration should maintain backward compatibility`` () =
         // Verify all existing preference functions still work
         let originalTheme = UserPreferences.Value.Theme
@@ -120,18 +120,18 @@ type SavedPreferencesTests() =
         
         // Test theme change
         ChangeAppTheme(AppTheme.Dark)
-        Assert.That(UserPreferences.Value.Theme, Is.EqualTo(AppTheme.Dark), "Theme change should work")
+        Assert.AreEqual(AppTheme.Dark, UserPreferences.Value.Theme, "Theme change should work")
         
         // Test language change  
         ChangeLanguage("es")
-        Assert.That(UserPreferences.Value.Language, Is.EqualTo("es"), "Language change should work")
+        Assert.AreEqual("es", UserPreferences.Value.Language, "Language change should work")
         
         // Test currency change
         ChangeCurrency("EUR")
-        Assert.That(UserPreferences.Value.Currency, Is.EqualTo("EUR"), "Currency change should work")
+        Assert.AreEqual("EUR", UserPreferences.Value.Currency, "Currency change should work")
         
         // Verify PolygonApiKey is still None (not affected by other changes)
-        Assert.That(UserPreferences.Value.PolygonApiKey, Is.EqualTo(None), "PolygonApiKey should remain None")
+        Assert.AreEqual(None, UserPreferences.Value.PolygonApiKey, "PolygonApiKey should remain None")
         
         // Restore original values
         ChangeAppTheme(originalTheme)

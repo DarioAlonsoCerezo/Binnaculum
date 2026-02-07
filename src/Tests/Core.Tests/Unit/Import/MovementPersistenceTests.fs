@@ -1,6 +1,6 @@
 namespace Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open Binnaculum.Core.Import
 open Binnaculum.Core.Import.ImportDomainTypes
@@ -11,10 +11,10 @@ open Binnaculum.Core.Patterns
 /// Tests for MovementPersistence module's conversion logic.
 /// Tests the bridge function that converts old PersistenceInput to new ImportMovementBatch.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type MovementPersistenceTests() =
     
-    [<Test>]
+    [<TestMethod>]
     member _.``convertPersistenceInputToBatch should correctly convert old format``() =
         // Arrange
         let stockTrade = {
@@ -64,18 +64,18 @@ type MovementPersistenceTests() =
         let batch = MovementPersistence.convertPersistenceInputToBatch persistenceInput 1 SupportedBroker.Tastytrade
         
         // Assert
-        Assert.That(batch.Movements.Length, Is.EqualTo(2), "Should convert 2 movements")
-        Assert.That(batch.BrokerAccountId, Is.EqualTo(1), "Should preserve broker account ID")
-        Assert.That(batch.SourceBroker, Is.EqualTo(SupportedBroker.Tastytrade), "Should preserve source broker")
+        Assert.AreEqual(2, batch.Movements.Length, "Should convert 2 movements")
+        Assert.AreEqual(1, batch.BrokerAccountId, "Should preserve broker account ID")
+        Assert.AreEqual(SupportedBroker.Tastytrade, batch.SourceBroker, "Should preserve source broker")
         
         // Check that movements are correctly typed
         let stockTradeMovements = batch.Movements |> List.filter (function | StockTradeMovement _ -> true | _ -> false)
         let brokerMovements = batch.Movements |> List.filter (function | BrokerMovement _ -> true | _ -> false)
         
-        Assert.That(stockTradeMovements.Length, Is.EqualTo(1), "Should have 1 stock trade movement")
-        Assert.That(brokerMovements.Length, Is.EqualTo(1), "Should have 1 broker movement")
+        Assert.AreEqual(1, stockTradeMovements.Length, "Should have 1 stock trade movement")
+        Assert.AreEqual(1, brokerMovements.Length, "Should have 1 broker movement")
     
-    [<Test>]
+    [<TestMethod>]
     member _.``convertPersistenceInputToBatch should preserve metadata fields``() =
         // Arrange
         let optionTrade = {
@@ -122,17 +122,17 @@ type MovementPersistenceTests() =
         let batch = MovementPersistence.convertPersistenceInputToBatch persistenceInput 5 SupportedBroker.IBKR
         
         // Assert
-        Assert.That(batch.Movements.Length, Is.EqualTo(2), "Should convert 2 movements")
-        Assert.That(batch.BrokerAccountId, Is.EqualTo(5), "Should use provided broker account ID")
-        Assert.That(batch.SourceBroker, Is.EqualTo(SupportedBroker.IBKR), "Should use provided source broker")
-        Assert.That(batch.Metadata.TotalMovementsImported, Is.EqualTo(2), "Should track total movements")
-        Assert.That(batch.Metadata.OldestMovementDate.IsSome, Is.True, "Should have oldest movement date")
+        Assert.AreEqual(2, batch.Movements.Length, "Should convert 2 movements")
+        Assert.AreEqual(5, batch.BrokerAccountId, "Should use provided broker account ID")
+        Assert.AreEqual(SupportedBroker.IBKR, batch.SourceBroker, "Should use provided source broker")
+        Assert.AreEqual(2, batch.Metadata.TotalMovementsImported, "Should track total movements")
+        Assert.IsTrue(batch.Metadata.OldestMovementDate.IsSome, "Should have oldest movement date")
         
         // The oldest date should be the dividend (Jan 10) not the option trade (Jan 15)
         let expectedOldest = DateTime(2024, 1, 10)
-        Assert.That(batch.Metadata.OldestMovementDate.Value.Date, Is.EqualTo(expectedOldest.Date), "Should correctly identify oldest movement date")
+        Assert.AreEqual(expectedOldest.Date, batch.Metadata.OldestMovementDate.Value.Date, "Should correctly identify oldest movement date")
     
-    [<Test>]
+    [<TestMethod>]
     member _.``convertPersistenceInputToBatch should handle empty input correctly``() =
         // Arrange
         let emptyInput = {
@@ -148,11 +148,11 @@ type MovementPersistenceTests() =
         let batch = MovementPersistence.convertPersistenceInputToBatch emptyInput 1 SupportedBroker.Tastytrade
         
         // Assert
-        Assert.That(batch.Movements.Length, Is.EqualTo(0), "Should have no movements")
-        Assert.That(batch.Metadata.TotalMovementsImported, Is.EqualTo(0), "Should report zero movements")
-        Assert.That(batch.Metadata.OldestMovementDate.IsNone, Is.True, "Should have no oldest movement date for empty input")
+        Assert.AreEqual(0, batch.Movements.Length, "Should have no movements")
+        Assert.AreEqual(0, batch.Metadata.TotalMovementsImported, "Should report zero movements")
+        Assert.IsTrue(batch.Metadata.OldestMovementDate.IsNone, "Should have no oldest movement date for empty input")
     
-    [<Test>]
+    [<TestMethod>]
     member _.``convertPersistenceInputToBatch should handle all movement types``() =
         // Arrange
         let stockTrade = {
@@ -243,7 +243,7 @@ type MovementPersistenceTests() =
         let batch = MovementPersistence.convertPersistenceInputToBatch persistenceInput 1 SupportedBroker.Tastytrade
         
         // Assert
-        Assert.That(batch.Movements.Length, Is.EqualTo(5), "Should convert all 5 movement types")
+        Assert.AreEqual(5, batch.Movements.Length, "Should convert all 5 movement types")
         
         // Count each type
         let stockCount = batch.Movements |> List.filter (function | StockTradeMovement _ -> true | _ -> false) |> List.length
@@ -252,8 +252,8 @@ type MovementPersistenceTests() =
         let taxCount = batch.Movements |> List.filter (function | DividendTaxMovement _ -> true | _ -> false) |> List.length
         let brokerCount = batch.Movements |> List.filter (function | BrokerMovement _ -> true | _ -> false) |> List.length
         
-        Assert.That(stockCount, Is.EqualTo(1), "Should have 1 stock trade")
-        Assert.That(optionCount, Is.EqualTo(1), "Should have 1 option trade")
-        Assert.That(dividendCount, Is.EqualTo(1), "Should have 1 dividend")
-        Assert.That(taxCount, Is.EqualTo(1), "Should have 1 dividend tax")
-        Assert.That(brokerCount, Is.EqualTo(1), "Should have 1 broker movement")
+        Assert.AreEqual(1, stockCount, "Should have 1 stock trade")
+        Assert.AreEqual(1, optionCount, "Should have 1 option trade")
+        Assert.AreEqual(1, dividendCount, "Should have 1 dividend")
+        Assert.AreEqual(1, taxCount, "Should have 1 dividend tax")
+        Assert.AreEqual(1, brokerCount, "Should have 1 broker movement")

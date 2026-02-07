@@ -1,12 +1,12 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open System.Diagnostics
 open Binnaculum.Core.UI
 open Binnaculum.Core.Models
 
-[<TestFixture>]
+[<TestClass>]
 type ReactiveBankAccountManagerTests() =
 
     let createSampleBank(id: int, name: string) = 
@@ -42,7 +42,7 @@ type ReactiveBankAccountManagerTests() =
             HasMovements = false
         }
 
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Clear and populate collections
         Collections.Accounts.Edit(fun list -> list.Clear())
@@ -77,36 +77,36 @@ type ReactiveBankAccountManagerTests() =
         // Initialize the reactive manager
         ReactiveBankAccountManager.initialize()
 
-    [<TearDown>]
+    [<TestCleanup>]
     member this.TearDown() =
         ReactiveBankAccountManager.dispose()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``ReactiveBankAccountManager should initialize successfully``() =
         // Test passes if no exceptions are thrown during setup
-        Assert.Pass("ReactiveBankAccountManager initialized successfully")
+        Assert.IsTrue(true, "ReactiveBankAccountManager initialized successfully") // Test passed
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast lookup should return correct bank account by ID``() =
         let bankAccount = ReactiveBankAccountManager.getBankAccountByIdFast(1)
         
-        Assert.That(bankAccount.Id, Is.EqualTo(1))
-        Assert.That(bankAccount.Name, Is.EqualTo("Checking"))
-        Assert.That(bankAccount.Bank.Name, Is.EqualTo("Bank of America"))
-        Assert.That(bankAccount.Currency.Code, Is.EqualTo("USD"))
+        Assert.AreEqual(1, bankAccount.Id)
+        Assert.AreEqual("Checking", bankAccount.Name)
+        Assert.AreEqual("Bank of America", bankAccount.Bank.Name)
+        Assert.AreEqual("USD", bankAccount.Currency.Code)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Fast lookup should work for multiple bank accounts``() =
         let bankAccount1 = ReactiveBankAccountManager.getBankAccountByIdFast(1)
         let bankAccount2 = ReactiveBankAccountManager.getBankAccountByIdFast(2)
         let bankAccount3 = ReactiveBankAccountManager.getBankAccountByIdFast(3)
         
-        Assert.That(bankAccount1.Name, Is.EqualTo("Checking"))
-        Assert.That(bankAccount2.Name, Is.EqualTo("Savings"))
-        Assert.That(bankAccount3.Name, Is.EqualTo("EUR Account"))
-        Assert.That(bankAccount3.Currency.Code, Is.EqualTo("EUR"))
+        Assert.AreEqual("Checking", bankAccount1.Name)
+        Assert.AreEqual("Savings", bankAccount2.Name)
+        Assert.AreEqual("EUR Account", bankAccount3.Name)
+        Assert.AreEqual("EUR", bankAccount3.Currency.Code)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive observable should emit bank account``() =
         let observable = ReactiveBankAccountManager.getBankAccountByIdReactive(1)
         
@@ -120,11 +120,11 @@ type ReactiveBankAccountManagerTests() =
         // Wait briefly for observable to emit
         System.Threading.Thread.Sleep(10)
         
-        Assert.That(testCompleted, Is.True)
-        Assert.That(resultBankAccount.Name, Is.EqualTo("Checking"))
-        Assert.That(resultBankAccount.Id, Is.EqualTo(1))
+        Assert.IsTrue(testCompleted)
+        Assert.AreEqual("Checking", resultBankAccount.Name)
+        Assert.AreEqual(1, resultBankAccount.Id)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Reactive cache should update when bank account is added``() =
         // Add a new bank account
         let newBank = createSampleBank(4, "New Bank")
@@ -141,16 +141,16 @@ type ReactiveBankAccountManagerTests() =
         
         // The reactive cache should include the new bank account
         let retrievedBankAccount = ReactiveBankAccountManager.getBankAccountByIdFast(4)
-        Assert.That(retrievedBankAccount.Name, Is.EqualTo("New Account"))
-        Assert.That(retrievedBankAccount.Bank.Name, Is.EqualTo("New Bank"))
+        Assert.AreEqual("New Account", retrievedBankAccount.Name)
+        Assert.AreEqual("New Bank", retrievedBankAccount.Bank.Name)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Extension methods should work correctly``() =
         // Test ToFastBankAccountById extension method
         let bankAccountId = 1
         let bankAccount = bankAccountId.ToFastBankAccountById()
-        Assert.That(bankAccount.Id, Is.EqualTo(1))
-        Assert.That(bankAccount.Name, Is.EqualTo("Checking"))
+        Assert.AreEqual(1, bankAccount.Id)
+        Assert.AreEqual("Checking", bankAccount.Name)
         
         // Test ToReactiveBankAccount extension method
         let bankAccountId2 = 2
@@ -160,10 +160,10 @@ type ReactiveBankAccountManagerTests() =
         observable.Subscribe(fun ba -> resultBankAccount <- ba) |> ignore
         System.Threading.Thread.Sleep(10)
         
-        Assert.That(resultBankAccount.Id, Is.EqualTo(2))
-        Assert.That(resultBankAccount.Name, Is.EqualTo("Savings"))
+        Assert.AreEqual(2, resultBankAccount.Id)
+        Assert.AreEqual("Savings", resultBankAccount.Name)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Performance comparison should show improvement over linear search``() =
         // Create larger dataset for performance testing
         let largeBanksList = [
@@ -237,7 +237,7 @@ type ReactiveBankAccountManagerTests() =
         printfn "========================================"
         
         // Fast lookup should be at least as fast as linear search (allowing some tolerance for variance)
-        Assert.That(fastTime, Is.LessThanOrEqualTo(linearTime + 10L))
+        Assert.IsTrue(fastTime <= linearTime + 10L)
         
         // Restore original test data to avoid affecting other tests
         Collections.Banks.Edit(fun list ->
@@ -271,16 +271,16 @@ type ReactiveBankAccountManagerTests() =
         ReactiveBankAccountManager.dispose()
         ReactiveBankAccountManager.initialize()
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Backward compatibility - Collections approach should still work``() =
         // Test that bank account lookup still works via existing direct access patterns
         let account = Collections.Accounts.Items |> Seq.find(fun a -> a.Bank.IsSome && a.Bank.Value.Id = 1)
         let bankAccount = account.Bank.Value
         
-        Assert.That(bankAccount.Id, Is.EqualTo(1))
-        Assert.That(bankAccount.Name, Is.EqualTo("Checking"))
+        Assert.AreEqual(1, bankAccount.Id)
+        Assert.AreEqual("Checking", bankAccount.Name)
         
         // Compare with reactive manager result
         let reactiveBankAccount = ReactiveBankAccountManager.getBankAccountByIdFast(1)
-        Assert.That(reactiveBankAccount.Id, Is.EqualTo(bankAccount.Id))
-        Assert.That(reactiveBankAccount.Name, Is.EqualTo(bankAccount.Name))
+        Assert.AreEqual(bankAccount.Id, reactiveBankAccount.Id)
+        Assert.AreEqual(bankAccount.Name, reactiveBankAccount.Name)

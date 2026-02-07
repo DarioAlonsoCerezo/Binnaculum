@@ -1,6 +1,6 @@
 namespace Core.Tests.Unit.Managers
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Database
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Tests
@@ -13,17 +13,17 @@ open System
 /// Unit tests for ReactiveMovementManager bounded loading.
 /// Tests verify max 50 movements per account and collection behavior.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type ReactiveMovementManagerTests() =
     inherit InMemoryDatabaseFixture()
     
-    [<SetUp>]
+    [<TestInitialize>]
     member this.Setup() =
         // Clear Collections before each test
         Collections.Accounts.Clear()
         Collections.Movements.Clear()
     
-    [<Test>]
+    [<TestMethod>]
     member this.``refreshAsync handles empty accounts without error``() =
         task {
             // Arrange - create account with no movements
@@ -58,10 +58,10 @@ type ReactiveMovementManagerTests() =
             
             // Assert
             let movementsCount = Collections.Movements.Count
-            Assert.That(movementsCount, Is.EqualTo(0), "Should handle empty accounts without error")
+            Assert.AreEqual(0, movementsCount, "Should handle empty accounts without error")
         }
     
-    [<Test>]
+    [<TestMethod>]
     member this.``refreshAsync loads bounded number of movements per account``() =
         task {
             // Arrange
@@ -121,13 +121,11 @@ type ReactiveMovementManagerTests() =
             
             // Assert
             let movementsCount = Collections.Movements.Count
-            Assert.That(movementsCount, Is.LessThanOrEqualTo(50), 
-                "Should load max 50 movements per account")
-            Assert.That(movementsCount, Is.GreaterThan(0), 
-                "Should load some movements")
+            Assert.IsTrue(movementsCount <= 50, "Should load max 50 movements per account")
+            Assert.IsTrue(movementsCount > 0, "Should load some movements")
         }
     
-    [<Test>]
+    [<TestMethod>]
     member this.``refreshAsync loads movements for multiple accounts``() =
         task {
             // Arrange
@@ -222,11 +220,8 @@ type ReactiveMovementManagerTests() =
             
             // Assert
             let movementsCount = Collections.Movements.Count
-            Assert.That(movementsCount, Is.GreaterThan(0), 
-                "Should load movements from both accounts")
-            Assert.That(movementsCount, Is.LessThanOrEqualTo(100), 
-                "Should load max 50 movements per account (2 accounts = max 100)")
+            Assert.IsTrue(movementsCount > 0, "Should load movements from both accounts")
+            Assert.IsTrue(movementsCount <= 100, "Should load max 50 movements per account (2 accounts = max 100)")
             // With only 30 movements per account, we should get all 60
-            Assert.That(movementsCount, Is.EqualTo(60), 
-                "Should load all 60 movements when under the 50 per account limit")
+            Assert.AreEqual(60, movementsCount, "Should load all 60 movements when under the 50 per account limit")
         }

@@ -1,13 +1,13 @@
 namespace Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open Binnaculum.Core.Import
 open Binnaculum.Core.Import.ImportDomainTypes
 open Binnaculum.Core.Database.DatabaseModel
 open Binnaculum.Core.Patterns
 
-[<TestFixture>]
+[<TestClass>]
 type MovementValidatorTests() =
     
     /// <summary>
@@ -83,7 +83,7 @@ type MovementValidatorTests() =
           Quantity = None
           Audit = AuditableEntity.FromDateTime(DateTime.UtcNow) }
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Valid stock trade should pass validation``() =
         // Arrange
         let trade = createValidTrade()
@@ -100,10 +100,10 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(1))
-        Assert.That(result.Invalid.Length, Is.EqualTo(0))
+        Assert.AreEqual(1, result.Valid.Length)
+        Assert.AreEqual(0, result.Invalid.Length)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Stock trade with negative quantity should fail validation``() =
         // Arrange
         let trade = { createValidTrade() with Quantity = -10m }
@@ -120,12 +120,12 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(0))
-        Assert.That(result.Invalid.Length, Is.EqualTo(1))
+        Assert.AreEqual(0, result.Valid.Length)
+        Assert.AreEqual(1, result.Invalid.Length)
         let (_, errorMsg) = result.Invalid.[0]
-        Assert.That(errorMsg, Does.Contain("quantity must be positive"))
+        StringAssert.Contains(errorMsg, "quantity must be positive")
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Stock trade with negative price should fail validation``() =
         // Arrange
         let trade = { createValidTrade() with Price = Money.FromAmount(-100m) }
@@ -142,12 +142,12 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(0))
-        Assert.That(result.Invalid.Length, Is.EqualTo(1))
+        Assert.AreEqual(0, result.Valid.Length)
+        Assert.AreEqual(1, result.Invalid.Length)
         let (_, errorMsg) = result.Invalid.[0]
-        Assert.That(errorMsg, Does.Contain("price cannot be negative"))
+        StringAssert.Contains(errorMsg, "price cannot be negative")
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Valid option trade should pass validation``() =
         // Arrange
         let option = createValidOptionTrade()
@@ -164,10 +164,10 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(1))
-        Assert.That(result.Invalid.Length, Is.EqualTo(0))
+        Assert.AreEqual(1, result.Valid.Length)
+        Assert.AreEqual(0, result.Invalid.Length)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Option trade with negative strike should fail validation``() =
         // Arrange
         let option = { createValidOptionTrade() with Strike = Money.FromAmount(-100m) }
@@ -184,12 +184,12 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(0))
-        Assert.That(result.Invalid.Length, Is.EqualTo(1))
+        Assert.AreEqual(0, result.Valid.Length)
+        Assert.AreEqual(1, result.Invalid.Length)
         let (_, errorMsg) = result.Invalid.[0]
-        Assert.That(errorMsg, Does.Contain("strike cannot be negative"))
+        StringAssert.Contains(errorMsg, "strike cannot be negative")
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Valid dividend should pass validation``() =
         // Arrange
         let dividend = createValidDividend()
@@ -206,10 +206,10 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(1))
-        Assert.That(result.Invalid.Length, Is.EqualTo(0))
+        Assert.AreEqual(1, result.Valid.Length)
+        Assert.AreEqual(0, result.Invalid.Length)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Dividend with zero amount should fail validation``() =
         // Arrange
         let dividend = { createValidDividend() with DividendAmount = Money.FromAmount(0m) }
@@ -226,12 +226,12 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(0))
-        Assert.That(result.Invalid.Length, Is.EqualTo(1))
+        Assert.AreEqual(0, result.Valid.Length)
+        Assert.AreEqual(1, result.Invalid.Length)
         let (_, errorMsg) = result.Invalid.[0]
-        Assert.That(errorMsg, Does.Contain("amount must be positive"))
+        StringAssert.Contains(errorMsg, "amount must be positive")
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Valid broker movement should pass validation``() =
         // Arrange
         let brokerMovement = createValidBrokerMovement()
@@ -248,10 +248,10 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(1))
-        Assert.That(result.Invalid.Length, Is.EqualTo(0))
+        Assert.AreEqual(1, result.Valid.Length)
+        Assert.AreEqual(0, result.Invalid.Length)
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Broker movement with negative amount should fail validation``() =
         // Arrange
         let brokerMovement = { createValidBrokerMovement() with Amount = Money.FromAmount(-1000m) }
@@ -268,12 +268,12 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(0))
-        Assert.That(result.Invalid.Length, Is.EqualTo(1))
+        Assert.AreEqual(0, result.Valid.Length)
+        Assert.AreEqual(1, result.Invalid.Length)
         let (_, errorMsg) = result.Invalid.[0]
-        Assert.That(errorMsg, Does.Contain("amount cannot be negative"))
+        StringAssert.Contains(errorMsg, "amount cannot be negative")
     
-    [<Test>]
+    [<TestMethod>]
     member _.``Batch with mixed valid and invalid movements should separate them correctly``() =
         // Arrange
         let validTrade = createValidTrade()
@@ -298,5 +298,5 @@ type MovementValidatorTests() =
         let result = MovementValidator.validateBatch batch
         
         // Assert
-        Assert.That(result.Valid.Length, Is.EqualTo(2))
-        Assert.That(result.Invalid.Length, Is.EqualTo(2))
+        Assert.AreEqual(2, result.Valid.Length)
+        Assert.AreEqual(2, result.Invalid.Length)

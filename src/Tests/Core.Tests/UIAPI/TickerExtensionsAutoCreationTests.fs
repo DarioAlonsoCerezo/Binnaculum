@@ -1,14 +1,14 @@
 namespace Core.Tests
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Database.DatabaseModel
 open TickerExtensions
 open System.Threading.Tasks
 
-[<TestFixture>]
+[<TestClass>]
 type TickerExtensionsAutoCreationTests() =
 
-    [<Test>]
+    [<TestMethod>]
     member this.``getBySymbol method exists and has correct signature``() =
         // Test that the method signature is correct - this is the main validation
         // We validate that the return type changed from Task<Ticker option> to Task<Ticker>
@@ -18,10 +18,10 @@ type TickerExtensionsAutoCreationTests() =
         
         // The method should return a Task<Ticker>
         let task = methodCall()
-        Assert.That(task, Is.Not.Null)
-        Assert.That(task, Is.InstanceOf<Task<Ticker>>())
+        Assert.IsNotNull(task)
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<Ticker>>)
 
-    [<Test>]  
+    [<TestMethod>]  
     member this.``Integration with Creator module pattern compiles``() =
         // Test that Creator.fs changes work with the new signature
         // This is a compilation test to ensure our changes are compatible
@@ -37,10 +37,10 @@ type TickerExtensionsAutoCreationTests() =
         }
         
         let task = testUsage("AAPL")
-        Assert.That(task, Is.Not.Null)
-        Assert.That(task, Is.InstanceOf<Task<string>>())
+        Assert.IsNotNull(task)
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<string>>)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``Method signature shows Task<Ticker> not Task<Ticker option>``() =
         // Validate through type checking that we changed the signature correctly
         let taskType = typeof<Task<Ticker>>
@@ -51,9 +51,9 @@ type TickerExtensionsAutoCreationTests() =
         
         // The result should be assignable to Task<Ticker>
         // Note: F# task expressions return AsyncStateMachineBox which implements Task<T>
-        Assert.That(result, Is.InstanceOf<Task<Ticker>>())
+        Assert.IsInstanceOfType(result, typeof<System.Threading.Tasks.Task<Ticker>>)
 
-    [<Test>]
+    [<TestMethod>]
     member this.``No option unwrapping needed in new implementation``() =
         // Test that we can use the result directly without option pattern matching
         // This validates the key change: no more Some/None handling
@@ -65,5 +65,5 @@ type TickerExtensionsAutoCreationTests() =
         }
         
         let task = directUsage("DIRECT")
-        Assert.That(task, Is.Not.Null)
-        Assert.That(task, Is.InstanceOf<Task<string>>())
+        Assert.IsNotNull(task)
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<string>>)

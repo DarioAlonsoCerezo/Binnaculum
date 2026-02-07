@@ -1,6 +1,6 @@
 namespace Core.Tests.Integration
 
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open System
 open System.IO
 open Binnaculum.Core.Models
@@ -19,7 +19,7 @@ open TestModels
 /// See README.md for pattern documentation and more examples.
 /// See PATTERN_GUIDE.fs for detailed implementation guide.
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type FutureOptionsImportTests() =
     inherit TestFixtureBase()
 
@@ -65,8 +65,8 @@ type FutureOptionsImportTests() =
     /// - 3 tickers: /MESU5, /MESZ5, /MESH6 (+ SPY default)
     /// - Operations and broker snapshots to be determined by exploratory run
     /// </summary>
-    [<Test>]
-    [<Category("Integration")>]
+    [<TestMethod>]
+    [<TestCategory("Integration")>]
     member this.``Future Options multi-strategy import CSV workflow with signal validation``() =
         async {
             CoreLogger.logInfo
@@ -80,12 +80,12 @@ type FutureOptionsImportTests() =
 
             // Wipe all data for clean slate
             let! (ok, _, error) = actions.wipeDataForTesting ()
-            Assert.That(ok, Is.True, sprintf "Wipe should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Wipe should succeed: %A" error)
             CoreLogger.logInfo "Verification" "✅ Data wiped successfully"
 
             // Initialize database (includes schema init and data loading)
             let! (ok, _, error) = actions.initDatabase ()
-            Assert.That(ok, Is.True, sprintf "Database initialization should succeed: %A" error)
+            Assert.IsTrue(ok, sprintf "Database initialization should succeed: %A" error)
             CoreLogger.logInfo "Verification" "✅ Database initialized successfully"
 
             // ==================== PHASE 2: CREATE BROKER ACCOUNT ====================
@@ -101,13 +101,13 @@ type FutureOptionsImportTests() =
 
             // EXECUTE: Create account
             let! (ok, details, error) = actions.createBrokerAccount ("FutureOptions-Import-Test")
-            Assert.That(ok, Is.True, sprintf "Account creation should succeed: %s - %A" details error)
+            Assert.IsTrue(ok, sprintf "Account creation should succeed: %s - %A" details error)
             CoreLogger.logInfo "Verification" (sprintf "✅ BrokerAccount created: %s" details)
 
             // WAIT: Wait for signals (NOT Thread.Sleep!)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for account creation reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(10.0))
-            Assert.That(signalsReceived, Is.True, "Account creation signals should have been received")
+            Assert.IsTrue(signalsReceived, "Account creation signals should have been received")
             CoreLogger.logInfo "Verification" "✅ Account creation signals received successfully"
 
             // ==================== PHASE 3: IMPORT FUTURE OPTIONS CSV ====================
@@ -116,7 +116,7 @@ type FutureOptionsImportTests() =
             // Get CSV path
             let csvPath = this.getCsvPath ("FutureOptions.csv")
             CoreLogger.logDebug "Import" (sprintf "📄 CSV file path: %s" csvPath)
-            Assert.That(File.Exists(csvPath), Is.True, sprintf "CSV file should exist: %s" csvPath)
+            Assert.IsTrue(File.Exists(csvPath), sprintf "CSV file should exist: %s" csvPath)
 
             // EXPECT: Declare expected signals BEFORE import operation
             StreamObserver.expectSignals (
@@ -138,13 +138,13 @@ type FutureOptionsImportTests() =
                 (sprintf "🔧 Import parameters: Tastytrade ID=%d, Account ID=%d" tastytradeId accountId)
 
             let! (ok, importDetails, error) = actions.importFile (tastytradeId, accountId, csvPath)
-            Assert.That(ok, Is.True, sprintf "Import should succeed: %s - %A" importDetails error)
+            Assert.IsTrue(ok, sprintf "Import should succeed: %s - %A" importDetails error)
             CoreLogger.logInfo "Verification" (sprintf "✅ CSV import completed: %s" importDetails)
 
             // WAIT: Wait for import signals (longer timeout for import processing)
             CoreLogger.logInfo "TestActions" "⏳ Waiting for import reactive signals..."
             let! signalsReceived = StreamObserver.waitForAllSignalsAsync (TimeSpan.FromSeconds(15.0))
-            Assert.That(signalsReceived, Is.True, "Import signals should have been received")
+            Assert.IsTrue(signalsReceived, "Import signals should have been received")
             CoreLogger.logInfo "Verification" "✅ Import signals received successfully"
 
             // ==================== PHASE 4: VERIFY TICKERS EXIST ====================
@@ -158,19 +158,19 @@ type FutureOptionsImportTests() =
             // Verify /MESU5 ticker exists
             let mesu5Ticker = allTickers |> List.tryFind (fun t -> t.Symbol = "/MESU5")
 
-            Assert.That(mesu5Ticker.IsSome, Is.True, "/MESU5 ticker should exist in Collections")
+            Assert.IsTrue(mesu5Ticker.IsSome, "/MESU5 ticker should exist in Collections")
             CoreLogger.logInfo "Verification" (sprintf "✅ /MESU5 Ticker ID: %d" mesu5Ticker.Value.Id)
 
             // Verify /MESZ5 ticker exists
             let mesz5Ticker = allTickers |> List.tryFind (fun t -> t.Symbol = "/MESZ5")
 
-            Assert.That(mesz5Ticker.IsSome, Is.True, "/MESZ5 ticker should exist in Collections")
+            Assert.IsTrue(mesz5Ticker.IsSome, "/MESZ5 ticker should exist in Collections")
             CoreLogger.logInfo "Verification" (sprintf "✅ /MESZ5 Ticker ID: %d" mesz5Ticker.Value.Id)
 
             // Verify /MESH6 ticker exists
             let mesh6Ticker = allTickers |> List.tryFind (fun t -> t.Symbol = "/MESH6")
 
-            Assert.That(mesh6Ticker.IsSome, Is.True, "/MESH6 ticker should exist in Collections")
+            Assert.IsTrue(mesh6Ticker.IsSome, "/MESH6 ticker should exist in Collections")
             CoreLogger.logInfo "Verification" (sprintf "✅ /MESH6 Ticker ID: %d" mesh6Ticker.Value.Id)
 
             // ==================== SHARED: GET BROKER AND ACCOUNT ====================
@@ -378,4 +378,4 @@ type FutureOptionsImportTests() =
                     totalValidations)
 
             CoreLogger.logInfo "Test" "=== TEST COMPLETED SUCCESSFULLY ==="
-        }
+        } |> Async.StartAsTask :> System.Threading.Tasks.Task

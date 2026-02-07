@@ -1,97 +1,97 @@
 namespace Tests
 
 open System
-open NUnit.Framework
+open Microsoft.VisualStudio.TestTools.UnitTesting
 open Binnaculum.Core.Import
 
 /// <summary>
 /// Tests for ImportStatus to CurrentImportStatus conversion
 /// Ensures C#-friendly types correctly represent F# discriminated union states
 /// </summary>
-[<TestFixture>]
+[<TestClass>]
 type ImportStatusConversionTests() =
 
     /// <summary>
     /// Test conversion of NotStarted state
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``CurrentImportStatus.fromImportStatus converts NotStarted correctly``() =
         let status = ImportStatus.NotStarted
         let converted = CurrentImportStatus.fromImportStatus status
 
-        Assert.That(converted.State, Is.EqualTo(ImportStateEnum.NotStarted))
-        Assert.That(converted.FilePath, Is.EqualTo(None))
-        Assert.That(converted.FileName, Is.EqualTo(None))
-        Assert.That(converted.Progress, Is.EqualTo(None))
-        Assert.That(converted.RecordsProcessed, Is.EqualTo(None))
-        Assert.That(converted.TotalRecords, Is.EqualTo(None))
-        Assert.That(converted.Message, Is.EqualTo(None))
-        Assert.That(converted.Result, Is.EqualTo(None))
-        Assert.That(converted.Error, Is.EqualTo(None))
+        Assert.AreEqual(ImportStateEnum.NotStarted, converted.State)
+        Assert.AreEqual(None, converted.FilePath)
+        Assert.AreEqual(None, converted.FileName)
+        Assert.AreEqual(None, converted.Progress)
+        Assert.AreEqual(None, converted.RecordsProcessed)
+        Assert.AreEqual(None, converted.TotalRecords)
+        Assert.AreEqual(None, converted.Message)
+        Assert.AreEqual(None, converted.Result)
+        Assert.AreEqual(None, converted.Error)
 
     /// <summary>
     /// Test conversion of Validating state with file path
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``CurrentImportStatus.fromImportStatus converts Validating correctly``() =
         let filePath = "/test/path/file.csv"
         let status = ImportStatus.Validating filePath
         let converted = CurrentImportStatus.fromImportStatus status
 
-        Assert.That(converted.State, Is.EqualTo(ImportStateEnum.Validating))
-        Assert.That(converted.FilePath, Is.EqualTo(Some filePath))
-        Assert.That(converted.FileName, Is.EqualTo(None))
-        Assert.That(converted.Progress, Is.EqualTo(None))
-        Assert.That(converted.RecordsProcessed, Is.EqualTo(None))
-        Assert.That(converted.TotalRecords, Is.EqualTo(None))
-        Assert.That(converted.Message, Is.EqualTo(None))
-        Assert.That(converted.Result, Is.EqualTo(None))
-        Assert.That(converted.Error, Is.EqualTo(None))
+        Assert.AreEqual(ImportStateEnum.Validating, converted.State)
+        Assert.AreEqual(Some filePath, converted.FilePath)
+        Assert.AreEqual(None, converted.FileName)
+        Assert.AreEqual(None, converted.Progress)
+        Assert.AreEqual(None, converted.RecordsProcessed)
+        Assert.AreEqual(None, converted.TotalRecords)
+        Assert.AreEqual(None, converted.Message)
+        Assert.AreEqual(None, converted.Result)
+        Assert.AreEqual(None, converted.Error)
 
     /// <summary>
     /// Test conversion of ProcessingFile state with file name and progress
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``CurrentImportStatus.fromImportStatus converts ProcessingFile correctly``() =
         let fileName = "test.csv"
         let progress = 0.75
         let status = ImportStatus.ProcessingFile(fileName, progress)
         let converted = CurrentImportStatus.fromImportStatus status
 
-        Assert.That(converted.State, Is.EqualTo(ImportStateEnum.ProcessingFile))
-        Assert.That(converted.FilePath, Is.EqualTo(None))
-        Assert.That(converted.FileName, Is.EqualTo(Some fileName))
-        Assert.That(converted.Progress, Is.EqualTo(Some progress))
-        Assert.That(converted.RecordsProcessed, Is.EqualTo(None))
-        Assert.That(converted.TotalRecords, Is.EqualTo(None))
-        Assert.That(converted.Message, Is.EqualTo(None))
-        Assert.That(converted.Result, Is.EqualTo(None))
-        Assert.That(converted.Error, Is.EqualTo(None))
+        Assert.AreEqual(ImportStateEnum.ProcessingFile, converted.State)
+        Assert.AreEqual(None, converted.FilePath)
+        Assert.AreEqual(Some fileName, converted.FileName)
+        Assert.AreEqual(Some progress, converted.Progress)
+        Assert.AreEqual(None, converted.RecordsProcessed)
+        Assert.AreEqual(None, converted.TotalRecords)
+        Assert.AreEqual(None, converted.Message)
+        Assert.AreEqual(None, converted.Result)
+        Assert.AreEqual(None, converted.Error)
 
     /// <summary>
     /// Test conversion of ProcessingData state with record counts
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``CurrentImportStatus.fromImportStatus converts ProcessingData correctly``() =
         let processed = 50
         let total = 100
         let status = ImportStatus.ProcessingData(processed, total)
         let converted = CurrentImportStatus.fromImportStatus status
 
-        Assert.That(converted.State, Is.EqualTo(ImportStateEnum.ProcessingData))
-        Assert.That(converted.FilePath, Is.EqualTo(None))
-        Assert.That(converted.FileName, Is.EqualTo(None))
-        Assert.That(converted.Progress, Is.EqualTo(None))
-        Assert.That(converted.RecordsProcessed, Is.EqualTo(Some processed))
-        Assert.That(converted.TotalRecords, Is.EqualTo(Some total))
-        Assert.That(converted.Message, Is.EqualTo(None))
-        Assert.That(converted.Result, Is.EqualTo(None))
-        Assert.That(converted.Error, Is.EqualTo(None))
+        Assert.AreEqual(ImportStateEnum.ProcessingData, converted.State)
+        Assert.AreEqual(None, converted.FilePath)
+        Assert.AreEqual(None, converted.FileName)
+        Assert.AreEqual(None, converted.Progress)
+        Assert.AreEqual(Some processed, converted.RecordsProcessed)
+        Assert.AreEqual(Some total, converted.TotalRecords)
+        Assert.AreEqual(None, converted.Message)
+        Assert.AreEqual(None, converted.Result)
+        Assert.AreEqual(None, converted.Error)
 
     /// <summary>
     /// Test conversion of SavingToDatabase state with message and progress
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``CurrentImportStatus.fromImportStatus converts SavingToDatabase correctly``() =
         let message = "Saving records to database..."
         let progress = 0.9
@@ -100,20 +100,20 @@ type ImportStatusConversionTests() =
         let status = ImportStatus.SavingToDatabase(message, progress, processed, total)
         let converted = CurrentImportStatus.fromImportStatus status
 
-        Assert.That(converted.State, Is.EqualTo(ImportStateEnum.SavingToDatabase))
-        Assert.That(converted.FilePath, Is.EqualTo(None))
-        Assert.That(converted.FileName, Is.EqualTo(None))
-        Assert.That(converted.Progress, Is.EqualTo(Some progress))
-        Assert.That(converted.RecordsProcessed, Is.EqualTo(Some processed))
-        Assert.That(converted.TotalRecords, Is.EqualTo(Some total))
-        Assert.That(converted.Message, Is.EqualTo(Some message))
-        Assert.That(converted.Result, Is.EqualTo(None))
-        Assert.That(converted.Error, Is.EqualTo(None))
+        Assert.AreEqual(ImportStateEnum.SavingToDatabase, converted.State)
+        Assert.AreEqual(None, converted.FilePath)
+        Assert.AreEqual(None, converted.FileName)
+        Assert.AreEqual(Some progress, converted.Progress)
+        Assert.AreEqual(Some processed, converted.RecordsProcessed)
+        Assert.AreEqual(Some total, converted.TotalRecords)
+        Assert.AreEqual(Some message, converted.Message)
+        Assert.AreEqual(None, converted.Result)
+        Assert.AreEqual(None, converted.Error)
 
     /// <summary>
     /// Test conversion of Completed state with import result
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``CurrentImportStatus.fromImportStatus converts Completed correctly``() =
         let result =
             ImportResult.createSuccess
@@ -130,74 +130,74 @@ type ImportStatusConversionTests() =
         let status = ImportStatus.Completed result
         let converted = CurrentImportStatus.fromImportStatus status
 
-        Assert.That(converted.State, Is.EqualTo(ImportStateEnum.Completed))
-        Assert.That(converted.FilePath, Is.EqualTo(None))
-        Assert.That(converted.FileName, Is.EqualTo(None))
-        Assert.That(converted.Progress, Is.EqualTo(None))
-        Assert.That(converted.RecordsProcessed, Is.EqualTo(None))
-        Assert.That(converted.TotalRecords, Is.EqualTo(None))
-        Assert.That(converted.Message, Is.EqualTo(None))
-        Assert.That(converted.Result, Is.EqualTo(Some result))
-        Assert.That(converted.Error, Is.EqualTo(None))
+        Assert.AreEqual(ImportStateEnum.Completed, converted.State)
+        Assert.AreEqual(None, converted.FilePath)
+        Assert.AreEqual(None, converted.FileName)
+        Assert.AreEqual(None, converted.Progress)
+        Assert.AreEqual(None, converted.RecordsProcessed)
+        Assert.AreEqual(None, converted.TotalRecords)
+        Assert.AreEqual(None, converted.Message)
+        Assert.AreEqual(Some result, converted.Result)
+        Assert.AreEqual(None, converted.Error)
 
     /// <summary>
     /// Test conversion of Cancelled state with cancellation reason
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``CurrentImportStatus.fromImportStatus converts Cancelled correctly``() =
         let reason = "User cancelled import"
         let status = ImportStatus.Cancelled reason
         let converted = CurrentImportStatus.fromImportStatus status
 
-        Assert.That(converted.State, Is.EqualTo(ImportStateEnum.Cancelled))
-        Assert.That(converted.FilePath, Is.EqualTo(None))
-        Assert.That(converted.FileName, Is.EqualTo(None))
-        Assert.That(converted.Progress, Is.EqualTo(None))
-        Assert.That(converted.RecordsProcessed, Is.EqualTo(None))
-        Assert.That(converted.TotalRecords, Is.EqualTo(None))
-        Assert.That(converted.Message, Is.EqualTo(Some reason))
-        Assert.That(converted.Result, Is.EqualTo(None))
-        Assert.That(converted.Error, Is.EqualTo(None))
+        Assert.AreEqual(ImportStateEnum.Cancelled, converted.State)
+        Assert.AreEqual(None, converted.FilePath)
+        Assert.AreEqual(None, converted.FileName)
+        Assert.AreEqual(None, converted.Progress)
+        Assert.AreEqual(None, converted.RecordsProcessed)
+        Assert.AreEqual(None, converted.TotalRecords)
+        Assert.AreEqual(Some reason, converted.Message)
+        Assert.AreEqual(None, converted.Result)
+        Assert.AreEqual(None, converted.Error)
 
     /// <summary>
     /// Test conversion of Failed state with error message
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``CurrentImportStatus.fromImportStatus converts Failed correctly``() =
         let error = "Import failed due to invalid data"
         let status = ImportStatus.Failed error
         let converted = CurrentImportStatus.fromImportStatus status
 
-        Assert.That(converted.State, Is.EqualTo(ImportStateEnum.Failed))
-        Assert.That(converted.FilePath, Is.EqualTo(None))
-        Assert.That(converted.FileName, Is.EqualTo(None))
-        Assert.That(converted.Progress, Is.EqualTo(None))
-        Assert.That(converted.RecordsProcessed, Is.EqualTo(None))
-        Assert.That(converted.TotalRecords, Is.EqualTo(None))
-        Assert.That(converted.Message, Is.EqualTo(None))
-        Assert.That(converted.Result, Is.EqualTo(None))
-        Assert.That(converted.Error, Is.EqualTo(Some error))
+        Assert.AreEqual(ImportStateEnum.Failed, converted.State)
+        Assert.AreEqual(None, converted.FilePath)
+        Assert.AreEqual(None, converted.FileName)
+        Assert.AreEqual(None, converted.Progress)
+        Assert.AreEqual(None, converted.RecordsProcessed)
+        Assert.AreEqual(None, converted.TotalRecords)
+        Assert.AreEqual(None, converted.Message)
+        Assert.AreEqual(None, converted.Result)
+        Assert.AreEqual(Some error, converted.Error)
 
     /// <summary>
     /// Test that all ImportStateEnum values map to correct integer values
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``ImportStateEnum has correct integer values``() =
-        Assert.That(int ImportStateEnum.NotStarted, Is.EqualTo(0))
-        Assert.That(int ImportStateEnum.Validating, Is.EqualTo(1))
-        Assert.That(int ImportStateEnum.ProcessingFile, Is.EqualTo(2))
-        Assert.That(int ImportStateEnum.ProcessingData, Is.EqualTo(3))
-        Assert.That(int ImportStateEnum.SavingToDatabase, Is.EqualTo(4))
-        Assert.That(int ImportStateEnum.CalculatingSnapshots, Is.EqualTo(5))
-        Assert.That(int ImportStateEnum.Completed, Is.EqualTo(6))
-        Assert.That(int ImportStateEnum.Cancelled, Is.EqualTo(7))
-        Assert.That(int ImportStateEnum.Failed, Is.EqualTo(8))
+        Assert.AreEqual(0, int ImportStateEnum.NotStarted)
+        Assert.AreEqual(1, int ImportStateEnum.Validating)
+        Assert.AreEqual(2, int ImportStateEnum.ProcessingFile)
+        Assert.AreEqual(3, int ImportStateEnum.ProcessingData)
+        Assert.AreEqual(4, int ImportStateEnum.SavingToDatabase)
+        Assert.AreEqual(5, int ImportStateEnum.CalculatingSnapshots)
+        Assert.AreEqual(6, int ImportStateEnum.Completed)
+        Assert.AreEqual(7, int ImportStateEnum.Cancelled)
+        Assert.AreEqual(8, int ImportStateEnum.Failed)
 
     /// <summary>
     /// Test that conversion preserves all data for all ImportStatus cases
     /// Ensures no data loss during conversion to C#-friendly format
     /// </summary>
-    [<Test>]
+    [<TestMethod>]
     member this.``CurrentImportStatus conversion preserves all data``() =
         let testCases =
             [ (ImportStatus.NotStarted, ImportStateEnum.NotStarted)
@@ -211,4 +211,4 @@ type ImportStatusConversionTests() =
 
         for (duStatus, expectedState) in testCases do
             let converted = CurrentImportStatus.fromImportStatus duStatus
-            Assert.That(converted.State, Is.EqualTo(expectedState))
+            Assert.AreEqual(expectedState, converted.State)
