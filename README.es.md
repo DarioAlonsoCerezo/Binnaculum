@@ -6,6 +6,7 @@ Aplicación basada en .NET MAUI para rastrear tus inversiones
 - [Características](#características)
 - [Arquitectura](#arquitectura)
 - [Recursos](#recursos)
+- [Documentacion](#documentacion)
 - [Estilos XAML](#estilos-xaml)
 - [Instalación](#instalación)
 - [Uso](#uso)
@@ -105,6 +106,11 @@ Utilizando banderas de [Country Flags](https://github.com/lipis/flag-icons)
 Utilizando la fuente [Gravitas One](https://fonts.google.com/specimen/Gravitas+One?preview.text=binnaculum) para generar el icono
 
 Puedes obtener iconos de tickers de este [Repositorio](https://github.com/davidepalazzo/ticker-logos)
+
+# Documentacion
+- [Resumen de UI](docs/UI/Overview.es.md)
+- [Resumen de Core](docs/Core/Overview.es.md)
+- [Resumen de pruebas](docs/Tests/Overview.es.md)
 
 # Estilos XAML
 Utilizo la extensión [XAML Styler 2022](https://marketplace.visualstudio.com/items?itemName=TeamXavalon.XAMLStyler2022) para asegurar un estilo XAML consistente en todo el proyecto. Las reglas de estilo están configuradas en el archivo `XAMLStylerConfiguration.json` ubicado en el proyecto.
