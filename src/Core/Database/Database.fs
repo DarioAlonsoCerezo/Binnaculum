@@ -394,6 +394,9 @@ module internal Do =
             // Drop all tables sequentially to avoid foreign key constraint issues
             let! command = createCommand ()
 
+            command.CommandText <- "PRAGMA foreign_keys = OFF"
+            do! executeNonQuery command |> Async.AwaitTask |> Async.Ignore
+
             for tableName in tableNames do
                 command.CommandText <- $"DROP TABLE IF EXISTS {tableName}"
                 do! executeNonQuery command |> Async.AwaitTask |> Async.Ignore
@@ -406,4 +409,9 @@ module internal Do =
                 cmd.CommandText <- createTableSql
                 do! executeNonQuery cmd |> Async.AwaitTask |> Async.Ignore
                 cmd.Dispose()
+
+            let! fkCommand = createCommand ()
+            fkCommand.CommandText <- "PRAGMA foreign_keys = ON"
+            do! executeNonQuery fkCommand |> Async.AwaitTask |> Async.Ignore
+            fkCommand.Dispose()
         }
