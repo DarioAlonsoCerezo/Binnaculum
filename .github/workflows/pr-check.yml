@@ -50,30 +50,30 @@ jobs:
       - name: Build Core project
         run: dotnet build src/Core/Core.fsproj --configuration Release --no-restore
 
-      # - name: Restore Core.Tests dependencies  
-      #   run: dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
-      #
-      # - name: Build Core.Tests
-      #   run: dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
-      #
-      # - name: Run Core Tests
-      #   run: |
-      #     # Run Core tests - validates business logic correctness
-      #     dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
-      #       --configuration Release --no-build --verbosity normal \
-      #       --logger "trx;LogFileName=core-tests-results.trx"
-      #     
-      #     # dotnet test returns 0 for success, non-zero for failures
-      #     # This automatically validates that all tests pass without hardcoded expectations
-      #
-      # - name: Publish Test Results
-      #   uses: dorny/test-reporter@v1
-      #   if: always()
-      #   with:
-      #     name: Core Tests Results
-      #     path: '**/core-tests-results.trx'
-      #     reporter: dotnet-trx
-      #     fail-on-error: false
+      - name: Restore Core.Tests dependencies  
+        run: dotnet restore src/Tests/Core.Tests/Core.Tests.fsproj
+
+      - name: Build Core.Tests
+        run: dotnet build src/Tests/Core.Tests/Core.Tests.fsproj --configuration Release --no-restore
+
+      - name: Run Core Tests
+        run: |
+          # Run Core tests - validates business logic correctness
+          dotnet test src/Tests/Core.Tests/Core.Tests.fsproj \
+            --configuration Release --no-build --verbosity normal \
+            --logger "trx;LogFileName=core-tests-results.trx"
+
+          # dotnet test returns 0 for success, non-zero for failures
+          # This automatically validates that all tests pass without hardcoded expectations
+
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Core Tests Results
+          path: '**/core-tests-results.trx'
+          reporter: dotnet-trx
+          fail-on-error: false
 
   # Android build validation (fast feedback on MAUI setup)
   android-build:
@@ -167,4 +167,4 @@ jobs:
           echo "- Comprehensive testing runs on scheduled workflows" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Note" >> $GITHUB_STEP_SUMMARY
-          echo "- Core.Tests checks are temporarily disabled while investigating net10.0 build hangs" >> $GITHUB_STEP_SUMMARY
+          echo "- Core.Tests are enabled for full business logic validation" >> $GITHUB_STEP_SUMMARY
