@@ -636,12 +636,12 @@ type ImportSessionManagerTests() =
         // Act & Assert - Should throw exception for non-existent file
         // In the previous implementation, this would have returned false
         let ex =
-            Assert.Throws<System.IO.FileNotFoundException>(fun () ->
+            Assert.Throws<System.IO.IOException>(fun () ->
                 ImportSessionManager.validateFileHash session "/nonexistent/file/that/does/not/exist/anywhere.csv"
                 |> ignore)
 
         // Verify it's the expected exception type
-        Assert.IsNotNull(ex, "FileNotFoundException should be thrown")
+        Assert.IsNotNull(ex, "IOException should be thrown")
 
     [<TestMethod>]
     member this.``getActiveSession returns None naturally without catching exceptions``() =

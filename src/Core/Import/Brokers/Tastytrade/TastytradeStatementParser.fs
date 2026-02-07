@@ -203,109 +203,120 @@ module TastytradeStatementParser =
                   RawCsvLine = rawLine
                   ErrorType = MissingRequiredField("All fields") }
         else
-            let date = parseDate fields.[0]
+            let dateResult =
+                try
+                    Ok(parseDate fields.[0])
+                with ex ->
+                    Error
+                        { LineNumber = lineNumber
+                          ErrorMessage = ex.Message
+                          RawCsvLine = rawLine
+                          ErrorType = InvalidDateFormat }
 
-            let transactionType =
-                TransactionTypeDetection.parseTransactionType fields.[1] fields.[2] fields.[3]
+            match dateResult with
+            | Error error -> Error error
+            | Ok date ->
+                let transactionType =
+                    TransactionTypeDetection.parseTransactionType fields.[1] fields.[2] fields.[3]
 
-            // Parse raw fields first
-            let rawSymbol =
-                if String.IsNullOrWhiteSpace(fields.[4]) then
-                    None
-                else
-                    Some fields.[4]
+                // Parse raw fields first
+                let rawSymbol =
+                    if String.IsNullOrWhiteSpace(fields.[4]) then
+                        None
+                    else
+                        Some fields.[4]
 
-            let instrumentType =
-                if String.IsNullOrWhiteSpace(fields.[5]) then
-                    None
-                else
-                    Some fields.[5]
+                let instrumentType =
+                    if String.IsNullOrWhiteSpace(fields.[5]) then
+                        None
+                    else
+                        Some fields.[5]
 
-            let value = parseDecimal fields.[7]
-            let quantity = parseDecimal fields.[8]
+                let value = parseDecimal fields.[7]
+                let quantity = parseDecimal fields.[8]
 
-            let avgPrice =
-                if String.IsNullOrWhiteSpace(fields.[9]) then
-                    None
-                else
-                    Some(parseDecimal fields.[9])
+                let avgPrice =
+                    if String.IsNullOrWhiteSpace(fields.[9]) then
+                        None
+                    else
+                        Some(parseDecimal fields.[9])
 
-            let commissions = parseDecimal fields.[10]
-            let fees = parseDecimal fields.[11]
+                let commissions = parseDecimal fields.[10]
+                let fees = parseDecimal fields.[11]
 
-            let multiplier =
-                if String.IsNullOrWhiteSpace(fields.[12]) then
-                    None
-                else
-                    Some(parseDecimal fields.[12])
+                let multiplier =
+                    if String.IsNullOrWhiteSpace(fields.[12]) then
+                        None
+                    else
+                        Some(parseDecimal fields.[12])
 
-            let rootSymbol =
-                if String.IsNullOrWhiteSpace(fields.[13]) then
-                    None
-                else
-                    Some fields.[13]
+                let rootSymbol =
+                    if String.IsNullOrWhiteSpace(fields.[13]) then
+                        None
+                    else
+                        Some fields.[13]
 
-            let underlyingSymbol =
-                if String.IsNullOrWhiteSpace(fields.[14]) then
-                    None
-                else
-                    Some fields.[14]
+                let underlyingSymbol =
+                    if String.IsNullOrWhiteSpace(fields.[14]) then
+                        None
+                    else
+                        Some fields.[14]
 
-            // Use UnderlyingSymbol as the primary symbol identifier
-            // If UnderlyingSymbol is available, use it; otherwise fall back to rawSymbol
-            let symbol =
-                match underlyingSymbol with
-                | Some us when not (String.IsNullOrWhiteSpace(us)) -> Some us
-                | _ -> rawSymbol
+                // Use UnderlyingSymbol as the primary symbol identifier
+                // If UnderlyingSymbol is available, use it; otherwise fall back to rawSymbol
+                let symbol =
+                    match underlyingSymbol with
+                    | Some us when not (String.IsNullOrWhiteSpace(us)) -> Some us
+                    | _ -> rawSymbol
 
-            let expirationDate = parseExpirationDate fields.[15]
+                let expirationDate = parseExpirationDate fields.[15]
 
-            let strikePrice =
-                if String.IsNullOrWhiteSpace(fields.[16]) then
-                    None
-                else
-                    Some(parseDecimal fields.[16])
+                let strikePrice =
+                    if String.IsNullOrWhiteSpace(fields.[16]) then
+                        None
+                    else
+                        Some(parseDecimal fields.[16])
 
-            let callOrPut =
-                if String.IsNullOrWhiteSpace(fields.[17]) then
-                    None
-                else
-                    Some fields.[17]
+                let callOrPut =
+                    if String.IsNullOrWhiteSpace(fields.[17]) then
+                        None
+                    else
+                        Some fields.[17]
 
-            let orderNumber =
-                if String.IsNullOrWhiteSpace(fields.[18]) then
-                    None
-                else
-                    Some fields.[18]
+                let orderNumber =
+                    if String.IsNullOrWhiteSpace(fields.[18]) then
+                        None
+                    else
+                        Some fields.[18]
 
-            // Handle both formats: with and without Total column
-            let currency =
-                if hasTotal = 0 then
-                    fields.[20] // Has Total column at index 19
-                else
-                    fields.[19] // No Total column
+                // Handle both formats: with and without Total column
+                let currency =
+                    if hasTotal = 0 then
+                        fields.[20] // Has Total column at index 19
+                    else
+                        fields.[19] // No Total column
 
-            Ok
-                { Date = date
-                  TransactionType = transactionType
-                  Symbol = symbol
-                  InstrumentType = instrumentType
-                  Description = fields.[6]
-                  Value = value
-                  Quantity = quantity
-                  AveragePrice = avgPrice
-                  Commissions = commissions
-                  Fees = fees
-                  Multiplier = multiplier
-                  RootSymbol = rootSymbol
-                  UnderlyingSymbol = underlyingSymbol
-                  ExpirationDate = expirationDate
-                  StrikePrice = strikePrice
-                  CallOrPut = callOrPut
-                  OrderNumber = orderNumber
-                  Currency = currency
-                  RawCsvLine = rawLine
-                  LineNumber = lineNumber }
+                Ok
+                    { Date = date
+                      TransactionType = transactionType
+                      Symbol = symbol
+                      InstrumentType = instrumentType
+                      Description = fields.[6]
+                      Value = value
+                      Quantity = quantity
+                      AveragePrice = avgPrice
+                      Commissions = commissions
+                      Fees = fees
+                      Multiplier = multiplier
+                      RootSymbol = rootSymbol
+                      UnderlyingSymbol = underlyingSymbol
+                      ExpirationDate = expirationDate
+                      StrikePrice = strikePrice
+                      CallOrPut = callOrPut
+                      OrderNumber = orderNumber
+                      Currency = currency
+                      RawCsvLine = rawLine
+                      LineNumber = lineNumber }
 
     /// <summary>
     /// Parse complete Tastytrade transaction history CSV content
