@@ -137,7 +137,7 @@ type ReactiveBrokerManagerTests() =
         
         // The reactive cache should reflect the update
         let retrievedBroker = ReactiveBrokerManager.getBrokerByIdFast(1)
-        Assert.That(retrievedBroker.Name, Is.EqualTo("IB (Updated)"))
+        Assert.AreEqual("IB (Updated)", retrievedBroker.Name)
 
     [<TestMethod>]
     member this.``Backward compatibility - Collections.getBroker should still work``() =

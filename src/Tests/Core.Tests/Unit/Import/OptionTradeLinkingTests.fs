@@ -25,10 +25,10 @@ type OptionTradeLinkingTests() =
     member _.``BuyToClose links to SellToOpen``() =
         let expected = [| OptionCode.SellToOpen |]
         let actual = getOpeningCodesForClosing OptionCode.BuyToClose |> List.toArray
-        Assert.That(actual, Is.EqualTo<OptionCode[]>(expected))
+        CollectionAssert.AreEqual(expected, actual)
 
     [<TestMethod>]
     member _.``Expired attempts both opening directions``() =
         let expected = [| OptionCode.SellToOpen; OptionCode.BuyToOpen |]
         let actual = getOpeningCodesForClosing OptionCode.Expired |> List.toArray
-        Assert.That(actual, Is.EqualTo<OptionCode[]>(expected))
+        CollectionAssert.AreEqual(expected, actual)

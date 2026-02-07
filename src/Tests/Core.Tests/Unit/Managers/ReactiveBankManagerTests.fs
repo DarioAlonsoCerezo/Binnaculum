@@ -134,7 +134,7 @@ type ReactiveBankManagerTests() =
         
         // The reactive cache should reflect the update
         let retrievedBank = ReactiveBankManager.getBankByIdFast(1)
-        Assert.That(retrievedBank.Name, Is.EqualTo("BofA (Updated)"))
+        Assert.AreEqual("BofA (Updated)", retrievedBank.Name)
 
     [<TestMethod>]
     member this.``Backward compatibility - Collections.getBank should still work``() =

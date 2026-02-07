@@ -60,7 +60,7 @@ type BrokerAccountMultiCurrencySnapshotTests () =
         
         let uniqueCurrencies = movements |> List.map (fun (currencyId, _) -> currencyId) |> Set.ofList |> Set.toList |> List.sort
         
-        CollectionAssert.AreEqual([1; 2; 3], uniqueCurrencies)
+        CollectionAssert.AreEqual([|1; 2; 3|], List.toArray uniqueCurrencies)
 
     [<TestMethod>]
     member _.``Multi-currency snapshot design validates default currency fallback`` () =
@@ -71,7 +71,7 @@ type BrokerAccountMultiCurrencySnapshotTests () =
             if List.isEmpty movements then [1] // Default to USD (currency ID 1)
             else movements |> List.map (fun (currencyId, _) -> currencyId) |> Set.ofList |> Set.toList
             
-        CollectionAssert.AreEqual([1], currencies)
+        CollectionAssert.AreEqual([|1|], List.toArray currencies)
 
     [<TestMethod>]
     member _.``Multi-currency snapshot design validates movement type classification`` () =

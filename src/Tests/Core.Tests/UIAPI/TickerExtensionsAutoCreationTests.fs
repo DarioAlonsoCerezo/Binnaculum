@@ -19,7 +19,7 @@ type TickerExtensionsAutoCreationTests() =
         // The method should return a Task<Ticker>
         let task = methodCall()
         Assert.IsNotNull(task)
-        Assert.That(task, Is.InstanceOf<Task<Ticker>>())
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<Ticker>>)
 
     [<TestMethod>]  
     member this.``Integration with Creator module pattern compiles``() =
@@ -38,7 +38,7 @@ type TickerExtensionsAutoCreationTests() =
         
         let task = testUsage("AAPL")
         Assert.IsNotNull(task)
-        Assert.That(task, Is.InstanceOf<Task<string>>())
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<string>>)
 
     [<TestMethod>]
     member this.``Method signature shows Task<Ticker> not Task<Ticker option>``() =
@@ -51,7 +51,7 @@ type TickerExtensionsAutoCreationTests() =
         
         // The result should be assignable to Task<Ticker>
         // Note: F# task expressions return AsyncStateMachineBox which implements Task<T>
-        Assert.That(result, Is.InstanceOf<Task<Ticker>>())
+        Assert.IsInstanceOfType(result, typeof<System.Threading.Tasks.Task<Ticker>>)
 
     [<TestMethod>]
     member this.``No option unwrapping needed in new implementation``() =
@@ -66,4 +66,4 @@ type TickerExtensionsAutoCreationTests() =
         
         let task = directUsage("DIRECT")
         Assert.IsNotNull(task)
-        Assert.That(task, Is.InstanceOf<Task<string>>())
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<string>>)

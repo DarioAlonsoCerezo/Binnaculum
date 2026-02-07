@@ -149,9 +149,9 @@ type ReactiveTickerManagerTests() =
         // Note: For small datasets, the difference might not be significant
         Assert.IsTrue(fastTime <= linearTime + 50L) // Allow some margin for variance
         
-        TestContext.Out.WriteLine($"Linear search: {linearTime}ms")
-        TestContext.Out.WriteLine($"Fast lookup: {fastTime}ms")
-        TestContext.Out.WriteLine($"Performance improvement: {float linearTime / float fastTime}x")
+        Console.WriteLine($"Linear search: {linearTime}ms")
+        Console.WriteLine($"Fast lookup: {fastTime}ms")
+        Console.WriteLine($"Performance improvement: {float linearTime / float fastTime}x")
 
     [<TestMethod>]
     member this.``Performance comparison between old and new methods``() =
@@ -182,9 +182,9 @@ type ReactiveTickerManagerTests() =
         stopwatch.Stop()
         let newMethodTime = stopwatch.ElapsedMilliseconds
         
-        TestContext.Out.WriteLine($"ID Lookup - Old method: {oldMethodTime}ms")
-        TestContext.Out.WriteLine($"ID Lookup - New method: {newMethodTime}ms")
-        TestContext.Out.WriteLine($"ID Lookup - Performance improvement: {float oldMethodTime / float newMethodTime}x")
+        Console.WriteLine($"ID Lookup - Old method: {oldMethodTime}ms")
+        Console.WriteLine($"ID Lookup - New method: {newMethodTime}ms")
+        Console.WriteLine($"ID Lookup - Performance improvement: {float oldMethodTime / float newMethodTime}x")
         
         // Test O(1) reactive method comparison (was symbol lookup comparison)
         stopwatch.Restart()
@@ -201,9 +201,9 @@ type ReactiveTickerManagerTests() =
         stopwatch.Stop()
         let newSymbolTime = stopwatch.ElapsedMilliseconds
         
-        TestContext.Out.WriteLine($"Old method: {oldSymbolTime}ms")
-        TestContext.Out.WriteLine($"New method: {newSymbolTime}ms")
-        TestContext.Out.WriteLine($"Performance improvement: {float oldSymbolTime / float newSymbolTime}x")
+        Console.WriteLine($"Old method: {oldSymbolTime}ms")
+        Console.WriteLine($"New method: {newSymbolTime}ms")
+        Console.WriteLine($"Performance improvement: {float oldSymbolTime / float newSymbolTime}x")
         
         // New method should be at least as fast as old method
         Assert.IsTrue(newMethodTime <= oldMethodTime + 50L)

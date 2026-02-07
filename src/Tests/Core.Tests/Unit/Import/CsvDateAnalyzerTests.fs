@@ -18,12 +18,12 @@ type CsvDateAnalyzerTests() =
     [<TestMethod>]
     member this.``extractDateFromFilename should parse IBKR format correctly``() =
         let result = CsvDateAnalyzer.extractDateFromFilename "Daily_statement.1332220.20230228.csv"
-        Assert.AreEqual(Some(DateTime(2023, 2, 28, result)))
+        Assert.AreEqual(Some(DateTime(2023, 2, 28)), result)
     
     [<TestMethod>]
     member this.``extractDateFromFilename should parse IBKR format with different account number``() =
         let result = CsvDateAnalyzer.extractDateFromFilename "Daily_statement.9876543.20240101.csv"
-        Assert.AreEqual(Some(DateTime(2024, 1, 1, result)))
+        Assert.AreEqual(Some(DateTime(2024, 1, 1)), result)
     
     /// <summary>
     /// Test extracting dates from Tastytrade filename patterns
@@ -31,12 +31,12 @@ type CsvDateAnalyzerTests() =
     [<TestMethod>]
     member this.``extractDateFromFilename should parse Tastytrade format correctly``() =
         let result = CsvDateAnalyzer.extractDateFromFilename "tastytrade_transactions_history_x5WY40536_240401_to_240430.csv"
-        Assert.AreEqual(Some(DateTime(2024, 4, 1, result)))
+        Assert.AreEqual(Some(DateTime(2024, 4, 1)), result)
     
     [<TestMethod>]
     member this.``extractDateFromFilename should parse Tastytrade format with different dates``() =
         let result = CsvDateAnalyzer.extractDateFromFilename "tastytrade_transactions_history_ABC12345_230215_to_230228.csv"
-        Assert.AreEqual(Some(DateTime(2023, 2, 15, result)))
+        Assert.AreEqual(Some(DateTime(2023, 2, 15)), result)
     
     /// <summary>
     /// Test handling of unrecognized filename formats
@@ -57,22 +57,22 @@ type CsvDateAnalyzerTests() =
     [<TestMethod>]
     member this.``tryParseDateFromCsvRow should parse ISO format date``() =
         let result = CsvDateAnalyzer.tryParseDateFromCsvRow "2023-02-28,100.50,AAPL,Buy"
-        Assert.AreEqual(Some(DateTime(2023, 2, 28, result)))
+        Assert.AreEqual(Some(DateTime(2023, 2, 28)), result)
     
     [<TestMethod>]
     member this.``tryParseDateFromCsvRow should parse US format date``() =
         let result = CsvDateAnalyzer.tryParseDateFromCsvRow "02/28/2023,100.50,AAPL,Buy"
-        Assert.AreEqual(Some(DateTime(2023, 2, 28, result)))
+        Assert.AreEqual(Some(DateTime(2023, 2, 28)), result)
     
     [<TestMethod>]
     member this.``tryParseDateFromCsvRow should parse date with timestamp``() =
         let result = CsvDateAnalyzer.tryParseDateFromCsvRow "2023-02-28 14:30:00,100.50,AAPL,Buy"
-        Assert.AreEqual(Some(DateTime(2023, 2, 28, 14, 30, 0, result)))
+        Assert.AreEqual(Some(DateTime(2023, 2, 28, 14, 30, 0)), result)
     
     [<TestMethod>]
     member this.``tryParseDateFromCsvRow should parse compact date format``() =
         let result = CsvDateAnalyzer.tryParseDateFromCsvRow "AAPL,20230228,100.50,Buy"
-        Assert.AreEqual(Some(DateTime(2023, 2, 28, result)))
+        Assert.AreEqual(Some(DateTime(2023, 2, 28)), result)
     
     [<TestMethod>]
     member this.``tryParseDateFromCsvRow should return None for row without date``() =

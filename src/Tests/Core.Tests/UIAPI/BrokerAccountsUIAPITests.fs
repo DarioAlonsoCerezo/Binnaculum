@@ -22,7 +22,7 @@ type BrokerAccountsUIAPITests() =
         let getSnapshotsTask = BrokerAccounts.GetSnapshots(testBrokerAccountId)
         
         Assert.IsNotNull(getSnapshotsTask)
-        Assert.That(getSnapshotsTask, Is.InstanceOf<Task<OverviewSnapshot list>>())
+        Assert.IsInstanceOfType(getSnapshotsTask, typeof<System.Threading.Tasks.Task<OverviewSnapshot list>>)
 
     [<TestMethod>]
     member this.``GetSnapshots method signature accepts int brokerAccountId``() =
@@ -44,7 +44,7 @@ type BrokerAccountsUIAPITests() =
         
         // Should be callable and return a Task-like object (Task<OverviewSnapshot list> in F#)
         let task = BrokerAccounts.GetSnapshots(testBrokerAccountId)
-        Assert.That(task, Is.InstanceOf<Task<OverviewSnapshot list>>())
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<OverviewSnapshot list>>)
 
     [<TestMethod>]  
     member this.``GetSnapshots method exists and is accessible``() =
@@ -54,7 +54,7 @@ type BrokerAccountsUIAPITests() =
         // Method should exist and be callable
         let task = BrokerAccounts.GetSnapshots(testBrokerAccountId)
         Assert.IsNotNull(task)
-        Assert.That(task, Is.InstanceOf<Task<OverviewSnapshot list>>())
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<OverviewSnapshot list>>)
 
     [<TestMethod>]
     member this.``BrokerAccounts module exists in correct namespace``() =
@@ -77,7 +77,7 @@ type BrokerAccountsUIAPITests() =
         let task = BrokerAccounts.GetSnapshots(nonExistentBrokerAccountId)
         
         Assert.IsNotNull(task)
-        Assert.That(task, Is.InstanceOf<Task<OverviewSnapshot list>>(), "Should return Task<OverviewSnapshot list> type")
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<OverviewSnapshot list>>, "Should return Task<OverviewSnapshot list> type")
         // Note: We don't call .Result here as database isn't available in test environment
 
     [<TestMethod>]
@@ -94,7 +94,7 @@ type BrokerAccountsUIAPITests() =
         Assert.IsTrue(isCorrectTaskType, "Should return Task<OverviewSnapshot list>")
         
         // Type verification only - no database execution in test environment
-        Assert.That(task, Is.InstanceOf<Task<OverviewSnapshot list>>())
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<OverviewSnapshot list>>)
 
     [<TestMethod>]
     member this.``GetSnapshots follows F# async task patterns``() =
@@ -104,7 +104,7 @@ type BrokerAccountsUIAPITests() =
         let task = BrokerAccounts.GetSnapshots(testBrokerAccountId)
         
         // Should be a proper .NET Task
-        Assert.That(task, Is.InstanceOf<Task<OverviewSnapshot list>>())
+        Assert.IsInstanceOfType(task, typeof<System.Threading.Tasks.Task<OverviewSnapshot list>>)
         
         // Task should have proper completion behavior
         Assert.IsTrue(task.IsCompleted || task.Status <> TaskStatus.Faulted)

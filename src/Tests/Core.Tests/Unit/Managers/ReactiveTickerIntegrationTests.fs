@@ -47,18 +47,18 @@ type ReactiveTickerIntegrationTests() =
         stopwatch.Stop()
         let fastLookupTime = stopwatch.ElapsedMilliseconds
         
-        TestContext.Out.WriteLine($"=== Reactive Ticker Performance Results ===")
-        TestContext.Out.WriteLine($"Dataset: 1,000 tickers, {iterations} lookups")
-        TestContext.Out.WriteLine($"Linear search time: {linearSearchTime}ms")
-        TestContext.Out.WriteLine($"Fast O(1) lookup time: {fastLookupTime}ms")
+        Console.WriteLine($"=== Reactive Ticker Performance Results ===")
+        Console.WriteLine($"Dataset: 1,000 tickers, {iterations} lookups")
+        Console.WriteLine($"Linear search time: {linearSearchTime}ms")
+        Console.WriteLine($"Fast O(1) lookup time: {fastLookupTime}ms")
         
         if fastLookupTime > 0L && linearSearchTime > 0L then
             let improvement = float linearSearchTime / float fastLookupTime
-            TestContext.Out.WriteLine($"Performance improvement: {improvement:F1}x faster")
+            Console.WriteLine($"Performance improvement: {improvement:F1}x faster")
         else
-            TestContext.Out.WriteLine($"Performance improvement: Significant (sub-millisecond)")
+            Console.WriteLine($"Performance improvement: Significant (sub-millisecond)")
         
-        TestContext.Out.WriteLine($"========================================")
+        Console.WriteLine($"========================================")
         
         // The new approach should be faster or at least as fast
         Assert.IsTrue(fastLookupTime <= linearSearchTime + 5L)

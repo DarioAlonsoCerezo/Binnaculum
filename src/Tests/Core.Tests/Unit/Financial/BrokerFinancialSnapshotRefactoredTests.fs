@@ -39,7 +39,7 @@ type BrokerFinancialSnapshotRefactoredTests () =
             NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
-        Assert.That(snapshot.Id, NUnit.Framework.Is.EqualTo(123))
+        Assert.AreEqual(123, snapshot.Id)
 
     [<TestMethod>]
     member _.``BrokerFinancialSnapshot uses strongly-typed Broker reference`` () =
@@ -79,8 +79,8 @@ type BrokerFinancialSnapshotRefactoredTests () =
             NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
-        Assert.That(snapshot.Broker.IsSome, NUnit.Framework.Is.True)
-        Assert.That(snapshot.Broker.Value.Name, NUnit.Framework.Is.EqualTo("Test Broker"))
+        Assert.IsTrue(snapshot.Broker.IsSome)
+        Assert.AreEqual("Test Broker", snapshot.Broker.Value.Name)
 
     [<TestMethod>]
     member _.``BrokerFinancialSnapshot uses strongly-typed BrokerAccount reference`` () =
@@ -125,9 +125,9 @@ type BrokerFinancialSnapshotRefactoredTests () =
             NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
-        Assert.That(snapshot.BrokerAccount.IsSome, NUnit.Framework.Is.True)
-        Assert.That(snapshot.BrokerAccount.Value.AccountNumber, NUnit.Framework.Is.EqualTo("ACC123"))
-        Assert.That(snapshot.BrokerAccount.Value.Id, NUnit.Framework.Is.EqualTo(2))
+        Assert.IsTrue(snapshot.BrokerAccount.IsSome)
+        Assert.AreEqual("ACC123", snapshot.BrokerAccount.Value.AccountNumber)
+        Assert.AreEqual(2, snapshot.BrokerAccount.Value.Id)
 
     [<TestMethod>]
     member _.``BrokerFinancialSnapshot uses strongly-typed Currency reference`` () =
@@ -161,9 +161,9 @@ type BrokerFinancialSnapshotRefactoredTests () =
             NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
-        Assert.That(snapshot.Currency.Code, NUnit.Framework.Is.EqualTo("USD"))
-        Assert.That(snapshot.Currency.Symbol, NUnit.Framework.Is.EqualTo("$"))
-        Assert.That(snapshot.Currency.Id, NUnit.Framework.Is.EqualTo(1))
+        Assert.AreEqual("USD", snapshot.Currency.Code)
+        Assert.AreEqual("$", snapshot.Currency.Symbol)
+        Assert.AreEqual(1, snapshot.Currency.Id)
 
     [<TestMethod>]
     member _.``BrokerFinancialSnapshot allows None values for optional references`` () =
@@ -197,6 +197,6 @@ type BrokerFinancialSnapshotRefactoredTests () =
             NetCashFlow = 0.0m - 0.0m - 0.0m - 0.0m + 0.0m + 0.0m + 0.0m // 0.0m
         }
         // Assert
-        Assert.That(snapshot.Broker.IsNone, NUnit.Framework.Is.True)
-        Assert.That(snapshot.BrokerAccount.IsNone, NUnit.Framework.Is.True)
-        Assert.That(snapshot.Currency, NUnit.Framework.Is.Not.Null)
+        Assert.IsTrue(snapshot.Broker.IsNone)
+        Assert.IsTrue(snapshot.BrokerAccount.IsNone)
+        Assert.IsNotNull(snapshot.Currency)
