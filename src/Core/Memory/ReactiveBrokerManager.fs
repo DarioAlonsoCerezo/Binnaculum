@@ -54,7 +54,14 @@ module ReactiveBrokerManager =
     /// Initialize the reactive broker manager (should be called once at application startup)
     /// </summary>
     let initialize() = 
-        if subscription.IsNone then
+        match subscription with
+        | Some sub ->
+            sub.Dispose()
+            subscription <- None
+            brokerCacheById.Clear()
+            initializeCache()
+        | None ->
+            brokerCacheById.Clear()
             initializeCache()
     
     /// <summary>
