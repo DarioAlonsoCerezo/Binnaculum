@@ -65,7 +65,7 @@ type TastytradeTransactionConverterTests() =
         Assert.AreEqual(1, result.BrokerMovementsCount)
         Assert.AreEqual(0, result.OptionTradesCount)
         Assert.AreEqual(0, result.StockTradesCount)
-        Assert.AreEqual(0, result.Errors.Count)
+        Assert.AreEqual(0, result.Errors.Length)
 
     [<TestMethod>]
     member _.``Should convert Money Movement Balance Adjustment to BrokerMovement count``() =
@@ -80,7 +80,7 @@ type TastytradeTransactionConverterTests() =
         Assert.AreEqual(1, result.BrokerMovementsCount)
         Assert.AreEqual(0, result.OptionTradesCount)
         Assert.AreEqual(0, result.StockTradesCount)
-        Assert.AreEqual(0, result.Errors.Count)
+        Assert.AreEqual(0, result.Errors.Length)
 
     [<TestMethod>]
     member _.``Should convert Option Trade to OptionTrade count``() =
@@ -95,7 +95,7 @@ type TastytradeTransactionConverterTests() =
         Assert.AreEqual(0, result.BrokerMovementsCount)
         Assert.AreEqual(1, result.OptionTradesCount)
         Assert.AreEqual(0, result.StockTradesCount)
-        Assert.AreEqual(0, result.Errors.Count)
+        Assert.AreEqual(0, result.Errors.Length)
 
     [<TestMethod>]
     member _.``Should sort transactions chronologically``() =
@@ -156,7 +156,7 @@ type TastytradeTransactionConverterTests() =
         Assert.AreEqual(0, result.BrokerMovementsCount)
         Assert.AreEqual(0, result.OptionTradesCount)
         Assert.AreEqual(0, result.StockTradesCount)
-        Assert.AreEqual(0, result.Errors.Count)
+        Assert.AreEqual(0, result.Errors.Length)
 
     [<TestMethod>]
     member _.``Should handle empty transaction list``() =
