@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<controls:BaseContentView
+    x:Class="Binnaculum.Controls.GreekFlowControl"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Binnaculum.Controls">
+    <Border Padding="12" Style="{StaticResource Settings}">
+        <VerticalStackLayout Spacing="8">
+
+            <!--  Header: symbol + title + flip-zone warning  -->
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                <Label
+                    x:Name="GreekSymbol"
+                    FontFamily="OpenSansBold"
+                    FontSize="20"
+                    Style="{StaticResource SubHeadline}"
+                    VerticalTextAlignment="Center" />
+                <Label
+                    x:Name="TitleLabel"
+                    Grid.Column="1"
+                    Style="{StaticResource TitleSmall}"
+                    VerticalTextAlignment="Center" />
+                <Label
+                    x:Name="FlipZoneWarning"
+                    Grid.Column="2"
+                    FontSize="12"
+                    IsVisible="False"
+                    Style="{StaticResource LabelSmall}"
+                    Text="⚠ Flip Zone"
+                    TextColor="{StaticResource Magenta}"
+                    VerticalTextAlignment="Center" />
+            </Grid>
+
+            <!--  Long exposure row  -->
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Label
+                    x:Name="LongLabel"
+                    Style="{StaticResource LabelMedium}"
+                    VerticalTextAlignment="Center" />
+                <Label
+                    x:Name="LongValue"
+                    Grid.Column="1"
+                    FontFamily="OpenSansSemibold"
+                    Style="{StaticResource LabelMediumSemibold}"
+                    TextColor="{StaticResource GreenState}"
+                    VerticalTextAlignment="Center" />
+            </Grid>
+
+            <!--  Long exposure bar  -->
+            <Grid HeightRequest="8">
+                <BoxView
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
+                                                      Dark={StaticResource Gray600}}"
+                    CornerRadius="4"
+                    HeightRequest="8"
+                    HorizontalOptions="Fill" />
+                <BoxView
+                    x:Name="LongBar"
+                    BackgroundColor="{StaticResource GreenState}"
+                    CornerRadius="4"
+                    HeightRequest="8"
+                    HorizontalOptions="Start"
+                    WidthRequest="0" />
+            </Grid>
+
+            <!--  Short exposure row  -->
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Label
+                    x:Name="ShortLabel"
+                    Style="{StaticResource LabelMedium}"
+                    VerticalTextAlignment="Center" />
+                <Label
+                    x:Name="ShortValue"
+                    Grid.Column="1"
+                    FontFamily="OpenSansSemibold"
+                    Style="{StaticResource LabelMediumSemibold}"
+                    TextColor="{StaticResource RedState}"
+                    VerticalTextAlignment="Center" />
+            </Grid>
+
+            <!--  Short exposure bar  -->
+            <Grid HeightRequest="8">
+                <BoxView
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
+                                                      Dark={StaticResource Gray600}}"
+                    CornerRadius="4"
+                    HeightRequest="8"
+                    HorizontalOptions="Fill" />
+                <BoxView
+                    x:Name="ShortBar"
+                    BackgroundColor="{StaticResource RedState}"
+                    CornerRadius="4"
+                    HeightRequest="8"
+                    HorizontalOptions="Start"
+                    WidthRequest="0" />
+            </Grid>
+
+            <!--  Separator  -->
+            <BoxView
+                BackgroundColor="{AppThemeBinding Light={StaticResource Gray200},
+                                                  Dark={StaticResource Gray600}}"
+                HeightRequest="1"
+                HorizontalOptions="Fill" />
+
+            <!--  Net exposure row  -->
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Label
+                    x:Name="NetLabel"
+                    Style="{StaticResource LabelMediumSemibold}"
+                    VerticalTextAlignment="Center" />
+                <Label
+                    x:Name="NetValue"
+                    Grid.Column="1"
+                    Style="{StaticResource LabelMediumSemibold}"
+                    VerticalTextAlignment="Center" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </Border>
+</controls:BaseContentView>
