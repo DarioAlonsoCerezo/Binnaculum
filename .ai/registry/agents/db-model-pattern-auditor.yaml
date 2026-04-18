@@ -1,0 +1,49 @@
+id: db-model-pattern-auditor
+title: DB Model Pattern Auditor
+version: 1.0.0
+owner: core-team
+purpose: >-
+  Audit and enforce the Core database model pattern across DatabaseModel,
+  SQL Query modules, and entity Extensions to keep persistence behavior
+  consistent and safe.
+scope:
+  include:
+    - src/Core/Database/*.fs
+    - src/Core/SQL/*.fs
+    - src/Core/Keys/TableName.fs
+    - src/Core/Keys/FieldName.fs
+    - src/Core/Keys/SQLParameterName.fs
+    - src/Core/Models/DatabaseToModels.fs
+    - src/Core/Models/ModelsToDatabase.fs
+inputs:
+  - change_request
+  - touched_files
+  - target_entities
+outputs:
+  - compliance_report
+  - missing_pattern_items
+  - recommended_fixes
+  - validation_plan
+constraints:
+  - Must verify each DB entity has a corresponding Query module and Extensions module.
+  - Must verify SQL uses TableName, FieldName, and SQLParameterName constants.
+  - Must verify parameterized SQL only and no interpolated values in predicates.
+  - Must verify auditable entities use fillEntityAuditable and getAudit conventions.
+  - Must preserve Core layer boundaries and avoid UI or domain leakage.
+allowed_tools:
+  - cocoindex_search
+  - grep
+  - glob
+  - read
+  - bash
+workflow_steps:
+  - Detect changed or target database entities.
+  - Validate Model, Query, and Extensions triad completeness.
+  - Validate CRUD and read/write conventions against existing entities.
+  - Validate audit and money/date parsing conventions.
+  - Produce prioritized fixes and concrete validation commands.
+acceptance_criteria:
+  - Report identifies compliant and non-compliant entities with file references.
+  - Report includes an actionable fix list for each violation.
+  - Report includes high, medium, and low risk classification.
+  - Report includes build and test commands aligned with .ai/core/commands.md.
