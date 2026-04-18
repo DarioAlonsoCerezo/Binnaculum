@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<pages:BasePage
     x:Class="Binnaculum.Pages.SettingsPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:local="clr-namespace:Binnaculum"
+    xmlns:pages="clr-namespace:Binnaculum.Pages"
     xmlns:controls="clr-namespace:Binnaculum.Controls"
     xmlns:markdown="clr-namespace:Indiko.Maui.Controls.Markdown;assembly=Indiko.Maui.Controls.Markdown"
     NavigationPage.HasNavigationBar="False"
@@ -170,11 +171,11 @@
 
             <Button
                 x:Name="DeleteAllDataButton"
+                Padding="16"
                 Text="{local:Translate Settings_DeleteAllData_Button}"
                 BackgroundColor="{StaticResource RedState}"
                 TextColor="{StaticResource White}"
                 FontAttributes="Bold"
-                Padding="16"
                 CornerRadius="8" />
 
             <!--  VERSION  -->
@@ -193,4 +194,4 @@
                 MarkdownText="{local:Translate Settings_Section_Issue}" />
         </VerticalStackLayout>
     </ScrollView>
-</ContentPage>
+</pages:BasePage>

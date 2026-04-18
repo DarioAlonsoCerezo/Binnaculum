@@ -4,9 +4,8 @@ using System.Diagnostics;
 
 namespace Binnaculum.Pages;
 
-public partial class SettingsPage : ContentPage
+public partial class SettingsPage
 {
-    private readonly CompositeDisposable Disposables = [];
     public SettingsPage()
 	{
 		InitializeComponent();
@@ -19,7 +18,7 @@ public partial class SettingsPage : ContentPage
     private void SetupEvents()
     {
         Core.UI.SavedPrefereces.UserPreferences
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(UiThread)
             .Subscribe(SetupPreferencesCollection)
             .DisposeWith(Disposables);
 
@@ -199,5 +198,10 @@ public partial class SettingsPage : ContentPage
                 string.Format(AppResources.Settings_DeleteAllData_Error_Message, ex.Message),
                 AppResources.Global_Button_Ok);
         }
+    }
+
+    protected override void StartLoad()
+    {
+        
     }
 }
