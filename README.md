@@ -9,6 +9,7 @@ App based in .NET MAUI to track your investments
 - [Architecture](#architecture)
 - [Resources](#resources)
 - [Documentation](#documentation)
+- [AI Instructions](#ai-instructions)
 - [XAML Styling](#xaml-styling)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -113,6 +114,11 @@ You can get ticker icons from this [Repository](https://github.com/davidepalazzo
 - [UI Overview](docs/UI/Overview.md)
 - [Core Overview](docs/Core/Overview.md)
 - [Tests Overview](docs/Tests/Overview.md)
+
+# AI Instructions
+- Entry point for AI assistants: `AGENTS.md`
+- Canonical source for assistant behavior: `.ai/core/`
+- Tool-specific adapters: `.ai/adapters/`
 
 # XAML Styling
 I use the [XAML Styler 2022](https://marketplace.visualstudio.com/items?itemName=TeamXavalon.XAMLStyler2022) extension to ensure consistent XAML styling across the project. The styling rules are configured in the `XAMLStylerConfiguration.json` file located in the project.

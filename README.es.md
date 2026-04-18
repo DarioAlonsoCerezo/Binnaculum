@@ -7,6 +7,7 @@ Aplicación basada en .NET MAUI para rastrear tus inversiones
 - [Arquitectura](#arquitectura)
 - [Recursos](#recursos)
 - [Documentacion](#documentacion)
+- [Instrucciones AI](#instrucciones-ai)
 - [Estilos XAML](#estilos-xaml)
 - [Instalación](#instalación)
 - [Uso](#uso)
@@ -111,6 +112,11 @@ Puedes obtener iconos de tickers de este [Repositorio](https://github.com/davide
 - [Resumen de UI](docs/UI/Overview.es.md)
 - [Resumen de Core](docs/Core/Overview.es.md)
 - [Resumen de pruebas](docs/Tests/Overview.es.md)
+
+# Instrucciones AI
+- Punto de entrada para asistentes AI: `AGENTS.md`
+- Fuente canónica para comportamiento de asistentes: `.ai/core/`
+- Adaptadores por herramienta: `.ai/adapters/`
 
 # Estilos XAML
 Utilizo la extensión [XAML Styler 2022](https://marketplace.visualstudio.com/items?itemName=TeamXavalon.XAMLStyler2022) para asegurar un estilo XAML consistente en todo el proyecto. Las reglas de estilo están configuradas en el archivo `XAMLStylerConfiguration.json` ubicado en el proyecto.
