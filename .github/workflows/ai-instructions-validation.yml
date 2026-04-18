@@ -1,0 +1,27 @@
+name: AI Instructions Validation
+
+on:
+  pull_request:
+    paths:
+      - "AGENTS.md"
+      - ".ai/**"
+      - "scripts/validate-ai-instructions.ps1"
+      - ".github/workflows/ai-instructions-validation.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "AGENTS.md"
+      - ".ai/**"
+      - "scripts/validate-ai-instructions.ps1"
+      - ".github/workflows/ai-instructions-validation.yml"
+
+jobs:
+  validate-ai-instructions:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate AI instruction structure
+        shell: pwsh
+        run: ./scripts/validate-ai-instructions.ps1
