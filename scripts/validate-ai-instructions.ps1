@@ -2,6 +2,13 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 
+$projectionScript = Join-Path $PSScriptRoot "generate-skill-projections.ps1"
+if (-not (Test-Path $projectionScript)) {
+  Write-Error "Missing required script: scripts/generate-skill-projections.ps1"
+}
+
+& $projectionScript
+
 $requiredFiles = @(
   "AGENTS.md",
   ".ai/core/project-context.md",
@@ -17,7 +24,8 @@ $requiredFiles = @(
   ".ai/registry/agents/sql-impact-analyzer.yaml",
   ".ai/adapters/copilot/sql-change.md",
   ".ai/adapters/claude/sql-change.md",
-  ".ai/adapters/opencode/sql-change.md"
+  ".ai/adapters/opencode/sql-change.md",
+  "scripts/generate-skill-projections.ps1"
 )
 
 $missing = @()
@@ -106,6 +114,110 @@ foreach ($pattern in $forbiddenLegacyGlobs) {
     $paths = $matches | ForEach-Object { $_.FullName.Replace($repoRoot.Path + [System.IO.Path]::DirectorySeparatorChar, "") }
     Write-Error ("Forbidden legacy paths exist for pattern " + $pattern + ": " + ($paths -join ", "))
   }
+}
+
+$canonicalSkillFiles = Get-ChildItem -Path (Join-Path $repoRoot ".ai/registry/skills") -Filter "*.yaml" -File -ErrorAction SilentlyContinue
+if (-not $canonicalSkillFiles -or $canonicalSkillFiles.Count -eq 0) {
+  Write-Error "No canonical skill definitions found under .ai/registry/skills"
+}
+
+foreach ($canonicalSkill in $canonicalSkillFiles) {
+  $canonicalContent = Get-Content $canonicalSkill.FullName -Raw
+  $idMatch = [regex]::Match($canonicalContent, '(?m)^\s*id\s*:\s*(.+?)\s*$')
+  if (-not $idMatch.Success) {
+    Write-Error "Canonical skill is missing required id: $($canonicalSkill.FullName)"
+  }
+
+  $skillId = $idMatch.Groups[1].Value.Trim()
+  if ($skillId -match '^[''\"](.*)[''\"]$') {
+    $skillId = $matches[1]
+  }
+
+  $expectedProjected = @(
+    ".github/skills/$skillId/SKILL.md",
+    ".opencode/skills/$skillId/SKILL.md",
+    ".claude/skills/$skillId/SKILL.md",
+    ".agents/skills/$skillId/SKILL.md"
+  )
+
+  foreach ($projected in $expectedProjected) {
+    if (-not (Test-Path (Join-Path $repoRoot $projected))) {
+      Write-Error "Missing projected SKILL.md for canonical skill '$skillId': $projected"
+    }
+  }
+}
+
+$skillPathPatterns = @(
+  ".github/skills/*/SKILL.md",
+  ".opencode/skills/*/SKILL.md",
+  ".claude/skills/*/SKILL.md",
+  ".agents/skills/*/SKILL.md"
+)
+
+$skillFiles = @()
+foreach ($pattern in $skillPathPatterns) {
+  $matches = Get-ChildItem -Path (Join-Path $repoRoot $pattern) -File -ErrorAction SilentlyContinue
+  if ($matches) {
+    $skillFiles += $matches
+  }
+}
+
+$skillSeenByPath = @{}
+
+foreach ($skillFile in $skillFiles) {
+  $relativePath = $skillFile.FullName.Replace($repoRoot.Path + [System.IO.Path]::DirectorySeparatorChar, "")
+  $skillDirName = Split-Path -Leaf (Split-Path -Parent $skillFile.FullName)
+  $content = Get-Content $skillFile.FullName -Raw
+
+  $frontmatterMatch = [regex]::Match($content, '(?s)\A---\r?\n(.*?)\r?\n---')
+  if (-not $frontmatterMatch.Success) {
+    Write-Error "Skill file missing YAML frontmatter: $relativePath"
+  }
+
+  $frontmatter = $frontmatterMatch.Groups[1].Value
+  $nameMatch = [regex]::Match($frontmatter, '(?m)^\s*name\s*:\s*(.+?)\s*$')
+  $descriptionMatch = [regex]::Match($frontmatter, '(?m)^\s*description\s*:\s*(.+?)\s*$')
+
+  if (-not $nameMatch.Success) {
+    Write-Error "Skill file missing required 'name' field: $relativePath"
+  }
+
+  if (-not $descriptionMatch.Success) {
+    Write-Error "Skill file missing required 'description' field: $relativePath"
+  }
+
+  $name = $nameMatch.Groups[1].Value.Trim()
+  $description = $descriptionMatch.Groups[1].Value.Trim()
+
+  if ($name -match '^[''\"](.*)[''\"]$') {
+    $name = $matches[1]
+  }
+
+  if ($description -match '^[''\"](.*)[''\"]$') {
+    $description = $matches[1]
+  }
+
+  if ($name.Length -lt 1 -or $name.Length -gt 64) {
+    Write-Error "Skill name length must be 1-64 characters: $relativePath"
+  }
+
+  if ($name -notmatch '^[a-z0-9]+(-[a-z0-9]+)*$') {
+    Write-Error "Skill name has invalid format: $relativePath ($name)"
+  }
+
+  if ($name -ne $skillDirName) {
+    Write-Error "Skill name must match directory name: $relativePath (name=$name, dir=$skillDirName)"
+  }
+
+  if ($description.Length -lt 1 -or $description.Length -gt 200) {
+    Write-Error "Skill description length must be 1-200 characters for cross-environment compatibility: $relativePath"
+  }
+
+  if ($skillSeenByPath.ContainsKey($relativePath)) {
+    Write-Error "Duplicate skill file path detected: $relativePath"
+  }
+
+  $skillSeenByPath[$relativePath] = $name
 }
 
 Write-Host "AI instruction validation passed."

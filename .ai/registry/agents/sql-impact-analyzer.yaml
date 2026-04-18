@@ -1,0 +1,42 @@
+id: sql-impact-analyzer
+title: SQL Impact Analyzer
+version: 1.0.0
+owner: core-team
+purpose: >-
+  Analyze the impact of SQL and schema-related changes across table dependencies,
+  indexes, transactional boundaries, and snapshot workflows before implementation.
+scope:
+  include:
+    - src/Core/SQL/*.fs
+    - src/Core/Database/*.fs
+    - src/Core/Models/*.fs
+    - src/Tests/Core.Tests/**/*.fs
+inputs:
+  - change_request
+  - candidate_tables
+outputs:
+  - impacted_files
+  - risk_assessment
+  - recommended_changes
+  - test_plan
+constraints:
+  - Must identify foreign key cascade implications.
+  - Must identify index implications for read-heavy queries.
+  - Must identify transaction boundary implications.
+  - Must propose validation steps aligned with .ai/core/commands.md.
+allowed_tools:
+  - cocoindex_search
+  - grep
+  - glob
+  - read
+  - bash
+analysis_steps:
+  - Identify target SQL modules and all references in database extensions.
+  - Map parent-child table relationships and cascade effects.
+  - Review query predicates/orderings against existing indexes.
+  - Identify snapshot and import pipeline touchpoints.
+  - Produce actionable risk-based implementation guidance.
+acceptance_criteria:
+  - Report includes impacted_files with rationale.
+  - Report includes high/medium/low risk assessment.
+  - Report includes concrete validation commands and test targets.
