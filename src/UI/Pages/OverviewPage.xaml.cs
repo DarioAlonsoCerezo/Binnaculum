@@ -50,7 +50,7 @@ public partial class OverviewPage
             .DisposeWith(Disposables);
 
         Core.UI.SavedPrefereces.UserPreferences
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(UiThread)
             .Select(x => x.AllowCreateAccount)
             .BindTo(AddAccount, x => x.IsVisible);
 
@@ -156,7 +156,7 @@ public partial class OverviewPage
     private double GetPercentage(double reference) => reference / (Height * 0.5) * 100;
 
     private IDisposable AnimateHistoryMaring() => Observable.Interval(TimeSpan.FromMilliseconds(16))
-        .ObserveOn(RxApp.MainThreadScheduler)
+        .ObserveOn(UiThread)
         .Subscribe(x =>
         {
             var shouldDispose = false;
