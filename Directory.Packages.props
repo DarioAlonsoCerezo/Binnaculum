@@ -1,8 +1,8 @@
 <Project>
 	<PropertyGroup>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-		<MauiVersion>10.0.31</MauiVersion>
-		<ReactiveUiVersion>22.3.1</ReactiveUiVersion>
+		<MauiVersion>10.0.51</MauiVersion>
+		<ReactiveUiVersion>23.2.1</ReactiveUiVersion>
 	</PropertyGroup>
 	<!-- MAUI -->
 	<ItemGroup>
@@ -19,42 +19,43 @@
 	<!-- FSharp -->
 	<ItemGroup>
 		<PackageVersion Include="FSharp.Data" Version="6.3.0" />
-		<PackageVersion Include="FSharp.Core" Version="10.0.102" />
+		<PackageVersion Include="FSharp.Core" Version="10.1.202" />
 	</ItemGroup>
 	<!-- SQLite -->
 	<ItemGroup>
-		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.2" />
+		<PackageVersion Include="Microsoft.Data.Sqlite.Core" Version="10.0.6" />
 		<PackageVersion Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
 	</ItemGroup>
 	<!-- ReactiveUI -->
 	<ItemGroup>
 		<PackageVersion Include="ReactiveUI" Version="$(ReactiveUiVersion)" />
 		<PackageVersion Include="ReactiveUI.Maui" Version="$(ReactiveUiVersion)" />
-		<PackageVersion Include="DynamicData" Version="9.4.1" />
+		<PackageVersion Include="DynamicData" Version="9.4.31" />
 		<PackageVersion Include="System.Reactive" Version="6.0.2" />
 	</ItemGroup>
 	<!-- Microsoft extensions -->
 	<ItemGroup>
 		<PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.8" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.2" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.6" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.8" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.2" />
+		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.6" />
+		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.6" />
 	</ItemGroup>
 	<!-- Testing -->
 	<ItemGroup>
-		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-		<PackageVersion Include="MSTest.TestFramework" Version="4.1.0" />
-		<PackageVersion Include="MSTest.TestAdapter" Version="4.1.0" />
-		<PackageVersion Include="NUnit" Version="4.4.0" />
-		<PackageVersion Include="NUnit.Analyzers" Version="4.11.2" />
-		<PackageVersion Include="NUnit3TestAdapter" Version="6.1.0" />
-		<PackageVersion Include="coverlet.collector" Version="6.0.4" />
+		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
+		<PackageVersion Include="MSTest.TestFramework" Version="4.2.1" />
+		<PackageVersion Include="MSTest.TestAdapter" Version="4.2.1" />
+		<PackageVersion Include="NUnit" Version="4.5.1" />
+		<PackageVersion Include="NUnit.Analyzers" Version="4.12.0" />
+		<PackageVersion Include="NUnit3TestAdapter" Version="6.2.0" />
+		<PackageVersion Include="coverlet.collector" Version="10.0.0" />
 		<!-- XUnit for Device Tests -->
 		<PackageVersion Include="xunit" Version="2.9.3" />
 		<PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
 		<!-- Appium for E2E Testing -->
-		<PackageVersion Include="Appium.WebDriver" Version="8.0.1" />
-		<PackageVersion Include="Selenium.WebDriver" Version="4.40.0" />
+		<PackageVersion Include="Appium.WebDriver" Version="8.2.0" />
+		<PackageVersion Include="Selenium.WebDriver" Version="4.43.0" />
 		<!-- Performance Testing -->
 		<PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
 		<!-- MAUI TestUtils - Note: Currently commented out in projects as it may not be available -->
@@ -62,15 +63,14 @@
 	</ItemGroup>
 	<!-- Others-->
 	<ItemGroup>
-		<PackageVersion Include="CommunityToolkit.Maui" Version="14.0.0" />
+		<PackageVersion Include="CommunityToolkit.Maui" Version="14.1.0" />
 		<PackageVersion Include="Plugin.Maui.Calendar" Version="3.0.1" />
 		<PackageVersion Include="Indiko.Maui.Controls.Markdown" Version="1.5.0" />
-		<PackageVersion Include="Sentry.Maui" Version="6.0.0" />
+		<PackageVersion Include="Sentry.Maui" Version="6.4.0" />
 		<!-- Command Line Interface -->
 		<PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
 		
-		<!-- Model Context Protocol -->
-		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
-		<PackageVersion Include="ModelContextProtocol" Version="0.4.0-preview.1" />
+		<!-- Model Context Protocol -->		
+		<PackageVersion Include="ModelContextProtocol" Version="1.2.0" />
 	</ItemGroup>
 </Project>
