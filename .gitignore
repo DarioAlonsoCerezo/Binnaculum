@@ -403,3 +403,5 @@ FodyWeavers.xsd
 *.sln.iml
 PerformanceTracking.md
 Statements
+# CocoIndex Code (ccc)
+/.cocoindex_code/
