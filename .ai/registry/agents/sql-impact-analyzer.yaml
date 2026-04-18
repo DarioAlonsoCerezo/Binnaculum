@@ -30,7 +30,7 @@ allowed_tools:
   - glob
   - read
   - bash
-analysis_steps:
+workflow_steps:
   - Identify target SQL modules and all references in database extensions.
   - Map parent-child table relationships and cascade effects.
   - Review query predicates/orderings against existing indexes.

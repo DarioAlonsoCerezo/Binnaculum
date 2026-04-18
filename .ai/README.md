@@ -48,7 +48,7 @@ For runtime compatibility, each environment expects a folder-based skill with `S
 
 In this repository, projections are generated automatically from canonical files by:
 
-- `./scripts/generate-skill-projections.ps1`
+- `./scripts/generate-ai-projections.ps1 -Only skills`
 
 This script deletes and recreates:
 
@@ -99,6 +99,81 @@ If using provider-specific fields (for example `allowed-tools` or `dependencies`
 
 - Confirm canonical entry exists in `.ai/registry/skills/`.
 - Confirm provider projections exist in adapter-managed locations.
-- Regenerate projections using `./scripts/generate-skill-projections.ps1`.
+- Regenerate projections using `./scripts/generate-ai-projections.ps1 -Only skills`.
 - Run `./scripts/validate-ai-instructions.ps1`.
 - Ensure no legacy-only skill locations are used as canonical source.
+
+## Cross-Environment Agent Standard
+
+Use this process when creating a new specialized agent that must work with GitHub Copilot and OpenCode while preserving a portable projection.
+
+### 1) Keep one canonical definition
+
+- Define the agent once in `.ai/registry/agents/`.
+- Keep behavior, workflow, and acceptance criteria canonical there.
+- Avoid provider-only instructions in the canonical definition.
+
+### 2) Project to provider-native agent files
+
+For runtime compatibility, each environment expects provider-native agent files.
+
+- Copilot-compatible location: `.github/agents/<id>.agent.md`
+- OpenCode-compatible location: `.opencode/agents/<id>.md`
+- Portable projection location: `.agents/agents/<id>.md`
+
+In this repository, projections are generated automatically from canonical files by:
+
+- `./scripts/generate-ai-projections.ps1 -Only agents`
+
+This script deletes and recreates:
+
+- `.github/agents/*`
+- `.opencode/agents/*`
+- `.agents/agents/*`
+
+Generated frontmatter is provider-specific:
+
+- GitHub (`.github/agents/*.agent.md`): `name`, `description`, and `tools` when mapped.
+- OpenCode (`.opencode/agents/*.md`): `name`, `description`, `mode`, `metadata`.
+- Agent-spec projection (`.agents/agents/*.md`): `name`, `description`, `metadata`.
+
+### 3) Enforce portable frontmatter
+
+For maximum compatibility, always include:
+
+- `name` (required)
+- `description` (required)
+
+Optional, portable fields:
+
+- `metadata`
+
+Provider-specific fields (for example Copilot `tools` or OpenCode `mode`) must be generated in provider projections and are not canonical.
+
+### 4) Follow strict naming and length constraints
+
+- `name` must match the canonical `id` and projected file name.
+- `name` format: lowercase alphanumeric plus single hyphen separators.
+- Regex: `^[a-z0-9]+(-[a-z0-9]+)*$`
+- Length: 1-64 chars.
+- Keep `description` <= 200 characters for cross-environment compatibility.
+
+### 5) Keep agent content focused
+
+- One repeatable workflow per agent.
+- Include clear activation cues (when to use).
+- Keep workflow steps deterministic and testable.
+- Keep scope explicit to avoid cross-layer drift.
+
+### 6) Validate before merge
+
+- Confirm canonical entry exists in `.ai/registry/agents/`.
+- Confirm provider projections exist in adapter-managed locations.
+- Regenerate projections using `./scripts/generate-ai-projections.ps1 -Only agents`.
+- Run `./scripts/validate-ai-instructions.ps1`.
+
+### Unified generation command
+
+To regenerate both skills and agents in one pass:
+
+- `./scripts/generate-ai-projections.ps1`

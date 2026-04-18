@@ -2,9 +2,9 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 
-$projectionScript = Join-Path $PSScriptRoot "generate-skill-projections.ps1"
+$projectionScript = Join-Path $PSScriptRoot "generate-ai-projections.ps1"
 if (-not (Test-Path $projectionScript)) {
-  Write-Error "Missing required script: scripts/generate-skill-projections.ps1"
+  Write-Error "Missing required script: scripts/generate-ai-projections.ps1"
 }
 
 & $projectionScript
@@ -25,7 +25,7 @@ $requiredFiles = @(
   ".ai/adapters/copilot/sql-change.md",
   ".ai/adapters/claude/sql-change.md",
   ".ai/adapters/opencode/sql-change.md",
-  "scripts/generate-skill-projections.ps1"
+  "scripts/generate-ai-projections.ps1"
 )
 
 $missing = @()
@@ -104,8 +104,7 @@ foreach ($legacyFile in $forbiddenLegacy) {
 }
 
 $forbiddenLegacyGlobs = @(
-  ".github/instructions/*.instructions.md",
-  ".github/skills/**"
+  ".github/instructions/*.instructions.md"
 )
 
 foreach ($pattern in $forbiddenLegacyGlobs) {
@@ -143,6 +142,36 @@ foreach ($canonicalSkill in $canonicalSkillFiles) {
   foreach ($projected in $expectedProjected) {
     if (-not (Test-Path (Join-Path $repoRoot $projected))) {
       Write-Error "Missing projected SKILL.md for canonical skill '$skillId': $projected"
+    }
+  }
+}
+
+$canonicalAgentFiles = Get-ChildItem -Path (Join-Path $repoRoot ".ai/registry/agents") -Filter "*.yaml" -File -ErrorAction SilentlyContinue
+if (-not $canonicalAgentFiles -or $canonicalAgentFiles.Count -eq 0) {
+  Write-Error "No canonical agent definitions found under .ai/registry/agents"
+}
+
+foreach ($canonicalAgent in $canonicalAgentFiles) {
+  $canonicalContent = Get-Content $canonicalAgent.FullName -Raw
+  $idMatch = [regex]::Match($canonicalContent, '(?m)^\s*id\s*:\s*(.+?)\s*$')
+  if (-not $idMatch.Success) {
+    Write-Error "Canonical agent is missing required id: $($canonicalAgent.FullName)"
+  }
+
+  $agentId = $idMatch.Groups[1].Value.Trim()
+  if ($agentId -match '^[''\"](.*)[''\"]$') {
+    $agentId = $matches[1]
+  }
+
+  $expectedProjected = @(
+    ".github/agents/$agentId.agent.md",
+    ".opencode/agents/$agentId.md",
+    ".agents/agents/$agentId.md"
+  )
+
+  foreach ($projected in $expectedProjected) {
+    if (-not (Test-Path (Join-Path $repoRoot $projected))) {
+      Write-Error "Missing projected agent for canonical agent '$agentId': $projected"
     }
   }
 }
@@ -218,6 +247,81 @@ foreach ($skillFile in $skillFiles) {
   }
 
   $skillSeenByPath[$relativePath] = $name
+}
+
+$agentPathPatterns = @(
+  ".github/agents/*.agent.md",
+  ".opencode/agents/*.md",
+  ".agents/agents/*.md"
+)
+
+$agentFiles = @()
+foreach ($pattern in $agentPathPatterns) {
+  $matches = Get-ChildItem -Path (Join-Path $repoRoot $pattern) -File -ErrorAction SilentlyContinue
+  if ($matches) {
+    $agentFiles += $matches
+  }
+}
+
+$agentSeenByPath = @{}
+
+foreach ($agentFile in $agentFiles) {
+  $relativePath = $agentFile.FullName.Replace($repoRoot.Path + [System.IO.Path]::DirectorySeparatorChar, "")
+  $baseName = [System.IO.Path]::GetFileNameWithoutExtension($agentFile.Name)
+  if ($agentFile.Name.EndsWith(".agent.md")) {
+    $baseName = [System.IO.Path]::GetFileNameWithoutExtension($baseName)
+  }
+  $content = Get-Content $agentFile.FullName -Raw
+
+  $frontmatterMatch = [regex]::Match($content, '(?s)\A---\r?\n(.*?)\r?\n---')
+  if (-not $frontmatterMatch.Success) {
+    Write-Error "Agent file missing YAML frontmatter: $relativePath"
+  }
+
+  $frontmatter = $frontmatterMatch.Groups[1].Value
+  $nameMatch = [regex]::Match($frontmatter, '(?m)^\s*name\s*:\s*(.+?)\s*$')
+  $descriptionMatch = [regex]::Match($frontmatter, '(?m)^\s*description\s*:\s*(.+?)\s*$')
+
+  if (-not $nameMatch.Success) {
+    Write-Error "Agent file missing required 'name' field: $relativePath"
+  }
+
+  if (-not $descriptionMatch.Success) {
+    Write-Error "Agent file missing required 'description' field: $relativePath"
+  }
+
+  $name = $nameMatch.Groups[1].Value.Trim()
+  $description = $descriptionMatch.Groups[1].Value.Trim()
+
+  if ($name -match '^[''\"](.*)[''\"]$') {
+    $name = $matches[1]
+  }
+
+  if ($description -match '^[''\"](.*)[''\"]$') {
+    $description = $matches[1]
+  }
+
+  if ($name.Length -lt 1 -or $name.Length -gt 64) {
+    Write-Error "Agent name length must be 1-64 characters: $relativePath"
+  }
+
+  if ($name -notmatch '^[a-z0-9]+(-[a-z0-9]+)*$') {
+    Write-Error "Agent name has invalid format: $relativePath ($name)"
+  }
+
+  if ($name -ne $baseName) {
+    Write-Error "Agent name must match file name: $relativePath (name=$name, file=$baseName)"
+  }
+
+  if ($description.Length -lt 1 -or $description.Length -gt 200) {
+    Write-Error "Agent description length must be 1-200 characters for cross-environment compatibility: $relativePath"
+  }
+
+  if ($agentSeenByPath.ContainsKey($relativePath)) {
+    Write-Error "Duplicate agent file path detected: $relativePath"
+  }
+
+  $agentSeenByPath[$relativePath] = $name
 }
 
 Write-Host "AI instruction validation passed."

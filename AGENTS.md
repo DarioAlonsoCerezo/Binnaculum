@@ -58,10 +58,15 @@ Provider-specific adapter mappings live in:
 - Claude: `.ai/adapters/claude/`
 - Copilot: `.ai/adapters/copilot/`
 
+Generated provider projections are created from canonical registry files:
+
+- Skills: `.github/skills/`, `.opencode/skills/`, `.claude/skills/`, `.agents/skills/`
+- Agents: `.github/agents/`, `.opencode/agents/`, `.agents/agents/`
+
 ## Legacy Policy
 
 Legacy assistant instruction files under `.github/` are not part of the canonical system.
-Do not reintroduce `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`, or `.github/skills/**`.
+Do not reintroduce `.github/copilot-instructions.md` or `.github/instructions/*.instructions.md`.
 
 ## Update Policy
 

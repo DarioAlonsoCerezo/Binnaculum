@@ -16,6 +16,7 @@
 - `.ai/adapters/copilot/sql-change.md`
 - `.ai/adapters/claude/sql-change.md`
 - `.ai/adapters/opencode/sql-change.md`
+- `scripts/generate-ai-projections.ps1`
 
 ## Required Adapter References
 
@@ -47,10 +48,24 @@ Each adapter must reference all four core files.
 - Critical rules must not diverge from core.
 - Skills and agents are canonical under `.ai/registry/` and mapped per provider adapter.
 
+## Required Generated Projections
+
+From canonical skills in `.ai/registry/skills/*.yaml`:
+
+- `.github/skills/<id>/SKILL.md`
+- `.opencode/skills/<id>/SKILL.md`
+- `.claude/skills/<id>/SKILL.md`
+- `.agents/skills/<id>/SKILL.md`
+
+From canonical agents in `.ai/registry/agents/*.yaml`:
+
+- `.github/agents/<id>.agent.md`
+- `.opencode/agents/<id>.md`
+- `.agents/agents/<id>.md`
+
 ## Forbidden Legacy Paths
 
 The following legacy paths must not exist:
 
 - `.github/copilot-instructions.md`
 - `.github/instructions/*.instructions.md`
-- `.github/skills/**`
