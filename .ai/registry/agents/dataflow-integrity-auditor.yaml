@@ -1,0 +1,66 @@
+id: dataflow-integrity-auditor
+title: Dataflow Integrity Auditor
+version: 1.0.0
+owner: core-team
+purpose: >-
+  Audit that all data insertion flows through the two established paths
+  (Creator for manual UI data, ImportManager for file imports) and verify
+  snapshot consistency requirements are met. Flag any third-path data
+  insertion violations, cross-responsibility breaches between Creator/
+  ImportManager, and missing snapshot triggers.
+scope:
+  include:
+    - src/Core/UI/Creator.fs
+    - src/Core/Storage/Saver.fs
+    - src/Core/UI/Tickers.fs
+    - src/Core/Import/ImportManager.fs
+    - src/Core/Import/DatabasePersistence.fs
+    - src/Core/Import/MovementPersistence.fs
+    - src/Core/Database/*Extensions.fs
+    - src/Core/Snapshots/
+  exclude:
+    - src/UI/**
+    - src/MCP/**
+    - src/Core/Database/ConnectionProvider.fs
+    - src/Core/Database/Database.fs
+    - src/Core/Database/*Extensions.fs
+    - src/Core/DataLoader/
+inputs:
+  - change_request
+  - touched_files
+  - data_type
+outputs:
+  - compliance_report
+  - violations_list
+  - missing_snapshots
+  - recommended_fixes
+constraints:
+  - Report ANY data insertion in modules outside Creator and ImportManager as a critical integrity violation.
+  - Verify that there are no cross-references between Creator and ImportManager (function imports, circular dependencies).
+  - Verify that each SaveXxx in Creator triggers all correct synchronization triggers.
+  - Seed data in startup loaders is out of scope.
+  - UI layer is out of scope.
+  - Classify each violation by severity: CRITICAL (new data path), MEDIUM (cross-responsibility breach), LOW (inconsistent snapshot).
+allowed_tools:
+  - cocoindex_search
+  - grep
+  - glob
+  - read
+  - bash
+workflow_steps:
+  - Identify all modules touched by the proposed change.
+  - For each module, detect whether it contains code that inserts, updates, or deletes data in the database.
+  - If the module inserting data is NOT Creator nor ImportManager: report as CRITICAL violation "third-path data insertion".
+  - For modules in Creator/ImportManager: verify no cross-calls between Creator and ImportManager (Creator calling ImportManager functions or vice versa).
+  - For each SaveXxx in Creator: verify all synchronization triggers (snapshots, reactive refresh) are present.
+  - Report all violations with severity, file locations, lines, and concrete corrective recommendations.
+acceptance_criteria:
+  - Report identifies ALL data insertions outside Creator or ImportManager.
+  - Report verifies absence of cross-responsibility links between Creator and ImportManager.
+  - Report verifies each SaveXxx triggers consistent snapshots.
+  - Report includes severity and exact location of each violation.
+  - Recommendations are concrete and aligned with the dataflow-integrity skill.
+examples:
+  - Audit a change that adds a new SaveTickerPrice in Creator.
+  - Audit a change that introduces a direct broker.save() in a Snapshots module.
+  - Audit a change that makes ImportManager call a Creator helper function.
