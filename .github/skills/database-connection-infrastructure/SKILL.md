@@ -1,7 +1,7 @@
 ---
 name: database-connection-infrastructure
-description: Define rules and conventions for managing SQLite database connections, connection lifecycle, mode switching, and test-only database utilities in the Core layer.
-tools:
+description: Define rules and conventions for managing SQLite database connections, connection lifecycle, mode switching, pruning of dead infrastructure code, and test-only database utilities in the Core layer.
+allowed-tools:
   - cocoindex_search
   - grep
   - glob

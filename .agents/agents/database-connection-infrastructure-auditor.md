@@ -1,6 +1,10 @@
 ---
 name: database-connection-infrastructure-auditor
-description: Audit and enforce the database connection infrastructure rules across Database.fs, ConnectionProvider, and DataResetExtensions to ensure connection lifecycle integrity, PRAGMA correctness, and no bypass patterns.
+description: Audit and enforce the database connection infrastructure rules across Database.fs, ConnectionProvider, and DataResetExtensions to ensure connection lifecycle integrity, PRAGMA correctness, and no b...
+metadata:
+  source: .ai/registry/agents/database-connection-infrastructure-auditor.yaml
+  version: 1.0.0
+  owner: core-team
 ---
 
 # Database Connection Infrastructure Auditor
