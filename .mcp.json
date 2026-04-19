@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "cocoindex": {
+      "type": "stdio",
+      "command": "pwsh",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-Command",
+        "Set-Location $env:BINNACULUM_COCO_INDEX; ccc mcp"
+      ],
+      "tools": ["*"]
+    }
+  }
+}

@@ -15,6 +15,14 @@ This directory centralizes AI assistant guidance for Binnaculum.
 - `adapters/`: tool-specific wrappers that reference `core/`.
 - `validation/`: validation specs for CI checks.
 
+## Configuration Files
+
+- `.mcp.json`: MCP server configuration for GitHub Copilot CLI. Configures provider-specific MCP endpoints that extend Copilot's capabilities.
+
+- `.opencode/`: OpenCode runtime directory (agents, skills, and packages).
+
+- `.claude/`: Claude Code runtime directory (skills and agents projections).
+
 ## Authoring Rules
 
 - Use technical English.
